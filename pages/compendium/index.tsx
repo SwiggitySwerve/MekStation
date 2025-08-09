@@ -7,6 +7,8 @@ import UnitCompendiumList from '../../components/compendium/UnitCompendiumList';
 import EquipmentCategoryNav from '../../components/compendium/EquipmentCategoryNav';
 import EquipmentFilters, { EquipmentFilterState } from '../../components/compendium/EquipmentFilters';
 import EquipmentCompendiumList from '../../components/compendium/EquipmentCompendiumList';
+import { useEffect } from 'react'
+import { useCatalogBrowser } from '../../hooks/catalog/useCatalogBrowser'
 
 const initialUnitFilters: UnitFilterState = { searchTerm: '', weightClass: '', techBase: '', hasQuirk: '', startYear: '', endYear: '' };
 const initialEquipmentFilters: EquipmentFilterState = { searchTerm: '', techBase: '', era: '' };
@@ -22,6 +24,21 @@ const CompendiumPage: React.FC = () => {
 
   const handleUnitFiltersApply = (filters: UnitFilterState) => setCurrentUnitFilters(filters);
   const handleEquipmentFiltersApply = (filters: EquipmentFilterState) => setCurrentEquipmentFilters(filters);
+
+  const {
+    items,
+    totalCount,
+    filters,
+    setFilters,
+    isLoading,
+    error,
+    setContext
+  } = useCatalogBrowser({ initialPageSize: 20, initialContext: { techBase: 'Inner Sphere', unitType: 'BattleMech' } })
+
+  useEffect(() => {
+    // Example: ensure context on mount
+    void setContext({ techBase: 'Inner Sphere', unitType: 'BattleMech' })
+  }, [])
 
   return (
     <>
@@ -74,6 +91,28 @@ const CompendiumPage: React.FC = () => {
             </div>
           </section>
         )}
+        <div className="p-4">
+      <h1 className="text-xl font-bold mb-2">Compendium</h1>
+      <div className="mb-2">
+        <input
+          className="border px-2 py-1"
+          placeholder="Search catalog..."
+          value={filters.text}
+          onChange={e => setFilters({ text: e.target.value })}
+        />
+      </div>
+      {isLoading && <div>Loading...</div>}
+      {error && <div className="text-red-500">{error}</div>}
+      <div className="text-sm text-slate-400 mb-2">Total: {totalCount}</div>
+      <ul className="space-y-1">
+        {items.slice(0, 20).map(it => (
+          <li key={it.id} className="border border-slate-700 rounded p-2">
+            <div className="font-medium">{it.name}</div>
+            <div className="text-xs text-slate-400">{it.kind} • {it.techBase} • {it.introductionYear}</div>
+          </li>
+        ))}
+      </ul>
+    </div>
       </div>
     </>
   );
