@@ -54,6 +54,9 @@ export class SearchIndex {
       // unit type
       if (criteria.unitType && i.unitType !== criteria.unitType) return false
       if (!criteria.unitType && i.unitType !== ctx.unitType) return false
+      // Restrict kinds when filters imply a kind
+      if (criteria.componentCategories && i.kind !== 'component') return false
+      if ((criteria.categories || typeof criteria.requiresAmmo === 'boolean') && i.kind !== 'equipment') return false
       // rules level
       if (criteria.rulesLevel && i.rulesLevel !== criteria.rulesLevel) return false
       // era
@@ -70,7 +73,7 @@ export class SearchIndex {
       }
       // requires ammo
       if (typeof criteria.requiresAmmo === 'boolean' && i.kind === 'equipment') {
-        if (i.requiresAmmo !== criteria.requiresAmmo) return false
+        if ((i as any).requiresAmmo !== criteria.requiresAmmo) return false
       }
       // metrics band filters
       const m = i.metrics
