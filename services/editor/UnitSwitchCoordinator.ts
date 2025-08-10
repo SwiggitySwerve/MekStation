@@ -75,3 +75,42 @@ export async function switchSubsystemOnUnit(
     ...diff
   }
 }
+
+export async function switchAllSubsystemsOnUnit(
+  unit: UnitCriticalManager,
+  newTechBase: 'Inner Sphere' | 'Clan',
+  memoryState: any | null,
+  context: Partial<TechContext> = { unitType: 'BattleMech' }
+): Promise<(SwitchResult & SwitchDiff) & { updatedMemoryState: any }> {
+  const order: Array<'gyro' | 'engine' | 'chassis' | 'armor' | 'heatsink' | 'movement' | 'targeting' | 'myomer'> = [
+    'gyro',
+    'engine',
+    'chassis',
+    'armor',
+    'heatsink',
+    'movement',
+    'targeting',
+    'myomer'
+  ]
+
+  let mem = memoryState
+  let aggregate: SwitchDiff = { displacedEquipmentIds: [], retainedEquipmentIds: [], retainedSameLocationIds: [] }
+  let lastResult: SwitchResult | null = null
+
+  for (const subsystem of order) {
+    const res = await switchSubsystemOnUnit(unit, subsystem, newTechBase, mem, context)
+    mem = res.updatedMemoryState
+    lastResult = res
+    aggregate = {
+      displacedEquipmentIds: Array.from(new Set([...aggregate.displacedEquipmentIds, ...res.displacedEquipmentIds])),
+      retainedEquipmentIds: Array.from(new Set([...aggregate.retainedEquipmentIds, ...res.retainedEquipmentIds])),
+      retainedSameLocationIds: Array.from(new Set([...aggregate.retainedSameLocationIds, ...res.retainedSameLocationIds]))
+    }
+  }
+
+  return {
+    ...(lastResult as SwitchResult),
+    ...aggregate,
+    updatedMemoryState: mem
+  }
+}

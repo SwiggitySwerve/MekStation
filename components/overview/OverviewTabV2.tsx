@@ -41,7 +41,7 @@ import {
   saveMemoryToStorage,
   loadMemoryFromStorage
 } from '../../utils/memoryPersistence'
-import { switchSubsystemOnUnit } from '../../services/editor/UnitSwitchCoordinator'
+import { switchSubsystemOnUnit, switchAllSubsystemsOnUnit } from '../../services/editor/UnitSwitchCoordinator'
 
 // Import extracted components
 import TechProgressionPanel from './TechProgressionPanel'
@@ -203,66 +203,26 @@ export const OverviewTabV2: React.FC<OverviewTabV2Props> = ({ readOnly = false }
   }, [unit, memoryState, updateConfiguration, readOnly, getCurrentComponentForSubsystem, getConfigPropertyForSubsystem])
 
   // Handle master tech base change with memory-aware component resolution
-  const handleMasterTechBaseChange = useCallback((newTechBase: string) => {
+  const handleMasterTechBaseChange = useCallback(async (newTechBase: string) => {
     console.log(`[OverviewTab] Master tech base change: → ${newTechBase}`)
     if (readOnly) {
       console.log('[OverviewTab] Skipping - readonly mode')
       return
     }
     try {
-      const currentConfig = unit?.getConfiguration()
-      if (!currentConfig) {
-        console.error('[OverviewTab] No current configuration available')
-        return
-      }
-      let newProgression: TechProgression
-      const componentUpdates: any = {}
-      if (newTechBase === 'Mixed') {
-        const currentProgression = (currentConfig as any).techProgression || {
-          chassis: 'Inner Sphere',
-          gyro: 'Inner Sphere',
-          engine: 'Inner Sphere',
-          heatsink: 'Inner Sphere',
-          targeting: 'Inner Sphere',
-          myomer: 'Inner Sphere',
-          movement: 'Inner Sphere',
-          armor: 'Inner Sphere'
+      if (newTechBase === 'Inner Sphere' || newTechBase === 'Clan') {
+        const res = await switchAllSubsystemsOnUnit(unit as any, newTechBase, memoryState, { unitType: 'BattleMech' })
+        if (res.updatedMemoryState && res.updatedMemoryState !== memoryState) {
+          setMemoryState(res.updatedMemoryState)
+          saveMemoryToStorage(res.updatedMemoryState)
         }
-        newProgression = currentProgression
-        console.log(`[OverviewTab] 🔄 Mixed mode: keeping current progression`)
-      } else if (newTechBase === 'Inner Sphere' || newTechBase === 'Clan') {
-        const subsystems: (keyof TechProgression)[] = [
-          'chassis', 'gyro', 'engine', 'heatsink', 'targeting', 'myomer', 'movement', 'armor'
-        ]
-        newProgression = {} as TechProgression
-        subsystems.forEach(subsystem => {
-          newProgression[subsystem] = newTechBase
-        })
-        console.log(`[OverviewTab] 🔄 Forcing all subsystems to ${newTechBase}`)
+        setRenderKey(prev => prev + 1)
+        console.log(`[OverviewTab] ✅ Master switch complete`, { newTechBase, displaced: res.displacedEquipmentIds.length })
+      } else if (newTechBase === 'Mixed') {
+        console.log(`[OverviewTab] 🔄 Mixed mode selected: no bulk switch applied`)
       } else {
         console.error('[OverviewTab] Invalid tech base:', newTechBase)
-        return
       }
-      const newTechRating = autoUpdateTechRating(
-        (currentConfig as any).introductionYear || 3025, 
-        newProgression, 
-        currentConfig
-      )
-      const finalConfig = {
-        ...currentConfig,
-        techBase: newTechBase as 'Inner Sphere' | 'Clan' | 'Mixed',
-        techProgression: newProgression,
-        techRating: newTechRating,
-        ...componentUpdates
-      }
-      console.log(`[OverviewTab] 🚀 Applying master tech base configuration:`, {
-        newTechBase,
-        componentChanges: Object.keys(componentUpdates).length,
-        techRating: newTechRating
-      })
-      updateConfiguration(finalConfig)
-      setRenderKey(prev => prev + 1)
-      console.log(`[OverviewTab] ✅ Master tech base update completed`)
     } catch (error) {
       console.error('[OverviewTab] Error updating master tech base:', error)
     }
