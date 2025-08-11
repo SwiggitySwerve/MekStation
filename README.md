@@ -168,6 +168,34 @@ The application provides REST API endpoints for accessing the database:
 - `GET /api/equipment` - List equipment with filtering
 - `GET /api/equipment/[id]` - Get specific equipment details
 
+## Unified Catalog (Equipment + Components)
+
+Use the Catalog Gateway anywhere in the app to search across equipment and construction components with tech-aware composite filters.
+
+```ts
+import { CatalogGateway } from '@/services/catalog'
+
+// Optionally set context once
+await CatalogGateway.setContext({ techBase: 'Inner Sphere', unitType: 'BattleMech', year: 3068, rulesLevel: 'Standard' })
+
+// Search
+const result = await CatalogGateway.search({ text: 'ER Medium', categories: ['Energy Weapons'], page: 1, pageSize: 25 })
+
+// Get by id
+const item = await CatalogGateway.getById('medium_laser_is')
+```
+
+React hook:
+
+```ts
+import { useCatalog } from '@/hooks/catalog/useCatalog'
+
+const { search, getById, setContext } = useCatalog({ techBase: 'Clan', unitType: 'BattleMech' })
+```
+
+API endpoint:
+- GET `/api/catalog?text=er%20medium&techBase=Inner%20Sphere&unitType=BattleMech&page=1&pageSize=25`
+
 ## Technology Stack
 
 - **Frontend**: Next.js 14, React 18, TypeScript

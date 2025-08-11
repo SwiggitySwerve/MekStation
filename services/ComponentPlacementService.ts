@@ -299,7 +299,32 @@ export class ComponentPlacementService implements IComponentPlacementService {
       'standard_jump_jet': COMPONENT_PLACEMENTS.JUMP_JETS,
       'case': COMPONENT_PLACEMENTS.CASE,
       'case_ii': COMPONENT_PLACEMENTS.CASE_II,
-      'supercharger': COMPONENT_PLACEMENTS.SUPERCHARGER
+      'supercharger': COMPONENT_PLACEMENTS.SUPERCHARGER,
+      'partial_wing': COMPONENT_PLACEMENTS.PARTIAL_WING,
+      // Torso electronics
+      'guardian_ecm': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'angel_ecm': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_ecm': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'beagle_active_probe': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_active_probe': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'bloodhound_active_probe': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'tag': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'light_tag': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'c3_master': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'c3_slave': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      // Targeting computers (IS/Clan tonnage variants)
+      'is_targeting_computer_1': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'is_targeting_computer_2': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'is_targeting_computer_3': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'is_targeting_computer_4': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'is_targeting_computer_5': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'is_targeting_computer_6': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_1': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_2': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_3': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_4': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_5': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS,
+      'clan_targeting_computer_6': COMPONENT_PLACEMENTS.TORSO_ELECTRONICS
     }
     
     return configMap[componentId] || null

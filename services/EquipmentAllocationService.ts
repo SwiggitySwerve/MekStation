@@ -9,6 +9,7 @@
 
 import { UnitConfiguration } from '../utils/criticalSlots/UnitCriticalManager';
 import { ComponentConfiguration } from '../types/componentConfiguration';
+import { SystemComponentRules } from '../utils/criticalSlots/SystemComponentRules';
 import { AutoAllocationManager } from './allocation/AutoAllocationManager';
 import { ValidationManager } from './allocation/ValidationManager';
 import { AnalysisManager } from './allocation/AnalysisManager';
@@ -674,11 +675,28 @@ export class EquipmentAllocationServiceImpl implements EquipmentAllocationServic
     const warnings: PlacementWarning[] = [];
     const restrictions: string[] = [];
     const suggestions: string[] = [];
-    
+ 
+    const normalizeLoc = (loc: string): string => {
+      const key = loc.replace(/\s+/g, '').toLowerCase()
+      switch (key) {
+        case 'head': return 'head'
+        case 'centertorso': return 'centerTorso'
+        case 'lefttorso': return 'leftTorso'
+        case 'righttorso': return 'rightTorso'
+        case 'leftarm': return 'leftArm'
+        case 'rightarm': return 'rightArm'
+        case 'leftleg': return 'leftLeg'
+        case 'rightleg': return 'rightLeg'
+        default: return loc
+      }
+    }
+
     const constraints = this.getEquipmentConstraints(equipment);
+    const locKey = normalizeLoc(location)
+ 
     
     // Check location restrictions
-    if (constraints.forbiddenLocations.includes(location)) {
+    if (constraints.forbiddenLocations.includes(locKey)) {
       errors.push({
         type: 'location_invalid',
         message: `${equipment.equipmentData?.name} cannot be mounted in ${location}`,
@@ -686,9 +704,48 @@ export class EquipmentAllocationServiceImpl implements EquipmentAllocationServic
         suggestedFix: `Try mounting in: ${constraints.allowedLocations.join(', ')}`
       });
     }
+    // Enforce allowed locations
+    if (!constraints.allowedLocations.includes(locKey)) {
+      errors.push({
+        type: 'location_invalid',
+        message: `${equipment.equipmentData?.name} cannot be mounted in ${location}`,
+        severity: 'critical',
+        suggestedFix: `Allowed locations: ${constraints.allowedLocations.join(', ')}`
+      })
+    }
     
-    // Check weight restrictions
-    if (location === 'head' && (equipment.equipmentData?.tonnage || 0) > 1) {
+    // Special rule: Supercharger must be placed in a torso location that contains engine slots
+    const eqName = (equipment.equipmentData?.name || equipment.name || '').toString().toLowerCase();
+    const eqBaseType = (equipment.equipmentData?.baseType || equipment.baseType || '').toString().toLowerCase();
+    const isSupercharger = eqName === 'supercharger' || eqBaseType === 'supercharger';
+    if (isSupercharger) {
+      const locNorm = location.replace(/\s+/g, '').toLowerCase();
+      const inCenter = locNorm === 'centertorso';
+      const inLeft = locNorm === 'lefttorso';
+      const inRight = locNorm === 'righttorso';
+      const engineType = (config as any)?.engineType || 'Standard';
+      const gyroValue = (config as any)?.gyroType || 'Standard';
+      const gyroType: ComponentConfiguration = typeof gyroValue === 'string'
+        ? { type: gyroValue, techBase: (config as any)?.techBase || 'Inner Sphere' }
+        : gyroValue as ComponentConfiguration;
+      const engineSlots = SystemComponentRules.getEngineAllocation(engineType as any, gyroType);
+      const hasEngineSlots = (
+        (inCenter && engineSlots.centerTorso.length > 0) ||
+        (inLeft && engineSlots.leftTorso.length > 0) ||
+        (inRight && engineSlots.rightTorso.length > 0)
+      );
+      if (!hasEngineSlots) {
+        errors.push({
+          type: 'rule_violation',
+          message: 'Supercharger must be placed in a torso location that contains engine slots',
+          severity: 'critical',
+          suggestedFix: 'Move Supercharger to Center, Left, or Right Torso containing engine slots for the current engine/gyro'
+        });
+      }
+    }
+ 
+     // Check weight restrictions
+    if (locKey === 'head' && (equipment.equipmentData?.tonnage || 0) > 1) {
       errors.push({
         type: 'weight_exceeded',
         message: 'Head location limited to 1 ton equipment',
@@ -709,13 +766,30 @@ export class EquipmentAllocationServiceImpl implements EquipmentAllocationServic
     }
     
     // Generate warnings for suboptimal placement
-    if (equipment.equipmentData?.type === 'ammunition' && location === 'head') {
+    if (equipment.equipmentData?.type === 'ammunition' && locKey === 'head') {
       warnings.push({
         type: 'vulnerability',
         message: 'Ammunition in head location is highly vulnerable',
         recommendation: 'Consider torso or leg placement with CASE protection',
         impact: 'high'
       });
+    }
+
+    // Artemis dependency: warn if no compatible missile weapons present
+    const baseType = (equipment.equipmentData?.baseType || equipment.baseType || '').toString().toLowerCase();
+    if (baseType.includes('artemis')) {
+      const hasMissile = ((config as any)?.weapons || []).some((w: any) => {
+        const n = (w?.name || '').toString().toLowerCase();
+        return n.includes('lrm') || n.includes('srm') || n.includes('mrm') || n.includes('streak');
+      });
+      if (!hasMissile) {
+        warnings.push({
+          type: 'dependency',
+          message: 'Artemis installed without compatible missile weapons',
+          recommendation: 'Add LRM/SRM/MRM/Streak missiles to benefit from Artemis',
+          impact: 'low'
+        } as any);
+      }
     }
     
     return {
@@ -863,7 +937,7 @@ export class EquipmentAllocationServiceImpl implements EquipmentAllocationServic
   // Utility methods
   getEquipmentConstraints(equipment: any): EquipmentConstraints {
     const type = equipment.equipmentData?.type || 'equipment';
-    const allowedLocations = ['head', 'centerTorso', 'leftTorso', 'rightTorso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'];
+    let allowedLocations = ['head', 'centerTorso', 'leftTorso', 'rightTorso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'];
     const forbiddenLocations: string[] = [];
     
     // Apply type-specific restrictions
@@ -873,6 +947,44 @@ export class EquipmentAllocationServiceImpl implements EquipmentAllocationServic
     
     if (equipment.equipmentData?.tonnage > 1) {
       forbiddenLocations.push('head'); // No heavy equipment in head
+    }
+
+    // Targeting Computer: torso-only restriction
+    const baseType = (equipment.equipmentData?.baseType || equipment.baseType || '').toString().toLowerCase();
+    if (baseType === 'targeting computer') {
+      allowedLocations = ['centerTorso', 'leftTorso', 'rightTorso'];
+    }
+
+    // Common EW systems typically mount in torsos: ECM, Active Probe, TAG, C3
+    if (
+      baseType === 'guardian ecm' ||
+      baseType === 'angel ecm' ||
+      baseType === 'clan ecm suite' ||
+      baseType === 'beagle active probe' ||
+      baseType === 'clan active probe' ||
+      baseType === 'bloodhound active probe' ||
+      baseType === 'target acquisition gear' ||
+      baseType === 'light target acquisition gear' ||
+      baseType === 'c3 master computer' ||
+      baseType === 'c3 slave unit'
+    ) {
+      allowedLocations = ['centerTorso', 'leftTorso', 'rightTorso'];
+    }
+
+    // Prototype Artemis IV: torso-only and requires compatible missile weapons (LRM/SRM/MRM/Streak)
+    if (baseType === 'prototype artemis iv' || baseType === 'artemis iv') {
+      allowedLocations = ['centerTorso', 'leftTorso', 'rightTorso'];
+    }
+
+    // Partial Wing: LT/RT only
+    if (baseType === 'partial wing') {
+      allowedLocations = ['leftTorso', 'rightTorso']
+      forbiddenLocations.push('centerTorso')
+      forbiddenLocations.push('head')
+      forbiddenLocations.push('leftArm')
+      forbiddenLocations.push('rightArm')
+      forbiddenLocations.push('leftLeg')
+      forbiddenLocations.push('rightLeg')
     }
     
     return {

@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { FullEquipment } from '../../../types';
 import { EditableUnit, CriticalSlotAssignment } from '../../../types/editor';
+import { SystemComponentRules } from '../../../utils/criticalSlots/SystemComponentRules';
+import { ComponentConfiguration as CoreComponentConfiguration } from '../../../types/componentConfiguration';
 
 export interface PlacementOptions {
   strategy: 'balanced' | 'concentrated' | 'distributed' | 'manual';
@@ -456,6 +458,26 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
     const { canFit } = canFitInLocation(equipment, location, unit);
     if (!canFit) {
       errors.push(`Not enough space in ${location} for ${equipment.name}`);
+    }
+
+    // Enforce Supercharger rule: must be placed in a location that currently has engine slots
+    const isSupercharger = equipment.name?.toLowerCase() === 'supercharger' || equipment.baseType === 'Supercharger';
+    if (isSupercharger) {
+      // Derive engine and gyro types from unit
+      const engineType = (unit as any)?.engineType || 'Standard';
+      const gyroValue = (unit as any)?.gyroType || 'Standard';
+      const gyroType: CoreComponentConfiguration =
+        typeof gyroValue === 'string' ? { type: gyroValue, techBase: (unit as any)?.techBase || 'Inner Sphere' } : gyroValue;
+
+      const engineSlots = SystemComponentRules.getEngineAllocation(engineType as any, gyroType);
+      const hasEngineSlotsInLocation = (
+        (location === 'Center Torso' && engineSlots.centerTorso.length > 0) ||
+        (location === 'Left Torso' && engineSlots.leftTorso.length > 0) ||
+        (location === 'Right Torso' && engineSlots.rightTorso.length > 0)
+      );
+      if (!hasEngineSlotsInLocation) {
+        errors.push('Supercharger must be placed in a torso location that contains engine slots');
+      }
     }
 
     // Check restrictions
