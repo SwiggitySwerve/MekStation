@@ -30,9 +30,9 @@ describe('AutoAllocationManager', () => {
       jumpJetType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      gyroType: 'Standard' as ComponentConfiguration,
+      structureType: 'Standard' as ComponentConfiguration,
+      armorType: 'Standard' as ComponentConfiguration,
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 31, rear: 10 },
@@ -44,7 +44,7 @@ describe('AutoAllocationManager', () => {
         RL: { front: 21, rear: 7 }
       },
       armorTonnage: 19.5,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      heatSinkType: 'Single' as ComponentConfiguration,
       totalHeatSinks: 20,
       internalHeatSinks: 12,
       externalHeatSinks: 8,
@@ -84,7 +84,7 @@ describe('AutoAllocationManager', () => {
 
   describe('Equipment Allocation', () => {
     test('should allocate weapons automatically', () => {
-      const weapons = mockEquipment.filter(eq => eq.type === 'weapon');
+      const weapons = mockEquipment.filter(eq => eq === 'weapon');
       const result = autoAllocationManager.autoAllocateWeapons(weapons, mockConfig);
       
       expect(result).toBeDefined();
@@ -172,7 +172,7 @@ describe('AutoAllocationManager', () => {
 
   describe('Allocation Results', () => {
     test('should return proper weapon allocation results', () => {
-      const weapons = mockEquipment.filter(eq => eq.type === 'weapon');
+      const weapons = mockEquipment.filter(eq => eq === 'weapon');
       const result = autoAllocationManager.autoAllocateWeapons(weapons, mockConfig);
       
       // Test that the result structure is correct

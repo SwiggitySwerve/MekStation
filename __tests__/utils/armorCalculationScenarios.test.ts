@@ -19,9 +19,9 @@ describe('Armor Calculation Scenarios', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      gyroType: 'Standard' as ComponentConfiguration,
+      structureType: 'Standard' as ComponentConfiguration,
+      armorType: 'Standard' as ComponentConfiguration,
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 30, rear: 10 },
@@ -33,7 +33,7 @@ describe('Armor Calculation Scenarios', () => {
         RL: { front: 30, rear: 0 }
       },
       armorTonnage: 8.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      heatSinkType: 'Single' as ComponentConfiguration,
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,
@@ -245,7 +245,7 @@ describe('Armor Calculation Scenarios', () => {
       // 8 tons × 17.92 = 143.36 → but system calculates 147
       const unit = createTestUnit({
         tonnage: 50,
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        armorType: 'Ferro-Fibrous' as ComponentConfiguration,
         armorTonnage: 8.0,
         armorAllocation: {
           HD: { front: 9, rear: 0 },

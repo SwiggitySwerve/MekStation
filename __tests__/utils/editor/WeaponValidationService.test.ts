@@ -588,9 +588,9 @@ describe('WeaponValidationService', () => {
       const optimization = WeaponValidationService.suggestWeaponOptimizations(weapons, unit)
 
       expect(optimization.heatOptimization).toHaveLength(2)
-      expect(optimization.heatOptimization[0].type).toBe('add')
+      expect(optimization.heatOptimization[0]).toBe('add')
       expect(optimization.heatOptimization[0].weapon).toBe('Heat Sinks')
-      expect(optimization.heatOptimization[1].type).toBe('replace')
+      expect(optimization.heatOptimization[1]).toBe('replace')
     })
 
     it('should suggest range optimization for unbalanced loadouts', () => {
@@ -604,7 +604,7 @@ describe('WeaponValidationService', () => {
       const optimization = WeaponValidationService.suggestWeaponOptimizations(shortRangeWeapons, unit)
 
       expect(optimization.rangeOptimization).toHaveLength(1)
-      expect(optimization.rangeOptimization[0].type).toBe('add')
+      expect(optimization.rangeOptimization[0]).toBe('add')
       expect(optimization.rangeOptimization[0].weapon).toBe('Long Range Weapons')
     })
 
@@ -619,7 +619,7 @@ describe('WeaponValidationService', () => {
       const optimization = WeaponValidationService.suggestWeaponOptimizations(heavyWeapons, unit)
 
       expect(optimization.weightOptimization).toHaveLength(1)
-      expect(optimization.weightOptimization[0].type).toBe('replace')
+      expect(optimization.weightOptimization[0]).toBe('replace')
       expect(optimization.weightOptimization[0].weapon).toBe('Heavy Weapons')
     })
 

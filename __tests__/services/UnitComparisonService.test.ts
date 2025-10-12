@@ -222,7 +222,7 @@ describe('UnitComparisonService', () => {
       
       const result = service.compareUnits([tab])
       
-      const armorRec = result.recommendations.find(r => r.type === 'armor')
+      const armorRec = result.recommendations.find(r => r === 'armor')
       expect(armorRec).toBeDefined()
       expect(armorRec?.severity).toBe('warning')
       expect(armorRec?.message).toContain('Low armor protection')
@@ -244,7 +244,7 @@ describe('UnitComparisonService', () => {
       
       const result = service.compareUnits([tab])
       
-      const heatRec = result.recommendations.find(r => r.type === 'heat')
+      const heatRec = result.recommendations.find(r => r === 'heat')
       expect(heatRec).toBeDefined()
       expect(heatRec?.severity).toBe('warning')
       expect(heatRec?.message).toContain('Poor heat management')
@@ -258,7 +258,7 @@ describe('UnitComparisonService', () => {
       
       const result = service.compareUnits([tab])
       
-      const mobilityRec = result.recommendations.find(r => r.type === 'engine')
+      const mobilityRec = result.recommendations.find(r => r === 'engine')
       expect(mobilityRec).toBeDefined()
       expect(mobilityRec?.severity).toBe('info')
       expect(mobilityRec?.message).toContain('Low mobility')
@@ -270,7 +270,7 @@ describe('UnitComparisonService', () => {
       
       const result = service.compareUnits([tab])
       
-      const weaponRec = result.recommendations.find(r => r.type === 'weapons')
+      const weaponRec = result.recommendations.find(r => r === 'weapons')
       expect(weaponRec).toBeDefined()
       expect(weaponRec?.severity).toBe('error')
       expect(weaponRec?.message).toContain('No weapons detected')

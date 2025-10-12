@@ -12,6 +12,7 @@ import {
   migrateStringToComponentConfiguration,
   getComponentTypeNames
 } from '../../types/componentConfiguration'
+import { GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/components'
 import { JumpJetType } from '../jumpJetCalculations'
 import { EngineType } from './SystemComponentRules'
 
@@ -42,29 +43,29 @@ export class ComponentTypeManager {
   /**
    * Get gyro type as string
    */
-  static getGyroTypeString(gyroType: ComponentConfiguration): string {
-    return gyroType.type
+  static getGyroTypeString(gyroType: GyroType | ComponentConfiguration): string {
+    return typeof gyroType === 'string' ? gyroType : gyroType.type
   }
 
   /**
    * Get structure type as string
    */
-  static getStructureTypeString(structureType: ComponentConfiguration): string {
-    return structureType.type
+  static getStructureTypeString(structureType: StructureType | ComponentConfiguration): string {
+    return typeof structureType === 'string' ? structureType : structureType.type
   }
 
   /**
    * Get armor type as string
    */
-  static getArmorTypeString(armorType: ComponentConfiguration): string {
-    return armorType.type
+  static getArmorTypeString(armorType: ArmorType | ComponentConfiguration): string {
+    return typeof armorType === 'string' ? armorType : armorType.type
   }
 
   /**
    * Get heat sink type as string
    */
-  static getHeatSinkTypeString(heatSinkType: ComponentConfiguration): string {
-    return heatSinkType.type
+  static getHeatSinkTypeString(heatSinkType: HeatSinkType | ComponentConfiguration): string {
+    return typeof heatSinkType === 'string' ? heatSinkType : heatSinkType.type
   }
 
   /**

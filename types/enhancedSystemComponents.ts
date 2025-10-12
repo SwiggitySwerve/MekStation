@@ -368,6 +368,7 @@ export function getEngineSurvivabilityDescription(engineType: EngineType): strin
 export function getHeatSinkEfficiency(heatSinkType: HeatSinkType): number {
   const efficiencyMap: { [key in HeatSinkType]: number } = {
     'Single': 1.0,           // 1 dissipation / 1 slot = 1.0
+    'Double': 0.67,          // Default to IS stats - 2 dissipation / 3 slots = 0.67
     'Double (IS)': 0.67,     // 2 dissipation / 3 slots = 0.67
     'Double (Clan)': 1.0,    // 2 dissipation / 2 slots = 1.0
     'Compact': 1.0,          // 1 dissipation / 1 slot = 1.0

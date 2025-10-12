@@ -419,7 +419,7 @@ describe('StructureValidationService', () => {
       const analysis = StructureValidationService.analyzeArmorDistribution(unit)
 
       expect(analysis.suggestions.length).toBeGreaterThan(0)
-      expect(analysis.suggestions.some(s => s.type === 'rebalance')).toBe(true)
+      expect(analysis.suggestions.some(s => s === 'rebalance')).toBe(true)
       expect(analysis.suggestions.some(s => s.priority === 'high')).toBe(true)
     })
 
@@ -440,7 +440,7 @@ describe('StructureValidationService', () => {
       const analysis = StructureValidationService.analyzeArmorDistribution(unit)
 
       expect(analysis.suggestions.some(s => 
-        s.type === 'redistribute' && s.benefit.includes('frontal protection')
+        s === 'redistribute' && s.benefit.includes('frontal protection')
       )).toBe(true)
     })
 

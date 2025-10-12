@@ -224,6 +224,8 @@ export function calculateComponentCrits(unit: any): ComponentCrits {
   const jumpMP = unit.data?.movement?.jump_mp || 0;
   const jumpType = unit.data?.movement?.jump_type || 'Jump Jet';
   const armorType = unit.data?.armor?.type || 'Standard';
+  const heatSinkCount = unit.data?.heatSinks?.total || 10;
+  const heatSinkType = unit.data?.heatSinks?.type || 'Single';
   const enhancements = unit.data?.enhancements || [];
   
   const crits = {

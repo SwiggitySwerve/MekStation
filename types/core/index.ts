@@ -11,6 +11,9 @@
 export * from './BaseTypes';
 
 // ===== VALIDATION INTERFACES =====
+// Export all interfaces from ValidationInterfaces
+// Note: Some duplicate interface definitions have been commented out in ValidationInterfaces.ts
+// to avoid conflicts with CalculationInterfaces.ts
 export * from './ValidationInterfaces';
 
 // ===== CALCULATION INTERFACES =====
@@ -272,7 +275,7 @@ export function migrateToTypedConfiguration(legacy: any): Result<ICompleteUnitCo
           rightLeg: 0
         }
       },
-      enhancement: legacy.enhancementType ? [{ type: legacy.enhancementType, techBase: 'Inner Sphere' }] : [],
+      enhancement: { type: 'None', techBase, weight: 0, slots: 0, effect: {} as any },
       equipment: legacy.equipment || [],
       groups: legacy.groups || [],
       metadata: {

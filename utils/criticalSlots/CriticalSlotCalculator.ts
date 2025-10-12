@@ -33,6 +33,53 @@ import {
   TOTAL_CRITICAL_SLOTS
 } from './CriticalSlotTypes';
 
+// Type definition for the breakdown returned by getCompleteBreakdown
+export interface CriticalSlotBreakdown {
+  structural: {
+    fixedComponents: number;
+    systemComponents: number;
+    specialComponents: number;
+    total: number;
+  };
+  equipment: {
+    allocated: number;
+    unallocated: number;
+    total: number;
+  };
+  totals: {
+    capacity: number;
+    used: number;
+    remaining: number;
+    equipmentBurden: number;
+    overCapacity: number;
+  };
+  debug?: {
+    fixedBreakdown: {
+      head: { total: number };
+      arms: { total: number };
+      legs: { total: number };
+      total: number;
+    };
+    systemBreakdown: {
+      engine: number;
+      gyro: number;
+      total: number;
+    };
+    specialBreakdown: {
+      structure: number;
+      armor: number;
+      jumpJets: number;
+      total: number;
+    };
+    equipmentBreakdown: {
+      allocated: number;
+      unallocated: number;
+      total: number;
+    };
+  };
+  locationBreakdown?: any; // Optional location-based breakdown
+}
+
 export interface CriticalSlotCalculator {
   // Core slot calculations
   calculateRequiredSlots(config: UnitConfiguration, equipment: EquipmentAllocation[]): SlotRequirements;

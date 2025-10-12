@@ -13,10 +13,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 50,
     engineRating: 200,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     armorAllocation: {
       head: 9,
       centerTorso: 16,
@@ -38,7 +38,7 @@ function createTestEquipment(items: Array<{ tonnage?: number, type?: string, nam
     id: `item-${index}`,
     equipmentData: {
       tonnage: item.tonnage || 1,
-      type: item.type || 'weapon',
+      type: item || 'weapon',
       name: item.name || `Test Item ${index}`,
       heat: 0,
       criticals: 1
@@ -76,7 +76,7 @@ describe('WeightRulesValidator', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.overweight).toBeGreaterThan(0)
-      expect(result.violations.some(v => v.type === 'overweight')).toBe(true)
+      expect(result.violations.some(v => v === 'overweight')).toBe(true)
       expect(result.recommendations.length).toBeGreaterThan(0)
     })
 
@@ -137,7 +137,7 @@ describe('WeightRulesValidator', () => {
       // With strict tolerance, should flag as overweight
       expect(resultStrict.violations.length).toBeGreaterThan(0)
       // With lenient tolerance, should pass
-      expect(resultLenient.violations.filter(v => v.type === 'overweight').length).toBe(0)
+      expect(resultLenient.violations.filter(v => v === 'overweight').length).toBe(0)
     })
   })
 
@@ -181,8 +181,8 @@ describe('WeightRulesValidator', () => {
     })
 
     it('should handle Endo Steel structure weight reduction', () => {
-      const standardConfig = createTestConfig({ structureType: { type: 'Standard', techBase: 'Inner Sphere' } })
-      const endoConfig = createTestConfig({ structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' } })
+      const standardConfig = createTestConfig({ structureType: 'Standard' })
+      const endoConfig = createTestConfig({ structureType: 'Endo Steel' })
 
       const standardWeight = WeightRulesValidator.calculateTotalWeight(standardConfig, [])
       const endoWeight = WeightRulesValidator.calculateTotalWeight(endoConfig, [])
@@ -239,7 +239,7 @@ describe('WeightRulesValidator', () => {
     it('should include systems weight', () => {
       const config = createTestConfig({
         engineRating: 300,
-        gyroType: { type: 'Heavy Duty', techBase: 'Inner Sphere' }
+        gyroType: 'Heavy Duty'
       })
 
       const distribution = WeightRulesValidator.calculateWeightDistribution(config, [])
@@ -263,7 +263,7 @@ describe('WeightRulesValidator', () => {
     it('should suggest Endo Steel for standard structure', () => {
       const config = createTestConfig({ 
         tonnage: 30,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       })
       const equipment = createTestEquipment([{ tonnage: 25 }])
 
@@ -410,7 +410,7 @@ describe('WeightRulesValidator', () => {
 
       const result = WeightRulesValidator.validateWeightLimits(config, equipment)
 
-      expect(result.violations.some(v => v.type === 'overweight')).toBe(true)
+      expect(result.violations.some(v => v === 'overweight')).toBe(true)
       expect(result.totalWeight).toBeGreaterThan(100)
     })
   })

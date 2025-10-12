@@ -154,7 +154,7 @@ export interface UnitConfiguration {
  */
 export interface LegacyUnitConfiguration {
   engineType: EngineType
-  gyroType: ComponentConfiguration
+  gyroType: GyroType
   mass: number
   unitType: 'BattleMech' | 'IndustrialMech'
 } 

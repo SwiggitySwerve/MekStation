@@ -21,9 +21,9 @@ describe('Armor Waste Calculation', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorTonnage: 10, // Start with 10 tons of armor
       armorAllocation: {
         HD: { front: 9, rear: 0 },    // Max head armor
@@ -35,7 +35,7 @@ describe('Armor Waste Calculation', () => {
         LL: { front: 24, rear: 0 },   // Left leg
         RL: { front: 24, rear: 0 }    // Right leg
       },
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,

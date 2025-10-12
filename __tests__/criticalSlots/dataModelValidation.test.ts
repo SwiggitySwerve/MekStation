@@ -12,19 +12,19 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
     const armorConfig = createComponentConfiguration('armor', 'Ferro-Fibrous');
     
     console.log('[DATA_MODEL_TEST] Structure config:', {
-      type: structureConfig?.type,
+      type: structureConfig?,
       techBase: structureConfig?.techBase
     });
     
     console.log('[DATA_MODEL_TEST] Armor config:', {
-      type: armorConfig?.type,
+      type: armorConfig?,
       techBase: armorConfig?.techBase
     });
     
     expect(structureConfig).toBeDefined();
     expect(armorConfig).toBeDefined();
-    expect(structureConfig?.type).toBe('Endo Steel');
-    expect(armorConfig?.type).toBe('Ferro-Fibrous');
+    expect(structureConfig?).toBe('Endo Steel');
+    expect(armorConfig?).toBe('Ferro-Fibrous');
     
     // Test 2: Create full unit configuration with ComponentConfiguration objects
     const unitConfig: UnitConfiguration = {
@@ -38,10 +38,10 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
       runMP: 5,
       engineType: 'Standard',
       jumpMP: 0,
-      jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+      jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: createComponentConfiguration('gyro', 'Standard')!,
+      gyroType: 'Standard',
       structureType: structureConfig!,
       armorType: armorConfig!,
       armorAllocation: {
@@ -55,7 +55,7 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
         RL: { front: 20, rear: 6 },
       },
       armorTonnage: 19,
-      heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 10,
       externalHeatSinks: 0,
@@ -64,8 +64,8 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
     };
     
     console.log('[DATA_MODEL_TEST] Full unit config structure/armor types:', {
-      structureType: unitConfig.structureType?.type,
-      armorType: unitConfig.armorType?.type
+      structureType: unitConfig.structureType?,
+      armorType: unitConfig.armorType?
     });
     
     // Test 3: Create UnitCriticalManager and verify it receives the config correctly
@@ -73,12 +73,12 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
     const managerConfig = manager.getConfiguration();
     
     console.log('[DATA_MODEL_TEST] Manager received config:', {
-      structureType: managerConfig.structureType?.type,
-      armorType: managerConfig.armorType?.type
+      structureType: managerConfig.structureType?,
+      armorType: managerConfig.armorType?
     });
     
-    expect(managerConfig.structureType?.type).toBe('Endo Steel');
-    expect(managerConfig.armorType?.type).toBe('Ferro-Fibrous');
+    expect(managerConfig.structureType?).toBe('Endo Steel');
+    expect(managerConfig.armorType?).toBe('Ferro-Fibrous');
     
     // Test 4: Check unallocated equipment
     const unallocated = manager.getUnallocatedEquipment();
@@ -112,12 +112,12 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
       runMP: 5,
       engineType: 'Standard',
       jumpMP: 0,
-      jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+      jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: createComponentConfiguration('gyro', 'Standard')!,
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!,
+      gyroType: 'Standard',
+      structureType: 'Endo Steel',
+      armorType: 'Ferro-Fibrous',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 30, rear: 10 },
@@ -129,7 +129,7 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
         RL: { front: 20, rear: 6 },
       },
       armorTonnage: 19,
-      heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 10,
       externalHeatSinks: 0,
@@ -174,12 +174,12 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
       runMP: 5,
       engineType: 'Standard',
       jumpMP: 0,
-      jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+      jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: createComponentConfiguration('gyro', 'Standard')!,
-      structureType: createComponentConfiguration('structure', 'Standard')!,
-      armorType: createComponentConfiguration('armor', 'Standard')!,
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 30, rear: 10 },
@@ -191,7 +191,7 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
         RL: { front: 20, rear: 6 },
       },
       armorTonnage: 19,
-      heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 10,
       externalHeatSinks: 0,
@@ -202,16 +202,16 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
     const manager = new UnitCriticalManager(standardConfig);
     
     console.log('[DATA_MODEL_TEST] Initial config (Standard/Standard):', {
-      structureType: manager.getConfiguration().structureType?.type,
-      armorType: manager.getConfiguration().armorType?.type,
+      structureType: manager.getConfiguration().structureType?,
+      armorType: manager.getConfiguration().armorType?,
       unallocatedCount: manager.getUnallocatedEquipment().length
     });
     
     // Change to Endo Steel and Ferro-Fibrous
     const updatedConfig: UnitConfiguration = {
       ...standardConfig,
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!
+      structureType: 'Endo Steel',
+      armorType: 'Ferro-Fibrous'
     };
     
     console.log('[DATA_MODEL_TEST] Updating configuration to Endo Steel/Ferro-Fibrous');
@@ -223,15 +223,15 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
     const ferroFibrousCount = finalUnallocated.filter(eq => eq.equipmentData.id === 'ferro_fibrous').length;
     
     console.log('[DATA_MODEL_TEST] After configuration update:', {
-      structureType: finalConfig.structureType?.type,
-      armorType: finalConfig.armorType?.type,
+      structureType: finalConfig.structureType?,
+      armorType: finalConfig.armorType?,
       totalUnallocated: finalUnallocated.length,
       endoSteel: endoSteelCount,
       ferroFibrous: ferroFibrousCount
     });
     
-    expect(finalConfig.structureType?.type).toBe('Endo Steel');
-    expect(finalConfig.armorType?.type).toBe('Ferro-Fibrous');
+    expect(finalConfig.structureType?).toBe('Endo Steel');
+    expect(finalConfig.armorType?).toBe('Ferro-Fibrous');
     expect(endoSteelCount).toBe(14);
     expect(ferroFibrousCount).toBe(14);
     
@@ -253,12 +253,12 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
       runMP: 5,
       engineType: 'Standard',
       jumpMP: 0,
-      jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+      jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: createComponentConfiguration('gyro', 'Standard')!,
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!,
+      gyroType: 'Standard',
+      structureType: 'Endo Steel',
+      armorType: 'Ferro-Fibrous',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 30, rear: 10 },
@@ -270,7 +270,7 @@ describe('Data Model Validation - Endo Steel and Ferro-Fibrous', () => {
         RL: { front: 20, rear: 6 },
       },
       armorTonnage: 19,
-      heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 10,
       externalHeatSinks: 0,

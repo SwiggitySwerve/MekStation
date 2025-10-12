@@ -130,7 +130,7 @@ describe('ArmorAllocationPanel', () => {
       
       const frontInput = screen.getByLabelText('Front') as HTMLInputElement;
       await userEvent.clear(frontInput);
-      await userEvent.type(frontInput, '35');
+      await userEvent(frontInput, '35');
       
       // Check that mockOnArmorLocationChange was called (the specific value may vary due to user event behavior)
       expect(mockOnArmorLocationChange).toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe('ArmorAllocationPanel', () => {
       
       const rearInput = screen.getByLabelText('Rear') as HTMLInputElement;
       await userEvent.clear(rearInput);
-      await userEvent.type(rearInput, '15');
+      await userEvent(rearInput, '15');
       
       // Check that mockOnArmorLocationChange was called
       expect(mockOnArmorLocationChange).toHaveBeenCalled();
@@ -299,7 +299,7 @@ describe('ArmorAllocationPanel', () => {
       
       const frontInput = screen.getByLabelText('Front') as HTMLInputElement;
       await userEvent.clear(frontInput);
-      await userEvent.type(frontInput, 'invalid');
+      await userEvent(frontInput, 'invalid');
       
       // Should call with 0 for invalid input
       expect(mockOnArmorLocationChange).toHaveBeenCalledWith('CT', 0, 10);
@@ -422,7 +422,7 @@ describe('ArmorAllocationPanel', () => {
       const startTime = performance.now();
       for (let i = 0; i < 5; i++) { // Reduced iterations for more reliable performance
         await userEvent.clear(frontInput);
-        await userEvent.type(frontInput, i.toString());
+        await userEvent(frontInput, i.toString());
       }
       const endTime = performance.now();
       

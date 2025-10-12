@@ -117,8 +117,8 @@ describe('SystemComponentsGateway', () => {
         unitTonnage: 50
       })
 
-      const battleMechIndustrial = battleMechStructures.find(s => s.type === 'Industrial')
-      const industrialMechIndustrial = industrialMechStructures.find(s => s.type === 'Industrial')
+      const battleMechIndustrial = battleMechStructures.find(s => s === 'Industrial')
+      const industrialMechIndustrial = industrialMechStructures.find(s => s === 'Industrial')
 
       expect(battleMechIndustrial).toBeUndefined()
       expect(industrialMechIndustrial).toBeDefined()

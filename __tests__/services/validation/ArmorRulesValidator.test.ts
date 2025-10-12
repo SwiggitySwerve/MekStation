@@ -12,10 +12,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 65,
     engineRating: 260,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     armorAllocation: {
       head: 9,
       centerTorso: { front: 20, rear: 10 },
@@ -60,15 +60,15 @@ describe('ArmorRulesValidator', () => {
 
     test('should reject invalid armor type', () => {
       const config = createTestConfig({ 
-        armorType: { type: 'InvalidArmorType', techBase: 'Inner Sphere' }
+        armorType: 'InvalidArmorType'
       });
       
       const result = ArmorRulesValidator.validateArmorRules(config);
       
       expect(result.isValid).toBe(false);
       expect(result.violations.length).toBeGreaterThan(0);
-      expect(result.violations.some(v => v.type === 'invalid_type')).toBe(true);
-      expect(result.violations.find(v => v.type === 'invalid_type')?.severity).toBe('critical');
+      expect(result.violations.some(v => v === 'invalid_type')).toBe(true);
+      expect(result.violations.find(v => v === 'invalid_type')?.severity).toBe('critical');
     });
 
     test('should detect total armor exceeding maximum', () => {
@@ -90,7 +90,7 @@ describe('ArmorRulesValidator', () => {
       
       expect(result.isValid).toBe(false);
       expect(result.totalArmor).toBe(199); // Actual calculation from the validator
-      expect(result.violations.some(v => v.type === 'exceeds_maximum')).toBe(true);
+      expect(result.violations.some(v => v === 'exceeds_maximum')).toBe(true);
       expect(result.violations.some(v => v.severity === 'critical')).toBe(true);
     });
 
@@ -114,7 +114,7 @@ describe('ArmorRulesValidator', () => {
       expect(result.isValid).toBe(false);
       expect(result.locationLimits.head.isValid).toBe(false);
       expect(result.violations.some(v => 
-        v.type === 'location_violation' && v.location === 'head'
+        v === 'location_violation' && v.location === 'head'
       )).toBe(true);
     });
 
@@ -143,7 +143,7 @@ describe('ArmorRulesValidator', () => {
     test('should recommend Ferro-Fibrous armor for heavy units', () => {
       const config = createTestConfig({ 
         tonnage: 80,
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' }
+        armorType: 'Standard'
       });
       
       const result = ArmorRulesValidator.validateArmorRules(config);
@@ -337,7 +337,7 @@ describe('ArmorRulesValidator', () => {
       
       expect(result.totalArmor).toBe(87); // 9+22+11+17+7+7+7+7
       expect(result.isValid).toBe(true); // Current implementation behavior - location violations not detected
-      expect(result.violations.some(v => v.type === 'location_violation')).toBe(false);
+      expect(result.violations.some(v => v === 'location_violation')).toBe(false);
     });
 
     test('should validate extreme tonnage values', () => {
@@ -353,7 +353,7 @@ describe('ArmorRulesValidator', () => {
 
     test('should handle different armor type configurations', () => {
       const standardConfig = createTestConfig({ 
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+        armorType: 'Standard',
         armorAllocation: {
           head: 9,
           centerTorso: { front: 14, rear: 8 },
@@ -366,7 +366,7 @@ describe('ArmorRulesValidator', () => {
         }
       });
       const ferroConfig = createTestConfig({ 
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' },
+        armorType: 'Ferro-Fibrous',
         armorAllocation: {
           head: 9,
           centerTorso: { front: 14, rear: 8 },
@@ -408,7 +408,7 @@ describe('ArmorRulesValidator', () => {
     test('should validate complex armor configurations', () => {
       const complexConfig = createTestConfig({
         tonnage: 100,
-        armorType: { type: 'Ferro-Fibrous (Clan)', techBase: 'Clan' },
+        armorType: 'Ferro-Fibrous (Clan)',
         armorAllocation: {
           head: 9,
           centerTorso: { front: 20, rear: 12 },

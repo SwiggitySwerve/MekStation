@@ -6,33 +6,20 @@
  */
 
 // Component definitions with internal IDs and display names
-export const COMPONENT_DEFINITIONS = {
+export const COMPONENT_DEFINITIONS: Record<string, string> = {
   'endo_steel': 'Endo Steel',
-  'endo_steel': 'Endo Steel Structure',
   'endo_steel_clan': 'Endo Steel (Clan)',
-  'endo_steel_clan': 'Endo Steel (Clan) Structure',
   'composite': 'Composite',
-  'composite': 'Composite Structure',
   'reinforced': 'Reinforced',
-  'reinforced': 'Reinforced Structure',
   'industrial': 'Industrial',
-  'industrial': 'Industrial Structure',
   'ferro_fibrous': 'Ferro-Fibrous',
-  'ferro_fibrous': 'Ferro-Fibrous Armor',
   'ferro_fibrous_clan': 'Ferro-Fibrous (Clan)',
-  'ferro_fibrous_clan': 'Ferro-Fibrous (Clan) Armor',
   'light_ferro_fibrous': 'Light Ferro-Fibrous',
-  'light_ferro_fibrous': 'Light Ferro-Fibrous Armor',
   'heavy_ferro_fibrous': 'Heavy Ferro-Fibrous',
-  'heavy_ferro_fibrous': 'Heavy Ferro-Fibrous Armor',
   'stealth_armor': 'Stealth',
-  'stealth_armor': 'Stealth Armor',
   'reactive_armor': 'Reactive',
-  'reactive_armor': 'Reactive Armor',
   'reflective_armor': 'Reflective',
-  'reflective_armor': 'Reflective Armor',
   'hardened_armor': 'Hardened',
-  'hardened_armor': 'Hardened Armor',
   'single_heat_sink': 'Single Heat Sink',
   'double_heat_sink': 'Double Heat Sink',
   'double_heat_sink_clan': 'Double Heat Sink (Clan)',
@@ -107,7 +94,7 @@ export function isArmorComponent(id: string): boolean {
  * Migrate old display names to new IDs (for legacy data)
  */
 export function migrateOldNameToId(name: string): string {
-  const mappings = {
+  const mappings: Record<string, string> = {
     'Endo Steel Structure': 'endo_steel',
     'Endo Steel (Clan) Structure': 'endo_steel_clan',
     'Composite Structure': 'composite',

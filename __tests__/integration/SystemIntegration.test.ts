@@ -391,7 +391,7 @@ describe('System Integration Tests', () => {
 
       // Subscribe to sync events
       const unsubscribe = syncService.subscribe((event) => {
-        eventCounts[event.type] = (eventCounts[event.type] || 0) + 1
+        eventCounts[event] = (eventCounts[event.type] || 0) + 1
       })
 
       // Simulate rapid operations

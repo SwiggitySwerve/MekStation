@@ -238,7 +238,7 @@ describe('Enhanced Auto-Allocation System', () => {
         const slots = centerTorso.getAllSlots()
         slots.forEach((slot, index) => {
           if (slot.isSystemSlot()) {
-            expect(slot.content?.type).toBe('system')
+            expect(slot.content?).toBe('system')
           }
         })
       }

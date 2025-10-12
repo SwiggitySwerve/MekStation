@@ -12,10 +12,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 65,
     engineRating: 260,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     techBase: 'Inner Sphere',
     jumpMP: 0,
     ...overrides
@@ -100,8 +100,8 @@ describe('MovementRulesValidator', () => {
       
       expect(lowResult.isValid).toBe(false);
       expect(highResult.isValid).toBe(false);
-      expect(lowResult.violations.some(v => v.type === 'invalid_engine_rating')).toBe(true);
-      expect(highResult.violations.some(v => v.type === 'invalid_engine_rating')).toBe(true);
+      expect(lowResult.violations.some(v => v === 'invalid_engine_rating')).toBe(true);
+      expect(highResult.violations.some(v => v === 'invalid_engine_rating')).toBe(true);
     });
 
     test('should handle zero engine rating', () => {
@@ -223,7 +223,7 @@ describe('MovementRulesValidator', () => {
       const result = MovementRulesValidator.validateMovementRules(config);
       
       expect(result.isValid).toBe(false);
-      expect(result.violations.some(v => v.type === 'jump_mp_violation')).toBe(true);
+      expect(result.violations.some(v => v === 'jump_mp_violation')).toBe(true);
     });
   });
 

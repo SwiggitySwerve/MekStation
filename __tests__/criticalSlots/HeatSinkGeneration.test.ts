@@ -24,8 +24,8 @@ describe('Heat Sink Generation', () => {
       engineRating: 200, // 200 rating = 8 internal heat sinks
       runMP: 6,
       engineType: 'Standard',
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 20, rear: 6 },
@@ -37,7 +37,7 @@ describe('Heat Sink Generation', () => {
         RL: { front: 16, rear: 0 }
       },
       armorTonnage: 8.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 12,        // Total heat sinks
       internalHeatSinks: 8,      // Internal (from 200-rated engine)
       externalHeatSinks: 4,      // External (12 - 8 = 4)
@@ -46,7 +46,7 @@ describe('Heat Sink Generation', () => {
       jumpJetCounts: {},
       hasPartialWing: false,
       mass: 50,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
       enhancements: []
     }
 
@@ -70,7 +70,7 @@ describe('Heat Sink Generation', () => {
     // Find heat sink equipment
     const heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('Found heat sink equipment:', heatSinks.length)
@@ -81,7 +81,7 @@ describe('Heat Sink Generation', () => {
     // Assertions
     expect(heatSinks.length).toBe(4) // Should have 4 external heat sinks
     expect(heatSinks[0].equipmentData.name).toBe('Single Heat Sink')
-    expect(heatSinks[0].equipmentData.type).toBe('heat_sink')
+    expect(heatSinks[0].equipmentData).toBe('heat_sink')
     expect(heatSinks[0].equipmentData.requiredSlots).toBe(1)
   })
 
@@ -96,8 +96,8 @@ describe('Heat Sink Generation', () => {
       engineRating: 300, // 300 rating = 10 internal heat sinks
       runMP: 6,
       engineType: 'Standard',
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 25, rear: 8 },
@@ -109,7 +109,7 @@ describe('Heat Sink Generation', () => {
         RL: { front: 20, rear: 0 }
       },
       armorTonnage: 12.0,
-      heatSinkType: { type: 'Double', techBase: 'Inner Sphere' },
+      heatSinkType: 'Double',
       totalHeatSinks: 15,        // Total heat sinks
       internalHeatSinks: 10,     // Internal (from 300-rated engine)
       externalHeatSinks: 5,      // External (15 - 10 = 5)
@@ -118,7 +118,7 @@ describe('Heat Sink Generation', () => {
       jumpJetCounts: {},
       hasPartialWing: false,
       mass: 75,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
       enhancements: []
     }
 
@@ -130,7 +130,7 @@ describe('Heat Sink Generation', () => {
     
     const heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('Found heat sinks:', heatSinks.length)
@@ -154,8 +154,8 @@ describe('Heat Sink Generation', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 20, rear: 6 },
@@ -167,7 +167,7 @@ describe('Heat Sink Generation', () => {
         RL: { front: 16, rear: 0 }
       },
       armorTonnage: 8.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 12,
       internalHeatSinks: 8,
       externalHeatSinks: 4,
@@ -176,7 +176,7 @@ describe('Heat Sink Generation', () => {
       jumpJetCounts: {},
       hasPartialWing: false,
       mass: 50,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
       enhancements: []
     }
 
@@ -188,7 +188,7 @@ describe('Heat Sink Generation', () => {
     let unallocated = manager.getUnallocatedEquipment()
     let heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('Initial heat sinks:', heatSinks.length)
@@ -209,7 +209,7 @@ describe('Heat Sink Generation', () => {
     unallocated = manager.getUnallocatedEquipment()
     heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('After update heat sinks:', heatSinks.length)
@@ -218,7 +218,7 @@ describe('Heat Sink Generation', () => {
     // Change heat sink type to Double
     const doubleConfig = {
       ...newConfig,
-      heatSinkType: { type: 'Double', techBase: 'Inner Sphere' } as const
+      heatSinkType: 'Double' as const
     }
     
     console.log('Changing to Double heat sinks...')
@@ -228,7 +228,7 @@ describe('Heat Sink Generation', () => {
     unallocated = manager.getUnallocatedEquipment()
     heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('After type change heat sinks:', heatSinks.length)
@@ -249,8 +249,8 @@ describe('Heat Sink Generation', () => {
       engineRating: 160,
       runMP: 12,
       engineType: 'Standard',
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 12, rear: 4 },
@@ -262,7 +262,7 @@ describe('Heat Sink Generation', () => {
         RL: { front: 8, rear: 0 }
       },
       armorTonnage: 4.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,        // Only minimum 10
       internalHeatSinks: 10,     // All internal (160 rating provides 6, but minimum 10)
       externalHeatSinks: 0,      // No external heat sinks needed
@@ -271,7 +271,7 @@ describe('Heat Sink Generation', () => {
       jumpJetCounts: {},
       hasPartialWing: false,
       mass: 20,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
       enhancements: []
     }
 
@@ -292,7 +292,7 @@ describe('Heat Sink Generation', () => {
     
     const heatSinks = unallocated.filter(eq => 
       eq.equipmentData.name.includes('Heat Sink') || 
-      eq.equipmentData.type === 'heat_sink'
+      eq.equipmentData === 'heat_sink'
     )
     
     console.log('Found heat sinks:', heatSinks.length)

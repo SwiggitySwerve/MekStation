@@ -14,10 +14,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 50,
     engineRating: 200,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     techBase: 'Inner Sphere',
     ...overrides
   } as UnitConfiguration;

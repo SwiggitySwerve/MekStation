@@ -32,6 +32,7 @@ export interface EquipmentObject {
 }
 
 export interface EquipmentAllocation {
+  id?: string // Optional unique identifier for this allocation
   equipmentGroupId: string
   equipmentData: EquipmentObject
   location: string

@@ -15,7 +15,7 @@ import {
 } from './components';
 
 // Re-export types for convenience
-export { EngineType, GyroType, CockpitType, StructureType, ArmorType, HeatSinkType, TechBase };
+export type { EngineType, GyroType, CockpitType, StructureType, ArmorType, HeatSinkType, TechBase };
 
 export interface EngineComponent {
   type: EngineType;

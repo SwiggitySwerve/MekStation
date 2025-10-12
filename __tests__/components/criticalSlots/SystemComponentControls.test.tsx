@@ -212,7 +212,7 @@ describe('SystemComponentControls', () => {
       expect(consoleSpy.log).toHaveBeenCalledWith('Structure change:', 'Endo Steel');
       expect(mockUpdateConfiguration).toHaveBeenCalledWith(
         expect.objectContaining({ 
-          structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+          structureType: 'Endo Steel'
         })
       );
     });
@@ -244,7 +244,7 @@ describe('SystemComponentControls', () => {
 
       expect(mockUpdateConfiguration).toHaveBeenCalledWith(
         expect.objectContaining({ 
-          gyroType: { type: 'XL', techBase: 'Inner Sphere' }
+          gyroType: 'XL'
         })
       );
     });
@@ -475,7 +475,7 @@ describe('SystemComponentControls', () => {
 
       expect(mockUpdateConfiguration).toHaveBeenCalledWith(
         expect.objectContaining({ 
-          heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+          heatSinkType: 'Double'
         })
       );
     });
@@ -591,7 +591,7 @@ describe('SystemComponentControls', () => {
 
       expect(mockUpdateConfiguration).toHaveBeenCalledWith(
         expect.objectContaining({ 
-          armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' }
+          armorType: 'Ferro-Fibrous'
         })
       );
     });

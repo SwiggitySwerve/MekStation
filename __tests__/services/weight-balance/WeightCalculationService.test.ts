@@ -24,9 +24,9 @@ describe('WeightCalculationService', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 15, rear: 4 },
@@ -38,7 +38,7 @@ describe('WeightCalculationService', () => {
         RL: { front: 10, rear: 0 }
       },
       armorTonnage: 6.5,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,
@@ -129,11 +129,11 @@ describe('WeightCalculationService', () => {
       expect(weights.jumpJets.weight).toBeGreaterThanOrEqual(0);
       
       // Verify component types
-      expect(weights.structure.type).toBe('Standard');
-      expect(weights.engine.type).toBe('Standard');
-      expect(weights.gyro.type).toBe('Standard');
-      expect(weights.heatSinks.type).toBe('Single');
-      expect(weights.armor.type).toBe('Standard');
+      expect(weights.structure).toBe('Standard');
+      expect(weights.engine).toBe('Standard');
+      expect(weights.gyro).toBe('Standard');
+      expect(weights.heatSinks).toBe('Single');
+      expect(weights.armor).toBe('Standard');
     });
 
     it('should calculate efficiency ratings', () => {
@@ -177,7 +177,7 @@ describe('WeightCalculationService', () => {
         const structure = WeightCalculationService.calculateStructureWeight(mockConfig);
         
         expect(structure.weight).toBe(5); // ceil(50/10) = 5
-        expect(structure.type).toBe('Standard');
+        expect(structure).toBe('Standard');
         expect(structure.efficiency).toBe(1.0);
       });
 
@@ -190,7 +190,7 @@ describe('WeightCalculationService', () => {
         const structure = WeightCalculationService.calculateStructureWeight(endoConfig);
         
         expect(structure.weight).toBe(2.5); // ceil(50/10) * 0.5 = 2.5
-        expect(structure.type).toBe('Endo Steel');
+        expect(structure).toBe('Endo Steel');
         expect(structure.efficiency).toBe(2.0);
       });
     });
@@ -200,7 +200,7 @@ describe('WeightCalculationService', () => {
         const engine = WeightCalculationService.calculateEngineWeight(mockConfig);
         
         expect(engine.weight).toBe(8); // 200/25 = 8
-        expect(engine.type).toBe('Standard');
+        expect(engine).toBe('Standard');
         expect(engine.rating).toBe(200);
         expect(engine.efficiency).toBe(1.0);
       });
@@ -210,7 +210,7 @@ describe('WeightCalculationService', () => {
         const engine = WeightCalculationService.calculateEngineWeight(xlConfig);
         
         expect(engine.weight).toBe(4); // 200/25 * 0.5 = 4
-        expect(engine.type).toBe('XL');
+        expect(engine).toBe('XL');
         expect(engine.efficiency).toBe(2.0);
       });
 
@@ -219,7 +219,7 @@ describe('WeightCalculationService', () => {
         const engine = WeightCalculationService.calculateEngineWeight(lightConfig);
         
         expect(engine.weight).toBe(6); // 200/25 * 0.75 = 6
-        expect(engine.type).toBe('Light');
+        expect(engine).toBe('Light');
         expect(engine.efficiency).toBe(1.33);
       });
     });
@@ -229,7 +229,7 @@ describe('WeightCalculationService', () => {
         const gyro = WeightCalculationService.calculateGyroWeight(mockConfig);
         
         expect(gyro.weight).toBe(2); // ceil(200/100) = 2
-        expect(gyro.type).toBe('Standard');
+        expect(gyro).toBe('Standard');
         expect(gyro.efficiency).toBe(1.0);
       });
 
@@ -242,7 +242,7 @@ describe('WeightCalculationService', () => {
         const gyro = WeightCalculationService.calculateGyroWeight(xlGyroConfig);
         
         expect(gyro.weight).toBe(1); // ceil(200/100) * 0.5 = 1
-        expect(gyro.type).toBe('XL');
+        expect(gyro).toBe('XL');
         expect(gyro.efficiency).toBe(2.0);
       });
     });
@@ -254,7 +254,7 @@ describe('WeightCalculationService', () => {
         expect(heatSinks.internal).toBe(0); // Internal heat sinks don't add weight
         expect(heatSinks.external).toBe(2); // 2 external * 1.0 = 2
         expect(heatSinks.total).toBe(2);
-        expect(heatSinks.type).toBe('Single');
+        expect(heatSinks).toBe('Single');
         expect(heatSinks.efficiency).toBe(1.0);
       });
 
@@ -267,7 +267,7 @@ describe('WeightCalculationService', () => {
         const heatSinks = WeightCalculationService.calculateHeatSinkWeight(doubleConfig);
         
         expect(heatSinks.external).toBe(2); // 2 external * 1.0 = 2
-        expect(heatSinks.type).toBe('Double');
+        expect(heatSinks).toBe('Double');
         expect(heatSinks.efficiency).toBe(2.0);
       });
     });
@@ -277,7 +277,7 @@ describe('WeightCalculationService', () => {
         const armor = WeightCalculationService.calculateArmorWeight(mockConfig);
         
         expect(armor.weight).toBe(6.5);
-        expect(armor.type).toBe('Standard');
+        expect(armor).toBe('Standard');
         expect(armor.points).toBe(98); // Sum of all allocated armor points
         expect(armor.efficiency).toBe(1.0);
       });
@@ -290,7 +290,7 @@ describe('WeightCalculationService', () => {
         
         const armor = WeightCalculationService.calculateArmorWeight(ferroConfig);
         
-        expect(armor.type).toBe('Ferro-Fibrous');
+        expect(armor).toBe('Ferro-Fibrous');
         expect(armor.efficiency).toBeCloseTo(1.1, 2); // 35.2/32 ≈ 1.1
       });
     });
@@ -301,7 +301,7 @@ describe('WeightCalculationService', () => {
         
         expect(jumpJets.weight).toBe(0);
         expect(jumpJets.count).toBe(0);
-        expect(jumpJets.type).toBe('None');
+        expect(jumpJets).toBe('None');
         expect(jumpJets.efficiency).toBe(0);
       });
 
@@ -312,7 +312,7 @@ describe('WeightCalculationService', () => {
         // 50-ton mech with 4 jump MP: ceil(50/10) * 4 * 0.5 = 5 * 4 * 0.5 = 10 tons
         expect(jumpJets.weight).toBe(10);
         expect(jumpJets.count).toBe(4);
-        expect(jumpJets.type).toBe('Standard Jump Jet');
+        expect(jumpJets).toBe('Standard Jump Jet');
         expect(jumpJets.efficiency).toBe(1.0);
       });
 
@@ -408,10 +408,10 @@ describe('WeightCalculationService', () => {
       
       const weights = WeightCalculationService.calculateComponentWeights(stringConfig as any);
       
-      expect(weights.structure.type).toBe('Endo Steel');
-      expect(weights.armor.type).toBe('Ferro-Fibrous');
-      expect(weights.heatSinks.type).toBe('Double');
-      expect(weights.gyro.type).toBe('XL');
+      expect(weights.structure).toBe('Endo Steel');
+      expect(weights.armor).toBe('Ferro-Fibrous');
+      expect(weights.heatSinks).toBe('Double');
+      expect(weights.gyro).toBe('XL');
     });
   });
 });

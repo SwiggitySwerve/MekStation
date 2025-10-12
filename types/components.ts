@@ -29,7 +29,8 @@ export type StructureType =
   | 'Endo Steel' 
   | 'Endo Steel (Clan)' 
   | 'Composite' 
-  | 'Reinforced';
+  | 'Reinforced'
+  | 'Industrial';
 
 export type ArmorType = 
   | 'Standard' 
@@ -37,13 +38,18 @@ export type ArmorType =
   | 'Ferro-Fibrous (Clan)' 
   | 'Light Ferro-Fibrous' 
   | 'Heavy Ferro-Fibrous' 
-  | 'Stealth';
+  | 'Stealth'
+  | 'Reactive'
+  | 'Reflective'
+  | 'Hardened';
 
 export type HeatSinkType = 
   | 'Single' 
   | 'Double' 
   | 'Double (IS)' 
-  | 'Double (Clan)';
+  | 'Double (Clan)'
+  | 'Compact'
+  | 'Laser';
 
 export type CockpitType = 
   | 'Standard' 
@@ -74,7 +80,7 @@ export function isGyroType(value: string): value is GyroType {
  * Type guard to check if a value is a valid StructureType
  */
 export function isStructureType(value: string): value is StructureType {
-  return ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced'].includes(value);
+  return ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced', 'Industrial'].includes(value);
 }
 
 /**

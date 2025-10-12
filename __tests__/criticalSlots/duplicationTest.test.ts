@@ -14,12 +14,12 @@ const standardConfig: UnitConfiguration = {
   runMP: 5,
   engineType: 'Standard',
   jumpMP: 0,
-  jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+  jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
   jumpJetCounts: {},
   hasPartialWing: false,
-  gyroType: createComponentConfiguration('gyro', 'Standard')!,
-  structureType: createComponentConfiguration('structure', 'Standard')!,
-  armorType: createComponentConfiguration('armor', 'Standard')!,
+  gyroType: 'Standard',
+  structureType: 'Standard',
+  armorType: 'Standard',
   armorAllocation: {
     HD: { front: 9, rear: 0 },
     CT: { front: 30, rear: 10 },
@@ -31,7 +31,7 @@ const standardConfig: UnitConfiguration = {
     RL: { front: 20, rear: 6 },
   },
   armorTonnage: 19,
-  heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+  heatSinkType: 'Single',
   totalHeatSinks: 10,
   internalHeatSinks: 10,
   externalHeatSinks: 0,
@@ -54,8 +54,8 @@ describe('Special Component Duplication Test', () => {
     console.log('[DUPLICATION_TEST] Step 2: Changing to Endo Steel and Ferro-Fibrous');
     const endoFerroConfig: UnitConfiguration = {
       ...standardConfig,
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!
+      structureType: 'Endo Steel',
+      armorType: 'Ferro-Fibrous'
     };
     
     manager.updateConfiguration(endoFerroConfig);
@@ -121,8 +121,8 @@ describe('Special Component Creation Test', () => {
   it('should create only Endo Steel components when only Endo Steel is selected', () => {
     const endoConfig: UnitConfiguration = {
       ...standardConfig,
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Standard')!
+      structureType: 'Endo Steel',
+      armorType: 'Standard'
     };
     const manager = new UnitCriticalManager(endoConfig);
     const unallocated = manager.getUnallocatedEquipment();
@@ -135,8 +135,8 @@ describe('Special Component Creation Test', () => {
   it('should create only Ferro-Fibrous components when only Ferro-Fibrous is selected', () => {
     const ferroConfig: UnitConfiguration = {
       ...standardConfig,
-      structureType: createComponentConfiguration('structure', 'Standard')!,
-      armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!
+      structureType: 'Standard',
+      armorType: 'Ferro-Fibrous'
     };
     const manager = new UnitCriticalManager(ferroConfig);
     const unallocated = manager.getUnallocatedEquipment();

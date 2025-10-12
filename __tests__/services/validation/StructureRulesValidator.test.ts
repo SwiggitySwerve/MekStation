@@ -12,10 +12,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 65,
     engineRating: 260,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     techBase: 'Inner Sphere',
     ...overrides
   } as UnitConfiguration;
@@ -26,7 +26,7 @@ describe('StructureRulesValidator', () => {
     test('should validate standard structure configuration', () => {
       const config = createTestConfig({
         tonnage: 65,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);
@@ -40,12 +40,12 @@ describe('StructureRulesValidator', () => {
     test('should validate Endo Steel structure weight savings', () => {
       const standardConfig = createTestConfig({
         tonnage: 65,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       });
       
       const endoConfig = createTestConfig({
         tonnage: 65,
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const standardResult = StructureRulesValidator.validateStructureRules(standardConfig);
@@ -58,12 +58,12 @@ describe('StructureRulesValidator', () => {
     test('should validate Clan Endo Steel differences', () => {
       const isEndoConfig = createTestConfig({
         tonnage: 55,
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const clanEndoConfig = createTestConfig({
         tonnage: 55,
-        structureType: { type: 'Endo Steel', techBase: 'Clan' }
+        structureType: 'Endo Steel'
       });
       
       const isResult = StructureRulesValidator.validateStructureRules(isEndoConfig);
@@ -75,19 +75,19 @@ describe('StructureRulesValidator', () => {
 
     test('should detect invalid structure types', () => {
       const config = createTestConfig({
-        structureType: { type: 'InvalidStructure', techBase: 'Inner Sphere' }
+        structureType: 'InvalidStructure'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);
       
       expect(result.isValid).toBe(false);
-      expect(result.violations.some(v => v.type === 'invalid_type')).toBe(true);
+      expect(result.violations.some(v => v === 'invalid_type')).toBe(true);
     });
 
     test('should validate Reinforced structure characteristics', () => {
       const config = createTestConfig({
         tonnage: 100,
-        structureType: { type: 'Reinforced', techBase: 'Inner Sphere' }
+        structureType: 'Reinforced'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);
@@ -190,12 +190,12 @@ describe('StructureRulesValidator', () => {
     test('should analyze structure efficiency', () => {
       const heavyStandardConfig = createTestConfig({
         tonnage: 100,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       });
       
       const heavyEndoConfig = createTestConfig({
         tonnage: 100,
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const standardResult = StructureRulesValidator.validateStructureRules(heavyStandardConfig);
@@ -241,12 +241,12 @@ describe('StructureRulesValidator', () => {
     test('should handle extreme tonnage values', () => {
       const lightConfig = createTestConfig({
         tonnage: 20, // Minimum valid tonnage
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const superHeavyConfig = createTestConfig({
         tonnage: 100, // Maximum valid tonnage
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       });
       
       const lightResult = StructureRulesValidator.validateStructureRules(lightConfig);
@@ -264,7 +264,7 @@ describe('StructureRulesValidator', () => {
       });
       
       const objectConfig = createTestConfig({
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const stringResult = StructureRulesValidator.validateStructureRules(stringConfig);
@@ -280,19 +280,19 @@ describe('StructureRulesValidator', () => {
     test('should validate Inner Sphere structure compatibility', () => {
       const config = createTestConfig({
         techBase: 'Inner Sphere',
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);
       
       expect(result.isValid).toBe(true);
-      expect(result.violations.some(v => v.type === 'tech_base_mismatch')).toBe(false);
+      expect(result.violations.some(v => v === 'tech_base_mismatch')).toBe(false);
     });
 
     test('should detect tech base mismatches', () => {
       const config = createTestConfig({
         techBase: 'Inner Sphere',
-        structureType: { type: 'Endo Steel', techBase: 'Clan' }
+        structureType: 'Endo Steel'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);
@@ -305,7 +305,7 @@ describe('StructureRulesValidator', () => {
     test('should allow mixed tech configurations', () => {
       const config = createTestConfig({
         techBase: 'Mixed (IS Chassis)',
-        structureType: { type: 'Endo Steel', techBase: 'Clan' }
+        structureType: 'Endo Steel'
       });
       
       const result = StructureRulesValidator.validateStructureRules(config);

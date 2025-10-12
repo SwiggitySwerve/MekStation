@@ -19,7 +19,7 @@ const TopBarWeightDisplay = () => {
   // Also show the individual structure weight calculation for verification
   const structureTypeString = typeof config.structureType === 'string' 
     ? config.structureType 
-    : config.structureType?.type || 'Standard';
+    : config.structureType? || 'Standard';
   const structureWeight = calculateStructureWeight(config.tonnage, structureTypeString as any);
   
   return (
@@ -49,7 +49,7 @@ const StructureTypeSelector = () => {
     if (typeof config.structureType === 'string') {
       return config.structureType;
     } else if (config.structureType && typeof config.structureType === 'object') {
-      return config.structureType.type;
+      return config.structureType;
     }
     return 'Standard';
   };

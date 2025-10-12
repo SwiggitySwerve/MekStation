@@ -30,9 +30,9 @@ describe('CalculationUtilitiesManager', () => {
       jumpJetType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      gyroType: 'Standard' as ComponentConfiguration,
+      structureType: 'Standard' as ComponentConfiguration,
+      armorType: 'Standard' as ComponentConfiguration,
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 31, rear: 10 },
@@ -44,7 +44,7 @@ describe('CalculationUtilitiesManager', () => {
         RL: { front: 21, rear: 7 }
       },
       armorTonnage: 19.5,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+      heatSinkType: 'Single' as ComponentConfiguration,
       totalHeatSinks: 20,
       internalHeatSinks: 12,
       externalHeatSinks: 8,

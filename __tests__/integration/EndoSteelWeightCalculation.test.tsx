@@ -17,7 +17,7 @@ const StructureTabV2 = () => {
     if (typeof config.structureType === 'string') {
       return config.structureType;
     } else if (config.structureType && typeof config.structureType === 'object') {
-      return config.structureType.type;
+      return config.structureType;
     }
     return 'Standard';
   };

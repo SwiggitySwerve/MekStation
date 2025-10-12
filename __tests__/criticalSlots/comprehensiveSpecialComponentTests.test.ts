@@ -14,11 +14,11 @@ const createBaseConfig = (): Partial<UnitConfiguration> => ({
   runMP: 5,
   engineType: 'Standard',
   jumpMP: 0,
-  jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+  jumpJetType: 'Standard Jump Jet',
   jumpJetCounts: {},
   hasPartialWing: false,
-  gyroType: createComponentConfiguration('gyro', 'Standard')!,
-  heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+  gyroType: 'Standard',
+  heatSinkType: 'Single',
   totalHeatSinks: 10,
   internalHeatSinks: 10,
   externalHeatSinks: 0,
@@ -64,8 +64,8 @@ describe('Comprehensive Special Component Tests', () => {
   it('should show unallocated Endo Steel slots for Endo Steel + Standard', () => {
     const config = {
       ...createBaseConfig(),
-      structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-      armorType: createComponentConfiguration('armor', 'Standard')!,
+      structureType: 'Endo Steel',
+      armorType: 'Standard',
     } as UnitConfiguration;
 
     const manager = new UnitCriticalManager(config);
@@ -83,7 +83,7 @@ describe('Comprehensive Special Component Tests', () => {
         const config = {
           ...createBaseConfig(),
           structureType: createComponentConfiguration('structure', structureType)!,
-          armorType: createComponentConfiguration('armor', 'Standard')!,
+          armorType: 'Standard',
         } as UnitConfiguration;
 
         const manager = new UnitCriticalManager(config);
@@ -108,7 +108,7 @@ describe('Comprehensive Special Component Tests', () => {
       it(`should handle ${armorType} armor correctly`, () => {
         const config = {
           ...createBaseConfig(),
-          structureType: createComponentConfiguration('structure', 'Standard')!,
+          structureType: 'Standard',
           armorType: createComponentConfiguration('armor', armorType)!,
         } as UnitConfiguration;
 
@@ -175,8 +175,8 @@ describe('Comprehensive Special Component Tests', () => {
     it('should properly track allocated vs unallocated slots for Endo Steel', () => {
       const config = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-        armorType: createComponentConfiguration('armor', 'Standard')!,
+        structureType: 'Endo Steel',
+        armorType: 'Standard',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -195,8 +195,8 @@ describe('Comprehensive Special Component Tests', () => {
     it('should properly track allocated vs unallocated slots for Ferro-Fibrous', () => {
       const config = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Standard')!,
-        armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!,
+        structureType: 'Standard',
+        armorType: 'Ferro-Fibrous',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -211,8 +211,8 @@ describe('Comprehensive Special Component Tests', () => {
     it('should handle both Endo Steel and Ferro-Fibrous together', () => {
       const config = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-        armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!,
+        structureType: 'Endo Steel',
+        armorType: 'Ferro-Fibrous',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -235,8 +235,8 @@ describe('Comprehensive Special Component Tests', () => {
       // Start with Standard structure
       const initialConfig = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Standard')!,
-        armorType: createComponentConfiguration('armor', 'Standard')!,
+        structureType: 'Standard',
+        armorType: 'Standard',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(initialConfig);
@@ -245,7 +245,7 @@ describe('Comprehensive Special Component Tests', () => {
       // Switch to Endo Steel
       const newConfig = {
         ...initialConfig,
-        structureType: createComponentConfiguration('structure', 'Endo Steel')!,
+        structureType: 'Endo Steel',
       };
       
       manager.updateConfiguration(newConfig);
@@ -260,8 +260,8 @@ describe('Comprehensive Special Component Tests', () => {
       // Start with Endo Steel structure
       const initialConfig = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-        armorType: createComponentConfiguration('armor', 'Standard')!,
+        structureType: 'Endo Steel',
+        armorType: 'Standard',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(initialConfig);
@@ -272,7 +272,7 @@ describe('Comprehensive Special Component Tests', () => {
       // Switch back to Standard
       const newConfig = {
         ...initialConfig,
-        structureType: createComponentConfiguration('structure', 'Standard')!,
+        structureType: 'Standard',
       };
       
       manager.updateConfiguration(newConfig);
@@ -289,8 +289,8 @@ describe('Comprehensive Special Component Tests', () => {
       const config = {
         ...createBaseConfig(),
         techBase: 'Clan' as const,
-        structureType: createComponentConfiguration('structure', 'Endo Steel (Clan)')!,
-        armorType: createComponentConfiguration('armor', 'Ferro-Fibrous (Clan)')!,
+        structureType: 'Endo Steel (Clan)',
+        armorType: 'Ferro-Fibrous (Clan)',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -310,8 +310,8 @@ describe('Comprehensive Special Component Tests', () => {
     it('should handle maximum slot combinations', () => {
       const config = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-        armorType: createComponentConfiguration('armor', 'Heavy Ferro-Fibrous')!,
+        structureType: 'Endo Steel',
+        armorType: 'Heavy Ferro-Fibrous',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -325,8 +325,8 @@ describe('Comprehensive Special Component Tests', () => {
     it('should handle zero-slot configurations', () => {
       const config = {
         ...createBaseConfig(),
-        structureType: createComponentConfiguration('structure', 'Standard')!,
-        armorType: createComponentConfiguration('armor', 'Standard')!,
+        structureType: 'Standard',
+        armorType: 'Standard',
       } as UnitConfiguration;
 
       const manager = new UnitCriticalManager(config);
@@ -353,10 +353,10 @@ describe('Comprehensive Special Component Tests', () => {
           ...createBaseConfig(),
           structureType: componentName.includes('Endo') 
             ? createComponentConfiguration('structure', componentName)!
-            : createComponentConfiguration('structure', 'Standard')!,
+            : 'Standard',
           armorType: componentName.includes('Ferro') || componentName.includes('Stealth')
             ? createComponentConfiguration('armor', componentName)!
-            : createComponentConfiguration('armor', 'Standard')!,
+            : 'Standard',
         } as UnitConfiguration;
 
         const manager = new UnitCriticalManager(config);

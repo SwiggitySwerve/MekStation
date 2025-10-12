@@ -28,6 +28,15 @@ import {
   Priority,
   Result
 } from './BaseTypes';
+import { ComponentConfiguration } from '../componentConfiguration';
+import { 
+  ILocationSlotUtilization, 
+  IOptimizationImprovement 
+} from './CalculationInterfaces';
+import {
+  IArmorAllocation,
+  ILocationArmor
+} from './EquipmentInterfaces';
 
 // ===== CORE VALIDATION INTERFACES =====
 
@@ -56,25 +65,29 @@ export interface IUnitConfiguration {
 
 /**
  * Armor allocation by location
+ * Note: This interface is also defined in EquipmentInterfaces.ts
+ * Commenting out to avoid duplication - use the one from EquipmentInterfaces instead
  */
-export interface IArmorAllocation {
-  readonly head: ILocationArmor;
-  readonly centerTorso: ILocationArmor;
-  readonly leftTorso: ILocationArmor;
-  readonly rightTorso: ILocationArmor;
-  readonly leftArm: ILocationArmor;
-  readonly rightArm: ILocationArmor;
-  readonly leftLeg: ILocationArmor;
-  readonly rightLeg: ILocationArmor;
-}
+// export interface IArmorAllocation {
+//   readonly head: ILocationArmor;
+//   readonly centerTorso: ILocationArmor;
+//   readonly leftTorso: ILocationArmor;
+//   readonly rightTorso: ILocationArmor;
+//   readonly leftArm: ILocationArmor;
+//   readonly rightArm: ILocationArmor;
+//   readonly leftLeg: ILocationArmor;
+//   readonly rightLeg: ILocationArmor;
+// }
 
 /**
  * Armor configuration for a location
+ * Note: This interface is also defined in EquipmentInterfaces.ts
+ * Commenting out to avoid duplication - use the one from EquipmentInterfaces instead
  */
-export interface ILocationArmor {
-  readonly front: number;
-  readonly rear?: number;
-}
+// export interface ILocationArmor {
+//   readonly front: number;
+//   readonly rear?: number;
+// }
 
 /**
  * Equipment allocation information
@@ -282,16 +295,18 @@ export interface ICriticalSlotsValidationResult extends IValidationResult {
 
 /**
  * Location-specific slot utilization
+ * Note: This interface is also defined in CalculationInterfaces.ts with a different shape.
+ * Commenting out to avoid duplication - use the one from CalculationInterfaces instead.
  */
-export interface ILocationSlotUtilization {
-  readonly location: string;
-  readonly slotsUsed: number;
-  readonly slotsAvailable: number;
-  readonly utilization: number;
-  readonly overflow: boolean;
-  readonly reservedSlots: number;
-  readonly specialComponents: string[];
-}
+// export interface ILocationSlotUtilization {
+//   readonly location: string;
+//   readonly slotsUsed: number;
+//   readonly slotsAvailable: number;
+//   readonly utilization: number;
+//   readonly overflow: boolean;
+//   readonly reservedSlots: number;
+//   readonly specialComponents: string[];
+// }
 
 /**
  * Tech level validation result
@@ -575,14 +590,16 @@ export interface IOptimizationValidationResult extends IValidationResult {
 
 /**
  * Optimization improvement
+ * Note: This interface is also defined in CalculationInterfaces.ts with a different shape.
+ * Commenting out to avoid duplication - use the one from CalculationInterfaces instead.
  */
-export interface IOptimizationImprovement extends IRecommendation {
-  readonly category: 'weight' | 'heat' | 'slots' | 'firepower' | 'protection' | 'cost';
-  readonly currentValue: number;
-  readonly improvedValue: number;
-  readonly improvement: number;
-  readonly tradeoffs: string[];
-}
+// export interface IOptimizationImprovement extends IRecommendation {
+//   readonly category: 'weight' | 'heat' | 'slots' | 'firepower' | 'protection' | 'cost';
+//   readonly currentValue: number;
+//   readonly improvedValue: number;
+//   readonly improvement: number;
+//   readonly tradeoffs: string[];
+// }
 
 /**
  * Alternative design suggestion

@@ -16,13 +16,13 @@ import {
   GYRO_SLOT_REQUIREMENTS,
   COCKPIT_SLOT_REQUIREMENTS,
   STRUCTURE_SLOT_REQUIREMENTS,
-  ARMOR_SLOT_REQUIREMENTS,
   calculateIntegratedHeatSinks,
   calculateExternalHeatSinks,
   isFixedComponent,
   isConditionallyRemovable,
   getSlotContentType,
 } from '../types/systemComponents';
+import { ARMOR_SLOT_REQUIREMENTS } from './armorCalculations';
 import { MECH_LOCATIONS } from '../types/editor';
 
 // Standard mech locations and their slot counts

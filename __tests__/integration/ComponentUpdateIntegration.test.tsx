@@ -61,10 +61,10 @@ const TestComponent: React.FC = () => {
         Change to Endo Steel (String)
       </button>
       <div data-testid="current-structure">
-        {unit?.getConfiguration().structureType?.type || 'None'}
+        {unit?.getConfiguration().structureType? || 'None'}
       </div>
       <div data-testid="current-armor">
-        {unit?.getConfiguration().armorType?.type || 'None'}
+        {unit?.getConfiguration().armorType? || 'None'}
       </div>
       <div data-testid="current-engine">
         {unit?.getConfiguration().engineType || 'None'}
@@ -86,9 +86,9 @@ describe('Component Update Integration', () => {
     engineRating: 200,
     runMP: 6,
     engineType: 'Standard',
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+    gyroType: 'Standard',
+    structureType: 'Standard',
+    armorType: 'Standard',
     armorAllocation: {
       HD: { front: 9, rear: 0 },
       CT: { front: 20, rear: 6 },
@@ -101,7 +101,7 @@ describe('Component Update Integration', () => {
     },
     armorTonnage: 8.0,
     externalHeatSinks: 2,
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    heatSinkType: 'Single',
     totalHeatSinks: 10,
     internalHeatSinks: 8,
     jumpMP: 0,
@@ -133,13 +133,13 @@ describe('Component Update Integration', () => {
     // Set up default mock responses
     mockAdapter.updateStructure.mockReturnValue({
       ...successResult,
-      newConfiguration: { ...baseConfiguration, structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' } },
+      newConfiguration: { ...baseConfiguration, structureType: 'Endo Steel' },
       changes: { ...successResult.changes, structureChanged: true }
     })
     
     mockAdapter.updateArmor.mockReturnValue({
       ...successResult,
-      newConfiguration: { ...baseConfiguration, armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' } },
+      newConfiguration: { ...baseConfiguration, armorType: 'Ferro-Fibrous' },
       changes: { ...successResult.changes, armorChanged: true }
     })
     
@@ -169,7 +169,7 @@ describe('Component Update Integration', () => {
     expect(mockAdapter.updateStructure).toHaveBeenCalledWith(
       { type: 'Endo Steel', techBase: 'Inner Sphere' },
       expect.objectContaining({
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       })
     )
     
@@ -196,7 +196,7 @@ describe('Component Update Integration', () => {
     expect(mockAdapter.updateArmor).toHaveBeenCalledWith(
       { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' },
       expect.objectContaining({
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' }
+        armorType: 'Standard'
       })
     )
   })
@@ -244,7 +244,7 @@ describe('Component Update Integration', () => {
     expect(mockAdapter.updateStructure).toHaveBeenCalledWith(
       'Endo Steel',
       expect.objectContaining({
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' }
+        structureType: 'Standard'
       })
     )
   })
@@ -286,7 +286,7 @@ describe('Component Update Integration', () => {
       success: true,
       newConfiguration: { 
         ...baseConfiguration, 
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       },
       changes: { ...successResult.changes, structureChanged: true },
       errors: [],
@@ -313,8 +313,8 @@ describe('Component Update Integration', () => {
     expect(mockAdapter.updateStructure).toHaveBeenCalledWith(
       { type: 'Endo Steel', techBase: 'Inner Sphere' },
       expect.objectContaining({
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+        structureType: 'Standard',
+        armorType: 'Standard',
         engineType: 'Standard'
       })
     )

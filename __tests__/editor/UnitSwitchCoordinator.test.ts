@@ -13,9 +13,9 @@ function makeConfig(): any {
     engineRating: 200,
     runMP: 6,
     engineType: 'Standard',
-    gyroType: createComponentConfiguration('gyro', 'Standard')!,
-    structureType: createComponentConfiguration('structure', 'Standard')!,
-    armorType: createComponentConfiguration('armor', 'Standard')!,
+    gyroType: 'Standard',
+    structureType: 'Standard',
+    armorType: 'Standard',
     armorAllocation: {
       HD: { front: 9, rear: 0 },
       CT: { front: 20, rear: 6 },
@@ -28,11 +28,11 @@ function makeConfig(): any {
     },
     armorTonnage: 8.0,
     externalHeatSinks: 2,
-    heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+    heatSinkType: 'Single',
     totalHeatSinks: 10,
     internalHeatSinks: 8,
     jumpMP: 0,
-    jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+    jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
     enhancements: []
   }
 }

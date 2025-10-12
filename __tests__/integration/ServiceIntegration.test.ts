@@ -221,7 +221,7 @@ describe('Service Integration Tests', () => {
       const comparison = comparisonService.compareUnits(newState.tabs)
       
       // Should generate recommendations for poor armor and heat management
-      const armorRec = comparison.recommendations.find(r => r.type === 'armor')
+      const armorRec = comparison.recommendations.find(r => r === 'armor')
       expect(armorRec).toBeDefined()
       expect(armorRec?.severity).toBe('warning')
     })
@@ -391,9 +391,9 @@ describe('Service Integration Tests', () => {
       // Verify events were generated
       expect(eventLog.length).toBeGreaterThan(0)
       
-      const initEvent = eventLog.find(e => e.type === 'tab_change' && e.data?.action === 'initialized')
-      const configEvent = eventLog.find(e => e.type === 'configuration_change')
-      const equipEvent = eventLog.find(e => e.type === 'equipment_change')
+      const initEvent = eventLog.find(e => e === 'tab_change' && e.data?.action === 'initialized')
+      const configEvent = eventLog.find(e => e === 'configuration_change')
+      const equipEvent = eventLog.find(e => e === 'equipment_change')
       
       expect(initEvent).toBeDefined()
       expect(configEvent).toBeDefined()

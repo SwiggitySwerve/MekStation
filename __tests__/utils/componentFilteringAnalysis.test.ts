@@ -54,13 +54,13 @@ describe('Component Filtering Analysis', () => {
   describe('Engine Types', () => {
     it('should return available engine types for Inner Sphere', () => {
       const engineTypes = getAvailableEngineTypes(testConfig as any)
-      console.log('Available Inner Sphere Engine Types:', engineTypes.map(e => e.type))
+      console.log('Available Inner Sphere Engine Types:', engineTypes.map(e => e))
       
       expect(engineTypes).toBeDefined()
       expect(engineTypes.length).toBeGreaterThan(0)
       
       // Should include basic engines
-      const engineTypeNames = engineTypes.map(e => e.type)
+      const engineTypeNames = engineTypes.map(e => e)
       expect(engineTypeNames).toContain('Standard')
       expect(engineTypeNames).toContain('XL')
       expect(engineTypeNames).toContain('Light')
@@ -72,12 +72,12 @@ describe('Component Filtering Analysis', () => {
     it('should return available engine types for Clan', () => {
       const clanConfig = { ...testConfig, techBase: 'Clan' as const }
       const engineTypes = getAvailableEngineTypes(clanConfig as any)
-      console.log('Available Clan Engine Types:', engineTypes.map(e => e.type))
+      console.log('Available Clan Engine Types:', engineTypes.map(e => e))
       
       expect(engineTypes).toBeDefined()
       expect(engineTypes.length).toBeGreaterThan(0)
       
-      const engineTypeNames = engineTypes.map(e => e.type)
+      const engineTypeNames = engineTypes.map(e => e)
       expect(engineTypeNames).toContain('Standard')
       expect(engineTypeNames).toContain('XL (Clan)')
       expect(engineTypeNames).toContain('Light (Clan)')
@@ -87,12 +87,12 @@ describe('Component Filtering Analysis', () => {
   describe('Structure Types', () => {
     it('should return available structure types for Inner Sphere', () => {
       const structureTypes = getAvailableStructureTypes(testConfig)
-      console.log('Available Inner Sphere Structure Types:', structureTypes.map(s => s.type))
+      console.log('Available Inner Sphere Structure Types:', structureTypes.map(s => s))
       
       expect(structureTypes).toBeDefined()
       expect(structureTypes.length).toBeGreaterThan(0)
       
-      const structureTypeNames = structureTypes.map(s => s.type)
+      const structureTypeNames = structureTypes.map(s => s)
       expect(structureTypeNames).toContain('Standard')
       expect(structureTypeNames).toContain('Endo Steel')
       expect(structureTypeNames).toContain('Composite')
@@ -103,12 +103,12 @@ describe('Component Filtering Analysis', () => {
     it('should return available structure types for Clan', () => {
       const clanConfig = { ...testConfig, techBase: 'Clan' as const }
       const structureTypes = getAvailableStructureTypes(clanConfig)
-      console.log('Available Clan Structure Types:', structureTypes.map(s => s.type))
+      console.log('Available Clan Structure Types:', structureTypes.map(s => s))
       
       expect(structureTypes).toBeDefined()
       expect(structureTypes.length).toBeGreaterThan(0)
       
-      const structureTypeNames = structureTypes.map(s => s.type)
+      const structureTypeNames = structureTypes.map(s => s)
       expect(structureTypeNames).toContain('Standard')
       expect(structureTypeNames).toContain('Endo Steel (Clan)')
     })
@@ -117,12 +117,12 @@ describe('Component Filtering Analysis', () => {
   describe('Gyro Types', () => {
     it('should return available gyro types for Inner Sphere', () => {
       const gyroTypes = getAvailableGyroTypes(testConfig)
-      console.log('Available Inner Sphere Gyro Types:', gyroTypes.map(g => g.type))
+      console.log('Available Inner Sphere Gyro Types:', gyroTypes.map(g => g))
       
       expect(gyroTypes).toBeDefined()
       expect(gyroTypes.length).toBeGreaterThan(0)
       
-      const gyroTypeNames = gyroTypes.map(g => g.type)
+      const gyroTypeNames = gyroTypes.map(g => g)
       expect(gyroTypeNames).toContain('Standard')
       expect(gyroTypeNames).toContain('XL')
       expect(gyroTypeNames).toContain('Compact')
@@ -132,12 +132,12 @@ describe('Component Filtering Analysis', () => {
     it('should return available gyro types for Clan', () => {
       const clanConfig = { ...testConfig, techBase: 'Clan' as const }
       const gyroTypes = getAvailableGyroTypes(clanConfig)
-      console.log('Available Clan Gyro Types:', gyroTypes.map(g => g.type))
+      console.log('Available Clan Gyro Types:', gyroTypes.map(g => g))
       
       expect(gyroTypes).toBeDefined()
       expect(gyroTypes.length).toBeGreaterThan(0)
       
-      const gyroTypeNames = gyroTypes.map(g => g.type)
+      const gyroTypeNames = gyroTypes.map(g => g)
       expect(gyroTypeNames).toContain('Standard')
     })
   })
@@ -145,12 +145,12 @@ describe('Component Filtering Analysis', () => {
   describe('Armor Types', () => {
     it('should return available armor types for Inner Sphere', () => {
       const armorTypes = getAvailableArmorTypes(testConfig)
-      console.log('Available Inner Sphere Armor Types:', armorTypes.map(a => a.type))
+      console.log('Available Inner Sphere Armor Types:', armorTypes.map(a => a))
       
       expect(armorTypes).toBeDefined()
       expect(armorTypes.length).toBeGreaterThan(0)
       
-      const armorTypeNames = armorTypes.map(a => a.type)
+      const armorTypeNames = armorTypes.map(a => a)
       expect(armorTypeNames).toContain('Standard')
       expect(armorTypeNames).toContain('Ferro-Fibrous')
       expect(armorTypeNames).toContain('Light Ferro-Fibrous')
@@ -164,12 +164,12 @@ describe('Component Filtering Analysis', () => {
     it('should return available armor types for Clan', () => {
       const clanConfig = { ...testConfig, techBase: 'Clan' as const }
       const armorTypes = getAvailableArmorTypes(clanConfig)
-      console.log('Available Clan Armor Types:', armorTypes.map(a => a.type))
+      console.log('Available Clan Armor Types:', armorTypes.map(a => a))
       
       expect(armorTypes).toBeDefined()
       expect(armorTypes.length).toBeGreaterThan(0)
       
-      const armorTypeNames = armorTypes.map(a => a.type)
+      const armorTypeNames = armorTypes.map(a => a)
       expect(armorTypeNames).toContain('Standard')
       expect(armorTypeNames).toContain('Ferro-Fibrous (Clan)')
       expect(armorTypeNames).toContain('Stealth (Clan)')
@@ -179,12 +179,12 @@ describe('Component Filtering Analysis', () => {
   describe('Heat Sink Types', () => {
     it('should return available heat sink types for Inner Sphere', () => {
       const heatSinkTypes = getAvailableHeatSinkTypes(testConfig)
-      console.log('Available Inner Sphere Heat Sink Types:', heatSinkTypes.map(h => h.type))
+      console.log('Available Inner Sphere Heat Sink Types:', heatSinkTypes.map(h => h))
       
       expect(heatSinkTypes).toBeDefined()
       expect(heatSinkTypes.length).toBeGreaterThan(0)
       
-      const heatSinkTypeNames = heatSinkTypes.map(h => h.type)
+      const heatSinkTypeNames = heatSinkTypes.map(h => h)
       expect(heatSinkTypeNames).toContain('Single')
       expect(heatSinkTypeNames).toContain('Double')
       expect(heatSinkTypeNames).toContain('Compact')
@@ -194,12 +194,12 @@ describe('Component Filtering Analysis', () => {
     it('should return available heat sink types for Clan', () => {
       const clanConfig = { ...testConfig, techBase: 'Clan' as const }
       const heatSinkTypes = getAvailableHeatSinkTypes(clanConfig)
-      console.log('Available Clan Heat Sink Types:', heatSinkTypes.map(h => h.type))
+      console.log('Available Clan Heat Sink Types:', heatSinkTypes.map(h => h))
       
       expect(heatSinkTypes).toBeDefined()
       expect(heatSinkTypes.length).toBeGreaterThan(0)
       
-      const heatSinkTypeNames = heatSinkTypes.map(h => h.type)
+      const heatSinkTypeNames = heatSinkTypes.map(h => h)
       expect(heatSinkTypeNames).toContain('Double (Clan)')
     })
   })

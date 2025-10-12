@@ -420,9 +420,9 @@ describe('CriticalSlotsManagementService', () => {
       } as CriticalSlot;
 
       // Test priority calculation (weapons should come first)
-      expect(weaponSlot.content?.equipmentReference?.equipmentData?.type).toBe('weapon');
-      expect(ammoSlot.content?.equipmentReference?.equipmentData?.type).toBe('ammo');
-      expect(heatSinkSlot.content?.equipmentReference?.equipmentData?.type).toBe('heat_sink');
+      expect(weaponSlot.content?.equipmentReference?.equipmentData?).toBe('weapon');
+      expect(ammoSlot.content?.equipmentReference?.equipmentData?).toBe('ammo');
+      expect(heatSinkSlot.content?.equipmentReference?.equipmentData?).toBe('heat_sink');
     });
 
     test('identifies removable vs non-removable components', () => {
@@ -436,8 +436,8 @@ describe('CriticalSlotsManagementService', () => {
         content: { type: 'system', systemComponentType: 'engine' } 
       } as CriticalSlot;
 
-      expect(removableSlot.content?.type).toBe('equipment');
-      expect(systemSlot.content?.type).toBe('system');
+      expect(removableSlot.content?).toBe('equipment');
+      expect(systemSlot.content?).toBe('system');
     });
   });
 
@@ -469,7 +469,7 @@ describe('CriticalSlotsManagementService', () => {
       // Test that special components are identified correctly
       expect(endoSteelEquipment.equipmentData.isSpecialComponent).toBe(true);
       expect(ferroFibrousEquipment.equipmentData.componentType).toBe('armor');
-      expect(normalEquipment.equipmentData.type).toBe('weapon');
+      expect(normalEquipment.equipmentData).toBe('weapon');
     });
 
     test('handles special component allocation', () => {

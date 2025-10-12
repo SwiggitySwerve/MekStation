@@ -35,9 +35,9 @@ describe('WeightCalculationService', () => {
       jumpJetType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
       jumpJetCounts: {},
       hasPartialWing: false,
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
+      gyroType: 'Standard' as any,
+      structureType: 'Standard' as any,
+      armorType: 'Standard' as any,
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 23, rear: 12 },
@@ -49,7 +49,7 @@ describe('WeightCalculationService', () => {
         RL: { front: 16, rear: 0 }
       },
       armorTonnage: 12,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as any,
+      heatSinkType: 'Single' as any,
       totalHeatSinks: 10,
       internalHeatSinks: 10,
       externalHeatSinks: 0,
@@ -131,9 +131,9 @@ describe('WeightCalculationService', () => {
     it('should handle Standard components', () => {
       const result = service.calculateComponentWeights(mockConfig);
       
-      expect(result.structure.type).toBe('Standard');
-      expect(result.engine.type).toBe('Standard');
-      expect(result.armor.type).toBe('Standard');
+      expect(result.structure).toBe('Standard');
+      expect(result.engine).toBe('Standard');
+      expect(result.armor).toBe('Standard');
     });
 
     it('should handle advanced components', () => {
@@ -146,9 +146,9 @@ describe('WeightCalculationService', () => {
       
       const result = service.calculateComponentWeights(advancedConfig);
       
-      expect(result.structure.type).toBe('Endo Steel');
-      expect(result.engine.type).toBe('XL');
-      expect(result.armor.type).toBe('Ferro-Fibrous');
+      expect(result.structure).toBe('Endo Steel');
+      expect(result.engine).toBe('XL');
+      expect(result.armor).toBe('Ferro-Fibrous');
     });
   });
 

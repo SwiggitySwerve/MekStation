@@ -61,7 +61,7 @@ describe('UnitStateManager', () => {
           chassis: 'Custom',
           model: 'New Design',
           engineType: 'Standard',
-          gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+          gyroType: 'Standard',
           tonnage: 50,
           unitType: 'BattleMech'
         })
@@ -81,9 +81,9 @@ describe('UnitStateManager', () => {
         engineRating: 300,
         runMP: 4,
         engineType: 'Standard',
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        gyroType: 'Standard' as ComponentConfiguration,
+        structureType: 'Standard' as ComponentConfiguration,
+        armorType: 'Standard' as ComponentConfiguration,
         armorAllocation: {
           HD: { front: 9, rear: 0 },
           CT: { front: 47, rear: 14 },
@@ -95,7 +95,7 @@ describe('UnitStateManager', () => {
           RL: { front: 41, rear: 0 }
         },
         armorTonnage: 19.0,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        heatSinkType: 'Single' as ComponentConfiguration,
         totalHeatSinks: 20,
         internalHeatSinks: 10,
         externalHeatSinks: 10,
@@ -257,7 +257,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'equipment_change' && 
+        change === 'equipment_change' && 
         change.data?.action === 'removed_from_unallocated'
       )).toBe(true);
     });
@@ -276,7 +276,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'equipment_change' && 
+        change === 'equipment_change' && 
         change.data?.action === 'displaced_to_unallocated'
       )).toBe(true);
     });
@@ -317,7 +317,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'equipment_change' && 
+        change === 'equipment_change' && 
         change.data?.action === 'added'
       )).toBe(true);
     });
@@ -358,7 +358,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'system_change' && 
+        change === 'system_change' && 
         change.data?.component === 'engine'
       )).toBe(true);
     });
@@ -392,7 +392,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'system_change' && 
+        change === 'system_change' && 
         change.data?.component === 'gyro'
       )).toBe(true);
     });
@@ -415,7 +415,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'system_change' && 
+        change === 'system_change' && 
         change.data?.component === 'engine_and_gyro'
       )).toBe(true);
     });
@@ -450,9 +450,9 @@ describe('UnitStateManager', () => {
         engineRating: 160,
         runMP: 12,
         engineType: 'Standard',
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        gyroType: 'Standard' as ComponentConfiguration,
+        structureType: 'Standard' as ComponentConfiguration,
+        armorType: 'Standard' as ComponentConfiguration,
         armorAllocation: {
           HD: { front: 6, rear: 0 },
           CT: { front: 6, rear: 2 },
@@ -464,7 +464,7 @@ describe('UnitStateManager', () => {
           RL: { front: 4, rear: 0 }
         },
         armorTonnage: 2.0,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        heatSinkType: 'Single' as ComponentConfiguration,
         totalHeatSinks: 10,
         internalHeatSinks: 10,
         externalHeatSinks: 0,
@@ -479,7 +479,7 @@ describe('UnitStateManager', () => {
       const oldConfig = {
         tonnage: 50,
         engineType: 'Standard',
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration
+        gyroType: 'Standard' as ComponentConfiguration
       };
 
       mockUnitCriticalManager.getConfiguration.mockReturnValue(oldConfig as any);
@@ -490,7 +490,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'unit_updated' && 
+        change === 'unit_updated' && 
         change.data?.action === 'configuration_update'
       )).toBe(true);
     });
@@ -499,8 +499,8 @@ describe('UnitStateManager', () => {
       const stateManager = new UnitStateManager();
       
       // Test engine type change
-      const oldConfig = { engineType: 'Standard', gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration, tonnage: 50 };
-      const newConfig = { engineType: 'XL', gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration, tonnage: 50 };
+      const oldConfig = { engineType: 'Standard', gyroType: 'Standard' as ComponentConfiguration, tonnage: 50 };
+      const newConfig = { engineType: 'XL', gyroType: 'Standard' as ComponentConfiguration, tonnage: 50 };
 
       mockUnitCriticalManager.getConfiguration.mockReturnValue(oldConfig as any);
 
@@ -508,7 +508,7 @@ describe('UnitStateManager', () => {
 
       const history = stateManager.getChangeHistory();
       const configChange = history.find(change => 
-        change.type === 'unit_updated' && 
+        change === 'unit_updated' && 
         change.data?.action === 'configuration_update'
       );
 
@@ -517,7 +517,7 @@ describe('UnitStateManager', () => {
 
     test('provides current configuration access', () => {
       const stateManager = new UnitStateManager();
-      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration };
+      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: 'Standard' as ComponentConfiguration };
 
       mockUnitCriticalManager.getConfiguration.mockReturnValue(mockConfig as any);
 
@@ -532,7 +532,7 @@ describe('UnitStateManager', () => {
     test('provides comprehensive unit summary', () => {
       const stateManager = new UnitStateManager();
       
-      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration };
+      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: 'Standard' as ComponentConfiguration };
       const mockSummary = { totalSlots: 78, occupiedSlots: 40 };
       const mockValidation = { isValid: true, errors: [], warnings: [] };
       const mockUnallocated = [{ equipmentData: { name: 'Test' } }];
@@ -584,7 +584,7 @@ describe('UnitStateManager', () => {
       // Initial history should have initialization event
       let history = stateManager.getChangeHistory();
       expect(history).toHaveLength(1);
-      expect(history[0].type).toBe('unit_updated');
+      expect(history[0]).toBe('unit_updated');
 
       // Add equipment to trigger another change
       const testEquipment: EquipmentObject = {
@@ -669,7 +669,7 @@ describe('UnitStateManager', () => {
       stateManager.subscribe(callback2);
 
       // Set up mock returns for debug info
-      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration };
+      const mockConfig = { tonnage: 50, engineType: 'Standard', gyroType: 'Standard' as ComponentConfiguration };
       const mockSummary = { totalSlots: 78, occupiedSlots: 40 };
       const mockValidation = { isValid: true, errors: [], warnings: [] };
       const mockUnallocated = [{ equipmentData: { name: 'Test' } }];
@@ -705,9 +705,9 @@ describe('UnitStateManager', () => {
         engineRating: 275,
         runMP: 8,
         engineType: 'Standard',
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        gyroType: 'Standard' as ComponentConfiguration,
+        structureType: 'Standard' as ComponentConfiguration,
+        armorType: 'Standard' as ComponentConfiguration,
         armorAllocation: {
           HD: { front: 9, rear: 0 },
           CT: { front: 26, rear: 8 },
@@ -719,7 +719,7 @@ describe('UnitStateManager', () => {
           RL: { front: 26, rear: 0 }
         },
         armorTonnage: 9.5,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as ComponentConfiguration,
+        heatSinkType: 'Single' as ComponentConfiguration,
         totalHeatSinks: 11,
         internalHeatSinks: 10,
         externalHeatSinks: 1,
@@ -743,7 +743,7 @@ describe('UnitStateManager', () => {
       
       const history = stateManager.getChangeHistory();
       expect(history.some(change => 
-        change.type === 'unit_updated' && 
+        change === 'unit_updated' && 
         change.data?.action === 'reset'
       )).toBe(true);
     });

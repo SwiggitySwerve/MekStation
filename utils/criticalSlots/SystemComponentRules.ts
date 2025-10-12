@@ -4,6 +4,10 @@
  */
 
 import { ComponentConfiguration } from '../../types/componentConfiguration'
+import { GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/components'
+
+// Re-export types for convenience
+export type { GyroType, StructureType, ArmorType, HeatSinkType }
 
 // Define EngineType locally since it's used throughout this file
 export type EngineType = 'Standard' | 'XL' | 'Light' | 'XXL' | 'Compact' | 'ICE' | 'Fuel Cell'
@@ -16,7 +20,7 @@ export interface SystemAllocation {
 
 export interface SystemComponentChange {
   engineType: EngineType
-  gyroType: ComponentConfiguration
+  gyroType: GyroType
 }
 
 export interface ValidationResult {
@@ -29,14 +33,17 @@ export class SystemComponentRules {
   /**
    * Get gyro slot allocation based on gyro type
    */
-  static getGyroAllocation(gyroType: ComponentConfiguration): SystemAllocation {
+  static getGyroAllocation(gyroType: GyroType | ComponentConfiguration): SystemAllocation {
     const allocation: SystemAllocation = {
       centerTorso: [],
       leftTorso: [],
       rightTorso: []
     }
 
-    switch (gyroType.type) {
+    // Handle both string and ComponentConfiguration types
+    const gyroTypeString = typeof gyroType === 'string' ? gyroType : gyroType.type;
+
+    switch (gyroTypeString) {
       case 'Standard':
         allocation.centerTorso = [3, 4, 5, 6] // Slots 4-7
         break
@@ -58,7 +65,7 @@ export class SystemComponentRules {
    * Get engine slot allocation based on engine type (official BattleTech rules)
    * CRITICAL FIX: Engine placement is gyro-aware - engine slots come after gyro ends
    */
-  static getEngineAllocation(engineType: EngineType, gyroType: ComponentConfiguration): SystemAllocation {
+  static getEngineAllocation(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): SystemAllocation {
     const allocation: SystemAllocation = {
       centerTorso: [],
       leftTorso: [],
@@ -150,7 +157,7 @@ export class SystemComponentRules {
   /**
    * Get complete system component allocation for both engine and gyro
    */
-  static getCompleteSystemAllocation(engineType: EngineType, gyroType: ComponentConfiguration): {
+  static getCompleteSystemAllocation(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): {
     engine: SystemAllocation
     gyro: SystemAllocation
     combined: SystemAllocation
@@ -175,7 +182,7 @@ export class SystemComponentRules {
   /**
    * Validate system component compatibility
    */
-  static validateSystemComponents(engineType: EngineType, gyroType: ComponentConfiguration): ValidationResult {
+  static validateSystemComponents(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): ValidationResult {
     const result: ValidationResult = {
       isValid: true,
       errors: [],
@@ -190,8 +197,9 @@ export class SystemComponentRules {
         const maxCenterTorsoSlot = Math.max(...allocation.combined.centerTorso)
         if (maxCenterTorsoSlot >= 12) {
           result.isValid = false
+          const gyroTypeString = typeof gyroType === 'string' ? gyroType : gyroType.type;
           result.errors.push(
-            `${engineType} engine with ${gyroType.type} gyro requires slot ${maxCenterTorsoSlot + 1}, but Center Torso only has 12 slots`
+            `${engineType} engine with ${gyroTypeString} gyro requires slot ${maxCenterTorsoSlot + 1}, but Center Torso only has 12 slots`
           )
         }
       }
@@ -204,13 +212,15 @@ export class SystemComponentRules {
       
       if (actualEngineSlots < expectedEngineSlots) {
         result.isValid = false
+        const gyroTypeString = typeof gyroType === 'string' ? gyroType : gyroType.type;
         result.errors.push(
-          `${engineType} engine requires ${expectedEngineSlots} slots but only ${actualEngineSlots} slots available with ${gyroType.type} gyro`
+          `${engineType} engine requires ${expectedEngineSlots} slots but only ${actualEngineSlots} slots available with ${gyroTypeString} gyro`
         )
       }
 
       // Check for incompatible combinations
-      if (engineType === 'XXL' && gyroType.type === 'XL') {
+      const gyroTypeString = typeof gyroType === 'string' ? gyroType : gyroType.type;
+      if (engineType === 'XXL' && gyroTypeString === 'XL') {
         result.warnings.push('XXL Engine with XL Gyro combination may be unstable')
       }
 
@@ -255,7 +265,7 @@ export class SystemComponentRules {
   /**
    * Get available equipment slots after system components are placed
    */
-  static getAvailableEquipmentSlots(engineType: EngineType, gyroType: ComponentConfiguration): {
+  static getAvailableEquipmentSlots(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): {
     [location: string]: number[]
   } {
     const allocation = this.getCompleteSystemAllocation(engineType, gyroType)
@@ -305,7 +315,7 @@ export class SystemComponentRules {
   /**
    * Calculate maximum equipment size that can fit in each location
    */
-  static getMaxEquipmentSizes(engineType: EngineType, gyroType: ComponentConfiguration): {
+  static getMaxEquipmentSizes(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): {
     [location: string]: number
   } {
     const availableSlots = this.getAvailableEquipmentSlots(engineType, gyroType)
@@ -401,7 +411,7 @@ export class SystemComponentRules {
   /**
    * Get human-readable description of system component requirements
    */
-  static getSystemDescription(engineType: EngineType, gyroType: ComponentConfiguration): string {
+  static getSystemDescription(engineType: EngineType, gyroType: GyroType | ComponentConfiguration): string {
     const allocation = this.getCompleteSystemAllocation(engineType, gyroType)
     const descriptions: string[] = []
 
@@ -423,8 +433,9 @@ export class SystemComponentRules {
     }
 
     // Gyro description
+    const gyroTypeString = typeof gyroType === 'string' ? gyroType : gyroType.type;
     descriptions.push(
-      `${gyroType.type} Gyro: CT slots ${allocation.gyro.centerTorso.map(s => s + 1).join(', ')}`
+      `${gyroTypeString} Gyro: CT slots ${allocation.gyro.centerTorso.map(s => s + 1).join(', ')}`
     )
 
     return descriptions.join('\n')

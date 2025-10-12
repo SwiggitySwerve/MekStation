@@ -347,9 +347,9 @@ describe('EngineValidationService', () => {
       const suggestions = EngineValidationService.suggestEngineOptimizations(unit, 4)
       
       expect(suggestions).toHaveLength(3) // Standard, XL, Light for IS
-      expect(suggestions[0].type).toBe('Standard')
-      expect(suggestions[1].type).toBe('XL Engine')
-      expect(suggestions[2].type).toBe('Light Engine')
+      expect(suggestions[0]).toBe('Standard')
+      expect(suggestions[1]).toBe('XL Engine')
+      expect(suggestions[2]).toBe('Light Engine')
 
       suggestions.forEach(suggestion => {
         expect(suggestion.rating).toBe(200) // 50 tons * 4 MP
@@ -371,7 +371,7 @@ describe('EngineValidationService', () => {
       const suggestions = EngineValidationService.suggestEngineOptimizations(clanUnit, 4)
       
       expect(suggestions).toHaveLength(2) // Standard, Clan XL (no Light for Clan)
-      expect(suggestions[1].type).toBe('Clan XL Engine')
+      expect(suggestions[1]).toBe('Clan XL Engine')
     })
 
     it('should return empty array for invalid unit configurations', () => {

@@ -6,8 +6,7 @@
 import { CriticalSection, LocationSlotConfiguration, FixedSystemComponent } from './CriticalSection'
 import { EquipmentObject, EquipmentAllocation } from './CriticalSlot'
 import { EngineType, SystemComponentRules } from './SystemComponentRules'
-import { CriticalSlotCalculator } from './CriticalSlotCalculator'
-import { CriticalSlotBreakdown } from '../editor/UnitCalculationService'
+import { CriticalSlotCalculator, CriticalSlotBreakdown } from './CriticalSlotCalculator'
 import { 
   ComponentConfiguration, 
   TechBase, 
@@ -2130,3 +2129,19 @@ export class UnitCriticalManager {
     this.stateManager.updateReferences(this.sections, this.unallocatedEquipment);
   }
 }
+
+// Re-export types for external use
+export type {
+  UnitConfiguration,
+  CompleteUnitState,
+  SerializedEquipment,
+  SerializedSlotAllocations,
+  StateValidationResult,
+  UnitValidationResult,
+  SpecialEquipmentObject,
+  ArmorAllocation,
+  LegacyUnitConfiguration
+}
+
+// Re-export the builder
+export { UnitConfigurationBuilder }

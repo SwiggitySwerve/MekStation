@@ -158,7 +158,7 @@ describe('ComponentTypeManager', () => {
       
       expect(result).not.toBeNull()
       if (result) {
-        expect(result.type).toBe('XL')
+        expect(result).toBe('XL')
         expect(result.techBase).toBe('Inner Sphere')
       }
     })
@@ -174,14 +174,14 @@ describe('ComponentTypeManager', () => {
     test('should migrate legacy string to ComponentConfiguration', () => {
       const result = ComponentTypeManager.migrateLegacyComponent('engine', 'XL', 'Inner Sphere')
       
-      expect(result.type).toBe('XL')
+      expect(result).toBe('XL')
       expect(result.techBase).toBe('Inner Sphere')
     })
 
     test('should use fallback tech base when exact match not found', () => {
       const result = ComponentTypeManager.migrateLegacyComponent('engine', 'UnknownType', 'Clan')
       
-      expect(result.type).toBe('UnknownType')
+      expect(result).toBe('UnknownType')
       expect(result.techBase).toBe('Clan')
     })
   })

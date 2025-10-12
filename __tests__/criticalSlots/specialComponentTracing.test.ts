@@ -14,12 +14,12 @@ const testConfig: UnitConfiguration = {
   runMP: 5,
   engineType: 'Standard',
   jumpMP: 0,
-  jumpJetType: createComponentConfiguration('jumpJet', 'Standard Jump Jet')!,
+  jumpJetType: 'createComponentConfiguration('jumpJet', 'Standard Jump Jet')!',
   jumpJetCounts: {},
   hasPartialWing: false,
-  gyroType: createComponentConfiguration('gyro', 'Standard')!,
-  structureType: createComponentConfiguration('structure', 'Endo Steel')!,
-  armorType: createComponentConfiguration('armor', 'Ferro-Fibrous')!,
+  gyroType: 'Standard',
+  structureType: 'Endo Steel',
+  armorType: 'Ferro-Fibrous',
   armorAllocation: {
     HD: { front: 9, rear: 0 },
     CT: { front: 30, rear: 10 },
@@ -31,7 +31,7 @@ const testConfig: UnitConfiguration = {
     RL: { front: 20, rear: 6 },
   },
   armorTonnage: 19,
-  heatSinkType: createComponentConfiguration('heatSink', 'Single')!,
+  heatSinkType: 'Single',
   totalHeatSinks: 10,
   internalHeatSinks: 10,
   externalHeatSinks: 0,
@@ -69,8 +69,8 @@ describe('Special Component Tracing - Endo Steel and Ferro-Fibrous', () => {
     // Step 4: Check unit configuration
     console.log('[TRACE_TEST] Step 4: Verifying unit configuration');
     const config = manager.getConfiguration();
-    console.log(`[TRACE_TEST] Structure type: ${config.structureType?.type}`);
-    console.log(`[TRACE_TEST] Armor type: ${config.armorType?.type}`);
+    console.log(`[TRACE_TEST] Structure type: ${config.structureType?}`);
+    console.log(`[TRACE_TEST] Armor type: ${config.armorType?}`);
     
     // Step 5: Check if special components are being created but immediately allocated
     console.log('[TRACE_TEST] Step 5: Checking if components are allocated to slots');

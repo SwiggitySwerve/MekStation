@@ -13,10 +13,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 50,
     engineRating: 200,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     armorAllocation: {
       head: 9,
       centerTorso: 16,
@@ -38,7 +38,7 @@ function createTestEquipment(items: Array<{ heat?: number, type?: string, name?:
     id: `item-${index}`,
     equipmentData: {
       heat: item.heat || 0,
-      type: item.type || 'weapon',
+      type: item || 'weapon',
       name: item.name || `Test Item ${index}`,
       tonnage: item.tonnage || 1,
       criticals: 1
@@ -51,7 +51,7 @@ describe('HeatRulesValidator', () => {
     it('should validate unit with adequate heat dissipation', () => {
       const config = createTestConfig({ 
         engineRating: 250,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { heat: 4, type: 'weapon', name: 'Medium Laser' },
@@ -70,7 +70,7 @@ describe('HeatRulesValidator', () => {
     it('should detect insufficient heat sinks', () => {
       const config = createTestConfig({ 
         engineRating: 100, // Only 4 engine heat sinks
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([]) // No external heat sinks
 
@@ -78,14 +78,14 @@ describe('HeatRulesValidator', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.actualHeatSinks).toBeLessThan(10)
-      expect(result.violations.some(v => v.type === 'insufficient_heat_sinks')).toBe(true)
+      expect(result.violations.some(v => v === 'insufficient_heat_sinks')).toBe(true)
       expect(result.violations.some(v => v.severity === 'critical')).toBe(true)
     })
 
     it('should detect heat overflow conditions', () => {
       const config = createTestConfig({ 
         engineRating: 200,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([
         { heat: 10, type: 'weapon', name: 'PPC' },
@@ -97,14 +97,14 @@ describe('HeatRulesValidator', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.heatDeficit).toBeGreaterThan(0)
-      expect(result.violations.some(v => v.type === 'heat_overflow')).toBe(true)
+      expect(result.violations.some(v => v === 'heat_overflow')).toBe(true)
       expect(result.recommendations.some(r => r.includes('heat sinks'))).toBe(true)
     })
 
     it('should validate minimum heat sink requirement', () => {
       const config = createTestConfig({ 
         engineRating: 100,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([
         { type: 'heat_sink', name: 'Heat Sink' },
@@ -119,14 +119,14 @@ describe('HeatRulesValidator', () => {
 
       expect(result.actualHeatSinks).toBe(10) // 4 engine + 6 external
       expect(result.isValid).toBe(true)
-      expect(result.violations.filter(v => v.type === 'insufficient_heat_sinks')).toHaveLength(0)
+      expect(result.violations.filter(v => v === 'insufficient_heat_sinks')).toHaveLength(0)
     })
 
     it('should handle XL engine heat sink limitations', () => {
       const config = createTestConfig({ 
         engineRating: 300,
         engineType: 'XL',
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
 
       const engineHeatSinks = HeatRulesValidator.getEngineHeatSinks(config)
@@ -139,7 +139,7 @@ describe('HeatRulesValidator', () => {
     it('should handle heat sink tech base compatibility', () => {
       const config = createTestConfig({ 
         techBase: 'Inner Sphere',
-        heatSinkType: { type: 'Double (Clan)', techBase: 'Clan' }
+        heatSinkType: 'Double (Clan)'
       })
       const equipment = createTestEquipment([])
 
@@ -147,7 +147,7 @@ describe('HeatRulesValidator', () => {
         validateHeatSinkTypes: true
       })
 
-      expect(result.violations.some(v => v.type === 'heat_sink_compatibility')).toBe(true)
+      expect(result.violations.some(v => v === 'heat_sink_compatibility')).toBe(true)
       expect(result.violations.some(v => v.severity === 'major')).toBe(true)
     })
   })
@@ -278,7 +278,7 @@ describe('HeatRulesValidator', () => {
     it('should provide detailed heat sink analysis', () => {
       const config = createTestConfig({ 
         engineRating: 200,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { type: 'heat_sink', name: 'Double Heat Sink' },
@@ -333,7 +333,7 @@ describe('HeatRulesValidator', () => {
     it('should calculate sustainable firepower', () => {
       const config = createTestConfig({ 
         engineRating: 250,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { heat: 4, type: 'weapon', name: 'Medium Laser' }
@@ -350,7 +350,7 @@ describe('HeatRulesValidator', () => {
     it('should suggest heat sinks for heat deficit', () => {
       const config = createTestConfig({ 
         engineRating: 100,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([
         { heat: 15, type: 'weapon', name: 'High Heat Weapon' }
@@ -359,19 +359,19 @@ describe('HeatRulesValidator', () => {
       const optimizations = HeatRulesValidator.generateHeatOptimizations(config, equipment)
 
       expect(optimizations.recommendations.length).toBeGreaterThan(0)
-      expect(optimizations.recommendations.some(r => r.type === 'add_heat_sinks')).toBe(true)
+      expect(optimizations.recommendations.some(r => r === 'add_heat_sinks')).toBe(true)
       expect(optimizations.recommendations.some(r => r.priority === 'high')).toBe(true)
     })
 
     it('should suggest heat sink upgrades', () => {
       const config = createTestConfig({ 
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([])
 
       const optimizations = HeatRulesValidator.generateHeatOptimizations(config, equipment)
 
-      expect(optimizations.recommendations.some(r => r.type === 'upgrade_heat_sinks')).toBe(true)
+      expect(optimizations.recommendations.some(r => r === 'upgrade_heat_sinks')).toBe(true)
       expect(optimizations.potentialImprovements.length).toBeGreaterThan(0)
     })
 
@@ -385,7 +385,7 @@ describe('HeatRulesValidator', () => {
 
       const optimizations = HeatRulesValidator.generateHeatOptimizations(config, equipment)
 
-      expect(optimizations.recommendations.some(r => r.type === 'reduce_heat_generation')).toBe(true)
+      expect(optimizations.recommendations.some(r => r === 'reduce_heat_generation')).toBe(true)
     })
   })
 
@@ -393,7 +393,7 @@ describe('HeatRulesValidator', () => {
     it('should give high score for balanced heat management', () => {
       const config = createTestConfig({ 
         engineRating: 250,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { heat: 6, type: 'weapon', name: 'Medium Laser' }
@@ -407,7 +407,7 @@ describe('HeatRulesValidator', () => {
     it('should penalize heat deficits', () => {
       const config = createTestConfig({ 
         engineRating: 100,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([
         { heat: 20, type: 'weapon', name: 'Hot Weapon' }
@@ -430,7 +430,7 @@ describe('HeatRulesValidator', () => {
     it('should provide bonus for optimal efficiency', () => {
       const config = createTestConfig({ 
         engineRating: 200,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { heat: 12, type: 'weapon', name: 'Optimal Heat Weapon' }, // Creates good heat efficiency
@@ -455,21 +455,21 @@ describe('HeatRulesValidator', () => {
         validateHeatSinkTypes: true
       })
 
-      expect(result.violations.some(v => v.type === 'invalid_heat_sink_type')).toBe(true)
+      expect(result.violations.some(v => v === 'invalid_heat_sink_type')).toBe(true)
       expect(result.violations.some(v => v.severity === 'minor')).toBe(true)
     })
 
     it('should validate Clan heat sink compatibility', () => {
       const config = createTestConfig({ 
         techBase: 'Inner Sphere',
-        heatSinkType: { type: 'Double (Clan)', techBase: 'Clan' }
+        heatSinkType: 'Double (Clan)'
       })
 
       const result = HeatRulesValidator.validateHeatManagement(config, [], {
         validateHeatSinkTypes: true
       })
 
-      expect(result.violations.some(v => v.type === 'heat_sink_compatibility')).toBe(true)
+      expect(result.violations.some(v => v === 'heat_sink_compatibility')).toBe(true)
     })
   })
 
@@ -477,7 +477,7 @@ describe('HeatRulesValidator', () => {
     it('should recommend more heat sinks for poor efficiency', () => {
       const config = createTestConfig({ 
         engineRating: 100,
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       const equipment = createTestEquipment([
         { heat: 8, type: 'weapon', name: 'Medium Heat Weapon' }
@@ -493,7 +493,7 @@ describe('HeatRulesValidator', () => {
     it('should warn about excessive heat capacity', () => {
       const config = createTestConfig({ 
         engineRating: 400,
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' }
+        heatSinkType: 'Double'
       })
       const equipment = createTestEquipment([
         { heat: 2, type: 'weapon', name: 'Low Heat Weapon' },
@@ -552,7 +552,7 @@ describe('HeatRulesValidator', () => {
       const result = HeatRulesValidator.validateHeatManagement(config, [])
 
       expect(result.heatGeneration).toBe(0)
-      expect(result.violations.filter(v => v.type === 'heat_overflow')).toHaveLength(0)
+      expect(result.violations.filter(v => v === 'heat_overflow')).toHaveLength(0)
     })
 
     it('should handle undefined heat sink type', () => {

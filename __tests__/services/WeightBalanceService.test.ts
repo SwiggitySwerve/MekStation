@@ -40,9 +40,9 @@ describe('WeightBalanceService', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 20, rear: 6 },
@@ -54,7 +54,7 @@ describe('WeightBalanceService', () => {
         RL: { front: 15, rear: 0 }
       },
       armorTonnage: 6.5,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,
@@ -146,11 +146,11 @@ describe('WeightBalanceService', () => {
         expect(weights.jumpJets.weight).toBeGreaterThanOrEqual(0);
         
         // Verify component types
-        expect(weights.structure.type).toBe('Standard');
-        expect(weights.engine.type).toBe('Standard');
-        expect(weights.gyro.type).toBe('Standard');
-        expect(weights.heatSinks.type).toBe('Single');
-        expect(weights.armor.type).toBe('Standard');
+        expect(weights.structure).toBe('Standard');
+        expect(weights.engine).toBe('Standard');
+        expect(weights.gyro).toBe('Standard');
+        expect(weights.heatSinks).toBe('Single');
+        expect(weights.armor).toBe('Standard');
       });
 
       it('should calculate efficiency ratings', () => {
@@ -269,7 +269,7 @@ describe('WeightBalanceService', () => {
         
         suggestions.forEach(suggestion => {
           expect(['engine', 'armor', 'structure', 'equipment', 'heatsinks', 'jumpjets']).toContain(suggestion.category);
-          expect(['weight_reduction', 'efficiency_improvement', 'cost_reduction']).toContain(suggestion.type);
+          expect(['weight_reduction', 'efficiency_improvement', 'cost_reduction']).toContain(suggestion);
           expect(suggestion.weightSavings).toBeGreaterThanOrEqual(0);
           expect(['easy', 'moderate', 'hard']).toContain(suggestion.difficulty);
           expect(['high', 'medium', 'low']).toContain(suggestion.priority);

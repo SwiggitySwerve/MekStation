@@ -22,9 +22,9 @@ describe('ConfigurationManager', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 20, rear: 6 },
@@ -36,7 +36,7 @@ describe('ConfigurationManager', () => {
         RL: { front: 20, rear: 0 }
       },
       armorTonnage: 8.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,
@@ -195,9 +195,9 @@ describe('ConfigurationManager', () => {
         ...defaultConfig,
         tonnage: 75,
         engineType: 'XL',
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' },
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' },
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' },
+        structureType: 'Endo Steel',
+        armorType: 'Ferro-Fibrous',
+        heatSinkType: 'Double',
         jumpMP: 3
       }
       
@@ -253,7 +253,7 @@ describe('ConfigurationManager', () => {
     test('should handle component configuration format', () => {
       const configWithComponent = {
         ...defaultConfig,
-        gyroType: { type: 'XL', techBase: 'Inner Sphere' }
+        gyroType: 'XL'
       } as any
       
       configManager.updateConfiguration(configWithComponent)

@@ -599,7 +599,7 @@ describe('getFullMovementSummary', () => {
 describe('MOVEMENT_ENHANCEMENTS registry', () => {
   it('should have all expected enhancement types', () => {
     const enhancements = getAvailableMovementEnhancements();
-    const types = enhancements.map(e => e.type);
+    const types = enhancements.map(e => e);
     
     expect(types).toContain('Triple Strength Myomer');
     expect(types).toContain('MASC');
@@ -608,9 +608,9 @@ describe('MOVEMENT_ENHANCEMENTS registry', () => {
 
   it('should have correct priorities', () => {
     const enhancements = getAvailableMovementEnhancements();
-    const tsm = enhancements.find(e => e.type === 'Triple Strength Myomer');
-    const supercharger = enhancements.find(e => e.type === 'Supercharger');
-    const masc = enhancements.find(e => e.type === 'MASC');
+    const tsm = enhancements.find(e => e === 'Triple Strength Myomer');
+    const supercharger = enhancements.find(e => e === 'Supercharger');
+    const masc = enhancements.find(e => e === 'MASC');
     
     expect(tsm?.priority).toBe(1);
     expect(supercharger?.priority).toBe(2);

@@ -13,10 +13,10 @@ function createTestConfig(overrides: Partial<UnitConfiguration> = {}): UnitConfi
     tonnage: 50,
     engineRating: 200,
     engineType: 'Standard',
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    structureType: 'Standard',
+    armorType: 'Standard',
+    gyroType: 'Standard',
+    heatSinkType: 'Single',
     techBase: 'Inner Sphere',
     ...overrides
   } as UnitConfiguration
@@ -33,7 +33,7 @@ function createTestEquipment(items: Array<{
     id: `item-${index}`,
     equipmentData: {
       name: item.name || `Test Item ${index}`,
-      type: item.type || 'weapon',
+      type: item || 'weapon',
       techBase: item.techBase || 'Inner Sphere',
       tonnage: item.tonnage || 1
     }
@@ -61,8 +61,8 @@ describe('TechLevelRulesValidator', () => {
     it('should validate pure Clan unit', () => {
       const config = createTestConfig({ 
         techBase: 'Clan',
-        structureType: { type: 'Endo Steel', techBase: 'Clan' },
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Clan' }
+        structureType: 'Endo Steel',
+        armorType: 'Ferro-Fibrous'
       })
       const equipment = createTestEquipment([
         { name: 'ER Medium Laser', techBase: 'Clan' },
@@ -90,8 +90,8 @@ describe('TechLevelRulesValidator', () => {
       expect(result.isValid).toBe(false)
       expect(result.mixedTech.isMixed).toBe(true)
       expect(result.mixedTech.allowedMixed).toBe(false)
-      expect(result.violations.some(v => v.type === 'mixed_tech_violation')).toBe(true)
-      expect(result.violations.some(v => v.type === 'tech_base_mismatch')).toBe(true)
+      expect(result.violations.some(v => v === 'mixed_tech_violation')).toBe(true)
+      expect(result.violations.some(v => v === 'tech_base_mismatch')).toBe(true)
     })
 
     it('should allow mixed tech when enabled', () => {
@@ -108,7 +108,7 @@ describe('TechLevelRulesValidator', () => {
       expect(result.isValid).toBe(true)
       expect(result.mixedTech.isMixed).toBe(true)
       expect(result.mixedTech.allowedMixed).toBe(true)
-      expect(result.violations.filter(v => v.type === 'mixed_tech_violation')).toHaveLength(0)
+      expect(result.violations.filter(v => v === 'mixed_tech_violation')).toHaveLength(0)
     })
 
     it('should validate availability ratings', () => {
@@ -450,7 +450,7 @@ describe('TechLevelRulesValidator', () => {
 
       const optimizations = TechLevelRulesValidator.generateTechOptimizations(config, equipment)
 
-      const mixedTechRec = optimizations.recommendations.find(r => r.type === 'tech_base_change')
+      const mixedTechRec = optimizations.recommendations.find(r => r === 'tech_base_change')
       expect(mixedTechRec).toBeDefined()
       expect(mixedTechRec?.priority).toBe('high')
       expect(mixedTechRec?.impact.ruleCompliance).toBeGreaterThan(0)

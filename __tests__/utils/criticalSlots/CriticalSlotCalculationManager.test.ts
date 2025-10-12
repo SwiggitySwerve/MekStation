@@ -20,9 +20,9 @@ describe('CriticalSlotCalculationManager', () => {
       engineRating: 200,
       runMP: 6,
       engineType: 'Standard',
-      gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-      structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-      armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+      gyroType: 'Standard',
+      structureType: 'Standard',
+      armorType: 'Standard',
       armorAllocation: {
         HD: { front: 9, rear: 0 },
         CT: { front: 20, rear: 6 },
@@ -34,7 +34,7 @@ describe('CriticalSlotCalculationManager', () => {
         RL: { front: 20, rear: 0 }
       },
       armorTonnage: 8.0,
-      heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+      heatSinkType: 'Single',
       totalHeatSinks: 10,
       internalHeatSinks: 8,
       externalHeatSinks: 2,

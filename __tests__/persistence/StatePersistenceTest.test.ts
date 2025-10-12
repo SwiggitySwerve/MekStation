@@ -51,11 +51,11 @@ describe('State Persistence Tests', () => {
       // Step 1: Create unit with Standard engine
       const initialConfig: UnitConfiguration = createTestConfiguration({
         engineType: 'Standard',
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+        gyroType: 'Standard',
+        structureType: 'Standard',
+        armorType: 'Standard',
         jumpJetType: { type: 'Standard Jump Jet', techBase: 'Inner Sphere' },
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       
       const unitManager = new UnitCriticalManager(initialConfig)
@@ -90,11 +90,11 @@ describe('State Persistence Tests', () => {
       engineTypes.forEach((engineType, index) => {
         const config = createTestConfiguration({
           engineType,
-          gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-          structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-          armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+          gyroType: 'Standard',
+          structureType: 'Standard',
+          armorType: 'Standard',
           jumpJetType: { type: 'Standard Jump Jet', techBase: 'Inner Sphere' },
-          heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+          heatSinkType: 'Single'
         })
         const unitManager = new UnitCriticalManager(config)
         
@@ -121,7 +121,7 @@ describe('State Persistence Tests', () => {
       console.log('🧪 Testing Endo Steel Persistence')
       
       const config = createTestConfiguration({
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' }
+        structureType: 'Endo Steel'
       })
       
       const unitManager = new UnitCriticalManager(config)
@@ -143,7 +143,7 @@ describe('State Persistence Tests', () => {
       newUnitManager.deserializeCompleteState(restoredState!)
       
       // Verify structure type and components persisted
-      expect(newUnitManager.getConfiguration().structureType.type).toBe('Endo Steel')
+      expect(newUnitManager.getConfiguration().structureType).toBe('Endo Steel')
       
       const restoredUnallocated = newUnitManager.getUnallocatedEquipment()
       const restoredEndoSteel = restoredUnallocated.filter(eq => 
@@ -159,7 +159,7 @@ describe('State Persistence Tests', () => {
       console.log('🧪 Testing Ferro-Fibrous Persistence')
       
       const config = createTestConfiguration({
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' }
+        armorType: 'Ferro-Fibrous'
       })
       
       const unitManager = new UnitCriticalManager(config)
@@ -181,7 +181,7 @@ describe('State Persistence Tests', () => {
       newUnitManager.deserializeCompleteState(restoredState!)
       
       // Verify armor type and components persisted
-      expect(newUnitManager.getConfiguration().armorType.type).toBe('Ferro-Fibrous')
+      expect(newUnitManager.getConfiguration().armorType).toBe('Ferro-Fibrous')
       
       const restoredUnallocated = newUnitManager.getUnallocatedEquipment()
       const restoredFerroFibrous = restoredUnallocated.filter(eq => 
@@ -203,11 +203,11 @@ describe('State Persistence Tests', () => {
       
       const config = createTestConfiguration({
         enhancements: [{ type: 'MASC', techBase: 'Inner Sphere' }],
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+        gyroType: 'Standard',
+        structureType: 'Standard',
+        armorType: 'Standard',
         jumpJetType: { type: 'Standard Jump Jet', techBase: 'Inner Sphere' },
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       
       const unitManager = new UnitCriticalManager(config)
@@ -228,11 +228,11 @@ describe('State Persistence Tests', () => {
     test('Triple Strength Myomer enhancement persists correctly', () => {
       const config = createTestConfiguration({
         enhancements: [{ type: 'Triple Strength Myomer', techBase: 'Inner Sphere' }],
-        gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-        structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-        armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+        gyroType: 'Standard',
+        structureType: 'Standard',
+        armorType: 'Standard',
         jumpJetType: { type: 'Standard Jump Jet', techBase: 'Inner Sphere' },
-        heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+        heatSinkType: 'Single'
       })
       
       const unitManager = new UnitCriticalManager(config)
@@ -259,11 +259,11 @@ describe('State Persistence Tests', () => {
       
       const config = createTestConfiguration({
         engineType: 'XL',
-        gyroType: { type: 'Compact', techBase: 'Inner Sphere' },
-        structureType: { type: 'Endo Steel', techBase: 'Inner Sphere' },
-        armorType: { type: 'Ferro-Fibrous', techBase: 'Inner Sphere' },
+        gyroType: 'Compact',
+        structureType: 'Endo Steel',
+        armorType: 'Ferro-Fibrous',
         enhancements: [{ type: 'MASC', techBase: 'Inner Sphere' }],
-        heatSinkType: { type: 'Double', techBase: 'Inner Sphere' },
+        heatSinkType: 'Double',
         externalHeatSinks: 5,
         jumpMP: 3,
         jumpJetType: { type: 'Standard Jump Jet', techBase: 'Inner Sphere' }
@@ -305,11 +305,11 @@ describe('State Persistence Tests', () => {
       // Verify all configuration values persisted
       const restoredConfig = newUnitManager.getConfiguration()
       expect(restoredConfig.engineType).toBe('XL')
-      expect(restoredConfig.gyroType.type).toBe('Compact')
-      expect(restoredConfig.structureType.type).toBe('Endo Steel')
-      expect(restoredConfig.armorType.type).toBe('Ferro-Fibrous')
+      expect(restoredConfig.gyroType).toBe('Compact')
+      expect(restoredConfig.structureType).toBe('Endo Steel')
+      expect(restoredConfig.armorType).toBe('Ferro-Fibrous')
       expect(restoredConfig.enhancements).toEqual([{ type: 'MASC', techBase: 'Inner Sphere' }])
-      expect(restoredConfig.heatSinkType.type).toBe('Double')
+      expect(restoredConfig.heatSinkType).toBe('Double')
       expect(restoredConfig.externalHeatSinks).toBe(5)
       expect(restoredConfig.jumpMP).toBe(3)
       
@@ -418,9 +418,9 @@ function createTestConfiguration(overrides: Partial<UnitConfiguration> = {}): Un
     engineRating: 200,
     runMP: 6,
     engineType: 'Standard',
-    gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
-    structureType: { type: 'Standard', techBase: 'Inner Sphere' },
-    armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+    gyroType: 'Standard',
+    structureType: 'Standard',
+    armorType: 'Standard',
     armorAllocation: {
       HD: { front: 9, rear: 0 },
       CT: { front: 30, rear: 10 },
@@ -432,7 +432,7 @@ function createTestConfiguration(overrides: Partial<UnitConfiguration> = {}): Un
       RL: { front: 30, rear: 0 }
     },
     armorTonnage: 8.0,
-    heatSinkType: { type: 'Single', techBase: 'Inner Sphere' },
+    heatSinkType: 'Single',
     totalHeatSinks: 10,
     internalHeatSinks: 8,
     externalHeatSinks: 2,
