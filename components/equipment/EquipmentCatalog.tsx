@@ -419,7 +419,7 @@ export default function EquipmentCatalog() {
               </thead>
               <tbody>
                 {catalog.items.map((variant) => (
-                  <EquipmentRow key={variant.name} variant={variant} />
+                  <EquipmentRow key={variant.id} variant={variant} />
                 ))}
               </tbody>
             </table>

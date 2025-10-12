@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useUnit } from '../multiUnit/MultiUnitProvider';
-import { EquipmentObject } from '../../utils/criticalSlots/CriticalSlot';
+import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot';
 import { 
   getEquipmentTypeBadgeClasses, 
   getEquipmentTypeDisplayName,
@@ -27,7 +27,7 @@ interface EquipmentTrayProps {
 
 // Individual equipment item component
 interface EquipmentTrayItemProps {
-  equipment: EquipmentObject;
+  equipment: EquipmentAllocation;
   index: number;
   onRemove: (id: string) => void;
   readOnly?: boolean;
@@ -39,7 +39,7 @@ function EquipmentTrayItem({ equipment, index, onRemove, readOnly = false }: Equ
   const equipmentAny = equipment as any;
   
   // Check for V2 EquipmentAllocation structure first (most common)
-  const actualEquipment = equipmentAny.equipmentData || equipmentAny;
+  const actualEquipment = equipment.equipmentData || equipmentAny;
   
   // Extract equipment data with comprehensive fallback patterns
   // Priority: V2 nested structure -> direct structure -> legacy patterns
@@ -130,7 +130,7 @@ function EquipmentTrayItem({ equipment, index, onRemove, readOnly = false }: Equ
   }
 
   // Check if this is a configuration-generated component that shouldn't be removable
-  const isConfigurationComponent = (equipment: any): boolean => {
+  const isConfigurationComponent = (equipment: EquipmentAllocation): boolean => {
     const actualEquipment = equipment.equipmentData || equipment;
     const name = actualEquipment.name?.toLowerCase() || '';
     
@@ -187,7 +187,7 @@ function EquipmentTrayItem({ equipment, index, onRemove, readOnly = false }: Equ
     }
     
     // Use equipmentGroupId for removal since that's what the unit manager expects
-    const removalId = equipmentAny.equipmentGroupId || equipmentData.id;
+    const removalId = equipment.equipmentGroupId || equipmentData.id;
     console.log('[EquipmentTrayItem] Attempting removal with ID:', removalId);
     
     onRemove(removalId);
@@ -276,7 +276,7 @@ export function EquipmentTray({ isExpanded, onToggle }: EquipmentTrayProps) {
 
   // Group and sort equipment
   const groupedEquipment = useMemo(() => {
-    const groups: { [key: string]: any[] } = {
+    const groups: { [key: string]: EquipmentAllocation[] } = {
       'Energy Weapons': [],
       'Ballistic Weapons': [],
       'Missile Weapons': [],
@@ -287,9 +287,9 @@ export function EquipmentTray({ isExpanded, onToggle }: EquipmentTrayProps) {
     };
 
     // Process and categorize equipment
-    unallocatedEquipment.forEach((equipment: any) => {
+    unallocatedEquipment.forEach((equipment: EquipmentAllocation) => {
       const actualEquipment = equipment.equipmentData || equipment;
-      const equipmentName = actualEquipment.name || actualEquipment.equipmentName || 'Unknown Equipment';
+      const equipmentName = actualEquipment.name || 'Unknown Equipment';
       
       // Classify using BattleTech color system
       const category = classifyEquipment(equipmentName);
@@ -330,14 +330,14 @@ export function EquipmentTray({ isExpanded, onToggle }: EquipmentTrayProps) {
     // Sort equipment within each group alphabetically
     Object.keys(groups).forEach(groupName => {
       groups[groupName].sort((a, b) => {
-        const nameA = (a.equipmentData?.name || a.name || '').toLowerCase();
-        const nameB = (b.equipmentData?.name || b.name || '').toLowerCase();
+        const nameA = (a.equipmentData?.name || '').toLowerCase();
+        const nameB = (b.equipmentData?.name || '').toLowerCase();
         return nameA.localeCompare(nameB);
       });
     });
 
     // Filter out empty groups and apply structural hiding
-    const filteredGroups: { [key: string]: any[] } = {};
+    const filteredGroups: { [key: string]: EquipmentAllocation[] } = {};
     Object.entries(groups).forEach(([groupName, items]) => {
       if (items.length > 0) {
         if (hideStructural && groupName === 'Structural') {
@@ -356,34 +356,16 @@ export function EquipmentTray({ isExpanded, onToggle }: EquipmentTrayProps) {
     let totalSlots = 0;
     let totalHeat = 0;
 
-    unallocatedEquipment.forEach((equipment: any) => {
+    unallocatedEquipment.forEach((equipment: EquipmentAllocation) => {
       // Check for V2 EquipmentAllocation structure first
       const actualEquipment = equipment.equipmentData || equipment;
       
       // Extract values with comprehensive fallback patterns
-      const weight = actualEquipment.weight || 
-                    actualEquipment.weight_tons || 
-                    actualEquipment.tonnage || 
-                    equipment.weight || 
-                    equipment.weight_tons || 
-                    equipment.tonnage || 
-                    0;
+      const weight = actualEquipment.weight || 0;
       
-      const slots = actualEquipment.requiredSlots || 
-                    actualEquipment.critical_slots || 
-                    actualEquipment.slots || 
-                    equipment.requiredSlots || 
-                    equipment.critical_slots || 
-                    equipment.slots || 
-                    0;
+      const slots = actualEquipment.requiredSlots || 0;
       
-      const heat = actualEquipment.heat || 
-                   actualEquipment.heat_generated || 
-                   actualEquipment.heatGeneration || 
-                   equipment.heat || 
-                   equipment.heat_generated || 
-                   equipment.heatGeneration || 
-                   0;
+      const heat = actualEquipment.heat || 0;
       
       totalWeight += weight;
       totalSlots += slots;
@@ -556,9 +538,9 @@ export function EquipmentTray({ isExpanded, onToggle }: EquipmentTrayProps) {
                   
                   {/* Group Items */}
                   <div className="space-y-1 pl-2">
-                    {items.map((equipment: any, index: number) => (
+                    {items.map((equipment: EquipmentAllocation, index: number) => (
                       <EquipmentTrayItem
-                        key={`${equipment.id || equipment.equipmentGroupId}-${index}`}
+                        key={`${equipment.equipmentGroupId}-${index}`}
                         equipment={equipment}
                         index={index}
                         onRemove={handleRemoveEquipment}

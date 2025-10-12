@@ -246,7 +246,7 @@ const UnitCompendiumList: React.FC<UnitCompendiumListProps> = ({ filters, select
               <tbody className="bg-white divide-y divide-gray-200">
                 {units.map((unit) => (
                   <tr 
-                    key={unit.name} 
+                    key={unit.id} 
                     className="hover:bg-blue-50 cursor-pointer transition-colors duration-150"
                     onClick={() => handleUnitClick(unit.id)}
                   >

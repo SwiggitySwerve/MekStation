@@ -6,9 +6,10 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { UnitPersistenceService, UnitIdentifier, UnitLoadResult, generateUnitId } from '../../utils/unit/UnitPersistenceService'
-import { UnitCriticalManager, UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManager'
+import { UnitCriticalManager } from '../../utils/criticalSlots/UnitCriticalManager'
+import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
 import { UnitStateManager } from '../../utils/criticalSlots/UnitStateManager'
-import { EngineType, GyroType } from '../../utils/criticalSlots/SystemComponentRules'
+import { EngineType, GyroType } from '../../types/components'
 import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot'
 import { MultiTabDebouncedSaveManager } from '../../utils/DebouncedSaveManager'
 
@@ -19,8 +20,8 @@ interface SingleUnitContextValue {
   engineType: EngineType | null
   gyroType: GyroType | null
   unallocatedEquipment: EquipmentAllocation[]
-  validation: any
-  summary: any
+  validation: Record<string, unknown>
+  summary: Record<string, unknown>
   isConfigLoaded: boolean
   selectedEquipmentId: string | null
   
@@ -33,13 +34,13 @@ interface SingleUnitContextValue {
   changeEngine: (engineType: EngineType) => void
   changeGyro: (gyroType: GyroType) => void
   updateConfiguration: (config: UnitConfiguration) => void
-  addTestEquipment: (equipment: any, location: string, startSlot?: number) => boolean
-  addEquipmentToUnit: (equipment: any) => void
+  addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => boolean
+  addEquipmentToUnit: (equipment: EquipmentAllocation) => void
   removeEquipment: (equipmentGroupId: string) => boolean
   resetUnit: (config?: UnitConfiguration) => void
   selectEquipment: (equipmentGroupId: string | null) => void
   assignSelectedEquipment: (location: string, slotIndex: number) => boolean
-  getDebugInfo: () => any
+  getDebugInfo: () => Record<string, unknown>
   
   // Save operations
   saveUnit: () => void
@@ -275,7 +276,7 @@ export function SingleUnitProvider({
       }
     },
     
-    addTestEquipment: (equipment: any, location: string, startSlot?: number) => {
+    addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => {
       if (!stateManager) return false
       
       const result = stateManager.addTestEquipment(equipment, location, startSlot)
@@ -291,7 +292,7 @@ export function SingleUnitProvider({
       return result
     },
     
-    addEquipmentToUnit: (equipment: any) => {
+    addEquipmentToUnit: (equipment: EquipmentAllocation) => {
       if (!stateManager) return
       
       stateManager.addUnallocatedEquipment(equipment)

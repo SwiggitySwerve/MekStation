@@ -682,7 +682,7 @@ const EquipmentDatabase: React.FC<EquipmentDatabaseProps> = ({
         <div className="flex flex-wrap gap-1">
           {categoriesWithCounts.map(category => (
             <button
-              key={category.name}
+              key={category.id}
               onClick={() => onCategoryChange(category.id)}
               className={`px-2 py-1 text-xs rounded transition-colors ${
                 selectedCategory === category.id

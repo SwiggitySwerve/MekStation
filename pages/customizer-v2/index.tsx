@@ -16,14 +16,14 @@ import { EquipmentTray } from '../../components/criticalSlots/EquipmentTray';
 import { EquipmentAllocationDebugPanel } from '../../components/criticalSlots/EquipmentAllocationDebugPanel';
 
 // Import Overview tab
-import { OverviewTabV2 } from '../../components/overview/OverviewTabV2';
+import { OverviewTab } from '../../components/overview/OverviewTab';
 
 // Import extracted tab components
-import { StructureTabV2 } from '../../components/editor/tabs/StructureTabV2';
-import { ArmorTabV2 } from '../../components/editor/tabs/ArmorTabV2';
-import { EquipmentTabV2 } from '../../components/editor/tabs/EquipmentTabV2';
-import { CriticalsTabV2 } from '../../components/editor/tabs/CriticalsTabV2';
-import { FluffTabV2 } from '../../components/editor/tabs/FluffTabV2';
+import { StructureTab } from '../../components/editor/tabs/StructureTab';
+import { ArmorTab } from '../../components/editor/tabs/ArmorTab';
+import { EquipmentTab } from '../../components/editor/tabs/EquipmentTab';
+import { CriticalsTab } from '../../components/editor/tabs/CriticalsTab';
+import { FluffTab } from '../../components/editor/tabs/FluffTab';
 
 // Import reset functionality
 import { ResetConfirmationDialog } from '../../components/common/ResetConfirmationDialog';
@@ -119,38 +119,38 @@ function CustomizerV2Content() {
     {
       id: 'overview',
       label: 'Overview',
-      component: OverviewTabV2
+      component: OverviewTab
     },
     {
       id: 'structure',
       label: 'Structure',
-      component: StructureTabV2
+      component: StructureTab
     },
     {
       id: 'armor',
       label: 'Armor',
-      component: ArmorTabV2
+      component: ArmorTab
     },
     {
       id: 'equipment',
       label: 'Equipment',
-      component: EquipmentTabV2
+      component: EquipmentTab
     },
     {
       id: 'criticals',
       label: 'Criticals',
-      component: CriticalsTabV2
+      component: CriticalsTab
     },
     {
       id: 'fluff',
       label: 'Fluff',
-      component: FluffTabV2
+      component: FluffTab
     }
   ], []);
 
   // Memoize the active tab component to prevent unnecessary re-renders
   const ActiveTabComponent = useMemo(() => {
-    return tabs.find(tab => tab.id === activeTab)?.component || OverviewTabV2;
+    return tabs.find(tab => tab.id === activeTab)?.component || OverviewTab;
   }, [activeTab, tabs]);
 
   return (

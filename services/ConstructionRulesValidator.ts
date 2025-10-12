@@ -10,6 +10,7 @@
 
 import { UnitConfiguration } from '../utils/criticalSlots/UnitCriticalManager';
 import { ComponentConfiguration, TechBase } from '../types/componentConfiguration';
+import { EquipmentAllocation } from '../utils/criticalSlots/CriticalSlot';
 import { WeightRulesValidator } from './validation/WeightRulesValidator';
 import { HeatRulesValidator } from './validation/HeatRulesValidator';
 import { CriticalSlotRulesValidator } from '../../services/validation/CriticalSlotRulesValidatorRefactored';
@@ -54,45 +55,45 @@ import type {
 
 export interface ConstructionRulesValidator {
   // Core validation methods
-  validateUnit(config: UnitConfiguration, equipment: any[]): ValidationResult;
+  validateUnit(config: UnitConfiguration, equipment: EquipmentAllocation[]): ValidationResult;
   validateConfiguration(config: UnitConfiguration): ConfigurationValidation;
-  validateEquipmentLoadout(equipment: any[], config: UnitConfiguration): LoadoutValidation;
+  validateEquipmentLoadout(equipment: EquipmentAllocation[], config: UnitConfiguration): LoadoutValidation;
   
   // BattleTech rule checking methods
-  validateWeightLimits(config: UnitConfiguration, equipment: any[]): WeightValidation;
-  validateHeatManagement(config: UnitConfiguration, equipment: any[]): HeatValidation;
+  validateWeightLimits(config: UnitConfiguration, equipment: EquipmentAllocation[]): WeightValidation;
+  validateHeatManagement(config: UnitConfiguration, equipment: EquipmentAllocation[]): HeatValidation;
   validateMovementRules(config: UnitConfiguration): MovementValidation;
   validateArmorRules(config: UnitConfiguration): ArmorValidation;
   validateStructureRules(config: UnitConfiguration): StructureValidation;
   validateEngineRules(config: UnitConfiguration): EngineValidation;
   validateGyroRules(config: UnitConfiguration): GyroValidation;
   validateCockpitRules(config: UnitConfiguration): CockpitValidation;
-  validateJumpJetRules(config: UnitConfiguration, equipment: any[]): JumpJetValidation;
-  validateWeaponRules(equipment: any[], config: UnitConfiguration): WeaponValidation;
-  validateAmmoRules(equipment: any[], config: UnitConfiguration): AmmoValidation;
-  validateSpecialEquipmentRules(equipment: any[], config: UnitConfiguration): SpecialEquipmentValidation;
+  validateJumpJetRules(config: UnitConfiguration, equipment: EquipmentAllocation[]): JumpJetValidation;
+  validateWeaponRules(equipment: EquipmentAllocation[], config: UnitConfiguration): WeaponValidation;
+  validateAmmoRules(equipment: EquipmentAllocation[], config: UnitConfiguration): AmmoValidation;
+  validateSpecialEquipmentRules(equipment: EquipmentAllocation[], config: UnitConfiguration): SpecialEquipmentValidation;
   
   // Tech level validation methods
-  validateTechLevel(config: UnitConfiguration, equipment: any[]): TechLevelValidation;
-  validateMixedTech(config: UnitConfiguration, equipment: any[]): MixedTechValidation;
-  validateEraRestrictions(config: UnitConfiguration, equipment: any[]): EraValidation;
-  validateAvailabilityRating(equipment: any[], config: UnitConfiguration): AvailabilityValidation;
+  validateTechLevel(config: UnitConfiguration, equipment: EquipmentAllocation[]): TechLevelValidation;
+  validateMixedTech(config: UnitConfiguration, equipment: EquipmentAllocation[]): MixedTechValidation;
+  validateEraRestrictions(config: UnitConfiguration, equipment: EquipmentAllocation[]): EraValidation;
+  validateAvailabilityRating(equipment: EquipmentAllocation[], config: UnitConfiguration): AvailabilityValidation;
   
   // Component-specific validation
   validateComponentCompatibility(config: UnitConfiguration): CompatibilityValidation;
   validateSpecialComponents(config: UnitConfiguration): SpecialComponentValidation;
-  validateCriticalSlots(config: UnitConfiguration, equipment: any[]): CriticalSlotValidation;
+  validateCriticalSlots(config: UnitConfiguration, equipment: EquipmentAllocation[]): CriticalSlotValidation;
   
   // Construction efficiency validation
-  validateConstructionEfficiency(config: UnitConfiguration, equipment: any[]): EfficiencyValidation;
-  validateDesignOptimization(config: UnitConfiguration, equipment: any[]): OptimizationValidation;
+  validateConstructionEfficiency(config: UnitConfiguration, equipment: EquipmentAllocation[]): EfficiencyValidation;
+  validateDesignOptimization(config: UnitConfiguration, equipment: EquipmentAllocation[]): OptimizationValidation;
   
   // Rule compliance reporting
-  generateComplianceReport(config: UnitConfiguration, equipment: any[]): ComplianceReport;
+  generateComplianceReport(config: UnitConfiguration, equipment: EquipmentAllocation[]): ComplianceReport;
   generateValidationSummary(validations: ValidationResult[]): ValidationSummary;
   generateRuleViolationReport(violations: RuleViolation[]): ViolationReport;
   suggestComplianceFixes(violations: RuleViolation[]): ComplianceFix[];
-  calculateRuleScore(config: UnitConfiguration, equipment: any[]): RuleScore;
+  calculateRuleScore(config: UnitConfiguration, equipment: EquipmentAllocation[]): RuleScore;
 }
 
 export interface ValidationResult {

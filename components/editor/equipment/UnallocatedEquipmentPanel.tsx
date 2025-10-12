@@ -52,7 +52,7 @@ const UnallocatedEquipmentPanel: React.FC<UnallocatedEquipmentPanelProps> = ({
       <div className="space-y-3 max-h-80 overflow-y-auto">
         {unallocatedEquipment.map(placement => (
           <div
-            key={placement.name}
+            key={placement.id}
             className="equipment-placement border border-gray-200 rounded-lg p-3 bg-gray-50"
           >
             {/* Equipment Info */}

@@ -4,16 +4,18 @@
  */
 
 import { calculateInternalHeatSinks } from '../utils/heatSinkCalculations';
-import { ComponentConfiguration } from './componentConfiguration'
+import { 
+  EngineType, 
+  GyroType, 
+  CockpitType, 
+  StructureType, 
+  ArmorType, 
+  HeatSinkType,
+  TechBase 
+} from './components';
 
-// Enhanced engine types with IS/Clan differentiation
-export type EngineType = 'Standard' | 'XL (IS)' | 'XL (Clan)' | 'Light' | 'XXL' | 'Compact' | 'ICE' | 'Fuel Cell';
-export type GyroType = ComponentConfiguration
-export type CockpitType = 'Standard' | 'Small' | 'Command Console' | 'Torso-Mounted' | 'Interface' | 'Primitive';
-export type StructureType = ComponentConfiguration
-export type ArmorType = ComponentConfiguration
-// Enhanced heat sink types with IS/Clan differentiation
-export type HeatSinkType = ComponentConfiguration
+// Re-export types for convenience
+export { EngineType, GyroType, CockpitType, StructureType, ArmorType, HeatSinkType, TechBase };
 
 export interface EngineComponent {
   type: EngineType;

@@ -463,9 +463,9 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
       };
       
       if (actuatorAction === 'remove') {
-        removeActuator(criticalAllocations, systemComponents as SystemComponents, location, actuatorType);
+        removeActuator(criticalAllocations, systemComponents, location, actuatorType);
       } else {
-        addActuator(criticalAllocations, systemComponents as SystemComponents, location, actuatorType);
+        addActuator(criticalAllocations, systemComponents, location, actuatorType);
       }
       
       // Convert to legacy criticals format

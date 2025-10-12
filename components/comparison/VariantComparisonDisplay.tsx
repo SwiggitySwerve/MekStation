@@ -59,7 +59,7 @@ const VariantComparisonDisplay: React.FC<VariantComparisonDisplayProps> = ({ com
 
         {/* Column for Variant A */}
         <div className="border p-3 rounded bg-gray-50">
-          <h3 className="text-lg font-bold text-blue-700 mb-2">Variant A (ID: {variantADetails.name})</h3>
+          <h3 className="text-lg font-bold text-blue-700 mb-2">Variant A: {variantADetails.variant_name}</h3>
           <p className="text-xs text-gray-600 mb-1">Saved: {new Date(variantADetails.created_at).toLocaleString()}</p>
           {variantADetails.notes && <p className="text-xs italic text-gray-700 mb-2">Notes: {variantADetails.notes}</p>}
           <p className="text-sm font-semibold">Equipment Tonnage: {totalEquipmentTonnageA.toFixed(2)} tons</p>
@@ -68,7 +68,7 @@ const VariantComparisonDisplay: React.FC<VariantComparisonDisplayProps> = ({ com
 
         {/* Column for Variant B */}
         <div className="border p-3 rounded bg-gray-50">
-          <h3 className="text-lg font-bold text-green-700 mb-2">Variant B (ID: {variantBDetails.name})</h3>
+          <h3 className="text-lg font-bold text-green-700 mb-2">Variant B: {variantBDetails.variant_name}</h3>
           <p className="text-xs text-gray-600 mb-1">Saved: {new Date(variantBDetails.created_at).toLocaleString()}</p>
           {variantBDetails.notes && <p className="text-xs italic text-gray-700 mb-2">Notes: {variantBDetails.notes}</p>}
           <p className="text-sm font-semibold">Equipment Tonnage: {totalEquipmentTonnageB.toFixed(2)} tons</p>

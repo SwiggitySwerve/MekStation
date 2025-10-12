@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react'
-import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManager'
+import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
 import { useMultiUnit } from './MultiUnitProvider'
 
 interface NewTabModalProps {

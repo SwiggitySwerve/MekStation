@@ -10,6 +10,7 @@
 import { UnitConfiguration } from './UnitCriticalManagerTypes';
 import { ComponentConfiguration, TechBase } from '../../types/componentConfiguration';
 import { SystemComponentsGateway } from '../../services/systemComponents/SystemComponentsGateway';
+import { EquipmentAllocation } from './CriticalSlot';
 // TODO: STRUCTURE_DATA and ARMOR_DATA need to be migrated to new adapters
 // import { STRUCTURE_DATA, ARMOR_DATA } from '../../services/ComponentDatabaseService';
 import { SlotCalculationManager, SlotRequirements, AvailableSlots, SlotUtilization } from './SlotCalculationManager';
@@ -34,14 +35,14 @@ import {
 
 export interface CriticalSlotCalculator {
   // Core slot calculations
-  calculateRequiredSlots(config: UnitConfiguration, equipment: any[]): SlotRequirements;
+  calculateRequiredSlots(config: UnitConfiguration, equipment: EquipmentAllocation[]): SlotRequirements;
   calculateAvailableSlots(config: UnitConfiguration): AvailableSlots;
-  calculateSlotUtilization(config: UnitConfiguration, equipment: any[]): SlotUtilization;
+  calculateSlotUtilization(config: UnitConfiguration, equipment: EquipmentAllocation[]): SlotUtilization;
   
   // Allocation methods
-  allocateEquipmentSlots(config: UnitConfiguration, equipment: any[]): AllocationResult;
-  optimizeSlotAllocation(config: UnitConfiguration, equipment: any[]): OptimizationResult;
-  validateSlotAllocation(config: UnitConfiguration, equipment: any[]): ValidationResult;
+  allocateEquipmentSlots(config: UnitConfiguration, equipment: EquipmentAllocation[]): AllocationResult;
+  optimizeSlotAllocation(config: UnitConfiguration, equipment: EquipmentAllocation[]): OptimizationResult;
+  validateSlotAllocation(config: UnitConfiguration, equipment: EquipmentAllocation[]): ValidationResult;
   
   // Special component handling
   allocateSpecialComponents(config: UnitConfiguration): SpecialComponentAllocation;
@@ -49,18 +50,18 @@ export interface CriticalSlotCalculator {
   calculateFerroFibrousSlots(config: UnitConfiguration): FerroFibrousSlotAllocation;
   
   // Slot conflict resolution
-  detectSlotConflicts(config: UnitConfiguration, equipment: any[]): SlotConflict[];
+  detectSlotConflicts(config: UnitConfiguration, equipment: EquipmentAllocation[]): SlotConflict[];
   resolveSlotConflicts(conflicts: SlotConflict[]): ConflictResolution;
-  suggestSlotReorganization(config: UnitConfiguration, equipment: any[]): ReorganizationSuggestion[];
+  suggestSlotReorganization(config: UnitConfiguration, equipment: EquipmentAllocation[]): ReorganizationSuggestion[];
   
   // Analysis and reporting
-  analyzeSlotEfficiency(config: UnitConfiguration, equipment: any[]): EfficiencyAnalysis;
-  generateSlotReport(config: UnitConfiguration, equipment: any[]): SlotReport;
-  findAvailableSlots(config: UnitConfiguration, equipment: any[], requiredSlots: number): AvailableSlotLocation[];
+  analyzeSlotEfficiency(config: UnitConfiguration, equipment: EquipmentAllocation[]): EfficiencyAnalysis;
+  generateSlotReport(config: UnitConfiguration, equipment: EquipmentAllocation[]): SlotReport;
+  findAvailableSlots(config: UnitConfiguration, equipment: EquipmentAllocation[], requiredSlots: number): AvailableSlotLocation[];
 }
 
 export interface EquipmentAllocation {
-  equipment: any;
+  equipment: Record<string, unknown>;
   location: string;
   slots: number[];
   validated: boolean;

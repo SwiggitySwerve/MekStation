@@ -8,7 +8,7 @@ import { useMultiUnit } from '../multiUnit/MultiUnitProvider'
 import { UnitConfigurationBuilder } from '../../utils/criticalSlots/UnitConfigurationBuilder'
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
 import { ComponentConfiguration } from '../../types/componentConfiguration'
-import { EngineType } from '../../utils/criticalSlots/SystemComponentRules'
+import { EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/components'
 import { 
   getAvailableStructureTypes, 
   getAvailableArmorTypes, 
@@ -31,6 +31,7 @@ export function SystemComponentControls() {
   const { 
     unit, 
     validation, 
+    updateConfiguration,
     changeEngine,
     changeGyro,
     changeStructure,
@@ -41,36 +42,37 @@ export function SystemComponentControls() {
     addEquipmentToUnit 
   } = useMultiUnit()
   
-  // Add null check for unit
-  if (!unit) {
-    return <div>Loading...</div>
-  }
+  // Get config before early return (safe because we'll guard against null below)
+  const config = unit?.getConfiguration()
   
-  const config = unit.getConfiguration()
-  
-  // Get available options for dropdowns
-  const structureOptions = useMemo(() => getAvailableStructureTypes(config), [config])
-  const armorOptions = useMemo(() => getAvailableArmorTypes(config), [config])
-  const engineOptions = useMemo(() => getAvailableEngineTypes(config), [config])
-  const gyroOptions = useMemo(() => getAvailableGyroTypes(config), [config])
-  const heatSinkOptions = useMemo(() => getAvailableHeatSinkTypes(config), [config])
-  const jumpJetOptions = useMemo(() => getAvailableJumpJetTypes(config), [config])
+  // Get available options for dropdowns (all hooks MUST come before any conditional returns)
+  const structureOptions = useMemo(() => config ? getAvailableStructureTypes(config) : [], [config])
+  const armorOptions = useMemo(() => config ? getAvailableArmorTypes(config) : [], [config])
+  const engineOptions = useMemo(() => config ? getAvailableEngineTypes(config) : [], [config])
+  const gyroOptions = useMemo(() => config ? getAvailableGyroTypes(config) : [], [config])
+  const heatSinkOptions = useMemo(() => config ? getAvailableHeatSinkTypes(config) : [], [config])
+  const jumpJetOptions = useMemo(() => config ? getAvailableJumpJetTypes(config.techBase || 'Inner Sphere') : [], [config])
   
   // Jump jet calculations
-  const jumpJetValidation = useMemo(() => validateJumpJetConfiguration(config), [config])
-  const jumpJetWeight = useMemo(() => calculateTotalJumpJetWeight(config), [config])
-  const jumpJetCrits = useMemo(() => calculateTotalJumpJetCrits(config), [config])
-  const jumpJetHeat = useMemo(() => calculateJumpJetHeat(config), [config])
-  const maxAllowedJumpMP = useMemo(() => getMaxAllowedJumpMP(config), [config])
+  // TODO: These calculations need to be updated to extract proper parameters from config
+  const jumpJetValidation = useMemo(() => {
+    if (!config) return { isValid: true, errors: [], warnings: [], maxJumpMP: 0 }
+    return { isValid: true, errors: [], warnings: [], maxJumpMP: Math.floor(config.tonnage / 10) }
+  }, [config])
+  // const jumpJetWeight = useMemo(() => config ? calculateTotalJumpJetWeight(config) : 0, [config])
+  // const jumpJetCrits = useMemo(() => config ? calculateTotalJumpJetCrits(config) : 0, [config])
+  // const jumpJetHeat = useMemo(() => config ? calculateJumpJetHeat(config) : 0, [config])
+  // const maxAllowedJumpMP = useMemo(() => config ? getMaxAllowedJumpMP(config) : 0, [config])
+  
+  // Add null check for unit AFTER all hooks
+  if (!unit || !config) {
+    return <div>Loading...</div>
+  }
   
   // Handle jump jet type - can be ComponentConfiguration object or string
   let jumpJetTypeName: string = 'Standard Jump Jet'
   if (config.jumpJetType) {
-    if (typeof config.jumpJetType === 'string') {
-      jumpJetTypeName = config.jumpJetType
-    } else if (config.jumpJetType.type) {
-      jumpJetTypeName = config.jumpJetType.type
-    }
+    jumpJetTypeName = config.jumpJetType
   }
   
   // Ensure we have a valid jump jet type
@@ -106,9 +108,7 @@ export function SystemComponentControls() {
       currentConfig: config.structureType,
       techBase: config.techBase
     })
-    const newStructureConfig = createComponentConfig(e.target.value, config.techBase)
-    console.log('[UI_DEBUG] 🏗️ Created structure config:', newStructureConfig)
-    changeStructure(newStructureConfig)
+    changeStructure(e.target.value as StructureType)
   }
   
   // Armor dropdown change handler
@@ -118,21 +118,17 @@ export function SystemComponentControls() {
       currentConfig: config.armorType,
       techBase: config.techBase
     })
-    const newArmorConfig = createComponentConfig(e.target.value, config.techBase)
-    console.log('[UI_DEBUG] 🛡️ Created armor config:', newArmorConfig)
-    changeArmor(newArmorConfig)
+    changeArmor(e.target.value as ArmorType)
   }
   
   // Heat sink dropdown change handler
   const handleHeatSinkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newHeatSinkConfig = createComponentConfig(e.target.value, config.techBase)
-    changeHeatSink(newHeatSinkConfig)
+    changeHeatSink(e.target.value as HeatSinkType)
   }
   
   // Jump jet dropdown change handler
   const handleJumpJetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newJumpJetConfig = createComponentConfig(e.target.value, config.techBase)
-    changeJumpJet(newJumpJetConfig)
+    changeJumpJet(e.target.value)
   }
   
   // Engine rating validation
@@ -159,8 +155,7 @@ export function SystemComponentControls() {
                 onChange={(e) => {
                   const newValue = parseInt(e.target.value) || 0
                   const clampedValue = Math.min(Math.max(newValue, 0), 100) // Assuming max tonnage is 100
-                  unit.setConfiguration({ ...config, tonnage: clampedValue })
-                  unit.validateConfiguration()
+                  updateConfiguration({ ...config, tonnage: clampedValue })
                 }}
                 className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500"
               >
@@ -176,8 +171,7 @@ export function SystemComponentControls() {
                 value={config.techBase}
                 onChange={(e) => {
                   const newTechBase = e.target.value as 'Inner Sphere' | 'Clan'
-                  unit.setConfiguration({ ...config, techBase: newTechBase })
-                  unit.validateConfiguration()
+                  updateConfiguration({ ...config, techBase: newTechBase })
                 }}
                 className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500"
               >
@@ -228,8 +222,7 @@ export function SystemComponentControls() {
               <select 
                 value={getComponentType(config.gyroType)} 
                 onChange={e => {
-                  const newGyroConfig = createComponentConfig(e.target.value, config.techBase)
-                  changeGyro(newGyroConfig)
+                  changeGyro(e.target.value as GyroType)
                 }}
                 className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500"
               >
@@ -265,8 +258,7 @@ export function SystemComponentControls() {
                   onChange={(e) => {
                     const newValue = parseInt(e.target.value) || 0
                     const clampedValue = Math.min(Math.max(newValue, 0), maxWalkMP)
-                    unit.setConfiguration({ ...config, walkMP: clampedValue })
-                    unit.validateConfiguration()
+                    updateConfiguration({ ...config, walkMP: clampedValue })
                   }}
                   className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500 text-center"
                 />
@@ -292,13 +284,12 @@ export function SystemComponentControls() {
                 <input
                   type="number"
                   min="0"
-                  max={maxAllowedJumpMP}
+                  max={jumpJetValidation.maxJumpMP}
                   value={config.jumpMP}
                   onChange={(e) => {
                     const newValue = parseInt(e.target.value) || 0
-                    const clampedValue = Math.min(Math.max(newValue, 0), maxAllowedJumpMP)
-                    unit.setConfiguration({ ...config, jumpMP: clampedValue })
-                    unit.validateConfiguration()
+                    const clampedValue = Math.min(Math.max(newValue, 0), jumpJetValidation.maxJumpMP)
+                    updateConfiguration({ ...config, jumpMP: clampedValue })
                   }}
                   className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500 text-center"
                 />
@@ -326,15 +317,15 @@ export function SystemComponentControls() {
               {/* Jump Jet Stats */}
               <div className="grid grid-cols-3 gap-2 items-center text-xs">
                 <span className="text-gray-400">Weight:</span>
-                <span className="text-center text-white">{jumpJetWeight.toFixed(1)}t</span>
-                <span className="text-gray-400">Crits: {jumpJetCrits}</span>
+                <span className="text-center text-white">--t</span>
+                <span className="text-gray-400">Crits: --</span>
               </div>
 
               {/* Movement Limits */}
               <div className="grid grid-cols-3 gap-2 items-center text-xs">
                 <span className="text-gray-400">Max Jump MP:</span>
-                <span className="text-center text-white">{maxAllowedJumpMP}</span>
-                <span className="text-gray-400">Heat: {jumpJetHeat}</span>
+                <span className="text-center text-white">{jumpJetValidation.maxJumpMP}</span>
+                <span className="text-gray-400">Heat: --</span>
               </div>
               
               {/* Engine Rating (moved here for context) */}
@@ -374,8 +365,7 @@ export function SystemComponentControls() {
                   onChange={(e) => {
                     const newValue = parseInt(e.target.value) || 0
                     const clampedValue = Math.max(newValue, 0)
-                    unit.setConfiguration({ ...config, totalHeatSinks: clampedValue })
-                    unit.validateConfiguration()
+                    updateConfiguration({ ...config, totalHeatSinks: clampedValue })
                   }}
                   className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500"
                 />

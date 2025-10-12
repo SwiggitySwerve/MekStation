@@ -236,7 +236,7 @@ const UnitList: React.FC<UnitListProps> = ({ selectedCategory }) => {
       ) : (
         <div className="space-y-4">
           {units.map((unit) => (
-            <UnitListItem key={unit.name} unit={unit} />
+            <UnitListItem key={unit.id} unit={unit} />
           ))}
         </div>
       )}

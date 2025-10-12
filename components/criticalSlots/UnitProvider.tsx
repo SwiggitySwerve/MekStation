@@ -5,8 +5,9 @@
 
 import React, { createContext, useContext, useMemo, useReducer, useEffect, useRef, useCallback, useState } from 'react'
 import { UnitStateManager } from '../../utils/criticalSlots/UnitStateManager'
-import { UnitCriticalManager, UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManager'
-import { EngineType, GyroType } from '../../utils/criticalSlots/SystemComponentRules'
+import { UnitCriticalManager } from '../../utils/criticalSlots/UnitCriticalManager'
+import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
+import { EngineType, GyroType } from '../../types/components'
 import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot'
 
 interface UnitContextValue {
@@ -14,8 +15,8 @@ interface UnitContextValue {
   engineType: EngineType
   gyroType: GyroType
   unallocatedEquipment: EquipmentAllocation[]
-  validation: any
-  summary: any
+  validation: Record<string, unknown>
+  summary: Record<string, unknown>
   // Loading state
   isConfigLoaded: boolean
   // Selection state
@@ -24,8 +25,8 @@ interface UnitContextValue {
   changeEngine: (engineType: EngineType) => void
   changeGyro: (gyroType: GyroType) => void
   updateConfiguration: (config: UnitConfiguration) => void
-  addTestEquipment: (equipment: any, location: string, startSlot?: number) => boolean
-  addEquipmentToUnit: (equipment: any) => void
+  addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => boolean
+  addEquipmentToUnit: (equipment: EquipmentAllocation) => void
   removeEquipment: (equipmentGroupId: string) => boolean
   resetUnit: (config?: UnitConfiguration) => void
   // Selection functions
@@ -190,11 +191,11 @@ export function UnitProvider({ children, initialConfiguration }: UnitProviderPro
         // Save configuration to localStorage after update
         saveConfiguration(config)
       },
-      addTestEquipment: (equipment: any, location: string, startSlot?: number) => {
+      addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => {
         console.log(`Context: Adding equipment ${equipment.name} to ${location}`)
         return stateManager.addTestEquipment(equipment, location, startSlot)
       },
-      addEquipmentToUnit: (equipment: any) => {
+      addEquipmentToUnit: (equipment: EquipmentAllocation) => {
         console.log(`Context: Adding equipment ${equipment.name} to unit as unallocated`)
         stateManager.addUnallocatedEquipment(equipment)
       },

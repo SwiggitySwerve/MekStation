@@ -58,7 +58,7 @@ const UnitBuildRecommendations: React.FC<UnitBuildRecommendationsProps> = ({
       <div className="space-y-3 max-h-64 overflow-y-auto">
         {recommendations.map((recommendation) => (
           <div 
-            key={recommendation.name} 
+            key={recommendation.id} 
             className={`p-3 border rounded ${getPriorityColor(recommendation.priority)}`}
           >
             <div className="flex items-start justify-between">

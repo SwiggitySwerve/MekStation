@@ -8,11 +8,9 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import { UnitStateManager } from '../../utils/criticalSlots/UnitStateManager'
 import { UnitCriticalManager } from '../../utils/criticalSlots/UnitCriticalManager'
 import { UnitConfiguration, CompleteUnitState } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
-import { EngineType } from '../../utils/criticalSlots/SystemComponentRules'
-import { ComponentConfiguration } from '../../types/componentConfiguration'
+import { EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/components'
 import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot'
 import { MultiTabDebouncedSaveManager, SaveManagerBrowserHandlers } from '../../utils/DebouncedSaveManager'
-import { createComponentConfiguration, createDefaultComponentConfiguration } from '../../types/componentConfiguration'
 import { componentUpdateAdapter } from '../../services/ComponentUpdateAdapter'
 
 // Tab unit interface
@@ -61,29 +59,29 @@ interface MultiUnitContextValue {
   // Active tab unit operations (proxy to current tab's unit)
   unit: UnitCriticalManager | null
   engineType: EngineType | null
-  gyroType: any | null // Removed GyroType import, so it's any for now
+  gyroType: GyroType | null
   unallocatedEquipment: EquipmentAllocation[]
-  validation: any
-  summary: any
+  validation: Record<string, unknown>
+  summary: Record<string, unknown>
   isConfigLoaded: boolean
   selectedEquipmentId: string | null
   unitVersion: number // CRITICAL: Include unit version to force re-renders
   
   // Active tab action functions
   changeEngine: (engineType: EngineType) => void
-  changeGyro: (gyroType: any) => void // Removed GyroType import, so it's any for now
-  changeStructure: (structureType: ComponentConfiguration | string) => void
-  changeArmor: (armorType: ComponentConfiguration | string) => void
-  changeHeatSink: (heatSinkType: ComponentConfiguration | string) => void
-  changeJumpJet: (jumpJetType: ComponentConfiguration | string) => void
+  changeGyro: (gyroType: GyroType) => void
+  changeStructure: (structureType: StructureType) => void
+  changeArmor: (armorType: ArmorType) => void
+  changeHeatSink: (heatSinkType: HeatSinkType) => void
+  changeJumpJet: (jumpJetType: string) => void
   updateConfiguration: (config: UnitConfiguration) => void
-  addTestEquipment: (equipment: any, location: string, startSlot?: number) => boolean
-  addEquipmentToUnit: (equipment: any) => void
+  addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => boolean
+  addEquipmentToUnit: (equipment: EquipmentAllocation) => void
   removeEquipment: (equipmentGroupId: string) => boolean
   resetUnit: (config?: UnitConfiguration) => void
   selectEquipment: (equipmentGroupId: string | null) => void
   assignSelectedEquipment: (location: string, slotIndex: number) => boolean
-  getDebugInfo: () => any
+  getDebugInfo: () => Record<string, unknown>
 }
 
 const MultiUnitContext = createContext<MultiUnitContextValue | null>(null)
@@ -100,9 +98,9 @@ const createDefaultConfiguration = (): UnitConfiguration => ({
   engineRating: 200,
   runMP: 6,
   engineType: 'Standard',
-  gyroType: createComponentConfiguration('gyro', 'Standard')!,
-  structureType: createComponentConfiguration('structure', 'Standard')!,
-  armorType: createComponentConfiguration('armor', 'Standard')!,
+  gyroType: 'Standard',
+  structureType: 'Standard',
+  armorType: 'Standard',
   armorAllocation: {
     HD: { front: 9, rear: 0 },
     CT: { front: 20, rear: 6 },
@@ -885,7 +883,7 @@ export function MultiUnitProvider({ children }: MultiUnitProviderProps) {
   const debugLocalStorage = () => {
     if (typeof window === 'undefined') return {}
     
-    const debug: any = {}
+    const debug: Record<string, unknown> = {}
     const keys = Object.keys(localStorage)
     
     keys.forEach(key => {
@@ -948,7 +946,7 @@ export function MultiUnitProvider({ children }: MultiUnitProviderProps) {
       // Save complete state with debouncing (configuration changes are significant)
       saveCompleteStateImmediately(activeTab.id, activeTab.unitManager)
     },
-    changeGyro: (gyroType: any) => { // Removed GyroType import, so it's any for now
+    changeGyro: (gyroType: GyroType) => {
       if (!activeTab) return
       activeTab.stateManager.handleGyroChange(gyroType)
       activeTab.isModified = true
@@ -1081,7 +1079,7 @@ export function MultiUnitProvider({ children }: MultiUnitProviderProps) {
       }
     },
     updateConfiguration: updateActiveTabConfiguration,
-    addTestEquipment: (equipment: any, location: string, startSlot?: number) => {
+    addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => {
       if (!activeTab) return false
       const result = activeTab.stateManager.addTestEquipment(equipment, location, startSlot)
       
@@ -1102,7 +1100,7 @@ export function MultiUnitProvider({ children }: MultiUnitProviderProps) {
       
       return result
     },
-    addEquipmentToUnit: (equipment: any) => {
+    addEquipmentToUnit: (equipment: EquipmentAllocation) => {
       if (!activeTab) return
       activeTab.stateManager.addUnallocatedEquipment(equipment)
       activeTab.isModified = true

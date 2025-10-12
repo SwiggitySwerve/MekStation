@@ -461,7 +461,7 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
     }
 
     // Enforce Supercharger rule: must be placed in a location that currently has engine slots
-    const isSupercharger = equipment.name?.toLowerCase() === 'supercharger' || equipment.baseType === 'Supercharger';
+    const isSupercharger = equipment.name?.toLowerCase().includes('supercharger') || equipment.type === 'Supercharger';
     if (isSupercharger) {
       // Derive engine and gyro types from unit
       const engineType = (unit as any)?.engineType || 'Standard';

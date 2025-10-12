@@ -4,7 +4,7 @@
  */
 
 import { EquipmentObject, EquipmentAllocation } from './CriticalSlot'
-import { EngineType } from './SystemComponentRules'
+import { EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/components'
 import { JumpJetType } from '../jumpJetCalculations'
 import { 
   ComponentConfiguration, 
@@ -104,14 +104,14 @@ export interface UnitConfiguration {
   
   // Jump jets
   jumpMP: number                     // Jump movement points
-  jumpJetType: ComponentConfiguration // Type of jump jets with tech base
+  jumpJetType: string                 // Type of jump jets
   jumpJetCounts: Partial<Record<JumpJetType, number>>  // Count of each jump jet type
   hasPartialWing: boolean            // Whether unit has partial wing
   
-  // System components - with explicit tech base
-  gyroType: ComponentConfiguration
-  structureType: ComponentConfiguration
-  armorType: ComponentConfiguration
+  // System components - now using simple string types
+  gyroType: GyroType
+  structureType: StructureType
+  armorType: ArmorType
   
   // Armor allocation - Single Source of Truth approach
   armorAllocation: ArmorAllocation   // User input - what's actually allocated to locations
@@ -119,7 +119,7 @@ export interface UnitConfiguration {
   // NOTE: All other armor values (available, allocated, remaining) are computed on-demand
   
   // Heat management
-  heatSinkType: ComponentConfiguration
+  heatSinkType: HeatSinkType
   totalHeatSinks: number             // User configurable, minimum 10 total for the mech
   internalHeatSinks: number          // Auto-calculated from engine rating
   externalHeatSinks: number          // Auto-calculated (total - internal)

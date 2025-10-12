@@ -5,7 +5,7 @@
 import React, { useState } from 'react'
 import { useMultiUnit } from './MultiUnitProvider'
 import { NewTabModal } from './NewTabModal'
-import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManager'
+import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
 
 interface TabManagerProps {
   children: React.ReactNode

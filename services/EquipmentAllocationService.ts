@@ -10,32 +10,33 @@
 import { UnitConfiguration } from '../utils/criticalSlots/UnitCriticalManager';
 import { ComponentConfiguration } from '../types/componentConfiguration';
 import { SystemComponentRules } from '../utils/criticalSlots/SystemComponentRules';
+import { EquipmentAllocation } from '../utils/criticalSlots/CriticalSlot';
 import { AutoAllocationManager } from './allocation/AutoAllocationManager';
 import { ValidationManager } from './allocation/ValidationManager';
 import { AnalysisManager } from './allocation/AnalysisManager';
 
 export interface EquipmentAllocationService {
   // Core allocation methods
-  allocateEquipment(config: UnitConfiguration, equipment: any[]): AllocationResult;
-  autoAllocateEquipment(config: UnitConfiguration, equipment: any[]): AutoAllocationResult;
-  reallocateEquipment(config: UnitConfiguration, equipment: any[], constraints: AllocationConstraints): ReallocationResult;
+  allocateEquipment(config: UnitConfiguration, equipment: EquipmentAllocation[]): AllocationResult;
+  autoAllocateEquipment(config: UnitConfiguration, equipment: EquipmentAllocation[]): AutoAllocationResult;
+  reallocateEquipment(config: UnitConfiguration, equipment: EquipmentAllocation[], constraints: AllocationConstraints): ReallocationResult;
   
   // Placement strategies
-  findOptimalPlacement(equipment: any, config: UnitConfiguration, existingAllocations: EquipmentPlacement[]): PlacementSuggestion[];
-  validatePlacement(equipment: any, location: string, config: UnitConfiguration): PlacementValidation;
-  suggestAlternativePlacements(equipment: any, config: UnitConfiguration): AlternativePlacement[];
+  findOptimalPlacement(equipment: EquipmentAllocation, config: UnitConfiguration, existingAllocations: EquipmentPlacement[]): PlacementSuggestion[];
+  validatePlacement(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): PlacementValidation;
+  suggestAlternativePlacements(equipment: EquipmentAllocation, config: UnitConfiguration): AlternativePlacement[];
   
   // Auto-allocation algorithms
-  autoAllocateWeapons(weapons: any[], config: UnitConfiguration): WeaponAllocationResult;
-  autoAllocateAmmunition(ammunition: any[], config: UnitConfiguration): AmmoAllocationResult;
-  autoAllocateHeatSinks(heatSinks: any[], config: UnitConfiguration): HeatSinkAllocationResult;
-  autoAllocateJumpJets(jumpJets: any[], config: UnitConfiguration): JumpJetAllocationResult;
+  autoAllocateWeapons(weapons: EquipmentAllocation[], config: UnitConfiguration): WeaponAllocationResult;
+  autoAllocateAmmunition(ammunition: EquipmentAllocation[], config: UnitConfiguration): AmmoAllocationResult;
+  autoAllocateHeatSinks(heatSinks: EquipmentAllocation[], config: UnitConfiguration): HeatSinkAllocationResult;
+  autoAllocateJumpJets(jumpJets: EquipmentAllocation[], config: UnitConfiguration): JumpJetAllocationResult;
   
   // Validation and compliance
   validateEquipmentPlacement(config: UnitConfiguration, allocations: EquipmentPlacement[]): ValidationResult;
   checkBattleTechRules(config: UnitConfiguration, allocations: EquipmentPlacement[]): RuleComplianceResult;
-  validateTechLevel(equipment: any[], config: UnitConfiguration): TechLevelValidation;
-  validateMountingRestrictions(equipment: any, location: string, config: UnitConfiguration): MountingValidation;
+  validateTechLevel(equipment: EquipmentAllocation[], config: UnitConfiguration): TechLevelValidation;
+  validateMountingRestrictions(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): MountingValidation;
   
   // Optimization and analysis
   optimizeEquipmentLayout(config: UnitConfiguration, allocations: EquipmentPlacement[]): OptimizationResult;
@@ -43,12 +44,12 @@ export interface EquipmentAllocationService {
   generateLoadoutReport(config: UnitConfiguration, allocations: EquipmentPlacement[]): LoadoutReport;
   
   // Equipment management
-  addEquipment(equipment: any, config: UnitConfiguration, preferences: PlacementPreferences): AddEquipmentResult;
+  addEquipment(equipment: EquipmentAllocation, config: UnitConfiguration, preferences: PlacementPreferences): AddEquipmentResult;
   removeEquipment(equipmentId: string, config: UnitConfiguration): RemoveEquipmentResult;
   moveEquipment(equipmentId: string, fromLocation: string, toLocation: string, config: UnitConfiguration): MoveEquipmentResult;
   
   // Utility methods
-  getEquipmentConstraints(equipment: any): EquipmentConstraints;
+  getEquipmentConstraints(equipment: EquipmentAllocation): EquipmentConstraints;
   calculateHeatGeneration(allocations: EquipmentPlacement[]): HeatAnalysis;
   calculateFirepower(allocations: EquipmentPlacement[]): FirepowerAnalysis;
   generateEquipmentSummary(allocations: EquipmentPlacement[]): EquipmentSummary;
@@ -57,7 +58,7 @@ export interface EquipmentAllocationService {
 export interface AllocationResult {
   success: boolean;
   allocations: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   warnings: AllocationWarning[];
   suggestions: string[];
   efficiency: number; // 0-100 score
@@ -74,7 +75,7 @@ export interface ReallocationResult {
 
 export interface EquipmentPlacement {
   equipmentId: string;
-  equipment: any;
+  equipment: EquipmentAllocation;
   location: string;
   slots: number[];
   isFixed: boolean; // Cannot be moved during optimization
@@ -87,7 +88,7 @@ export interface AutoAllocationResult {
   success: boolean;
   strategy: string;
   allocations: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   metrics: {
     successRate: number;
     efficiencyScore: number;
@@ -149,7 +150,7 @@ export interface AlternativePlacement {
 
 export interface WeaponAllocationResult {
   allocated: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   strategy: 'balanced' | 'front_loaded' | 'distributed' | 'concentrated';
   heatEfficiency: number;
   firepower: {
@@ -162,7 +163,7 @@ export interface WeaponAllocationResult {
 
 export interface AmmoAllocationResult {
   allocated: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   caseProtection: {
     protected: string[];
     unprotected: string[];
