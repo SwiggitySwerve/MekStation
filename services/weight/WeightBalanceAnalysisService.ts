@@ -137,7 +137,7 @@ export class WeightBalanceAnalysisServiceImpl implements WeightBalanceAnalysisSe
   
   // ===== PRIVATE HELPER METHODS =====
   
-  private calculateLocationWeights(config: UnitConfiguration, equipment: any[]) {
+  private calculateLocationWeights(config: UnitConfiguration, equipment: IEquipmentInstance[]) {
     // Simplified location weight calculation
     const baseWeights = {
       head: config.tonnage * 0.05,

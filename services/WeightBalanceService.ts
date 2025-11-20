@@ -11,6 +11,7 @@ import { UnitConfiguration, ArmorAllocation } from '../utils/criticalSlots/UnitC
 import { ComponentConfiguration } from '../types/componentConfiguration';
 import { SystemComponentsGateway } from './systemComponents/SystemComponentsGateway';
 import { GyroType } from '../types/systemComponents';
+import { IEquipmentInstance } from '../types/core/UnitInterfaces';
 
 // Import focused service interfaces and types
 import { 
@@ -57,24 +58,24 @@ export type {
 
 export interface WeightBalanceService {
   // Total weight calculations
-  calculateTotalWeight(config: UnitConfiguration, equipment: any[]): WeightSummary;
+  calculateTotalWeight(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightSummary;
   calculateComponentWeights(config: UnitConfiguration): ComponentWeightBreakdown;
-  calculateEquipmentWeight(equipment: any[]): number;
+  calculateEquipmentWeight(equipment: IEquipmentInstance[]): number;
   
   // Balance analysis
-  analyzeWeightDistribution(config: UnitConfiguration, equipment: any[]): WeightDistribution;
-  calculateCenterOfGravity(config: UnitConfiguration, equipment: any[]): CenterOfGravity;
-  analyzeStability(config: UnitConfiguration, equipment: any[]): StabilityAnalysis;
+  analyzeWeightDistribution(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightDistribution;
+  calculateCenterOfGravity(config: UnitConfiguration, equipment: IEquipmentInstance[]): CenterOfGravity;
+  analyzeStability(config: UnitConfiguration, equipment: IEquipmentInstance[]): StabilityAnalysis;
   
   // Optimization
-  generateOptimizationSuggestions(config: UnitConfiguration, equipment: any[]): OptimizationSuggestion[];
+  generateOptimizationSuggestions(config: UnitConfiguration, equipment: IEquipmentInstance[]): OptimizationSuggestion[];
   calculateWeightReduction(config: UnitConfiguration): WeightReductionOptions;
-  findWeightSavings(config: UnitConfiguration, equipment: any[]): WeightSaving[];
+  findWeightSavings(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightSaving[];
   
   // Validation
-  validateTonnageLimit(config: UnitConfiguration, equipment: any[]): TonnageValidation;
-  calculateRemainingTonnage(config: UnitConfiguration, equipment: any[]): number;
-  isWithinTonnageLimit(config: UnitConfiguration, equipment: any[]): boolean;
+  validateTonnageLimit(config: UnitConfiguration, equipment: IEquipmentInstance[]): TonnageValidation;
+  calculateRemainingTonnage(config: UnitConfiguration, equipment: IEquipmentInstance[]): number;
+  isWithinTonnageLimit(config: UnitConfiguration, equipment: IEquipmentInstance[]): boolean;
   
   // Specialized calculations
   calculateJumpJetWeight(config: UnitConfiguration): number;
@@ -99,7 +100,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
   
   // ===== DELEGATE TO FOCUSED SERVICES =====
   
-  calculateTotalWeight(config: UnitConfiguration, equipment: any[]): WeightSummary {
+  calculateTotalWeight(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightSummary {
     return this.weightCalculationService.calculateTotalWeight(config, equipment);
   }
   
@@ -114,16 +115,16 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     };
   }
   
-  calculateEquipmentWeight(equipment: any[]): number {
+  calculateEquipmentWeight(equipment: IEquipmentInstance[]): number {
     return equipment.reduce((total, item) => {
-      if (!item || !item.equipmentData) return total;
-      return total + (item.equipmentData.tonnage || 0) * (item.quantity || 1);
+      if (!item || !item.equipment) return total;
+      return total + (item.equipment.weight || 0) * (item.quantity || 1);
     }, 0);
   }
   
   // ===== BALANCE ANALYSIS =====
   
-  analyzeWeightDistribution(config: UnitConfiguration, equipment: any[]): WeightDistribution {
+  analyzeWeightDistribution(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightDistribution {
     const distribution = this.calculateLocationWeights(config, equipment);
     
     // Calculate balance ratios
@@ -151,7 +152,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     };
   }
   
-  calculateCenterOfGravity(config: UnitConfiguration, equipment: any[]): CenterOfGravity {
+  calculateCenterOfGravity(config: UnitConfiguration, equipment: IEquipmentInstance[]): CenterOfGravity {
     const distribution = this.calculateLocationWeights(config, equipment);
     const totalWeight = Object.values(distribution).reduce((sum, weight) => sum + weight, 0);
     
@@ -179,7 +180,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     return { x, y, z, stability, recommendations };
   }
   
-  analyzeStability(config: UnitConfiguration, equipment: any[]): StabilityAnalysis {
+  analyzeStability(config: UnitConfiguration, equipment: IEquipmentInstance[]): StabilityAnalysis {
     const distribution = this.analyzeWeightDistribution(config, equipment);
     const centerOfGravity = this.calculateCenterOfGravity(config, equipment);
     
@@ -207,7 +208,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
   
   // ===== OPTIMIZATION =====
   
-  generateOptimizationSuggestions(config: UnitConfiguration, equipment: any[]): OptimizationSuggestion[] {
+  generateOptimizationSuggestions(config: UnitConfiguration, equipment: IEquipmentInstance[]): OptimizationSuggestion[] {
     const suggestions: OptimizationSuggestion[] = [];
     const weights = this.calculateComponentWeights(config);
     
@@ -249,7 +250,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     };
   }
   
-  findWeightSavings(config: UnitConfiguration, equipment: any[]): WeightSaving[] {
+  findWeightSavings(config: UnitConfiguration, equipment: IEquipmentInstance[]): WeightSaving[] {
     const savings: WeightSaving[] = [];
     
     // Structure savings
@@ -269,7 +270,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
   
   // ===== VALIDATION =====
   
-  validateTonnageLimit(config: UnitConfiguration, equipment: any[]): TonnageValidation {
+  validateTonnageLimit(config: UnitConfiguration, equipment: IEquipmentInstance[]): TonnageValidation {
     const totalWeight = this.calculateTotalWeight(config, equipment);
     const overweight = Math.max(0, totalWeight.totalWeight - config.tonnage);
     
@@ -298,12 +299,12 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     };
   }
   
-  calculateRemainingTonnage(config: UnitConfiguration, equipment: any[]): number {
+  calculateRemainingTonnage(config: UnitConfiguration, equipment: IEquipmentInstance[]): number {
     const totalWeight = this.calculateTotalWeight(config, equipment);
     return Math.max(0, config.tonnage - totalWeight.totalWeight);
   }
   
-  isWithinTonnageLimit(config: UnitConfiguration, equipment: any[]): boolean {
+  isWithinTonnageLimit(config: UnitConfiguration, equipment: IEquipmentInstance[]): boolean {
     const totalWeight = this.calculateTotalWeight(config, equipment);
     return totalWeight.totalWeight <= config.tonnage;
   }
@@ -604,7 +605,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     return { weight, type: armorType, points, efficiency };
   }
   
-  private calculateLocationWeights(config: UnitConfiguration, equipment: any[]) {
+  private calculateLocationWeights(config: UnitConfiguration, equipment: IEquipmentInstance[]) {
     // Simplified location weight calculation
     const baseWeights = {
       head: config.tonnage * 0.05,
@@ -626,17 +627,17 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     return WeightBalanceServiceImpl.calculateTotalArmorPointsSafe(armorAllocation);
   }
   
-  private extractEquipmentWeight(equipment: any[]): number {
+  private extractEquipmentWeight(equipment: IEquipmentInstance[]): number {
     return equipment.reduce((total, item) => {
-      if (!item?.equipmentData || item.equipmentData.type === 'ammunition') return total;
-      return total + (item.equipmentData.tonnage || 0) * (item.quantity || 1);
+      if (!item?.equipment || item.equipment.type === 'ammunition') return total;
+      return total + (item.equipment.weight || 0) * (item.quantity || 1);
     }, 0);
   }
   
-  private extractAmmoWeight(equipment: any[]): number {
+  private extractAmmoWeight(equipment: IEquipmentInstance[]): number {
     return equipment.reduce((total, item) => {
-      if (!item?.equipmentData || item.equipmentData.type !== 'ammunition') return total;
-      return total + (item.equipmentData.tonnage || 0) * (item.quantity || 1);
+      if (!item?.equipment || item.equipment.type !== 'ammunition') return total;
+      return total + (item.equipment.weight || 0) * (item.quantity || 1);
     }, 0);
   }
   
@@ -814,7 +815,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     return suggestions;
   }
   
-  private generateEquipmentOptimizations(equipment: any[]): OptimizationSuggestion[] {
+  private generateEquipmentOptimizations(equipment: IEquipmentInstance[]): OptimizationSuggestion[] {
     const suggestions: OptimizationSuggestion[] = [];
     
     // This would analyze equipment for weight optimization opportunities
@@ -954,7 +955,7 @@ export class WeightBalanceServiceImpl implements WeightBalanceService {
     return savings;
   }
   
-  private findEquipmentSavings(equipment: any[]): WeightSaving[] {
+  private findEquipmentSavings(equipment: IEquipmentInstance[]): WeightSaving[] {
     return []; // Implementation depends on equipment data structure
   }
   
