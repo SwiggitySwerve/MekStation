@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { useUnit } from '../multiUnit/MultiUnitProvider'
-import { CriticalSlot } from '../../utils/criticalSlots/CriticalSlot'
+import { CriticalSlot, EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot'
 
 function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location: string }) {
   const { removeEquipment, selectedEquipmentId, assignSelectedEquipment, selectEquipment, unallocatedEquipment, unit } = useUnit()
@@ -16,7 +16,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
   // Check if this slot can actually accommodate the selected equipment
   const getSelectedEquipment = () => {
     if (!selectedEquipmentId) return null
-    return unallocatedEquipment.find(eq => eq.equipmentGroupId === selectedEquipmentId)
+    return unallocatedEquipment.find((eq: EquipmentAllocation) => eq.equipmentGroupId === selectedEquipmentId)
   }
   
   const selectedEquipment = getSelectedEquipment()

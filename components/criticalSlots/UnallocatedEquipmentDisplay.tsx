@@ -377,7 +377,7 @@ export function UnallocatedEquipmentDisplay() {
     console.log('🔧 [UNALLOC_DEBUG] Equipment count:', unallocatedEquipment.length)
     console.log('🔧 [UNALLOC_DEBUG] Equipment full array:', JSON.stringify(unallocatedEquipment, null, 2))
     // Count by equipment name
-    const nameCounts = unallocatedEquipment.reduce((acc, eq) => {
+    const nameCounts = unallocatedEquipment.reduce((acc: Record<string, number>, eq: EquipmentAllocation) => {
       const name = eq.equipmentData.name
       acc[name] = (acc[name] || 0) + 1
       return acc

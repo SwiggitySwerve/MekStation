@@ -781,7 +781,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
 
   // ===== CORE VALIDATION METHODS =====
   
-  validateUnit(config: UnitConfiguration, equipment: any[]): ValidationResult {
+  validateUnit(config: UnitConfiguration, equipment: EquipmentAllocation[]): ValidationResult {
     const startTime = Date.now();
     
     // Run all validation checks
@@ -849,7 +849,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateEquipmentLoadout(equipment: any[], config: UnitConfiguration): LoadoutValidation {
+  validateEquipmentLoadout(equipment: EquipmentAllocation[], config: UnitConfiguration): LoadoutValidation {
     const weapons = this.validateWeaponRules(equipment, config);
     const ammunition = this.validateAmmoRules(equipment, config);
     const jumpJets = this.validateJumpJetRules(config, equipment);
@@ -873,11 +873,11 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
   
   // ===== BATTLETECH RULE CHECKING METHODS =====
   
-  validateWeightLimits(config: UnitConfiguration, equipment: any[]): WeightValidation {
+  validateWeightLimits(config: UnitConfiguration, equipment: EquipmentAllocation[]): WeightValidation {
     return WeightRulesValidator.validateWeightLimits(config, equipment);
   }
   
-  validateHeatManagement(config: UnitConfiguration, equipment: any[]): HeatValidation {
+  validateHeatManagement(config: UnitConfiguration, equipment: EquipmentAllocation[]): HeatValidation {
     return HeatRulesValidator.validateHeatManagement(config, equipment);
   }
   
@@ -1098,7 +1098,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateJumpJetRules(config: UnitConfiguration, equipment: any[]): JumpJetValidation {
+  validateJumpJetRules(config: UnitConfiguration, equipment: EquipmentAllocation[]): JumpJetValidation {
     const violations: JumpJetViolation[] = [];
     const recommendations: string[] = [];
     
@@ -1131,7 +1131,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-    validateWeaponRules(equipment: any[], config: UnitConfiguration): WeaponValidation {
+    validateWeaponRules(equipment: EquipmentAllocation[], config: UnitConfiguration): WeaponValidation {
     const weapons = equipment.filter(eq => eq.equipmentData?.type === 'weapon' || eq.type === 'weapon');
     const violations: WeaponViolation[] = [];
     const recommendations: string[] = [];
@@ -1199,7 +1199,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
 
-  validateAmmoRules(equipment: any[], config: UnitConfiguration): AmmoValidation {
+  validateAmmoRules(equipment: EquipmentAllocation[], config: UnitConfiguration): AmmoValidation {
     const ammo = equipment.filter(eq => eq.equipmentData?.type === 'ammunition' || eq.type === 'ammo');
     const weapons = equipment.filter(eq => eq.equipmentData?.type === 'weapon' || eq.type === 'weapon');
     const violations: AmmoViolation[] = [];
@@ -1285,7 +1285,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
 
-  validateSpecialEquipmentRules(equipment: any[], config: UnitConfiguration): SpecialEquipmentValidation {
+  validateSpecialEquipmentRules(equipment: EquipmentAllocation[], config: UnitConfiguration): SpecialEquipmentValidation {
     const specialEquipment = equipment.filter(eq => 
       eq.equipmentData?.category === 'special' || 
       eq.equipmentData?.type === 'special' ||
@@ -1370,7 +1370,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateTechLevel(config: UnitConfiguration, equipment: any[]): TechLevelValidation {
+  validateTechLevel(config: UnitConfiguration, equipment: EquipmentAllocation[]): TechLevelValidation {
     const violations: TechLevelViolation[] = [];
     const recommendations: string[] = [];
     
@@ -1395,7 +1395,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateMixedTech(config: UnitConfiguration, equipment: any[]): MixedTechValidation {
+  validateMixedTech(config: UnitConfiguration, equipment: EquipmentAllocation[]): MixedTechValidation {
     let innerSphereComponents = 0;
     let clanComponents = 0;
     const violations: string[] = [];
@@ -1425,7 +1425,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateEraRestrictions(config: UnitConfiguration, equipment: any[]): EraValidation {
+  validateEraRestrictions(config: UnitConfiguration, equipment: EquipmentAllocation[]): EraValidation {
     const invalidComponents: EraViolation[] = [];
     const recommendations: string[] = [];
     const era = 'Succession Wars';
@@ -1438,7 +1438,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateAvailabilityRating(equipment: any[], config: UnitConfiguration): AvailabilityValidation {
+  validateAvailabilityRating(equipment: EquipmentAllocation[], config: UnitConfiguration): AvailabilityValidation {
     const violations: AvailabilityViolation[] = [];
     const componentRatings: ComponentAvailability[] = [];
     
@@ -1490,7 +1490,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateCriticalSlots(config: UnitConfiguration, equipment: any[]): CriticalSlotValidation {
+  validateCriticalSlots(config: UnitConfiguration, equipment: EquipmentAllocation[]): CriticalSlotValidation {
     const violations: CriticalSlotViolation[] = [];
     const recommendations: string[] = [];
     
@@ -1532,7 +1532,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateConstructionEfficiency(config: UnitConfiguration, equipment: any[]): EfficiencyValidation {
+  validateConstructionEfficiency(config: UnitConfiguration, equipment: EquipmentAllocation[]): EfficiencyValidation {
     const violations: EfficiencyViolation[] = [];
     const recommendations: string[] = [];
     
@@ -1554,7 +1554,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  validateDesignOptimization(config: UnitConfiguration, equipment: any[]): OptimizationValidation {
+  validateDesignOptimization(config: UnitConfiguration, equipment: EquipmentAllocation[]): OptimizationValidation {
     const violations: OptimizationViolation[] = [];
     const recommendations: string[] = [];
     const improvements: OptimizationImprovement[] = [];
@@ -1568,7 +1568,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  generateComplianceReport(config: UnitConfiguration, equipment: any[]): ComplianceReport {
+  generateComplianceReport(config: UnitConfiguration, equipment: EquipmentAllocation[]): ComplianceReport {
     const startTime = Date.now();
     
     // Run all validations to gather violations
@@ -1748,7 +1748,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     return this.reportingManager.suggestComplianceFixes(violations);
   }
   
-  calculateRuleScore(config: UnitConfiguration, equipment: any[]): RuleScore {
+  calculateRuleScore(config: UnitConfiguration, equipment: EquipmentAllocation[]): RuleScore {
     return this.ruleManagementManager.calculateRuleScore(config, equipment);
   }
   
@@ -1788,7 +1788,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     return component.type;
   }
   
-  private calculateTotalWeight(config: UnitConfiguration, equipment: any[]): number {
+  private calculateTotalWeight(config: UnitConfiguration, equipment: EquipmentAllocation[]): number {
     let totalWeight = 0;
     
     // Add structure weight
@@ -1806,7 +1806,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     return totalWeight;
   }
   
-  private calculateWeightDistribution(config: UnitConfiguration, equipment: any[]): WeightDistribution {
+  private calculateWeightDistribution(config: UnitConfiguration, equipment: EquipmentAllocation[]): WeightDistribution {
     const structure = ValidationCalculations.calculateStructureWeight(config.tonnage || 100, this.extractComponentType(config.structureType));
     const armor = ValidationCalculations.calculateArmorWeight(ValidationCalculations.calculateTotalArmorFromAllocation(config.armorAllocation) || 0, this.extractComponentType(config.armorType));
     const engine = ValidationCalculations.calculateEngineWeight(config.engineRating || 0, config.engineType || 'Standard');
@@ -1829,7 +1829,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     };
   }
   
-  private calculateHeatGeneration(equipment: any[]): number {
+  private calculateHeatGeneration(equipment: EquipmentAllocation[]): number {
     return equipment.reduce((total, item) => total + (item.equipmentData?.heat || 0), 0);
   }
   
@@ -1837,7 +1837,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     return ValidationCalculations.getEngineHeatSinks(config);
   }
   
-  private getExternalHeatSinks(equipment: any[]): number {
+  private getExternalHeatSinks(equipment: EquipmentAllocation[]): number {
     return ValidationCalculations.getExternalHeatSinks(equipment);
   }
   
@@ -1877,7 +1877,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     return ValidationCalculations.isGyroEngineCompatible(gyroType, engineType);
   }
   
-  private calculateTotalSlotsUsed(config: UnitConfiguration, equipment: any[]): number {
+  private calculateTotalSlotsUsed(config: UnitConfiguration, equipment: EquipmentAllocation[]): number {
     return ValidationCalculations.calculateTotalSlotsUsed(config, equipment);
   }
   

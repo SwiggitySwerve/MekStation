@@ -249,8 +249,8 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
     : config.totalHeatSinks;
 
   // Use shared movement utility for consistent display - convert ComponentConfiguration to string
-  const typedEnhancementType = enhancements.length === 0 ? null : enhancements.map(e => e.type).join(', ');
-  
+  const typedEnhancementType = enhancements.length === 0 ? null : enhancements.map((e: ComponentConfiguration) => e.type).join(', ');
+
   const movementConfig = {
     ...config,
     enhancements: enhancements
@@ -394,8 +394,8 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
   };
 
   const handleEnhancementChange = (newValue: string) => {
-    console.log(`[StructureTab] 🔧 Enhancement change: ${enhancements.map(e => e.type).join(', ')} → ${newValue}`);
-    
+    console.log(`[StructureTab] 🔧 Enhancement change: ${enhancements.map((e: ComponentConfiguration) => e.type).join(', ')} → ${newValue}`);
+
     if (readOnly) {
       console.log('[StructureTab] Skipping update - readonly mode');
       return;
@@ -500,11 +500,11 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
               <label className="flex items-center text-sm">
                 <input
                   type="checkbox"
-                  checked={enhancements.some(e => e.type === 'Supercharger')}
+                  checked={enhancements.some((e: ComponentConfiguration) => e.type === 'Supercharger')}
                   onChange={e => {
                     const newEnhancements = e.target.checked
                       ? [...enhancements, { type: 'Supercharger', techBase: config.techBase as 'Inner Sphere' | 'Clan' }]
-                      : enhancements.filter(enh => enh.type !== 'Supercharger');
+                      : enhancements.filter((enh: ComponentConfiguration) => enh.type !== 'Supercharger');
                     updateConfig({ enhancements: newEnhancements });
                   }}
                   disabled={readOnly}
@@ -581,14 +581,14 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
             </div>
 
             {/* Enhancement Details - Conditional Full Width */}
-            {enhancements.some(e => e.type === 'MASC') && (
+            {enhancements.some((e: ComponentConfiguration) => e.type === 'MASC') && (
               <div className="mt-3 text-xs text-slate-400 bg-slate-700/30 rounded px-3 py-2">
                 <div>• Doubles run speed when active</div>
                 <div>• Generates 5 heat per activation</div>
                 <div>• Risk of system damage if overused</div>
               </div>
             )}
-            {enhancements.some(e => e.type === 'Triple Strength Myomer') && (
+            {enhancements.some((e: ComponentConfiguration) => e.type === 'Triple Strength Myomer') && (
               <div className="mt-3 text-xs text-slate-400 bg-slate-700/30 rounded px-3 py-2">
                 <div>• Activates at 9+ heat levels</div>
                 <div>• +1 Walk MP, recalculated Run MP</div>
@@ -596,7 +596,7 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
                 <div>• Heat: {heatDissipation - config.totalHeatSinks}/9+ for activation</div>
               </div>
             )}
-            {enhancements.some(e => e.type === 'Supercharger') && (
+            {enhancements.some((e: ComponentConfiguration) => e.type === 'Supercharger') && (
               <div className="mt-3 text-xs text-slate-400 bg-slate-700/30 rounded px-3 py-2">
                 <div>• Doubles run speed when active</div>
                 <div>• Can be used with MASC (2.5× multiplier)</div>
@@ -707,10 +707,10 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
                 <div className="text-xs text-slate-400 text-center mt-1.5">
                   {enhancements.length > 0 ? (
                     <span className="text-blue-400">
-                      {enhancements.some((e: { type: string }) => e.type === 'Triple Strength Myomer') ? `Walk ${enhancedMovement.walkValue} × 1.5` : 
-                       enhancements.some((e: { type: string }) => e.type === 'Supercharger') && enhancements.some((e: { type: string }) => e.type === 'MASC') ? `Walk ${config.walkMP} × 2.5` :
-                       enhancements.some((e: { type: string }) => e.type === 'Supercharger') ? `Walk ${enhancedMovement.walkValue} × 2` :
-                       enhancements.some((e: { type: string }) => e.type === 'MASC') ? `Walk ${config.walkMP} × 2` : 'Enhanced'}
+                      {enhancements.some((e: ComponentConfiguration) => e.type === 'Triple Strength Myomer') ? `Walk ${enhancedMovement.walkValue} × 1.5` : 
+                       enhancements.some((e: ComponentConfiguration) => e.type === 'Supercharger') && enhancements.some((e: ComponentConfiguration) => e.type === 'MASC') ? `Walk ${config.walkMP} × 2.5` :
+                       enhancements.some((e: ComponentConfiguration) => e.type === 'Supercharger') ? `Walk ${enhancedMovement.walkValue} × 2` :
+                       enhancements.some((e: ComponentConfiguration) => e.type === 'MASC') ? `Walk ${config.walkMP} × 2` : 'Enhanced'}
                     </span>
                   ) : (
                     'Walk × 1.5'
@@ -740,7 +740,7 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
               <div className="mt-3 p-2 bg-slate-700/30 rounded-md border border-slate-600/30">
                 <div className="text-xs text-slate-300">
                   <span className="font-medium text-slate-200">Active:</span>
-                  {enhancements.map((enh, index) => {
+                  {enhancements.map((enh: ComponentConfiguration, index: number) => {
                     const enhancement = MOVEMENT_ENHANCEMENTS[enh.type];
                     if (!enhancement) return null;
                     

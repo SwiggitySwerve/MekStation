@@ -22,9 +22,12 @@ export interface EquipmentObject {
   name: string
   requiredSlots: number
   weight: number
-  type: 'weapon' | 'ammo' | 'equipment' | 'heat_sink'
+  type: 'weapon' | 'ammo' | 'ammunition' | 'equipment' | 'heat_sink' | 'jump_jet'
   techBase: 'Inner Sphere' | 'Clan' | 'Both'
   heat?: number // Heat generated (positive) or dissipated (negative for heat sinks)
+  damage?: number | string // Weapon damage
+  tonnage?: number // Alias for weight, used in some contexts
+  explosive?: boolean // Whether equipment is explosive (e.g., ammo)
   
   // Location restrictions
   allowedLocations?: string[] // Static restrictions - simple whitelist

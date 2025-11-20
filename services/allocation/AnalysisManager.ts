@@ -291,9 +291,10 @@ export class AnalysisManager {
     allocations.forEach(placement => {
       const weapon = placement.equipment.equipmentData;
       if (weapon?.type?.includes('weapon')) {
-        const damage = weapon.damage || 0;
-        const range = weapon.range || 'medium';
+        const damage = typeof weapon.damage === 'number' ? weapon.damage : (typeof weapon.damage === 'string' ? parseFloat(weapon.damage) || 0 : 0);
         const type = weapon.type || 'energy';
+        // Default to medium range if not specified
+        const range: 'short' | 'medium' | 'long' = 'medium';
         
         // Add to total damage
         switch (range) {
@@ -355,7 +356,7 @@ export class AnalysisManager {
   generateEquipmentSummary(allocations: EquipmentPlacement[]): EquipmentSummary {
     const totalItems = allocations.length;
     const totalWeight = allocations.reduce((sum, placement) => {
-      return sum + (placement.equipment.equipmentData?.tonnage || 0);
+      return sum + (placement.equipment.equipmentData?.weight || 0);
     }, 0);
     
     const categories = {
@@ -476,7 +477,7 @@ export class AnalysisManager {
   private generateLoadoutSummary(allocations: EquipmentPlacement[]) {
     const totalEquipment = allocations.length;
     const totalWeight = allocations.reduce((sum, placement) => {
-      return sum + (placement.equipment.equipmentData?.tonnage || 0);
+      return sum + (placement.equipment.equipmentData?.weight || 0);
     }, 0);
     
     const distribution: { [location: string]: number } = {};
@@ -500,7 +501,7 @@ export class AnalysisManager {
   private generateWeaponSummary(allocations: EquipmentPlacement[]): WeaponSummary {
     const weapons = allocations.filter(p => p.equipment.equipmentData?.type?.includes('weapon'));
     const totalWeight = weapons.reduce((sum, placement) => {
-      return sum + (placement.equipment.equipmentData?.tonnage || 0);
+      return sum + (placement.equipment.equipmentData?.weight || 0);
     }, 0);
     
     const firepower = { short: 0, medium: 0, long: 0 };
@@ -529,7 +530,7 @@ export class AnalysisManager {
   private generateAmmoSummary(allocations: EquipmentPlacement[]): AmmoSummary {
     const ammo = allocations.filter(p => p.equipment.equipmentData?.type === 'ammunition');
     const totalTons = ammo.reduce((sum, placement) => {
-      return sum + (placement.equipment.equipmentData?.tonnage || 0);
+      return sum + (placement.equipment.equipmentData?.weight || 0);
     }, 0);
     
     const distribution: { [location: string]: number } = {};

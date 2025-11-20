@@ -298,7 +298,7 @@ export class AutoAllocationManager {
   /**
    * Generate weapon allocation recommendations
    */
-  private generateWeaponRecommendations(allocated: EquipmentPlacement[], unallocated: any[]): string[] {
+  private generateWeaponRecommendations(allocated: EquipmentPlacement[], unallocated: EquipmentAllocation[]): string[] {
     const recommendations: string[] = [];
     
     if (unallocated.length > 0) {
@@ -378,7 +378,11 @@ export class AutoAllocationManager {
   /**
    * Generate ammo suggestions
    */
-  private generateAmmoSuggestions(allocated: EquipmentPlacement[], unallocated: EquipmentAllocation[], caseProtection: any): string[] {
+  interface CaseProtection {
+    [location: string]: boolean;
+  }
+
+  private generateAmmoSuggestions(allocated: EquipmentPlacement[], unallocated: EquipmentAllocation[], caseProtection: CaseProtection): string[] {
     const suggestions: string[] = [];
     
     if (unallocated.length > 0) {
@@ -449,7 +453,13 @@ export class AutoAllocationManager {
   /**
    * Generate heat sink optimization suggestions
    */
-  private generateHeatSinkOptimization(allocated: EquipmentPlacement[], heatBalance: any): string[] {
+  interface HeatBalance {
+    generation: number;
+    dissipation: number;
+    efficiency: number;
+  }
+
+  private generateHeatSinkOptimization(allocated: EquipmentPlacement[], heatBalance: HeatBalance): string[] {
     const suggestions: string[] = [];
     
     if (heatBalance.deficit > 0) {

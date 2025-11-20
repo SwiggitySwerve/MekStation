@@ -125,7 +125,7 @@ export class ValidationManager {
       const validation = this.validatePlacement(allocation.equipment, allocation.location, config);
       
       if (!validation.isValid) {
-        errors.push(...validation.errors.map((error: any) => ({
+        errors.push(...validation.errors.map((error) => ({
           equipmentId: allocation.equipmentId,
           type: error.type,
           message: error.message,
@@ -135,7 +135,7 @@ export class ValidationManager {
         })));
       }
       
-      warnings.push(...validation.warnings.map((warning: any) => ({
+      warnings.push(...validation.warnings.map((warning) => ({
         equipmentId: allocation.equipmentId,
         type: warning.type,
         message: warning.message,
@@ -315,12 +315,34 @@ export class ValidationManager {
     };
   }
   
+  interface PlacementValidationError {
+    type: string;
+    message: string;
+    severity: 'critical' | 'major' | 'minor';
+    suggestedFix?: string;
+  }
+
+  interface PlacementValidationWarning {
+    type: string;
+    message: string;
+    impact?: string;
+    recommendation?: string;
+  }
+
+  interface PlacementValidationResult {
+    isValid: boolean;
+    errors: PlacementValidationError[];
+    warnings: PlacementValidationWarning[];
+    restrictions: string[];
+    suggestions: string[];
+  }
+
   /**
    * Validate individual placement
    */
-  validatePlacement(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): any {
-    const errors: any[] = [];
-    const warnings: any[] = [];
+  validatePlacement(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): PlacementValidationResult {
+    const errors: PlacementValidationError[] = [];
+    const warnings: PlacementValidationWarning[] = [];
     const restrictions: string[] = [];
     const suggestions: string[] = [];
     
