@@ -1,6 +1,6 @@
 # Archived Documentation
 
-This directory contains archived duplicate documentation files that have been consolidated into main documentation files.
+This directory contains archived documentation files that have been consolidated, removed from active use, or are no longer current.
 
 ## Archive Structure
 
@@ -13,6 +13,36 @@ Duplicate refactoring progress files consolidated into:
 ### `phases-duplicates/`
 Duplicate phase implementation files consolidated into:
 - `docs/phases/PHASE_1_IMPLEMENTATION_SUMMARY.md` - Phase 1 summary
+
+### `pre-october-summaries/`
+Outdated work summaries and progress reports from October 2025:
+- Session summaries
+- Progress reports
+- Implementation summaries
+
+### `outdated-reports/`
+Historical test reports that are no longer current:
+- Victory reports
+- Final test reports
+- Test completion summaries
+
+### `outdated-root-files/`
+Root-level documentation files that are duplicates or outdated:
+- Implementation progress/task lists
+- Component documentation
+- Architecture analysis files
+
+### `meta-documentation/`
+Documentation about documentation organization:
+- Consolidation summaries
+- Organization summaries
+- Cleanup recommendations
+
+### `outdated-planning/`
+Outdated planning documents and TODO lists:
+- Planning summaries
+- TODO codification documents
+- Agent setup summaries
 
 ## Note
 

@@ -32,9 +32,10 @@ BattleTech game rules and reference:
 - `battletech_critical_slots.md` - Critical slots documentation
 - `battletech_critical_hits.md` - Critical hits documentation
 - `battletech_validation_rules.md` - Validation rules
-- `rules/` - Structured rule definitions
+- `rules/` - Structured rule definitions (includes CONSTRUCTION_RULES_AGENTS.md)
 - `reference/` - Quick reference guides
 - `agents/` - AI agent documentation
+- `AGENTS_README.md` - Agents documentation overview
 
 ### 📁 `project-history/`
 Historical documentation and migration records:
@@ -58,6 +59,7 @@ Implementation guides and status:
 - `DATA_MIGRATION_SUMMARY.md` - Data migration summary
 - `BUILD_SYSTEM_OPTIMIZATION_SUMMARY.md` - Build optimization
 - `UPDATE_CHECKLIST.md` - Update checklist
+- `performance-integration-guide.md` - Performance integration guide
 
 ### 📁 `refactoring/`
 Refactoring plans and progress:
@@ -112,16 +114,16 @@ Technical solutions:
 - `TECH_PROGRESSION_TOGGLE_SYSTEM_IMPLEMENTATION.md` - Tech progression toggle
 
 ### 📁 `reports/`
-Various project reports:
-- Final assessment summaries
-- Test completion summaries
-- Type safety completion reports
+Current project reports:
+- `TEST_ANALYSIS_REPORT.md` - Test analysis report
+- `TYPE_SAFETY_COMPLETION_REPORT.md` - Type safety completion report
+- `HEAT_SINK_RULES_CORRECTION_SUMMARY.md` - Heat sink rules correction
+
+**Note:** Historical test reports have been archived in `docs/archive/outdated-reports/`
 
 ### 📁 `development/`
 Development tools and logs:
-- Linting reports
-- Development logs
-- ESLint outputs
+- *(Empty - temporary log files removed)*
 
 ---
 
