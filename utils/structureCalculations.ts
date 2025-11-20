@@ -4,6 +4,7 @@
  */
 
 import { StructureType } from '../types/systemComponents';
+import { getMaxArmorPoints } from './internalStructureTable';
 
 // Structure weight multipliers (as percentage of mech tonnage)
 export const STRUCTURE_WEIGHT_MULTIPLIERS: Record<StructureType, number> = {
@@ -63,15 +64,18 @@ export function getStructureSlots(type: StructureType): number {
 
 /**
  * Calculate maximum armor points based on structure type and tonnage
+ * 
+ * IMPORTANT: Structure type does NOT affect maximum armor points - only weight differs.
+ * All structure types use the same maximum armor calculation (2x structure points, head capped at 9).
+ * 
+ * @param mechTonnage Mech tonnage (20-100 tons)
+ * @param type Structure type (ignored - all types have same max armor)
+ * @returns Maximum armor points
  */
 export function calculateMaxArmorPoints(mechTonnage: number, type: StructureType): number {
-  // Standard calculation: 2 points per ton of internal structure
-  const internalStructure = getInternalStructurePoints(mechTonnage);
-  
-  // All structure types use standard 2x internal structure for armor capacity
-  const multiplier = 2;
-  
-  return Math.floor(internalStructure * multiplier);
+  // Structure type doesn't affect maximum armor points - only weight differs
+  // Use authoritative function from internalStructureTable
+  return getMaxArmorPoints(mechTonnage);
 }
 
 /**

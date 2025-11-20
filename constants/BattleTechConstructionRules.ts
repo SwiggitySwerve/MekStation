@@ -4,8 +4,23 @@
  * This file contains all official BattleTech construction rules from the TechManual.
  * All other files should import from this file rather than defining their own values.
  * 
+ * IMPORTANT: Structure points and maximum armor calculations are implemented in
+ * utils/internalStructureTable.ts. This file re-exports those functions for convenience.
+ * 
  * Reference: BattleTech TechManual, Sarna.net
+ * @see docs/battletech/rules_implementation_map.md for detailed rule-to-code mapping
  */
+
+// Re-export authoritative structure and armor functions
+export {
+  getInternalStructurePoints,
+  getTotalInternalStructure,
+  getMaxArmorPoints,
+  getMaxArmorPointsForLocation,
+  getInternalStructureBreakdown,
+  isValidTonnage,
+  getSupportedTonnages
+} from '../utils/internalStructureTable';
 
 // =============================================================================
 // ARMOR RULES
@@ -114,15 +129,16 @@ export function calculateMinimumTotalHeatSinks(heatGeneratingWeapons: number): n
 // =============================================================================
 
 /**
- * Internal structure points per ton
+ * IMPORTANT: Structure points are NOT calculated as a simple multiplier.
+ * Structure points are determined by the official BattleTech internal structure table
+ * based on mech tonnage. All structure types (Standard, Endo Steel, etc.) use the
+ * same structure point values - only the weight differs.
+ * 
+ * For structure points, use: getInternalStructurePoints(tonnage) from utils/internalStructureTable.ts
+ * For structure weight, use: calculateStructureWeight(tonnage, structureType) below
+ * 
+ * @see utils/internalStructureTable.ts for the authoritative structure point table
  */
-export const STRUCTURE_POINTS_PER_TON = {
-  'Standard': 10,
-  'Endo Steel': 10,
-  'Endo Steel (Clan)': 10,
-  'Composite': 10,
-  'Reinforced': 10
-} as const;
 
 /**
  * Structure weight multipliers
@@ -216,12 +232,14 @@ export function calculateRunningMP(walkingMP: number): number {
 // =============================================================================
 
 /**
- * Maximum armor points based on tonnage
- * Rule: 2 points per ton maximum
+ * IMPORTANT: This function has been removed as it was incorrect.
+ * The formula "tonnage * 2" does NOT account for the head armor cap (9 points).
+ * 
+ * Use getMaxArmorPoints(tonnage) from utils/internalStructureTable.ts instead.
+ * That function correctly implements the 2:1 structure rule with head exception.
+ * 
+ * @see utils/internalStructureTable.ts for the correct implementation
  */
-export function calculateMaxArmorPoints(tonnage: number): number {
-  return tonnage * 2;
-}
 
 /**
  * Internal structure weight calculation
