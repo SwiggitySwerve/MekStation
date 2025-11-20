@@ -76,13 +76,35 @@ The application provides REST API endpoints for accessing data:
 └── public/mockdata/    # Mock data for development
 ```
 
+## BattleTech Rules Documentation
+
+**⚠️ IMPORTANT for Developers and AI Agents**: This project implements official BattleTech construction rules. Always reference the rules documentation when working on BattleTech-related code.
+
+### **Quick Links**
+- **[Agent Reference Guide](docs/battletech/AGENTS_README.md)** - Start here for rules documentation
+- **[Rules Master Index](docs/battletech/agents/00-INDEX.md)** - Complete rules overview
+- **[Quick Reference](docs/battletech/reference/quick-reference.md)** - Common formulas and tables
+- **[Rules Reference](docs/battletech/RULES_REFERENCE.md)** - Quick lookup for agents
+
+### **Key Files**
+- **Rules Constants**: `constants/BattleTechConstructionRules.ts` - Single source of truth
+- **Validation**: `services/ConstructionRulesValidator.ts` - Rule enforcement
+- **Documentation**: `docs/battletech/` - Complete rules documentation
+
+### **Before Making Changes**
+1. ✅ Read relevant rules documentation
+2. ✅ Check `constants/BattleTechConstructionRules.ts`
+3. ✅ Review validation services
+4. ✅ Ensure changes match official BattleTech rules
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+3. **Review BattleTech rules documentation** (see above)
+4. Make your changes
+5. Add tests if applicable
+6. Submit a pull request
 
 ## License
 
