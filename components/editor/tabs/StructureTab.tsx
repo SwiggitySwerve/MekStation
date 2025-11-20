@@ -92,18 +92,20 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
   const [hasInitialized, setHasInitialized] = React.useState(false);
 
   // Enhanced configuration with tech progression (with defaults for missing fields)
+  const defaultTechProgression = {
+    chassis: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    gyro: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    engine: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    heatsink: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    targeting: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    myomer: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    movement: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const,
+    armor: config.techBase.includes('Clan') ? 'Clan' as const : 'Inner Sphere' as const
+  };
+  
   const enhancedConfig = {
     ...config,
-    techProgression: (config as any).techProgression || {
-      chassis: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      gyro: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      engine: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      heatsink: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      targeting: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      myomer: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      movement: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere',
-      armor: config.techBase.includes('Clan') ? 'Clan' : 'Inner Sphere'
-    }
+    techProgression: config.techProgression || defaultTechProgression
   };
 
   // 🔥 MEMORY SYSTEM INITIALIZATION (initialize only, no restoration - let Overview tab handle restoration)
@@ -127,7 +129,7 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
     }
     
     console.log('[StructureTab] 💾 Attempting memory restoration from saved state');
-    const restorationUpdates: any = {};
+    const restorationUpdates: Partial<UnitConfiguration> = {};
     
     // Get current tech progression (or use defaults)
     const techProgression = config.techProgression || enhancedConfig.techProgression;
@@ -187,9 +189,9 @@ export const StructureTab: React.FC<StructureTabProps> = ({ readOnly = false }) 
     
     const property = propertyMap[subsystem as keyof typeof propertyMap];
     if (!property) return 'Standard';
-    const value = (config as any)[property];
+    const value = config[property as keyof UnitConfiguration];
     if (value && typeof value === 'object' && 'type' in value) {
-      return value.type;
+      return (value as { type: string }).type;
     }
     return value || 'Standard';
   }

@@ -187,8 +187,35 @@ export function useMultiUnit(): MultiUnitContextValue {
   };
 }
 
+// Return type for useUnit hook
+export interface UseUnitReturn {
+  unit: UnitCriticalManager;
+  engineType: EngineType;
+  gyroType: GyroType;
+  unallocatedEquipment: EquipmentAllocation[];
+  validation: UnitValidationResult | null;
+  summary: Record<string, unknown>;
+  isConfigLoaded: boolean;
+  selectedEquipmentId: string | null;
+  unitVersion: number;
+  changeEngine: (engineType: EngineType) => void;
+  changeGyro: (gyroType: GyroType) => void;
+  changeStructure: (structureType: StructureType) => void;
+  changeArmor: (armorType: ArmorType) => void;
+  changeHeatSink: (heatSinkType: HeatSinkType) => void;
+  changeJumpJet: (jumpJetType: string) => void;
+  updateConfiguration: (config: UnitConfiguration) => void;
+  addTestEquipment: (equipment: EquipmentAllocation, location: string, startSlot?: number) => boolean;
+  addEquipmentToUnit: (equipment: EquipmentAllocation) => void;
+  removeEquipment: (equipmentGroupId: string) => boolean;
+  resetUnit: (config?: UnitConfiguration) => void;
+  selectEquipment: (equipmentGroupId: string | null) => void;
+  assignSelectedEquipment: (location: string, slotIndex: number) => boolean;
+  getDebugInfo: () => Record<string, unknown>;
+}
+
 // Legacy compatibility hook - proxies to active tab's unit
-export function useUnit() {
+export function useUnit(): UseUnitReturn {
   const multiUnit = useMultiUnit();
   
   if (!multiUnit.unit) {
@@ -196,8 +223,46 @@ export function useUnit() {
     // But during init it might be null.
     // For now, we follow the legacy pattern but maybe safer
     if (typeof window === 'undefined') {
-         // SSR safety
-         return {} as any;
+         // SSR safety - return a minimal valid structure
+         const emptyConfig: UnitConfiguration = {
+           tonnage: 100,
+           engineRating: 300,
+           walkMP: 3,
+           runMP: 5,
+           jumpMP: 0,
+           techBase: 'Inner Sphere',
+           engineType: 'Standard',
+           gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+           structureType: { type: 'Standard', techBase: 'Inner Sphere' },
+           armorType: { type: 'Standard', techBase: 'Inner Sphere' },
+           heatSinkType: { type: 'Single', techBase: 'Inner Sphere' }
+         };
+         const dummyUnit = new UnitCriticalManager(emptyConfig);
+         return {
+           unit: dummyUnit,
+           engineType: 'Standard',
+           gyroType: { type: 'Standard', techBase: 'Inner Sphere' },
+           unallocatedEquipment: [],
+           validation: null,
+           summary: {},
+           isConfigLoaded: false,
+           selectedEquipmentId: null,
+           unitVersion: 0,
+           changeEngine: () => {},
+           changeGyro: () => {},
+           changeStructure: () => {},
+           changeArmor: () => {},
+           changeHeatSink: () => {},
+           changeJumpJet: () => {},
+           updateConfiguration: () => {},
+           addTestEquipment: () => false,
+           addEquipmentToUnit: () => {},
+           removeEquipment: () => false,
+           resetUnit: () => {},
+           selectEquipment: () => {},
+           assignSelectedEquipment: () => false,
+           getDebugInfo: () => ({})
+         };
     }
     throw new Error('No active unit available');
   }

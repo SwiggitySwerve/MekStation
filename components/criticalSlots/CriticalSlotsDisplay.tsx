@@ -22,7 +22,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
   const selectedEquipment = getSelectedEquipment()
   const isAssignable = isEmpty && selectedEquipment && canAssignToSlot(slot, location, selectedEquipment)
   
-  function canAssignToSlot(targetSlot: CriticalSlot, targetLocation: string, equipment: any): boolean {
+  function canAssignToSlot(targetSlot: CriticalSlot, targetLocation: string, equipment: EquipmentAllocation): boolean {
     if (!targetSlot.isEmpty()) return false
     
     const section = unit.getSection(targetLocation)
