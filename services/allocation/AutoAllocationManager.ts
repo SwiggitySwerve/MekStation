@@ -5,21 +5,12 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-
-export interface EquipmentPlacement {
-  equipmentId: string;
-  equipment: any;
-  location: string;
-  slots: number[];
-  isFixed: boolean;
-  isValid: boolean;
-  constraints: any;
-  conflicts: string[];
-}
+import { EquipmentPlacement, EquipmentConstraints } from '../../types/core/EquipmentPlacement';
+import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot';
 
 export interface WeaponAllocationResult {
   allocated: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   strategy: 'balanced' | 'front_loaded' | 'distributed' | 'concentrated';
   heatEfficiency: number;
   firepower: {
@@ -32,7 +23,7 @@ export interface WeaponAllocationResult {
 
 export interface AmmoAllocationResult {
   allocated: EquipmentPlacement[];
-  unallocated: any[];
+  unallocated: EquipmentAllocation[];
   caseProtection: {
     protected: string[];
     unprotected: string[];
@@ -79,9 +70,9 @@ export class AutoAllocationManager {
   /**
    * Auto-allocate weapons with optimal placement strategy
    */
-  autoAllocateWeapons(weapons: any[], config: UnitConfiguration): WeaponAllocationResult {
+  autoAllocateWeapons(weapons: EquipmentAllocation[], config: UnitConfiguration): WeaponAllocationResult {
     const allocated: EquipmentPlacement[] = [];
-    const unallocated: any[] = [];
+    const unallocated: EquipmentAllocation[] = [];
     
     // Sort weapons by priority (energy weapons first, then ballistic, then missile)
     const sortedWeapons = this.sortWeaponsByPriority(weapons);
@@ -114,9 +105,9 @@ export class AutoAllocationManager {
   /**
    * Auto-allocate ammunition with CASE protection consideration
    */
-  autoAllocateAmmunition(ammunition: any[], config: UnitConfiguration): AmmoAllocationResult {
+  autoAllocateAmmunition(ammunition: EquipmentAllocation[], config: UnitConfiguration): AmmoAllocationResult {
     const allocated: EquipmentPlacement[] = [];
-    const unallocated: any[] = [];
+    const unallocated: EquipmentAllocation[] = [];
     
     const caseLocations = this.getCASEProtectedLocations(config);
     
@@ -146,7 +137,7 @@ export class AutoAllocationManager {
   /**
    * Auto-allocate heat sinks for optimal heat management
    */
-  autoAllocateHeatSinks(heatSinks: any[], config: UnitConfiguration): HeatSinkAllocationResult {
+  autoAllocateHeatSinks(heatSinks: EquipmentAllocation[], config: UnitConfiguration): HeatSinkAllocationResult {
     const allocated: EquipmentPlacement[] = [];
     const preferredLocations = ['leftLeg', 'rightLeg', 'leftTorso', 'rightTorso'];
     
@@ -177,7 +168,7 @@ export class AutoAllocationManager {
   /**
    * Auto-allocate jump jets with optimal distribution
    */
-  autoAllocateJumpJets(jumpJets: any[], config: UnitConfiguration): JumpJetAllocationResult {
+  autoAllocateJumpJets(jumpJets: EquipmentAllocation[], config: UnitConfiguration): JumpJetAllocationResult {
     const allocated: EquipmentPlacement[] = [];
     const jumpMP = config.jumpMP || 0;
     
@@ -204,7 +195,7 @@ export class AutoAllocationManager {
   /**
    * Sort weapons by priority for allocation
    */
-  private sortWeaponsByPriority(weapons: any[]): any[] {
+  private sortWeaponsByPriority(weapons: EquipmentAllocation[]): EquipmentAllocation[] {
     return weapons.sort((a, b) => {
       const priorityA = this.getWeaponPriority(a);
       const priorityB = this.getWeaponPriority(b);
@@ -215,7 +206,7 @@ export class AutoAllocationManager {
   /**
    * Get weapon priority for allocation order
    */
-  private getWeaponPriority(weapon: any): number {
+  private getWeaponPriority(weapon: EquipmentAllocation): number {
     const type = weapon.equipmentData?.type || '';
     const heat = weapon.equipmentData?.heat || 0;
     const damage = weapon.equipmentData?.damage || 0;
@@ -231,13 +222,13 @@ export class AutoAllocationManager {
   /**
    * Find best placement for a weapon
    */
-  private findBestWeaponPlacement(weapon: any, config: UnitConfiguration, allocated: EquipmentPlacement[]): EquipmentPlacement | null {
+  private findBestWeaponPlacement(weapon: EquipmentAllocation, config: UnitConfiguration, allocated: EquipmentPlacement[]): EquipmentPlacement | null {
     const preferredLocations = ['leftArm', 'rightArm', 'leftTorso', 'rightTorso'];
     
     for (const location of preferredLocations) {
       if (this.canPlaceEquipment(weapon, location, allocated)) {
         return {
-          equipmentId: weapon.id || `${weapon.equipmentData?.name}_${Date.now()}`,
+          equipmentId: weapon.equipmentGroupId || `${weapon.equipmentData?.name}_${Date.now()}`,
           equipment: weapon,
           location,
           slots: this.findAvailableSlots(location, weapon, allocated),
@@ -333,14 +324,14 @@ export class AutoAllocationManager {
   /**
    * Find best ammo placement with CASE consideration
    */
-  private findBestAmmoPlacement(ammo: any, config: UnitConfiguration, allocated: EquipmentPlacement[], caseLocations: string[]): EquipmentPlacement | null {
+  private findBestAmmoPlacement(ammo: EquipmentAllocation, config: UnitConfiguration, allocated: EquipmentPlacement[], caseLocations: string[]): EquipmentPlacement | null {
     // Prefer CASE protected locations for explosive ammo
     const preferredLocations = ammo.equipmentData?.explosive ? caseLocations : ['leftTorso', 'rightTorso', 'leftLeg', 'rightLeg'];
     
     for (const location of preferredLocations) {
       if (this.canPlaceEquipment(ammo, location, allocated)) {
         return {
-          equipmentId: ammo.id || `${ammo.equipmentData?.name}_${Date.now()}`,
+          equipmentId: ammo.equipmentGroupId || `${ammo.equipmentData?.name}_${Date.now()}`,
           equipment: ammo,
           location,
           slots: this.findAvailableSlots(location, ammo, allocated),
@@ -387,7 +378,7 @@ export class AutoAllocationManager {
   /**
    * Generate ammo suggestions
    */
-  private generateAmmoSuggestions(allocated: EquipmentPlacement[], unallocated: any[], caseProtection: any): string[] {
+  private generateAmmoSuggestions(allocated: EquipmentPlacement[], unallocated: EquipmentAllocation[], caseProtection: any): string[] {
     const suggestions: string[] = [];
     
     if (unallocated.length > 0) {
@@ -404,11 +395,11 @@ export class AutoAllocationManager {
   /**
    * Find best heat sink placement
    */
-  private findBestHeatSinkPlacement(heatSink: any, config: UnitConfiguration, allocated: EquipmentPlacement[], preferredLocations: string[]): EquipmentPlacement | null {
+  private findBestHeatSinkPlacement(heatSink: EquipmentAllocation, config: UnitConfiguration, allocated: EquipmentPlacement[], preferredLocations: string[]): EquipmentPlacement | null {
     for (const location of preferredLocations) {
       if (this.canPlaceEquipment(heatSink, location, allocated)) {
         return {
-          equipmentId: heatSink.id || `${heatSink.equipmentData?.name}_${Date.now()}`,
+          equipmentId: heatSink.equipmentGroupId || `${heatSink.equipmentData?.name}_${Date.now()}`,
           equipment: heatSink,
           location,
           slots: this.findAvailableSlots(location, heatSink, allocated),
@@ -489,10 +480,10 @@ export class AutoAllocationManager {
   /**
    * Place jump jet in specific location
    */
-  private placeJumpJetInLocation(jumpJet: any, location: string, config: UnitConfiguration, allocated: EquipmentPlacement[]): EquipmentPlacement | null {
+  private placeJumpJetInLocation(jumpJet: EquipmentAllocation, location: string, config: UnitConfiguration, allocated: EquipmentPlacement[]): EquipmentPlacement | null {
     if (this.canPlaceEquipment(jumpJet, location, allocated)) {
       return {
-        equipmentId: jumpJet.id || `${jumpJet.equipmentData?.name}_${Date.now()}`,
+        equipmentId: jumpJet.equipmentGroupId || `${jumpJet.equipmentData?.name}_${Date.now()}`,
         equipment: jumpJet,
         location,
         slots: this.findAvailableSlots(location, jumpJet, allocated),
@@ -528,8 +519,8 @@ export class AutoAllocationManager {
   /**
    * Check if equipment can be placed in location
    */
-  private canPlaceEquipment(equipment: any, location: string, allocated: EquipmentPlacement[]): boolean {
-    const requiredSlots = equipment.equipmentData?.criticals || 1;
+  private canPlaceEquipment(equipment: EquipmentAllocation, location: string, allocated: EquipmentPlacement[]): boolean {
+    const requiredSlots = equipment.equipmentData?.requiredSlots || 1;
     const availableSlots = this.findAvailableSlots(location, equipment, allocated);
     return availableSlots.length >= requiredSlots;
   }
@@ -537,7 +528,7 @@ export class AutoAllocationManager {
   /**
    * Find available slots in location
    */
-  private findAvailableSlots(location: string, equipment: any, allocated: EquipmentPlacement[]): number[] {
+  private findAvailableSlots(location: string, equipment: EquipmentAllocation, allocated: EquipmentPlacement[]): number[] {
     const usedSlots = allocated
       .filter(p => p.location === location)
       .flatMap(p => p.slots);
@@ -553,7 +544,7 @@ export class AutoAllocationManager {
     
     return availableSlots;
   }
-  
+
   /**
    * Get slot count for location
    */
@@ -575,7 +566,7 @@ export class AutoAllocationManager {
   /**
    * Get equipment constraints
    */
-  private getEquipmentConstraints(equipment: any): any {
+  private getEquipmentConstraints(equipment: EquipmentAllocation): EquipmentConstraints {
     return {
       allowedLocations: ['leftTorso', 'rightTorso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'],
       forbiddenLocations: [],

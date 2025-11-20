@@ -5,17 +5,7 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-
-export interface EquipmentPlacement {
-  equipmentId: string;
-  equipment: any;
-  location: string;
-  slots: number[];
-  isFixed: boolean;
-  isValid: boolean;
-  constraints: any;
-  conflicts: string[];
-}
+import { EquipmentPlacement } from '../../types/core/EquipmentPlacement';
 
 export interface OptimizationResult {
   improved: boolean;

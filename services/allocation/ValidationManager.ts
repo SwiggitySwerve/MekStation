@@ -5,17 +5,8 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-
-export interface EquipmentPlacement {
-  equipmentId: string;
-  equipment: any;
-  location: string;
-  slots: number[];
-  isFixed: boolean;
-  isValid: boolean;
-  constraints: any;
-  conflicts: string[];
-}
+import { EquipmentPlacement, EquipmentConstraints } from '../../types/core/EquipmentPlacement';
+import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -219,7 +210,7 @@ export class ValidationManager {
   /**
    * Validate tech level compatibility
    */
-  validateTechLevel(equipment: any[], config: UnitConfiguration): TechLevelValidation {
+  validateTechLevel(equipment: EquipmentAllocation[], config: UnitConfiguration): TechLevelValidation {
     const issues: TechLevelIssue[] = [];
     const recommendations: string[] = [];
     
@@ -272,7 +263,7 @@ export class ValidationManager {
   /**
    * Validate mounting restrictions for equipment
    */
-  validateMountingRestrictions(equipment: any, location: string, config: UnitConfiguration): MountingValidation {
+  validateMountingRestrictions(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): MountingValidation {
     const restrictions: MountingRestriction[] = [];
     const requirements: MountingRequirement[] = [];
     const alternatives: string[] = [];
@@ -327,7 +318,7 @@ export class ValidationManager {
   /**
    * Validate individual placement
    */
-  validatePlacement(equipment: any, location: string, config: UnitConfiguration): any {
+  validatePlacement(equipment: EquipmentAllocation, location: string, config: UnitConfiguration): any {
     const errors: any[] = [];
     const warnings: any[] = [];
     const restrictions: string[] = [];
@@ -378,7 +369,7 @@ export class ValidationManager {
   /**
    * Get equipment constraints
    */
-  private getEquipmentConstraints(equipment: any): any {
+  private getEquipmentConstraints(equipment: EquipmentAllocation): EquipmentConstraints {
     return {
       allowedLocations: ['leftTorso', 'rightTorso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'],
       forbiddenLocations: [],
