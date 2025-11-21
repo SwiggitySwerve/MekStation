@@ -23,10 +23,6 @@ import { CustomizableUnit } from '../../types/customizer';
 import { ICompleteUnitConfiguration } from '../../types/core/UnitInterfaces';
 import { validateFullUnit } from '../../utils/typeConversion/validators';
 import {
-  stringToTechBase,
-  stringToRulesLevel,
-  stringToTechBaseWithDefault,
-  stringToRulesLevelWithDefault,
   techBaseToString,
   rulesLevelToString
 } from '../../utils/typeConversion/enumConverters';
@@ -478,10 +474,12 @@ export class UnitConversionService implements IUnitConversionService {
             armor_points: value
           });
         } else if (value && typeof value === 'object') {
+          // Handle object with front/rear structure
+          const armorValue = value as { front?: number; rear?: number };
           locations.push({
             location: locationName,
-            armor_points: (value as any).front || 0,
-            rear_armor_points: (value as any).rear
+            armor_points: armorValue.front ?? 0,
+            rear_armor_points: armorValue.rear
           });
         }
       }
@@ -511,7 +509,9 @@ export class UnitConversionService implements IUnitConversionService {
       item_name: eq.equipment.name || 'Unknown',
       item_type: eq.equipment.category || 'equipment',
       location: eq.location,
-      tech_base: (eq.equipment as any).techBase || 'IS',
+      tech_base: 'techBase' in eq.equipment && typeof eq.equipment.techBase === 'string'
+        ? eq.equipment.techBase
+        : 'IS',
       rear_facing: eq.facing === 'rear',
       turret_mounted: false // Would need to be determined from equipment data
     }));
