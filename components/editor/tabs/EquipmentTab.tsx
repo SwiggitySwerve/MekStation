@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { useUnit } from '../../multiUnit/MultiUnitProvider';
+import { EquipmentObject, EquipmentAllocation } from '../../../utils/criticalSlots/CriticalSlot';
 
 // Import equipment components
 import { EquipmentBrowserRefactored as EquipmentBrowser } from '../../equipment/EquipmentBrowserRefactored';
@@ -35,8 +36,8 @@ export const EquipmentTab: React.FC<EquipmentTabProps> = ({ readOnly = false }) 
   const { unit, unallocatedEquipment, addEquipmentToUnit } = useUnit();
 
   // Wrapper to convert EquipmentObject to EquipmentAllocation
-  const handleAddEquipment = React.useCallback((equipment: any) => {
-    const equipmentAllocation = {
+  const handleAddEquipment = React.useCallback((equipment: EquipmentObject) => {
+    const equipmentAllocation: EquipmentAllocation = {
       equipmentGroupId: `equipment-${Date.now()}-${Math.random()}`,
       equipmentData: equipment,
       location: 'unallocated',
@@ -53,10 +54,11 @@ export const EquipmentTab: React.FC<EquipmentTabProps> = ({ readOnly = false }) 
     let totalSlots = 0;
     let totalHeat = 0;
 
-    unallocatedEquipment.forEach((equipment: any) => {
-      totalWeight += equipment.weight || 0;
-      totalSlots += equipment.requiredSlots || 0;
-      totalHeat += equipment.heat || 0;
+    unallocatedEquipment.forEach((allocation) => {
+      const data = allocation.equipmentData;
+      totalWeight += data.weight || 0;
+      totalSlots += data.requiredSlots || 0;
+      totalHeat += data.heat || 0;
     });
 
     return {
@@ -70,6 +72,17 @@ export const EquipmentTab: React.FC<EquipmentTabProps> = ({ readOnly = false }) 
   // Get remaining capacity
   const remainingWeight = unit.getRemainingTonnage();
   const remainingSlots = 78 - unit.getSummary().occupiedSlots;
+
+  // Determine initial filters based on unit tech base
+  const config = unit.getConfiguration();
+  const unitTechBase = config.techBase || 'Inner Sphere';
+  
+  const initialFilters = React.useMemo(() => {
+    if (unitTechBase === 'Mixed') {
+      return { techBaseFilter: 'all' };
+    }
+    return { techBaseFilter: unitTechBase };
+  }, [unitTechBase]);
 
   return (
     <div className="h-full flex flex-col">
@@ -125,6 +138,7 @@ export const EquipmentTab: React.FC<EquipmentTabProps> = ({ readOnly = false }) 
             actionButtonLabel="Add to unit"
             actionButtonIcon="+"
             className="h-full"
+            initialFilters={initialFilters}
           />
         </div>
       </div>

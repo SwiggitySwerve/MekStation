@@ -1154,7 +1154,8 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
       const weaponTechBase = weaponData.techBase || 'Inner Sphere';
       const unitTechBase = config.techBase || 'Inner Sphere';
       
-      if (weaponTechBase === 'Clan' && unitTechBase === 'Inner Sphere') {
+      // In Mixed tech mode, we allow mixing IS and Clan components
+      if (unitTechBase !== 'Mixed' && weaponTechBase === 'Clan' && unitTechBase === 'Inner Sphere') {
         violations.push({
           weapon: weaponData.name || `weapon_${index}`,
           type: 'tech_level_violation',
@@ -1318,7 +1319,8 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
       const equipTechBase = equipData.techBase || 'Inner Sphere';
       const unitTechBase = config.techBase || 'Inner Sphere';
       
-      if (equipTechBase === 'Clan' && unitTechBase === 'Inner Sphere') {
+      // In Mixed tech mode, we allow mixing IS and Clan components
+      if (unitTechBase !== 'Mixed' && equipTechBase === 'Clan' && unitTechBase === 'Inner Sphere') {
         violations.push({
           equipment: equipmentName,
           type: 'restriction_violated',
@@ -1410,7 +1412,7 @@ export class ConstructionRulesValidatorImpl implements ConstructionRulesValidato
     }
     
     const isMixed = innerSphereComponents > 0 && clanComponents > 0;
-    const allowedMixed = false; // Simplified - Mixed tech not allowed by default
+    const allowedMixed = config.techBase === 'Mixed'; // FIX: Check configuration instead of hardcoded false
     
     if (isMixed && !allowedMixed) {
       violations.push('Mixed tech detected but not allowed by unit configuration');

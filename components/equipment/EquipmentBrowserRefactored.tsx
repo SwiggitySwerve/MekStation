@@ -23,6 +23,7 @@ export interface EquipmentBrowserProps {
   
   // Optional configuration
   initialPageSize?: number;
+  initialFilters?: Partial<import('../../utils/equipment/EquipmentDataService').EquipmentFilterCriteria>;
   enableKeyboardNavigation?: boolean;
   enableAutoRefresh?: boolean;
   
@@ -37,6 +38,7 @@ export function EquipmentBrowserRefactored({
   actionButtonLabel = "Add to unit",
   actionButtonIcon = "+",
   initialPageSize = 25,
+  initialFilters,
   enableKeyboardNavigation = true,
   enableAutoRefresh = false,
   className = ""
@@ -71,6 +73,7 @@ export function EquipmentBrowserRefactored({
     refresh
   } = useEquipmentBrowser({
     initialPageSize,
+    initialFilters,
     enableKeyboardNavigation,
     enableAutoRefresh,
     onEquipmentAdd: onAddEquipment,

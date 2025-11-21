@@ -15,6 +15,7 @@ import {
 
 export interface UseEquipmentBrowserOptions {
   initialPageSize?: number;
+  initialFilters?: Partial<EquipmentFilterCriteria>;
   enableKeyboardNavigation?: boolean;
   enableAutoRefresh?: boolean;
   refreshInterval?: number;
@@ -84,6 +85,7 @@ export function useEquipmentBrowser(
 ): UseEquipmentBrowserResult {
   const {
     initialPageSize = 25,
+    initialFilters = {},
     enableKeyboardNavigation = false,
     enableAutoRefresh = false,
     refreshInterval = 300000, // 5 minutes
@@ -94,7 +96,7 @@ export function useEquipmentBrowser(
   } = options;
 
   // State management
-  const [filters, setFiltersState] = useState<EquipmentFilterCriteria>(DEFAULT_FILTERS);
+  const [filters, setFiltersState] = useState<EquipmentFilterCriteria>({ ...DEFAULT_FILTERS, ...initialFilters });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSizeState] = useState(initialPageSize);
   const [isLoading, setIsLoading] = useState(true);

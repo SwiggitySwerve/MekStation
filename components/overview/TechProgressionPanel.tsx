@@ -93,7 +93,10 @@ export const TechProgressionPanel: React.FC<TechProgressionPanelProps> = ({
               <div className="text-slate-300 text-xs font-medium">
                 <div>{label}</div>
                 {currentValue && (
-                  <div className="text-slate-500 text-xs mt-0.5 truncate">
+                  <div className="text-slate-500 text-xs mt-0.5 truncate flex items-center gap-1">
+                    {lockedTechBase !== 'Inner Sphere' && lockedTechBase !== 'Clan' && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" title="Mixed Tech"></span>
+                    )}
                     {currentValue}
                   </div>
                 )}
