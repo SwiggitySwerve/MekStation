@@ -70,8 +70,8 @@ export class ComponentAdapter {
       ['gyro', COMPONENT_DATABASE.gyro],
       ['heatSink', COMPONENT_DATABASE.heatsink],
       ['armor', COMPONENT_DATABASE.armor],
-      ['jumpJet', (COMPONENT_DATABASE as any).movement || {}],
-      ['enhancement', (COMPONENT_DATABASE as any).myomer || {}]
+      ['jumpJet', COMPONENT_DATABASE.movement || {}],
+      ['enhancement', COMPONENT_DATABASE.myomer || {}]
     ]
 
     for (const [componentCategory, db] of catMap) {

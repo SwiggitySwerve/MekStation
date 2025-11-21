@@ -198,7 +198,7 @@ export class BattleTechSearchEngine<T extends SearchableItem> {
     if (criteria.componentType && criteria.componentType.length > 0) {
       filtered = filtered.filter(item =>
         criteria.componentType!.some(type => 
-          item.category === type || (item as any).type === type
+          item.category === type || item.type === type
         )
       )
     }
@@ -256,8 +256,8 @@ export class BattleTechSearchEngine<T extends SearchableItem> {
     if (!sortBy) return results
 
     return [...results].sort((a, b) => {
-      const aVal = (a as any)[sortBy]
-      const bVal = (b as any)[sortBy]
+      const aVal = a[sortBy]
+      const bVal = b[sortBy]
 
       // Handle undefined values
       if (aVal === undefined && bVal === undefined) return 0

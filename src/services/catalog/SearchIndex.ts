@@ -73,7 +73,7 @@ export class SearchIndex {
       }
       // requires ammo
       if (typeof criteria.requiresAmmo === 'boolean' && i.kind === 'equipment') {
-        if ((i as any).requiresAmmo !== criteria.requiresAmmo) return false
+        if (i.requiresAmmo !== criteria.requiresAmmo) return false
       }
       // metrics band filters
       const m = i.metrics
