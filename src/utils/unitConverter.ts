@@ -2,6 +2,8 @@ import { FullUnit, WeaponOrEquipmentItem } from '../types';
 import { CustomizableUnit, UnitEquipmentItem, EquipmentItem } from '../types/customizer';
 import { EditableUnit } from '../types/editor';
 import { convertToIArmorAllocation } from './armorAllocation';
+import { stringToTechBaseWithDefault, stringToRulesLevelWithDefault } from './typeConversion/enumConverters';
+import { TechBase, RulesLevel } from '../types/core/BaseTypes';
 
 /**
  * Safe value extraction with validation
@@ -158,14 +160,18 @@ export function convertFullUnitToEditableUnit(unit: FullUnit): EditableUnit {
       });
   }
 
+  // Convert tech base and rules level with proper validation
+  const techBase = stringToTechBaseWithDefault(unit.tech_base, TechBase.INNER_SPHERE);
+  const rulesLevel = stringToRulesLevelWithDefault(unit.rules_level, RulesLevel.STANDARD);
+
   return {
       // Base identity
       id: unit.id,
       name: unit.model,
       chassis: unit.chassis,
       model: unit.model,
-      techBase: (unit.tech_base || 'Inner Sphere') as any,
-      rulesLevel: (unit.rules_level || 'Standard') as any,
+      techBase,
+      rulesLevel,
       era: unit.era,
       tonnage: unit.mass,
       
@@ -236,7 +242,12 @@ export function convertFullUnitToEditableUnit(unit: FullUnit): EditableUnit {
           checksum: '',
           size: 0
       }
-  } as unknown as EditableUnit; // Partial implementation cast until fully hydrated
+  };
+  
+  // Note: This is a partial conversion. Some system components (structure, engine, gyro, etc.)
+  // use default/stub values. A full implementation would calculate these from unit.data.
+  // For now, the 'data' property preserves the original unit data for reference.
+  return editableUnit;
 }
 
 /**
