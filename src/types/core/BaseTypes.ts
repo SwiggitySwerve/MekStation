@@ -25,6 +25,8 @@ export type EntityId = string;
 export enum TechBase {
   INNER_SPHERE = 'Inner Sphere',
   CLAN = 'Clan',
+  MIXED_IS_CHASSIS = 'Mixed (IS Chassis)',
+  MIXED_CLAN_CHASSIS = 'Mixed (Clan Chassis)',
   MIXED = 'Mixed',
   BOTH = 'Both'
 }
@@ -538,35 +540,146 @@ export function isFailure<T, E>(result: Result<T, E>): result is { success: fals
 
 /**
  * Type guard for unit state validation
+ * 
+ * Note: Uses inline type definition to avoid circular dependency
  */
-export function isValidUnitState(state: unknown): state is any {
+export function isValidUnitState(state: unknown): state is {
+  readonly configuration: {
+    readonly id: EntityId;
+    readonly name: string;
+    readonly chassis: string;
+    readonly model: string;
+    readonly techBase: TechBase;
+    readonly rulesLevel: RulesLevel;
+    readonly era: string;
+    readonly tonnage: number;
+    readonly structure: unknown;
+    readonly engine: unknown;
+    readonly gyro: unknown;
+    readonly cockpit: unknown;
+    readonly armor: unknown;
+    readonly heatSinks: unknown;
+    readonly jumpJets: unknown;
+    readonly equipment: unknown[];
+    readonly fixedAllocations: unknown[];
+    readonly groups: unknown[];
+    readonly metadata: unknown;
+  };
+  readonly unallocatedEquipment: unknown[];
+  readonly criticalSlots: unknown;
+  readonly validation: unknown;
+  readonly metadata: unknown;
+} {
+  if (typeof state !== 'object' || state === null) {
+    return false;
+  }
+  
+  const s = state as Record<string, unknown>;
+  
   return (
-    typeof state === 'object' &&
-    state !== null &&
-    'configurations' in state &&
-    'allocations' in state &&
-    'instances' in state &&
-    'criticalSlots' in state &&
-    'timestamp' in state
+    'configuration' in s &&
+    'unallocatedEquipment' in s &&
+    'criticalSlots' in s &&
+    'validation' in s &&
+    'metadata' in s &&
+    isValidUnitConfiguration(s.configuration) &&
+    Array.isArray(s.unallocatedEquipment) &&
+    typeof s.criticalSlots === 'object' &&
+    isValidationState(s.validation) &&
+    isStateMetadata(s.metadata)
+  );
+}
+
+/**
+ * Type guard for validation state
+ */
+function isValidationState(validation: unknown): boolean {
+  if (typeof validation !== 'object' || validation === null) {
+    return false;
+  }
+  
+  const v = validation as Record<string, unknown>;
+  return (
+    typeof v.isValid === 'boolean' &&
+    'lastValidation' in v &&
+    Array.isArray(v.violations) &&
+    Array.isArray(v.warnings) &&
+    typeof v.score === 'number'
+  );
+}
+
+/**
+ * Type guard for state metadata
+ */
+function isStateMetadata(metadata: unknown): boolean {
+  if (typeof metadata !== 'object' || metadata === null) {
+    return false;
+  }
+  
+  const m = metadata as Record<string, unknown>;
+  return (
+    typeof m.version === 'string' &&
+    'created' in m &&
+    'modified' in m &&
+    typeof m.checksum === 'string' &&
+    typeof m.size === 'number'
   );
 }
 
 /**
  * Type guard for unit configuration validation
+ * 
+ * Note: Uses inline type definition to avoid circular dependency
  */
-export function isValidUnitConfiguration(config: unknown): config is any {
+export function isValidUnitConfiguration(config: unknown): config is {
+  readonly id: EntityId;
+  readonly name: string;
+  readonly chassis: string;
+  readonly model: string;
+  readonly techBase: TechBase;
+  readonly rulesLevel: RulesLevel;
+  readonly era: string;
+  readonly tonnage: number;
+  readonly structure: unknown;
+  readonly engine: unknown;
+  readonly gyro: unknown;
+  readonly cockpit: unknown;
+  readonly armor: unknown;
+  readonly heatSinks: unknown;
+  readonly jumpJets: unknown;
+  readonly equipment: unknown[];
+  readonly fixedAllocations: unknown[];
+  readonly groups: unknown[];
+  readonly metadata: unknown;
+} {
   if (typeof config !== 'object' || config === null) {
     return false;
   }
 
   const configObj = config as Record<string, unknown>;
   return (
-    'chassisName' in config &&
+    'id' in config &&
+    'name' in config &&
+    'chassis' in config &&
     'model' in config &&
-    'tonnage' in config &&
     'techBase' in config &&
     'rulesLevel' in config &&
-    typeof configObj.chassisName === 'string' &&
+    'era' in config &&
+    'tonnage' in config &&
+    'structure' in config &&
+    'engine' in config &&
+    'gyro' in config &&
+    'cockpit' in config &&
+    'armor' in config &&
+    'heatSinks' in config &&
+    'jumpJets' in config &&
+    'equipment' in config &&
+    'fixedAllocations' in config &&
+    'groups' in config &&
+    'metadata' in config &&
+    typeof configObj.id === 'string' &&
+    typeof configObj.name === 'string' &&
+    typeof configObj.chassis === 'string' &&
     typeof configObj.model === 'string' &&
     typeof configObj.tonnage === 'number'
   );
@@ -574,8 +687,18 @@ export function isValidUnitConfiguration(config: unknown): config is any {
 
 /**
  * Type guard for equipment allocation validation
+ * 
+ * Note: Uses inline type definition to avoid circular dependency
  */
-export function isValidEquipmentAllocation(allocation: unknown): allocation is any {
+export function isValidEquipmentAllocation(allocation: unknown): allocation is {
+  readonly id: EntityId;
+  readonly equipmentId: EntityId;
+  readonly equipment: unknown;
+  readonly location: string;
+  readonly slotIndex: number;
+  readonly quantity: number;
+  readonly status: unknown;
+} {
   if (typeof allocation !== 'object' || allocation === null) {
     return false;
   }
@@ -584,11 +707,15 @@ export function isValidEquipmentAllocation(allocation: unknown): allocation is a
   return (
     'id' in allocation &&
     'equipmentId' in allocation &&
+    'equipment' in allocation &&
     'location' in allocation &&
+    'slotIndex' in allocation &&
     'quantity' in allocation &&
+    'status' in allocation &&
     typeof allocationObj.id === 'string' &&
     typeof allocationObj.equipmentId === 'string' &&
     typeof allocationObj.location === 'string' &&
+    typeof allocationObj.slotIndex === 'number' &&
     typeof allocationObj.quantity === 'number'
   );
 }
