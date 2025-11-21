@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { EditableUnit, ArmorType } from '../../../types/editor';
+import { EditableUnit } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
+import { ComponentCategory, TechBase, TechLevel, RulesLevel } from '../../../types/core/BaseTypes';
 import { 
   getMaxArmorForLocation,
   calculateArmorWeight,
@@ -8,20 +10,42 @@ import {
   ALLOCATION_PATTERNS
 } from '../../../utils/armorAllocationHelpers';
 
-// Define the armor allocation structure based on EditableUnit
-type ArmorAllocation = EditableUnit['armorAllocation'];
+// Define the armor allocation structure used by this component
+export interface LocationArmorInfo {
+  front: number;
+  rear?: number;
+  maxArmor: number;
+  type?: IArmorDef;
+}
+
+export type ArmorAllocationMap = Record<string, LocationArmorInfo>;
 
 interface CompactArmorAllocationPanelProps {
   unit: EditableUnit;
-  armorAllocation: ArmorAllocation;
+  armorAllocation: ArmorAllocationMap;
   onArmorChange: (location: string, value: number, isRear?: boolean) => void;
   readOnly?: boolean;
 }
 
+const DEFAULT_ARMOR_DEF: IArmorDef = {
+  id: 'standard',
+  name: 'Standard',
+  type: 'Armor',
+  category: ComponentCategory.ARMOR,
+  techBase: TechBase.INNER_SPHERE,
+  techLevel: TechLevel.INTRODUCTORY,
+  rulesLevel: RulesLevel.INTRODUCTORY,
+  introductionYear: 2400,
+  costMultiplier: 1,
+  pointsPerTon: 16,
+  criticalSlots: 0,
+  maxPointsPerLocationMultiplier: 1
+};
+
 // Location row component
 const LocationRow: React.FC<{
   location: string;
-  armor: { front: number; rear?: number; maxArmor: number };
+  armor: LocationArmorInfo;
   maxFront: number;
   maxRear?: number;
   onArmorChange: (value: number, isRear?: boolean) => void;
@@ -156,7 +180,7 @@ const CompactArmorAllocationPanel: React.FC<CompactArmorAllocationPanelProps> = 
 
   // Calculate totals
   const totalArmorPoints = getTotalArmorPoints(armorAllocation);
-  const armorType = armorAllocation.head?.type || { name: 'Standard', pointsPerTon: 16 } as ArmorType;
+  const armorType = armorAllocation.head?.type || DEFAULT_ARMOR_DEF;
   const armorWeight = calculateArmorWeight(totalArmorPoints, armorType);
 
   // Get location order
@@ -171,11 +195,13 @@ const CompactArmorAllocationPanel: React.FC<CompactArmorAllocationPanelProps> = 
     'right_leg'
   ];
 
+  const mass = unit.tonnage || 0;
+
   // Apply pattern
   const applyPattern = useCallback((pattern: typeof ALLOCATION_PATTERNS[0]) => {
     const maxPoints: { [location: string]: number } = {};
     locations.forEach(location => {
-      maxPoints[location] = getMaxArmorForLocation(location, unit.mass);
+      maxPoints[location] = getMaxArmorForLocation(location, mass);
     });
 
     const newAllocation = pattern.allocate(maxPoints);
@@ -188,7 +214,7 @@ const CompactArmorAllocationPanel: React.FC<CompactArmorAllocationPanelProps> = 
     });
 
     setShowPatterns(false);
-  }, [locations, unit.mass, onArmorChange]);
+  }, [locations, mass, onArmorChange]);
 
   return (
     <div className="bg-slate-800 rounded-lg p-3">
@@ -214,7 +240,7 @@ const CompactArmorAllocationPanel: React.FC<CompactArmorAllocationPanelProps> = 
           const armor = armorAllocation[location];
           if (!armor) return null;
 
-          const maxFront = getMaxArmorForLocation(location, unit.mass);
+          const maxFront = getMaxArmorForLocation(location, mass);
           const maxRear = hasRearArmor(location) ? Math.floor(maxFront * 0.5) : undefined;
 
           return (

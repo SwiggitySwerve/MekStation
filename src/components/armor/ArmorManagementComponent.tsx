@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { EditableUnit } from '../../types/editor';
-import { ArmorType as ArmorTypeString } from '../../types/systemComponents';
-import { ARMOR_TYPES, ArmorType } from '../../utils/armorTypes';
+import { IArmorDef } from '../../types/core/ComponentInterfaces';
+import { IArmorAllocation } from '../../types/core/UnitInterfaces';
+import { ComponentCategory, TechLevel, RulesLevel, TechBase } from '../../types/core/BaseTypes';
 import { FullUnit } from '../../types';
+import { ArmorType, ARMOR_TYPES } from '../../utils/armorTypes';
 import { useArmorCalculations, isEditableUnit } from './hooks/useArmorCalculations';
 import { useArmorValidation } from './hooks/useArmorValidation';
 import { useArmorInteractions } from './hooks/useArmorInteractions';
@@ -11,7 +13,7 @@ import ArmorTonnageControl from '../editor/armor/ArmorTonnageControl';
 import ArmorDistributionPresets from '../editor/armor/ArmorDistributionPresets';
 import ArmorStatisticsPanel from '../editor/armor/ArmorStatisticsPanel';
 import MechArmorDiagram from '../editor/armor/MechArmorDiagram';
-import { autoAllocateArmor } from '../../utils/armorAllocation';
+import { autoAllocateArmor, convertToIArmorAllocation } from '../../utils/armorAllocation';
 
 export interface ArmorManagementComponentProps {
   // Required
@@ -29,6 +31,22 @@ export interface ArmorManagementComponentProps {
   highlightChanges?: boolean;
 }
 
+// Helper to convert ArmorType to IArmorDef
+const convertArmorTypeToDef = (type: ArmorType): IArmorDef => ({
+  id: type.id || type.name,
+  name: type.name,
+  type: type.name, // IComponentConfiguration.type
+  pointsPerTon: type.pointsPerTon,
+  criticalSlots: type.criticalSlots,
+  category: ComponentCategory.ARMOR,
+  techLevel: TechLevel.STANDARD,
+  rulesLevel: RulesLevel.STANDARD,
+  introductionYear: 0,
+  costMultiplier: type.costMultiplier || 1,
+  maxPointsPerLocationMultiplier: 1,
+  techBase: (type.techBase === 'Both' ? 'Inner Sphere' : type.techBase) as TechBase
+});
+
 const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
   unit,
   readOnly,
@@ -40,9 +58,11 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
   highlightChanges = false,
 }) => {
   // State management
-  const [selectedArmorType, setSelectedArmorType] = useState<ArmorType>(
-    ARMOR_TYPES.find(type => type.id === 'standard') || ARMOR_TYPES[0]
+  const initialArmorType = ARMOR_TYPES.find(type => type.id === 'standard') || ARMOR_TYPES[0];
+  const [selectedArmorType, setSelectedArmorType] = useState<IArmorDef>(
+    convertArmorTypeToDef(initialArmorType)
   );
+  
   const [armorTonnage, setArmorTonnage] = useState<number>(0);
 
   // Use custom hooks
@@ -62,7 +82,7 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
   const maxTonnage = unitTonnage * 0.5;
 
   // Handle armor type change (edit mode only)
-  const handleArmorTypeChange = useCallback((armorType: ArmorType) => {
+  const handleArmorTypeChange = useCallback((armorType: IArmorDef) => {
     if (readOnly) return;
     setSelectedArmorType(armorType);
   }, [readOnly]);
@@ -98,21 +118,40 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
     const newRear = rear === -1 ? currentLocation.rear : rear;
     
     // Update the armor allocation for this location
-    // EditableUnit uses armor.allocation structure
-    const currentAllocation = isEditableUnit(unit) && unit.armor ? unit.armor.allocation : {};
-    const updatedArmorAllocation = {
-      ...currentAllocation,
-      [location.toLowerCase().replace(' ', '')]: newFront + (newRear || 0) // Simplified - actual structure may differ
-    };
+    if (isEditableUnit(unit) && unit.armor) {
+      const locationMap: Record<string, string> = {
+        'Head': 'head',
+        'Center Torso': 'centerTorso',
+        'Left Torso': 'leftTorso',
+        'Right Torso': 'rightTorso',
+        'Left Arm': 'leftArm',
+        'Right Arm': 'rightArm',
+        'Left Leg': 'leftLeg',
+        'Right Leg': 'rightLeg',
+        'Center Leg': 'centerLeg'
+      };
+      
+      const key = locationMap[location];
+      if (!key) return;
 
-    // Note: This is a simplified update - the actual structure may need more work
-    // The parent component should handle the full armor configuration update
-    if (isEditableUnit(unit) && onUnitChange) {
+      const currentAllocation = unit.armor.allocation || {};
+      const updatedAllocation: Record<string, number> = { ...currentAllocation };
+      
+      updatedAllocation[key] = newFront;
+      if (rear !== -1) {
+        // Some locations might have rear armor keys
+        const rearKey = `${key}Rear`;
+        // Check if this location typically supports rear armor (Torso)
+        if (['centerTorso', 'leftTorso', 'rightTorso'].includes(key)) {
+            updatedAllocation[rearKey] = newRear;
+        }
+      }
+
       onUnitChange({
         armor: {
           ...unit.armor,
-          allocation: updatedArmorAllocation as any // Type assertion for compatibility
-        } as any
+          allocation: convertToIArmorAllocation(updatedAllocation)
+        }
       } as Partial<EditableUnit>);
     }
   }
@@ -134,7 +173,7 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
     };
 
     const locations = Object.keys(locationMap);
-    const updatedArmorAllocation: { [key: string]: any } = {};
+    const updatedArmorAllocation: Record<string, number> = {};
 
     locations.forEach(location => {
       const calcLocation = armorCalcs.locations[location];
@@ -159,8 +198,8 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
       onUnitChange({
         armor: {
           ...unit.armor,
-          allocation: updatedArmorAllocation as any // Type assertion for compatibility
-        } as any
+          allocation: convertToIArmorAllocation(updatedArmorAllocation)
+        }
       } as Partial<EditableUnit>);
     }
   }, [armorCalcs.locations, selectedArmorType, onUnitChange, readOnly, unit]);
@@ -174,14 +213,19 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
     setArmorTonnage(maxTonnage);
     
     // Create temporary unit with max armor points
+    const tempUnitData = 'data' in unit ? unit.data : {};
+    const tempArmor = tempUnitData && 'armor' in tempUnitData 
+      ? (tempUnitData as { armor?: unknown }).armor as Record<string, unknown> | undefined
+      : {};
+    
     const tempUnit = {
       ...unit,
       data: {
-        ...('data' in unit ? unit.data : {}),
+        ...tempUnitData,
         armor: {
-          ...('data' in unit && unit.data ? (unit.data as any).armor : {}),
+          ...tempArmor,
           total_armor_points: maxArmorPoints,
-          locations: ('data' in unit && unit.data ? (unit.data as any).armor?.locations : []) || []
+          locations: tempArmor?.locations || []
         }
       }
     };

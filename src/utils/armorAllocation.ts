@@ -1,4 +1,5 @@
 import { EditableUnit } from '../types/editor';
+import { IArmorAllocation } from '../types/core/UnitInterfaces';
 import { EQUIPMENT_DATABASE } from './equipmentData';
 import { calculateEngineWeight, calculateStructureWeight } from '../types/systemComponents';
 import { calculateInternalHeatSinksForEngine } from './heatSinkCalculations';
@@ -29,6 +30,26 @@ function castToEngineType(engineType: string): EngineType {
 // Helper function to get standard armor type as fallback
 function getStandardArmorType(): ArmorType {
   return getArmorType('standard');
+}
+
+/**
+ * Converts a dynamic record of armor values to a typed IArmorAllocation object.
+ * Ensures all required fields are present with default values.
+ */
+export function convertToIArmorAllocation(allocation: Record<string, number>): IArmorAllocation {
+  return {
+    head: allocation['head'] || 0,
+    centerTorso: allocation['centerTorso'] || 0,
+    centerTorsoRear: allocation['centerTorsoRear'] || 0,
+    leftTorso: allocation['leftTorso'] || 0,
+    leftTorsoRear: allocation['leftTorsoRear'] || 0,
+    rightTorso: allocation['rightTorso'] || 0,
+    rightTorsoRear: allocation['rightTorsoRear'] || 0,
+    leftArm: allocation['leftArm'] || 0,
+    rightArm: allocation['rightArm'] || 0,
+    leftLeg: allocation['leftLeg'] || 0,
+    rightLeg: allocation['rightLeg'] || 0
+  };
 }
 
 export function calculateMaxArmorPoints(unit: EditableUnit): number {
@@ -427,10 +448,15 @@ export function calculateRemainingTonnage(unit: EditableUnit): number {
   if (!armorType || !armorType.pointsPerTon) {
     // Hard fallback to standard armor specs
     armorType = {
+      id: 'standard',
+      name: 'Standard',
       pointsPerTon: 16,
       criticalSlots: 0,
-      techBase: 'Both'
-    } as any;
+      techBase: 'Both',
+      minTechLevel: 1,
+      costMultiplier: 1.0,
+      hasRearArmor: true,
+    };
   }
   const pointsPerTon = armorType.pointsPerTon || 16; // Extra safety check
   usedTonnage += currentArmorPoints / pointsPerTon;

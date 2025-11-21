@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { EditableUnit, MECH_LOCATIONS } from '../../../types/editor';
 import { FullUnit } from '../../../types';
+import { IArmorAllocation } from '../../../types/core/UnitInterfaces';
 
 export interface ArmorLocationData {
   location: string;
@@ -52,20 +53,35 @@ export function useArmorCalculations(unit: EditableUnit | FullUnit): ArmorCalcul
 
       // Use standard structure from ICompleteUnitConfiguration
       if ('armor' in unit && unit.armor && unit.armor.allocation) {
-        const allocation = unit.armor.allocation as any; // Safe cast as we know structure matches roughly
+        // IArmorAllocation has specific keys, but we need to access it as a record
+        const allocation = unit.armor.allocation;
         
         // Standardize key generation (camelCase)
-        // Head -> head
-        // Center Torso -> centerTorso
-        const baseKey = displayName.toLowerCase().replace(/\s/g, '');
+        const locationKeyMap: Record<string, keyof IArmorAllocation> = {
+          'Head': 'head',
+          'Center Torso': 'centerTorso',
+          'Left Torso': 'leftTorso',
+          'Right Torso': 'rightTorso',
+          'Left Arm': 'leftArm',
+          'Right Arm': 'rightArm',
+          'Left Leg': 'leftLeg',
+          'Right Leg': 'rightLeg'
+        };
         
-        if (baseKey in allocation) {
+        const baseKey = locationKeyMap[displayName];
+        
+        if (baseKey && baseKey in allocation) {
             front = Number(allocation[baseKey]) || 0;
         }
 
         if (hasRear) {
-            const rearKey = `${baseKey}Rear`;
-            if (rearKey in allocation) {
+            // Special handling for rear armor which has specific property names in IArmorAllocation
+            let rearKey: keyof IArmorAllocation | undefined;
+            if (baseKey === 'centerTorso') rearKey = 'centerTorsoRear';
+            else if (baseKey === 'leftTorso') rearKey = 'leftTorsoRear';
+            else if (baseKey === 'rightTorso') rearKey = 'rightTorsoRear';
+            
+            if (rearKey && rearKey in allocation) {
                 rear = Number(allocation[rearKey]) || 0;
             }
         }
