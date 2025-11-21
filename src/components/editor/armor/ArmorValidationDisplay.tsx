@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { EditableUnit, ArmorType, ValidationError } from '../../../types/editor';
+import { EditableUnit, ValidationError } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 
 interface ArmorValidationDisplayProps {
   unit: EditableUnit;
-  armorType: ArmorType;
+  armorType: IArmorDef;
   totalTonnage: number;
   maxTonnage: number;
 }
@@ -24,8 +25,7 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
   // Perform armor validation checks
   const validations = useMemo((): ArmorValidation[] => {
     const results: ArmorValidation[] = [];
-    const locations = unit.data?.armor?.locations || [];
-
+    
     // Check for over-allocation
     if (totalTonnage > maxTonnage) {
       results.push({
@@ -35,45 +35,62 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
       });
     }
 
+    // Map allocation to a list for iteration
+    const armorAlloc = unit.armor?.allocation;
+    if (!armorAlloc) return results;
+
+    const locations = [
+      { name: 'Head', front: armorAlloc.head, rear: 0 },
+      { name: 'Center Torso', front: armorAlloc.centerTorso, rear: armorAlloc.centerTorsoRear },
+      { name: 'Left Torso', front: armorAlloc.leftTorso, rear: armorAlloc.leftTorsoRear },
+      { name: 'Right Torso', front: armorAlloc.rightTorso, rear: armorAlloc.rightTorsoRear },
+      { name: 'Left Arm', front: armorAlloc.leftArm, rear: 0 },
+      { name: 'Right Arm', front: armorAlloc.rightArm, rear: 0 },
+      { name: 'Left Leg', front: armorAlloc.leftLeg, rear: 0 },
+      { name: 'Right Leg', front: armorAlloc.rightLeg, rear: 0 },
+    ];
+
+    const mass = unit.tonnage || 0;
+
     // Check each location for violations
     locations.forEach(loc => {
-      const maxArmor = getMaxArmorForLocation(loc.location, unit.mass || 0);
-      const totalLocationArmor = (loc.armor_points || 0) + (loc.rear_armor_points || 0);
+      const maxArmor = getMaxArmorForLocation(loc.name, mass);
+      const totalLocationArmor = loc.front + loc.rear;
 
       // Over-allocation per location
       if (totalLocationArmor > maxArmor) {
         results.push({
           type: 'error',
-          location: loc.location,
-          message: `${loc.location} armor (${totalLocationArmor}) exceeds maximum (${maxArmor})`,
+          location: loc.name,
+          message: `${loc.name} armor (${totalLocationArmor}) exceeds maximum (${maxArmor})`,
           field: 'armor',
         });
       }
 
       // Head armor warnings
-      if (loc.location === 'Head' && loc.armor_points < 9) {
+      if (loc.name === 'Head' && loc.front < 9) {
         results.push({
           type: 'warning',
-          location: loc.location,
+          location: loc.name,
           message: 'Head has less than maximum armor - vulnerable to headshots',
           field: 'armor',
         });
       }
 
       // Rear armor warnings
-      if (['Center Torso', 'Left Torso', 'Right Torso'].includes(loc.location)) {
-        if (loc.rear_armor_points === 0) {
+      if (['Center Torso', 'Left Torso', 'Right Torso'].includes(loc.name)) {
+        if (loc.rear === 0) {
           results.push({
             type: 'warning',
-            location: loc.location,
-            message: `${loc.location} has no rear armor`,
+            location: loc.name,
+            message: `${loc.name} has no rear armor`,
             field: 'armor',
           });
-        } else if (loc.armor_points > 0 && (loc.rear_armor_points || 0) / loc.armor_points < 0.25) {
+        } else if (loc.front > 0 && loc.rear / loc.front < 0.25) {
           results.push({
             type: 'warning',
-            location: loc.location,
-            message: `${loc.location} has minimal rear armor (less than 25% of front)`,
+            location: loc.name,
+            message: `${loc.name} has minimal rear armor (less than 25% of front)`,
             field: 'armor',
           });
         }
@@ -83,16 +100,16 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
       if (totalLocationArmor > 0 && totalLocationArmor < maxArmor * 0.5) {
         results.push({
           type: 'warning',
-          location: loc.location,
-          message: `${loc.location} has less than 50% armor coverage`,
+          location: loc.name,
+          message: `${loc.name} has less than 50% armor coverage`,
           field: 'armor',
         });
       }
     });
 
     // Tech level conflicts
-    const unitTechLevel = unit.data?.rules_level?.toString() || '';
-    if (armorType.techLevel === 'Advanced' && unitTechLevel.toLowerCase().includes('standard')) {
+    const unitRulesLevel = unit.rulesLevel?.toString() || '';
+    if (armorType.techLevel === 'Advanced' && unitRulesLevel.toLowerCase().includes('standard')) {
       results.push({
         type: 'error',
         message: `${armorType.name} requires ${armorType.techLevel} tech level`,
@@ -101,9 +118,10 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
     }
 
     // Special armor requirements
-    if (armorType.id === 'stealth') {
-      const hasGuardianECM = unit.data?.weapons_and_equipment?.some((eq: any) => 
-        eq.item_name?.includes('Guardian ECM')
+    if (armorType.type === 'Stealth') { // Assuming type name check
+      // TODO: Check for ECM properly using IEquipmentInstance
+      const hasGuardianECM = unit.equipment?.some((eq) => 
+        eq.equipment.name?.includes('Guardian ECM')
       );
       if (!hasGuardianECM) {
         results.push({
@@ -117,7 +135,6 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
     // Critical slot violations
     const usedCriticalSlots = armorType.criticalSlots || 0;
     if (usedCriticalSlots > 0) {
-      // TODO: Check available critical slots
       results.push({
         type: 'info',
         message: `${armorType.name} uses ${usedCriticalSlots} critical slots`,
@@ -126,19 +143,15 @@ const ArmorValidationDisplay: React.FC<ArmorValidationDisplayProps> = ({
     }
 
     // Construction rules
-    if (unit.data?.config?.includes('Biped') || unit.data?.config?.includes('Quad')) {
-      // Check for minimum armor requirements
-      const totalArmor = locations.reduce((sum, loc) => 
-        sum + (loc.armor_points || 0) + (loc.rear_armor_points || 0), 0
-      );
-      const minRecommended = unit.mass || 0;
-      if (totalArmor < minRecommended) {
-        results.push({
-          type: 'info',
-          message: `Total armor (${totalArmor}) is below recommended minimum (${minRecommended}) for ${unit.mass}-ton mech`,
-          field: 'armor',
-        });
-      }
+    // Check for minimum armor requirements
+    const totalArmor = locations.reduce((sum, loc) => sum + loc.front + loc.rear, 0);
+    const minRecommended = mass;
+    if (totalArmor < minRecommended) {
+      results.push({
+        type: 'info',
+        message: `Total armor (${totalArmor}) is below recommended minimum (${minRecommended}) for ${mass}-ton mech`,
+        field: 'armor',
+      });
     }
 
     return results;

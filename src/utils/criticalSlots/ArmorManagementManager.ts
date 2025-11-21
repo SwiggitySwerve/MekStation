@@ -8,7 +8,7 @@ import { ArmorType } from '../../types/systemComponents'
 // Import armor calculations
 const armorCalculations = require('../armorCalculations');
 const { getArmorSpecification } = armorCalculations;
-import { getInternalStructurePoints } from '../internalStructureTable';
+import { getInternalStructurePoints, InternalStructure } from '../internalStructureTable';
 
 export class ArmorManagementManager {
   private configuration: UnitConfiguration
@@ -149,15 +149,17 @@ export class ArmorManagementManager {
     const availablePoints = this.getAvailableArmorPoints();
     let remainingPoints = availablePoints;
 
-    // Clear current allocation
+    // Clear current allocation - use type safe access
     locations.forEach(loc => {
-      (newAllocation as any)[loc] = { front: 0, rear: 0 };
+      if (loc in newAllocation) {
+        (newAllocation as Record<string, { front: number, rear: number }>)[loc] = { front: 0, rear: 0 };
+      }
     });
 
     // Step 1: Maximize head armor first using data model
     const headMaxArmor = this.getMaxArmorPointsForLocation('HD');
     const headArmor = Math.min(headMaxArmor, remainingPoints);
-    (newAllocation as any)['HD'] = { front: headArmor, rear: 0 };
+    newAllocation.HD = { front: headArmor, rear: 0 };
     remainingPoints -= headArmor;
 
     // Step 2: Get internal structure using data model
@@ -165,8 +167,22 @@ export class ArmorManagementManager {
     const remainingLocations = ['CT', 'LT', 'RT', 'LA', 'RA', 'LL', 'RL'];
     let totalRemainingIS = 0;
 
+    // Standardize location keys between internalStructure (snake_case/standard) and allocation (short codes)
+    const locationMap: Record<string, keyof InternalStructure> = {
+      'CT': 'centerTorso',
+      'LT': 'leftTorso',
+      'RT': 'rightTorso',
+      'LA': 'leftArm',
+      'RA': 'rightArm',
+      'LL': 'leftLeg',
+      'RL': 'rightLeg'
+    };
+
     remainingLocations.forEach(location => {
-      totalRemainingIS += (internalStructure as any)[location] || 0;
+      const isKey = locationMap[location];
+      if (isKey && internalStructure[isKey]) {
+        totalRemainingIS += internalStructure[isKey];
+      }
     });
 
     // Step 3: Distribute remaining points by internal structure ratios
@@ -175,7 +191,10 @@ export class ArmorManagementManager {
     remainingLocations.forEach(location => {
       if (totalRemainingIS === 0) return;
 
-      const isRatio = ((internalStructure as any)[location] || 0) / totalRemainingIS;
+      const isKey = locationMap[location];
+      const isPoints = isKey ? internalStructure[isKey] || 0 : 0;
+      const isRatio = isPoints / totalRemainingIS;
+      
       const targetArmor = Math.floor(remainingPoints * isRatio);
       const maxLocationArmor = this.getMaxArmorPointsForLocation(location);
       const actualArmor = Math.min(targetArmor, maxLocationArmor);
@@ -192,13 +211,13 @@ export class ArmorManagementManager {
         const finalRearArmor = Math.min(rearArmor, maxRearArmor);
         const finalFrontArmor = actualArmor - finalRearArmor;
 
-        (newAllocation as any)[location] = {
+        (newAllocation as Record<string, { front: number, rear: number }>)[location] = {
           front: finalFrontArmor,
           rear: finalRearArmor
         };
       } else {
         // Arms and legs get no rear armor
-        (newAllocation as any)[location] = {
+        (newAllocation as Record<string, { front: number, rear: number }>)[location] = {
           front: actualArmor,
           rear: 0
         };
@@ -211,7 +230,8 @@ export class ArmorManagementManager {
     if (remainder > 0) {
       // Get current armor for each location after ratio distribution
       const getCurrentArmor = (location: string) => {
-        return (newAllocation as any)[location].front + (newAllocation as any)[location].rear;
+        const alloc = (newAllocation as Record<string, { front: number, rear: number }>)[location];
+        return alloc ? alloc.front + alloc.rear : 0;
       };
 
       // Check capacity using data model
@@ -227,7 +247,7 @@ export class ArmorManagementManager {
       if (remainderToDistribute % 2 === 1) {
         const ctCapacity = getAvailableCapacity('CT');
         if (ctCapacity > 0) {
-          (newAllocation as any)['CT'].front += 1;
+          newAllocation.CT.front += 1;
           remainderToDistribute -= 1;
         }
       }
@@ -247,8 +267,8 @@ export class ArmorManagementManager {
         const rightCapacity = getAvailableCapacity(rightLoc);
 
         if (leftCapacity > 0 && rightCapacity > 0 && remainderToDistribute >= 2) {
-          (newAllocation as any)[leftLoc].front += 1;
-          (newAllocation as any)[rightLoc].front += 1;
+          (newAllocation as Record<string, { front: number, rear: number }>)[leftLoc].front += 1;
+          (newAllocation as Record<string, { front: number, rear: number }>)[rightLoc].front += 1;
           remainderToDistribute -= 2;
         }
       }
@@ -277,7 +297,7 @@ export class ArmorManagementManager {
           const target = locationsByPriority[priorityIndex];
 
           if (target.capacity > 0) {
-            (newAllocation as any)[target.location].front += 1;
+            (newAllocation as Record<string, { front: number, rear: number }>)[target.location].front += 1;
             target.capacity -= 1;
             remainderToDistribute -= 1;
           }

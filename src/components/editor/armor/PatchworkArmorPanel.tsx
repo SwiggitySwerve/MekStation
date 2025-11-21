@@ -1,5 +1,23 @@
 import React, { useCallback } from 'react';
-import { EditableUnit, ArmorType, ARMOR_TYPES, MECH_LOCATIONS } from '../../../types/editor';
+import { EditableUnit, MECH_LOCATIONS } from '../../../types/editor';
+import type { ArmorAllocationType } from '../../../types/editor';
+import { ArmorType, ARMOR_TYPES } from '../../../utils/armorTypes';
+
+const normalizeArmorType = (armorType?: ArmorAllocationType): ArmorType => {
+  if (!armorType) {
+    return ARMOR_TYPES[0];
+  }
+
+  if (armorType.id) {
+    const match = ARMOR_TYPES.find(type => type.id === armorType.id);
+    if (match) {
+      return match;
+    }
+  }
+
+  const nameMatch = ARMOR_TYPES.find(type => type.name === armorType.name);
+  return nameMatch || ARMOR_TYPES[0];
+};
 
 interface PatchworkArmorPanelProps {
   unit: EditableUnit;
@@ -30,7 +48,7 @@ const PatchworkArmorPanel: React.FC<PatchworkArmorPanelProps> = ({
   // Get current armor type for location
   const getArmorTypeForLocation = useCallback((location: string): ArmorType => {
     const locationArmor = unit.armorAllocation?.[location];
-    return locationArmor?.type || ARMOR_TYPES[0]; // Default to standard
+    return normalizeArmorType(locationArmor?.type);
   }, [unit.armorAllocation]);
 
   // Build location data

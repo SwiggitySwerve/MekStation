@@ -141,7 +141,7 @@ const ArmorDistributionPresets: React.FC<ArmorDistributionPresetsProps> = ({
 
   // Calculate distribution based on preset
   const calculateDistribution = (preset: Preset): ArmorDistribution => {
-    const mass = unit.mass || 0;
+    const mass = unit.tonnage || 0;
     const distribution: ArmorDistribution = {
       'Head': { front: 0, rear: 0 },
       'Center Torso': { front: 0, rear: 0 },

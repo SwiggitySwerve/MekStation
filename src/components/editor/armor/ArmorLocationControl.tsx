@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ArmorType } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 import styles from './ArmorLocationControl.module.css';
 
 export interface ArmorLocationControlProps {
@@ -8,7 +8,7 @@ export interface ArmorLocationControlProps {
   currentFront: number;
   currentRear?: number;
   hasRear?: boolean;
-  armorType?: ArmorType;
+  armorType?: IArmorDef;
   onChange: (location: string, front: number, rear?: number) => void;
   disabled?: boolean;
   compact?: boolean;

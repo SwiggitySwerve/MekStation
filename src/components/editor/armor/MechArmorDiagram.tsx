@@ -23,40 +23,75 @@ const MechArmorDiagram: React.FC<MechArmorDiagramProps> = ({
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
   const [editingLocation, setEditingLocation] = useState<string | null>(null);
 
-  // Get armor data for a location
-  const getLocationArmor = useCallback((location: string) => {
-    const armorLocation = unit.data?.armor?.locations?.find(loc => loc.location === location);
-    return {
-      front: armorLocation?.armor_points || 0,
-      rear: armorLocation?.rear_armor_points || 0,
-      max: getMaxArmorForLocation(location, unit.mass || 0),
-    };
-  }, [unit]);
-
   // Calculate max armor for location
   const getMaxArmorForLocation = (location: string, mass: number): number => {
     switch (location) {
       case MECH_LOCATIONS.HEAD:
-        return mass > 100 ? 12 : 9;
+        return 9; // Standard rules
       case MECH_LOCATIONS.CENTER_TORSO:
-        return Math.floor(mass * 2 * 0.4);
+        return Math.floor(mass * 2 * 0.4); // Approximation (should use structure * 2)
       case MECH_LOCATIONS.LEFT_TORSO:
       case MECH_LOCATIONS.RIGHT_TORSO:
-        return Math.floor(mass * 2 * 0.3);
+        return Math.floor(mass * 2 * 0.3); // Approximation
       case MECH_LOCATIONS.LEFT_ARM:
       case MECH_LOCATIONS.RIGHT_ARM:
       case MECH_LOCATIONS.LEFT_LEG:
       case MECH_LOCATIONS.RIGHT_LEG:
-        return Math.floor(mass * 2 * 0.25);
+        return Math.floor(mass * 2 * 0.25); // Approximation
       default:
         return Math.floor(mass * 2 * 0.2);
     }
   };
 
+  // Get armor data for a location
+  const getLocationArmor = useCallback((location: string) => {
+    const alloc = unit.armor?.allocation;
+    let front = 0;
+    let rear = 0;
+
+    if (alloc) {
+      switch (location) {
+        case MECH_LOCATIONS.HEAD:
+          front = alloc.head;
+          break;
+        case MECH_LOCATIONS.CENTER_TORSO:
+          front = alloc.centerTorso;
+          rear = alloc.centerTorsoRear;
+          break;
+        case MECH_LOCATIONS.LEFT_TORSO:
+          front = alloc.leftTorso;
+          rear = alloc.leftTorsoRear;
+          break;
+        case MECH_LOCATIONS.RIGHT_TORSO:
+          front = alloc.rightTorso;
+          rear = alloc.rightTorsoRear;
+          break;
+        case MECH_LOCATIONS.LEFT_ARM:
+          front = alloc.leftArm;
+          break;
+        case MECH_LOCATIONS.RIGHT_ARM:
+          front = alloc.rightArm;
+          break;
+        case MECH_LOCATIONS.LEFT_LEG:
+          front = alloc.leftLeg;
+          break;
+        case MECH_LOCATIONS.RIGHT_LEG:
+          front = alloc.rightLeg;
+          break;
+      }
+    }
+
+    return {
+      front,
+      rear,
+      max: getMaxArmorForLocation(location, unit.tonnage || 0),
+    };
+  }, [unit]);
+
   // Has rear armor
   const hasRearArmor = (location: string): boolean => {
-    return [MECH_LOCATIONS.CENTER_TORSO, MECH_LOCATIONS.LEFT_TORSO, MECH_LOCATIONS.RIGHT_TORSO]
-      .includes(location as any);
+    const rearArmorLocations: string[] = [MECH_LOCATIONS.CENTER_TORSO, MECH_LOCATIONS.LEFT_TORSO, MECH_LOCATIONS.RIGHT_TORSO];
+    return rearArmorLocations.includes(location);
   };
 
   // Handle location click

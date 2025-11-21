@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { EditableUnit, MECH_LOCATIONS } from '../../../types/editor';
 import { ArmorLocationControl } from './ArmorLocationControl';
+import { calculateMaxArmorPoints } from '../../../utils/armorCalculations';
 import styles from './InteractiveMechArmorDiagram.module.css';
 
 export interface InteractiveMechArmorDiagramProps {
@@ -25,7 +26,33 @@ export const InteractiveMechArmorDiagram: React.FC<InteractiveMechArmorDiagramPr
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
 
   const getLocationArmor = (location: string) => {
-    return unit.armorAllocation[location] || { front: 0, rear: 0, maxArmor: 0 };
+    const alloc = unit.armor?.allocation;
+    const armorType = unit.armor?.definition;
+    
+    if (!alloc) return { front: 0, rear: 0, maxArmor: 0, type: undefined };
+
+    // Map standard location names to IArmorAllocation properties
+    // Note: This is now redundant with standard keys, but kept for safety with older data
+    switch (location) {
+      case MECH_LOCATIONS.HEAD:
+        return { front: alloc.head, rear: 0, maxArmor: 9, type: armorType };
+      case MECH_LOCATIONS.CENTER_TORSO:
+        return { front: alloc.centerTorso, rear: alloc.centerTorsoRear, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.4, type: armorType }; 
+      case MECH_LOCATIONS.LEFT_TORSO:
+        return { front: alloc.leftTorso, rear: alloc.leftTorsoRear, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.3, type: armorType };
+      case MECH_LOCATIONS.RIGHT_TORSO:
+        return { front: alloc.rightTorso, rear: alloc.rightTorsoRear, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.3, type: armorType };
+      case MECH_LOCATIONS.LEFT_ARM:
+        return { front: alloc.leftArm, rear: 0, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.25, type: armorType };
+      case MECH_LOCATIONS.RIGHT_ARM:
+        return { front: alloc.rightArm, rear: 0, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.25, type: armorType };
+      case MECH_LOCATIONS.LEFT_LEG:
+        return { front: alloc.leftLeg, rear: 0, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.25, type: armorType };
+      case MECH_LOCATIONS.RIGHT_LEG:
+        return { front: alloc.rightLeg, rear: 0, maxArmor: calculateMaxArmorPoints(unit.tonnage || 0) * 2 * 0.25, type: armorType };
+      default:
+        return { front: 0, rear: 0, maxArmor: 0, type: undefined };
+    }
   };
 
   const handleLocationClick = (location: string) => {
@@ -180,7 +207,7 @@ export const InteractiveMechArmorDiagram: React.FC<InteractiveMechArmorDiagramPr
         <div className={styles.controlsPanel}>
           <h3>Armor Controls - {selectedLocation}</h3>
           <ArmorLocationControl
-            location={selectedLocation as any}
+            location={selectedLocation}
             maxArmor={getLocationArmor(selectedLocation).maxArmor}
             currentFront={getLocationArmor(selectedLocation).front}
             currentRear={getLocationArmor(selectedLocation).rear}

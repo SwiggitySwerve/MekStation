@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { EditableUnit, ArmorType } from '../../../types/editor';
+import { EditableUnit } from '../../../types/editor';
 import { ARMOR_TYPES } from '../../../utils/armorTypes';
 
 interface PatchworkArmorManagerProps {
@@ -7,6 +7,20 @@ interface PatchworkArmorManagerProps {
   currentArmorData: LocationArmorData[];
   onUpdatePatchwork: (locationArmorTypes: LocationArmorType[]) => void;
   disabled?: boolean;
+}
+
+// Defined locally as it seems specific to this UI manager for now
+interface ArmorType {
+  id: string;
+  name: string;
+  pointsPerTon: number;
+  criticalSlots: number;
+  techBase: string;
+  techLevel: string;
+  costMultiplier: number;
+  description: string;
+  isClan: boolean;
+  isInner: boolean;
 }
 
 interface LocationArmorData {
@@ -62,7 +76,10 @@ const PatchworkArmorManager: React.FC<PatchworkArmorManagerProps> = ({
 
   // Get available armor types based on tech level
   const availableArmorTypes = useMemo(() => {
-    const unitTechLevel = unit.data?.rules_level?.toString() || 'Standard';
+    // Unit data might not have raw 'rules_level' string property anymore if strict typed
+    // but if it does, we cast or use accessors.
+    // EditableUnit extends ICompleteUnitConfiguration which has rulesLevel (enum)
+    const unitTechLevel = unit.rulesLevel?.toString() || 'Standard';
     
     return convertedArmorTypes.filter((armorType: ArmorType) => {
       // Filter by tech level compatibility
@@ -74,7 +91,8 @@ const PatchworkArmorManager: React.FC<PatchworkArmorManagerProps> = ({
       }
       
       // Filter by tech base compatibility
-      const unitTechBase = unit.data?.tech_base || 'Inner Sphere';
+      // EditableUnit has techBase (enum)
+      const unitTechBase = unit.techBase?.toString() || 'Inner Sphere';
       if (armorType.techBase === 'Clan' && unitTechBase === 'Inner Sphere') {
         return false;
       }

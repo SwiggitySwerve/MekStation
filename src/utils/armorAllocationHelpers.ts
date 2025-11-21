@@ -1,18 +1,21 @@
-import { EditableUnit, ArmorType } from '../types/editor';
+import { EditableUnit } from '../types/editor';
+import { ArmorType } from './armorTypes';
+
+type ArmorWeightSource = Pick<ArmorType, 'pointsPerTon'>;
 import { getMaxArmorPointsForLocation } from './internalStructureTable';
 
 // Maximum armor formulas based on official BattleTech internal structure table
 export const ARMOR_MAX_FORMULAS = {
   head: () => 9, // Always 9 for head
-  center_torso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'CT'),
-  left_torso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LT'),
-  right_torso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RT'),
-  left_arm: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LA'),
-  right_arm: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RA'),
-  left_leg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LL'),
-  right_leg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RL'),
+  centerTorso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'CT'),
+  leftTorso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LT'),
+  rightTorso: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RT'),
+  leftArm: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LA'),
+  rightArm: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RA'),
+  leftLeg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LL'),
+  rightLeg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'RL'),
   // Special locations for non-biped mechs
-  center_leg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LL'), // Use leg as reference for tripods
+  centerLeg: (tonnage: number) => getMaxArmorPointsForLocation(tonnage, 'LL'), // Use leg as reference for tripods
 };
 
 // Get maximum armor points for a location
@@ -22,7 +25,7 @@ export function getMaxArmorForLocation(location: string, tonnage: number): numbe
 }
 
 // Calculate total armor weight based on points and armor type
-export function calculateArmorWeight(totalPoints: number, armorType: ArmorType): number {
+export function calculateArmorWeight(totalPoints: number, armorType: ArmorWeightSource): number {
   return Math.ceil(totalPoints / armorType.pointsPerTon);
 }
 
@@ -57,7 +60,7 @@ export const ALLOCATION_PATTERNS: AllocationPattern[] = [
       const result: { [location: string]: { front: number; rear?: number } } = {};
       
       Object.entries(maxPoints).forEach(([location, max]) => {
-        if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+        if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
           // Torsos have rear armor - typically 50/50 split
           const front = Math.ceil(max * 0.667); // 2/3 front
           const rear = Math.floor(max * 0.333); // 1/3 rear
@@ -77,7 +80,7 @@ export const ALLOCATION_PATTERNS: AllocationPattern[] = [
       const result: { [location: string]: { front: number; rear?: number } } = {};
       
       Object.entries(maxPoints).forEach(([location, max]) => {
-        if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+        if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
           const front = Math.ceil(max * 0.6);
           const rear = Math.floor(max * 0.4);
           result[location] = { front, rear };
@@ -98,7 +101,7 @@ export const ALLOCATION_PATTERNS: AllocationPattern[] = [
       Object.entries(maxPoints).forEach(([location, max]) => {
         if (location === 'head') {
           result[location] = { front: Math.min(6, max) }; // Light head armor
-        } else if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+        } else if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
           const front = Math.ceil(max * 0.5);
           const rear = Math.floor(max * 0.15); // Minimal rear
           result[location] = { front, rear };
@@ -119,7 +122,7 @@ export const ALLOCATION_PATTERNS: AllocationPattern[] = [
       Object.entries(maxPoints).forEach(([location, max]) => {
         if (location === 'head') {
           result[location] = { front: max }; // Max head armor
-        } else if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+        } else if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
           const front = Math.ceil(max * 0.7);
           const rear = Math.floor(max * 0.3);
           result[location] = { front, rear };
@@ -138,7 +141,7 @@ export const ALLOCATION_PATTERNS: AllocationPattern[] = [
       const result: { [location: string]: { front: number; rear?: number } } = {};
       
       Object.entries(maxPoints).forEach(([location, max]) => {
-        if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+        if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
           const front = Math.ceil(max * 0.8); // 80% front
           const rear = Math.floor(max * 0.2); // 20% rear
           result[location] = { front, rear };
@@ -244,7 +247,7 @@ export function distributeArmorProportionally(
       const proportion = maxPoints[location] / totalMax;
       const locationPoints = Math.floor(totalPoints * proportion);
       
-      if (['center_torso', 'left_torso', 'right_torso'].includes(location)) {
+      if (['centerTorso', 'leftTorso', 'rightTorso'].includes(location)) {
         const front = Math.ceil(locationPoints * 0.667);
         const rear = Math.floor(locationPoints * 0.333);
         result[location] = { front, rear };
@@ -266,5 +269,5 @@ export function getTotalArmorPoints(allocation: { [location: string]: { front: n
 
 // Helper to check if location has rear armor
 export function hasRearArmor(location: string): boolean {
-  return ['center_torso', 'left_torso', 'right_torso'].includes(location);
+  return ['centerTorso', 'leftTorso', 'rightTorso'].includes(location);
 }

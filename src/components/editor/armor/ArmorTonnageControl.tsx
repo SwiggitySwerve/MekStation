@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { ArmorType } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 
 interface ArmorTonnageControlProps {
   currentTonnage: number;
   maxTonnage: number;
-  armorType: ArmorType;
+  armorType: IArmorDef;
   onChange: (tonnage: number) => void;
   onPointsChange?: (points: number) => void;
   disabled?: boolean;

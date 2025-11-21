@@ -1,19 +1,36 @@
 import React from 'react';
-import { EditableUnit, ArmorType, ARMOR_TYPES } from '../../../types/editor';
+import { EditableUnit } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 import { ARMOR_SPECIFICATIONS } from '../../../utils/armorCalculations';
+import { TechBase, RulesLevel, TechLevel } from '../../../types/core/BaseTypes';
 import styles from './ArmorStatisticsPanel.module.css';
 
 export interface ArmorStatisticsProps {
   unit: EditableUnit;
   totalArmorTonnage: number;
-  onArmorTypeChange?: (armorType: ArmorType) => void;
+  onArmorTypeChange?: (armorType: IArmorDef) => void;
   onOptimizeArmor?: (newTonnage: number) => void;
   readOnly?: boolean;
 }
 
-function getValidArmorTypeKey(id: string): string {
-  return Object.prototype.hasOwnProperty.call(ARMOR_SPECIFICATIONS, id) ? id : 'Standard';
-}
+// Helper to convert ARMOR_SPECIFICATIONS to a list of options compatible with IArmorDef
+// Note: This is a simplification. Ideally IArmorDef objects come from a database/catalog.
+const ARMOR_TYPE_OPTIONS = Object.entries(ARMOR_SPECIFICATIONS).map(([key, spec]) => ({
+  id: key,
+  name: spec.type,
+  pointsPerTon: spec.pointsPerTon,
+  criticalSlots: spec.criticalSlots,
+  category: 'armor' as const,
+  // Default values for properties required by IArmorDef but not in ARMOR_SPECIFICATIONS
+  techLevel: TechLevel.STANDARD, 
+  rulesLevel: RulesLevel.STANDARD,
+  introductionYear: 0,
+  costMultiplier: spec.costMultiplier || 1,
+  maxPointsPerLocationMultiplier: 1,
+  type: spec.type,
+  techBase: spec.techBase === TechBase.BOTH ? TechBase.INNER_SPHERE : (spec.techBase as TechBase),
+  description: spec.description
+} as IArmorDef));
 
 export const ArmorStatisticsPanel: React.FC<ArmorStatisticsProps> = ({
   unit,
@@ -23,7 +40,7 @@ export const ArmorStatisticsPanel: React.FC<ArmorStatisticsProps> = ({
   readOnly = false,
 }) => {
   // Get current armor type
-  const currentArmorType = unit.armorAllocation?.HEAD?.type || ARMOR_TYPES[0];
+  const currentArmorType = unit.armor?.definition || ARMOR_TYPE_OPTIONS[0];
   
   // Calculate comprehensive armor statistics with efficiency analysis
   const calculateArmorStats = () => {
@@ -32,21 +49,33 @@ export const ArmorStatisticsPanel: React.FC<ArmorStatisticsProps> = ({
     let locationsAtCap = 0;
     let cappedPoints = 0;
     
-    if (unit.armorAllocation) {
-      Object.entries(unit.armorAllocation).forEach(([location, armor]) => {
-        const allocated = armor.front + (armor.rear || 0);
-        totalAllocated += allocated;
-        totalMax += armor.maxArmor;
-        
-        // Check if this location is at maximum armor
-        if (allocated >= armor.maxArmor) {
+    if (unit.armor?.allocation && unit.structure?.maxPoints) {
+      const alloc = unit.armor.allocation;
+      const maxPoints = unit.structure.maxPoints;
+
+      // Define locations and their max calculation (usually 2x structure, except head)
+      const locations = [
+        { name: 'Head', allocated: alloc.head, max: 9 },
+        { name: 'Center Torso', allocated: alloc.centerTorso + alloc.centerTorsoRear, max: maxPoints.centerTorso * 2 },
+        { name: 'Left Torso', allocated: alloc.leftTorso + alloc.leftTorsoRear, max: maxPoints.leftTorso * 2 },
+        { name: 'Right Torso', allocated: alloc.rightTorso + alloc.rightTorsoRear, max: maxPoints.rightTorso * 2 },
+        { name: 'Left Arm', allocated: alloc.leftArm, max: maxPoints.leftArm * 2 },
+        { name: 'Right Arm', allocated: alloc.rightArm, max: maxPoints.rightArm * 2 },
+        { name: 'Left Leg', allocated: alloc.leftLeg, max: maxPoints.leftLeg * 2 },
+        { name: 'Right Leg', allocated: alloc.rightLeg, max: maxPoints.rightLeg * 2 },
+      ];
+
+      locations.forEach(loc => {
+        totalAllocated += loc.allocated;
+        totalMax += loc.max;
+        if (loc.allocated >= loc.max) {
           locationsAtCap++;
-          cappedPoints += armor.maxArmor;
+          cappedPoints += loc.max;
         }
       });
     }
     
-    const pointsPerTon = (ARMOR_SPECIFICATIONS as Record<string, { pointsPerTon: number }>)[getValidArmorTypeKey(currentArmorType.id)]?.pointsPerTon || currentArmorType.pointsPerTon;
+    const pointsPerTon = currentArmorType.pointsPerTon;
     const totalPoints = Math.floor(totalArmorTonnage * pointsPerTon);
     const unallocated = totalPoints - totalAllocated;
     
@@ -81,7 +110,7 @@ export const ArmorStatisticsPanel: React.FC<ArmorStatisticsProps> = ({
   
   const handleArmorTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!readOnly && onArmorTypeChange) {
-      const selectedType = ARMOR_TYPES.find(type => type.id === e.target.value);
+      const selectedType = ARMOR_TYPE_OPTIONS.find(type => type.name === e.target.value);
       if (selectedType) {
         onArmorTypeChange(selectedType);
       }
@@ -102,7 +131,7 @@ export const ArmorStatisticsPanel: React.FC<ArmorStatisticsProps> = ({
             onChange={handleArmorTypeChange}
             disabled={readOnly}
           >
-            {ARMOR_TYPES.map(type => (
+            {ARMOR_TYPE_OPTIONS.map(type => (
               <option key={type.name} value={type.name}>
                 {type.name} ({type.pointsPerTon} pts/ton)
               </option>

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { EditableUnit, ArmorType } from '../../../types/editor';
+import { EditableUnit } from '../../../types/editor';
+import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 import { 
   getMaxArmorForLocation, 
   ALLOCATION_PATTERNS,
@@ -9,11 +10,11 @@ import {
 } from '../../../utils/armorAllocationHelpers';
 
 // Define the armor allocation structure based on EditableUnit
-type ArmorAllocation = EditableUnit['armorAllocation'];
+import { ArmorAllocationMap } from './CompactArmorAllocationPanel';
 
 interface EnhancedArmorDiagramProps {
   unit: EditableUnit;
-  armorAllocation: ArmorAllocation;
+  armorAllocation: ArmorAllocationMap;
   onArmorChange: (location: string, value: number, isRear?: boolean) => void;
   mode?: 'compact' | 'normal' | 'large';
   displayMode?: 'diagram' | 'grid' | 'hybrid';
@@ -157,7 +158,7 @@ const EnhancedArmorDiagram: React.FC<EnhancedArmorDiagramProps> = ({
 
   // Get max armor values based on tonnage and location
   const getMaxArmor = (location: string): number => {
-    return getMaxArmorForLocation(location, unit.mass);
+    return getMaxArmorForLocation(location, unit.tonnage || 0);
   };
 
   // Handle armor click interactions
