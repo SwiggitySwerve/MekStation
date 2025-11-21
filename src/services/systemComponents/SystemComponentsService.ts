@@ -7,11 +7,11 @@
 
 import { CalculationEngine } from './calculations/CalculationEngine'
 import { registerAllLookupTables } from './calculations/LookupTables'
-import { UnitContext } from './calculations/UnitContext'
+import { UnitContext, createDefaultUnitContext } from './calculations/UnitContext'
 import { EngineAdapter, EngineVariant } from './adapters/EngineAdapter'
 import { GyroAdapter, GyroVariant } from './adapters/GyroAdapter'
 import { StructureAdapter, StructureVariant } from './adapters/StructureAdapter'
-import { TechBase } from '../../types/core/TechBase'
+import { TechBase, UnitType, RulesLevel } from '../../types/core/BaseTypes'
 
 /**
  * Component query criteria
@@ -56,7 +56,7 @@ export class SystemComponentsService {
    */
   getEngines(criteria: ComponentQueryCriteria, context: UnitContext): EngineVariant[] {
     // Apply criteria to context
-    const queryContext = {
+    const queryContext: UnitContext = {
       ...context,
       techBase: criteria.techBase,
       constructionYear: criteria.availableByYear || context.constructionYear
@@ -83,25 +83,11 @@ export class SystemComponentsService {
    * Calculate engine weight for given rating and tonnage
    */
   calculateEngineWeight(engineId: string, rating: number, tonnage: number): number {
-    const context: UnitContext = {
-      tonnage,
-      engineRating: rating,
-      techBase: 'Inner Sphere',
-      unitType: 'BattleMech',
-      rulesLevel: 'Standard',
-      engineType: 'Standard',
-      walkMP: Math.floor(rating / tonnage),
-      runMP: Math.floor((rating / tonnage) * 1.5),
-      jumpMP: 0,
-      gyroType: 'Standard',
-      structureType: 'Standard',
-      armorType: 'Standard',
-      armorPoints: 0,
-      heatSinkType: 'Single',
-      heatSinkCount: 10,
-      constructionYear: 3025,
-      custom: {}
-    }
+    const context: UnitContext = createDefaultUnitContext();
+    context.tonnage = tonnage;
+    context.engineRating = rating;
+    context.walkMP = Math.floor(rating / tonnage);
+    context.runMP = Math.floor((rating / tonnage) * 1.5);
 
     const engine = this.engineAdapter.getEngineById(engineId, context)
     return engine ? engine.weight : 0
@@ -113,7 +99,7 @@ export class SystemComponentsService {
    * Get gyros matching criteria
    */
   getGyros(criteria: ComponentQueryCriteria, context: UnitContext): GyroVariant[] {
-    const queryContext = {
+    const queryContext: UnitContext = {
       ...context,
       techBase: criteria.techBase,
       constructionYear: criteria.availableByYear || context.constructionYear
@@ -139,25 +125,8 @@ export class SystemComponentsService {
    * Calculate gyro weight for given engine rating
    */
   calculateGyroWeight(gyroId: string, engineRating: number): number {
-    const context: UnitContext = {
-      tonnage: 50,
-      engineRating,
-      techBase: 'Inner Sphere',
-      unitType: 'BattleMech',
-      rulesLevel: 'Standard',
-      engineType: 'Standard',
-      walkMP: 4,
-      runMP: 6,
-      jumpMP: 0,
-      gyroType: 'Standard',
-      structureType: 'Standard',
-      armorType: 'Standard',
-      armorPoints: 0,
-      heatSinkType: 'Single',
-      heatSinkCount: 10,
-      constructionYear: 3025,
-      custom: {}
-    }
+    const context = createDefaultUnitContext();
+    context.engineRating = engineRating;
 
     const gyro = this.gyroAdapter.getGyroById(gyroId, context)
     return gyro ? gyro.weight : 0
@@ -169,7 +138,7 @@ export class SystemComponentsService {
    * Get structures matching criteria
    */
   getStructures(criteria: ComponentQueryCriteria, context: UnitContext): StructureVariant[] {
-    const queryContext = {
+    const queryContext: UnitContext = {
       ...context,
       techBase: criteria.techBase,
       constructionYear: criteria.availableByYear || context.constructionYear
@@ -195,25 +164,8 @@ export class SystemComponentsService {
    * Calculate structure weight for given tonnage
    */
   calculateStructureWeight(structureId: string, tonnage: number): number {
-    const context: UnitContext = {
-      tonnage,
-      engineRating: 200,
-      techBase: 'Inner Sphere',
-      unitType: 'BattleMech',
-      rulesLevel: 'Standard',
-      engineType: 'Standard',
-      walkMP: 4,
-      runMP: 6,
-      jumpMP: 0,
-      gyroType: 'Standard',
-      structureType: 'Standard',
-      armorType: 'Standard',
-      armorPoints: 0,
-      heatSinkType: 'Single',
-      heatSinkCount: 10,
-      constructionYear: 3025,
-      custom: {}
-    }
+    const context = createDefaultUnitContext();
+    context.tonnage = tonnage;
 
     const structure = this.structureAdapter.getStructureById(structureId, context)
     return structure ? structure.weight : 0
@@ -235,8 +187,11 @@ export class SystemComponentsService {
     }
 
     // Validate tech base
-    if (engine.techBase !== context.techBase && engine.techBase !== 'Inner Sphere') {
-      errors.push(`Engine tech base ${engine.techBase} incompatible with unit tech base ${context.techBase}`)
+    // Mixed tech units can use any engine, restricted only by rules level generally
+    if (context.techBase !== 'Mixed' && context.techBase !== 'Both' && engine.techBase !== 'Both') {
+        if (engine.techBase !== context.techBase) {
+             errors.push(`Engine tech base ${engine.techBase} incompatible with unit tech base ${context.techBase}`)
+        }
     }
 
     // Validate era
@@ -287,9 +242,3 @@ export class SystemComponentsService {
     }
   }
 }
-
-
-
-
-
-

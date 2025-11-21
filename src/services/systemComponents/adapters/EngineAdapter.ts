@@ -59,7 +59,7 @@ const ENGINE_DATABASE: EngineDefinition[] = [
   {
     id: 'xl_fusion_is',
     name: 'XL Fusion Engine (IS)',
-    type: 'XL (IS)',
+    type: 'XL',
     techBase: 'Inner Sphere',
     rulesLevel: 'Standard',
     introductionYear: 2579,
@@ -68,7 +68,7 @@ const ENGINE_DATABASE: EngineDefinition[] = [
   {
     id: 'xl_fusion_clan',
     name: 'XL Fusion Engine (Clan)',
-    type: 'XL (Clan)',
+    type: 'XL',
     techBase: 'Clan',
     rulesLevel: 'Standard',
     introductionYear: 2824,
@@ -153,9 +153,16 @@ export class EngineAdapter extends BaseAdapter {
    * Check if an engine is compatible with the unit context
    */
   private isCompatible(engine: EngineDefinition, context: UnitContext): boolean {
-    // Tech base must match
-    if (engine.techBase !== context.techBase && engine.techBase !== 'Inner Sphere') {
-      return false
+    // Tech base validation
+    // If unit is Mixed, it can theoretically mount any engine (though usually limited by Chassis)
+    // If unit is IS, it can only mount IS engines
+    // If unit is Clan, it can only mount Clan engines
+    
+    if (context.techBase === 'Mixed' || context.techBase === 'Both') {
+        // Compatible with everything
+    } else if (context.techBase !== engine.techBase && engine.techBase !== 'Both') {
+        // Strict tech base mismatch
+        return false;
     }
 
     // Year restrictions
@@ -173,12 +180,18 @@ export class EngineAdapter extends BaseAdapter {
     engine: EngineDefinition,
     context: UnitContext
   ): EngineVariant {
-    // Update context with this engine's type
+    // Update context with this engine's type AND tech base
     const engineContext = {
       ...context,
-      engineType: engine.type
+      engineType: engine.type,
+      engineTechBase: engine.techBase
     }
 
+    // Calculate weight using the Engine Definition ID (which Calculator logic likely uses to look up multipliers)
+    // OR the Calculator logic needs to be updated to use Type+TechBase.
+    // Assuming BaseAdapter.calculateWeight delegates to CalculationEngine which likely checks ID or Type.
+    // If CalculationEngine uses ID, we are safe. If it uses Type, we need to ensure it handles the split.
+    
     const weight = this.calculateWeight(engine.id, engineContext)
     const slots = this.calculateSlots(engine.id, engineContext) as SlotLayout
     const derived = this.calculateDerived(engine.id, engineContext)
@@ -205,10 +218,15 @@ export class EngineAdapter extends BaseAdapter {
   /**
    * Get engine slot distribution
    */
-  getSlotDistribution(engineType: EngineType): SlotLayout {
-    const engineDef = ENGINE_DATABASE.find(e => e.type === engineType)
+  getSlotDistribution(engineType: EngineType, techBase: TechBase = 'Inner Sphere'): SlotLayout {
+    // Find generic definition for this type and techBase
+    // This is a bit fuzzy because ID is the unique key. 
+    // We try to find the best match.
+    const engineDef = ENGINE_DATABASE.find(e => e.type === engineType && (e.techBase === techBase || e.techBase === 'Both'))
+        || ENGINE_DATABASE.find(e => e.type === engineType); // Fallback to any matching type
+
     if (!engineDef) {
-      throw new Error(`Unknown engine type: ${engineType}`)
+      throw new Error(`Unknown engine type: ${engineType} (${techBase})`)
     }
 
     // Use default context just to get slot layout
@@ -216,7 +234,8 @@ export class EngineAdapter extends BaseAdapter {
       tonnage: 50,
       engineRating: 200,
       engineType,
-      techBase: 'Inner Sphere',
+      engineTechBase: engineDef.techBase,
+      techBase: 'Inner Sphere', // Context tech base
       unitType: 'BattleMech',
       rulesLevel: 'Standard',
       walkMP: 4,
@@ -235,9 +254,3 @@ export class EngineAdapter extends BaseAdapter {
     return this.calculateSlots(engineDef.id, defaultContext) as SlotLayout
   }
 }
-
-
-
-
-
-

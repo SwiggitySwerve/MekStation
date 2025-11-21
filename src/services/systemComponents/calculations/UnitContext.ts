@@ -5,15 +5,31 @@
  * when calculating component weights, slots, and other derived properties.
  */
 
-import { TechBase } from '../../../types/core/TechBase'
+import { 
+    TechBase, 
+    RulesLevel, 
+    UnitType 
+} from '../../../types/core/BaseTypes';
 
-export type UnitType = 'BattleMech' | 'IndustrialMech' | 'ProtoMech' | 'BattleArmor' | 'Vehicle'
-export type RulesLevel = 'Introductory' | 'Standard' | 'Advanced' | 'Experimental'
-export type EngineType = 'Standard' | 'XL (IS)' | 'XL (Clan)' | 'Light' | 'XXL' | 'Compact' | 'ICE' | 'Fuel Cell'
-export type GyroType = 'Standard' | 'Compact' | 'XL' | 'Heavy-Duty'
-export type StructureType = 'Standard' | 'Endo Steel (IS)' | 'Endo Steel (Clan)' | 'Composite' | 'Reinforced' | 'Industrial'
-export type ArmorType = 'Standard' | 'Ferro-Fibrous (IS)' | 'Ferro-Fibrous (Clan)' | 'Light Ferro-Fibrous' | 'Heavy Ferro-Fibrous' | 'Stealth' | 'Reactive' | 'Reflective' | 'Hardened'
-export type HeatSinkType = 'Single' | 'Double'
+import {
+    EngineType,
+    GyroType,
+    StructureType,
+    ArmorType,
+    HeatSinkType
+} from '../../../constants/BattleTechConstructionRules';
+
+// Re-export for convenience in local files
+export { 
+    TechBase, 
+    RulesLevel, 
+    UnitType,
+    EngineType,
+    GyroType,
+    StructureType,
+    ArmorType,
+    HeatSinkType
+};
 
 /**
  * UnitContext contains all unit properties that can be referenced at runtime
@@ -21,37 +37,38 @@ export type HeatSinkType = 'Single' | 'Double'
  */
 export interface UnitContext {
   // Primary identifiers
-  tonnage: number          // 20-100 tons for BattleMechs
-  techBase: TechBase       // 'Inner Sphere' | 'Clan'
-  unitType: UnitType       // 'BattleMech' | 'IndustrialMech' | etc
-  rulesLevel: RulesLevel   // 'Introductory' | 'Standard' | 'Advanced' | 'Experimental'
+  tonnage: number;          // 20-100 tons for BattleMechs
+  techBase: TechBase;       // Unit's overall tech base
+  unitType: UnitType;       // 'BattleMech' | 'IndustrialMech' | etc
+  rulesLevel: RulesLevel;   // 'Introductory' | 'Standard' | 'Advanced' | 'Experimental'
   
   // Engine properties
-  engineRating: number     // 10-400+
-  engineType: EngineType   // 'Standard' | 'XL (IS)' | 'XL (Clan)' | etc
+  engineRating: number;     // 10-400+
+  engineType: EngineType;   // 'Standard' | 'XL' | 'Light' | etc
+  engineTechBase?: TechBase; // Specific tech base of the engine (for Mixed Tech)
   
   // Movement
-  walkMP: number           // Derived: engineRating / tonnage
-  runMP: number            // Derived: walkMP * 1.5 (rounded down)
-  jumpMP: number           // 0-8+
+  walkMP: number;           // Derived: engineRating / tonnage
+  runMP: number;            // Derived: walkMP * 1.5 (rounded down)
+  jumpMP: number;           // 0-8+
   
   // Gyro
-  gyroType: GyroType       // 'Standard' | 'Compact' | 'XL' | 'Heavy-Duty'
+  gyroType: GyroType;       // 'Standard' | 'Compact' | 'XL' | 'Heavy-Duty'
   
   // Structure & Armor
-  structureType: StructureType
-  armorType: ArmorType
-  armorPoints: number      // Total armor points allocated
+  structureType: StructureType;
+  armorType: ArmorType;
+  armorPoints: number;      // Total armor points allocated
   
   // Heat management
-  heatSinkType: HeatSinkType  // 'Single' | 'Double'
-  heatSinkCount: number       // Total heat sinks
+  heatSinkType: HeatSinkType;  // 'Single' | 'Double' | 'Compact' | 'Laser'
+  heatSinkCount: number;       // Total heat sinks
   
   // Era restrictions
-  constructionYear: number
+  constructionYear: number;
   
   // Custom: Allow extension for future use
-  custom: Record<string, any>
+  custom: Record<string, any>;
 }
 
 /**
@@ -60,11 +77,12 @@ export interface UnitContext {
 export function createDefaultUnitContext(): UnitContext {
   return {
     tonnage: 50,
-    techBase: 'Inner Sphere',
-    unitType: 'BattleMech',
-    rulesLevel: 'Standard',
+    techBase: TechBase.INNER_SPHERE,
+    unitType: UnitType.BATTLEMECH,
+    rulesLevel: RulesLevel.STANDARD,
     engineRating: 200,
     engineType: 'Standard',
+    engineTechBase: TechBase.INNER_SPHERE,
     walkMP: 4,
     runMP: 6,
     jumpMP: 0,
@@ -76,43 +94,37 @@ export function createDefaultUnitContext(): UnitContext {
     heatSinkCount: 10,
     constructionYear: 3025,
     custom: {}
-  }
+  };
 }
 
 /**
  * Validate a UnitContext
  */
 export function validateUnitContext(context: Partial<UnitContext>): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
+  const errors: string[] = [];
   
   if (context.tonnage !== undefined) {
     if (context.tonnage < 10 || context.tonnage > 200) {
-      errors.push('Tonnage must be between 10 and 200')
+      errors.push('Tonnage must be between 10 and 200');
     }
   }
   
   if (context.engineRating !== undefined) {
     if (context.engineRating < 10 || context.engineRating > 500) {
-      errors.push('Engine rating must be between 10 and 500')
+      errors.push('Engine rating must be between 10 and 500');
     }
   }
   
   if (context.walkMP !== undefined && context.walkMP < 0) {
-    errors.push('Walk MP cannot be negative')
+    errors.push('Walk MP cannot be negative');
   }
   
   if (context.armorPoints !== undefined && context.armorPoints < 0) {
-    errors.push('Armor points cannot be negative')
+    errors.push('Armor points cannot be negative');
   }
   
   return {
     valid: errors.length === 0,
     errors
-  }
+  };
 }
-
-
-
-
-
-

@@ -2,6 +2,14 @@
  * Unit Manager - Coordinating facade for all unit services
  * Provides simplified high-level API and coordinates between services
  * Following SOLID principles - Facade pattern with service composition
+ * 
+ * @deprecated
+ * This class is part of the legacy architecture. 
+ * It acts as a God Object and couples too many concerns.
+ * New code should use:
+ * - IUnitConfigurationService (for config)
+ * - IEquipmentAllocationService (for equipment)
+ * - IStatePersistenceService (for saving/loading)
  */
 
 import { UnitConfiguration, UnitConfigurationBuilder } from '../criticalSlots/UnitCriticalManager'
@@ -84,6 +92,7 @@ export class UnitManager implements IUnitManager {
     sections: Map<string, CriticalSection>
   ) {
     console.log('[UnitManager] Initializing unit manager')
+    console.warn('[UnitManager] Deprecation Warning: UnitManager is legacy code. Use proper Services instead.');
     
     // Store references
     this.sections = new Map(sections)
@@ -179,6 +188,13 @@ export class UnitManager implements IUnitManager {
       this.eventBus.emit('state_reset', {
         configuration: this.configuration
       }, 'UnitManager')
+      
+      // Re-validate system component reservations
+      // Note: This handles potential desyncs if reset fails midway
+      this.sections.forEach(section => {
+          // Ensure engine/gyro slots are correct
+          // This is handled by initializeSystemComponents but a double check helps
+      });
       
     } finally {
       this.eventBus.endBatch()

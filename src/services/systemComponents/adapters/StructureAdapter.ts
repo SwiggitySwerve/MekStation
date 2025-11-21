@@ -59,7 +59,7 @@ const STRUCTURE_DATABASE: StructureDefinition[] = [
   {
     id: 'endo_steel_is',
     name: 'Endo Steel (IS)',
-    type: 'Endo Steel (IS)',
+    type: 'Endo Steel', // Matches 'Endo Steel' in Rules
     techBase: 'Inner Sphere',
     rulesLevel: 'Standard',
     introductionYear: 2487,
@@ -70,7 +70,7 @@ const STRUCTURE_DATABASE: StructureDefinition[] = [
   {
     id: 'endo_steel_clan',
     name: 'Endo Steel (Clan)',
-    type: 'Endo Steel (Clan)',
+    type: 'Endo Steel (Clan)', // Matches 'Endo Steel (Clan)' in Rules
     techBase: 'Clan',
     rulesLevel: 'Standard',
     introductionYear: 2824,
@@ -103,7 +103,7 @@ const STRUCTURE_DATABASE: StructureDefinition[] = [
   {
     id: 'industrial_structure',
     name: 'Industrial Structure',
-    type: 'Industrial',
+    type: 'Standard', // Industrial uses Standard rules generally or needs new type
     techBase: 'Inner Sphere',
     rulesLevel: 'Introductory',
     introductionYear: 2350,
@@ -144,13 +144,23 @@ export class StructureAdapter extends BaseAdapter {
    * Check if a structure is compatible with the unit context
    */
   private isCompatible(structure: StructureDefinition, context: UnitContext): boolean {
+    // Tech Base Compatibility
+    if (context.techBase !== 'Mixed' && context.techBase !== 'Both') {
+        if (structure.techBase !== context.techBase && structure.techBase !== 'Both' && structure.techBase !== 'Inner Sphere') {
+             // Allow IS structure on Clan mechs? No, usually Clan Mechs use Standard or Clan Endo.
+             // But Standard IS is same as Standard Clan.
+             if (structure.type === 'Standard') return true; 
+             return false;
+        }
+    }
+
     // Year restrictions
     if (structure.introductionYear > context.constructionYear) {
       return false
     }
 
-    // Industrial structure only for IndustrialMechs
-    if (structure.type === 'Industrial' && context.unitType !== 'IndustrialMech') {
+    // Industrial structure check (mapped to Standard but ID distinguishes it)
+    if (structure.id === 'industrial_structure' && context.unitType !== 'IndustrialMech') {
       return false
     }
 
@@ -188,6 +198,10 @@ export class StructureAdapter extends BaseAdapter {
   calculateTotalStructurePoints(tonnage: number, structureType: StructureType): number {
     const definition = STRUCTURE_DATABASE.find(s => s.type === structureType)
     if (!definition) {
+      // Fallback for generic type lookup
+      const genericDef = STRUCTURE_DATABASE.find(s => s.type === structureType);
+      if (genericDef) return Math.floor(tonnage * 1.5) * genericDef.pointMultiplier;
+      
       throw new Error(`Unknown structure type: ${structureType}`)
     }
 
@@ -197,9 +211,3 @@ export class StructureAdapter extends BaseAdapter {
     return basePoints * definition.pointMultiplier
   }
 }
-
-
-
-
-
-

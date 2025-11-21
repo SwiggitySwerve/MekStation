@@ -1,16 +1,24 @@
 /**
  * System Components Data Model
  * Unified structure for tracking mech system components and their critical slot allocations
+ * 
+ * @deprecated
+ * This file contains legacy type definitions and constants.
+ * Please use 'src/types/core/ComponentInterfaces.ts' and 'src/constants/BattleTechConstructionRules.ts' for new development.
+ * 
+ * Key replacements:
+ * - EngineType -> EngineType (from BattleTechConstructionRules) + TechBase
+ * - ENGINE_SLOT_REQUIREMENTS -> IEngineDef.criticalSlots
  */
 
 import { calculateInternalHeatSinks } from '../utils/heatSinkCalculations';
 import { TechBase as BaseTechBase } from './core/BaseTypes';
 
 // Define component type unions locally (migrated from deleted types/components.ts)
-export type EngineType = 'Standard' | 'XL' | 'Light' | 'XXL' | 'Compact' | 'ICE' | 'Fuel Cell';
+export type EngineType = 'Standard' | 'XL' | 'Light' | 'XXL' | 'Compact' | 'ICE' | 'Fuel Cell' | 'XL (IS)' | 'XL (Clan)';
 export type GyroType = 'Standard' | 'XL' | 'Compact' | 'Heavy-Duty';
 export type CockpitType = 'Standard' | 'Small' | 'Command Console' | 'Torso-Mounted Cockpit' | 'Primitive Cockpit';
-export type StructureType = 'Standard' | 'Endo Steel' | 'Endo Steel (Clan)' | 'Composite' | 'Reinforced' | 'Industrial';
+export type StructureType = 'Standard' | 'Endo Steel' | 'Endo Steel (Clan)' | 'Composite' | 'Reinforced' | 'Industrial' | 'Endo Steel (IS)';
 export type ArmorType = 'Standard' | 'Ferro-Fibrous' | 'Ferro-Fibrous (Clan)' | 'Light Ferro-Fibrous' | 'Heavy Ferro-Fibrous' | 'Stealth' | 'Reactive' | 'Reflective' | 'Hardened';
 export type HeatSinkType = 'Single' | 'Double' | 'Double (Clan)' | 'Double (IS)' | 'Compact' | 'Compact (Clan)' | 'Laser' | 'Laser (Clan)';
 
