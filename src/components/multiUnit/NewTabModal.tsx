@@ -89,9 +89,9 @@ export function NewTabModal({ onClose, onCreate }: NewTabModalProps) {
           engineRating: template.config.engineRating || 200,
           runMP: template.config.runMP || 6,
           engineType: 'Standard',
-          gyroType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
-          structureType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
-          armorType: { type: 'Standard', techBase: 'Inner Sphere' } as any,
+          gyroType: 'Standard',
+          structureType: 'Standard',
+          armorType: 'Standard',
           armorAllocation: {
             HD: { front: 9, rear: 0 },
             CT: { front: 20, rear: 6 },
@@ -103,7 +103,7 @@ export function NewTabModal({ onClose, onCreate }: NewTabModalProps) {
             RL: { front: 20, rear: 0 }
           },
           armorTonnage: 8.0,
-          heatSinkType: { type: 'Single', techBase: 'Inner Sphere' } as any,
+          heatSinkType: 'Single',
           totalHeatSinks: 10,
           internalHeatSinks: 8,
           externalHeatSinks: 2,

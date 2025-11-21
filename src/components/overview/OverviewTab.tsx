@@ -60,7 +60,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ readOnly = false }) =>
 
   // Memoize enhanced configuration to prevent unnecessary re-renders
   const enhancedConfig = useMemo(() => {
-    if (!unit) return {} as any
+    if (!unit) return null
     const config = unit.getConfiguration()
     return {
       ...config,

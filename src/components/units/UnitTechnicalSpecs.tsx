@@ -51,7 +51,12 @@ export const UnitTechnicalSpecs: React.FC<UnitTechnicalSpecsProps> = ({ unit }) 
       const slots = critLoc.slots.slice(0, maxSlots)
       // Pad with empty slots if needed
       while (slots.length < maxSlots) {
-        slots.push('-Empty-' as any)
+        slots.push({
+          index: slots.length,
+          name: '-Empty-',
+          type: 'empty',
+          isFixed: false
+        })
       }
 
       return (

@@ -145,11 +145,11 @@ function formReducer<T extends Record<string, any>>(
     
     case 'RESET_FORM': {
       const initialValues = action.payload
-      const fields: { [K in keyof T]: FormField<T[K]> } = {} as any
+      const fields: { [K in keyof T]: FormField<T[K]> } = {} as { [K in keyof T]: FormField<T[K]> }
       
       for (const [key, value] of Object.entries(initialValues)) {
         fields[key as keyof T] = {
-          value,
+          value: value as T[keyof T],
           validation: state.fields[key as keyof T]?.validation,
           isDirty: false,
           isTouched: false
@@ -248,11 +248,11 @@ export function useFormState<T extends Record<string, any>>(
 ) {
   // CRITICAL: Initialize form state
   const createInitialState = useCallback((): FormState<T> => {
-    const fields: { [K in keyof T]: FormField<T[K]> } = {} as any
+    const fields: { [K in keyof T]: FormField<T[K]> } = {} as { [K in keyof T]: FormField<T[K]> }
     
     for (const [key, value] of Object.entries(initialValues)) {
       fields[key as keyof T] = {
-        value,
+        value: value as T[keyof T],
         validation: fieldValidations?.[key as keyof T],
         isDirty: false,
         isTouched: false
@@ -433,11 +433,23 @@ export function Form<T extends Record<string, any>>({
   )
 }
 
+export interface FieldProps<V> {
+  value: V
+  onChange: (value: V) => void
+  onBlur: () => void
+  onFocus: () => void
+  error?: string
+  warning?: string
+  isDirty: boolean
+  isTouched: boolean
+  validation?: (value: V) => ValidationResult
+}
+
 // CRITICAL: Field component for easy form field management
 export interface FormFieldProps<T extends Record<string, any>, K extends keyof T> {
   form: ReturnType<typeof useFormState<T>>
   field: K
-  children: (fieldProps: ReturnType<typeof useFormState<T>>['getFieldProps'] extends (field: K) => infer R ? R : never) => React.ReactNode
+  children: (fieldProps: FieldProps<T[K]>) => React.ReactNode
 }
 
 export function FormField<T extends Record<string, any>, K extends keyof T>({
@@ -446,5 +458,5 @@ export function FormField<T extends Record<string, any>, K extends keyof T>({
   children
 }: FormFieldProps<T, K>) {
   const fieldProps = form.getFieldProps(field)
-  return <>{children(fieldProps as any)}</>
+  return <>{children(fieldProps)}</>
 } 

@@ -98,7 +98,7 @@ export function TabManager({ children }: TabManagerProps) {
         duplicateTab(tabId)
         break
       case '3':
-        handleCloseTab(tabId, e as any)
+        handleCloseTab(tabId, e)
         break
     }
   }

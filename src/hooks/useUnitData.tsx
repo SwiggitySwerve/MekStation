@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import { EditableUnit } from '../types/editor';
-import { SystemComponents, CriticalAllocationMap, CriticalSlot } from '../types/systemComponents';
+import { SystemComponents, CriticalAllocationMap, CriticalSlot, EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../types/systemComponents';
 import { migrateUnitToSystemComponents, validateUnit } from '../utils/componentValidation';
 import { 
   syncEngineChange, 
@@ -179,7 +179,7 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
     case UnitActionType.UPDATE_ENGINE: {
       const updates = syncEngineChange(
         state.unit,
-        action.payload.type as any,
+        action.payload.type as EngineType,
         action.payload.rating
       );
       
@@ -210,7 +210,7 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
     }
 
     case UnitActionType.UPDATE_GYRO: {
-      const updates = syncGyroChange(state.unit, action.payload.type as any);
+      const updates = syncGyroChange(state.unit, action.payload.type as GyroType);
       
       // Extract what we need from updates
       const { systemComponents, criticalAllocations, data } = updates;
@@ -239,7 +239,7 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
     }
 
     case UnitActionType.UPDATE_STRUCTURE: {
-      const updates = syncStructureChange(state.unit, action.payload.type as any);
+      const updates = syncStructureChange(state.unit, action.payload.type as StructureType);
       
       // Extract what we need from updates
       const { systemComponents, data } = updates;
@@ -274,7 +274,7 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
     }
 
     case UnitActionType.UPDATE_ARMOR: {
-      const updates = syncArmorChange(state.unit, action.payload.type as any);
+      const updates = syncArmorChange(state.unit, action.payload.type as ArmorType);
       
       // Don't overwrite criticalAllocations or criticals
       const { criticalAllocations, data, ...otherUpdates } = updates;
@@ -306,7 +306,7 @@ function unitReducer(state: UnitState, action: UnitAction): UnitState {
     case UnitActionType.UPDATE_HEAT_SINKS: {
       const updates = syncHeatSinkChange(
         state.unit,
-        action.payload.type as any,
+        action.payload.type as HeatSinkType,
         action.payload.count
       );
       
@@ -602,7 +602,7 @@ export function UnitDataProvider({
     if (unit.criticalAllocations) {
       const cleanedAllocations = { ...unit.criticalAllocations };
       Object.entries(cleanedAllocations).forEach(([location, slots]) => {
-        cleanedAllocations[location] = (slots as any[]).map((slot, index) => ({
+        cleanedAllocations[location] = slots.map((slot, index) => ({
           index: slot.index || index,
           name: (slot.name === '-Empty-' || slot.name === '' || !slot.name) ? '-Empty-' : slot.name,
           type: (slot.name === '-Empty-' || slot.name === '' || !slot.name) ? 'empty' : (slot.type || 'equipment'),

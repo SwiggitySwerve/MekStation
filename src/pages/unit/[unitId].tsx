@@ -9,6 +9,8 @@ import { useRouter } from 'next/router'
 import { SingleUnitProvider, useSingleUnit } from '../../components/unit/SingleUnitProvider'
 import { UnitPersistenceService, parseUnitId } from '../../utils/unit/UnitPersistenceService'
 import { getComponentType } from '../../utils/componentTypeUtils';
+import { EngineType } from '../../types/systemComponents';
+import { ComponentConfiguration } from '../../types/componentConfiguration';
 
 // Component that uses the unit context
 function UnitDisplay() {
@@ -280,7 +282,7 @@ function UnitDisplay() {
                 value={config.engineType}
                 onChange={(e) => updateConfiguration({
                   ...config,
-                  engineType: e.target.value as any
+                  engineType: e.target.value as EngineType
                 })}
                 className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-slate-100"
               >
@@ -299,10 +301,19 @@ function UnitDisplay() {
               </label>
               <select
                 value={getComponentType(config.structureType)}
-                onChange={(e) => updateConfiguration({
-                  ...config,
-                  structureType: e.target.value as any
-                })}
+                onChange={(e) => {
+                  // Use safe type assertion here since we know the component shapes
+                  const newType = e.target.value;
+                  const current = config.structureType;
+                  const updated = typeof current === 'string' 
+                    ? newType 
+                    : { ...(current as ComponentConfiguration), type: newType };
+                  
+                  updateConfiguration({
+                    ...config,
+                    structureType: updated as ComponentConfiguration
+                  });
+                }}
                 className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-slate-100"
               >
                 <option value="Standard">Standard</option>
@@ -320,10 +331,18 @@ function UnitDisplay() {
               </label>
               <select
                 value={getComponentType(config.armorType)}
-                onChange={(e) => updateConfiguration({
-                  ...config,
-                  armorType: e.target.value as any
-                })}
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  const current = config.armorType;
+                  const updated = typeof current === 'string'
+                    ? newType
+                    : { ...(current as ComponentConfiguration), type: newType };
+
+                  updateConfiguration({
+                    ...config,
+                    armorType: updated as ComponentConfiguration
+                  });
+                }}
                 className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-slate-100"
               >
                 <option value="Standard">Standard</option>

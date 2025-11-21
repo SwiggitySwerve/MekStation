@@ -4,7 +4,7 @@
  * Provides same interface as useUnit() hook for compatibility
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { UnitPersistenceService, UnitIdentifier, UnitLoadResult, generateUnitId } from '../../utils/unit/UnitPersistenceService'
 import { UnitCriticalManager } from '../../utils/criticalSlots/UnitCriticalManager'
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
@@ -93,6 +93,9 @@ export function SingleUnitProvider({
   const [isConfigLoaded, setIsConfigLoaded] = useState(false)
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(autoSave)
   
+  // Ref to store unsubscribe function to avoid memory leaks and 'as any' casts
+  const unsubscribeRef = useRef<(() => void) | null>(null)
+  
   // Debounced save manager
   const [saveManager] = useState(() => new MultiTabDebouncedSaveManager(saveDelay))
   
@@ -102,6 +105,11 @@ export function SingleUnitProvider({
   // Load unit on mount or when identifiers change
   useEffect(() => {
     loadUnit()
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current()
+      }
+    }
   }, [unitId, chassis, model, tabId])
   
   // Setup auto-save if enabled
@@ -166,7 +174,10 @@ export function SingleUnitProvider({
       })
       
       // Store unsubscribe function for cleanup
-      ;(result.unitManager as any)._singleUnitUnsubscribe = unsubscribe
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current()
+      }
+      unsubscribeRef.current = unsubscribe
       
       setIsConfigLoaded(true)
       setIsLoading(false)
