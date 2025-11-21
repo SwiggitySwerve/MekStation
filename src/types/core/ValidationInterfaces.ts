@@ -15,8 +15,6 @@
 import { 
   IValidationResult, 
   IViolation, 
-  IWarning, 
-  IRecommendation,
   IService,
   IObservableService,
   IStrategy,
@@ -29,64 +27,15 @@ import {
   Result
 } from './BaseTypes';
 
-// ===== CORE VALIDATION INTERFACES =====
+import {
+  ICompleteUnitConfiguration,
+  IEquipmentInstance
+} from './UnitInterfaces';
 
-/**
- * Configuration data for validation operations
- */
-export interface IUnitConfiguration {
-  readonly id: EntityId;
-  readonly tonnage: number;
-  readonly chassisName: string;
-  readonly model: string;
-  readonly techBase: TechBase;
-  readonly rulesLevel: RulesLevel;
-  readonly engineRating: number;
-  readonly engineType: string;
-  readonly gyroType: string;
-  readonly cockpitType: string;
-  readonly structureType: string;
-  readonly armorType: string;
-  readonly heatSinkType: string;
-  readonly enhancements?: ComponentConfiguration[];
-  readonly jumpJetType?: string;
-  readonly armorAllocation: IArmorAllocation;
-  readonly metadata?: Record<string, any>;
-}
-
-/**
- * Armor allocation by location
- */
-export interface IArmorAllocation {
-  readonly head: ILocationArmor;
-  readonly centerTorso: ILocationArmor;
-  readonly leftTorso: ILocationArmor;
-  readonly rightTorso: ILocationArmor;
-  readonly leftArm: ILocationArmor;
-  readonly rightArm: ILocationArmor;
-  readonly leftLeg: ILocationArmor;
-  readonly rightLeg: ILocationArmor;
-}
-
-/**
- * Armor configuration for a location
- */
-export interface ILocationArmor {
-  readonly front: number;
-  readonly rear?: number;
-}
-
-/**
- * Equipment allocation information
- */
-export interface IEquipmentAllocation {
-  readonly id: EntityId;
-  readonly equipmentId: EntityId;
-  readonly location: string;
-  readonly slotIndex: number;
-  readonly quantity: number;
-  readonly metadata?: Record<string, any>;
-}
+// Re-export legacy IUnitConfiguration alias for compatibility if needed, 
+// but we prefer ICompleteUnitConfiguration
+export type IUnitConfiguration = ICompleteUnitConfiguration;
+export type IEquipmentAllocation = IEquipmentInstance;
 
 // ===== VALIDATION STRATEGY INTERFACES =====
 
@@ -95,8 +44,8 @@ export interface IEquipmentAllocation {
  */
 export interface IWeightValidationStrategy extends IStrategy {
   validateWeight(
-    config: IUnitConfiguration, 
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration, 
+    equipment: IEquipmentInstance[]
   ): Promise<IWeightValidationResult>;
 }
 
@@ -105,8 +54,8 @@ export interface IWeightValidationStrategy extends IStrategy {
  */
 export interface IHeatValidationStrategy extends IStrategy {
   validateHeat(
-    config: IUnitConfiguration, 
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration, 
+    equipment: IEquipmentInstance[]
   ): Promise<IHeatValidationResult>;
 }
 
@@ -115,7 +64,7 @@ export interface IHeatValidationStrategy extends IStrategy {
  */
 export interface IMovementValidationStrategy extends IStrategy {
   validateMovement(
-    config: IUnitConfiguration
+    config: ICompleteUnitConfiguration
   ): Promise<IMovementValidationResult>;
 }
 
@@ -124,7 +73,7 @@ export interface IMovementValidationStrategy extends IStrategy {
  */
 export interface IArmorValidationStrategy extends IStrategy {
   validateArmor(
-    config: IUnitConfiguration
+    config: ICompleteUnitConfiguration
   ): Promise<IArmorValidationResult>;
 }
 
@@ -133,7 +82,7 @@ export interface IArmorValidationStrategy extends IStrategy {
  */
 export interface IStructureValidationStrategy extends IStrategy {
   validateStructure(
-    config: IUnitConfiguration
+    config: ICompleteUnitConfiguration
   ): Promise<IStructureValidationResult>;
 }
 
@@ -142,8 +91,8 @@ export interface IStructureValidationStrategy extends IStrategy {
  */
 export interface ICriticalSlotsValidationStrategy extends IStrategy {
   validateCriticalSlots(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<ICriticalSlotsValidationResult>;
 }
 
@@ -152,8 +101,8 @@ export interface ICriticalSlotsValidationStrategy extends IStrategy {
  */
 export interface ITechLevelValidationStrategy extends IStrategy {
   validateTechLevel(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<ITechLevelValidationResult>;
 }
 
@@ -162,8 +111,8 @@ export interface ITechLevelValidationStrategy extends IStrategy {
  */
 export interface IEquipmentValidationStrategy extends IStrategy {
   validateEquipment(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<IEquipmentValidationResult>;
 }
 
@@ -636,22 +585,22 @@ export interface IStrategyMetrics {
  */
 export interface IValidationService extends IObservableService {
   validateUnit(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<Result<ICompleteValidationResult>>;
 
   validateConfiguration(
-    config: IUnitConfiguration
+    config: ICompleteUnitConfiguration
   ): Promise<Result<IConfigurationValidationResult>>;
 
   validateEquipment(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<Result<IEquipmentValidationResult>>;
 
   validateCompliance(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<Result<IComplianceValidationResult>>;
 
   getValidationStrategies(): string[];
@@ -664,8 +613,8 @@ export interface IValidationService extends IObservableService {
  */
 export interface IValidationOrchestrator extends IService {
   orchestrateValidation(
-    config: IUnitConfiguration,
-    equipment: IEquipmentAllocation[]
+    config: ICompleteUnitConfiguration,
+    equipment: IEquipmentInstance[]
   ): Promise<Result<ICompleteValidationResult>>;
 
   addValidationStrategy(

@@ -41,6 +41,25 @@ import {
 import { IUnitTechStatus } from './TechStatus';
 import { IComponentDefinition } from './ComponentStructure';
 
+import { 
+    IUnitConfigurationService,
+    IEquipmentAllocationService,
+    IStatePersistenceService,
+    IConfigurationSummary,
+    ICriticalSlotManagementService,
+    IUnitSynchronizationService,
+    IUnitSnapshot,
+    IConfigurationComparison,
+    IConfigurationDifference,
+    IComparisonSummary,
+    IUnitConfigurationObserver,
+    IEquipmentAllocationObserver,
+    ICriticalSlotObserver,
+    IConfigurationFactory,
+    ICustomConfigurationSpecs,
+    IConfigurationPreset
+} from './ValidationInterfaces';
+
 // ===== EQUIPMENT ALLOCATION AND MANAGEMENT =====
 
 /**
@@ -432,247 +451,22 @@ export interface IStateMetadata {
   readonly compressionRatio?: number;
 }
 
-// ===== SERVICE INTERFACES =====
-
-/**
- * Unit configuration service
- */
-export interface IUnitConfigurationService extends IObservableService {
-  createConfiguration(template?: IConfigurationTemplate): Promise<Result<ICompleteUnitConfiguration>>;
-  updateConfiguration(id: EntityId, updates: Partial<ICompleteUnitConfiguration>): Promise<Result<ICompleteUnitConfiguration>>;
-  validateConfiguration(config: ICompleteUnitConfiguration): Promise<Result<IValidationState>>;
-  cloneConfiguration(id: EntityId): Promise<Result<ICompleteUnitConfiguration>>;
-  exportConfiguration(id: EntityId, format: 'json' | 'xml' | 'mtf' | 'pdf'): Promise<Result<string>>;
-  importConfiguration(data: string, format: 'json' | 'xml' | 'mtf'): Promise<Result<ICompleteUnitConfiguration>>;
-}
-
-/**
- * Configuration template
- */
-export interface IConfigurationTemplate {
-  readonly name: string;
-  readonly chassis: string;
-  readonly unitType: UnitType; // Added unit type
-  readonly tonnage: number;
-  readonly techBase: TechBase;
-  readonly rulesLevel: RulesLevel;
-  readonly era: string;
-  readonly preset?: 'basic' | 'advanced' | 'custom';
-}
-
-/**
- * Equipment allocation service
- */
-export interface IEquipmentAllocationService extends IObservableService {
-  allocateEquipment(
-    configId: EntityId,
-    equipmentId: EntityId,
-    location: string,
-    slotIndex?: number
-  ): Promise<Result<IEquipmentInstance>>;
-
-  deallocateEquipment(
-    configId: EntityId,
-    instanceId: EntityId
-  ): Promise<Result<void>>;
-
-  moveEquipment(
-    configId: EntityId,
-    instanceId: EntityId,
-    newLocation: string,
-    newSlotIndex?: number
-  ): Promise<Result<IEquipmentInstance>>;
-
-  createEquipmentGroup(
-    configId: EntityId,
-    equipmentIds: EntityId[],
-    groupType: string
-  ): Promise<Result<IEquipmentGroup>>;
-
-  addToUnallocated(
-    configId: EntityId,
-    equipmentId: EntityId,
-    quantity?: number
-  ): Promise<Result<IUnallocatedEquipment>>;
-
-  removeFromUnallocated(
-    configId: EntityId,
-    unallocatedId: EntityId
-  ): Promise<Result<void>>;
-
-  getUnallocatedEquipment(configId: EntityId): Promise<Result<IUnallocatedEquipment[]>>;
-  getAllocatedEquipment(configId: EntityId): Promise<Result<IEquipmentInstance[]>>;
-  getEquipmentByLocation(configId: EntityId, location: string): Promise<Result<IEquipmentInstance[]>>;
-}
-
-/**
- * State persistence service
- */
-export interface IStatePersistenceService extends IService {
-  saveState(configId: EntityId, state: ICompleteUnitState): Promise<Result<void>>;
-  loadState(configId: EntityId): Promise<Result<ICompleteUnitState>>;
-  saveConfiguration(config: ICompleteUnitConfiguration): Promise<Result<EntityId>>;
-  loadConfiguration(configId: EntityId): Promise<Result<ICompleteUnitConfiguration>>;
-  deleteConfiguration(configId: EntityId): Promise<Result<void>>;
-  listConfigurations(): Promise<Result<IConfigurationSummary[]>>;
-  exportState(configId: EntityId, format: 'json' | 'binary'): Promise<Result<Blob>>;
-  importState(data: Blob, format: 'json' | 'binary'): Promise<Result<ICompleteUnitState>>;
-}
-
-/**
- * Configuration summary
- */
-export interface IConfigurationSummary {
-  readonly id: EntityId;
-  readonly name: string;
-  readonly chassis: string;
-  readonly model: string;
-  readonly tonnage: number;
-  readonly techBase: TechBase;
-  readonly created: Date;
-  readonly modified: Date;
-  readonly isValid: boolean;
-  readonly size: number;
-}
-
-/**
- * Critical slot management service
- */
-export interface ICriticalSlotManagementService extends IObservableService {
-  getSlotState(configId: EntityId): Promise<Result<ICriticalSlotState>>;
-  updateSlotState(configId: EntityId, state: ICriticalSlotState): Promise<Result<void>>;
-  allocateSlot(configId: EntityId, location: string, slotIndex: number, equipment: IEquipmentInstance): Promise<Result<void>>;
-  deallocateSlot(configId: EntityId, location: string, slotIndex: number): Promise<Result<void>>;
-  getAvailableSlots(configId: EntityId, location: string): Promise<Result<number[]>>;
-  validateSlotAllocation(configId: EntityId, equipment: IEquipmentInstance, location: string, slotIndex: number): Promise<Result<boolean>>;
-  optimizeSlotLayout(configId: EntityId): Promise<Result<ICriticalSlotState>>;
-}
-
-/**
- * Unit synchronization service
- */
-export interface IUnitSynchronizationService extends IObservableService {
-  synchronizeUnit(configId: EntityId): Promise<Result<void>>;
-  createSnapshot(configId: EntityId): Promise<Result<IUnitSnapshot>>;
-  restoreSnapshot(configId: EntityId, snapshotId: EntityId): Promise<Result<void>>;
-  compareConfigurations(configId1: EntityId, configId2: EntityId): Promise<Result<IConfigurationComparison>>;
-  mergeConfigurations(configIds: EntityId[]): Promise<Result<ICompleteUnitConfiguration>>;
-}
-
-/**
- * Unit snapshot
- */
-export interface IUnitSnapshot {
-  readonly id: EntityId;
-  readonly configId: EntityId;
-  readonly name: string;
-  readonly timestamp: Date;
-  readonly state: ICompleteUnitState;
-  readonly checksum: string;
-}
-
-/**
- * Configuration comparison
- */
-export interface IConfigurationComparison {
-  readonly config1: EntityId;
-  readonly config2: EntityId;
-  readonly differences: IConfigurationDifference[];
-  readonly similarity: number;
-  readonly summary: IComparisonSummary;
-}
-
-/**
- * Configuration difference
- */
-export interface IConfigurationDifference {
-  readonly type: 'added' | 'removed' | 'modified';
-  readonly category: string;
-  readonly path: string;
-  readonly oldValue?: any;
-  readonly newValue?: any;
-  readonly description: string;
-  readonly impact: Severity;
-}
-
-/**
- * Comparison summary
- */
-export interface IComparisonSummary {
-  readonly totalDifferences: number;
-  readonly addedItems: number;
-  readonly removedItems: number;
-  readonly modifiedItems: number;
-  readonly categories: Record<string, number>;
-  readonly significantChanges: IConfigurationDifference[];
-}
-
-// ===== OBSERVER INTERFACES =====
-
-/**
- * Unit configuration observer
- */
-export interface IUnitConfigurationObserver extends IObserver<ICompleteUnitConfiguration> {
-  onConfigurationChanged(config: ICompleteUnitConfiguration): void;
-  onValidationChanged(validation: IValidationState): void;
-  onEquipmentChanged(equipment: IEquipmentInstance[]): void;
-}
-
-/**
- * Equipment allocation observer
- */
-export interface IEquipmentAllocationObserver extends IObserver<IEquipmentInstance[]> {
-  onEquipmentAllocated(instance: IEquipmentInstance): void;
-  onEquipmentDeallocated(instanceId: EntityId): void;
-  onEquipmentMoved(instance: IEquipmentInstance, oldLocation: string): void;
-  onEquipmentGrouped(group: IEquipmentGroup): void;
-}
-
-/**
- * Critical slot observer
- */
-export interface ICriticalSlotObserver extends IObserver<ICriticalSlotState> {
-  onSlotAllocated(location: string, slotIndex: number, equipment: IEquipmentInstance): void;
-  onSlotDeallocated(location: string, slotIndex: number): void;
-  onSlotViolation(violation: ICriticalSlotViolation): void;
-  onSlotOptimized(oldState: ICriticalSlotState, newState: ICriticalSlotState): void;
-}
-
-// ===== FACTORY INTERFACES =====
-
-/**
- * Configuration factory
- */
-export interface IConfigurationFactory {
-  createBasicConfiguration(template: IConfigurationTemplate): Result<ICompleteUnitConfiguration>;
-  createFromChassis(chassisId: EntityId, variant?: string): Result<ICompleteUnitConfiguration>;
-  createCustomConfiguration(specs: ICustomConfigurationSpecs): Result<ICompleteUnitConfiguration>;
-  cloneConfiguration(source: ICompleteUnitConfiguration, changes?: Partial<ICompleteUnitConfiguration>): Result<ICompleteUnitConfiguration>;
-}
-
-/**
- * Custom configuration specifications
- */
-export interface ICustomConfigurationSpecs {
-  readonly name: string;
-  readonly chassis: string;
-  readonly unitType: UnitType; // Added unit type
-  readonly tonnage: number;
-  readonly techBase: TechBase;
-  readonly rulesLevel: RulesLevel;
-  readonly era: string;
-  readonly engineRating?: number;
-  readonly armorType?: string;
-  readonly structureType?: string;
-  readonly presets?: IConfigurationPreset[];
-}
-
-/**
- * Configuration preset
- */
-export interface IConfigurationPreset {
-  readonly category: string;
-  readonly type: string;
-  readonly value: any;
-  readonly justification?: string;
-}
+// Re-export services defined in ValidationInterfaces for convenience
+export { 
+    IUnitConfigurationService,
+    IEquipmentAllocationService,
+    IStatePersistenceService,
+    IConfigurationSummary,
+    ICriticalSlotManagementService,
+    IUnitSynchronizationService,
+    IUnitSnapshot,
+    IConfigurationComparison,
+    IConfigurationDifference,
+    IComparisonSummary,
+    IUnitConfigurationObserver,
+    IEquipmentAllocationObserver,
+    ICriticalSlotObserver,
+    IConfigurationFactory,
+    ICustomConfigurationSpecs,
+    IConfigurationPreset
+};
