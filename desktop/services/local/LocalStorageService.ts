@@ -20,8 +20,8 @@ import * as zlib from 'zlib';
 import { promisify } from 'util';
 
 // Service interfaces
-import { IService } from '../../../services/core/types/BaseTypes';
-import { Result } from '../../../services/core/types/BaseTypes';
+import { IService } from '../../../src/services/core/types/BaseTypes';
+import { Result } from '../../../src/services/core/types/BaseTypes';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);

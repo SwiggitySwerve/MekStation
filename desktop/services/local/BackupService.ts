@@ -21,8 +21,8 @@ import { createGzip, createGunzip } from 'zlib';
 import { pipeline } from 'stream/promises';
 
 // Service interfaces
-import { IService } from '../../../services/core/types/BaseTypes';
-import { Result } from '../../../services/core/types/BaseTypes';
+import { IService } from '../../../src/services/core/types/BaseTypes';
+import { Result } from '../../../src/services/core/types/BaseTypes';
 
 /**
  * Configuration for backup service
