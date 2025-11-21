@@ -6,6 +6,7 @@ import { calculateEngineWeight, calculateStructureWeight } from '../types/system
 import { calculateInternalHeatSinks } from './heatSinkCalculations';
 import { calculateArmorWeight } from './armorCalculations';
 import { StructureType, EngineType, ArmorType } from '../types/systemComponents';
+import { isRangeData } from '../types/core/DynamicDataTypes';
 
 export interface ValidationContext {
   strictMode: boolean;           // Enforce tournament legal rules
@@ -66,6 +67,14 @@ interface WeaponRange {
 
 function safeGetWeaponRange(weapon: FullEquipment): WeaponRange {
   if (weapon.range && typeof weapon.range === 'object') {
+    if (isRangeData(weapon.range)) {
+      return {
+        short: weapon.range.short,
+        medium: weapon.range.medium,
+        long: weapon.range.long
+      };
+    }
+    // Fallback for non-typed range
     const range = weapon.range as Record<string, unknown>;
     return {
       short: typeof range.short === 'number' ? range.short : undefined,
@@ -74,6 +83,14 @@ function safeGetWeaponRange(weapon: FullEquipment): WeaponRange {
     };
   }
   if (weapon.data?.range && typeof weapon.data.range === 'object') {
+    if (isRangeData(weapon.data.range)) {
+      return {
+        short: weapon.data.range.short,
+        medium: weapon.data.range.medium,
+        long: weapon.data.range.long
+      };
+    }
+    // Fallback for non-typed range
     const range = weapon.data.range as Record<string, unknown>;
     return {
       short: typeof range.short === 'number' ? range.short : undefined,

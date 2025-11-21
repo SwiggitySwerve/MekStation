@@ -10,6 +10,7 @@
 import { EditableUnit, ValidationError } from '../../types/editor'
 import { getTechBase } from '../typeConversion/propertyAccessors'
 import { techBaseToString } from '../typeConversion/enumConverters'
+import { isEquipmentItemData, getEquipmentItemProperty } from '../../types/core/DynamicDataTypes'
 
 export interface WeaponValidationContext {
   strictMode: boolean
@@ -199,20 +200,31 @@ export class WeaponValidationService {
         if (!item) return
         
         // Type-safe property access for equipment validation
-        const itemRecord = item as Record<string, unknown>
+        if (!isEquipmentItemData(item)) {
+          continue; // Skip invalid items
+        }
         
         // Check if this is a weapon using type-safe property access
-        const isWeapon = this.WEAPON_CATEGORIES.some(category => 
-          String(itemRecord.category || '').includes(category)
+        const category = getEquipmentItemProperty<string>(item, 'category', '');
+        const itemType = getEquipmentItemProperty<string>(item, 'item_type', '');
+        const type = getEquipmentItemProperty<string>(item, 'type', '');
+        const itemName = getEquipmentItemProperty<string>(item, 'item_name', '');
+        const heat = getEquipmentItemProperty<number>(item, 'heat');
+        const damage = getEquipmentItemProperty<number | string>(item, 'damage');
+        
+        const isWeapon = this.WEAPON_CATEGORIES.some(cat => 
+          String(category || '').includes(cat)
         ) || 
-        itemRecord.item_type === 'weapon' ||
-        String(itemRecord.type || '').includes('weapon') ||
-        item.item_name?.match(/\b(Laser|PPC|AC\/|LRM|SRM|Gauss|Pulse)\b/i)
+        itemType === 'weapon' ||
+        String(type || '').includes('weapon') ||
+        itemName?.match(/\b(Laser|PPC|AC\/|LRM|SRM|Gauss|Pulse)\b/i)
 
         // Also check for weapon-like properties even if not explicitly categorized
-        const hasWeaponProperties = itemRecord.heat !== undefined || 
-                                    itemRecord.damage !== undefined ||
-                                    (itemRecord.tonnage !== undefined && itemRecord.criticals !== undefined)
+        const tonnage = getEquipmentItemProperty<number>(item, 'tonnage');
+        const criticals = getEquipmentItemProperty<number>(item, 'criticals');
+        const hasWeaponProperties = heat !== undefined || 
+                                    damage !== undefined ||
+                                    (tonnage !== undefined && criticals !== undefined)
 
         if (isWeapon || hasWeaponProperties) {
           // Validate weapon data integrity

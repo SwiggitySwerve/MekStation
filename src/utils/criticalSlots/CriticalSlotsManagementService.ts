@@ -248,7 +248,7 @@ export class CriticalSlotsManagementService {
   private static getAllSections(unitManager: UnitCriticalManager) {
     const sectionNames = ['Head', 'Center Torso', 'Left Torso', 'Right Torso', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg']
     
-    const sections: Record<string, any> = {}
+    const sections: Record<string, unknown> = {}
     for (const name of sectionNames) {
       sections[name] = unitManager.getSection(name)
     }
@@ -256,7 +256,7 @@ export class CriticalSlotsManagementService {
     return sections
   }
 
-  private static getEmptySlots(sections: Record<string, any>): Array<{slot: CriticalSlot, location: string, index: number}> {
+  private static getEmptySlots(sections: Record<string, unknown>): Array<{slot: CriticalSlot, location: string, index: number}> {
     const emptySlots: Array<{slot: CriticalSlot, location: string, index: number}> = []
     
     for (const [locationName, section] of Object.entries(sections)) {

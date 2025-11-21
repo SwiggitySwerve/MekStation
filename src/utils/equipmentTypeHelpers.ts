@@ -7,6 +7,7 @@ import {
 } from '../types/core/EquipmentInterfaces';
 import { EquipmentCategory } from '../types/core/BaseTypes';
 import { safeGetNumber, safeGetString, safeGet } from '../types/core/BaseTypes';
+import { isEquipmentData, getEquipmentDataProperty } from '../types/core/DynamicDataTypes';
 
 /**
  * Type guard to check if equipment is a Weapon
@@ -45,7 +46,10 @@ export const getEquipmentHeatGenerated = (equipment: IEquipment): number => {
   if (heat !== 0) return heat;
 
   // Check nested data
-  const data = safeGet(equipment, 'data', {}) as Record<string, unknown>;
+  const data = safeGet(equipment, 'data', {});
+  if (isEquipmentData(data)) {
+    return getEquipmentDataProperty<number>(data, 'heat', 0) ?? 0;
+  }
   return safeGetNumber(data, 'heat', 0);
 };
 
@@ -77,7 +81,10 @@ export const getEquipmentDamage = (equipment: IEquipment): number | string | und
   if (damage !== undefined) return damage as number | string;
 
   // Check nested data
-  const data = safeGet(equipment, 'data', {}) as Record<string, unknown>;
+  const data = safeGet(equipment, 'data', {});
+  if (isEquipmentData(data)) {
+    return getEquipmentDataProperty<number | string>(data, 'damage');
+  }
   return safeGet(data, 'damage', undefined) as number | string | undefined;
 };
 
@@ -96,7 +103,16 @@ export const getEquipmentSlots = (equipment: IEquipment): number => {
   if (space !== -1) return space;
 
   // Check nested data
-  const data = safeGet(equipment, 'data', {}) as Record<string, unknown>;
+  const data = safeGet(equipment, 'data', {});
+  if (isEquipmentData(data)) {
+    const dataSlots = getEquipmentDataProperty<number>(data, 'slots');
+    if (dataSlots !== undefined && dataSlots !== -1) return dataSlots;
+
+    const dataSpace = getEquipmentDataProperty<number>(data, 'space');
+    if (dataSpace !== undefined && dataSpace !== -1) return dataSpace;
+  }
+  
+  // Fallback to safeGet for non-typed data
   const dataSlots = safeGetNumber(data, 'slots', -1);
   if (dataSlots !== -1) return dataSlots;
 
@@ -118,7 +134,13 @@ export const getEquipmentWeight = (equipment: IEquipment): number => {
   const tonnage = safeGetNumber(equipment, 'tonnage', -1);
   if (tonnage !== -1) return tonnage;
 
-  const data = safeGet(equipment, 'data', {}) as Record<string, unknown>;
+  const data = safeGet(equipment, 'data', {});
+  if (isEquipmentData(data)) {
+    const dataWeight = getEquipmentDataProperty<number>(data, 'weight');
+    if (dataWeight !== undefined && dataWeight !== -1) return dataWeight;
+  }
+  
+  // Fallback to safeGet for non-typed data
   const dataWeight = safeGetNumber(data, 'weight', -1);
   if (dataWeight !== -1) return dataWeight;
 

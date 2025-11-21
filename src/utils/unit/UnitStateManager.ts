@@ -8,6 +8,7 @@
  */
 
 import { UnitConfiguration, CompleteUnitState, SerializedEquipment, StateValidationResult } from '../criticalSlots/UnitCriticalManager';
+import { isUnitConfigurationData, getConfigurationProperty, IUnitConfigurationData } from '../../types/core/DynamicDataTypes';
 
 export interface UnitData {
   configuration: UnitConfiguration;
@@ -297,9 +298,13 @@ export class UnitStateManagerImpl implements UnitStateManager {
     // Validate required configuration fields
     const requiredFields = ['tonnage', 'engineType', 'gyroType', 'structureType', 'armorType'] as const;
     for (const field of requiredFields) {
-      // Type-safe property access using proper conversion
-      const config = state.configuration as Record<string, unknown>;
-      const value = config[field];
+      // Type-safe property access using proper types
+      if (!isUnitConfigurationData(state.configuration)) {
+        result.errors.push(`Invalid configuration structure`);
+        result.isValid = false;
+        continue;
+      }
+      const value = getConfigurationProperty(state.configuration, field);
       if (value === undefined || value === null) {
         result.errors.push(`Missing required configuration field: ${field}`);
         result.isValid = false;
