@@ -30,6 +30,11 @@ interface SimplifiedEquipment {
   heat?: number;
 }
 
+type EquipmentWithDamageMetrics = IEquipment & {
+  damage?: number | string;
+  heatGeneration?: number;
+};
+
 interface CriticalSlotDropZoneProps {
   location: string;
   slotIndex: number;
@@ -87,7 +92,7 @@ const CriticalSlotDropZone: React.FC<CriticalSlotDropZoneProps> = ({
       // Only IEquipment can be dragged (not fixed allocations)
       if (!equipment || 'isFixed' in equipment) return null;
       
-      const equipmentData = equipment as IEquipment;
+      const equipmentData = equipment as EquipmentWithDamageMetrics;
       
       return {
         type: DragItemType.EQUIPMENT,
@@ -97,8 +102,8 @@ const CriticalSlotDropZone: React.FC<CriticalSlotDropZoneProps> = ({
         criticalSlots: equipmentData.slots,
         category: equipmentData.category,
         techBase: equipmentData.techBase,
-        damage: 'damage' in equipmentData ? equipmentData.damage : undefined,
-        heat: 'heatGeneration' in equipmentData ? equipmentData.heatGeneration : undefined,
+        damage: equipmentData.damage,
+        heat: equipmentData.heatGeneration,
         isFromCriticalSlot: true,
         sourceLocation: location,
         sourceSlotIndex: actualStartIndex
