@@ -14,7 +14,8 @@ import {
   IObservableService,
   IService,
   IObserver,
-  IUnitMetadata
+  IUnitMetadata,
+  UnitType
 } from './BaseTypes';
 
 import {
@@ -36,6 +37,9 @@ import {
   IElectronicWarfareEquipment,
   IEquipmentQuery
 } from './EquipmentInterfaces';
+
+import { IUnitTechStatus } from './TechStatus';
+import { IComponentDefinition } from './ComponentStructure';
 
 // ===== EQUIPMENT ALLOCATION AND MANAGEMENT =====
 
@@ -133,7 +137,12 @@ export interface ICompleteUnitConfiguration {
   readonly name: string;
   readonly chassis: string;
   readonly model: string;
-  readonly techBase: TechBase;
+  readonly unitType: UnitType; // Explicit Unit Type
+  
+  // Technology Status
+  readonly techBase: TechBase; // Simple access to overall tech base
+  readonly techStatus: IUnitTechStatus; // Detailed tech breakdown
+  
   readonly rulesLevel: RulesLevel;
   readonly era: string;
   readonly tonnage: number;
@@ -214,22 +223,8 @@ export interface MountedBattleArmor {
  */
 export interface IStructureConfiguration {
   readonly definition: IStructureDef; // The type (Endo, Standard)
-  readonly currentPoints: IInternalStructure; // Current HP
-  readonly maxPoints: IInternalStructure;     // Max HP
-}
-
-/**
- * Internal structure points by location
- */
-export interface IInternalStructure {
-  readonly head: number;
-  readonly centerTorso: number;
-  readonly leftTorso: number;
-  readonly rightTorso: number;
-  readonly leftArm: number;
-  readonly rightArm: number;
-  readonly leftLeg: number;
-  readonly rightLeg: number;
+  readonly currentPoints: Record<string, number>; // Current HP by location ID
+  readonly maxPoints: Record<string, number>;     // Max HP by location ID
 }
 
 /**
@@ -263,24 +258,8 @@ export interface ICockpitConfiguration {
 export interface IArmorConfiguration {
   readonly definition: IArmorDef; // The type (Ferro, Standard)
   readonly tonnage: number;
-  readonly allocation: IArmorAllocation;
-}
-
-/**
- * Armor allocation by location
- */
-export interface IArmorAllocation {
-  readonly head: number;
-  readonly centerTorso: number;
-  readonly centerTorsoRear: number;
-  readonly leftTorso: number;
-  readonly leftTorsoRear: number;
-  readonly rightTorso: number;
-  readonly rightTorsoRear: number;
-  readonly leftArm: number;
-  readonly rightArm: number;
-  readonly leftLeg: number;
-  readonly rightLeg: number;
+  readonly allocation: Record<string, number>; // Armor points by location ID
+  readonly rearAllocation?: Record<string, number>; // Rear armor points by location ID (if applicable)
 }
 
 /**
@@ -473,6 +452,7 @@ export interface IUnitConfigurationService extends IObservableService {
 export interface IConfigurationTemplate {
   readonly name: string;
   readonly chassis: string;
+  readonly unitType: UnitType; // Added unit type
   readonly tonnage: number;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -676,6 +656,7 @@ export interface IConfigurationFactory {
 export interface ICustomConfigurationSpecs {
   readonly name: string;
   readonly chassis: string;
+  readonly unitType: UnitType; // Added unit type
   readonly tonnage: number;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;

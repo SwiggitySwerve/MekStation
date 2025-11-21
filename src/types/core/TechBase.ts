@@ -1,60 +1,20 @@
 /**
- * TechBase Standardization
- * Single source of truth for tech base types across the application
+ * TechBase Standardization (Legacy/Bridge)
+ * 
+ * This file is now a bridge to the new strongly-typed TechBase enum in BaseTypes
+ * and the utility functions in utils/TechBaseUtils.
+ * 
+ * @deprecated Import from 'types/core/BaseTypes' and 'utils/TechBaseUtils' instead.
  */
 
-export type TechBase = 'Inner Sphere' | 'Clan'
-export type TechBaseCode = 'IS' | 'Clan'
+import { TechBase as TechBaseEnum } from './BaseTypes';
+import { TechBaseUtil as TBU } from '../../utils/TechBaseUtils';
 
-/**
- * Utility functions for tech base conversion and validation
- */
-export const TechBaseUtil = {
-  /**
-   * Normalize a tech base string to the standard TechBase type
-   * @param input - Raw tech base string (could be 'IS', 'Inner Sphere', 'Clan', etc.)
-   * @returns Normalized TechBase
-   */
-  normalize(input: string): TechBase {
-    const normalized = input.trim()
-    if (normalized === 'IS' || normalized === 'Inner Sphere') {
-      return 'Inner Sphere'
-    }
-    if (normalized === 'Clan') {
-      return 'Clan'
-    }
-    // Default to Inner Sphere for unknown values
-    console.warn(`Unknown tech base: ${input}, defaulting to Inner Sphere`)
-    return 'Inner Sphere'
-  },
+// Re-export the enum as the type for compatibility
+// We add the string literals to allow legacy code to pass strings without casting immediately
+export type TechBase = TechBaseEnum | 'Inner Sphere' | 'Clan' | 'Mixed' | 'Both';
 
-  /**
-   * Convert a TechBase to its code representation
-   * @param techBase - Standard TechBase
-   * @returns TechBase code ('IS' or 'Clan')
-   */
-  toCode(techBase: TechBase): TechBaseCode {
-    return techBase === 'Inner Sphere' ? 'IS' : 'Clan'
-  },
+export type TechBaseCode = 'IS' | 'Clan' | 'Mixed';
 
-  /**
-   * Check if a string is a valid TechBase
-   * @param input - String to validate
-   * @returns True if valid
-   */
-  isValid(input: string): boolean {
-    const normalized = input.trim()
-    return normalized === 'Inner Sphere' || 
-           normalized === 'Clan' || 
-           normalized === 'IS'
-  },
-
-  /**
-   * Get all valid tech bases
-   * @returns Array of all valid TechBase values
-   */
-  all(): TechBase[] {
-    return ['Inner Sphere', 'Clan']
-  }
-}
-
+// Re-export the utility
+export const TechBaseUtil = TBU;
