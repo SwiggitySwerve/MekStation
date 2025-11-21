@@ -19,13 +19,13 @@ export class ComponentManager {
     // Add system components with proper tech base inheritance
     components.push({
       name: `${this.extractComponentType(config.structureType)} Structure`,
-      techBase: (config.structureType as any)?.techBase || unitTechBase,
+      techBase: unitTechBase,
       category: 'structure'
     });
     
     components.push({
       name: `${this.extractComponentType(config.armorType)} Armor`,
-      techBase: (config.armorType as any)?.techBase || unitTechBase,
+      techBase: unitTechBase,
       category: 'armor'
     });
     

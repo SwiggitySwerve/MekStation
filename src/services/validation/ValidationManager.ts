@@ -821,12 +821,18 @@ export class ValidationManager implements IValidationManager {
   // Helper methods
   private calculateTotalWeight(config: UnitConfiguration, equipment: EquipmentItem[]): number {
     const componentWeight = config.tonnage * 0.6; // Simplified
-    const equipmentWeight = equipment.reduce((sum, eq) => sum + (eq.weight || 0), 0);
+    const equipmentWeight = equipment.reduce((sum, eq) => {
+      if (typeof eq.weight === 'number') return sum + eq.weight;
+      return sum + (eq.tonnage || 0);
+    }, 0);
     return componentWeight + equipmentWeight;
   }
 
   private calculateHeatGeneration(equipment: EquipmentItem[]): number {
-    return equipment.reduce((sum, eq) => sum + (eq.heat || 0), 0);
+    return equipment.reduce((sum, eq) => {
+      if (typeof eq.heat === 'number') return sum + eq.heat;
+      return sum + (eq.data?.heat || 0);
+    }, 0);
   }
 
   private calculateHeatDissipation(config: UnitConfiguration): number {
@@ -843,8 +849,15 @@ export class ValidationManager implements IValidationManager {
     clanComponents: number;
     allowedMixed: boolean;
   } {
-    const innerSphereComponents = equipment.filter(eq => (eq as any).techBase === 'Inner Sphere').length;
-    const clanComponents = equipment.filter(eq => (eq as any).techBase === 'Clan').length;
+    const innerSphereComponents = equipment.filter(eq => {
+      // Use safe property access
+      return eq.techBase === 'Inner Sphere';
+    }).length;
+    
+    const clanComponents = equipment.filter(eq => {
+      return eq.techBase === 'Clan';
+    }).length;
+    
     const isMixed = innerSphereComponents > 0 && clanComponents > 0;
     const allowedMixed = false; // Simplified
 
@@ -861,7 +874,10 @@ export class ValidationManager implements IValidationManager {
       engine: config.tonnage * 0.3,
       structure: config.tonnage * 0.1,
       armor: config.tonnage * 0.2,
-      equipment: equipment.reduce((sum, eq) => sum + (eq.weight || 0), 0)
+      equipment: equipment.reduce((sum, eq) => {
+        if (typeof eq.weight === 'number') return sum + eq.weight;
+        return sum + (eq.tonnage || 0);
+      }, 0)
     };
   }
 
@@ -871,7 +887,8 @@ export class ValidationManager implements IValidationManager {
   }
 
   private isCompatible(equipment: EquipmentItem, config: UnitConfiguration): boolean {
-    return (equipment as any).techBase === config.techBase || !(equipment as any).techBase;
+    // Safe property access
+    return equipment.techBase === config.techBase || !equipment.techBase;
   }
 } 
 

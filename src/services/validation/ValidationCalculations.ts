@@ -5,7 +5,7 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-import { ComponentConfiguration } from '../../types/componentConfiguration';
+import { IComponentConfiguration } from '../../types/core/ComponentInterfaces';
 import { getTotalInternalStructure, getMaxArmorPoints } from '../../utils/internalStructureTable';
 import { calculateGyroWeight } from '../../types/systemComponents';
 import { calculateInternalHeatSinks } from '../../utils/heatSinkCalculations';
@@ -23,22 +23,22 @@ function castToGyroType(gyroType: string): GyroType {
 }
 
 export const ValidationCalculations = {
-  extractComponentType(component: ComponentConfiguration): string {
-    return component.type;
+  extractComponentType(component: IComponentConfiguration | string): string {
+    return typeof component === 'string' ? component : component.type;
   },
 
   calculateTotalWeight(config: UnitConfiguration, equipment: any[]): number {
     let totalWeight = 0;
-    totalWeight += ValidationCalculations.calculateStructureWeight(config.tonnage || 100, ValidationCalculations.extractComponentType(config.structureType as any));
+    totalWeight += ValidationCalculations.calculateStructureWeight(config.tonnage || 100, ValidationCalculations.extractComponentType(config.structureType));
     totalWeight += ValidationCalculations.calculateEngineWeight(config.engineRating || 0, config.engineType || 'Standard');
-    totalWeight += ValidationCalculations.calculateArmorWeight(ValidationCalculations.calculateTotalArmorFromAllocation(config.armorAllocation) || 0, ValidationCalculations.extractComponentType(config.armorType as any));
+    totalWeight += ValidationCalculations.calculateArmorWeight(ValidationCalculations.calculateTotalArmorFromAllocation(config.armorAllocation) || 0, ValidationCalculations.extractComponentType(config.armorType));
     totalWeight += equipment.reduce((sum, item) => sum + (item.equipmentData?.tonnage || 0), 0);
     return totalWeight;
   },
 
   calculateWeightDistribution(config: UnitConfiguration, equipment: any[]): any {
-    const structure = ValidationCalculations.calculateStructureWeight(config.tonnage || 100, ValidationCalculations.extractComponentType(config.structureType as any));
-    const armor = ValidationCalculations.calculateArmorWeight(ValidationCalculations.calculateTotalArmorFromAllocation(config.armorAllocation) || 0, ValidationCalculations.extractComponentType(config.armorType as any));
+    const structure = ValidationCalculations.calculateStructureWeight(config.tonnage || 100, ValidationCalculations.extractComponentType(config.structureType));
+    const armor = ValidationCalculations.calculateArmorWeight(ValidationCalculations.calculateTotalArmorFromAllocation(config.armorAllocation) || 0, ValidationCalculations.extractComponentType(config.armorType));
     const engine = ValidationCalculations.calculateEngineWeight(config.engineRating || 0, config.engineType || 'Standard');
     const equipmentItems = equipment.filter(item => item.equipmentData?.type !== 'ammunition');
     const ammunitionItems = equipment.filter(item => item.equipmentData?.type === 'ammunition');

@@ -100,6 +100,7 @@ export interface EquipmentCompatibilityResult extends ValidationResult {
 export interface EquipmentItem {
   type?: string;
   weight?: number;
+  tonnage?: number; // Alias for weight in some contexts
   heat?: number;
   criticalSlots?: number;
   era?: string;
@@ -107,6 +108,11 @@ export interface EquipmentItem {
   explosive?: boolean;
   location?: string;
   name?: string;
+  techBase?: string;
+  data?: {
+    heat?: number;
+    [key: string]: any;
+  };
 }
 
 export interface AmmoBalanceCheck {

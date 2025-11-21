@@ -8,7 +8,7 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-import { ComponentConfiguration } from '../../types/componentConfiguration';
+import { IComponentConfiguration } from '../../types/core/ComponentInterfaces';
 import { getTotalInternalStructure } from '../../utils/internalStructureTable';
 
 export interface StructureValidation {
@@ -36,7 +36,7 @@ export class StructureRulesValidator {
     const violations: StructureViolation[] = [];
     const recommendations: string[] = [];
     
-    const structureType = this.extractComponentType(config.structureType as any);
+    const structureType = this.extractComponentType(config.structureType);
     const tonnage = config.tonnage || 100;
     const structureWeight = this.calculateStructureWeight(tonnage, structureType);
     const internalStructure = this.calculateInternalStructure(tonnage);
@@ -170,9 +170,9 @@ export class StructureRulesValidator {
   /**
    * Extract component type from configuration
    */
-  private static extractComponentType(component: ComponentConfiguration | undefined): string {
+  private static extractComponentType(component: IComponentConfiguration | string | undefined): string {
     if (!component) return 'Standard'; // Default fallback
-    return component.type;
+    return typeof component === 'string' ? component : component.type;
   }
   
   /**
@@ -186,7 +186,7 @@ export class StructureRulesValidator {
     recommendations: string[];
   } {
     const tonnage = config.tonnage || 100;
-    const structureType = this.extractComponentType(config.structureType as any);
+    const structureType = this.extractComponentType(config.structureType);
     const baseStructure = this.calculateInternalStructure(tonnage);
     const multiplier = this.getStructureProtectionMultiplier(structureType);
     const modifiedStructure = Math.floor(baseStructure * multiplier);
@@ -322,7 +322,7 @@ export class StructureRulesValidator {
     issues: string[];
     recommendations: string[];
   } {
-    const structureType = this.extractComponentType(config.structureType as any);
+    const structureType = this.extractComponentType(config.structureType);
     const tonnage = config.tonnage || 100;
     const techBase = config.techBase || 'Inner Sphere';
     

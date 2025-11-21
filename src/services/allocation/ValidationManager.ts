@@ -289,13 +289,10 @@ export class ValidationManager {
       const inCenter = locKey === 'centertorso';
       const inLeft = locKey === 'lefttorso';
       const inRight = locKey === 'righttorso';
-      const engineType = (config as any)?.engineType || 'Standard';
-      const gyroValue = (config as any)?.gyroType || 'Standard';
-      const gyroType: ComponentConfiguration = typeof gyroValue === 'string'
-        ? { type: gyroValue, techBase: (config as any)?.techBase || 'Inner Sphere' }
-        : gyroValue as ComponentConfiguration;
-      // @ts-ignore - SystemComponentRules access
-      const engineSlots = SystemComponentRules.getEngineAllocation(engineType as any, gyroType);
+      const engineType = config.engineType || 'Standard';
+      const gyroType = config.gyroType || 'Standard';
+      
+      const engineSlots = SystemComponentRules.getEngineAllocation(engineType, gyroType);
       const hasEngineSlots = (
         (inCenter && engineSlots.centerTorso.length > 0) ||
         (inLeft && engineSlots.leftTorso.length > 0) ||
@@ -345,7 +342,7 @@ export class ValidationManager {
     // Artemis dependency: warn if no compatible missile weapons present
     const baseType = (equipment.equipmentData?.baseType || '').toString().toLowerCase();
     if (baseType.includes('artemis')) {
-      const hasMissile = ((config as any)?.weapons || []).some((w: any) => {
+      const hasMissile = (config.weapons || []).some((w: any) => {
         const n = (w?.name || '').toString().toLowerCase();
         return n.includes('lrm') || n.includes('srm') || n.includes('mrm') || n.includes('streak');
       });

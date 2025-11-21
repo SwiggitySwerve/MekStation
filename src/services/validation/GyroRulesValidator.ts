@@ -8,7 +8,7 @@
  */
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
-import { ComponentConfiguration } from '../../types/componentConfiguration';
+import { IComponentConfiguration } from '../../types/core/ComponentInterfaces';
 import { ValidationCalculations } from './ValidationCalculations';
 
 export interface GyroValidation {
@@ -36,7 +36,7 @@ export class GyroRulesValidator {
     const violations: GyroViolation[] = [];
     const recommendations: string[] = [];
     
-    const gyroType = this.extractComponentType(config.gyroType as any);
+    const gyroType = this.extractComponentType(config.gyroType);
     const engineRating = config.engineRating || 0;
     const gyroWeight = ValidationCalculations.calculateGyroWeight(engineRating, gyroType);
     const engineCompatible = ValidationCalculations.isGyroEngineCompatible(gyroType, config.engineType);
@@ -72,7 +72,7 @@ export class GyroRulesValidator {
   /**
    * Extract component type from configuration
    */
-  private static extractComponentType(component: ComponentConfiguration | string | undefined): string {
+  private static extractComponentType(component: IComponentConfiguration | string | undefined): string {
     if (!component) return 'Standard';
     if (typeof component === 'string') return component;
     return component.type;

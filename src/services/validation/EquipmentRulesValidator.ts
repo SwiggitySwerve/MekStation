@@ -9,6 +9,7 @@
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
 import { EquipmentAllocation } from '../../utils/criticalSlots/CriticalSlot';
+import { isWeapon, isHeatManagement } from '../../utils/equipmentTypeHelpers';
 
 export interface SpecialEquipmentValidation {
   isValid: boolean;
@@ -39,11 +40,14 @@ export class EquipmentRulesValidator {
    * Validate special equipment rules for a unit configuration
    */
   static validateSpecialEquipmentRules(equipment: EquipmentAllocation[], config: UnitConfiguration): SpecialEquipmentValidation {
-    const specialEquipment = equipment.filter(eq => 
-      eq.equipmentData?.category === 'special' || 
-      eq.equipmentData?.type === 'equipment' ||
-      (eq.type as any) === 'equipment'
-    );
+    const specialEquipment = equipment.filter(eq => {
+      if (!eq.equipmentData) return false;
+      const data = eq.equipmentData;
+      return data.category === 'special' || 
+             data.type === 'equipment' ||
+             // Use safe check for type property on allocation itself
+             ('type' in eq && eq.type === 'equipment');
+    });
     
     const violations: SpecialEquipmentViolation[] = [];
     const recommendations: string[] = [];
@@ -63,9 +67,11 @@ export class EquipmentRulesValidator {
       }
       
       const equipmentName = equipData.name || `special_equipment_${index}`;
-      const requirements = (equipData as any).requirements || [];
-      const restrictions = (equipData as any).restrictions || [];
-      const compatibility = (equipData as any).compatibility || [];
+      
+      // Use safe property access with type assertion or optional chaining
+      const requirements = 'requirements' in equipData ? (equipData as { requirements: string[] }).requirements : [];
+      const restrictions = 'restrictions' in equipData ? (equipData as { restrictions: string[] }).restrictions : [];
+      const compatibility = 'compatibility' in equipData ? (equipData as { compatibility: string[] }).compatibility : [];
       
       // Check tech level compatibility
       const equipTechBase = equipData.techBase || 'Inner Sphere';
