@@ -145,3 +145,17 @@ Before submitting a PR, verify:
 4.  [ ] Are `TechBase.*` and `ComponentCategory.*` constants used instead of strings?
 5.  [ ] Are new data structures defined using `IInterface` naming convention?
 
+## 8. Violations Report
+
+A comprehensive audit of current violations in the codebase is available at:
+**[Type System Violations Report](../analysis/TYPE_SYSTEM_VIOLATIONS_REPORT.md)**
+
+This report catalogs:
+- 50+ files importing from deprecated `systemComponents.ts`
+- 93 instances of `as any` casts
+- 659+ hardcoded `'Inner Sphere'` string literals
+- 418+ hardcoded `'Clan'` string literals
+- Missing type guards throughout the codebase
+
+Use this report to prioritize refactoring efforts and track migration progress.
+
