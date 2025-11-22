@@ -86,6 +86,7 @@ The application provides REST API endpoints for accessing data:
 *   **[📅 IMPLEMENTATION PLAN](docs/implementation/2025-hand-off-implementation-plan.md)**: Step-by-step execution plan.
 
 **Additional Active Guides**
+*   **[Type System Best Practices](docs/guidelines/TYPE_SYSTEM_BEST_PRACTICES.md)**: 🛡️ Strict typing standards (MANDATORY).
 *   **[Naming Conventions](docs/refactoring/NAMING_REFACTORING_PLAN.md)**: Standardized naming guide.
 *   **[Cleanup Candidates](docs/project-history/CLEANUP_CANDIDATES.md)**: List of code scheduled for deletion/refactoring.
 
