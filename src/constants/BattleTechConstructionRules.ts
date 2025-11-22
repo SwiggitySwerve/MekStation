@@ -223,6 +223,30 @@ export const GYRO_CRITICAL_SLOTS = {
   'Heavy-Duty': 4
 } as const;
 
+/**
+ * Gyro weight calculation
+ */
+export function calculateGyroWeight(engineRating: number, gyroType: string): number {
+  if (engineRating <= 0) return 0;
+  
+  // Standard gyro weight: 1 ton per 100 engine rating (rounded up)
+  const standardWeight = Math.ceil(engineRating / 100);
+  
+  switch (gyroType) {
+    case 'Standard':
+      return standardWeight;
+    case 'XL':
+      return Math.ceil(standardWeight * 0.5 * 2) / 2; // Round up to nearest 0.5 ton
+    case 'Compact':
+      return Math.ceil(standardWeight * 1.5 * 2) / 2; // Round up to nearest 0.5 ton
+    case 'Heavy-Duty':
+    case 'Heavy Duty': // Handle both variations
+      return standardWeight + 1;
+    default:
+      return standardWeight;
+  }
+}
+
 // =============================================================================
 // MOVEMENT RULES
 // =============================================================================

@@ -35,6 +35,20 @@ interface UnitConfiguration {
 type TechBase = 'Inner Sphere' | 'Clan' | 'Mixed';
 ```
 
+**Avoid double casting (`as unknown as`)**
+
+Double casting disables type safety completely. Use type guards or proper conversion functions instead.
+
+```typescript
+// ❌ BAD
+const unit = data as unknown as EditableUnit;
+
+// ✅ GOOD
+if (isValidUnit(data)) {
+  const unit = data;
+}
+```
+
 **Use type guards for runtime validation**
 
 ```typescript

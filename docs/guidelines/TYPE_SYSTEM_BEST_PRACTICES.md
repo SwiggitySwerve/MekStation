@@ -48,6 +48,24 @@ Casting to `any` silences the compiler but leads to runtime crashes.
 const config = response.data as ICompleteUnitConfiguration; 
 ```
 
+### 🚫 Avoid Double Casting ("as unknown as")
+Double casting (e.g., `x as unknown as Y`) completely bypasses the type system and hides potential incompatibilities. It is often used as a shortcut when types don't align, but this masks the underlying issue.
+
+```typescript
+// BAD: Bypassing type checks
+const equipment = rawData as unknown as IEquipment;
+
+// GOOD: Use a proper type guard or intermediate type with validation
+if (isValidEquipment(rawData)) {
+  const equipment = rawData;
+}
+```
+
+If you find yourself needing `as unknown as`, it usually means:
+1. One of the types is incorrect.
+2. You need a type guard function.
+3. You need a conversion function.
+
 ### 🛡️ The Type Guard Solution
 Use the runtime validation functions provided in `src/types/core/BaseTypes.ts`.
 
