@@ -1,5 +1,7 @@
 import { EditableUnit } from '../types/editor';
 import { FullEquipment, UnitQuirk } from '../types/index';
+import { getEquipmentWeight } from './equipmentProperties';
+import { IEquipment } from '../types/core/EquipmentInterfaces';
 
 export type BatchOperation = 
   | { type: 'addEquipment'; equipment: FullEquipment; location?: string }
@@ -131,8 +133,8 @@ export class BatchOperationsManager {
   ): Omit<BatchOperationResult, 'unitId' | 'unitName'> {
     // Check weight limits
     const currentWeight = this.calculateTotalWeight(unit);
-    const equipmentWeight = equipment.weight || equipment.data?.tons || equipment.data?.tonnage || 0;
-    const newWeight = currentWeight + Number(equipmentWeight);
+    const equipmentWeight = getEquipmentWeight(equipment);
+    const newWeight = currentWeight + equipmentWeight;
     
     if (newWeight > (unit.tonnage || unit.mass || 0)) {
       return {
@@ -143,10 +145,11 @@ export class BatchOperationsManager {
 
     // Add to unallocated equipment if no location specified
     if (!location) {
+      // Add to unallocated equipment
       const instance = {
         id: `${Date.now()}-${Math.random()}`,
         equipmentId: equipment.id,
-        equipment: equipment as any,
+        equipment: equipment as unknown as IEquipment, // Type assertion needed as FullEquipment is not exactly IEquipment
         location: '',
         slotIndex: -1,
         quantity: 1,
@@ -165,7 +168,7 @@ export class BatchOperationsManager {
       // Add to equipment placements
       unit.equipmentPlacements?.push({
         id: `${Date.now()}-${Math.random()}`,
-        equipment: equipment as any,
+        equipment: equipment as unknown as IEquipment,
         location,
         criticalSlots: []
       });
@@ -383,14 +386,12 @@ export class BatchOperationsManager {
     
     // Add equipment weight
     for (const placement of unit.equipmentPlacements || []) {
-      const eqWeight = (placement.equipment as any).weight || (placement.equipment as any).data?.tons || (placement.equipment as any).data?.tonnage || 0;
-      totalWeight += Number(eqWeight);
+      totalWeight += getEquipmentWeight(placement.equipment);
     }
     
     // Add unallocated equipment weight
     for (const instance of unit.unallocatedEquipment || []) {
-      const eqWeight = (instance.equipment as any).weight || (instance.equipment as any).data?.tons || (instance.equipment as any).data?.tonnage || 0;
-      totalWeight += Number(eqWeight);
+      totalWeight += getEquipmentWeight(instance.equipment);
     }
     
     // Add armor weight (simplified calculation)

@@ -5,6 +5,12 @@
 
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes';
 import { IEquipmentInstance } from '../../types/core/UnitInterfaces';
+import { 
+  getEquipmentDamage, 
+  getEquipmentHeat, 
+  getEquipmentSlots, 
+  getEquipmentWeight 
+} from '../../utils/equipmentProperties';
 
 export interface AnalysisResult {
   overallScore: number;
@@ -260,7 +266,7 @@ export class AnalysisManager {
    */
   analyzeDamageOutput(equipment: IEquipmentInstance[]): DamageOutputAnalysis {
     const weapons = equipment.filter(eq => eq.equipment.type === 'weapon');
-    const totalDamage = weapons.reduce((sum, w) => sum + ((w.equipment as any).damage ? Number((w.equipment as any).damage) : 0), 0);
+    const totalDamage = weapons.reduce((sum, w) => sum + getEquipmentDamage(w.equipment), 0);
     
     return {
       totalDamage,
@@ -277,7 +283,7 @@ export class AnalysisManager {
    * Analyze heat management (stub for test compatibility)
    */
   analyzeHeatManagement(config: UnitConfiguration, equipment: IEquipmentInstance[]): HeatManagementAnalysis {
-    const heatGeneration = equipment.reduce((sum, eq) => sum + ((eq.equipment as any).heat || (eq.equipment as any).heatGeneration || 0), 0);
+    const heatGeneration = equipment.reduce((sum, eq) => sum + getEquipmentHeat(eq.equipment), 0);
     const heatDissipation = config.totalHeatSinks || 0;
     
     return {
@@ -337,7 +343,7 @@ export class AnalysisManager {
    * Analyze critical slot efficiency (stub for test compatibility)
    */
   analyzeCriticalSlotEfficiency(equipment: IEquipmentInstance[]): CriticalSlotEfficiencyAnalysis {
-    const usedSlots = equipment.reduce((sum, eq) => sum + ((eq.equipment as any).requiredSlots || eq.equipment.slots || 0), 0);
+    const usedSlots = equipment.reduce((sum, eq) => sum + getEquipmentSlots(eq.equipment), 0);
     const totalSlots = 100; // Simplified
     
     return {
@@ -356,7 +362,7 @@ export class AnalysisManager {
    */
   analyzeEquipmentEfficiency(equipment: IEquipmentInstance[], config: UnitConfiguration): EquipmentEfficiencyAnalysis {
     const weapons = equipment.filter(eq => eq.equipment.type === 'weapon');
-    const totalDamage = weapons.reduce((sum, w) => sum + ((w.equipment as any).damage ? Number((w.equipment as any).damage) : 0), 0);
+    const totalDamage = weapons.reduce((sum, w) => sum + getEquipmentDamage(w.equipment), 0);
     const totalWeight = weapons.reduce((sum, w) => sum + (w.equipment.weight || 0), 0);
     
     return {
@@ -451,8 +457,8 @@ export class AnalysisManager {
    * Compare equipment loadouts (stub for test compatibility)
    */
   compareEquipmentLoadouts(loadout1: IEquipmentInstance[], loadout2: IEquipmentInstance[], config: UnitConfiguration): LoadoutComparison {
-    const damage1 = loadout1.reduce((sum, eq) => sum + ((eq.equipment as any).damage ? Number((eq.equipment as any).damage) : 0), 0);
-    const damage2 = loadout2.reduce((sum, eq) => sum + ((eq.equipment as any).damage ? Number((eq.equipment as any).damage) : 0), 0);
+    const damage1 = loadout1.reduce((sum, eq) => sum + getEquipmentDamage(eq.equipment), 0);
+    const damage2 = loadout2.reduce((sum, eq) => sum + getEquipmentDamage(eq.equipment), 0);
     
     return {
       damageComparison: { loadout1: damage1, loadout2: damage2, difference: damage2 - damage1 },
@@ -468,9 +474,9 @@ export class AnalysisManager {
    */
   calculatePerformanceMetrics(config: UnitConfiguration, equipment: IEquipmentInstance[]): PerformanceMetrics {
     const weapons = equipment.filter(eq => eq.equipment.type === 'weapon');
-    const totalDamage = weapons.reduce((sum, w) => sum + ((w.equipment as any).damage ? Number((w.equipment as any).damage) : 0), 0);
+    const totalDamage = weapons.reduce((sum, w) => sum + getEquipmentDamage(w.equipment), 0);
     const totalWeight = weapons.reduce((sum, w) => sum + (w.equipment.weight || 0), 0);
-    const totalHeat = weapons.reduce((sum, w) => sum + ((w.equipment as any).heat || (w.equipment as any).heatGeneration || 0), 0);
+    const totalHeat = weapons.reduce((sum, w) => sum + getEquipmentHeat(w.equipment), 0);
     
     return {
       damagePerTon: totalWeight > 0 ? totalDamage / totalWeight : 0,
@@ -511,10 +517,10 @@ export class AnalysisManager {
     const weapons = equipment.filter(eq => eq.equipment.type === 'weapon');
     if (weapons.length === 0) return 0;
 
-    const totalDamage = weapons.reduce((sum, weapon) => sum + ((weapon.equipment as any).damage ? Number((weapon.equipment as any).damage) : 0), 0);
+    const totalDamage = weapons.reduce((sum, weapon) => sum + getEquipmentDamage(weapon.equipment), 0);
     // Note: Range is not standard on IEquipment, defaulting to 0 for calculation if missing
     const averageRange = weapons.reduce((sum, weapon) => sum + 0, 0) / weapons.length; 
-    const heatEfficiency = weapons.reduce((sum, weapon) => sum + ((weapon.equipment as any).heat || (weapon.equipment as any).heatGeneration || 0), 0);
+    const heatEfficiency = weapons.reduce((sum, weapon) => sum + getEquipmentHeat(weapon.equipment), 0);
 
     let score = Math.min(100, totalDamage * 2);
     score += Math.min(20, averageRange);
@@ -561,7 +567,7 @@ export class AnalysisManager {
    * Calculate heat efficiency score
    */
   calculateHeatEfficiency(config: UnitConfiguration, equipment: IEquipmentInstance[]): number {
-    const heatGeneration = equipment.reduce((sum, eq) => sum + ((eq.equipment as any).heat || (eq.equipment as any).heatGeneration || 0), 0);
+    const heatGeneration = equipment.reduce((sum, eq) => sum + getEquipmentHeat(eq.equipment), 0);
     const heatDissipation = config.totalHeatSinks || 0;
 
     if (heatDissipation === 0) return 0;

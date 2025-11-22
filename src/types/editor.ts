@@ -67,6 +67,10 @@ export interface EditableUnit extends ICompleteUnitConfiguration {
   armorAllocation?: ArmorAllocationMap;
   equipmentPlacements?: EquipmentPlacement[];
   criticalSlots?: CriticalSlotAssignment[];
+
+  // Legacy compatibility (to be removed after full migration)
+  systemComponents?: import('./systemComponents').SystemComponents;
+  criticalAllocations?: import('./systemComponents').CriticalAllocationMap;
 }
 
 // Fluff Content

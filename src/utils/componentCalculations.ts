@@ -1,9 +1,13 @@
 // Component weight and critical slot calculations for BattleTech units
 
-import { calculateEngineWeight, calculateStructureWeight, calculateGyroWeight as calculateGyroWeightCentralized } from '../types/systemComponents';
+import { 
+  calculateEngineWeight, 
+  calculateStructureWeight, 
+  calculateGyroWeight as calculateGyroWeightCentralized 
+} from '../constants/BattleTechConstructionRules';
 import { calculateInternalHeatSinks } from './heatSinkCalculations';
 import { calculateArmorWeight } from './armorCalculations';
-import { GyroType, StructureType, EngineType, ArmorType } from '../types/systemComponents';
+import { GyroType, StructureType, EngineType, ArmorType } from '../types/core';
 import { ComponentConfiguration } from '../types/componentConfiguration';
 
 export interface ComponentWeights {
@@ -37,12 +41,14 @@ function castToGyroType(gyroType: string): GyroType {
 }
 
 function castToStructureType(structureType: string): StructureType {
-  const validTypes: StructureType[] = ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced', 'Industrial'];
+  const validTypes: StructureType[] = ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced', 'Industrial', 'Endo Steel (IS)'];
   return validTypes.includes(structureType as StructureType) ? structureType as StructureType : 'Standard';
 }
 
 function castToEngineType(engineType: string): EngineType {
-  const validTypes: EngineType[] = ['Standard', 'XL (IS)', 'XL (Clan)', 'Light', 'XXL', 'Compact', 'ICE', 'Fuel Cell'];
+  const validTypes: EngineType[] = ['Standard', 'XL', 'Light', 'XXL', 'Compact', 'ICE', 'Fuel Cell', 'XL (IS)', 'XL (Clan)'];
+  // Normalize XL to XL (IS) if needed, or just trust the cast if it matches any
+  if (engineType === 'XL') return 'XL (IS)'; // Default for bare 'XL'
   return validTypes.includes(engineType as EngineType) ? engineType as EngineType : 'Standard';
 }
 

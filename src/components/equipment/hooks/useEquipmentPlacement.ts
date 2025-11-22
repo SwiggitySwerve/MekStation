@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { FullEquipment } from '../../../types';
 import { EditableUnit, CriticalSlotAssignment } from '../../../types/editor';
+import { IEquipment } from '../../../types/core/EquipmentInterfaces';
+import { getEquipmentHeat } from '../../../utils/equipmentProperties';
 import { SystemComponentRules } from '../../../utils/criticalSlots/SystemComponentRules';
 import { ComponentConfiguration as CoreComponentConfiguration } from '../../../types/componentConfiguration';
 import { EngineType, GyroType } from '../../../types/systemComponents';
@@ -223,7 +225,7 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
       if (!equipment) return total;
       
       // Check heatGeneration or heat property safely
-      const heat = 'heatGeneration' in equipment ? equipment.heatGeneration : ('heat' in equipment ? (equipment as any).heat : 0);
+      const heat = getEquipmentHeat(equipment);
       return total + (heat || 0);
     }, 0);
   }, [getCriticalSlotsForLocation]);
@@ -397,15 +399,18 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
         const bestSuggestion = suggestions[0];
         
         // Helper to convert FullEquipment to IEquipment compatible object
-        const equipmentAsIEquipment = {
+        const equipmentAsIEquipment: IEquipment = {
           ...item,
-          slots: item.space || 1,
-          category: item.type || 'Equipment',
-          techBase: item.tech_base || 'Inner Sphere',
+          id: item.id || `eq-${Date.now()}`,
+          name: item.name || 'Unknown Equipment',
+          weight: Number(item.weight) || 0,
+          slots: Number(item.space) || 1,
+          category: (item.type as any) || 'Equipment',
+          techBase: (item.tech_base as any) || 'Inner Sphere',
           requiresAmmo: item.type?.includes('Ammo') || false,
           introductionYear: 0,
           rulesLevel: 'Standard',
-        } as unknown as import('../../../types/core/EquipmentInterfaces').IEquipment;
+        } as unknown as IEquipment;
 
         // Place equipment in working unit's critical slots
         bestSuggestion.slots.forEach(slotIndex => {
@@ -543,8 +548,8 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
         }
         const locationEquipment = equipmentByLocation.get(slot.location)!;
         if (!locationEquipment.find(eq => eq.id === slot.equipment!.id)) {
-          locationEquipment.push(slot.equipment as any);
-          currentPlacements.push({ equipment: slot.equipment as any, location: slot.location });
+          locationEquipment.push(slot.equipment as unknown as FullEquipment);
+          currentPlacements.push({ equipment: slot.equipment as unknown as FullEquipment, location: slot.location });
         }
       }
     });
@@ -596,7 +601,7 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
             if (existingSlotIndex >= 0) {
               criticalSlots[existingSlotIndex] = {
                 ...criticalSlots[existingSlotIndex],
-                equipment: equipment as any,
+                equipment: equipment as unknown as IEquipment,
                 isEmpty: false,
               };
             }
@@ -610,7 +615,7 @@ export function useEquipmentPlacement(): UseEquipmentPlacementReturn {
                 (unit.criticalSlots || []).find(s => s.location === slot.location && 
                                             s.slotIndex === slot.slotIndex && 
                                             s.equipment?.id === equipment.id)) {
-              return { ...slot, equipment: equipment as any, isEmpty: false };
+              return { ...slot, equipment: equipment as unknown as IEquipment, isEmpty: false };
             }
             return slot;
           });

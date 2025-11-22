@@ -1,12 +1,12 @@
 // Advanced validation system for complete BattleTech rule compliance
 import { EditableUnit, ValidationResult, ValidationError } from '../types/editor';
-import { FullEquipment } from '../types/index';
+import { FullEquipment } from '../types/core/ApplicationTypes';
 import { IEquipment } from '../types/core/EquipmentInterfaces';
 import { WeaponRangeValidator } from './weaponRangeValidation';
-import { calculateEngineWeight, calculateStructureWeight } from '../types/systemComponents';
+import { calculateEngineWeight, calculateStructureWeight } from '../constants/BattleTechConstructionRules';
 import { calculateInternalHeatSinks } from './heatSinkCalculations';
 import { calculateArmorWeight } from './armorCalculations';
-import { StructureType, EngineType, ArmorType } from '../types/systemComponents';
+import { StructureType, EngineType, ArmorType } from '../types/core';
 import { isRangeData } from '../types/core/DynamicDataTypes';
 
 export interface ValidationContext {
@@ -220,10 +220,8 @@ function validateHeatManagement(unit: EditableUnit, result: DetailedValidationRe
   const weapons = unit.equipmentPlacements?.filter(eq => isWeaponEquipment(eq.equipment)) || [];
   const totalHeatGeneration = weapons.reduce((sum, weapon) => {
     // Handle both IEquipment (heatGeneration) and FullEquipment (heat/heatmap)
-    const heat = 'heatGeneration' in weapon.equipment 
-      ? (weapon.equipment as IEquipment).heatGeneration 
-      : (weapon.equipment as any).heat || (weapon.equipment as any).data?.heatmap || 0;
-    return sum + Number(heat || 0);
+    const heat = getEquipmentHeat(weapon.equipment);
+    return sum + heat;
   }, 0);
   
   const heatSinkType = data.heat_sinks?.type || 'Single';
@@ -365,20 +363,16 @@ function calculateBattleValueAndCost(unit: EditableUnit, result: DetailedValidat
   const weapons = unit.equipmentPlacements?.filter(eq => isWeaponEquipment(eq.equipment)) || [];
   
   weapons.forEach(weapon => {
-    const weaponBV = (weapon.equipment as IEquipment).battleValue || 
-                     (weapon.equipment as any).data?.battle_value || 
-                     (weapon.equipment as any).data?.battlevalue || 0;
-    battleValue += Number(weaponBV);
+    const weaponBV = getBattleValue(weapon.equipment);
+    battleValue += weaponBV;
   });
   
   // Add equipment BV
   const otherEquipment = unit.equipmentPlacements?.filter(eq => !isWeaponEquipment(eq.equipment)) || [];
   
   otherEquipment.forEach(eq => {
-    const equipmentBV = (eq.equipment as IEquipment).battleValue || 
-                        (eq.equipment as any).data?.battle_value || 
-                        (eq.equipment as any).data?.battlevalue || 0;
-    battleValue += Number(equipmentBV);
+    const equipmentBV = getBattleValue(eq.equipment);
+    battleValue += equipmentBV;
   });
   
   // Apply quirk modifiers
@@ -387,7 +381,7 @@ function calculateBattleValueAndCost(unit: EditableUnit, result: DetailedValidat
   const quirks = [...positiveQuirks, ...negativeQuirks];
   
   quirks.forEach(quirk => {
-    const quirkName = typeof quirk === 'string' ? quirk : (quirk as any).name || '';
+    const quirkName = typeof quirk === 'string' ? quirk : (quirk as any).name || ''; // Keeping as any for quirk object as it's loosely typed
     if (quirkName.toLowerCase().includes('good reputation')) {
       battleValue *= 1.1;
     } else if (quirkName.toLowerCase().includes('bad reputation')) {
@@ -402,10 +396,8 @@ function calculateBattleValueAndCost(unit: EditableUnit, result: DetailedValidat
   
   // Add equipment costs
   unit.equipmentPlacements?.forEach(eq => {
-    const equipmentCost = (eq.equipment as IEquipment).cost || 
-                          (eq.equipment as any).data?.cost || 
-                          (eq.equipment as any).data?.cost_cbills || 0;
-    cost += Number(equipmentCost);
+    const equipmentCost = getCost(eq.equipment);
+    cost += equipmentCost;
   });
   
   result.cost = Math.round(cost);
@@ -450,6 +442,47 @@ function generateOptimizationSuggestions(unit: EditableUnit, result: DetailedVal
 /**
  * Helper functions
  */
+
+function getHeat(equipment: FullEquipment | IEquipment): number {
+  if ('heatGeneration' in equipment) {
+    return (equipment as IEquipment).heatGeneration || 0;
+  }
+  // Check for heat property on FullEquipment or data object
+  if ('heat' in equipment) {
+    return Number((equipment as FullEquipment).heat) || 0;
+  }
+  const fullEq = equipment as FullEquipment;
+  return Number(fullEq.data?.heatmap || 0);
+}
+
+function getEquipmentHeat(equipment: FullEquipment | IEquipment): number {
+  return getHeat(equipment);
+}
+
+function getBattleValue(equipment: FullEquipment | IEquipment): number {
+  if ('battleValue' in equipment) {
+    return (equipment as IEquipment).battleValue || 0;
+  }
+  const fullEq = equipment as FullEquipment;
+  return Number(fullEq.data?.battle_value || fullEq.data?.battlevalue || 0);
+}
+
+function getCost(equipment: FullEquipment | IEquipment): number {
+  if ('cost' in equipment) {
+    return (equipment as IEquipment).cost || 0;
+  }
+  const fullEq = equipment as FullEquipment;
+  return Number(fullEq.cost || fullEq.data?.cost || fullEq.data?.cost_cbills || 0);
+}
+
+function getWeight(equipment: FullEquipment | IEquipment): number {
+  if ('weight' in equipment) {
+    return (equipment as IEquipment).weight || 0;
+  }
+  const fullEq = equipment as FullEquipment;
+  return Number(fullEq.weight || fullEq.data?.tons || 0);
+}
+
 function isWeaponEquipment(equipment: FullEquipment | IEquipment): boolean {
   // Check if IEquipment
   if ('category' in equipment) {
@@ -488,8 +521,8 @@ function estimateUsedTonnage(unit: EditableUnit): number {
   
   // Equipment weight
   unit.equipmentPlacements?.forEach(eq => {
-    const weight = (eq.equipment as IEquipment).weight || (eq.equipment as any).data?.tons || 0;
-    usedTonnage += Number(weight);
+    const weight = getWeight(eq.equipment);
+    usedTonnage += weight;
   });
   
   // Armor weight

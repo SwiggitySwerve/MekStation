@@ -5,19 +5,27 @@
 
 import { EditableUnit } from '../types/editor';
 import {
-  SystemComponents,
-  ENGINE_SLOT_REQUIREMENTS,
-  GYRO_SLOT_REQUIREMENTS,
-  COCKPIT_SLOT_REQUIREMENTS,
-  STRUCTURE_SLOT_REQUIREMENTS,
-  ARMOR_SLOT_REQUIREMENTS,
+  ENGINE_CRITICAL_SLOTS as ENGINE_SLOT_REQUIREMENTS,
+  GYRO_CRITICAL_SLOTS as GYRO_SLOT_REQUIREMENTS,
+  STRUCTURE_CRITICAL_SLOTS as STRUCTURE_SLOT_REQUIREMENTS,
+  ARMOR_CRITICAL_SLOTS as ARMOR_SLOT_REQUIREMENTS,
   calculateEngineWeight,
   calculateStructureWeight,
-  calculateArmorWeight,
-} from '../types/systemComponents';
+  calculateGyroWeight,
+} from '../constants/BattleTechConstructionRules';
+import { calculateArmorWeight } from './armorCalculations';
+import { COCKPIT_SLOT_REQUIREMENTS } from './cockpitCalculations';
 import { initializeSystemComponents } from './componentSync';
 import { initializeCriticalSlots, validateComponentPlacement, generateHeatSinkItems } from './componentRules';
-import { calculateGyroWeight } from '../types/systemComponents';
+
+// Local legacy interface to avoid importing from deprecated file
+interface LegacySystemComponents {
+  engine: { rating: number; type: string };
+  gyro: { type: string };
+  structure: { type: string };
+  armor: { type: string };
+  heatSinks: { total: number; externalRequired: number; type: string };
+}
 
 // Validation error types
 export interface ComponentValidationError {
@@ -46,7 +54,7 @@ export function validateSystemComponents(
     return errors;
   }
   
-  const components = unit.systemComponents;
+  const components = unit.systemComponents as unknown as LegacySystemComponents;
   const mass = unit.mass;
   
   // Validate engine

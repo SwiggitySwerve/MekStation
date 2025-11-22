@@ -3,7 +3,7 @@
  * Centralized calculations for all cockpit types
  */
 
-import { CockpitType } from '../types/systemComponents';
+import { CockpitType } from '../types/core';
 
 // Cockpit fixed weights (in tons)
 export const COCKPIT_WEIGHTS: Record<CockpitType, number> = {

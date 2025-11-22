@@ -1,10 +1,10 @@
 import { EditableUnit } from '../types/editor';
 import { IArmorAllocation } from '../types/core/UnitInterfaces';
 import { EQUIPMENT_DATABASE } from './equipmentData';
-import { calculateEngineWeight, calculateStructureWeight } from '../types/systemComponents';
+import { calculateEngineWeight, calculateStructureWeight } from '../constants/BattleTechConstructionRules';
 import { calculateInternalHeatSinksForEngine } from './heatSinkCalculations';
 import { getArmorType, ArmorType } from './armorTypes';
-import { StructureType, EngineType } from '../types/systemComponents';
+import { StructureType, EngineType } from '../types/core';
 
 export interface ArmorAllocation {
   [location: string]: {
@@ -18,12 +18,13 @@ import { getInternalStructurePoints as getOfficialStructure } from './internalSt
 
 // Type-safe casting functions for component enums
 function castToStructureType(structureType: string): StructureType {
-  const validTypes: StructureType[] = ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced', 'Industrial'];
+  const validTypes: StructureType[] = ['Standard', 'Endo Steel', 'Endo Steel (Clan)', 'Composite', 'Reinforced', 'Industrial', 'Endo Steel (IS)'];
   return validTypes.includes(structureType as StructureType) ? structureType as StructureType : 'Standard';
 }
 
 function castToEngineType(engineType: string): EngineType {
-  const validTypes: EngineType[] = ['Standard', 'XL (IS)', 'XL (Clan)', 'Light', 'XXL', 'Compact', 'ICE', 'Fuel Cell'];
+  const validTypes: EngineType[] = ['Standard', 'XL', 'Light', 'XXL', 'Compact', 'ICE', 'Fuel Cell', 'XL (IS)', 'XL (Clan)'];
+  if (engineType === 'XL') return 'XL (IS)';
   return validTypes.includes(engineType as EngineType) ? engineType as EngineType : 'Standard';
 }
 
@@ -402,7 +403,7 @@ export function calculateRemainingTonnage(unit: EditableUnit): number {
   // Engine weight
   const engineRating = unit.data?.engine?.rating || 200;
   const engineType = unit.data?.engine?.type || 'Standard';
-  usedTonnage += calculateEngineWeight(engineRating, castToEngineType(mapEngineType(engineType)), totalTonnage);
+  usedTonnage += calculateEngineWeight(engineRating, castToEngineType(mapEngineType(engineType)));
 
   // Gyro (unchanged for now)
   const gyroType = unit.data?.gyro?.type || 'standard';

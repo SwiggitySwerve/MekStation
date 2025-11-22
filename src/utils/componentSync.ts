@@ -6,17 +6,18 @@
 import { EditableUnit, MECH_LOCATIONS } from '../types/editor';
 import { CriticalSlotLocation } from '../types/index';
 import {
-  SystemComponents,
   EngineType,
   GyroType,
   CockpitType,
   StructureType,
   ArmorType,
   HeatSinkType,
-  calculateIntegratedHeatSinks,
+} from '../types/core';
+import {
+  calculateInternalHeatSinks as calculateIntegratedHeatSinks,
   calculateExternalHeatSinks,
-} from '../types/systemComponents';
-import { STRUCTURE_SLOT_REQUIREMENTS } from '../types/systemComponents';
+} from './heatSinkCalculations';
+import { STRUCTURE_CRITICAL_SLOTS as STRUCTURE_SLOT_REQUIREMENTS } from '../constants/BattleTechConstructionRules';
 import { ARMOR_SLOT_REQUIREMENTS } from './armorCalculations';
 import {
   initializeCriticalSlots,
@@ -31,10 +32,37 @@ import {
   SlotRange,
 } from './smartSlotUpdate';
 
+// Local legacy interface to avoid importing from deprecated file
+interface LegacySystemComponents {
+  engine: {
+    type: EngineType;
+    rating: number;
+    manufacturer?: string;
+  };
+  gyro: {
+    type: GyroType;
+  };
+  cockpit: {
+    type: CockpitType;
+  };
+  structure: {
+    type: StructureType;
+  };
+  armor: {
+    type: ArmorType;
+  };
+  heatSinks: {
+    type: HeatSinkType;
+    total: number;
+    engineIntegrated: number;
+    externalRequired: number;
+  };
+}
+
 /**
  * Initialize system components from existing unit data
  */
-export function initializeSystemComponents(unit: EditableUnit): SystemComponents {
+export function initializeSystemComponents(unit: EditableUnit): LegacySystemComponents {
   const data = unit.data || {};
   
   // Map old engine types to new ones
@@ -95,7 +123,7 @@ export function syncEngineChange(
   newRating?: number
 ): Partial<EditableUnit> {
   // Initialize system components if not present
-  const systemComponents = unit.systemComponents || initializeSystemComponents(unit);
+  const systemComponents = (unit.systemComponents || initializeSystemComponents(unit)) as unknown as LegacySystemComponents;
   
   // Get current critical allocations (or initialize if not present)
   let criticalAllocations = unit.criticalAllocations;
@@ -104,7 +132,7 @@ export function syncEngineChange(
   }
   
   // Update engine in system components
-  const updatedComponents: SystemComponents = {
+  const updatedComponents: LegacySystemComponents = {
     ...systemComponents,
     engine: {
       type: newEngineType,
@@ -220,7 +248,7 @@ export function syncGyroChange(
     criticalAllocations = initializeCriticalSlots(systemComponents, unit.mass);
   }
   
-  const updatedComponents: SystemComponents = {
+  const updatedComponents: LegacySystemComponents = {
     ...systemComponents,
     gyro: {
       type: newGyroType,
@@ -313,7 +341,7 @@ export function syncStructureChange(
 ): Partial<EditableUnit> {
   const systemComponents = unit.systemComponents || initializeSystemComponents(unit);
   
-  const updatedComponents: SystemComponents = {
+  const updatedComponents: LegacySystemComponents = {
     ...systemComponents,
     structure: {
       type: newStructureType,
@@ -367,7 +395,7 @@ export function syncArmorChange(
 ): Partial<EditableUnit> {
   const systemComponents = unit.systemComponents || initializeSystemComponents(unit);
   
-  const updatedComponents: SystemComponents = {
+  const updatedComponents: LegacySystemComponents = {
     ...systemComponents,
     armor: {
       type: newArmorType,
@@ -429,7 +457,7 @@ export function syncHeatSinkChange(
   const systemComponents = unit.systemComponents || initializeSystemComponents(unit);
   const engineRating = systemComponents.engine.rating;
   
-  const updatedComponents: SystemComponents = {
+  const updatedComponents: LegacySystemComponents = {
     ...systemComponents,
     heatSinks: {
       type: newType,

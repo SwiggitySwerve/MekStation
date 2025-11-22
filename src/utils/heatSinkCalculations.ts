@@ -10,7 +10,7 @@
  * - Single heat sinks provide 1 point of dissipation each
  */
 
-import { HeatSinkType, EngineType } from '../types/systemComponents';
+import { HeatSinkType, EngineType } from '../types/core';
 
 export interface HeatSinkSpecification {
   type: HeatSinkType;
