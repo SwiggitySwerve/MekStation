@@ -1,6 +1,10 @@
 # Type System Best Practices Violations Report
 
-This document catalogs all violations of the Type System Best Practices found in the codebase. 
+This document provides a **summary** of violations of the Type System Best Practices found in the codebase.
+
+**For a complete file-by-file inventory with specific line numbers and code examples, see:**
+**[Complete Type System Violations Inventory](./COMPLETE_TYPE_SYSTEM_VIOLATIONS_INVENTORY.md)**
+
 Generated: 2025-01-XX
 
 ## Summary Statistics
