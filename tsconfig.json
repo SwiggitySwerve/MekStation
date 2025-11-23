@@ -35,6 +35,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts" // Added for Next.js 13+ type generation
+    ,
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

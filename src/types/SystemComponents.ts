@@ -134,6 +134,8 @@ export interface IArmor extends ISystemComponent {
 export enum HeatSinkType {
   SINGLE = 'Single',
   DOUBLE = 'Double',
+  COMPACT = 'Compact',
+  LASER = 'Laser',
 }
 
 export interface IHeatSinkSystem extends ISystemComponent {
@@ -144,3 +146,20 @@ export interface IHeatSinkSystem extends ISystemComponent {
   readonly dissipation: number; // Total dissipation
 }
 
+
+// =============================================================================
+// JUMP JETS
+// =============================================================================
+
+export enum JumpJetType {
+  STANDARD = 'Standard',
+  IMPROVED = 'Improved',
+  MECHANICAL = 'Mechanical',
+}
+
+export interface IJumpJetSystem extends ISystemComponent {
+  readonly type: ComponentType.JUMP_JET;
+  readonly jumpJetType: JumpJetType;
+  readonly count: number;
+  readonly weight: number;
+}

@@ -7,10 +7,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { IMechLabState, DEFAULT_MECH_STATE, IInstalledEquipmentState } from '../store/MechLabState';
 import { TechBase } from '../../../types/TechBase';
-import { StructureMechanics } from '../../../mechanics/Structure';
-import { EngineMechanics } from '../../../mechanics/Engine';
-import { GyroMechanics } from '../../../mechanics/Gyro';
-import { ArmorMechanics } from '../../../mechanics/Armor';
+import { WeightOps } from '../../../mechanics/WeightOps';
 import { EngineType, GyroType, StructureType, ArmorType } from '../../../types/SystemComponents';
 import { getWeaponById } from '../../../data/weapons';
 
@@ -30,7 +27,7 @@ export function useMechLabStore(initialState: IMechLabState = DEFAULT_MECH_STATE
   const setWalkingMP = useCallback((mp: number) => {
     setState(prev => ({ ...prev, walkingMP: mp }));
   }, []);
-  
+
   const setStructureType = useCallback((type: StructureType) => {
     setState(prev => ({ ...prev, structureType: type }));
   }, []);
@@ -47,6 +44,7 @@ export function useMechLabStore(initialState: IMechLabState = DEFAULT_MECH_STATE
         location: 'unallocated',
         slotIndex: -1,
         count: 1,
+        slotsAllocated: 0, // Default
       };
       return { ...prev, equipment: [...prev.equipment, newItem] };
     });
@@ -60,32 +58,32 @@ export function useMechLabStore(initialState: IMechLabState = DEFAULT_MECH_STATE
   }, []);
 
   // --- Derived Metrics Calculation ---
-  
+
   const metrics = useMemo(() => {
     // 1. Structure Weight
-    const structureWeight = StructureMechanics.calculateWeight(state.tonnage, state.structureType);
-    
+    const structureWeight = WeightOps.calculateStructureWeight(state.tonnage, state.structureType);
+
     // 2. Engine Weight
-    const rating = EngineMechanics.calculateRating(state.tonnage, state.walkingMP);
-    const engineWeight = EngineMechanics.calculateWeight(rating, state.engineType);
-    
+    const rating = state.walkingMP * state.tonnage; // Simple rating calc
+    const engineWeight = WeightOps.calculateEngineWeight(state.engineType, rating);
+
     // 3. Gyro Weight
-    const gyroWeight = GyroMechanics.calculateWeight(rating, state.gyroType);
-    
-    // 4. Cockpit Weight (Placeholder)
-    const cockpitWeight = 3.0;
+    const gyroWeight = WeightOps.calculateGyroWeight(state.gyroType, rating);
+
+    // 4. Cockpit Weight
+    const cockpitWeight = WeightOps.calculateCockpitWeight(state.cockpitType);
 
     // 5. Equipment Weight
     const equipmentWeight = state.equipment.reduce((total, item) => {
       const def = getWeaponById(item.equipmentId);
       return total + (def ? def.weight * item.count : 0);
     }, 0);
-    
+
     // 6. Total Weight
-    const currentWeight = structureWeight + engineWeight + gyroWeight + cockpitWeight + equipmentWeight; // + others...
-    
+    const currentWeight = structureWeight + engineWeight + gyroWeight + cockpitWeight + equipmentWeight;
+
     const remainingTonnage = state.tonnage - currentWeight;
-    
+
     return {
       structureWeight,
       engineWeight,
@@ -101,9 +99,9 @@ export function useMechLabStore(initialState: IMechLabState = DEFAULT_MECH_STATE
   const assignEquipment = useCallback((instanceId: string, location: string, slotIndex: number) => {
     setState(prev => ({
       ...prev,
-      equipment: prev.equipment.map(item => 
-        item.id === instanceId 
-          ? { ...item, location, slotIndex } 
+      equipment: prev.equipment.map(item =>
+        item.id === instanceId
+          ? { ...item, location, slotIndex }
           : item
       )
     }));
@@ -112,9 +110,9 @@ export function useMechLabStore(initialState: IMechLabState = DEFAULT_MECH_STATE
   const unassignEquipment = useCallback((instanceId: string) => {
     setState(prev => ({
       ...prev,
-      equipment: prev.equipment.map(item => 
-        item.id === instanceId 
-          ? { ...item, location: 'unallocated', slotIndex: -1 } 
+      equipment: prev.equipment.map(item =>
+        item.id === instanceId
+          ? { ...item, location: 'unallocated', slotIndex: -1 }
           : item
       )
     }));
