@@ -29,5 +29,5 @@ These scenarios should be exercised whenever we make UX or rule changes to the M
 - Flip tech bases/engine combos that should be illegal (e.g., Clan + Light Engine) and ensure the MechValidator emits the proper errors.
 - Manually adjust armor allocation to match the tonnage cap and ensure no warnings remain.
 
-Document results in the PR description for any release candidate. Capturing screenshots of the banner, armor tab, and validation panel is recommended for regressions.  ***
+Document results in the PR description for any release candidate. Capturing screenshots of the banner, armor tab, and validation panel is recommended for regressions.
 

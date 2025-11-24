@@ -80,30 +80,29 @@ The application provides REST API endpoints for accessing data:
 
 **🚨 CRITICAL REFERENCES (Start Here)**
 
-*   **[🎯 PRIORITIZED WORK](docs/PRIORITIZED_WORK.md)**: Master list of active tasks and priorities.
-*   **[⚡ QUICK REFERENCE](docs/QUICK_REFERENCE.md)**: High-level index and cheat sheet.
-*   **[🏗️ 2025 REFACTOR HANDOFF](docs/HANDOFF_REFACTOR_2025.md)**: Core architectural reference.
-*   **[📅 IMPLEMENTATION PLAN](docs/implementation/2025-hand-off-implementation-plan.md)**: Step-by-step execution plan.
+The documentation set was refreshed in 2025. Historical material now lives in `docs-old/`. The new, canonical references are:
 
-**Additional Active Guides**
-*   **[Type System Best Practices](docs/guidelines/TYPE_SYSTEM_BEST_PRACTICES.md)**: 🛡️ Strict typing standards (MANDATORY).
-*   **[Naming Conventions](docs/refactoring/NAMING_REFACTORING_PLAN.md)**: Standardized naming guide.
-*   **[Cleanup Candidates](docs/project-history/CLEANUP_CANDIDATES.md)**: List of code scheduled for deletion/refactoring.
+*   **[Rules](docs/rules.md)** – BattleTech construction/validation (single source of truth).
+*   **[Architecture](docs/architecture.md)** – Current system design, stores, mechanics.
+*   **[Operations](docs/operations.md)** – Workflow, testing, validation checklist.
+*   **[Changelog](docs/changelog.md)** – Mapping from `docs-old` to the new files.
+
+See `docs-old/README.md` if you need to browse the legacy documentation tree.
 
 ## BattleTech Rules Documentation
 
-**⚠️ IMPORTANT for Developers and AI Agents**: This project implements official BattleTech construction rules. Always reference the rules documentation when working on BattleTech-related code.
+**⚠️ IMPORTANT for Developers and AI Agents**: This project implements official BattleTech construction rules. Always reference the up-to-date `docs/rules.md` when working on rule-related code. Legacy guides remain in `docs-old/battletech/` for historical context.
 
 ### **Quick Links**
-- **[Agent Reference Guide](docs/battletech/AGENTS_README.md)** - Start here for rules documentation
-- **[Rules Master Index](docs/battletech/agents/00-INDEX.md)** - Complete rules overview
-- **[Quick Reference](docs/battletech/reference/quick-reference.md)** - Common formulas and tables
-- **[Rules Reference](docs/battletech/RULES_REFERENCE.md)** - Quick lookup for agents
+- **[Rules](docs/rules.md)** – Consolidated construction/validation reference.
+- **[Architecture](docs/architecture.md)** – How state stores, mechanics, and services interact.
+- **[Operations](docs/operations.md)** – Manual validation checklist, lint/test workflow.
+- **[Legacy Docs](docs-old/README.md)** – Index of archived documentation.
 
 ### **Key Files**
-- **Rules Constants**: `constants/BattleTechConstructionRules.ts` - Single source of truth
-- **Validation**: `services/ConstructionRulesValidator.ts` - Rule enforcement
-- **Documentation**: `docs/battletech/` - Complete rules documentation
+- **Rules Constants**: `src-old/constants/BattleTechConstructionRules.ts` (data source); new mechanics import from it.
+- **Mechanics**: `src/mechanics/WeightOps.ts`, `CriticalSlots.ts`, `Validation.ts`.
+- **Documentation**: `docs/*.md` (canonical) + `docs-old/` (archived).
 
 ### **Before Making Changes**
 1. ✅ Read relevant rules documentation
