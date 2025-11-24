@@ -10,6 +10,7 @@ import {
   createEmptyArmorAllocation,
 } from '../../../mech-lab/store/MechLabState';
 import { WeightOps } from '../../../../mechanics/WeightOps';
+import { Surface, FormField } from '../../../../ui';
 
 const armorTypes: ArmorType[] = Object.values(ArmorType);
 const heatSinkTypes: HeatSinkType[] = Object.values(HeatSinkType);
@@ -47,14 +48,21 @@ export const ArmorTab: React.FC = () => {
     actions.setArmorAllocation(location, nextAllocation);
   };
 
+  const inputClasses =
+    'w-full rounded-xl border border-[var(--surface-border)] bg-[var(--surface-sunken)] px-3 py-2 text-[var(--text-primary)] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]';
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-4">
-          <div>
-            <label className="text-xs uppercase text-slate-400 block mb-2">Armor Type</label>
+        <Surface>
+          <FormField
+            label="Armor Type"
+            helperText="Select the plating standard for this chassis."
+            id="armor-type-select"
+          >
             <select
-              className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-100"
+              id="armor-type-select"
+              className={inputClasses}
               value={unit.armorType}
               onChange={event => actions.setArmorType(event.target.value as ArmorType)}
             >
@@ -64,29 +72,31 @@ export const ArmorTab: React.FC = () => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="text-sm text-slate-300">
+          </FormField>
+          <div className="text-sm text-[var(--text-secondary)] space-y-1">
             <p>
               Total armor allocation:{' '}
-              <span className="font-mono text-slate-100">
+              <span className="font-mono text-[var(--text-primary)]">
                 {totalAllocated}/{maxArmor}
               </span>
             </p>
-            <p
-              className={`text-xs ${remainingArmor < 0 ? 'text-red-400' : 'text-slate-500'}`}
-            >
+            <p className={remainingArmor < 0 ? 'text-[var(--status-danger)] text-xs' : 'text-[var(--text-muted)] text-xs'}>
               {remainingArmor < 0
                 ? `Over capacity by ${Math.abs(remainingArmor)} points`
                 : `${remainingArmor} points remaining`}
             </p>
           </div>
-        </section>
+        </Surface>
 
-        <section className="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-4">
-          <div>
-            <label className="text-xs uppercase text-slate-400 block mb-2">Heat Sink Type</label>
+        <Surface>
+          <FormField
+            label="Heat Sink Type"
+            helperText="Determines slot usage and dissipation per sink."
+            id="heat-sink-select"
+          >
             <select
-              className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-100"
+              id="heat-sink-select"
+              className={inputClasses}
               value={unit.heatSinkType}
               onChange={event => actions.setHeatSinkType(event.target.value as HeatSinkType)}
             >
@@ -96,61 +106,62 @@ export const ArmorTab: React.FC = () => {
                 </option>
               ))}
             </select>
-          </div>
-          <p className="text-xs text-slate-500">
-            Heat sink weights follow the TechManual defaults (1 ton unless Compact or Laser).
+          </FormField>
+          <p className="text-xs text-[var(--text-muted)]">
+            Heat sink weights follow TechManual defaults (1 point = 1 ton unless Compact or Laser).
           </p>
-        </section>
+        </Surface>
       </div>
 
-      <section className="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-slate-200 font-semibold text-sm uppercase tracking-wide">
+      <Surface className="space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
             Armor Allocation
           </h3>
-          <p className="text-xs text-slate-500">Values in armor points (1 point = 1/16 ton)</p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Values in armor points (1 point = 1/16 ton)
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {ARMOR_LOCATIONS.map(location => {
             const segment = allocation[location.id as ArmorLocation] ?? { front: 0, rear: 0 };
             return (
-              <div
-                key={location.id}
-                className="border border-slate-800 rounded-md p-3 bg-slate-950/60 space-y-3"
-              >
+              <Surface key={location.id} variant="sunken" padding="sm" className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-200 font-medium text-sm">{location.label}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    {location.label}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs text-slate-500 uppercase">Front</label>
+                <FormField label="Front">
                   <input
                     type="number"
                     min={0}
-                    className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-100 font-mono"
+                    className={inputClasses}
                     value={segment.front ?? 0}
-                    onChange={event => handleArmorChange(location.id as ArmorLocation, 'front', event.target.value)}
+                    onChange={event =>
+                      handleArmorChange(location.id as ArmorLocation, 'front', event.target.value)
+                    }
                   />
-                </div>
+                </FormField>
                 {location.hasRear && (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs text-slate-500 uppercase">Rear</label>
+                  <FormField label="Rear">
                     <input
                       type="number"
                       min={0}
-                      className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-100 font-mono"
+                      className={inputClasses}
                       value={segment.rear ?? 0}
                       onChange={event =>
                         handleArmorChange(location.id as ArmorLocation, 'rear', event.target.value)
                       }
                     />
-                  </div>
+                  </FormField>
                 )}
-              </div>
+              </Surface>
             );
           })}
         </div>
-      </section>
+      </Surface>
     </div>
   );
 };

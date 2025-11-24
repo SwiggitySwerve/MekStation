@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import { useCustomizerStore } from '../store/useCustomizerStore';
 import { CriticalSlotMechanics } from '../../../mechanics/CriticalSlots';
 import { WeightOps } from '../../../mechanics/WeightOps';
+import { Surface, Button, StatCard } from '../../../ui';
+import { classNames } from '../../../ui/utils/classNames';
 
 interface TopStatsBannerProps {
   onRequestReset(): void;
@@ -43,99 +45,78 @@ export const TopStatsBanner: React.FC<TopStatsBannerProps> = ({
 
   const runningMP = Math.ceil(unit.walkingMP * 1.5);
   const engineHeatSinks = Math.floor(metrics.engineRating / 25);
+  const weightTone = metrics.currentWeight > unit.tonnage ? 'negative' : 'neutral';
 
   return (
-    <div className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-col gap-4">
+    <Surface
+      variant="sunken"
+      padding="lg"
+      className="rounded-none border-x-0 border-t-0 gap-4 flex flex-col"
+    >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">{unit.name}</h1>
-          <p className="text-sm text-slate-400">
-            {unit.tonnage}-ton {unit.techBase} • Rules: {unit.rulesLevel}
+          <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
+            {unit.techBase} • {unit.rulesLevel}
           </p>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {unit.name}{' '}
+            <span className="text-lg text-[var(--text-muted)] font-normal">{unit.model}</span>
+          </h1>
+          <p className="text-sm text-[var(--text-muted)]">{unit.tonnage}-ton chassis</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center text-xs">
+          <div className="flex items-center gap-2 rounded-pill bg-[var(--surface-panel)] px-3 py-1 text-xs">
             <span
-              className={`w-2 h-2 rounded-full mr-2 ${
-                validation.isValid ? 'bg-green-500' : 'bg-red-500'
-              }`}
+              className={classNames(
+                'h-2 w-2 rounded-full',
+                validation.isValid
+                  ? 'bg-[var(--status-success)]'
+                  : 'bg-[var(--status-danger)]'
+              )}
             />
-            <span className={validation.isValid ? 'text-green-400' : 'text-red-400'}>
+            <span className={validation.isValid ? 'text-[var(--status-success)]' : 'text-[var(--status-danger)]'}>
               {validation.isValid
-                ? 'Valid'
-                : `${validation.errors.length} issues, ${validation.warnings.length} warnings`}
+                ? 'Design Valid'
+                : `${validation.errors.length} issues • ${validation.warnings.length} warnings`}
             </span>
           </div>
-          <button
-            className="px-3 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded transition-colors"
-            onClick={onRequestReset}
-          >
+          <Button variant="danger" size="sm" onClick={onRequestReset}>
             Reset
-          </button>
-          <button
-            className="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded transition-colors"
-            onClick={onToggleDebug}
-          >
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onToggleDebug}>
             Debug
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-center text-xs">
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Movement</p>
-          <p className="text-slate-100 text-lg font-mono">
-            {unit.walkingMP}/{runningMP}
-          </p>
-          <p className="text-slate-500 text-[10px]">Walk / Run</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Weight</p>
-          <p
-            className={`text-lg font-mono ${
-              metrics.currentWeight > unit.tonnage ? 'text-red-400' : 'text-slate-100'
-            }`}
-          >
-            {metrics.currentWeight.toFixed(2)}/{unit.tonnage}
-          </p>
-          <p className="text-slate-500 text-[10px]">tons used</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Criticals</p>
-          <p className="text-slate-100 text-lg font-mono">
-            {slotUsage.used}/{slotUsage.total}
-          </p>
-          <p className="text-slate-500 text-[10px]">used / total</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Armor</p>
-          <p className="text-slate-100 text-lg font-mono">
-            {allocatedArmor}/{maxArmorPoints}
-          </p>
-          <p className="text-slate-500 text-[10px]">allocated / max</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Engine Rating</p>
-          <p className="text-slate-100 text-lg font-mono">{metrics.engineRating}</p>
-          <p className="text-slate-500 text-[10px]">{unit.engineType}</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Heat Sinks</p>
-          <p className="text-slate-100 text-lg font-mono">{engineHeatSinks}</p>
-          <p className="text-slate-500 text-[10px]">integral</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Structure</p>
-          <p className="text-slate-100 text-lg font-mono">{unit.structureType}</p>
-          <p className="text-slate-500 text-[10px]">type</p>
-        </div>
-        <div className="bg-slate-800/60 border border-slate-700 rounded p-2">
-          <p className="text-slate-400 uppercase tracking-wide">Armor Type</p>
-          <p className="text-slate-100 text-lg font-mono">{unit.armorType}</p>
-          <p className="text-slate-500 text-[10px]">configuration</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        <StatCard label="Movement" value={`${unit.walkingMP}/${runningMP}`} helperText="Walk / Run MP" />
+        <StatCard
+          label="Weight"
+          value={`${metrics.currentWeight.toFixed(2)}/${unit.tonnage}t`}
+          helperText="Tons used"
+          tone={weightTone}
+        />
+        <StatCard
+          label="Critical Slots"
+          value={`${slotUsage.used}/${slotUsage.total}`}
+          helperText="Allocated / Total"
+        />
+        <StatCard
+          label="Armor Allocation"
+          value={`${allocatedArmor}/${maxArmorPoints}`}
+          helperText="Points spent"
+        />
+        <StatCard label="Engine Rating" value={metrics.engineRating} helperText={unit.engineType} />
+        <StatCard
+          label="Integral Heat Sinks"
+          value={engineHeatSinks}
+          helperText="Engine provided"
+        />
+        <StatCard label="Structure" value={unit.structureType} helperText="Internal skeleton" />
+        <StatCard label="Armor Type" value={unit.armorType} helperText="Current plating" />
       </div>
-    </div>
+    </Surface>
   );
 };
 

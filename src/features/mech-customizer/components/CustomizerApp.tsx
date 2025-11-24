@@ -60,7 +60,7 @@ export const CustomizerApp: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[var(--surface-base)] text-[var(--text-primary)] flex flex-col">
       <EquipmentTray isExpanded={isEquipmentTrayExpanded} onToggle={toggleEquipmentTray} />
       <TopStatsBanner onRequestReset={() => setIsResetOpen(true)} onToggleDebug={toggleDebug} />
       <TabNavigation tabs={tabs.map(({ id, label }) => ({ id, label }))} />

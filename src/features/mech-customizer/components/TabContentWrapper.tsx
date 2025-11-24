@@ -7,8 +7,8 @@ interface TabContentWrapperProps {
 }
 
 export const TabContentWrapper: React.FC<TabContentWrapperProps> = ({ children }) => (
-  <section className="flex-1 overflow-y-auto bg-slate-900">
-    <div className="p-6">{children}</div>
+  <section className="flex-1 overflow-y-auto bg-[var(--surface-base)]">
+    <div className="p-6 space-y-6">{children}</div>
   </section>
 );
 
