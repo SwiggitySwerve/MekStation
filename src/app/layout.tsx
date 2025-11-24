@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './globals.css';
 
 export const metadata = {
   title: 'BattleTech Unit Customizer',
@@ -12,7 +13,9 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-[var(--surface-base)] text-[var(--text-primary)]">
+        {children}
+      </body>
     </html>
   );
 }
