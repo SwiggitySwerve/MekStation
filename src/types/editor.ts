@@ -1,193 +1,14 @@
-import { ICompleteUnitConfiguration, IEquipmentInstance } from './core/UnitInterfaces';
-import { IEquipment, IWeapon } from './core/EquipmentInterfaces';
-import { ComponentCategory, TechBase, EntityId } from './core/BaseTypes';
-import { IArmorDef, ISystemComponent } from './core/ComponentInterfaces';
-import type { UnitData } from './index';
+/**
+ * Editor.ts
+ * Rich editor-centric types that capture unit editing state, armor allocation,
+ * and drag/drop metadata for BattleTech construction flows.
+ */
 
-// Core Editor Types
-export type EditorTab = 'structure' | 'equipment' | 'criticals' | 'fluff' | 'quirks' | 'preview';
+import { RulesLevel, TechBase } from './TechBase';
+import { IUnitData } from './Unit';
+import { IEquipment, FullEquipment } from './Equipment';
+import { IValidationResult, IValidationError } from './Validation';
 
-export interface ValidationError {
-  id: string;
-  category: 'error' | 'warning' | 'info';
-  message: string;
-  location?: string;
-  field?: string;
-}
-
-export interface ValidationResult {
-  isValid: boolean;
-  errors: ValidationError[];
-  warnings: ValidationError[];
-}
-
-// Editable Unit Interface - Extends the Core Configuration
-export interface EditableUnit extends ICompleteUnitConfiguration {
-  // Editor-specific metadata
-  editorMetadata: {
-    lastModified: Date;
-    isDirty: boolean;
-    version: string;
-    isCustom?: boolean;
-    originalUnit?: string;
-    customNotes?: string;
-  };
-  
-  // Validation state
-  validationState: ValidationResult;
-  
-  // Fluff content
-  fluffData: FluffContent;
-  
-  // Unallocated equipment (Staging area)
-  unallocatedEquipment: IEquipmentInstance[];
-  
-  // Pilot/Crew (Optional)
-  pilot?: {
-    name: string;
-    pilotingSkill: number;
-    gunnerySkill: number;
-  };
-
-  // Game State (Optional - for simulation/preview)
-  currentMovementPoints?: number;
-  currentTerrain?: string;
-
-  // Extended editor state
-  data?: Partial<UnitData>;
-  
-  // Legacy properties (deprecated - use camelCase from ICompleteUnitConfiguration instead)
-  // Prefer: techBase, rulesLevel, tonnage from ICompleteUnitConfiguration
-  /** @deprecated Use techBase from ICompleteUnitConfiguration */
-  tech_base?: string;
-  /** @deprecated Use tonnage from ICompleteUnitConfiguration */
-  mass?: number;
-  
-  // Editor-specific properties
-  armorAllocation?: ArmorAllocationMap;
-  equipmentPlacements?: EquipmentPlacement[];
-  criticalSlots?: CriticalSlotAssignment[];
-
-  // Legacy compatibility (to be removed after full migration)
-  systemComponents?: import('./systemComponents').SystemComponents;
-  criticalAllocations?: import('./systemComponents').CriticalAllocationMap;
-}
-
-// Fluff Content
-export interface FluffContent {
-  overview?: string;
-  capabilities?: string;
-  deployment?: string;
-  history?: string;
-  variants?: string;
-  notable_pilots?: string;
-  manufacturer?: string;
-  primaryFactory?: string;
-  communicationsSystem?: string;
-  targetingTracking?: string;
-  notes?: string;
-  fluffImage?: string; // Base64 encoded
-}
-
-// Editor State
-export interface UnitEditorState {
-  unit: EditableUnit;
-  activeTab: EditorTab;
-  validationErrors: ValidationError[];
-  isDirty: boolean;
-  autoSave: boolean;
-  isLoading: boolean;
-  lastSaved?: Date;
-}
-
-// Component Props
-export interface EditorComponentProps {
-  unit: EditableUnit;
-  onUnitChange: (updates: Partial<EditableUnit>) => void;
-  validationErrors?: ValidationError[];
-  readOnly?: boolean;
-  compact?: boolean;
-}
-
-// Armor Allocation Props
-export interface ArmorAllocationProps extends EditorComponentProps {
-  showRearArmor?: boolean;
-  allowAutoAllocation?: boolean;
-  mechType?: 'Biped' | 'Quad' | 'LAM' | 'Tripod';
-}
-
-// Location Armor Data for UI
-export interface LocationArmor {
-  location: string;
-  front: number;
-  rear: number;
-  maxFront: number;
-  maxRear: number;
-  armorType: IArmorDef;
-}
-
-export interface EquipmentPlacement {
-  id: string;
-  equipment: IEquipment;
-  location: string;
-  criticalSlots: number[];
-  isFixed?: boolean;
-  isRearMounted?: boolean;
-}
-
-export interface CriticalSlotAssignment {
-  location: string;
-  slotIndex: number;
-  isFixed: boolean;
-  isEmpty: boolean;
-  equipment?: IEquipment;
-  systemType?: 'engine' | 'gyro' | 'cockpit' | 'lifesupport' | 'sensors' | 'actuator';
-}
-
-export interface ArmorAllocationType {
-  id?: string;
-  name: string;
-  pointsPerTon?: number;
-  criticalSlots?: number;
-  hasRearArmor?: boolean;
-}
-
-export type ArmorAllocationMap = Record<string, {
-  front: number;
-  rear?: number;
-  maxFront?: number;
-  maxRear?: number;
-  type: ArmorAllocationType;
-}>;
-
-// Equipment Filters for UI
-export interface EquipmentFilters {
-  category?: string[];
-  techLevel?: number[];
-  weight?: { min?: number; max?: number };
-  criticals?: { min?: number; max?: number };
-  searchTerm?: string;
-  showUnavailable?: boolean;
-}
-
-// Validation Rules
-export interface ValidationRule {
-  name: string;
-  category: 'warning' | 'error';
-  validator: (unit: EditableUnit) => boolean;
-  message: string;
-  field?: string;
-}
-
-// Auto-allocation Settings
-export interface AutoAllocationSettings {
-  headArmorMultiplier: number;
-  rearArmorPercentage: number;
-  prioritizeSymmetry: boolean;
-  minimumHeadArmor: number;
-}
-
-// Mech Locations
 export const MECH_LOCATIONS = {
   HEAD: 'Head',
   LEFT_ARM: 'Left Arm',
@@ -197,7 +18,157 @@ export const MECH_LOCATIONS = {
   RIGHT_TORSO: 'Right Torso',
   LEFT_LEG: 'Left Leg',
   RIGHT_LEG: 'Right Leg',
-  CENTER_LEG: 'Center Leg', // For tripods
+  CENTER_LEG: 'Center Leg',
 } as const;
 
 export type MechLocation = typeof MECH_LOCATIONS[keyof typeof MECH_LOCATIONS];
+
+export type EditorTab = 'structure' | 'equipment' | 'criticals' | 'fluff' | 'quirks' | 'preview';
+
+export interface IFluffContent {
+  readonly overview?: string;
+  readonly capabilities?: string;
+  readonly deployment?: string;
+  readonly history?: string;
+  readonly variants?: string;
+  readonly notable_pilots?: string;
+  readonly manufacturer?: string;
+  readonly primaryFactory?: string;
+  readonly communicationsSystem?: string;
+  readonly targetingTracking?: string;
+  readonly notes?: string;
+  readonly fluffImage?: string;
+}
+
+export type FluffContent = IFluffContent;
+
+export interface IArmorAllocationType {
+  readonly id?: string;
+  readonly name: string;
+  readonly pointsPerTon?: number;
+  readonly criticalSlots?: number;
+  readonly hasRearArmor?: boolean;
+}
+
+export type ArmorAllocationType = IArmorAllocationType;
+
+export interface IArmorAllocationEntry {
+  readonly front: number;
+  readonly rear?: number;
+  readonly maxFront?: number;
+  readonly maxRear?: number;
+  readonly type: ArmorAllocationType;
+}
+
+export type ArmorAllocationMap = Record<string, IArmorAllocationEntry>;
+
+export type SlotEquipment = IEquipment | FullEquipment;
+
+export interface IEquipmentPlacement {
+  readonly id: string;
+  readonly equipment: SlotEquipment;
+  readonly location: string;
+  readonly criticalSlots: number[];
+  readonly isFixed?: boolean;
+  readonly isRearMounted?: boolean;
+}
+
+export type EquipmentPlacement = IEquipmentPlacement;
+
+export interface ICriticalSlotAssignment {
+  readonly location: string;
+  readonly slotIndex: number;
+  readonly isFixed: boolean;
+  readonly isEmpty: boolean;
+  readonly equipment?: SlotEquipment;
+  readonly systemType?: 'engine' | 'gyro' | 'cockpit' | 'lifesupport' | 'sensors' | 'actuator';
+}
+
+export type CriticalSlotAssignment = ICriticalSlotAssignment;
+
+export interface IEquipmentInstance {
+  readonly id: string;
+  readonly equipmentId: string;
+  readonly equipment: IEquipment;
+  readonly location: string;
+  readonly slotIndex: number;
+  readonly quantity: number;
+  readonly status?: string;
+}
+
+export interface IEditorMetadata {
+  readonly lastModified: Date;
+  readonly isDirty: boolean;
+  readonly version: string;
+  readonly isCustom?: boolean;
+  readonly originalUnit?: string;
+  readonly customNotes?: string;
+}
+
+export interface IEditableUnit {
+  readonly id: string | number;
+  readonly name: string;
+  readonly chassis?: string;
+  readonly model?: string;
+  readonly techBase?: TechBase;
+  readonly tech_base?: string;
+  readonly rulesLevel?: RulesLevel;
+  readonly rulesLevelString?: string;
+  readonly tonnage: number;
+  readonly mass?: number;
+  readonly era?: string;
+  readonly unitType?: string;
+  readonly data?: Partial<IUnitData>;
+  readonly armor?: {
+    readonly allocation?: Record<string, number>;
+    readonly type?: string;
+  };
+  readonly armorAllocation?: ArmorAllocationMap;
+  readonly equipmentPlacements?: IEquipmentPlacement[];
+  readonly criticalSlots?: ICriticalSlotAssignment[];
+  readonly unallocatedEquipment?: IEquipmentInstance[];
+  readonly editorMetadata?: IEditorMetadata;
+  readonly validationState?: IValidationResult;
+  readonly fluffData?: IFluffContent;
+  readonly pilot?: {
+    readonly name: string;
+    readonly pilotingSkill: number;
+    readonly gunnerySkill: number;
+  };
+  readonly currentMovementPoints?: number;
+  readonly currentTerrain?: string;
+  readonly systemComponents?: Record<string, unknown>;
+  readonly criticalAllocations?: Record<string, unknown>;
+}
+
+export type EditableUnit = IEditableUnit;
+
+export interface IValidationRuleDefinition {
+  readonly name: string;
+  readonly category: 'warning' | 'error';
+  readonly validator: (unit: IEditableUnit) => boolean;
+  readonly message: string;
+  readonly field?: string;
+}
+
+export type ValidationRule = IValidationRuleDefinition;
+
+export interface IEditorComponentProps {
+  readonly unit: IEditableUnit;
+  readonly onUnitChange: (updates: Partial<IEditableUnit>) => void;
+  readonly validationErrors?: IValidationError[];
+  readonly readOnly?: boolean;
+  readonly compact?: boolean;
+}
+
+export interface IEditorState {
+  readonly unit: IEditableUnit;
+  readonly activeTab: EditorTab;
+  readonly validationErrors: IValidationError[];
+  readonly isDirty: boolean;
+  readonly autoSave: boolean;
+  readonly isLoading: boolean;
+  readonly lastSaved?: Date;
+}
+
+

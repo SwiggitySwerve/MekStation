@@ -1,228 +1,135 @@
-/**
- * Dynamic Data Types
- * 
- * Provides proper types and type guards for data that was previously
- * accessed via Record<string, unknown> or Record<string, any>.
- * 
- * This eliminates unsafe property access and improves type safety.
- */
+import { TechBase, RulesLevel } from '../TechBase';
 
-import { TechBase, RulesLevel } from './BaseTypes';
-
-/**
- * Unit configuration data structure
- * Used for accessing unit configuration properties safely
- */
 export interface IUnitConfigurationData {
-  tonnage?: number;
-  engineType?: string;
-  gyroType?: string;
-  structureType?: string;
-  armorType?: string;
-  techBase?: TechBase | string;
-  rulesLevel?: RulesLevel | string;
-  era?: string;
-  mass?: number;
-  [key: string]: unknown; // Allow additional properties for extensibility
+  readonly tonnage?: number;
+  readonly engineType?: string;
+  readonly gyroType?: string;
+  readonly structureType?: string;
+  readonly armorType?: string;
+  readonly techBase?: TechBase | string;
+  readonly rulesLevel?: RulesLevel | string | number;
+  readonly era?: string;
+  readonly mass?: number;
+  readonly [key: string]: unknown;
 }
 
-/**
- * Type guard for unit configuration data
- */
-export function isUnitConfigurationData(obj: unknown): obj is IUnitConfigurationData {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
-  }
-  
-  // Basic structure validation
-  const config = obj as Record<string, unknown>;
-  
-  // Validate known properties if present
-  if ('techBase' in config) {
-    const techBase = config.techBase;
-    if (typeof techBase !== 'string' && typeof techBase !== 'object') {
-      return false;
-    }
-  }
-  
-  if ('rulesLevel' in config) {
-    const rulesLevel = config.rulesLevel;
-    if (typeof rulesLevel !== 'string' && typeof rulesLevel !== 'object' && typeof rulesLevel !== 'number') {
-      return false;
-    }
-  }
-  
-  return true;
+export function isUnitConfigurationData(value: unknown): value is IUnitConfigurationData {
+  return typeof value === 'object' && value !== null;
 }
 
-/**
- * Equipment item data structure
- * Used for accessing equipment/weapon item properties safely
- */
-export interface IEquipmentItemData {
-  item_name?: string;
-  item_type?: string;
-  location?: string;
-  category?: string;
-  type?: string;
-  tech_base?: string;
-  damage?: number | string;
-  heat?: number;
-  slots?: number;
-  space?: number;
-  weight?: number;
-  tonnage?: number;
-  range?: IRangeData;
-  ammo_per_shot?: number;
-  rear_facing?: boolean;
-  turret_mounted?: boolean;
-  [key: string]: unknown; // Allow additional properties
-}
-
-/**
- * Range data structure
- */
 export interface IRangeData {
-  short?: number;
-  medium?: number;
-  long?: number;
-  extreme?: number;
-  minimum?: number;
-  [key: string]: unknown;
+  readonly short?: number;
+  readonly medium?: number;
+  readonly long?: number;
+  readonly extreme?: number;
+  readonly minimum?: number;
+  readonly [key: string]: unknown;
 }
 
-/**
- * Type guard for equipment item data
- */
-export function isEquipmentItemData(obj: unknown): obj is IEquipmentItemData {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
-  }
-  
-  return true; // Accept any object structure for equipment items
+export interface IEquipmentItemData {
+  readonly item_name?: string;
+  readonly item_type?: string;
+  readonly location?: string;
+  readonly category?: string;
+  readonly type?: string;
+  readonly tech_base?: string;
+  readonly damage?: number | string;
+  readonly heat?: number;
+  readonly slots?: number;
+  readonly space?: number;
+  readonly weight?: number;
+  readonly tonnage?: number;
+  readonly range?: IRangeData;
+  readonly ammo_per_shot?: number;
+  readonly rear_facing?: boolean;
+  readonly turret_mounted?: boolean;
+  readonly [key: string]: unknown;
 }
 
-/**
- * Type guard for range data
- */
-export function isRangeData(obj: unknown): obj is IRangeData {
-  if (typeof obj !== 'object' || obj === null) {
+export function isEquipmentItemData(value: unknown): value is IEquipmentItemData {
+  return typeof value === 'object' && value !== null;
+}
+
+export function isRangeData(value: unknown): value is IRangeData {
+  if (typeof value !== 'object' || value === null) {
     return false;
   }
-  
-  const range = obj as Record<string, unknown>;
-  
-  // Validate that numeric properties are actually numbers if present
+  const record = value as Record<string, unknown>;
   const numericProps = ['short', 'medium', 'long', 'extreme', 'minimum'];
-  for (const prop of numericProps) {
-    if (prop in range && typeof range[prop] !== 'number' && range[prop] !== undefined) {
-      return false;
-    }
-  }
-  
-  return true;
+  return numericProps.every(
+    (prop) =>
+      !(prop in record) ||
+      typeof record[prop] === 'number' ||
+      typeof record[prop] === 'undefined',
+  );
 }
 
-/**
- * Equipment data structure (nested data property)
- * Used for accessing equipment.data properties safely
- */
 export interface IEquipmentData {
-  heat?: number;
-  damage?: number | string;
-  slots?: number;
-  space?: number;
-  weight?: number;
-  tonnage?: number;
-  range?: IRangeData;
-  tech_base?: string;
-  item_name?: string;
-  item_type?: string;
-  [key: string]: unknown; // Allow additional properties
+  readonly heat?: number;
+  readonly damage?: number | string;
+  readonly slots?: number;
+  readonly space?: number;
+  readonly weight?: number;
+  readonly tonnage?: number;
+  readonly range?: IRangeData;
+  readonly tech_base?: string;
+  readonly item_name?: string;
+  readonly item_type?: string;
+  readonly [key: string]: unknown;
 }
 
-/**
- * Type guard for equipment data
- */
-export function isEquipmentData(obj: unknown): obj is IEquipmentData {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
-  }
-  
-  return true; // Accept any object structure for equipment data
+export function isEquipmentData(value: unknown): value is IEquipmentData {
+  return typeof value === 'object' && value !== null;
 }
 
-/**
- * Critical slot sections data structure
- * Used for managing critical slot allocations by location
- */
 export interface ICriticalSlotSections {
-  [location: string]: {
-    slots: Array<{
-      slot: unknown;
-      location: string;
-      index: number;
+  readonly [location: string]: {
+    readonly slots: Array<{
+      readonly slot: unknown;
+      readonly location: string;
+      readonly index: number;
     }>;
-    [key: string]: unknown;
+    readonly [key: string]: unknown;
   };
 }
 
-/**
- * Type guard for critical slot sections
- */
-export function isCriticalSlotSections(obj: unknown): obj is ICriticalSlotSections {
-  if (typeof obj !== 'object' || obj === null) {
+export function isCriticalSlotSections(value: unknown): value is ICriticalSlotSections {
+  if (typeof value !== 'object' || value === null) {
     return false;
   }
-  
-  const sections = obj as Record<string, unknown>;
-  
-  // Validate that values are objects with slots array
-  for (const value of Object.values(sections)) {
-    if (typeof value !== 'object' || value === null) {
+  return Object.values(value).every((section) => {
+    if (typeof section !== 'object' || section === null) {
       return false;
     }
-    const section = value as Record<string, unknown>;
-    if (!Array.isArray(section.slots)) {
-      return false;
-    }
-  }
-  
-  return true;
+    return Array.isArray((section as { slots?: unknown }).slots);
+  });
 }
 
-/**
- * Safe property accessor for configuration data
- */
 export function getConfigurationProperty<T>(
   config: IUnitConfigurationData,
   property: string,
-  defaultValue?: T
+  defaultValue?: T,
 ): T | undefined {
   const value = config[property];
   return value !== undefined && value !== null ? (value as T) : defaultValue;
 }
 
-/**
- * Safe property accessor for equipment item data
- */
 export function getEquipmentItemProperty<T>(
   item: IEquipmentItemData,
   property: string,
-  defaultValue?: T
+  defaultValue?: T,
 ): T | undefined {
   const value = item[property];
   return value !== undefined && value !== null ? (value as T) : defaultValue;
 }
 
-/**
- * Safe property accessor for equipment data
- */
 export function getEquipmentDataProperty<T>(
   data: IEquipmentData,
   property: string,
-  defaultValue?: T
+  defaultValue?: T,
 ): T | undefined {
   const value = data[property];
   return value !== undefined && value !== null ? (value as T) : defaultValue;
 }
+
+

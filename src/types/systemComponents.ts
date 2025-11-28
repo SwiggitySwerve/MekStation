@@ -1,303 +1,210 @@
 /**
- * System Components Data Model
- * Unified structure for tracking mech system components and their critical slot allocations
- * 
- * @deprecated
- * This file contains legacy type definitions and constants.
- * Please use 'src/types/core/ComponentInterfaces.ts' and 'src/types/core/ComponentPlacement.ts' for new development.
+ * SystemComponents.ts
+ * Interfaces for structural components (Engine, Gyro, Structure, Armor, Cockpit).
  */
 
-import { 
-  EngineType, 
-  GyroType, 
-  CockpitType, 
-  StructureType, 
-  ArmorType, 
-  HeatSinkType,
-  TechBase
-} from './core/BaseTypes';
+import { TechBase, RulesLevel } from './TechBase';
+import { ComponentCategory, ComponentType } from './ComponentType';
+import { StructureMechanics } from '../mechanics/Structure';
+import { STRUCTURE_SLOTS_REQUIRED } from '../data/StructureTables';
 
-// Re-export types from Core
-export { 
-  EngineType, 
-  GyroType, 
-  CockpitType, 
-  StructureType, 
-  ArmorType, 
-  HeatSinkType,
-  TechBase
-};
-
-/** @deprecated Use IEngineDef or IEngineConfiguration */
-export interface EngineComponent {
-  type: EngineType;
-  rating: number;
-  manufacturer?: string;
+export interface ISystemComponent {
+  readonly name: string;
+  readonly type: ComponentType;
+  readonly techBase: TechBase;
+  readonly rulesLevel: RulesLevel;
+  readonly weightMultiplier?: number; // Some components weight is a factor of tonnage or engine rating
 }
 
-/** @deprecated Use IGyroDef or IGyroConfiguration */
-export interface GyroComponent {
-  type: GyroType;
+// =============================================================================
+// ENGINE
+// =============================================================================
+
+export enum EngineType {
+  STANDARD = 'Standard',
+  XL = 'XL',
+  XL_INNER_SPHERE = 'XL (IS)',
+  XL_CLAN = 'XL (Clan)',
+  LIGHT = 'Light',
+  XXL = 'XXL',
+  COMPACT = 'Compact',
+  ICE = 'ICE',
+  FUEL_CELL = 'Fuel Cell',
 }
 
-/** @deprecated Use ICockpitDef or ICockpitConfiguration */
-export interface CockpitComponent {
-  type: CockpitType;
+export interface IEngine extends ISystemComponent {
+  readonly type: ComponentType.ENGINE;
+  readonly engineType: EngineType;
+  readonly rating: number;
+  readonly weight: number;
+  readonly criticalSlots: {
+    readonly ct: number;
+    readonly sideTorso: number;
+  };
+  readonly heatSinks: number; // Integral heat sinks
 }
 
-/** @deprecated Use IStructureDef or IStructureConfiguration */
-export interface StructureComponent {
-  type: StructureType;
+// =============================================================================
+// GYRO
+// =============================================================================
+
+export enum GyroType {
+  STANDARD = 'Standard',
+  XL = 'XL',
+  COMPACT = 'Compact',
+  HEAVY_DUTY = 'Heavy-Duty',
 }
 
-/** @deprecated Use IArmorDef or IArmorConfiguration */
-export interface ArmorComponent {
-  type: ArmorType;
-  manufacturer?: string;
+export interface IGyro extends ISystemComponent {
+  readonly type: ComponentType.GYRO;
+  readonly gyroType: GyroType;
+  readonly weight: number;
+  readonly criticalSlots: number;
 }
 
-/** @deprecated Use IHeatSinkDef or IHeatSinkConfiguration */
-export interface HeatSinkComponent {
-  type: HeatSinkType;
-  total: number;
-  engineIntegrated: number;  // Auto-calculated based on engine rating
-  externalRequired: number;   // total - engineIntegrated
+// =============================================================================
+// COCKPIT
+// =============================================================================
+
+export enum CockpitType {
+  STANDARD = 'Standard',
+  SMALL = 'Small',
+  COMMAND_CONSOLE = 'Command Console',
+  TORSO_MOUNTED = 'Torso-Mounted',
+  PRIMITIVE = 'Primitive',
 }
 
-// Track actuator states for arms
-/** @deprecated Use IActuatorState */
-export interface ActuatorState {
-  hasLowerArm: boolean;
-  hasHand: boolean;
+export interface ICockpit extends ISystemComponent {
+  readonly type: ComponentType.COCKPIT;
+  readonly cockpitType: CockpitType;
+  readonly weight: number;
+  readonly criticalSlots: number;
+  readonly sensors: {
+    readonly range: number;
+    readonly resolution: number;
+  };
 }
 
-/** @deprecated Use ICompleteUnitConfiguration */
-export interface SystemComponents {
-  engine: EngineComponent;
-  gyro: GyroComponent;
-  cockpit: CockpitComponent;
-  structure: StructureComponent;
-  armor: ArmorComponent;
-  heatSinks: HeatSinkComponent;
-  leftArmActuators?: ActuatorState;
-  rightArmActuators?: ActuatorState;
+// =============================================================================
+// STRUCTURE
+// =============================================================================
+
+export enum StructureType {
+  STANDARD = 'Standard',
+  ENDO_STEEL = 'Endo Steel',
+  ENDO_STEEL_IS = 'Endo Steel (IS)',
+  ENDO_STEEL_CLAN = 'Endo Steel (Clan)',
+  COMPOSITE = 'Composite',
+  REINFORCED = 'Reinforced',
+  INDUSTRIAL = 'Industrial',
 }
 
-// Critical slot allocation types
-export type SlotContentType = 'system' | 'equipment' | 'heat-sink' | 'endo-steel' | 'ferro-fibrous' | 'empty';
-
-// Context menu options for critical slots
-export interface ContextMenuOption {
-  label: string;
-  action: 'add' | 'remove';
-  component: string;
-  isEnabled: () => boolean;
-}
-
-/** @deprecated Use ICriticalSlot */
-export interface CriticalSlot {
-  index: number;
-  name: string;               // Equipment name or system component name (NOT NULL - use "-Empty-" for empty)
-  type: SlotContentType;      // Renamed from contentType for consistency
-  isFixed: boolean;           // Cannot be manually removed
-  isConditionallyRemovable?: boolean; // Can be removed via context menu
-  isManuallyPlaced: boolean;  // User placed vs auto-allocated
-  linkedSlots?: number[];     // For multi-slot items (e.g., AC/20 uses 10 slots)
-  equipmentId?: string;       // Reference to equipment item
-  contextMenuOptions?: ContextMenuOption[]; // Right-click options
-}
-
-/** @deprecated Use ICriticalSlotLocation */
-export interface LocationCriticalSlots {
-  location: string;
-  slots: CriticalSlot[];
-}
-
-export type CriticalAllocationMap = Record<string, CriticalSlot[]>;
-
-// Fixed system components that cannot be removed
-/** @deprecated Use COMPONENT_PLACEMENTS from core/ComponentPlacement */
-export const FIXED_SYSTEM_COMPONENTS = [
-  // Head components
-  'Life Support',
-  'Sensors',
-  'Cockpit',
-  'Command Console',
-  'Primitive Cockpit',
-  'Torso-Mounted Cockpit',
-  
-  // Arm components (except hand/lower arm)
-  'Shoulder',
-  'Upper Arm Actuator',
-  
-  // Leg components  
-  'Hip',
-  'Upper Leg Actuator',
-  'Lower Leg Actuator',
-  'Foot Actuator',
-  
-  // Torso components
-  'Engine',
-  'Gyro',
-];
-
-// Conditionally removable components
-/** @deprecated */
-export const CONDITIONALLY_REMOVABLE_COMPONENTS = [
-  'Lower Arm Actuator',
-  'Hand Actuator',
-];
-
-// Special components that take slots but aren't equipment
-/** @deprecated */
-export const SPECIAL_COMPONENTS = [
-  'Endo Steel',
-  'Endo Steel (Clan)',
-  'Ferro-Fibrous',
-  'Ferro-Fibrous (Clan)',
-  'Light Ferro-Fibrous',
-  'Heavy Ferro-Fibrous',
-  'Stealth',
-  'Reactive',
-  'Reflective',
-];
-
-// Actuator dependency rules
-/** @deprecated */
-export const ARM_ACTUATOR_RULES = {
-  'Lower Arm Actuator': {
-    canRemove: true,
-    removesAlso: ['Hand Actuator'],
-    slot: 2,
-  },
-  'Hand Actuator': {
-    canRemove: true,
-    requires: ['Lower Arm Actuator'],
-    slot: 3,
-  },
-};
-
-// Re-export slot requirements from centralized utilities for backward compatibility
-export { COCKPIT_SLOT_REQUIREMENTS } from '../utils/cockpitCalculations';
-
-/** @deprecated Use IEngineDef.criticalSlots */
-export const ENGINE_SLOT_REQUIREMENTS: Record<string, { centerTorso: number; leftTorso: number; rightTorso: number }> = {
-  'Standard': { centerTorso: 6, leftTorso: 0, rightTorso: 0 },
-  'XL': { centerTorso: 6, leftTorso: 3, rightTorso: 3 },
-  'XL (IS)': { centerTorso: 6, leftTorso: 3, rightTorso: 3 },
-  'XL (Clan)': { centerTorso: 6, leftTorso: 2, rightTorso: 2 },
-  'Light': { centerTorso: 6, leftTorso: 2, rightTorso: 2 },
-  'XXL': { centerTorso: 6, leftTorso: 6, rightTorso: 6 },
-  'Compact': { centerTorso: 3, leftTorso: 0, rightTorso: 0 },
-  'ICE': { centerTorso: 6, leftTorso: 0, rightTorso: 0 },
-  'Fuel Cell': { centerTorso: 6, leftTorso: 0, rightTorso: 0 }
-};
-
-/** @deprecated Use IGyroDef.criticalSlots */
-export const GYRO_SLOT_REQUIREMENTS: Record<string, number> = {
-  'Standard': 4,
-  'Compact': 2,
-  'Heavy-Duty': 4,
-  'XL': 6
-};
-
-/** @deprecated Use IStructureDef.criticalSlots */
-export const STRUCTURE_SLOT_REQUIREMENTS: Record<string, number> = {
-  'Standard': 0,
-  'Endo Steel': 14,
-  'Endo Steel (Clan)': 7,
-  'Composite': 0,
-  'Reinforced': 0,
-  'Industrial': 0
-};
-
-/** @deprecated */
-export function getStructureSlots(type: StructureType): number {
-  return STRUCTURE_SLOT_REQUIREMENTS[type as string] || 0;
-}
-
-/** @deprecated */
-export function getGyroSlots(type: GyroType): number {
-  return GYRO_SLOT_REQUIREMENTS[type as string] || 0;
-}
-
-
-// Heat sink calculations - use centralized functions
-/** @deprecated Use utils/heatSinkCalculations */
-export function calculateIntegratedHeatSinks(engineRating: number): number {
-  const { calculateInternalHeatSinksForEngine } = require('../utils/heatSinkCalculations');
-  return calculateInternalHeatSinksForEngine(engineRating);
-}
-
-/** @deprecated Use utils/heatSinkCalculations */
-export function calculateExternalHeatSinks(total: number, engineRating: number): number {
-  const integrated = calculateIntegratedHeatSinks(engineRating);
-  return Math.max(0, total - integrated);
-}
-
-// Re-export weight calculation functions from centralized utilities for backward compatibility
-// Re-export weight calculation functions via Gateway
-/** @deprecated Use SystemComponentsGateway */
+/**
+ * Calculate structure weight for a given tonnage and structure type
+ */
 export function calculateStructureWeight(tonnage: number, type: StructureType): number {
-  const { SystemComponentsGateway } = require('../services/systemComponents/SystemComponentsGateway');
-  return SystemComponentsGateway.calculateStructureWeightByType(type, tonnage);
+  return StructureMechanics.calculateWeight(tonnage, type);
 }
 
-export { calculateArmorWeight } from '../utils/armorCalculations';
-
-/** @deprecated Use SystemComponentsGateway */
-export function calculateGyroWeight(rating: number, type: GyroType): number {
-  const { SystemComponentsGateway } = require('../services/systemComponents/SystemComponentsGateway');
-  return SystemComponentsGateway.calculateGyroWeightByType(type, rating);
-}
-
-// Note: Engine weight calculation has different parameters in the utility
-// So we need a wrapper for backward compatibility
-/** @deprecated Use SystemComponentsGateway */
-export function calculateEngineWeight(rating: number, type: EngineType, _tonnage?: number): number {
-  const { SystemComponentsGateway } = require('../services/systemComponents/SystemComponentsGateway');
-  return SystemComponentsGateway.calculateEngineWeightByType(type, rating, _tonnage || 100);
-}
-
-// Helper to check if a component is fixed
-/** @deprecated */
-export function isFixedComponent(componentName: string): boolean {
-  if (!componentName) return false;
-  return FIXED_SYSTEM_COMPONENTS.some(comp => componentName.includes(comp));
-}
-
-// Helper to check if a component is conditionally removable
-/** @deprecated */
-export function isConditionallyRemovable(componentName: string): boolean {
-  if (!componentName) return false;
-  return CONDITIONALLY_REMOVABLE_COMPONENTS.some(comp => componentName.includes(comp));
-}
-
-// Helper to check if a component is a special component
-/** @deprecated */
-export function isSpecialComponent(componentName: string): boolean {
-  if (!componentName) return false;
-  return SPECIAL_COMPONENTS.some(comp => componentName.includes(comp));
-}
-
-// Helper to determine slot content type
-/** @deprecated */
-export function getSlotContentType(name: string): SlotContentType {
-  if (!name || name === '-Empty-') return 'empty';
-  
-  if (name.includes('Heat Sink')) return 'heat-sink';
-  
-  if (isSpecialComponent(name)) {
-    if (name.includes('Endo Steel')) return 'endo-steel';
-    if (name.includes('Ferro') || name.includes('Stealth') || 
-        name.includes('Reactive') || name.includes('Reflective')) {
-      return 'ferro-fibrous';
-    }
+/**
+ * Get critical slots required for structure type (defaults to Inner Sphere)
+ */
+export function getStructureSlots(type: StructureType): number {
+  const techMap = STRUCTURE_SLOTS_REQUIRED[type];
+  if (!techMap) {
+    return 0;
   }
-  
-  if (isFixedComponent(name) || isConditionallyRemovable(name)) {
-    return 'system';
-  }
-  
-  return 'equipment';
+  // Default to Inner Sphere if tech base not specified
+  return techMap[TechBase.INNER_SPHERE] || 0;
+}
+
+export interface IStructure extends ISystemComponent {
+  readonly type: ComponentType.STRUCTURE;
+  readonly structureType: StructureType;
+  readonly totalPoints: number;
+  readonly pointsByLocation: Record<string, number>;
+  readonly criticalSlots: number; // Slots required (e.g. 14 for Endo Steel)
+}
+
+// =============================================================================
+// ARMOR
+// =============================================================================
+
+export enum ArmorType {
+  STANDARD = 'Standard',
+  FERRO_FIBROUS = 'Ferro-Fibrous',
+  FERRO_FIBROUS_CLAN = 'Ferro-Fibrous (Clan)',
+  LIGHT_FERRO = 'Light Ferro-Fibrous',
+  HEAVY_FERRO = 'Heavy Ferro-Fibrous',
+  STEALTH = 'Stealth',
+  REACTIVE = 'Reactive',
+  REFLECTIVE = 'Reflective',
+  HARDENED = 'Hardened',
+}
+
+export interface IArmor extends ISystemComponent {
+  readonly type: ComponentType.ARMOR;
+  readonly armorType: ArmorType;
+  readonly pointsPerTon: number;
+  readonly totalPoints: number;
+  readonly maxPoints: number;
+  readonly criticalSlots: number; // Slots required (e.g. 14 for Ferro)
+  readonly pointsByLocation: Record<string, number>;
+  readonly maxPointsByLocation?: Record<string, number>;
+}
+
+export interface IArmorDef {
+  readonly id: string;
+  readonly name: string;
+  readonly type: string;
+  readonly category: ComponentCategory;
+  readonly pointsPerTon: number;
+  readonly criticalSlots: number;
+  readonly techBase?: TechBase | 'Both';
+  readonly techLevel?: string;
+  readonly rulesLevel?: RulesLevel;
+  readonly costMultiplier?: number;
+  readonly maxPointsPerLocationMultiplier?: number;
+  readonly introductionYear?: number;
+}
+
+// =============================================================================
+// HEAT SINKS
+// =============================================================================
+
+export enum HeatSinkType {
+  SINGLE = 'Single',
+  DOUBLE = 'Double',
+  DOUBLE_IS = 'Double (IS)',
+  DOUBLE_CLAN = 'Double (Clan)',
+  COMPACT = 'Compact',
+  COMPACT_CLAN = 'Compact (Clan)',
+  LASER = 'Laser',
+  LASER_CLAN = 'Laser (Clan)',
+}
+
+export interface IHeatSinkSystem extends ISystemComponent {
+  readonly type: ComponentType.HEAT_SINK;
+  readonly heatSinkType: HeatSinkType;
+  readonly count: number;
+  readonly engineHeatSinks: number; // Number integral to engine
+  readonly dissipation: number; // Total dissipation
+}
+
+
+// =============================================================================
+// JUMP JETS
+// =============================================================================
+
+export enum JumpJetType {
+  STANDARD = 'Standard',
+  IMPROVED = 'Improved',
+  MECHANICAL = 'Mechanical',
+}
+
+export interface IJumpJetSystem extends ISystemComponent {
+  readonly type: ComponentType.JUMP_JET;
+  readonly jumpJetType: JumpJetType;
+  readonly count: number;
+  readonly weight: number;
 }
