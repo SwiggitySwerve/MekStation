@@ -768,6 +768,16 @@ function matchesFilters(
 
 ## Dependencies
 
+### Defines
+- **TechBase enum**: Binary technology classification (INNER_SPHERE, CLAN) - authoritative source
+- **UnitTechBase enum**: Unit technology classification (INNER_SPHERE, CLAN, MIXED) - authoritative source
+- **TechBaseFilter enum**: UI filtering for tech base (INNER_SPHERE, CLAN, MIXED, ALL) - authoritative source
+- **RulesLevel enum**: Rules complexity levels (INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL) - authoritative source
+- **RulesLevelFilter enum**: UI filtering for rules levels (INTRODUCTORY, STANDARD, ADVANCED, ALL) - authoritative source
+- **Era enum**: Historical eras (AGE_OF_WAR through DARK_AGE) - authoritative source
+- **Type guard functions**: isValidTechBase(), isValidUnitTechBase(), isValidTechBaseFilter(), isValidRulesLevel(), isValidRulesLevelFilter(), isValidEra()
+- **Enum display values and constants**: Display strings for all enumerations
+
 ### Depends On
 None - This is a foundation specification that other specs depend on.
 

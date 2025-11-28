@@ -1,9 +1,9 @@
 # Rules Level System Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2025-11-27
-**Dependencies**: Core Entity Types
+**Version**: 1.1
+**Last Updated**: 2025-11-28
+**Dependencies**: Core Enumerations, Core Entity Types
 **Affects**: All component and equipment specifications
 
 ---
@@ -15,13 +15,13 @@ Defines the rules complexity classification system for BattleTech components and
 
 ### Scope
 **In Scope:**
-- Rules level enumeration and definitions
 - Component classification by rules level
 - Filtering and validation based on rules level
 - Rules level progression and hierarchy
 - Competitive play legality
 
 **Out of Scope:**
+- Rules level enumeration definitions (see Core Enumerations)
 - Specific component implementations (covered in component specs)
 - Tournament organization rules
 - Campaign-specific house rules
@@ -123,78 +123,28 @@ The system SHALL validate tournament legality based on rules level.
 
 ---
 
+
+## Rules Level Enumeration
+
+The `RulesLevel` and `RulesLevelFilter` enumerations are defined in the [Core Enumerations](../core-enumerations/spec.md) specification. This specification defines the classification logic, hierarchy relationships, tournament legality rules, and filtering patterns that use these enumerations.
+
+For the complete enumeration definitions, see: `openspec/specs/phase-1-foundation/core-enumerations/spec.md`
+
+**Summary of Enumeration Values:**
+
+**RulesLevel**: INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL
+
+**RulesLevelFilter**: INTRODUCTORY, STANDARD, ADVANCED, ALL
+
+---
+
 ## Data Model Requirements
-
-### Required Enumerations
-
-```typescript
-/**
- * Rules complexity classification
- *
- * Defines the complexity level and competitive play legality of components.
- * Levels form a hierarchy: INTRODUCTORY < STANDARD < TOURNAMENT < EXPERIMENTAL
- */
-enum RulesLevel {
-  /**
-   * Introductory rules - basic game components
-   * Used for new players and simplified gameplay
-   * Always tournament legal
-   */
-  INTRODUCTORY = 'Introductory',
-
-  /**
-   * Standard rules - common components
-   * Most widely used in standard gameplay
-   * Always tournament legal
-   */
-  STANDARD = 'Standard',
-
-  /**
-   * Advanced rules - complex components
-   * Advanced technology with additional rules overhead
-   * Tournament legal but adds complexity
-   */
-  ADVANCED = 'Advanced',
-
-  /**
-   * Experimental rules - bleeding edge technology
-   * Experimental or prototype technology
-   * NOT tournament legal - playtest/campaign only
-   */
-  EXPERIMENTAL = 'Experimental'
-}
-
-/**
- * Filter for maximum allowed rules complexity
- */
-enum RulesLevelFilter {
-  /**
-   * Show only Introductory components
-   */
-  INTRODUCTORY = 'Introductory',
-
-  /**
-   * Show Introductory and Standard components
-   */
-  STANDARD = 'Standard',
-
-  /**
-   * Show Introductory, Standard, and Advanced components
-   */
-  ADVANCED = 'Advanced',
-
-  /**
-   * Show all components including Experimental
-   */
-  ALL = 'All'
-}
-```
 
 ### Required Properties
 
 | Property | Type | Required | Description | Valid Values | Default |
 |----------|------|----------|-------------|--------------|---------|
-| `rulesLevel` | `RulesLevel` | Yes | Component rules complexity | INTRODUCTORY, STANDARD, TOURNAMENT, EXPERIMENTAL | - |
+| `rulesLevel` | `RulesLevel` | Yes | Component rules complexity | INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL | - |
 
 ### Type Constraints
 
@@ -382,7 +332,7 @@ function matchesRulesFilter(
 ### Clan Implementation
 **No special rules** - Clan components use the same rules level classifications.
 
-**Note**: A Clan component may have a different rules level than its Inner Sphere equivalent (e.g., Clan ER Medium Laser is STANDARD while IS ER Medium Laser is TOURNAMENT).
+**Note**: A Clan component may have a different rules level than its Inner Sphere equivalent (e.g., Clan ER Medium Laser is STANDARD while IS ER Medium Laser is ADVANCED).
 
 ### Mixed Tech Rules
 **When unit tech base is Mixed**: Rules level filtering applies the same regardless of unit tech base. A STANDARD filter shows all STANDARD components from both IS and Clan.
@@ -392,13 +342,14 @@ function matchesRulesFilter(
 ## Dependencies
 
 ### Defines
-- **RulesLevel enum**: Defines four complexity classifications (INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL)
-- **RulesLevelFilter enum**: Defines filter settings for maximum allowed complexity (INTRODUCTORY, STANDARD, ADVANCED, ALL)
-- **Rules level hierarchy**: Establishes progression from basic to advanced complexity
+- **Rules level classification logic**: How components are classified by complexity
+- **Rules level hierarchy**: Establishes progression from basic to advanced complexity (Introductory → Standard → Advanced → Experimental)
 - **Tournament legality rules**: Experimental components not tournament legal
 - **Filtering logic**: How to match components against rules level filters
+- **Complexity progression**: Increasing rules overhead from simplest to most complex
 
 ### Depends On
+- [Core Enumerations](../core-enumerations/spec.md) - Defines RulesLevel and RulesLevelFilter enums (authoritative source)
 - [Core Entity Types](../core-entity-types/spec.md) - Uses ITechBaseEntity interface (which includes rulesLevel property)
 
 ### Used By
@@ -414,10 +365,11 @@ function matchesRulesFilter(
 - **UI filters**: Component selection filtering
 
 ### Construction Sequence
-1. Define RulesLevel enumeration (this spec)
-2. Define ITechBaseEntity with rulesLevel property (Core Entity Types)
-3. Implement components with assigned rules levels
-4. Implement filtering logic in UI
+1. Define RulesLevel and RulesLevelFilter enumerations (Core Enumerations spec)
+2. Define classification logic and hierarchy (this spec)
+3. Define ITechBaseEntity with rulesLevel property (Core Entity Types)
+4. Implement components with assigned rules levels
+5. Implement filtering logic in UI
 
 ---
 
@@ -538,6 +490,7 @@ function onRulesFilterChange(filter: RulesLevelFilter) {
 - **Tactical Operations**: Advanced rules clarification
 
 ### Related Documentation
+- `openspec/specs/phase-1-foundation/core-enumerations/spec.md` - RulesLevel and RulesLevelFilter enum definitions
 - `openspec/specs/core-entity-types/spec.md` - ITechBaseEntity interface
 - `openspec/specs/tech-base-system/spec.md` - Technology base classification
 - `openspec/specs/era-temporal-system/spec.md` - Technology availability by era
@@ -557,3 +510,13 @@ function onRulesFilterChange(filter: RulesLevelFilter) {
 - Defined RulesLevelFilter for component filtering
 - Established hierarchy and tournament legality rules
 - Added filtering logic and validation rules
+
+### Version 1.1 (2025-11-28)
+- Removed duplicate RulesLevel and RulesLevelFilter enum definitions
+- Added reference to Core Enumerations specification as authoritative source
+- Updated "Defines" section to clarify this spec defines usage and rules, not enumerations
+- Updated "Depends On" section to include Core Enumerations dependency
+- Updated construction sequence to reflect enum definition in Core Enumerations
+- Updated scope to clarify enumeration definitions are out of scope
+- Fixed note about IS ER Medium Laser being ADVANCED (not TOURNAMENT)
+- Updated metadata to reflect Core Enumerations dependency

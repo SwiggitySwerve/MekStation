@@ -1,9 +1,9 @@
 # Era & Temporal Availability System Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2025-11-27
-**Dependencies**: Core Entity Types
+**Version**: 1.1
+**Last Updated**: 2025-11-28
+**Dependencies**: Core Enumerations, Core Entity Types
 **Affects**: All component and equipment specifications, unit validation
 
 ---
@@ -11,24 +11,26 @@
 ## Overview
 
 ### Purpose
-Defines the timeline system for BattleTech technology availability. Establishes era classifications, introduction/extinction years, and temporal filtering to ensure components are available only in their appropriate time periods.
+Defines the timeline system for BattleTech technology availability. Establishes introduction/extinction years and temporal filtering to ensure components are available only in their appropriate time periods. Uses the Era enumeration from Core Enumerations.
 
 ### Scope
 **In Scope:**
-- Era enumeration and definitions (Age of War through Dark Age)
+- Era temporal logic and validation (uses Era enum from Core Enumerations)
 - Technology introduction and extinction years
 - Temporal availability validation
 - Era-based component filtering
 - Timeline progression rules
+- Era-to-year mapping functions
 
 **Out of Scope:**
+- Era enumeration definition (defined in Core Enumerations spec)
 - Specific technology introduction dates (defined in component specs)
 - Campaign-specific house rules for technology availability
 - Faction-specific technology restrictions
 - Prototype and custom technology timelines
 
 ### Key Concepts
-- **Era**: Named historical period in BattleTech timeline (e.g., Succession Wars, Clan Invasion)
+- **Era**: Named historical period in BattleTech timeline (defined in Core Enumerations)
 - **Introduction Year**: Year when technology became available
 - **Extinction Year**: Year when technology became unavailable (optional)
 - **Temporal Entity**: Component with introduction/extinction dates
@@ -39,16 +41,16 @@ Defines the timeline system for BattleTech technology availability. Establishes 
 ## Requirements
 
 ### Requirement: Era Classification
-The system SHALL define canonical BattleTech eras with specific year ranges.
+The system SHALL use canonical BattleTech eras defined in Core Enumerations.
 
-**Rationale**: Official BattleTech timeline divides history into distinct eras with different technology availability.
+**Rationale**: Official BattleTech timeline divides history into distinct eras with different technology availability. Single source of truth prevents inconsistencies.
 
 **Priority**: Critical
 
 #### Scenario: Era definition
 **GIVEN** a historical year
 **WHEN** determining the era
-**THEN** it SHALL map to exactly one canonical era
+**THEN** it SHALL map to exactly one canonical era from Core Enumerations
 **AND** era boundaries SHALL align with official BattleTech timeline
 **AND** eras SHALL cover the range 2443-3250
 
@@ -140,64 +142,22 @@ The system SHALL support filtering components by era.
 
 ## Data Model Requirements
 
-### Required Enumerations
+### Era Enumeration
+
+The Era enumeration is defined in the [Core Enumerations](../core-enumerations/spec.md) specification. This specification defines the temporal validation logic, era filtering patterns, and availability rules that use Era values.
+
+For the complete Era enumeration definition, including all 8 canonical eras (AGE_OF_WAR through DARK_AGE) with their descriptions and year ranges, see:
+
+**Authoritative Source**: `openspec/specs/phase-1-foundation/core-enumerations/spec.md`
+
+### Required Type Reference
 
 ```typescript
 /**
- * BattleTech historical eras
- *
- * Canonical timeline periods with approximate year ranges.
- * Used for categorization and filtering of technology availability.
+ * Era enum is defined in Core Enumerations spec.
+ * Import from: src/types/core/BaseTypes.ts
  */
-enum Era {
-  /**
-   * Age of War (2005-2570)
-   * Early interstellar conflict and technology development
-   */
-  AGE_OF_WAR = 'Age of War',
-
-  /**
-   * Star League (2571-2780)
-   * Golden age of technology and prosperity
-   */
-  STAR_LEAGUE = 'Star League',
-
-  /**
-   * Early Succession Wars (2781-2900)
-   * Technology regression and loss
-   */
-  EARLY_SUCCESSION_WARS = 'Early Succession Wars',
-
-  /**
-   * Late Succession Wars (2901-3049)
-   * Continued conflict with limited technology
-   */
-  LATE_SUCCESSION_WARS = 'Late Succession Wars',
-
-  /**
-   * Clan Invasion (3050-3061)
-   * Clan technology introduction to Inner Sphere
-   */
-  CLAN_INVASION = 'Clan Invasion',
-
-  /**
-   * Civil War (3062-3067)
-   * FedCom Civil War and political upheaval
-   */
-  CIVIL_WAR = 'Civil War',
-
-  /**
-   * Jihad (3068-3085)
-   * Word of Blake Jihad and massive conflicts
-   */
-  JIHAD = 'Jihad',
-
-  /**
-   * Dark Age (3086-3150+)
-   * HPG blackout and technological chaos
-   */
-  DARK_AGE = 'Dark Age'
-}
+import { Era } from './core/BaseTypes';
 ```
 
 ### Required Interface Extensions
@@ -247,136 +207,22 @@ interface ITemporalEntity {
 
 ## Era Definitions
 
-### Age of War (2005-2570)
+For complete era definitions including year ranges, characteristics, and representative technology, see the [Core Enumerations](../core-enumerations/spec.md) specification.
 
-**Characteristics**:
-- Early interstellar expansion
-- Development of BattleMech technology
-- Primitive technology variants
-- Foundation of Great Houses
+### Era Year Ranges (Reference)
 
-**Representative Technology**:
-- Primitive BattleMechs
-- Standard Fusion Engines
-- Early autocannons and lasers
-- Basic armor systems
+| Era | Year Range | Enum Value |
+|-----|------------|------------|
+| Age of War | 2005-2570 | `Era.AGE_OF_WAR` |
+| Star League | 2571-2780 | `Era.STAR_LEAGUE` |
+| Early Succession Wars | 2781-2900 | `Era.EARLY_SUCCESSION_WAR` |
+| Late Succession Wars | 2901-3049 | `Era.LATE_SUCCESSION_WAR` |
+| Clan Invasion | 3050-3061 | `Era.CLAN_INVASION` |
+| Civil War | 3062-3067 | `Era.CIVIL_WAR` |
+| Jihad | 3068-3085 | `Era.JIHAD` |
+| Dark Age | 3086-3150+ | `Era.DARK_AGE` |
 
-**Year Range**: 2005-2570
-
-### Star League (2571-2780)
-
-**Characteristics**:
-- Golden age of technology
-- Peak technological advancement
-- Widespread prosperity
-- Formation of SLDF
-
-**Representative Technology**:
-- Advanced BattleMechs
-- Gauss Rifles
-- PPC variants
-- Advanced electronics
-- Clan prototypes (late period)
-
-**Year Range**: 2571-2780
-
-### Early Succession Wars (2781-2900)
-
-**Characteristics**:
-- Collapse of Star League
-- Massive technology loss
-- Destruction of factories and knowledge
-- Beginning of regression
-
-**Representative Technology**:
-- Technology losses begin
-- Maintenance of existing systems
-- Limited new development
-- Many technologies go extinct
-
-**Year Range**: 2781-2900
-
-### Late Succession Wars (2901-3049)
-
-**Characteristics**:
-- Continued technology regression
-- Limited industrial capacity
-- Rediscovery efforts
-- Technological stagnation
-
-**Representative Technology**:
-- Standard/basic technology only
-- Lost technologies unavailable
-- Primitive replacements for lost tech
-- Gradual rediscovery beginning (late period)
-
-**Year Range**: 2901-3049
-**Note**: Year 3025 is the classic BattleTech setting year
-
-### Clan Invasion (3050-3061)
-
-**Characteristics**:
-- Clan arrival in Inner Sphere
-- Introduction of Clan technology
-- Technology renaissance
-- Major military conflicts
-
-**Representative Technology**:
-- Clan weapons and equipment
-- Rediscovered lostech
-- Pulse lasers
-- ER weapons
-- Double heat sinks (rediscovered)
-
-**Year Range**: 3050-3061
-
-### Civil War (3062-3067)
-
-**Characteristics**:
-- FedCom Civil War
-- Internal conflicts
-- Continued technology development
-- Prototype advanced systems
-
-**Representative Technology**:
-- Light Ferro-Fibrous armor
-- Stealth armor
-- Advanced targeting systems
-- Experimental weapon variants
-
-**Year Range**: 3062-3067
-
-### Jihad (3068-3085)
-
-**Characteristics**:
-- Word of Blake Jihad
-- Massive devastation
-- Advanced/experimental technology
-- Nuclear and orbital weapons
-
-**Representative Technology**:
-- C3 networks
-- Improved C3
-- Advanced ammunition types
-- Prototype weapon systems
-
-**Year Range**: 3068-3085
-
-### Dark Age (3086-3150+)
-
-**Characteristics**:
-- HPG blackout
-- Communications disruption
-- Regional isolation
-- Mixed technology availability
-
-**Representative Technology**:
-- Regional variants
-- Improvised systems
-- Mixed IS/Clan technology
-- Experimental innovations
-
-**Year Range**: 3086-3150+
+**Note**: Year 3025 is the classic BattleTech setting year (Late Succession Wars era).
 
 ---
 
@@ -413,15 +259,15 @@ function isAvailableInYear(
 function getEraFromYear(year: number): Era {
   if (year >= 2005 && year <= 2570) return Era.AGE_OF_WAR;
   if (year >= 2571 && year <= 2780) return Era.STAR_LEAGUE;
-  if (year >= 2781 && year <= 2900) return Era.EARLY_SUCCESSION_WARS;
-  if (year >= 2901 && year <= 3049) return Era.LATE_SUCCESSION_WARS;
+  if (year >= 2781 && year <= 2900) return Era.EARLY_SUCCESSION_WAR;
+  if (year >= 2901 && year <= 3049) return Era.LATE_SUCCESSION_WAR;
   if (year >= 3050 && year <= 3061) return Era.CLAN_INVASION;
   if (year >= 3062 && year <= 3067) return Era.CIVIL_WAR;
   if (year >= 3068 && year <= 3085) return Era.JIHAD;
   if (year >= 3086) return Era.DARK_AGE;
 
   // Default for edge cases
-  return Era.LATE_SUCCESSION_WARS;
+  return Era.LATE_SUCCESSION_WAR;
 }
 ```
 
@@ -443,8 +289,8 @@ function getEraEndYear(era: Era): number {
   switch (era) {
     case Era.AGE_OF_WAR: return 2570;
     case Era.STAR_LEAGUE: return 2780;
-    case Era.EARLY_SUCCESSION_WARS: return 2900;
-    case Era.LATE_SUCCESSION_WARS: return 3049;
+    case Era.EARLY_SUCCESSION_WAR: return 2900;
+    case Era.LATE_SUCCESSION_WAR: return 3049;
     case Era.CLAN_INVASION: return 3061;
     case Era.CIVIL_WAR: return 3067;
     case Era.JIHAD: return 3085;
@@ -531,13 +377,14 @@ if (component.era !== expectedEra) {
 ## Dependencies
 
 ### Defines
-- **Era enum**: Defines 8 canonical BattleTech eras (AGE_OF_WAR through DARK_AGE)
-- **Era year ranges**: Maps each era to specific year boundaries (e.g., Clan Invasion 3050-3061)
-- **Temporal availability rules**: How introduction/extinction years affect component availability
+- **Era temporal validation logic**: How introduction/extinction years affect component availability
+- **Era availability rules**: Determines when technology is available based on introduction/extinction dates
+- **Era filtering patterns**: Logic for filtering components by era/year
 - **Temporal validation rules**: Ensures extinction year > introduction year
-- **Era filtering logic**: How to filter components by era/year
+- **Era-to-year mapping functions**: getEraFromYear(), getEraEndYear(), isAvailableInYear()
 
 ### Depends On
+- [Core Enumerations](../core-enumerations/spec.md) - Uses Era enum (authoritative source for Era enumeration)
 - [Core Entity Types](../core-entity-types/spec.md) - Uses ITemporalEntity interface (introductionYear, extinctionYear, era properties)
 
 ### Used By
@@ -554,10 +401,11 @@ if (component.era !== expectedEra) {
 - **UI filters**: Era and year selection
 
 ### Construction Sequence
-1. Define Era enumeration (this spec)
-2. Define ITemporalEntity interface (Core Entity Types)
-3. Implement components with temporal properties
-4. Implement filtering logic in UI and validation
+1. Define Era enumeration (Core Enumerations spec)
+2. Define ITemporalEntity interface (Core Entity Types spec)
+3. Define temporal validation and filtering logic (this spec)
+4. Implement components with temporal properties
+5. Implement filtering logic in UI and validation
 
 ---
 
@@ -627,7 +475,7 @@ const doubleHeatSinkRecovered: IHeatSink = {
   rulesLevel: RulesLevel.STANDARD,
   dissipation: 2,
   introductionYear: 3040,  // Rediscovered
-  era: Era.LATE_SUCCESSION_WARS
+  era: Era.LATE_SUCCESSION_WAR
   // No extinction - still available
 };
 ```
@@ -708,8 +556,9 @@ function validateUnitForCampaign(
 - **Interstellar Operations**: Pages 20-30 - Historical timelines
 
 ### Related Documentation
-- `openspec/specs/core-entity-types/spec.md` - ITemporalEntity interface
-- `openspec/specs/tech-base-system/spec.md` - Technology classification
+- `openspec/specs/phase-1-foundation/core-enumerations/spec.md` - Era enumeration (authoritative source)
+- `openspec/specs/phase-1-foundation/core-entity-types/spec.md` - ITemporalEntity interface
+- `openspec/specs/phase-1-foundation/tech-base-system/spec.md` - Technology classification
 - Campaign books - Specific era details and technology lists
 
 ### Code References
@@ -720,6 +569,17 @@ function validateUnitForCampaign(
 ---
 
 ## Changelog
+
+### Version 1.1 (2025-11-28)
+- **BREAKING**: Removed duplicate Era enum definition
+- Added dependency on Core Enumerations spec (authoritative source for Era enum)
+- Updated "Defines" section to clarify this spec defines temporal LOGIC, not the enumeration
+- Updated "Depends On" section to include Core Enumerations dependency
+- Updated "Construction Sequence" to reflect correct dependency order
+- Added reference table for era year ranges
+- Clarified scope to indicate Era enum usage (not definition)
+- Updated header Dependencies field to include Core Enumerations
+- Removed detailed era definitions (moved characteristics and representative technology descriptions)
 
 ### Version 1.0 (2025-11-27)
 - Initial specification
