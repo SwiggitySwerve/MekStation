@@ -1,8 +1,8 @@
 # Heat Sink System Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2025-11-27
+**Version**: 1.1
+**Last Updated**: 2025-11-28
 **Dependencies**: Core Entity Types, Physical Properties System, Engine System, Gyro System
 **Affects**: Unit construction, heat management, critical slot allocation, weight calculation
 
@@ -33,7 +33,7 @@ Defines the heat sink system for BattleMechs, including heat sink types, engine 
 ### Key Concepts
 - **Engine-Mounted Heat Sinks**: Heat sinks integrated into the engine, taking no additional critical slots beyond engine slots
 - **External Heat Sinks**: Heat sinks placed outside the engine, requiring critical slots in mech locations
-- **Engine Integration Capacity**: Maximum number of heat sinks that can be integrated into an engine (floor(engine rating / 25), max 10)
+- **Engine Integration Capacity**: Maximum number of heat sinks that can be engine-mounted (floor(engine rating / 25), max 10)
 - **Heat Dissipation**: Amount of heat removed per turn per heat sink (1 for Single, 2 for Double)
 - **Minimum Heat Sink Requirement**: All BattleMechs must have at least 10 heat sinks total
 
@@ -94,7 +94,7 @@ All heat sinks SHALL be classified into one of five types with distinct characte
 **AND** it SHALL only dissipate heat from laser weapons
 
 ### Requirement: Engine Integration Capacity
-The number of heat sinks that can be integrated into an engine SHALL be calculated based on engine rating only.
+The number of heat sinks that can be engine-mounted SHALL be calculated based on engine rating only.
 
 **Rationale**: BattleTech construction rules specify that engine rating determines heat sink integration capacity, not engine type (except for special engine types that cannot integrate heat sinks).
 
@@ -103,39 +103,39 @@ The number of heat sinks that can be integrated into an engine SHALL be calculat
 #### Scenario: Standard engine integration calculation
 **GIVEN** an engine with rating R
 **WHEN** the engine type is Standard Fusion
-**THEN** integrated heat sink capacity SHALL be floor(R / 25)
+**THEN** engine integration capacity SHALL be floor(R / 25)
 **AND** capacity SHALL NOT exceed 10 heat sinks
 **AND** capacity SHALL NOT have any artificial minimum
 
 #### Scenario: XL engine integration (same as standard)
 **GIVEN** an engine with rating 300
 **WHEN** the engine type is XL (Inner Sphere or Clan)
-**THEN** integrated heat sink capacity SHALL be floor(300 / 25) = 12
+**THEN** engine integration capacity SHALL be floor(300 / 25) = 12
 **AND** this SHALL be capped at maximum 10
 **AND** result SHALL be 10 heat sinks (not reduced due to XL type)
 
 #### Scenario: Light engine integration (same as standard)
 **GIVEN** an engine with rating 175
 **WHEN** the engine type is Light Fusion
-**THEN** integrated heat sink capacity SHALL be floor(175 / 25) = 7
+**THEN** engine integration capacity SHALL be floor(175 / 25) = 7
 **AND** there SHALL be no reduction due to Light engine type
 
 #### Scenario: Compact engine cannot integrate
 **GIVEN** an engine with rating 250
 **WHEN** the engine type is Compact
-**THEN** integrated heat sink capacity SHALL be 0
+**THEN** engine integration capacity SHALL be 0
 **AND** all heat sinks MUST be external
 
 #### Scenario: ICE engine cannot integrate
 **GIVEN** an engine with rating 200
 **WHEN** the engine type is ICE (Internal Combustion)
-**THEN** integrated heat sink capacity SHALL be 0
+**THEN** engine integration capacity SHALL be 0
 **AND** all heat sinks MUST be external
 
 #### Scenario: Fuel Cell engine cannot integrate
 **GIVEN** an engine with rating 180
 **WHEN** the engine type is Fuel Cell
-**THEN** integrated heat sink capacity SHALL be 0
+**THEN** engine integration capacity SHALL be 0
 **AND** all heat sinks MUST be external
 
 #### Scenario: Small engine low capacity
@@ -166,7 +166,7 @@ All BattleMechs SHALL have a minimum of 10 total heat sinks.
 **AND** recommended action SHALL indicate how many more needed
 
 #### Scenario: Small engine requiring external heat sinks
-**GIVEN** an engine with rating 100 (4 integrated heat sinks)
+**GIVEN** an engine with rating 100 (4 engine-integrated heat sinks)
 **WHEN** calculating minimum requirements
 **THEN** 6 external heat sinks SHALL be required
 **AND** total heat sinks SHALL be 10 minimum
@@ -415,7 +415,7 @@ interface IHeatSinkConfiguration {
   readonly totalCount: number;
 
   /**
-   * Number of heat sinks integrated into engine
+   * Number of heat sinks integrated in engine
    * Calculated as min(floor(engineRating / 25), 10)
    * 0 for Compact, ICE, Fuel Cell engines
    */
@@ -570,24 +570,24 @@ Output: engineIntegrationCapacity = 0 heat sinks
 
 **Formula**:
 ```
-externalHeatSinks = totalHeatSinks - engineIntegratedHeatSinks
+externalHeatSinks = totalHeatSinks - engineIntegratedHeatSinks (engine-integrated heat sinks)
 ```
 
 **Where**:
 - `totalHeatSinks` = Total heat sinks on unit (minimum 10)
-- `engineIntegratedHeatSinks` = Heat sinks integrated in engine (0-10)
+- `engineIntegratedHeatSinks (engine-integrated heat sinks)` = Heat sinks integrated in engine (0-10)
 
 **Example**:
 ```
-Input: totalHeatSinks = 15, engineIntegratedHeatSinks = 10
+Input: totalHeatSinks = 15, engineIntegratedHeatSinks (engine-integrated heat sinks) = 10
 Calculation: 15 - 10 = 5
 Output: externalHeatSinks = 5
 ```
 
 **Special Cases**:
-- When totalHeatSinks < engineIntegratedHeatSinks: Invalid configuration (error)
-- When totalHeatSinks = engineIntegratedHeatSinks: externalHeatSinks = 0 (all integrated)
-- When engineIntegratedHeatSinks = 0: externalHeatSinks = totalHeatSinks (all external)
+- When totalHeatSinks < engineIntegratedHeatSinks (engine-integrated heat sinks): Invalid configuration (error)
+- When totalHeatSinks = engineIntegratedHeatSinks (engine-integrated heat sinks): externalHeatSinks = 0 (all engine-integrated)
+- When engineIntegratedHeatSinks (engine-integrated heat sinks) = 0: externalHeatSinks = totalHeatSinks (all external)
 
 **Rounding Rules**:
 - Result is always integer (no rounding needed)
@@ -741,7 +741,7 @@ if (unit.heatSinks.some(hs => hs.heatSinkType !== unit.heatSinkConfiguration.hea
 
 ### Validation: Engine Integration Capacity
 
-**Rule**: Engine-integrated heat sinks cannot exceed calculated capacity
+**Rule**: Engine-integrated heat sinks cannot exceed calculated engine integration capacity
 
 **Severity**: Error
 
@@ -759,7 +759,7 @@ if (heatSinkConfig.engineIntegrated > maxIntegrated) {
 
 ### Validation: External Count Consistency
 
-**Rule**: External count must equal total minus integrated
+**Rule**: External count must equal total minus engine-integrated
 
 **Severity**: Error
 
@@ -770,7 +770,7 @@ if (heatSinkConfig.externalCount !== heatSinkConfig.totalCount - heatSinkConfig.
 }
 ```
 
-**Error Message**: "External heat sink count inconsistent with total and integrated counts"
+**Error Message**: "External heat sink count inconsistent with total and engine-integrated counts"
 
 **User Action**: Recalculate external heat sink count
 
@@ -836,7 +836,7 @@ if (heatSinkConfig.heatSinkType === HeatSinkType.COMPACT &&
 }
 ```
 
-**Error Message**: "Compact heat sinks cannot be integrated into engine"
+**Error Message**: "Compact heat sinks cannot be engine-integrated"
 
 **User Action**: All Compact heat sinks must be external
 
@@ -1221,7 +1221,7 @@ const invalidConfig3 = {
   engineIntegrated: 5  // ERROR: Compact cannot be engine-mounted
 };
 // Validation: FAIL
-// Error: "Compact heat sinks cannot be integrated into engine"
+// Error: "Compact heat sinks cannot be engine-integrated"
 
 // Case 4: Mixed heat sink types
 const invalidConfig4 = {
@@ -1270,7 +1270,19 @@ const invalidConfig5 = {
 
 ---
 
+
 ## Changelog
+
+### Version 1.1 (2025-11-28)
+- Updated heat sink terminology for consistency with TERMINOLOGY_GLOSSARY.md
+- Changed "integrated heat sink capacity" to "engine integration capacity" throughout
+- Changed "integrated" references to "engine-integrated" for clarity
+- Updated property documentation to use canonical terms (engineIntegrated for count)
+- Updated validation error messages to use canonical terminology
+- Updated examples to reflect canonical property names and terminology
+- All uses of "integrated" now consistently use "engine-integrated" or "engine integration capacity"
+- External heat sinks consistently use "external" terminology
+
 
 ### Version 1.0 (2025-11-27)
 - Initial specification

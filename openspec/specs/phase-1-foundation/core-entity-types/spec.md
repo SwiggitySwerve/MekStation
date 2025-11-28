@@ -1,8 +1,8 @@
 # Core Entity Types Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2025-11-27
+**Version**: 1.1
+**Last Updated**: 2025-11-28
 **Dependencies**: None (Foundation)
 **Affects**: All other specifications
 
@@ -87,7 +87,7 @@ Components with physical characteristics SHALL implement appropriate interfaces 
 **Priority**: Critical
 
 #### Scenario: Weight calculation
-**GIVEN** a component with mass
+**GIVEN** a component with weight
 **WHEN** implementing the interface
 **THEN** it MUST implement IWeightedComponent
 **AND** provide weight in tons as a number
@@ -621,6 +621,10 @@ const standardAC10Ammo: IAmmunition = {
 ---
 
 ## Changelog
+
+### Version 1.1 (2025-11-28)
+- Fixed terminology: Changed "component with mass" to "component with weight" (line 90)
+- Aligned with canonical standard from TERMINOLOGY_GLOSSARY.md
 
 ### Version 1.0 (2025-11-27)
 - Initial specification

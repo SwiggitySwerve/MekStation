@@ -1,8 +1,8 @@
 # Tech Base Integration System Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2025-11-27
+**Version**: 1.1
+**Last Updated**: 2025-11-28
 **Dependencies**: Tech Base System (Phase 1)
 **Affects**: Construction Rules, Validation System, Component Database, Equipment Filtering, UI Component Selection
 
@@ -11,13 +11,13 @@
 ## Overview
 
 ### Purpose
-The Tech Base Integration System defines how a unit's declared tech base affects component availability, construction constraints, and validation rules. It enforces the fundamental BattleTech rule that structural components are constrained by unit tech base declaration, while equipment availability is determined solely by year/era.
+The Tech Base Integration System defines how a unit's declared tech base affects component availability, construction constraints, and validation rules. It enforces the fundamental BattleTech rule that system components are constrained by unit tech base declaration, while equipment availability is determined solely by year/era.
 
 ### Scope
 **In Scope:**
 - Unit tech base declaration (Inner Sphere, Clan, Mixed)
 - Structural component locking rules based on unit tech base
-- Mixed Tech toggle mechanics for structural component categories
+- Mixed Tech toggle mechanics for system component categories
 - Tech base compatibility validation
 - Component availability matrices
 - Tech Rating calculation with Mixed Tech effects
@@ -32,13 +32,15 @@ The Tech Base Integration System defines how a unit's declared tech base affects
 - Critical slot allocation (covered in Critical Slots spec)
 
 ### Key Concepts
-- **Unit Tech Base Declaration**: User-selected tech base that determines structural component constraints (Inner Sphere, Clan, or Mixed)
-- **Structural Components**: Core systems whose tech base is constrained by unit declaration (Structure, Engine, Gyro, Heat Sinks, Armor, Myomer, Actuators)
-- **Equipment**: Weapons, electronics, and optional systems whose availability is year-based only, not affected by unit tech base
-- **Mixed Tech Unit**: Unit declared as "Mixed" that can independently select IS or Clan for each structural component category
-- **Tech Base Locking**: Automatic constraint where IS units can only use IS structural components, Clan units only Clan structural
+- **Unit Tech Base Declaration**: User-selected tech base that determines system component constraints (Inner Sphere, Clan, or Mixed)
+- **System Components**: Fixed/required system components whose tech base is constrained by unit declaration (Structure, Engine, Gyro, Heat Sinks, Armor, Myomer, Actuators)
+- **Equipment**: Removable items (weapons, electronics, optional systems) whose availability is year-based only, not affected by unit tech base
+- **Mixed Tech Unit**: Unit declared as "Mixed" that can independently select IS or Clan for each system component category
+- **Tech Base Locking**: Automatic constraint where IS units can only use IS system components, Clan units only Clan system components
 - **Tech Rating**: Availability rating (A-X) that increases when mixing IS and Clan components
 - **Tournament Legality**: Units with Mixed Tech or certain advanced components may be restricted in tournament play
+
+**Terminology Note**: This spec uses "system component" to refer to fixed/required system components (engine, gyro, internal structure, armor, cockpit, actuators) that are locked by tech base. "Equipment" refers to removable items (weapons, ammunition, heat sinks, jump jets) that are tech-base independent. See `openspec/TERMINOLOGY_GLOSSARY.md` for canonical definitions.
 
 ---
 
@@ -47,7 +49,7 @@ The Tech Base Integration System defines how a unit's declared tech base affects
 ### Requirement: Unit Tech Base Declaration
 The system SHALL allow users to declare a unit's tech base as one of three options: Inner Sphere, Clan, or Mixed.
 
-The tech base declaration determines structural component constraints and affects tech rating calculation.
+The tech base declaration determines system component constraints and affects tech rating calculation.
 
 **Rationale**: This is the fundamental choice that drives all component availability and validation rules in BattleTech construction.
 
@@ -57,45 +59,45 @@ The tech base declaration determines structural component constraints and affect
 **GIVEN** a user is creating a new unit
 **WHEN** they select "Inner Sphere" as the tech base
 **THEN** the unit's techBase property SHALL be set to TechBase.INNER_SPHERE
-**AND** all structural component categories SHALL be locked to Inner Sphere options only
+**AND** all system component categories SHALL be locked to Inner Sphere options only
 **AND** equipment filtering SHALL be based on year/era only (not tech base)
 
 #### Scenario: Declaring Clan tech base
 **GIVEN** a user is creating a new unit
 **WHEN** they select "Clan" as the tech base
 **THEN** the unit's techBase property SHALL be set to TechBase.CLAN
-**AND** all structural component categories SHALL be locked to Clan options only
+**AND** all system component categories SHALL be locked to Clan options only
 **AND** equipment filtering SHALL be based on year/era only (not tech base)
 
 #### Scenario: Declaring Mixed tech base
 **GIVEN** a user is creating a new unit
 **WHEN** they select "Mixed" as the tech base
 **THEN** the unit's techBase property SHALL be set to TechBaseFilter.MIXED
-**AND** each structural component category SHALL be independently toggleable between IS and Clan
+**AND** each system component category SHALL be independently toggleable between IS and Clan
 **AND** the unit's tech rating SHALL be calculated with Mixed Tech penalties
 **AND** tournament legality SHALL be marked as potentially restricted
 
 #### Scenario: Changing tech base on existing unit
-**GIVEN** a unit with existing structural components
+**GIVEN** a unit with existing system components
 **WHEN** the user changes the tech base declaration
-**THEN** all structural components SHALL be validated against the new tech base
+**THEN** all system components SHALL be validated against the new tech base
 **AND** incompatible components SHALL be substituted with compatible equivalents
 **AND** if no equivalent exists, components SHALL be set to the default for that category
 **AND** equipment SHALL remain unchanged (year-based only)
 
 ---
 
-### Requirement: Structural Component Categories
-The system SHALL define and enforce eight structural component categories that are constrained by unit tech base declaration.
+### Requirement: System Component Categories
+The system SHALL define and enforce eight system component categories that are constrained by unit tech base declaration.
 
-**Rationale**: These are the core systems that define a unit's construction and are intrinsically tied to the manufacturing tech base.
+**Rationale**: These are the core fixed/required components that define a unit's construction and are intrinsically tied to the manufacturing tech base.
 
 **Priority**: Critical
 
-#### Scenario: Identifying structural components
+#### Scenario: Identifying system components
 **GIVEN** a component in the unit configuration
-**WHEN** determining if it is a structural component
-**THEN** the system SHALL classify it as structural if it belongs to one of these categories:
+**WHEN** determining if it is a system component
+**THEN** the system SHALL classify it as a system component if it belongs to one of these categories:
 - Internal Structure (chassis)
 - Engine
 - Gyro
@@ -105,38 +107,38 @@ The system SHALL define and enforce eight structural component categories that a
 - Actuators (shoulders, hips, upper/lower arms/legs)
 - Movement Systems (jump jets)
 
-#### Scenario: Non-structural components
-**GIVEN** a component that is a weapon, ammunition, electronics, or optional equipment
+#### Scenario: Equipment (non-system components)
+**GIVEN** equipment such as weapons, ammunition, electronics, or optional items
 **WHEN** determining availability constraints
 **THEN** the system SHALL NOT apply unit tech base restrictions
 **AND** availability SHALL be determined by year/era only
-**AND** the component MAY be used on any unit regardless of tech base declaration
+**AND** equipment MAY be used on any unit regardless of tech base declaration
 
 ---
 
 ### Requirement: Tech Base Locking Rules
-The system SHALL enforce tech base locking rules where structural components are restricted based on unit tech base declaration.
+The system SHALL enforce tech base locking rules where system components are restricted based on unit tech base declaration.
 
-**Rationale**: BattleTech construction rules mandate that pure IS or Clan units cannot mix structural component tech bases.
+**Rationale**: BattleTech construction rules mandate that pure IS or Clan units cannot mix system component tech bases.
 
 **Priority**: Critical
 
-#### Scenario: Inner Sphere unit structural lock
+#### Scenario: Inner Sphere unit system component lock
 **GIVEN** a unit with techBase = TechBase.INNER_SPHERE
-**WHEN** selecting any structural component
+**WHEN** selecting any system component
 **THEN** only Inner Sphere variants SHALL be available
-**AND** Clan structural components SHALL be filtered out
-**AND** attempting to manually set a Clan structural component SHALL trigger a validation error
+**AND** Clan system components SHALL be filtered out
+**AND** attempting to manually set a Clan system component SHALL trigger a validation error
 
-#### Scenario: Clan unit structural lock
+#### Scenario: Clan unit system component lock
 **GIVEN** a unit with techBase = TechBase.CLAN
-**WHEN** selecting any structural component
+**WHEN** selecting any system component
 **THEN** only Clan variants SHALL be available
-**AND** Inner Sphere structural components SHALL be filtered out
-**AND** attempting to manually set an IS structural component SHALL trigger a validation error
+**AND** Inner Sphere system components SHALL be filtered out
+**AND** attempting to manually set an IS system component SHALL trigger a validation error
 
 #### Scenario: Available component filtering
-**GIVEN** a structural component category (e.g., "Engine")
+**GIVEN** a system component category (e.g., "Engine")
 **AND** a unit tech base declaration (e.g., "Inner Sphere")
 **WHEN** requesting available component options
 **THEN** the system SHALL return only components matching the tech base
@@ -146,7 +148,7 @@ The system SHALL enforce tech base locking rules where structural components are
 ---
 
 ### Requirement: Mixed Tech Toggle Mechanics
-The system SHALL allow Mixed Tech units to independently toggle each structural component category between Inner Sphere and Clan.
+The system SHALL allow Mixed Tech units to independently toggle each system component category between Inner Sphere and Clan.
 
 **Rationale**: Mixed Tech provides flexibility to optimize designs by selecting the best tech base for each structural category independently.
 
@@ -154,7 +156,7 @@ The system SHALL allow Mixed Tech units to independently toggle each structural 
 
 #### Scenario: Independent category toggles
 **GIVEN** a unit with techBase = TechBaseFilter.MIXED
-**WHEN** the user accesses structural component selections
+**WHEN** the user accesses system component selections
 **THEN** each of the eight structural categories SHALL have an independent tech base selector
 **AND** each category MAY be set to either TechBase.INNER_SPHERE or TechBase.CLAN
 **AND** changing one category's tech base SHALL NOT affect other categories
@@ -198,21 +200,21 @@ The system SHALL maintain availability matrices defining which specific componen
 **Priority**: Critical
 
 #### Scenario: Structure availability by tech base
-**GIVEN** the structural component category "Internal Structure"
+**GIVEN** the system component category "Internal Structure"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Standard", "Endo Steel", "Composite", "Reinforced"]
 - Clan: ["Standard", "Endo Steel (Clan)"]
 
 #### Scenario: Engine availability by tech base
-**GIVEN** the structural component category "Engine"
+**GIVEN** the system component category "Engine"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Standard", "XL", "Light", "Compact", "ICE", "Fuel Cell"]
 - Clan: ["Standard", "XL (Clan)", "Light (Clan)"]
 
 #### Scenario: Gyro availability by tech base
-**GIVEN** the structural component category "Gyro"
+**GIVEN** the system component category "Gyro"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Standard", "XL", "Compact", "Heavy-Duty"]
@@ -220,7 +222,7 @@ The system SHALL maintain availability matrices defining which specific componen
 **NOTE**: Clan cannot use advanced gyro types
 
 #### Scenario: Heat Sink availability by tech base
-**GIVEN** the structural component category "Heat Sinks"
+**GIVEN** the system component category "Heat Sinks"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Single", "Double"]
@@ -228,14 +230,14 @@ The system SHALL maintain availability matrices defining which specific componen
 **NOTE**: Clan does not use single heat sinks
 
 #### Scenario: Armor availability by tech base
-**GIVEN** the structural component category "Armor"
+**GIVEN** the system component category "Armor"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Standard", "Ferro-Fibrous", "Light Ferro", "Heavy Ferro", "Stealth"]
 - Clan: ["Standard", "Ferro-Fibrous (Clan)", "Stealth (Clan)"]
 
 #### Scenario: Myomer/Enhancement availability by tech base
-**GIVEN** the structural component category "Myomer"
+**GIVEN** the system component category "Myomer"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["None", "Triple Strength Myomer", "MASC"]
@@ -243,7 +245,7 @@ The system SHALL maintain availability matrices defining which specific componen
 **NOTE**: Clan cannot use Triple Strength Myomer
 
 #### Scenario: Jump Jet availability by tech base
-**GIVEN** the structural component category "Jump Jets"
+**GIVEN** the system component category "Jump Jets"
 **WHEN** querying available components by tech base
 **THEN** the system SHALL return:
 - Inner Sphere: ["Standard Jump Jets", "Improved Jump Jets"]
@@ -281,7 +283,7 @@ The system SHALL enforce that equipment (weapons, electronics, optional systems)
 **THEN** this SHALL be allowed
 **AND** the unit's tech rating SHALL increase due to mixing
 **AND** the unit MAY be flagged for tournament restrictions
-**BUT** structural components SHALL remain locked to Inner Sphere only
+**BUT** system components SHALL remain locked to Inner Sphere only
 
 ---
 
@@ -294,7 +296,7 @@ The system SHALL calculate tech ratings that reflect the complexity and rarity o
 
 #### Scenario: Pure Inner Sphere tech rating
 **GIVEN** a unit with techBase = TechBase.INNER_SPHERE
-**AND** all structural components are Inner Sphere
+**AND** all system components are Inner Sphere
 **AND** all equipment is Inner Sphere
 **WHEN** calculating the tech rating
 **THEN** the base tech rating SHALL be calculated without Mixed Tech penalty
@@ -302,15 +304,15 @@ The system SHALL calculate tech ratings that reflect the complexity and rarity o
 
 #### Scenario: Pure Clan tech rating
 **GIVEN** a unit with techBase = TechBase.CLAN
-**AND** all structural components are Clan
+**AND** all system components are Clan
 **AND** all equipment is Clan
 **WHEN** calculating the tech rating
 **THEN** the base tech rating SHALL be calculated without Mixed Tech penalty
 **AND** the rating SHALL be determined by the rarest component
 
-#### Scenario: Mixed Tech structural components
+#### Scenario: Mixed Tech system components
 **GIVEN** a unit with techBase = TechBaseFilter.MIXED
-**AND** structural components include both IS and Clan:
+**AND** system components include both IS and Clan:
 - Structure: Endo Steel (IS) - rating 'D'
 - Engine: XL (Clan) - rating 'E'
 - Gyro: Standard (IS) - rating 'D'
@@ -371,7 +373,7 @@ The system SHALL automatically substitute components when tech base changes, sel
 **GIVEN** an Inner Sphere unit with weapons and equipment
 **WHEN** the user changes tech base to Clan
 **THEN** all equipment SHALL remain unchanged
-**AND** only structural components SHALL be affected by the substitution
+**AND** only system components SHALL be affected by the substitution
 
 #### Scenario: Mixed Tech category changes
 **GIVEN** a Mixed Tech unit with Engine set to "Inner Sphere"
@@ -383,7 +385,7 @@ The system SHALL automatically substitute components when tech base changes, sel
 ---
 
 ### Requirement: Tech Base Compatibility Validation
-The system SHALL validate that structural components match their declared tech base and report violations.
+The system SHALL validate that system components match their declared tech base and report violations.
 
 **Rationale**: Invalid tech base combinations must be detected and reported to prevent illegal unit configurations.
 
@@ -391,7 +393,7 @@ The system SHALL validate that structural components match their declared tech b
 
 #### Scenario: Valid IS unit validation
 **GIVEN** a unit with techBase = TechBase.INNER_SPHERE
-**AND** all structural components are Inner Sphere variants
+**AND** all system components are Inner Sphere variants
 **WHEN** running tech base validation
 **THEN** validation SHALL pass with no errors
 **AND** complianceScore SHALL be 100
@@ -411,7 +413,7 @@ The system SHALL validate that structural components match their declared tech b
 
 #### Scenario: Valid Mixed Tech validation
 **GIVEN** a unit with techBase = TechBaseFilter.MIXED
-**AND** structural components include both IS and Clan
+**AND** system components include both IS and Clan
 **WHEN** running tech base validation
 **THEN** validation SHALL pass
 **AND** the unit SHALL be flagged as "isMixed: true"
@@ -419,7 +421,7 @@ The system SHALL validate that structural components match their declared tech b
 #### Scenario: Equipment does not trigger tech base violations
 **GIVEN** an Inner Sphere unit (pure IS structural)
 **AND** the unit equips Clan weapons
-**WHEN** running tech base validation for structural components
+**WHEN** running tech base validation for system components
 **THEN** no violation SHALL be reported for equipment
 **AND** structural validation SHALL pass
 **NOTE**: Equipment mixing affects tech rating and legality, not structural validation
@@ -486,12 +488,12 @@ The implementation MUST provide the following TypeScript interfaces:
 
 ```typescript
 /**
- * Unit tech base declaration and structural component constraints
+ * Unit tech base declaration and system component constraints
  */
 interface IUnitTechBaseConfiguration {
   /**
    * Declared tech base for the unit
-   * Determines structural component constraints
+   * Determines system component constraints
    */
   readonly techBase: TechBase | TechBaseFilter;
 
@@ -542,12 +544,12 @@ interface ITechBaseConstraints {
   readonly unitTechBase: TechBase | TechBaseFilter;
 
   /**
-   * Whether structural components are locked (true for pure IS/Clan)
+   * Whether system components are locked (true for pure IS/Clan)
    */
   readonly structuralLocked: boolean;
 
   /**
-   * Available structural components by category
+   * Available system components by category
    */
   readonly availableStructural: Readonly<Record<StructuralComponentCategory, readonly string[]>>;
 
@@ -557,7 +559,7 @@ interface ITechBaseConstraints {
   readonly equipmentConstrained: false;
 
   /**
-   * Allowed structural component tech bases per category
+   * Allowed system component tech bases per category
    */
   readonly allowedTechBases: Readonly<Record<StructuralComponentCategory, readonly TechBase[]>>;
 }
@@ -617,7 +619,7 @@ interface IComponentOption {
  */
 interface ITechBaseValidationResult {
   /**
-   * Whether all structural components match constraints
+   * Whether all system components match constraints
    */
   readonly isValid: boolean;
 
@@ -767,7 +769,7 @@ interface ITechBaseMemory {
 | `structuralTechBases` | `Record<Category, TechBase>` | No | Tech base per category (Mixed only) | Per-category selections | undefined |
 | `constructionYear` | `number` | Yes | Year for equipment availability | 2000-3200 | 3025 |
 | `tournamentLegality` | `ITournamentLegalityStatus` | Yes | Tournament legality status | Object with level and restrictions | Standard level |
-| `structuralLocked` | `boolean` | Yes | Whether structural locked to one tech base | true for pure IS/Clan, false for Mixed | true |
+| `structuralLocked` | `boolean` | Yes | Whether system component locked to one tech base | true for pure IS/Clan, false for Mixed | true |
 
 ### Type Constraints
 
@@ -785,7 +787,7 @@ interface ITechBaseMemory {
 
 ### Validation: Structural Component Tech Base Match
 
-**Rule**: All structural components must match their declared or selected tech base
+**Rule**: All system components must match their declared or selected tech base
 
 **Severity**: Error
 
@@ -953,7 +955,7 @@ All component specifications reference the Tech Base Variants Reference for comm
 ### Construction Sequence
 1. User declares unit tech base (Inner Sphere, Clan, or Mixed)
 2. System determines structural constraints (locked or toggleable)
-3. User selects structural components (filtered by tech base)
+3. User selects system components (filtered by tech base)
 4. System validates tech base compliance (structural only)
 5. User adds equipment (year-based filtering only)
 6. System calculates tech rating (with Mixed Tech penalties if applicable)
@@ -980,7 +982,7 @@ All component specifications reference the Tech Base Variants Reference for comm
 - **Pitfall**: Filtering equipment by unit tech base
   - **Solution**: Equipment availability is ONLY year-based, never filter by unit tech base
 
-- **Pitfall**: Allowing structural components to ignore tech base on pure units
+- **Pitfall**: Allowing system components to ignore tech base on pure units
   - **Solution**: Enforce strict locking on IS/Clan units, only Mixed allows flexibility
 
 - **Pitfall**: Losing component selections when toggling in Mixed Tech
@@ -1247,7 +1249,7 @@ const unit = {
   techBase: TechBase.INNER_SPHERE, // Pure IS structural
   constructionYear: 3055,
   components: {
-    // All IS structural components
+    // All IS system components
     structure: { name: 'Endo Steel', techBase: TechBase.INNER_SPHERE },
     engine: { name: 'XL', techBase: TechBase.INNER_SPHERE },
     // ... other IS structural
@@ -1281,7 +1283,7 @@ const techRating = calculateTechRating(unit);
 ```typescript
 {
   isValid: true,
-  structurallyPure: true, // All structural components are IS
+  structurallyPure: true, // All system components are IS
   equipmentMixed: true,   // Equipment includes Clan weapons
   isMixedTech: false,     // Not declared Mixed, but has mixing
 
@@ -1328,10 +1330,17 @@ const techRating = calculateTechRating(unit);
 
 ## Changelog
 
+### Version 1.1 (2025-11-28)
+- **TERMINOLOGY**: Systematically replaced "structural component" with "system component" for consistency with TERMINOLOGY_GLOSSARY.md
+- Added terminology clarification note to Key Concepts explaining system component vs equipment distinction
+- Updated all requirements and scenarios to use "system component" terminology
+- Updated structural component categories to "system component categories"
+- Clarified that equipment is tech-base independent while system components are tech-base locked
+
 ### Version 1.0 (2025-11-27)
 - Initial specification for Tech Base Integration System
 - Defined unit tech base declaration (IS, Clan, Mixed)
-- Specified structural component locking rules
+- Specified system component locking rules
 - Documented Mixed Tech toggle mechanics for 8 structural categories
 - Created component availability matrices by tech base
 - Defined equipment year-based availability (tech base independent)
