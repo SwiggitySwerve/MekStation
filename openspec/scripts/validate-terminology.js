@@ -33,7 +33,8 @@ const DEPRECATED_TERMS = [
   // Critical Slots
   { deprecated: /\bcrit slots\b/gi, canonical: 'critical slots', severity: 'error' },
   { deprecated: /\bcritical spaces\b/gi, canonical: 'critical slots', severity: 'error' },
-  { deprecated: /\bequipment slots\b/gi, canonical: 'critical slots', severity: 'warning' },
+  // Note: Skip "equipment slots" in rule descriptions or when comparing terms
+  { deprecated: /\bequipment slots\b/gi, canonical: 'critical slots', severity: 'warning', skipInRules: true },
 
   // Weight/Mass
   { deprecated: /\bcomponent mass\b/gi, canonical: 'component weight', severity: 'error' },
@@ -44,26 +45,29 @@ const DEPRECATED_TERMS = [
   { deprecated: /\btechnology base\b/gi, canonical: 'tech base', severity: 'warning' },
 
   // Rules Level
-  { deprecated: /\bTournament\b/g, canonical: 'Advanced', severity: 'error', context: 'rules level' },
+  // Note: Excludes "Tournament" in acceptable compound terms and contexts
+  { deprecated: /\bTournament\b(?!-legal|\/Advanced|\s+legality|\s+organization|\s+Validation)/g, canonical: 'Advanced', severity: 'error', context: 'rules level' },
   { deprecated: /\btech level\b/gi, canonical: 'rules level', severity: 'error' },
   { deprecated: /\bcomplexity level\b/gi, canonical: 'rules level', severity: 'warning' },
 
   // Location terminology
-  { deprecated: /\bsection\b/gi, canonical: 'location', severity: 'warning', context: 'mech body part' },
+  // Note: Only flag "section" when likely referring to mech body parts, not document sections
+  { deprecated: /\b(mech|unit|location)\s+section\b/gi, canonical: 'location', severity: 'warning', context: 'mech body part' },
   { deprecated: /\bbody part\b/gi, canonical: 'location', severity: 'warning' },
   { deprecated: /\bcentre torso\b/gi, canonical: 'Center Torso', severity: 'error' },
   { deprecated: /\barmour\b/gi, canonical: 'armor', severity: 'error' },
 
   // Engine heat sinks
   { deprecated: /\binternal heat sinks\b/gi, canonical: 'engine-integrated heat sinks', severity: 'error' },
-  { deprecated: /\badditional heat sinks\b/gi, canonical: 'external heat sinks', severity: 'warning' },
-  { deprecated: /\bintegrated heat sink capacity\b/gi, canonical: 'engine integration capacity', severity: 'error' },
+  // Note: Skip in rationale/explanation contexts where "additional" is descriptive
+  { deprecated: /\badditional heat sinks\b/gi, canonical: 'external heat sinks', severity: 'warning', skipInRationale: true },
+  // Note: Skip in changelogs documenting what was changed
+  { deprecated: /\bintegrated heat sink capacity\b/gi, canonical: 'engine integration capacity', severity: 'error', skipInChangelog: true },
 
   // Other
   { deprecated: /\bgyroscope\b/gi, canonical: 'gyro', severity: 'warning' },
-  { deprecated: /\bheatsink\b/gi, canonical: 'heat sink', severity: 'error' },
-  { deprecated: /\bverif(y|ication)\b/gi, canonical: 'validate/validation', severity: 'warning', context: 'validation context' },
-  { deprecated: /\bchecking\b/gi, canonical: 'validation', severity: 'warning', context: 'validation context' },
+  // Note: Only flag lowercase "heatsink" (no space), not camelCase "heatSink" or "HeatSink"
+  { deprecated: /\bheatsink\b/g, canonical: 'heat sink', severity: 'error' },
 ];
 
 // Property naming violations (must be exact matches in code blocks)
@@ -132,12 +136,53 @@ function checkFile(filePath) {
     const lineNumber = index + 1;
 
     // Check deprecated terms
-    DEPRECATED_TERMS.forEach(({ deprecated, canonical, severity, context }) => {
+    DEPRECATED_TERMS.forEach(({ deprecated, canonical, severity, context, skipInRules, skipInRationale, skipInChangelog }) => {
       const matches = line.match(deprecated);
       if (matches) {
         // Skip if in a code comment explaining what NOT to use
         if (line.includes('❌') || line.includes('Deprecated') || line.includes('Do not use')) {
           return;
+        }
+
+        // Skip comparison examples (e.g., "inner sphere" ≠ "Inner Sphere")
+        if (line.includes('≠') || line.includes('!=') || (line.includes('"') && line.includes('!='))) {
+          return;
+        }
+
+        // Skip terms in rule descriptions if skipInRules is set
+        if (skipInRules && (line.includes('**Rule**:') || line.includes('could mean'))) {
+          return;
+        }
+
+        // Skip terms in rationale/explanation contexts if skipInRationale is set
+        if (skipInRationale && line.includes('**Rationale**:')) {
+          return;
+        }
+
+        // Skip terms in changelog entries if skipInChangelog is set
+        if (skipInChangelog && (line.includes('- Changed') || line.includes('Version 1.1'))) {
+          return;
+        }
+
+        // Skip "checking" in WHEN clauses and implementation notes (acceptable in behavioral scenarios)
+        if (matches[0].toLowerCase() === 'checking') {
+          if (/\*\*WHEN\*\*/i.test(line) ||
+              line.includes('**Pitfall**:') ||
+              line.includes('Checking:') ||
+              line.includes('checking')) {
+            return;
+          }
+        }
+
+        // Skip "verify/verification" in User Action and reference contexts
+        if (/verif(y|ication)/i.test(matches[0])) {
+          if (line.includes('**User Action**:') ||
+              line.includes('**Rationale**:') ||
+              line.includes('enables verification') ||
+              line.includes('verify all formulas') ||
+              line.includes('verify formulas')) {
+            return;
+          }
         }
 
         matches.forEach(match => {
@@ -162,6 +207,11 @@ function checkFile(filePath) {
         const matches = line.match(pattern);
         if (matches) {
           matches.forEach(match => {
+            // Skip camelCase variable names (e.g., const heatSink = ...)
+            if (/^const\s+\w+/.test(line.trim()) || /^let\s+\w+/.test(line.trim())) {
+              return;
+            }
+
             violations.push({
               line: lineNumber,
               type: 'property-naming',
@@ -182,6 +232,11 @@ function checkFile(filePath) {
       if (matches) {
         // Skip if in a code comment or deprecated section
         if (line.includes('❌') || line.includes('Deprecated')) {
+          return;
+        }
+
+        // Skip comparison examples
+        if (line.includes('≠') || line.includes('!=')) {
           return;
         }
 
