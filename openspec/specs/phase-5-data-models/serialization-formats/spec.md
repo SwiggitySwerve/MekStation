@@ -97,7 +97,7 @@ The system SHALL provide compatibility and transformation rules for external Bat
 **WHEN** exporting to MegaMekLab format
 **THEN** transformation SHALL map OpenSpec properties to MegaMekLab equivalents
 **AND** format SHALL preserve all calculated properties and equipment configurations
-**AND** mapping SHALL handle technology base differences and era restrictions
+**AND** mapping SHALL handle tech base differences and era restrictions
 **AND** specialized equipment SHALL be converted to equivalent MegaMekLab types
 **AND** format SHALL include proper version and compatibility information
 
@@ -871,7 +871,7 @@ Format specifications and transformation rules based on:
 - Equipment database specifications and property definitions
 - Compression algorithm standards and optimization guidelines
 
-### Technology Base Considerations
+### Tech Base Considerations
 - **Inner Sphere**: Standard format support with basic compression
 - **Clan**: Enhanced format support with advanced optimization
 - **Mixed**: Dual format compatibility with proper transformation

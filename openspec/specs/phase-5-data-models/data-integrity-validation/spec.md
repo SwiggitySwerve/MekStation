@@ -66,7 +66,7 @@ The system SHALL provide a comprehensive validation framework that integrates al
 **GIVEN** calculated properties from battle value, heat management, tech rating, and critical hit systems
 **WHEN** validating overall unit consistency
 **THEN** system SHALL check for mathematical consistency between calculated values
-**AND** validate equipment compatibility with technology base and era restrictions
+**AND** validate equipment compatibility with tech base and era restrictions
 **AND** ensure heat capacity aligns with weapon heat generation
 **AND** verify critical hit probability calculations match equipment configurations
 **AND** validate that battle value calculations incorporate all relevant modifiers correctly
@@ -400,7 +400,7 @@ interface SystemHealthScore {
 - **Critical**: Calculated properties must be consistent across all calculation systems
 - **Critical**: Equipment relationships must maintain referential integrity and prevent orphaned data
 - **Critical**: Custom properties must follow extension framework and naming conventions
-- **Major**: Validation must support all Phase 1-4 constraint types and technology base rules
+- **Major**: Validation must support all Phase 1-4 constraint types and tech base rules
 - **Major**: Transaction validation must maintain atomicity and rollback capabilities
 - **Minor**: Performance metrics should be collected and reported for all validation operations
 
@@ -531,7 +531,7 @@ interface SystemHealthScore {
 
 ### Example 1: Unified Validation Operation
 **GIVEN** a 70-ton BattleMech with:
-- Mixed technology base equipment
+- Mixed tech base equipment
 - Calculated properties from all Phase 1-4 systems
 - Custom targeting system and ECM suite
 - Non-standard weapon configurations
@@ -561,7 +561,7 @@ const validationResult = await unifiedValidationManager.validateUnit(unit);
       message: "Clan targeting computer with Inner Sphere base weapons",
       system: "equipment",
       severity: "major",
-      suggestion: "Consider technology base consistency for optimal performance"
+      suggestion: "Consider tech base consistency for optimal performance"
     }
   ],
   recommendations: [

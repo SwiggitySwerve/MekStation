@@ -109,7 +109,7 @@ The system SHALL provide efficient indexing and query strategies for common Batt
 #### Scenario: Equipment lookup optimization
 **GIVEN** a database with thousands of equipment items and weapon configurations
 **WHEN** performing equipment searches and filtering
-**THEN** system SHALL provide indexed lookup by equipment type and technology base
+**THEN** system SHALL provide indexed lookup by equipment type and tech base
 **AND** support faceted search with multiple criteria (era, weight class, damage type)
 **AND** provide efficient pagination and sorting for large result sets
 **AND** cache frequently accessed equipment to reduce database load
@@ -231,7 +231,7 @@ The system SHALL define comprehensive rules and mechanisms for maintaining data 
 **WHEN** storing or modifying data
 **THEN** system SHALL validate all constraints before committing changes
 **AND** provide comprehensive error reporting for constraint violations
-**AND** support conditional constraints based on technology base, era, and rules level
+**AND** support conditional constraints based on tech base, era, and rules level
 **AND** maintain constraint evolution with version compatibility tracking
 **AND** provide constraint optimization suggestions for efficient configurations
 **AND** support constraint-based query filtering and performance optimization

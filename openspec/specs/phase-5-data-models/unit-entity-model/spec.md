@@ -86,7 +86,7 @@ The system SHALL define a comprehensive unit entity structure that incorporates 
 **AND** provide efficiency analysis and optimization recommendations
 
 #### Scenario: Tech base and era integration
-**GIVEN** units with different technology bases and era restrictions
+**GIVEN** units with different tech bases and era restrictions
 **WHEN** modeling tech base and era in the entity structure
 **THEN** entity SHALL include immutable tech base classification
 **AND** provide era availability information for technology restrictions
@@ -113,7 +113,7 @@ The system SHALL define validation rules and invariants that maintain data integ
 **GIVEN** a unit with multiple installed components
 **WHEN** validating component relationships
 **THEN** validation SHALL check critical slot availability and allocation
-**AND** validate equipment compatibility and technology base consistency
+**AND** validate equipment compatibility and tech base consistency
 **AND** enforce component installation requirements and prerequisites
 **AND** validate system component integration and dependencies
 **AND** check for conflicts between installed components
@@ -350,7 +350,7 @@ interface UnitEntity implements IUnitEntity {
 
   // Combat systems
   engine: EngineSystem;           // Engine type and rating
-  gyro: GyroSystem;             // Gyroscope type and rating
+  gyro: GyroSystem;             // Gyro type and rating
   structure: StructureSystem;      // Internal structure type and points
   armor: ArmorSystem;           // Armor type and distribution
 
@@ -532,7 +532,7 @@ interface EntityExtension {
 
 ### Component Validation
 - **Critical**: Component installation must respect critical slot limitations
-- **Critical**: Component technology base must match unit technology base
+- **Critical**: Component tech base must match unit tech base
 - **Major**: Component weight must not exceed available tonnage
 - **Minor**: Component condition must be consistent with usage
 
@@ -553,14 +553,14 @@ interface EntityExtension {
 
 ### Critical Errors
 - Missing required identification properties
-- Invalid unit type or technology base
+- Invalid unit type or tech base
 - Physical property values outside BattleTech ranges
 - Component weight exceeding available tonnage
 
 ### Major Errors
 - Validation rule failures with unclear causes
 - Calculated property inconsistencies
-- Component technology base mismatches
+- Component tech base mismatches
 
 ### Minor Errors
 - Optional properties with missing documentation
@@ -633,7 +633,7 @@ interface EntityExtension {
 - Standard Fusion engine, XXL gyro
 - 13 double heat sinks, Endo Steel structure
 - Medium Laser, LRM-15, SRM-4
-- Tech Level: Standard, Rules Level: 2
+- Rules Level: Standard, Rules Level: 2
 
 **WHEN** creating the unit entity
 
@@ -707,7 +707,7 @@ interface EntityExtension {
 - XL Engine, Clan Double Heat Sinks
 - Omnimech configuration with multiple configurations
 - Experimental PPC, Streak LRM-6
-- Tech Level: Advanced, Rules Level: 3
+- Rules Level: Advanced, Rules Level: 3
 
 **WHEN** creating the unit entity with custom properties
 
