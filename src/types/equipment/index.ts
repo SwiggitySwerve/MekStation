@@ -6,8 +6,8 @@
  * @spec openspec/changes/implement-phase3-equipment
  */
 
-// Weapon Types
-export * from './WeaponTypes';
+// Weapon Types (from weapons subfolder)
+export * from './weapons';
 
 // Ammunition Types
 export * from './AmmunitionTypes';
@@ -33,7 +33,7 @@ export * from './EquipmentPlacement';
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
-import { ALL_STANDARD_WEAPONS, IWeapon, WeaponCategory } from './WeaponTypes';
+import { ALL_STANDARD_WEAPONS, IWeapon, WeaponCategory } from './weapons';
 import { ARTILLERY_WEAPONS, CAPITAL_WEAPONS } from './ArtilleryTypes';
 import { ALL_AMMUNITION, IAmmunition } from './AmmunitionTypes';
 import { ALL_ELECTRONICS, IElectronics } from './ElectronicsTypes';

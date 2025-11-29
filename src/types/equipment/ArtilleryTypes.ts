@@ -8,7 +8,7 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
-import { WeaponCategory, WeaponRanges, IWeapon } from './WeaponTypes';
+import { WeaponCategory, IWeapon } from './weapons';
 
 /**
  * Artillery weapon sub-types

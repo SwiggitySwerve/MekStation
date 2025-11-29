@@ -7,7 +7,7 @@
  */
 
 import { MechLocation } from '../construction/CriticalSlotAllocation';
-import { WeaponCategory } from './WeaponTypes';
+import { WeaponCategory } from './weapons';
 
 /**
  * Location restriction types
