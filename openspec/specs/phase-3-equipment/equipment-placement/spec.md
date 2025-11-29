@@ -104,7 +104,7 @@ Equipment SHALL be placeable in any location with available slots unless restric
 **THEN** equipment MUST NOT overlap engine slots
 **AND** equipment MUST NOT overlap gyro slots
 **AND** equipment MUST NOT overlap actuator slots
-**AND** equipment MUST NOT overlap other equipment slots
+**AND** equipment MUST NOT overlap critical slots occupied by other equipment
 **AND** only empty slots SHALL be valid for placement
 
 ### Requirement: Head Location Restrictions
