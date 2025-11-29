@@ -21,6 +21,9 @@ yarn-error.log*
 *.swp
 *.swo
 
+# AI/Assistant files
+.claude/
+
 # OS files
 .DS_Store
 
