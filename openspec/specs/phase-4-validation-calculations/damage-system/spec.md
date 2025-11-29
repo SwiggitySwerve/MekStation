@@ -123,6 +123,60 @@ The system SHALL calculate damage effectiveness at different range brackets for 
 **AND** account for movement-based damage modifiers
 **AND** handle special physical weapon range characteristics
 
+### Requirement: Hit Location Determination
+The system SHALL determine hit locations based on attack direction using official BattleTech hit location tables per TechManual p.109.
+
+**Rationale**: Hit location varies based on attack direction, making certain locations more likely to be hit depending on the attacker's position relative to the target.
+
+**Priority**: Critical
+
+#### Scenario: Front attack hit location (2d6)
+**GIVEN** an attack from the front arc
+**WHEN** determining hit location with 2d6 roll
+**THEN** roll 2=CT(TAC), 3-4=RA, 5=RL, 6=RT, 7=CT, 8=LT, 9=LL, 10-11=LA, 12=Head
+
+#### Scenario: Rear attack hit location (2d6)
+**GIVEN** an attack from the rear arc
+**WHEN** determining hit location with 2d6 roll
+**THEN** roll distribution same as front but hits rear armor
+
+#### Scenario: Left side attack hit location (2d6)
+**GIVEN** an attack from the left arc
+**WHEN** determining hit location with 2d6 roll
+**THEN** roll 2=LT(TAC), 3=LL, 4-5=LA, 6=LL, 7=LT, 8=CT, 9=RT, 10=RA, 11=RL, 12=Head
+**AND** left-side locations SHALL be more probable
+
+#### Scenario: Right side attack hit location (2d6)
+**GIVEN** an attack from the right arc
+**WHEN** determining hit location with 2d6 roll
+**THEN** roll 2=RT(TAC), 3=RL, 4-5=RA, 6=RL, 7=RT, 8=CT, 9=LT, 10=LA, 11=LL, 12=Head
+**AND** right-side locations SHALL be more probable
+
+#### Scenario: Punch attack hit location (1d6)
+**GIVEN** a punch attack
+**WHEN** determining hit location with 1d6 roll
+**THEN** roll 1=LA, 2=LT, 3=CT, 4=RT, 5=RA, 6=Head
+
+#### Scenario: Kick attack hit location (1d6)
+**GIVEN** a kick attack
+**WHEN** determining hit location with 1d6 roll
+**THEN** roll 1-3=RL, 4-6=LL
+
+#### Scenario: Through Armor Critical (TAC)
+**GIVEN** a hit location roll of 2 on 2d6 tables
+**WHEN** determining critical hit eligibility
+**THEN** Front/Rear attack TAC location SHALL be CT
+**AND** Left side attack TAC location SHALL be LT
+**AND** Right side attack TAC location SHALL be RT
+
+#### Scenario: Attack direction determination
+**GIVEN** attacker and target hex positions with target facing
+**WHEN** determining attack arc
+**THEN** relative direction 0,1,5 = Front arc
+**AND** relative direction 2 = Right arc
+**AND** relative direction 3 = Rear arc
+**AND** relative direction 4 = Left arc
+
 ### Requirement: Calculate Cluster Hit Patterns
 The system SHALL calculate damage distribution patterns for weapons that use cluster hit mechanics.
 
@@ -305,6 +359,35 @@ interface DamageResult {
 }
 ```
 
+### Hit Location Interface
+```typescript
+enum HitLocationTable {
+  MECH_FRONT = 'Mech Front',
+  MECH_REAR = 'Mech Rear',
+  MECH_LEFT = 'Mech Left Side',
+  MECH_RIGHT = 'Mech Right Side',
+  MECH_PUNCH = 'Punch',
+  MECH_KICK = 'Kick',
+}
+
+interface HitLocationResult {
+  roll: number;
+  location: MechLocation;
+  isRear: boolean;
+  isCriticalCandidate: boolean;
+}
+
+interface IHitLocationCalculator {
+  getHitLocation(roll: number, table: HitLocationTable): HitLocationResult;
+  getHitLocationTable(table: HitLocationTable): Record<number, MechLocation>;
+  determineAttackDirection(
+    attackerHex: { x: number; y: number },
+    targetHex: { x: number; y: number },
+    targetFacing: number
+  ): HitLocationTable;
+}
+```
+
 ### Cluster Hit Interface
 ```typescript
 interface IClusterHitCalculator {
@@ -404,6 +487,80 @@ interface DamageRange {
   distribution: 'uniform' | 'normal' | 'weighted' | 'dice-based';
   rollExpression?: string;
 }
+```
+
+### Hit Location Tables
+```typescript
+// Front/Rear Hit Location Table (2d6)
+const FRONT_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
+  2: 'Center Torso',    // Through Armor Critical
+  3: 'Right Arm',
+  4: 'Right Arm',
+  5: 'Right Leg',
+  6: 'Right Torso',
+  7: 'Center Torso',
+  8: 'Left Torso',
+  9: 'Left Leg',
+  10: 'Left Arm',
+  11: 'Left Arm',
+  12: 'Head',
+};
+
+// Left Side Hit Location Table (2d6) - favors left locations
+const LEFT_SIDE_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
+  2: 'Left Torso',      // Through Armor Critical
+  3: 'Left Leg',
+  4: 'Left Arm',
+  5: 'Left Arm',
+  6: 'Left Leg',
+  7: 'Left Torso',
+  8: 'Center Torso',
+  9: 'Right Torso',
+  10: 'Right Arm',
+  11: 'Right Leg',
+  12: 'Head',
+};
+
+// Right Side Hit Location Table (2d6) - favors right locations
+const RIGHT_SIDE_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
+  2: 'Right Torso',     // Through Armor Critical
+  3: 'Right Leg',
+  4: 'Right Arm',
+  5: 'Right Arm',
+  6: 'Right Leg',
+  7: 'Right Torso',
+  8: 'Center Torso',
+  9: 'Left Torso',
+  10: 'Left Arm',
+  11: 'Left Leg',
+  12: 'Head',
+};
+
+// Punch Hit Location Table (1d6)
+const PUNCH_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
+  1: 'Left Arm',
+  2: 'Left Torso',
+  3: 'Center Torso',
+  4: 'Right Torso',
+  5: 'Right Arm',
+  6: 'Head',
+};
+
+// Kick Hit Location Table (1d6)
+const KICK_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
+  1: 'Right Leg', 2: 'Right Leg', 3: 'Right Leg',
+  4: 'Left Leg', 5: 'Left Leg', 6: 'Left Leg',
+};
+
+// TAC Locations by Attack Direction
+const TAC_LOCATIONS: Record<HitLocationTable, MechLocation> = {
+  'Mech Front': 'Center Torso',
+  'Mech Rear': 'Center Torso',
+  'Mech Left Side': 'Left Torso',
+  'Mech Right Side': 'Right Torso',
+  'Punch': 'Left Arm',
+  'Kick': 'Right Leg',
+};
 ```
 
 ### Cluster Hit Models
@@ -714,6 +871,14 @@ Damage calculations and weapon data sourced from:
 ---
 
 ## Version History
+
+**v1.1 (2025-11-29)**: Added hit location system
+- Added direction-based hit location tables (Front, Rear, Left, Right)
+- Added punch and kick hit location tables (1d6)
+- Added Through Armor Critical (TAC) rules by attack direction
+- Added attack direction determination from hex positions
+- Added IHitLocationCalculator interface
+- Added hit location data model definitions
 
 **v1.0 (2025-11-28)**: Initial specification draft
 - Complete damage calculation requirements for all weapon types
