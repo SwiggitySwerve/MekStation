@@ -1,46 +1,30 @@
-import { CatalogService } from './CatalogService'
-import { CatalogItem, PaginatedResult, SearchCriteria, TechContext } from './types'
+/**
+ * Catalog Gateway - STUB FILE
+ * TODO: Replace with spec-driven implementation
+ */
 
-let instance: CatalogService | null = null
-let currentContext: TechContext = { techBase: 'Inner Sphere', unitType: 'BattleMech' }
-let initialized = false
+import { SearchCriteria, TechContext, CatalogItem, PaginatedResult } from './types';
 
-async function ensureInitialized(): Promise<void> {
-  if (!instance) instance = new CatalogService()
-  if (!initialized) {
-    await instance.initialize(currentContext)
-    initialized = true
+export class CatalogGateway {
+  async search(criteria: SearchCriteria, context: TechContext): Promise<PaginatedResult<CatalogItem>> {
+    return {
+      items: [],
+      total: 0,
+      page: criteria.page ?? 1,
+      pageSize: criteria.pageSize ?? 25,
+      totalPages: 0,
+    };
+  }
+
+  async getById(id: string, context: TechContext): Promise<CatalogItem | null> {
+    return null;
+  }
+
+  async getCategories(context: TechContext): Promise<string[]> {
+    return [];
   }
 }
 
-export const CatalogGateway = {
-  async setContext(ctx: Partial<TechContext>): Promise<void> {
-    currentContext = { ...currentContext, ...ctx }
-    if (!instance) instance = new CatalogService()
-    await instance.initialize(currentContext)
-    initialized = true
-  },
-
-  getContext(): TechContext {
-    return currentContext
-  },
-
-  async search(criteria: SearchCriteria): Promise<PaginatedResult<CatalogItem>> {
-    await ensureInitialized()
-    return instance!.search(criteria, currentContext)
-  },
-
-  async getById(id: string): Promise<CatalogItem | null> {
-    await ensureInitialized()
-    return instance!.getById(id, currentContext)
-  },
-
-  async stats(): Promise<{ total: number; byKind: Record<string, number>; byTechBase: Record<string, number> }> {
-    await ensureInitialized()
-    return instance!.stats(currentContext)
-  }
-}
-
-
+export const catalogGateway = new CatalogGateway();
 
 
