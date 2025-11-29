@@ -348,12 +348,12 @@ Certain electronics SHALL be mutually exclusive and cannot coexist on the same u
 **AND** error message SHALL be "Cannot have both C3 Master/Slave and C3i on same unit"
 **AND** user SHALL be required to remove existing C3 equipment
 
-#### Scenario: Speed enhancement mutual exclusivity
+#### Scenario: MASC and Supercharger combination
 **GIVEN** a unit has MASC installed
 **WHEN** attempting to add Supercharger
-**THEN** validation SHALL fail
-**AND** error message SHALL be "MASC and Supercharger are mutually exclusive"
-**AND** user SHALL be required to choose one or the other
+**THEN** validation SHALL pass
+**AND** combined sprint MP = floor(walkMP × 2.5)
+**AND** this represents the most extreme speed boost available
 
 #### Scenario: TSM and MASC mutual exclusivity
 **GIVEN** a unit has Triple-Strength Myomer
@@ -854,13 +854,13 @@ if (hasC3MasterOrSlave && hasC3i) {
 
 **User Action**: Remove either C3 Master/Slave or C3i system
 
-### Validation: MASC and Supercharger Exclusivity
+### Validation: MASC and Supercharger Combination
 
-**Rule**: MASC and Supercharger are mutually exclusive
+**Rule**: MASC and Supercharger MAY be combined for enhanced speed
 
-**Severity**: Error
+**Severity**: Info (no error)
 
-**Condition**:
+**Behavior**:
 ```typescript
 const hasMASC = equipment.some(e =>
   e instanceof ISpecialController && e.controlsSystem === SpecialSystemType.MASC
@@ -870,13 +870,14 @@ const hasSupercharger = equipment.some(e =>
 );
 
 if (hasMASC && hasSupercharger) {
-  // invalid - emit error
+  // VALID - combined sprint MP = floor(walkMP × 2.5)
+  // This is the most extreme speed boost available
 }
 ```
 
-**Error Message**: "MASC and Supercharger are mutually exclusive - only one allowed"
+**Effect**: When MASC is activated with Supercharger installed, sprint MP = floor(walkMP × 2.5)
 
-**User Action**: Remove either MASC or Supercharger
+**Note**: Both systems have individual risks (MASC damage, Supercharger explosion) that stack
 
 ### Validation: TSM and MASC Exclusivity
 
