@@ -14,7 +14,7 @@ const LAMTransformationPanel: React.FC<LAMTransformationPanelProps> = ({
   readOnly = false,
 }) => {
   const [currentMode, setCurrentMode] = useState<LAMMode>(
-    unit.lamConfiguration?.currentMode || 'BattleMech'
+    (unit.lamConfiguration?.currentMode as LAMMode) || LAMMode.MECH
   );
   const [isTransforming, setIsTransforming] = useState(false);
 

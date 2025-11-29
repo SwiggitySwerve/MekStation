@@ -16,7 +16,7 @@ const QuadVeeModeSwitcher: React.FC<QuadVeeModeSwitcherProps> = ({
   readOnly = false,
 }) => {
   const [currentMode, setCurrentMode] = useState<QuadVeeMode>(
-    unit.quadVeeConfiguration?.currentMode || 'Mech'
+    (unit.quadVeeConfiguration?.currentMode as QuadVeeMode) || QuadVeeMode.MECH
   );
   const [isTransforming, setIsTransforming] = useState(false);
 

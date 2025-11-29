@@ -7,7 +7,7 @@ import React, { useRef, useEffect } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import { CriticalSlotObject, EquipmentReference } from '../../../types/criticalSlots';
 import { IEquipment } from '../../../types/core/EquipmentInterfaces';
-import { EquipmentCategory } from '../../../types/core/BaseTypes';
+import { EquipmentCategory } from '../../../types';
 import { DraggedEquipment, DragItemType } from '../dnd/types';
 import { getEquipmentColorClasses } from '../../../utils/equipmentColors';
 import styles from './CriticalSlotDropZone.module.css';

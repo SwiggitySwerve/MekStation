@@ -1,19 +1,15 @@
-import React from 'react';
-import Head from 'next/head';
-import EquipmentCatalog from '../../components/equipment/EquipmentCatalog';
+/**
+ * Equipment List Page - Stub
+ * Temporarily disabled while core specs are being implemented
+ */
 
-const EquipmentPage: React.FC = () => {
+export default function EquipmentListPage() {
   return (
-    <>
-      <Head>
-        <title>Equipment | BattleTech Editor</title>
-      </Head>
-      <div className="container mx-auto px-0 sm:px-4"> {/* Adjusted padding for better control */}
-        <h1 className="text-2xl sm:text-3xl font-bold my-6 text-gray-800 dark:text-white">Equipment Catalogue</h1>
-        <EquipmentCatalog />
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-8">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4 text-amber-400">Equipment Database</h1>
+        <p className="text-gray-400">Coming soon - awaiting core implementation</p>
       </div>
-    </>
+    </div>
   );
-};
-
-export default EquipmentPage;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { EditableUnit } from '../../../types/editor';
 import { IArmorDef } from '../../../types/core/ComponentInterfaces';
-import { ComponentCategory, TechBase, TechLevel, RulesLevel } from '../../../types/core/BaseTypes';
+import { ComponentCategory, TechBase, TechLevel, RulesLevel } from '../../../types';
 import { 
   getMaxArmorForLocation,
   calculateArmorWeight,

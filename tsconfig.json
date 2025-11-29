@@ -43,6 +43,22 @@
     "backup-before-refactor-*/**/*",
     "desktop/**/*",
     "src/components/.disabled/**/*",
-    "**/.disabled/**/*"
+    "**/.disabled/**/*",
+    "src/components/editor/**/*",
+    "src/components/criticalSlots/**/*",
+    "src/components/armor/**/*",
+    "src/components/equipment/**/*",
+    "src/components/comparison/**/*",
+    "src/components/compendium/**/*",
+    "src/components/overview/**/*",
+    "src/components/multiUnit/**/*",
+    "src/components/unit/**/*",
+    "src/components/units/**/*",
+    "src/components/hooks/**/*",
+    "src/hooks/**/*",
+    "src/stores/**/*",
+    "src/services/catalog/**/*",
+    "src/services/editor/**/*",
+    "src/services/integration/**/*"
   ]
 }

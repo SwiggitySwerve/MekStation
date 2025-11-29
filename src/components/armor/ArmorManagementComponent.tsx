@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { EditableUnit } from '../../types/editor';
 import { IArmorDef } from '../../types/core/ComponentInterfaces';
-import { ComponentCategory, TechLevel, RulesLevel, TechBase } from '../../types/core/BaseTypes';
+import { ComponentCategory, TechLevel, RulesLevel, TechBase } from '../../types';
 import { FullUnit } from '../../types';
 import { ArmorType, ARMOR_TYPES } from '../../utils/armorTypes';
 import { useArmorCalculations, isEditableUnit } from './hooks/useArmorCalculations';
@@ -67,7 +67,7 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
   // Use custom hooks
   const armorCalcs = useArmorCalculations(unit);
   // Get tonnage from unit - handle both EditableUnit (tonnage) and FullUnit (mass)
-  const unitTonnage = 'tonnage' in unit ? unit.tonnage : ('mass' in unit ? unit.mass : 50);
+  const unitTonnage = ('tonnage' in unit && unit.tonnage) || ('mass' in unit && unit.mass) || 50;
   
   const validation = useArmorValidation(
     armorCalcs.locations,
@@ -229,7 +229,7 @@ const ArmorManagementComponent: React.FC<ArmorManagementComponentProps> = ({
       }
     };
     
-    const allocation = autoAllocateArmor(tempUnit as EditableUnit);
+    const allocation = autoAllocateArmor(tempUnit as unknown);
     handleApplyDistribution(allocation);
   }, [unit, selectedArmorType, armorCalcs.totalMax, handleApplyDistribution, readOnly, onUnitChange]);
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { EditableUnit } from '../../../types/editor';
-import { RulesLevel } from '../../../types/core/BaseTypes';
+import { RulesLevel } from '../../../types';
 import { updateUnitData } from '../../../utils/unit/unitEntityHelpers';
 import { 
   getIconCache, 

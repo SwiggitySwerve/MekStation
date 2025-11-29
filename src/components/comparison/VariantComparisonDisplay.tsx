@@ -18,7 +18,7 @@ const renderLoadoutList = (title: string, items: UnitEquipmentItem[], baseClass:
 );
 
 const renderCriticalsDiff = (diff: CriticalsComparisonDifference, variantLetter: 'A' | 'B') => {
-    const slots = variantLetter === 'A' ? diff.slotsA : diff.slotsB;
+    const slots = (variantLetter === 'A' ? diff.slotsA : diff.slotsB) ?? [];
     return (
         <div className={variantLetter === 'A' ? 'pr-1' : 'pl-1'}>
             <h5 className="font-medium text-xs">{variantLetter === 'A' ? "Variant A Slots" : "Variant B Slots"}:</h5>

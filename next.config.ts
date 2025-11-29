@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   
+  // Turbopack config (empty to silence Next.js 16 warning)
+  turbopack: {},
+  
   // Optimize for production builds
   experimental: {
     // Enable modern output for better tree-shaking

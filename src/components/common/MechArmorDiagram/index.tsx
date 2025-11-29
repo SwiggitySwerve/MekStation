@@ -112,8 +112,8 @@ const MechArmorDiagram: React.FC<MechArmorDiagramProps> = ({
               <ArmorValue
                 key={position.location}
                 location={position.location}
-                value={armorData.armor_points}
-                rearValue={showRearArmor ? armorData.rear_armor_points : undefined}
+                value={armorData.armor_points ?? armorData.armor ?? 0}
+                rearValue={showRearArmor ? (armorData.rear_armor_points ?? armorData.rearArmor) : undefined}
                 x={position.x}
                 y={position.y}
                 size={size}

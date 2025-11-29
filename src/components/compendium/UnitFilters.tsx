@@ -21,10 +21,10 @@ interface UnitFiltersProps {
 
 // Define constants using our enum types
 const TECH_BASES: TechBase[] = [
-  'Inner Sphere',
-  'Clan', 
-  'Mixed (IS Chassis)',
-  'Mixed (Clan Chassis)'
+  TechBase.INNER_SPHERE,
+  TechBase.CLAN, 
+  TechBase.MIXED_IS_CHASSIS,
+  TechBase.MIXED_CLAN_CHASSIS,
 ];
 
 const UNIT_CONFIGS: UnitConfig[] = [

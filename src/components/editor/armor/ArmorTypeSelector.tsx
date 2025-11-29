@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 import { getAvailableArmorTypes } from '../../../utils/componentOptionFiltering';
-import { RulesLevel, TechLevel, ComponentCategory, TechBase } from '../../../types/core/BaseTypes';
+import { RulesLevel, TechLevel, ComponentCategory, TechBase } from '../../../types';
 
 interface ArmorTypeSelectorProps {
   currentType: IArmorDef;

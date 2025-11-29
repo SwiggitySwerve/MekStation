@@ -10,7 +10,15 @@ import { CriticalSlot, EquipmentAllocation } from '../../utils/criticalSlots/Cri
 function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location: string }) {
   const { removeEquipment, selectedEquipmentId, assignSelectedEquipment, selectEquipment, unallocatedEquipment, unit } = useUnit()
 
-  const isEmpty = !slot.content
+  const isSlotEmpty = (target: CriticalSlot) => {
+    const maybeSlot = target as { isEmpty?: () => boolean };
+    if (typeof maybeSlot.isEmpty === 'function') {
+      return maybeSlot.isEmpty();
+    }
+    return !target.content;
+  };
+
+  const isEmpty = isSlotEmpty(slot);
   const isRemovable = slot.content?.type === 'equipment'
   
   // Check if this slot can actually accommodate the selected equipment
@@ -23,7 +31,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
   const isAssignable = isEmpty && selectedEquipment && canAssignToSlot(slot, location, selectedEquipment)
   
   function canAssignToSlot(targetSlot: CriticalSlot, targetLocation: string, equipment: EquipmentAllocation): boolean {
-    if (!targetSlot.isEmpty()) return false
+    if (!isSlotEmpty(targetSlot)) return false
     
     const section = unit.getSection(targetLocation)
     if (!section) return false
@@ -38,7 +46,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
     
     // For multi-slot equipment, check if there are enough consecutive empty slots starting from this slot
     const allSlots = section.getAllSlots()
-    const startIndex = targetSlot.slotIndex
+    const startIndex = targetSlot.slotIndex ?? targetSlot.index ?? 0
     
     // Check if we have enough consecutive empty slots
     for (let i = 0; i < requiredSlots; i++) {
@@ -46,7 +54,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
       if (slotIndex >= allSlots.length) return false // Not enough slots remaining
       
       const checkSlot = allSlots[slotIndex]
-      if (!checkSlot.isEmpty()) return false // Slot is occupied
+      if (!isSlotEmpty(checkSlot)) return false // Slot is occupied
     }
     
     return true
@@ -95,8 +103,11 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
       return '-Empty-'
     }
     
-    // Use the slot's built-in display name method for consistent naming
-    return slot.getDisplayName()
+    const maybeSlot = slot as { getDisplayName?: () => string };
+    if (typeof maybeSlot.getDisplayName === 'function') {
+      return maybeSlot.getDisplayName();
+    }
+    return slot.content?.name ?? 'Occupied';
   }
 
   const handleDoubleClick = () => {
@@ -110,7 +121,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
   const handleClick = () => {
     if (isAssignable) {
       // Try to assign selected equipment to this slot
-      const success = assignSelectedEquipment(location, slot.slotIndex)
+      const success = assignSelectedEquipment(location, slot.slotIndex ?? slot.index ?? 0)
       if (!success) {
         console.log('Assignment failed - slot may not be suitable for this equipment')
       }
@@ -138,7 +149,7 @@ function CriticalSlotDisplay({ slot, location }: { slot: CriticalSlot, location:
       title={getTitleText()}
     >
       <div className="font-medium">
-        {slot.slotIndex + 1}: {getSlotText()}
+        {(slot.slotIndex ?? slot.index ?? 0) + 1}: {getSlotText()}
       </div>
     </div>
   )

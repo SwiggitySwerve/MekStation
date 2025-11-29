@@ -6,7 +6,7 @@ import { getEquipmentHeat } from '../../../utils/equipmentProperties';
 import { SystemComponentRules } from '../../../utils/criticalSlots/SystemComponentRules';
 import { ComponentConfiguration as CoreComponentConfiguration } from '../../../types/componentConfiguration';
 import { EngineType, GyroType } from '../../../types/systemComponents';
-import { TechBase } from '../../../types/core/BaseTypes';
+import { TechBase } from '../../../types';
 
 export interface PlacementOptions {
   strategy: 'balanced' | 'concentrated' | 'distributed' | 'manual';

@@ -11,7 +11,7 @@ import React from 'react';
 import { useUnit } from '../../multiUnit/MultiUnitProvider';
 import { UnitConfiguration } from '../../../utils/criticalSlots/UnitCriticalManagerTypes';
 import { ArmorType, EngineType, GyroType, HeatSinkType, StructureType } from '../../../types/systemComponents';
-import { ComponentCategory as BaseComponentCategory, TechBase as BaseTechBase } from '../../../types/core/BaseTypes';
+import { ComponentCategory as BaseComponentCategory, TechBase as BaseTechBase } from '../../../types';
 import { 
   SkeletonInput,
   SkeletonSelect,

@@ -23,7 +23,7 @@ export interface ArmorCalculations {
 export function useArmorCalculations(unit: EditableUnit | FullUnit): ArmorCalculations {
   return useMemo(() => {
     // Handle both EditableUnit (tonnage) and FullUnit (mass)
-    const mass = 'tonnage' in unit ? unit.tonnage : ('mass' in unit ? unit.mass : 50);
+    const mass = ('tonnage' in unit && unit.tonnage) || ('mass' in unit && unit.mass) || 50;
     const locations: Record<string, ArmorLocationData> = {};
     let totalArmor = 0;
     let totalMax = 0;
@@ -51,9 +51,10 @@ export function useArmorCalculations(unit: EditableUnit | FullUnit): ArmorCalcul
       let rear = 0;
 
       // Use standard structure from ICompleteUnitConfiguration
-      if ('armor' in unit && unit.armor && unit.armor.allocation) {
+      const unitArmor = 'armor' in unit ? unit.armor as { allocation?: Record<string, number> } : null;
+      if (unitArmor && unitArmor.allocation) {
         // IArmorAllocation has specific keys, but we need to access it as a record
-        const allocation = unit.armor.allocation;
+        const allocation = unitArmor.allocation;
         
         // Standardize key generation (camelCase)
         const locationKeyMap: Record<string, string> = {

@@ -2,7 +2,7 @@ import React from 'react';
 import { EditableUnit } from '../../../types/editor';
 import { IArmorDef } from '../../../types/core/ComponentInterfaces';
 import { ARMOR_SPECIFICATIONS } from '../../../utils/armorCalculations';
-import { TechBase, RulesLevel, TechLevel } from '../../../types/core/BaseTypes';
+import { TechBase, RulesLevel, TechLevel } from '../../../types';
 import styles from './ArmorStatisticsPanel.module.css';
 
 export interface ArmorStatisticsProps {

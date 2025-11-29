@@ -3,7 +3,7 @@
  * Object-based equipment data
  */
 
-import { EquipmentCategory } from '../../../types/core/BaseTypes';
+import { EquipmentCategory } from '../../../types';
 
 export enum DragItemType {
   EQUIPMENT = 'equipment',

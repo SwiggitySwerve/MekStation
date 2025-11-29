@@ -8,7 +8,7 @@ import { useMultiUnit } from '../multiUnit/MultiUnitProvider'
 import { UnitConfigurationBuilder } from '../../utils/criticalSlots/UnitConfigurationBuilder'
 import { UnitConfiguration } from '../../utils/criticalSlots/UnitCriticalManagerTypes'
 import { ComponentConfiguration } from '../../types/componentConfiguration'
-import { EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../../types/systemComponents'
+import { EngineType, GyroType, StructureType, ArmorType, HeatSinkType } from '../../types'
 import { 
   getAvailableStructureTypes, 
   getAvailableArmorTypes, 
@@ -80,8 +80,9 @@ export function SystemComponentControls(): React.ReactElement | null {
   }
   
   // Ensure we have a valid jump jet type
-  if (!jumpJetOptions.includes(jumpJetTypeName as JumpJetType)) {
-    jumpJetTypeName = jumpJetOptions[0] || 'Standard Jump Jet'
+  const validJumpJetNames = jumpJetOptions.map(opt => opt.name);
+  if (!validJumpJetNames.includes(jumpJetTypeName)) {
+    jumpJetTypeName = jumpJetOptions[0]?.name || 'Standard Jump Jets'
   }
   
   const jumpJetAllocation = { [jumpJetTypeName]: config.jumpMP || 0 }
@@ -311,8 +312,8 @@ export function SystemComponentControls(): React.ReactElement | null {
                   className="bg-gray-700 text-white text-xs p-1 rounded border border-gray-600 focus:border-blue-500 col-span-2"
                 >
                   {jumpJetOptions.map(option => (
-                    <option key={option} value={option}>
-                      {JUMP_JET_VARIANTS[option]?.name || option}
+                    <option key={option.type} value={option.name}>
+                      {option.name}
                     </option>
                   ))}
                 </select>

@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { EditableUnit } from '../../../types/editor';
-import { MountedBattleArmor } from '../../../types/core/UnitInterfaces';
+import { EditableUnit, MountedBattleArmor } from '../../../types/editor';
 
 interface BattleArmorMountingPanelProps {
   unit: EditableUnit;
