@@ -1,0 +1,188 @@
+{
+  "id": "devastator-dvs-2-ec",
+  "chassis": "Devastator",
+  "model": "DVS-2-EC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2827,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 47,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 20
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "improved-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "enhanced-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "enhanced-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "CLImpGaussAmmo"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "CLImpGaussAmmo"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLWERPPC",
+      "CLWERPPC",
+      "CLWERPPC",
+      "CLERMediumLaser",
+      "CLImpGaussAmmo",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLWERPPC",
+      "CLWERPPC",
+      "CLWERPPC",
+      "CLERMediumLaser",
+      "CLImpGaussAmmo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "Designed by General Kerensky himself right before the start of the Amaris Civil War, development of the Devastator ended abruptly when Stefan the Usurper took control of the Terran Hegemony.",
+    "capabilities": "In order to overcome its poor speed, long-range power was designed. Although the Devastator is capable of holding its own in close quarters battle, its capacity to control heat is its most striking trait. Pilots are able to move with the utmost speed and fire all of the heavy weaponry without fear thanks to fourteen double heat sinks. A Devastator pilot just needs to slightly scale back his movements to prevent the design from overheating, even when doused in inferno gel or subjected to several engine strikes.",
+    "history": "Although funds were diverted to the war effort, the design team remained so committed to the project that, just before General Kerensky launched the invasion of Terra, they submitted six prototypes for testing, with team expenses covered out of pocket. As no battle logs for the Devastator have ever been discovered, historians are unable to assess how one of the final original Star League Defense Force designs performed or even if any of the prototypes survived. The blueprints were recovered in 3023 on Hoff by a team looking into a recently found Star League facility, but the first engineers to look at the blueprints were unable to replicate any of the new technology that went into the original. The NAIS didn't build a Devastator prototype utilizing available technologies until 3033. A few years later, moderate production started, and until early 3048, when the Federated Commonwealth was able to start producing a fully equipped version, the low tech DVS-1D was given to elite units.\nmanufacturer:Refit\nprimaryfactory:Various\nsystemmanufacturer:CHASSIS:Star League XT\nsystemmanufacturer:ENGINE:Vlar 300 XL\nsystemmanufacturer:ARMOR:Durallex Heavy\nsystemmanufacturer:COMMUNICATIONS:Johnston Wide Band\nsystemmanufacturer:TARGETING:Randar Pinpoint-HY",
+    "deployment": "Several Devastators were hand-built by Clan technicians for Operation Klondike. These used Improved Gauss Rifles and carried two more tons of Gauss ammunition (four tons total). Later Clan Wolverine would overhaul the weapons completely, leaving the Improved Gauss Rifles in place (adding CASE to the arms for protection), but trading the PPCs for Enhanced ER PPCs and the medium lasers for ER medium lasers. To handle the massive heat load, twenty Clan-spec double heat sinks were installed."
+  },
+  "mulId": 7686,
+  "role": "Sniper",
+  "source": "TR:GC"
+}

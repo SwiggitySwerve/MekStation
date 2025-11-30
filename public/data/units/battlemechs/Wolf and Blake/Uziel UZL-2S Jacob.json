@@ -1,0 +1,194 @@
+{
+  "id": "uziel-uzl-2s-jacob",
+  "chassis": "Uziel",
+  "model": "UZL-2S (Jacob)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isrotaryac5",
+      "location": "LEFT_ARM,_AMMO:60"
+    },
+    {
+      "id": "1-isrotaryac5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issrm6",
+      "location": "LEFT_TORSO,_AMMO:15"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "Light Ferro-Fibrous",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "Light Ferro-Fibrous",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERSmallLaser",
+      "ISSRM6",
+      "ISSRM6",
+      "IS Rotary AC/5 Ammo",
+      "ISSRM6 Ammo",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERSmallLaser",
+      "IS Rotary AC/5 Ammo",
+      "IS Rotary AC/5 Ammo",
+      "Light Ferro-Fibrous",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "cowl",
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Built at Defiance Industries' Furillo plant, the Uziel is an effective medium 'Mech that is looked down upon by the LAAF simply because it is produced on Furillo and not at the prestigious Hesperus facility. A varied weapons mix makes the Uziel an excellent trooper 'Mech.",
+    "capabilities": "The Uziel is built on a Foundation E50 Endo Steel chassis that has a GM 300 XL engine that provides the 'Mech with a top speed of 97.2 km/h. The 'Mech's mobility is enhanced with six Rawlings 50 jump jets that allow the 'Mech to jump up to one hundred and eighty meters. The Uziel is armored with eight tons of Maximillian 100 armor that gives the Uziel adequate protection from enemy fire. To dissipate the heat produced by the 'Mech's weapons, it carries eleven double heat sinks.",
+    "deployment": "Won in combat on Arc-Royal after the Wolf's Dragoons arrival, the reborn Black Widow Company's XO Jacob Kincaid set about upgrading his new 'Mech significantly. By the time of the Black Widow's return to Outreach in early 3070, Jacob's Uziel used a lighter 250 rated XL Engine and eight and half tons of Light Ferro-Fibrous armor to free up weight to mount a Rotary AC/5 in each arm while retaining the ER Small Lasers and SRM-6 rack. Three tons of autocannon reloads keep the rotaries firing, with a single ton carried for the SRM launcher.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Furillo",
+    "systemManufacturer": {
+      "CHASSIS": "Foundation E50 Endo Steel",
+      "ENGINE": "GM 300 XL",
+      "ARMOR": "Maximillian 100",
+      "JUMPJET": "Rawlings 50",
+      "COMMUNICATIONS": "Neil 6000-g",
+      "TARGETING": "RCA Instatrac Mark XXII"
+    }
+  },
+  "mulId": 3367,
+  "role": "Striker",
+  "source": "SB:W&B"
+}

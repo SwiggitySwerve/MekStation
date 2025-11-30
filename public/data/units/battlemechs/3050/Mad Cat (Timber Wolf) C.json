@@ -1,0 +1,219 @@
+{
+  "id": "mad-cat-c",
+  "chassis": "Mad Cat",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2945,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERLargeLaser (omnipod)",
+      "CLERLargeLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC5 (omnipod)",
+      "CLUltraAC5 (omnipod)",
+      "CLUltraAC5 (omnipod)",
+      "Clan Ultra AC/5 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLAntiMissileSystem (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "CLAMS Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_med",
+    "weak_head_1"
+  ],
+  "fluff": {
+    "overview": "The Timber Wolf is a fast, heavy OmniMech. A signature design of the Clans' military might, it was arguably the first Clan OmniMech encountered by Inner Sphere forces (as opposed to periphery forces) on The Rock in 3049 by Phelan Kell. The Timber Wolf is vastly more powerful than either the Marauder or the Catapult. It uses its speed and firepower to engage an enemy at the range of its choosing. When first encountered by Inner Sphere forces the idea that a heavy 'Mech could move so swiftly while being as heavily armed and armored as the Timber Wolf was inconceivable. With its twelve tons of Ferro-Fibrous armor and arsenal that rivaled that of most assault 'Mechs of the era, it was completely alien to Inner Sphere military planners, commanders, and even the Precentor Martial of ComStar. Its technological secrets have since been reverse-engineered by the Inner Sphere.",
+    "capabilities": "A long range configuration of the Timber Wolf, the C configuration carries an assortment of long range weapons. For direct fire capabilities, the Timber Wolf C mounts two ER Large Lasers and an Ultra Autocannon/5. For indirect fire support capability, its two LRM-15 launchers provide an ample quantity of firepower. Finally, for close range protection, the C carries an ER Medium Laser and an Anti-Missile System.",
+    "history": "Vaguely resembling a cross-over between the MAD (Marauder) and CAT (Catapult) series, the Timber Wolf was tagged with the Inner Sphere reporting name Mad Cat on first contact. (The targeting computer on Phelan Kell's Wolfhound switched between MAD and CAT when trying to identify it; upon analyzing the data recording from Kell's 'Mech, Precentor Martial Anastasius Focht later officially designated it \"Mad Cat\".",
+    "deployment": "First introduced in 2945, the Timber Wolf was designed by Clan Wolf as a second generation OmniMech along with the Gargoyle and the Naga to replace the aging Woodsman. While the Gargoyle may have been a very capable, fast assault OmniMech, and the Naga may have been an excellent fire-support OmniMech, Clan Wolf (and indeed every other Clan) instantly realized the value of the Timber Wolf; thus, production rights to the Timber Wolf were jealously (and successfully) defended. Only through trade, gifts and battlefield salvage has the Timber Wolf entered the armies of other Clans. Until the invasion of the Inner Sphere, production of the Timber Wolf has been limited to a single facility on Strana Mechty. Despite it's prominence among the Wolves during the Clan Invasion, Refusal War and Word of Blake Jihad, the Timber Wolf became increasingly rare following the sundering of ties with the Homeworld Clans during the Wars of Reaving and Blakist scouring of Tamar. Being built by hand at W-7 plant on Weingarten as of 3080, with some parts even being individually machined due to missing data, attrition vastly outstripped supply as the Wolves looked toward other designs. When Alaric Ward forged the Wolf Empire, he left the W-7 facilities to Clan Hell's Horses and ordered the Kallon plant on Thermopolis be retooled for Timber Wolf production, restoring it's position within the Wolves touman.",
+    "manufacturer": "Wolf Clan Site #1, Wolf Clan Site #2, W-7 Facilities, Kallon Weapon Industries",
+    "primaryFactory": "Arc-Royal, Strana Mechty, Weingarten, Thermopolis",
+    "systemManufacturer": {
+      "CHASSIS": "Type W3 Endo-steel",
+      "ENGINE": "Starfire 375 XL",
+      "ARMOR": "Composite A-2 Ferro-Fibrous",
+      "COMMUNICATIONS": "Khan Series (Type 2c)",
+      "TARGETING": "Series III OPT"
+    }
+  },
+  "mulId": 1980,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

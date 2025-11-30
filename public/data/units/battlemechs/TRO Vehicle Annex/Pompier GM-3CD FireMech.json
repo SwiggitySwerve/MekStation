@@ -1,0 +1,152 @@
+{
+  "id": "pompier-gm-3cd-firemech",
+  "chassis": "Pompier",
+  "model": "GM-3CD Firemech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 15,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 30
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 2,
+      "RIGHT_ARM": 2,
+      "LEFT_TORSO": {
+        "front": 2,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 2,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 3,
+        "rear": 2
+      },
+      "HEAD": 3,
+      "LEFT_LEG": 2,
+      "RIGHT_LEG": 2
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Liquid Storage (1 ton)",
+      "Searchlight",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "MechSprayer",
+      "Environmental Sealing"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Environmental Sealing",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Environmental Sealing",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Environmental Sealing",
+      null
+    ]
+  },
+  "mulId": 4843,
+  "source": "TR:VAr"
+}

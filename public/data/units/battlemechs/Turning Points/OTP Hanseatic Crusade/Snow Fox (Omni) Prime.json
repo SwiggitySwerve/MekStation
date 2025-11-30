@@ -1,0 +1,122 @@
+{
+  "id": "snow-fox-omni-prime",
+  "chassis": "Snow Fox (Omni)",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3111,
+  "tonnage": 20,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 8,
+      "FRL": 8,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "RLL": 8,
+      "RRL": 8
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLActiveProbe (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLECMSuite (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7878,
+  "role": "Scout",
+  "source": "OTP:HC"
+}

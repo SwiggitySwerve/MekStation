@@ -1,0 +1,327 @@
+{
+  "$schema": "../_schema/electronics-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.955Z",
+  "count": 20,
+  "items": [
+    {
+      "id": "targeting-computer",
+      "name": "Targeting Computer",
+      "category": "Targeting",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3062,
+      "special": [
+        "-1 to-hit for direct fire weapons"
+      ],
+      "variableEquipmentId": "targeting-computer-is"
+    },
+    {
+      "id": "clan-targeting-computer",
+      "name": "Targeting Computer (Clan)",
+      "category": "Targeting",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2860,
+      "special": [
+        "-1 to-hit for direct fire weapons"
+      ],
+      "variableEquipmentId": "targeting-computer-clan"
+    },
+    {
+      "id": "guardian-ecm",
+      "name": "Guardian ECM Suite",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 3045,
+      "special": [
+        "6 hex ECM bubble",
+        "Blocks enemy electronics"
+      ]
+    },
+    {
+      "id": "clan-ecm",
+      "name": "ECM Suite (Clan)",
+      "category": "ECM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 2832,
+      "special": [
+        "6 hex ECM bubble",
+        "Blocks enemy electronics"
+      ]
+    },
+    {
+      "id": "angel-ecm",
+      "name": "Angel ECM Suite",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 100,
+      "introductionYear": 3063,
+      "special": [
+        "6 hex ECM bubble",
+        "Enhanced protection vs active probes"
+      ]
+    },
+    {
+      "id": "watchdog-cews",
+      "name": "Watchdog CEWS",
+      "category": "ECM",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 600000,
+      "battleValue": 68,
+      "introductionYear": 3059,
+      "special": [
+        "Combined ECM and Active Probe",
+        "4 hex probe range"
+      ]
+    },
+    {
+      "id": "beagle-active-probe",
+      "name": "Beagle Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 10,
+      "introductionYear": 2576,
+      "special": [
+        "4 hex detection range",
+        "Detects hidden units"
+      ]
+    },
+    {
+      "id": "bloodhound-active-probe",
+      "name": "Bloodhound Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 3,
+      "costCBills": 500000,
+      "battleValue": 25,
+      "introductionYear": 3058,
+      "special": [
+        "8 hex detection range",
+        "Detects hidden units",
+        "Counters stealth"
+      ]
+    },
+    {
+      "id": "clan-active-probe",
+      "name": "Active Probe (Clan)",
+      "category": "Active Probe",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 12,
+      "introductionYear": 2832,
+      "special": [
+        "5 hex detection range",
+        "Detects hidden units"
+      ]
+    },
+    {
+      "id": "light-active-probe",
+      "name": "Light Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 7,
+      "introductionYear": 3052,
+      "special": [
+        "3 hex detection range"
+      ]
+    },
+    {
+      "id": "clan-light-active-probe",
+      "name": "Light Active Probe (Clan)",
+      "category": "Active Probe",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 7,
+      "introductionYear": 3058,
+      "special": [
+        "3 hex detection range"
+      ]
+    },
+    {
+      "id": "c3-master",
+      "name": "C3 Master Computer",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 5,
+      "costCBills": 1500000,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "Coordinates up to 3 C3 slaves",
+        "Shares targeting data"
+      ]
+    },
+    {
+      "id": "c3-slave",
+      "name": "C3 Slave Unit",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 250000,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "Links to C3 Master",
+        "Shares targeting data"
+      ]
+    },
+    {
+      "id": "c3i",
+      "name": "Improved C3 Computer",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 0,
+      "introductionYear": 3062,
+      "special": [
+        "No master required",
+        "Links up to 6 units"
+      ]
+    },
+    {
+      "id": "c3-boosted-master",
+      "name": "C3 Boosted Master",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 6,
+      "criticalSlots": 6,
+      "costCBills": 3000000,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": [
+        "Coordinates up to 3 C3 slaves",
+        "Extended range"
+      ]
+    },
+    {
+      "id": "c3-boosted-slave",
+      "name": "C3 Boosted Slave",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 500000,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": [
+        "Links to C3 Master",
+        "Extended range"
+      ]
+    },
+    {
+      "id": "tag",
+      "name": "TAG",
+      "category": "TAG",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 2600,
+      "special": [
+        "Designates targets for homing missiles",
+        "Uses small laser ranges"
+      ]
+    },
+    {
+      "id": "clan-tag",
+      "name": "TAG (Clan)",
+      "category": "TAG",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 2820,
+      "special": [
+        "Designates targets for homing missiles",
+        "Uses small laser ranges"
+      ]
+    },
+    {
+      "id": "light-tag",
+      "name": "Light TAG",
+      "category": "TAG",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 40000,
+      "battleValue": 0,
+      "introductionYear": 3054,
+      "special": [
+        "Designates targets",
+        "Shorter range than standard TAG"
+      ]
+    },
+    {
+      "id": "clan-light-tag",
+      "name": "Light TAG (Clan)",
+      "category": "TAG",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 40000,
+      "battleValue": 0,
+      "introductionYear": 3054,
+      "special": [
+        "Designates targets",
+        "Shorter range than standard TAG"
+      ]
+    }
+  ]
+}

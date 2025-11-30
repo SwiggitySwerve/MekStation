@@ -1,0 +1,190 @@
+{
+  "id": "thor-c",
+  "chassis": "Thor",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2872,
+  "tonnage": 70,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 27,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERLargeLaser (omnipod)",
+      "CLERSmallLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "ubiquitous_clan"
+  ],
+  "fluff": {
+    "overview": "The Summoner is a highly mobile heavy OmniMech with a mix of speed, mobility, armor, and firepower. Making it a highly effective and reliable mech commonly used by Clan Jade Falcon in a wide variety of roles.",
+    "capabilities": "The Summoner is powered by a lightweight 350 XL engine that gives the 'Mech a top speed of 86.4 km/h. The mobility of the Summoner is enhanced with five jump jets that allow it to jump up to one hundred and fifty meters. The Summoner has fourteen double heat sinks which are capable of handling the heat produced in most of the 'Mechs configurations with ease. To protect it from damage, the Summoner carries nine and a half tons of Ferro-Fibrous armor.",
+    "history": "Barely a second generation OmniMech, the Jade Falcons introduced the Summoner just after becoming the first Clan to win OmniMech technology from Clan Coyote in 2863. The Summoner was dubbed Thor, its Inner Sphere reporting name, by Victor Steiner-Davion himself after fighting one on Trellwan. The name was supposedly inspired by the weapons loadout (in Prime configuration): a PPC and an AC, lightning and thunder, which are associated with the Norse god Thor. Largely supplanted within the Jade Falcons by its successor the Grand Summoner during the Dark Age era, Clan Hell's Horses maintained production of the original on Svarstaad, ensuring by 3150 the Summoner was the oldest continuously produced OmniMech.",
+    "deployment": "A close range brawler, the Summoner C is armed with a single ER Large Laser for long range sniping at enemy targets but truly comes into its own at close range. The 'Mech relies on a powerful Ultra Autocannon/20 for quick kill capabilities at close ranges. This is backed up by a highly accurate Streak SRM-6 launcher to seek out weak points in an enemy's armor and an ER Small Laser.",
+    "manufacturer": "Eagle Craft Group, St. Louis MechWorks, Svarstaad Industriplex Gamma",
+    "primaryFactory": "Ironhold, Niles, Svarstaad",
+    "systemManufacturer": {
+      "CHASSIS": "JFS-703",
+      "ENGINE": "Redline 350 XL",
+      "ARMOR": "J63-3E Ferro Fibrous",
+      "JUMPJET": "JF Standard",
+      "COMMUNICATIONS": "Model J-D 067",
+      "TARGETING": "Hawkeye 58"
+    }
+  },
+  "mulId": 3176,
+  "role": "Skirmisher",
+  "source": "TR:CI"
+}

@@ -1,0 +1,170 @@
+{
+  "id": "icestorm-unknown",
+  "chassis": "Icestorm",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2830,
+  "tonnage": 25,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 12,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "clan-tag",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo SRM-2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLTAG",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLSRM2",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_sensors",
+    "rugged_1"
+  ],
+  "mulId": 1602,
+  "role": "Scout",
+  "source": "TR:3060"
+}

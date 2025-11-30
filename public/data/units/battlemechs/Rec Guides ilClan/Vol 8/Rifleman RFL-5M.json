@@ -1,0 +1,185 @@
+{
+  "id": "rifleman-rfl-5m",
+  "chassis": "Rifleman",
+  "model": "RFL-5M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3049,
+  "tonnage": 60,
+  "engine": {
+    "type": "XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Medium Laser",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Medium Laser",
+      "IS Ultra AC/5 Ammo",
+      "ISCASE",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "imp_com",
+    "searchlight",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 2700,
+  "role": "Brawler",
+  "source": "RG08"
+}

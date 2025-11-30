@@ -1,0 +1,181 @@
+{
+  "id": "malice-mal-xp",
+  "chassis": "Malice",
+  "model": "MAL-XP",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3139,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "CENTER_TORSO": {
+        "front": 42,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-5-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-5-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "Clan LB 5-X Cluster Ammo",
+      "Clan LB 10-X AC Ammo",
+      "Clan LB 10-X Cluster Ammo",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "CLLBXAC5",
+      "Clan LB 5-X Cluster Ammo",
+      "Clan LB 10-X AC Ammo",
+      "Clan LB 10-X Cluster Ammo",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "mulId": 6725,
+  "role": "Juggernaut",
+  "source": "TR:3145:RotS"
+}

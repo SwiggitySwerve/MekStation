@@ -1,0 +1,191 @@
+{
+  "id": "templar-tlr1-oblo",
+  "chassis": "Templar",
+  "model": "TLR1-OBLO",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3100,
+  "tonnage": 85,
+  "engine": {
+    "type": "XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISLargePulseLaser (omnipod)",
+      "ISLargePulseLaser (omnipod)",
+      "ISMediumPulseLaser (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Gauss Ammo (omnipod)",
+      "IS Gauss Ammo (omnipod)",
+      "ISC3iUnit (omnipod)",
+      "ISC3iUnit (omnipod)",
+      "ISGuardianECMSuite (omnipod)",
+      "ISGuardianECMSuite (omnipod)",
+      "ISCASE (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser (omnipod)",
+      "ISERMediumLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "capabilities": "A custom configuration used by the Blessed Order's revived First Division's Unending Faith III, the Templar OBLO is based off the Templar Prime, its combat effectiveness enhanced by the removal the Streak SRM-4 launcher and its attendant ammo for an Improved C3 Computer.",
+    "history": "With a noticeable lack of OmniMechs designed in the Federated Suns, Field Marshal Duke George Hasek went over the heads of the Department of the Quartermaster and commissioned Kallon Industries to design an assault OmniMech and backed the project with his own considerable financial resources. The resulting 'Mech is a force to be reckoned with on the modern battlefield.",
+    "deployment": "The Templar is built on a lightweight Kallon Type XIX Endo Steel chassis and is powered by a KalTek 340 XL engine that gives the 'Mech a top speed of 64.8 km/h while sacrificing durability. The Templar has thirteen fixed double heat sinks and is armored with sixteen and a half tons of Starshield A armor with CASE fixed in the right torso. Overall, this allows the Templar to have forty tons of free pod space for weapons and equipment which the 'Mech uses effectively in its various configurations.",
+    "manufacturer": "Kallon Industries",
+    "primaryFactory": "Talon",
+    "systemManufacturer": {
+      "CHASSIS": "Kallon Type XIX Endo Steel",
+      "ENGINE": "KalTek 340 Extralight",
+      "ARMOR": "Starshield A with CASE",
+      "COMMUNICATIONS": "Newberg Telescan 17",
+      "TARGETING": "Spar 3C MegaTrak"
+    }
+  },
+  "mulId": 7637,
+  "role": "Brawler",
+  "source": "SO:UF"
+}

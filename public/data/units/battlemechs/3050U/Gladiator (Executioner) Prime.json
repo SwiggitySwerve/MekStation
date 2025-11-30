@@ -1,0 +1,182 @@
+{
+  "id": "gladiator-prime",
+  "chassis": "Gladiator",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3001,
+  "tonnage": 95,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 380
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 37,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 19
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLERLargeLaser (omnipod)",
+      "CLERLargeLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Gauss Ammo (omnipod)",
+      "Clan Gauss Ammo (omnipod)",
+      "CLMASC",
+      "CLMASC",
+      "CLMASC",
+      "CLMASC",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLMG (omnipod)",
+      "CLMG (omnipod)",
+      "Clan Machine Gun Ammo - Full (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "fluff": {
+    "overview": "Fast and powerful, the Executioner, known as the Gladiator in the Inner Sphere, is an assault OmniMech often deployed by Clan Ghost Bear. Though originally produced by Clan Ghost Bear, design schematics for the Executioner were actually acquired in a trial with Clan Burrock. Using a massive Heavy Force 380 XL Engine, the Executioner has a top speed of 64.8 km/h. A MASC system enhances the top speed to 86.4 km/h (albeit only in short bursts), and four permanently mounted Pryzhok WM10 jump jets give the 'Mech the ability to propel itself 120 meters into the air. This unusual emphasis on speed gives the Executioner unmatched speed for its weight class, as it is often capable of keeping up with 'Mechs twenty or thirty tons lighter than itself. The Executioner also carries thirteen and a half tons of Ferro-Fibrous armor, which is below average for its weight class, but generally adequate. Sixteen double heat sinks are mounted to cool the 'Mech down.",
+    "capabilities": "The Executioner's primary configuration uses its mobility to keep enemies as far away as possible. A Gauss Rifle is the 'Mech's primary weapon, backed up by dual ER Large Lasers, which give it excellent direct firepower. For use against soft targets and possibly any light vehicles that manage to close the ranges, the Executioner carries two Machine Guns. This makes the 'Mech very effective in an open battlefield, but makes it virtually useless should it encounter a faster enemy with enough firepower, or a physical barrier.",
+    "deployment": "Even though the design has not been used since the 3060s, the Home Clans withdrew it from use after the Wars of Reaving, possibly due to its reputation with the Spheroid Clans like Clan Ghost Bear.\nmanufacturer:Alshain BattleWorx\nprimaryfactory:Alshain\nsystemmanufacturer:CHASSIS:Clan Series Assault SXE\nsystemmanufacturer:ENGINE:380 Heavy Force XL\nsystemmanufacturer:ARMOR:Arcadia Compound Delta VII Ferro-Fibrous\nsystemmanufacturer:JUMPJET:Pryzhok WM 10\nsystemmanufacturer:COMMUNICATIONS:Dash-2 Optima\nsystemmanufacturer:TARGETING:HakkÃ¸n-Morris LAP"
+  },
+  "mulId": 1211,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

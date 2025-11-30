@@ -1,0 +1,186 @@
+{
+  "id": "masauwu-unknown",
+  "chassis": "Masauwu",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2832,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "Clan Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "CLLBXAC10",
+      "Clan Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "CLStreakSRM2",
+      "Clan Streak SRM 2 Ammo",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "CLStreakSRM2",
+      "CLAntiMissileSystem",
+      "CLAMS Ammo",
+      "Clan LB 10-X AC Ammo",
+      "Clan LB 10-X AC Ammo",
+      "Clan LB 10-X Cluster Ammo",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLECMSuite",
+      "CLERSmallLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_1"
+  ],
+  "mulId": 7642,
+  "role": "Brawler",
+  "source": "TR:GC"
+}

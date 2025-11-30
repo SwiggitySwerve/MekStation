@@ -1,0 +1,110 @@
+{
+  "id": "harvester-ant-kic-3-agromech",
+  "chassis": "Harvester Ant",
+  "model": "KIC-3 AgroMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2650,
+  "tonnage": 25,
+  "engine": {
+    "type": "ICE",
+    "rating": 75
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 3,
+      "FRL": 3,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 8,
+      "RLL": 3,
+      "RRL": 3
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Combine",
+      "Combine",
+      "Combine",
+      "Combine",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Combine",
+      "Combine",
+      "Combine",
+      "Combine",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "fluff": {},
+  "mulId": 4265,
+  "role": "Ambusher",
+  "source": "TR:VAr"
+}

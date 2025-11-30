@@ -1,0 +1,228 @@
+{
+  "id": "kraken-unknown",
+  "chassis": "Kraken",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2827,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2",
+      "CLUltraAC2"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ultra AC/2 Ammo",
+      "Clan Ultra AC/2 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "Clan Machine Gun Ammo - Half",
+      "Clan Ultra AC/2 Ammo",
+      "Clan Ultra AC/2 Ammo",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "The Bane is a BattleMech that is based upon a Star League prototype that was never put into production. Tagged the Kraken by Inner Sphere forces who opposed it.",
+    "capabilities": "The Bane was first built in 2827. It was originally a significant part of many Clan toumans, but was gradually relegated to second-line status following the introduction of the OmniMech. As such, it is still critical to many defensive units. The design uses a lightweight XL Engine so that it can mount the arsenal that it does. Nineteen tons of armor protects this venerable assault 'Mech.",
+    "deployment": "This long-range, direct-fire support 'Mech is armed with ten Ultra Autocannon/2s. This weapon has one of the longest ranges in the Clan arsenal, so the Bane can stand back at extreme range and pepper an enemy unit with impunity. Four tons of ammunition keep the 'Mech well-supplied. It runs into problems up close, however, stemming from the minimum range of the autocannons. To keep enemies at bay, especially unarmored infantry, the Bane mounts four Machine Guns. Ten double heat sinks are sufficient to keep the 'Mech cool.",
+    "manufacturer": "Tokasha MechWorks Alpha, Olivetti Weapons",
+    "primaryFactory": "Tokasha, Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "Type AXT, Mk. XX",
+      "ENGINE": "Fusion 300 XL",
+      "ARMOR": "Forging C745",
+      "COMMUNICATIONS": "JNE Integrated",
+      "TARGETING": "Series VI TTS"
+    }
+  },
+  "mulId": 1841,
+  "role": "Sniper",
+  "source": "RG17"
+}

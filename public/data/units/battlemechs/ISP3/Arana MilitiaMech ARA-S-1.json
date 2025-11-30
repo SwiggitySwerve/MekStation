@@ -1,0 +1,121 @@
+{
+  "id": "araã±a-ara-s-1-militiamech",
+  "chassis": "AraÃ±a",
+  "model": "ARA-S-1 MilitiaMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3087,
+  "tonnage": 40,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 20,
+      "FRL": 20,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 20,
+      "RRL": 20
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLERMediumLaser (T)",
+      "CLERMediumLaser (T)",
+      "CLERMediumLaser (T)",
+      "CLQuadTurret",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 5798,
+  "source": "Interstellar Players 3"
+}

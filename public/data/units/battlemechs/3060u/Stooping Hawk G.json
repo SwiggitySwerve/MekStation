@@ -1,0 +1,185 @@
+{
+  "id": "stooping-hawk-g",
+  "chassis": "Stooping Hawk",
+  "model": "G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "protomech-ac-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "protomech-ac-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "protomech-ac-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "Clan ProtoMech AC/4 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "Clan ProtoMech AC/4 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "rugged_2"
+  ],
+  "mulId": 3082,
+  "role": "Skirmisher",
+  "source": "TR:3060"
+}

@@ -1,0 +1,190 @@
+{
+  "id": "tenshi-tn-10-oa",
+  "chassis": "Tenshi",
+  "model": "TN-10-OA",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3101,
+  "tonnage": 95,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-vsp-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-vsp-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mrm-30",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-vsp-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "ISApollo (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "ISCASEII (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)",
+      "ISLargeVSPLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Coolant Pod (omnipod)",
+      "IS Endo-Composite"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Coolant Pod (omnipod)",
+      "IS Endo-Composite"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "searchlight",
+    "difficult_eject"
+  ],
+  "fluff": {
+    "overview": "The Tenshi, (\"Angel\" in japanese), is an Assault Class OmniMech, which was manufactured during the early thirty-second century for the Draconis Combine's armed forces.",
+    "capabilities": "Among the Tenshi's design features is its durability and having a heavy equipment payload. The designers saw fit to equip the 'Mech with a Compact Gyro and 18.5 tons of Standard Armor. The Tenshi also uses a number of new technologies that had finally entered production in the decades preceding the Jihad. The use of an Endo-Composite internal structure and a Light Fusion Engine granted the design a huge pod capacity of 48 tons. However, this large capacity had come at a price; that price being a slightly lower maximum speed than other comparable designs of the era.",
+    "history": "A product of House Kurita's hidden efforts to rebuild its decimated 'Mech regiments, the Tenshi was designed to use resources found within the Combine. The Tenshi was first deployed among the ranks of the Ghost Regiments in the early 3100s, its deployment with a less-renowned brigade was part of the DCMS' two-fold effort of testing the 'Mech while also providing a fire-wall to save face should the design prove to be a failure in combat. One of its first deployments was in 3103, when the 1st Ghost conducted a raid on the Ghost Bear Dominion world of Grumium. The eight Tenshis among the Ghosts' ranks performed well, with most of their numbers returning to",
+    "deployment": "The A configuration's principle firepower comes from three Large Variable Speed Pulse Lasers, one mounted in each of the arms and in the center torso. Backing up the lasers is a single Apollo FCS-guided 30-tubed Medium-Range Missile Launcher with two tons of CASE II-protected ammunition. To help manage the great amounts of heat generated by the weapons, five additional Double Heat Sinks are added as well as a Coolant Pod.",
+    "manufacturer": "Luthien Armor Works",
+    "primaryFactory": "Luthien",
+    "systemManufacturer": {
+      "CHASSIS": "Luthien Class 105A",
+      "ENGINE": "Hermes 285 Light",
+      "ARMOR": "Mitchel Argon Standard",
+      "COMMUNICATIONS": "Sipher Clarion",
+      "TARGETING": "Matabushi Tenbatsu"
+    }
+  },
+  "mulId": 6422,
+  "role": "Juggernaut",
+  "source": "TR:3145:DC"
+}

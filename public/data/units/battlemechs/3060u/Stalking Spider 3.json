@@ -1,0 +1,133 @@
+{
+  "id": "stalking-spider-3",
+  "chassis": "Stalking Spider",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 21,
+      "FRL": 21,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "RLL": 21,
+      "RRL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "heavy-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLSRM6",
+      "Clan Ammo SRM-6",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLHeavySmallLaser",
+      "CLHeavySmallLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLTargeting Computer",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 3047,
+  "role": "Striker",
+  "source": "TR:3060"
+}

@@ -1,0 +1,173 @@
+{
+  "id": "chimera-cma-1s",
+  "chassis": "Chimera",
+  "model": "CMA-1S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "1-ismachine-gun",
+      "location": "RIGHT_ARM,_AMMO:100"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismrm20",
+      "location": "RIGHT_TORSO,_AMMO:24"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISMachine Gun",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMRM20",
+      "ISMRM20",
+      "ISMRM20",
+      "ISMRM20 Ammo",
+      "ISMRM20 Ammo",
+      "ISMG Ammo (100)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "nimble_jumper"
+  ],
+  "mulId": 3950,
+  "role": "Striker",
+  "source": "TR:3067"
+}

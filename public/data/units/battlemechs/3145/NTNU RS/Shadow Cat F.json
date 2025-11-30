@@ -1,0 +1,177 @@
+{
+  "id": "shadow-cat-f",
+  "chassis": "Shadow Cat",
+  "model": "F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3131,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "tsemp-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "CLMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Shadow Cat is a heavily-armed and maneuverable medium OmniMech developed by Clan Nova Cat to replace the Ice Ferret in the early 31st century during preparations for Operation Revival.",
+    "capabilities": "This expensive OmniMech makes use of weight-saving technologies in the form of an Endo Steel internal structure, an XL Engine, and seven tons of Ferro-Fibrous armor. All of these together allow the Shadow Cat to employ more pod space than the Ice Ferret at the expense of speed. To counteract this, the base chassis employs enough jump jets to vault up to 180 meters in a single bound and Myomer Accelerated Signal Circuitry that enables it to move up to 130 km/h in bursts.",
+    "history": "First used against Inner Sphere forces during the Battle of Luthien, the successful Shadow Cat was subsequently deployed by the Clans against ComStar during the Battle of Tukayyid. The Shadow Cat is one of the few Invasion-era Clan 'Mechs to lack a separate Inner Sphere designation; every Inner Sphere pilot who encountered the 'Mech before the Battle of Tukayyid was killed in action, and ComStar was informed of its designation before that battle which resulted in both sides using the same name to refer to the Shadow Cat. Production of the Shadow Cat in the Clan Homeworlds faltered in the years after the Great Refusal, and stopped altogether around the time of the Wars of Reaving. This 'Mech was one of several older designs that were being phased out of manufacture in the Homeworlds. The reasons for the cessation of Shadow Cat production were never explicitly given, but it is possible that the 'Mech's association with the exiled Clan Nova Cat played a role in the decision to phase out this 'Mech. In the Inner Sphere, however, no such reservations existed - despite its historical associations, the Shadow Cat remains a highly successful design that has seen continued production by Clan Nova Cat well into the Dark Age period. Rights to produce the 'Mech were acquired by the rechristened Clan Sea Fox, who continue to sell Shadow Cats to most Clans and even Inner Sphere militaries.",
+    "deployment": "Another Dark Age configuration, this variant carries a TSEMP cannon, ER PPC, and Streak SRM-6.",
+    "manufacturer": "Barcella Beta, Clan Protectorate Arms",
+    "primaryFactory": "Barcella, Irece, Asellus Australis"
+  },
+  "mulId": 6912,
+  "role": "Sniper",
+  "source": "RS:3145-NTNU"
+}

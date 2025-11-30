@@ -1,0 +1,173 @@
+{
+  "id": "koto-kto-4a",
+  "chassis": "Koto",
+  "model": "KTO-4A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 25,
+  "engine": {
+    "type": "XL",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "em_inter_whole"
+  ],
+  "mulId": 1839,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

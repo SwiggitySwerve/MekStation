@@ -1,0 +1,166 @@
+{
+  "id": "koshi-standard-2",
+  "chassis": "Koshi (Standard)",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3095,
+  "tonnage": 25,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 4,
+      "RIGHT_ARM": 4,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 5,
+      "RIGHT_LEG": 5
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-tag",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLightTAG",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      null
+    ]
+  },
+  "mulId": 6548,
+  "role": "Striker",
+  "source": "TR:3145:Merc"
+}

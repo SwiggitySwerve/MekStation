@@ -1,0 +1,177 @@
+{
+  "id": "emperor-emp-7l",
+  "chassis": "Emperor",
+  "model": "EMP-7L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "autocannon-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "autocannon-10",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Stealth",
+      "Stealth",
+      "TSM"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Stealth",
+      "Stealth",
+      "TSM"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Stealth",
+      "Stealth",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "ISCASE",
+      "Stealth",
+      "Stealth"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "TSM",
+      "TSM"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "TSM",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "command_mech"
+  ],
+  "mulId": 971,
+  "role": "Juggernaut",
+  "source": "TR:3058U"
+}

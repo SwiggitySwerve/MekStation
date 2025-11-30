@@ -1,0 +1,182 @@
+{
+  "id": "wolf-trap-tora-wft-1-daitama",
+  "chassis": "Wolf Trap (Tora)",
+  "model": "WFT-1 (Daitama)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-iserppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islrm10",
+      "location": "CENTER_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-isbeagleactiveprobe",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isimprovedc3cpu",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "ISBeagleActiveProbe",
+      "ISBeagleActiveProbe",
+      "ISImprovedC3CPU",
+      "ISImprovedC3CPU",
+      null,
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISCASE",
+      "ISLRM10 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISLRM10",
+      "ISLRM10"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is",
+    "bad_rep_clan"
+  ],
+  "mulId": 3555,
+  "role": "Sniper",
+  "source": "RS:UM"
+}

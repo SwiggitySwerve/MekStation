@@ -1,0 +1,196 @@
+{
+  "id": "kingfisher-a",
+  "chassis": "Kingfisher",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2887,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERMediumLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLSRM6 (omnipod)",
+      "Clan Ammo SRM-6 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERSmallLaser (omnipod)",
+      "Clan LB 10-X AC Ammo (omnipod)",
+      "Clan LB 10-X Cluster Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "An early Clan assault OmniMech that may have influenced all subsequent assault OmniMech design, the Kingfisher is rugged and maneuverable. These traits make the Kingfisher an ideal choice for take and hold missions.",
+    "capabilities": "The tough Kingfisher mounts fourteen and a half tons of Ferro-Fibrous armor on an Endo Steel chassis, the most it can take. Unlike most modern front-line OmniMechs, the Kingfisher uses a standard engine. The 'Mech also has seventeen fixed double heat sinks, forcing three to be mounted outside of the engine.",
+    "history": "Based off the powerful but dezgra Pulverizer, Clan Snow Raven debuted the Kingfisher in 2887 as an early second-generation OmniMech, the Kingfisher's speed and relative invulnerability have kept it in heavy use even during the Clan Invasion era, especially by Clan Ghost Bear, alongside more recent assault OmniMechs like the Executioner.",
+    "deployment": "This variant uses an ER PPC and LB-X Autocannon/10 at long-medium range. As an enemy closes, it can make use of a Medium Pulse Laser, an ER Medium Laser, an ER Small Laser, and an SRM-6.",
+    "manufacturer": "Snow Raven Industrial Complex Alpha, Strana Mechty âMech Production Facility Beta",
+    "primaryFactory": "Dante, Strana Mechty",
+    "systemManufacturer": {
+      "CHASSIS": "SL YT-A Endo",
+      "ENGINE": "Star League Standard 360",
+      "ARMOR": "Forging Z5 Ferro-Fibrous",
+      "COMMUNICATIONS": "Model 74/129.3 TCS",
+      "TARGETING": "S438 Mk. III Mod. 7 TTS"
+    }
+  },
+  "mulId": 1779,
+  "role": "Brawler",
+  "source": "TR:3058U"
+}

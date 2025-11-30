@@ -1,0 +1,185 @@
+{
+  "id": "super-wasp-wsp-2a-x",
+  "chassis": "Super-Wasp",
+  "model": "WSP-2A-X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "RENAISSANCE",
+  "year": 3020,
+  "tonnage": 25,
+  "engine": {
+    "type": "FUSION",
+    "rating": 150
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "srm-2",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Ammo SRM-2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "SRM 2"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ]
+  },
+  "quirks": [
+    "prototype"
+  ],
+  "fluff": {
+    "overview": "The WSP-2A-X Super Wasp is an evolution of the classic Wasp, a re-design that essentially produced a new BattleMech with even a different tonnage.",
+    "capabilities": "Weighing as much as a Commando, the Super Wasp maintained the basic ground speed and jump capability of its inspiration, but also added an engine Supercharger which allowed it to sprint at speeds of up to 120km/h.",
+    "history": "The Super Wasp was designed in 3020 together with the Super Griffin at the Friden Aerospace Park research facility on Hoff by House Davion scientists including Dr. Jorge Belasco. After eighteen months of work, two operational Super Wasp prototypes had been completed but they were still untested when the Black Widow Company attacked the facility on 13 May 3022. The prototypes were deployed as a last line of defense. The two Super Wasp units worked well, disabling a Stinger used by the Black Widows, but an overloaded supercharger led to one of the Super Wasps constantly overheating which made it an easy target for the Widows. The other Super Wasp was doing well until a shot from a large laser penetrated the left torso and touched off an ammunition explosion, destroying the unit. The Super Wasp and Super Griffin were described as the first fully-redesigned units in four decades, but the Hatchetman was hailed as the Inner Sphere's first new 'Mech design in over a century when it entered full production a few years after the attack on Hoff (and in the Periphery the Merlin had been designed in 3010 already). This suggests the Super Wasp and Super Griffin never came beyond the prototype stage.",
+    "deployment": "The Super Wasp remains faithful to the weapon configuration of the regular WSP-1A Wasp, namely a Medium Laser in the right arm and an SRM-2 launcher in the left leg. However, documents from the NAIS indicate that it actually carried an additional Medium Laser in the right arm, giving it twice the firepower of its progenitor.",
+    "manufacturer": "Belasco Labs/Friden Aerospace Park",
+    "primaryFactory": "Hoff",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Nissan 200",
+      "ARMOR": "Durallex Light",
+      "JUMPJET": "Rawlings 52",
+      "COMMUNICATIONS": "Duoteck 65",
+      "TARGETING": "RadCom TXX"
+    }
+  },
+  "mulId": 5770,
+  "role": "Striker",
+  "source": "XTR:SW"
+}

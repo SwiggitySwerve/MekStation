@@ -1,0 +1,189 @@
+{
+  "id": "helepolis-hep-1h",
+  "chassis": "Helepolis",
+  "model": "HEP-1H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "AGE_OF_WAR",
+  "year": 2460,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 21,
+      "RIGHT_ARM": 21,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "sniper",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper"
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "ISSniperAmmo",
+      "ISSniperAmmo",
+      "IS Ammo SRM-6",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      "ISSniper",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 6",
+      "SRM 6"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "reinforced_legs",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "First unleashed by the Terran Hegemony in 2460, the Helepolis is a ponderous BattleMech designed to deliver artillery fire.",
+    "capabilities": "The Helepolis is built around an Armstrong Industries Sniper Artillery Piece. The accurate, long-range fire makes it effective against static defenses.",
+    "history": "The 'Mech was proven ineffective on multiple occasions and, following the destruction of the production facilities in 2775, the design was lost during the Succession Wars. The HEP-2H dates to 2567, replacing the 2X. The Helepolis is a slow heavy 'Mech with a maximum speed of 54 km/h. It has a respectable thirteen tons of armor, however. When rebels within the Hegemony military launched the September Revolt, the new Director-General, Ian Cameron deployed batteries of Helepolis 'Mechs to keep them pinned down within the capital city of Geneva on Terra.",
+    "deployment": "The earliest version, designed by Gregory Kean, used standard heat sinks and its primitive engine could only manage 30 km/h. This proved to be a challenge as the early Helepolis needed to completely stop to fire the Sniper artillery and then start moving again before counterbattery fire could destroy the unit. Twenty and a half tons of Primitive Armor protected the Helepolis from enemy fire. The weight and bulk of the primitive systems prevented the designers from installing the long range missiles used on later models",
+    "manufacturer": "Ceres Metals Industries",
+    "primaryFactory": "Ward",
+    "systemManufacturer": {
+      "CHASSIS": "Mitchell Heavy HEP",
+      "ENGINE": "VOX 180",
+      "ARMOR": "Armorscale",
+      "COMMUNICATIONS": "Exeter Longscan 100",
+      "TARGETING": "Tacticon Tracer 150b"
+    }
+  },
+  "mulId": 1460,
+  "role": "Missile Boat",
+  "source": "XTR:Primitives I"
+}

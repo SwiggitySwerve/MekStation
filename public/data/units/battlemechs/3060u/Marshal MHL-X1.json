@@ -1,0 +1,186 @@
+{
+  "id": "marshal-mhl-x1",
+  "chassis": "Marshal",
+  "model": "MHL-X1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3059,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Machine Gun",
+      "Machine Gun",
+      "IS Machine Gun Ammo - Half",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISMediumPulseLaser",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Flamer",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_2"
+  ],
+  "mulId": 2090,
+  "role": "Skirmisher",
+  "source": "TR:3060"
+}

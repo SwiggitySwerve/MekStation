@@ -1,0 +1,178 @@
+{
+  "id": "phoenix-hawk-pxh-9",
+  "chassis": "Phoenix Hawk",
+  "model": "PXH-9",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 19,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 17,
+      "RIGHT_LEG": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "large-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "Light Machine Gun",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser",
+      "Medium Laser",
+      "Light Machine Gun",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Light Machine Gun Ammo - Half",
+      "ISCASEII"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "combat_computer",
+    "imp_com"
+  ],
+  "mulId": 7751,
+  "role": "Striker",
+  "source": "RG11"
+}

@@ -1,0 +1,188 @@
+{
+  "id": "hermes-her-1s",
+  "chassis": "Hermes",
+  "model": "HER-1S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2632,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 9,
+      "RIGHT_ARM": 9,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isflamer",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISFlamer",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "stable"
+  ],
+  "mulId": 1487,
+  "role": "Scout",
+  "source": "TR:3050"
+}

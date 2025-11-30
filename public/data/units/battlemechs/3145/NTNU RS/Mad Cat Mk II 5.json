@@ -1,0 +1,184 @@
+{
+  "id": "mad-cat-mk-ii-5",
+  "chassis": "Mad Cat Mk II",
+  "model": "5",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3109,
+  "tonnage": 90,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Gauss Ammo",
+      "Clan Gauss Ammo",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLLightActiveProbe",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "Designed to be sold to fellow Clans, this rebuild of the Timber Wolf carries thirteen tons of ferro-fibrous armor while being one of most nimble BattleMechs of its class, yet still packing serious weaponry.",
+    "capabilities": "This variant carries a Gauss Rifle in the right arm, supported by an Improved Heavy Large Laser and Improved Heavy Medium Laser in the left arm. Six Improved Jump Jets allow it to cover 180 meters at a time.",
+    "history": "The Mad Cat Mk II was in development for fifteen months by the time production began in 3061. The sole rationale for the Mad Cat Mk II was to increase profits for Clan Diamond Shark after war with the Inner Sphere in the 3050s.",
+    "deployment": "Despite this, Mk II's most notable potential buyers, Clan Wolf and Clan Jade Falcon, did not purchase even a single unit, though they won some numbers in Trials. Significant numbers of Mad Cat Mk II were sold to Clan Nova Cat, and the Mech served also in Clan Ice Hellion, Clan Jade Falcon, Clan Wolf-in-Exile in addition to Diamond Shark itself. On a limited basis, Clan Diamond Shark sold unmodified Mad Cat Mk IIs to Inner Sphere factions, most notably the Draconis Combine and Federated Commonwealth, and also the Lyran Alliance bought an unknown amount of Mad Cat Mark IIs.",
+    "manufacturer": "Manufacturing Plant DSF-94",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 4",
+      "ENGINE": "Type 79 360 XL Fusion",
+      "ARMOR": "Forging ZM15 Ferro Fibrous",
+      "JUMPJET": "Grandthrust Mk. 5",
+      "COMMUNICATIONS": "MegaBand System 21",
+      "TARGETING": "Dtrac Suite 4"
+    }
+  },
+  "mulId": 6849,
+  "role": "Brawler",
+  "source": "RS:3145-NTNU"
+}

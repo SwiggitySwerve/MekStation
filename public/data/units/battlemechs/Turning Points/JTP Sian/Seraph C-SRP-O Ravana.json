@@ -1,0 +1,198 @@
+{
+  "id": "seraph-c-srp-or-ravana",
+  "chassis": "Seraph",
+  "model": "C-SRP-OR (Ravana)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3074,
+  "tonnage": 85,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 27,
+      "RIGHT_ARM": 27,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 35,
+      "RIGHT_LEG": 35
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-issnppc",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-islargevsplaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isthunderbolt20",
+      "location": "RIGHT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-retractable-blade",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islaserantimissilesystem",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isimprovedc3cpu",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Retractable Blade",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISLargeVSPLaser",
+      "ISLargeVSPLaser",
+      "ISLargeVSPLaser",
+      "ISLargeVSPLaser",
+      "ISImprovedC3CPU",
+      "ISImprovedC3CPU",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISThunderbolt20",
+      "ISThunderbolt20",
+      "ISThunderbolt20",
+      "ISThunderbolt20",
+      "ISThunderbolt20",
+      "ISThunderbolt20 Ammo",
+      "ISThunderbolt20 Ammo",
+      "ISThunderbolt20 Ammo",
+      "ISThunderbolt20 Ammo",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISLaserAntiMissileSystem",
+      "ISLaserAntiMissileSystem"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISSNPPC",
+      "ISSNPPC"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "imp_sensors",
+    "bad_rep_clan",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The light assault 'Mech of the Celestial series of OmniMechs, the Seraph is somewhat slow for its weight, but it attempts to make up for that with the inclusion of Triple-Strength Myomer that enables the 'Mech to speed up to 64 kph when it runs hot.",
+    "capabilities": "Like the other Celestials, the Seraph makes use of a light fusion engine and a small cockpit, though other newer technologies are present only in its weaponry. As with the other Celestials, a C3i Computer is included. The main criticism of the Seraph Invictus is that it does not make very good use of its Triple-Strength Myomer. The design does not build enough heat to activate the musculature, a problem the Streak missile system only exacerbates.",
+    "deployment": "Customized configuration of the Manei Domini staffed Warrior House Rakshasa's house master, Precentor Ravana. This Seraph is configured with Advanced and Experimental Technology. The 'Mech is configured as intermediate fighter. It carries a SN-PPC, Thunderbolt 20 Missile Launcher and experimental Large Variable-Speed Laser for its primary armament. For defense it has an experimental Laser Anti-Missile System. It's also been given two additional Double-Heat Sinks to help handle the extra heat load.",
+    "manufacturer": "Gibson Federated BattleMechs, Martinson Armaments",
+    "primaryFactory": "Gibson (Gibson Federated), Terra (Martinson)",
+    "systemManufacturer": {
+      "CHASSIS": "Celestial Series SP1",
+      "ENGINE": "GM 255 Light Fusion with Triple-Strength Myomer",
+      "ARMOR": "Durallex Divine Guardian",
+      "COMMUNICATIONS": "Masterâs Voice Cel-Alpha",
+      "TARGETING": "Masterâs Sight 1-Omega"
+    }
+  },
+  "mulId": 2875,
+  "role": "Juggernaut",
+  "source": "JTP:Sian"
+}

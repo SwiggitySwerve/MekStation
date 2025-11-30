@@ -1,0 +1,192 @@
+{
+  "id": "ursus-pr",
+  "chassis": "Ursus",
+  "model": "PR",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3074,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "protomech-ac-8",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "protomech-ac-8",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-flamer",
+      "location": "HEAD"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle Ammo",
+      "CLAPGaussRifle Ammo",
+      "CLCASEII",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "Clan ProtoMech AC/8 Ammo",
+      "Clan ProtoMech AC/8 Ammo",
+      "CLCASEII",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERFlamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "pro_actuator",
+    "cramped_cockpit",
+    "prototype"
+  ],
+  "mulId": 5330,
+  "role": "Brawler",
+  "source": "XTR:Clans"
+}

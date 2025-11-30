@@ -1,0 +1,199 @@
+{
+  "id": "wolverine-wvr-8c",
+  "chassis": "Wolverine",
+  "model": "WVR-8C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISSmallPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISStreakSRM6",
+      "ISStreakSRM6",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISStreakSRM6",
+      "ISStreakSRM6",
+      "IS Streak SRM 6 Ammo",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "ext_twist",
+    "imp_com",
+    "pro_actuator",
+    "ubiquitous_clan",
+    "ubiquitous_is",
+    "cramped_cockpit"
+  ],
+  "fluff": {
+    "overview": "The Wolverine commonly served as a heavy scout unit. Often deployed in situations where heavy opposition could easily destroy lighter BattleMechs, it has had a reliable service record ever since its initial deployment within the Star League Defense Force. With respectable armor, speed, and firepower, it can easily outfight lighter enemy scouts and defend itself capably if ambushed.",
+    "capabilities": "The autocannon, missile system and laser found on most Wolverines are all reliable and well-storied systems. Unfortunately, the jump jets suffer from an opposing reputation; the Northrup 12000's are underpowered and prone to breakdowns. The one defining system to be found on the Wolverine, however, are its superb Tek BattleCom and Garret T11-b communications systems. The comgear, regardless of the manufacturer, is well-shielded and features a multi-channel transmitter and receiver, making the Wolverine a powerful Command BattleMech for scouting formations.",
+    "history": "A widespread part of every major military, the Wolverine has manufacturing plants scattered throughout the entire Inner Sphere. While certain states-notably the Free Worlds League-have larger numbers of the design, only the Capellans began facing a shortage of the Wolverine after the loss of their Nanking facilities.",
+    "deployment": "The 8C variant of the Wolverine, introduced by Victory Industries in 3067 after the success of the 8K, is built on an Endo Steel chassis and uses an XL Engine for power. It carries a large pulse laser as its primary weapon, as well as a medium pulse laser and a small pulse laser. For additional close-combat capability this version carries two Streak SRM-6 launchers while a C3 Slave Unit allows it to share targeting telemetry with friendly units but only carries thirteen double heat sinks.",
+    "manufacturer": "Victory Industries (formerly Norse BattleMech Works)",
+    "primaryFactory": "Marduk",
+    "systemManufacturer": {
+      "CHASSIS": "Crucia-A",
+      "ENGINE": "Nissan 275XL",
+      "ARMOR": "Starshield A with CASE",
+      "JUMPJET": "Northrup 12000",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Cat Eyes 5"
+    }
+  },
+  "mulId": 3577,
+  "role": "Skirmisher",
+  "source": "TR:3085S"
+}

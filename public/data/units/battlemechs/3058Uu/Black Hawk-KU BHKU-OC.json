@@ -1,0 +1,180 @@
+{
+  "id": "black-hawk-ku-bhku-oc",
+  "chassis": "Black Hawk-KU",
+  "model": "BHKU-OC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "tonnage": 60,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      "ISGaussRifle (omnipod)",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Gauss Ammo (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "<p>The Black Hawk-KU, an Inner Sphere adaptation of the Clan's Black Hawk OmniMech, emerged from the Draconis Combine's endeavor to bridge the technological divide post the battle for Wolcott. The design, although ten tons heavier, mirrors its Clan counterpart's performance profile, showcasing a blend of agility, speed, and lethal armament flexibility.</p>",
+    "capabilities": "<p>The Black Hawk-KU is recognized for its speed and agility despite its size, making it a formidable and versatile weapons platform. Its design supports various standard configurations courtesy of its pod technology, allowing customization to cater to mission requirements and pilot preferences. The configurations range from mirroring the Clan original to optimizing the strengths and weaknesses of Inner Sphere weapons systems. The utilization of standard weapons in many configurations helps in better heat management, thus reducing the chances of heat-induced shutdowns following alpha strikes, albeit at the cost of range and firepower. The model features a Vlar 300 XL engine, nearly maximum armor protection, five jump jets across configurations, and fourteen double heat sinks to manage substantial heat generated, especially pronounced in alternate configurations.</p>",
+    "history": "<p>The inception of the Black Hawk-KU is rooted in the aftermath of the battle for Wolcott, where the Draconis Combine managed to obtain several Clan OmniMechs. This acquisition spurred a crash program to develop OmniMechs, leading to the birth of the Black Hawk-KU. Luthien Armor Works played a pivotal role in replicating the Clan's Black Hawk design, employing available technologies to a significant extent. Although the resultant design necessitated a ten-ton heavier build to accommodate a robust engine and chassis, it achieved a performance profile comparable to its Clan sibling. The Black Hawk-KU went through initial field tests with the Legion of Vega and saw action against Clan Smoke Jaguar, later serving with distinction in the Ghost Bear incursion and conflicts against the Federated Suns. This combat history, coupled with its diverse configurations, not only demonstrated its resilience and adaptability on the battlefield but also underscored its contribution in narrowing the technological gap between Inner Sphere and Clan technologies.</p>",
+    "deployment": "<p>With a focus on long-range sniping, it is equipped with a Gauss Rifle capable of stripping a ton of armor off enemy 'Mechs at extreme ranges, and a medium laser for close-range defense.</p>",
+    "manufacturer": "Coventry,Crofton,Loburg,Luthien,Marduk,New Avalon,Son Hoa,St. Ives",
+    "primaryFactory": "Coventry Metal Works,StarCorps Industries,Luthien Armor Works - OmniMech Production Facility,Victory Industries (formerly Norse BattleMech Works),Corean Enterprises,StarCorps Industries",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain 52 Endo Steel",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Mitchel Argon",
+      "COMMUNICATIONS": "Sipher CommSys 4b",
+      "TARGETING": "Matabushi Sentinel Plus"
+    }
+  },
+  "mulId": 349,
+  "role": "Sniper",
+  "source": "TR:3058U"
+}

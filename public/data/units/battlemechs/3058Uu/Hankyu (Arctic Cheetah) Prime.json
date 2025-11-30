@@ -1,0 +1,196 @@
+{
+  "id": "hankyu-prime",
+  "chassis": "Hankyu",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3037,
+  "tonnage": 30,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 7,
+      "RIGHT_ARM": 7,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 8
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "tag-clan",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLLRM5 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLLRM5 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo LRM-5 (OMNIPOD)",
+      "CLTAG (OMNIPOD)",
+      "CLECMSuite (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLFlamer (OMNIPOD)",
+      "Clan Ammo LRM-5 (OMNIPOD)",
+      "CLActiveProbe (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "The Arctic Cheetah was originally designed by Clan Ice Hellion to replace the Mist Lynx OmniMech.",
+    "capabilities": "The Arctic Cheetah uses all the weight-saving materials that were available to the Clans in the 3030s: an Endo Steel structure, an XL Engine, and four tons of Ferro-Fibrous armor. It maintains enough jump jets in the base chassis to leap up to one hundred eighty meters at a time. Every variant of the Arctic Cheetah mounts a modular Flamer somewhere on the 'Mech for anti-infantry work.",
+    "history": "Shortly after they began production in 3037, Clan Smoke Jaguar conquered the factory on Foster that produced the design, enabling the Jaguars to replace their Mist Lynx 'Mechs. The design was dubbed the Hankyu (Japanese for \"short bow\") by the Draconis Combine forces that first encountered it during the Battle of Luthien. The Ice Hellions subsequently recovered or recaptured Foster MechWorks Facility Beta, but by that point, the majority of the Ice Hellion MechWarriors preferred the Hellion OmniMech.",
+    "deployment": "The most common configuration to Clan Smoke Jaguar and Clan Nova Cat uses a pair of LRM-5s and ER Medium Lasers, enabling it to excel in medium-range work. The primary configuration is also an incredible scout, mounting an Active Probe, ECM Suite, and TAG",
+    "manufacturer": "Foster MechWorks Facility Beta,Mualang Alpha",
+    "primaryFactory": "Foster,Coudoux",
+    "systemManufacturer": {
+      "CHASSIS": "Hellion Light Endo Steel V3",
+      "ENGINE": "Warrior 240 XL",
+      "ARMOR": "Compound Beta Ferro-Fibrous",
+      "COMMUNICATIONS": "HCFA 3001 5.7",
+      "TARGETING": "HCFA 3005 4.3"
+    }
+  },
+  "mulId": 1384,
+  "role": "Striker",
+  "source": "TR:CI"
+}

@@ -1,0 +1,193 @@
+{
+  "id": "warlord-blr-2dr",
+  "chassis": "Warlord",
+  "model": "BLR-2Dr",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3078,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUSION",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 38,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Endo Steel",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Medium Laser",
+      "Endo Steel",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISSmallPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 3510,
+  "role": "Brawler",
+  "source": "TR:3085"
+}

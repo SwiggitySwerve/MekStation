@@ -1,0 +1,198 @@
+{
+  "id": "jinggau-jn-g9b",
+  "chassis": "Jinggau",
+  "model": "JN-G9B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3149,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 29,
+      "RIGHT_LEG": 29
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC",
+      "CLERPPC",
+      "ISMediumXPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro (ARMORED)",
+      "Gyro (ARMORED)",
+      "Gyro (ARMORED)",
+      "Gyro (ARMORED)",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Supercharger"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit (ARMORED)",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip (ARMORED)",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip (ARMORED)",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "weak_head_2"
+  ],
+  "fluff": {
+    "overview": "The Jinggau is made to engage in direct combat, not lurk at the periphery or wait for a few fortunate long-range hits.",
+    "capabilities": "It can close relatively easily in virtually any terrain thanks to its top-end mobility for its weight, which includes a running speed of over 85 kph and a 150-meter leap capacity. With more than eleven tons of armor, the Jinggau has a very good chance of surviving whether traversing wide terrain or fighting in stand-up combat. The major offense comes from a number of strong hitting primary weapons including the Zhi-tong-yao (\"painkiller\") Gauss rifle. The weapon fires piercing shots until the Jinggau is within striking distance of its secondary lasers, which can frighten the pilot of even an assault mech. At that point, the main armaments continue to unleash their knockdown power punches while the lasers look for vulnerable areas to butcher an enemy machine.",
+    "history": "Word of Blake's Toyama faction started sending technicians and supplies to Capellan Chancellor Sun-Tzu Liao toward the end of 3058 to assist with the completion of overhauling the old Star League production facility on Victoria. This assistance, which appeared to be a personal debt owed to Chancellor Liao, aided the Capellans in finishing up construction on the Jinggau assembly line and increased production of the Duan Gung BattleMech design. The first Jinggau, which is Chinese for siren, is said to have left the factory in early 3059, but for unknown reasons, production was suspended for more than a year before being partially resumed. Presenting a lance of Jinggau to the Fourth Tau Ceti Rangers, Sun-Tzu Liao said, âThis is not a âMech relegated to support roles, or reconnaissance or garrison duty. This is a BattleMech for seeking out your opponent and doing him harm. This is a âMech with which to make your enemy miserable.â The Jinggau's extended-range medium lasers, which are made by the Free Worlds League, intrigue engineers studying it. All of the Jinggau's components, with the exception of its jump jets and targeting system, are supposed to be constructed on Victoria, just like the Duan Gung.",
+    "deployment": "It was decided to swap out the Gauss rifle for a Clan extended-range PPC, which Clan Sea Fox offered only to the Confederation, in order to reduce the Jinggau's reliance on ammo while preserving damage output and removing the possibility of internal explosions. The medium pulse laser was improved to an X-Pulse type, and the armor was enhanced to bring it into line with other contemporary CCAF cavalry designs like the Mortis and Vandal. A triple-strength myomer allows the 'Mech to increase its mobility when it runs hot, and a supercharger offers additional speed boosts so it can quickly close with the opponent. Nevertheless, the most significant upgrades were concealed deep inside. In addition, the Jinggau is more durable than many of its contemporaries because to four tons of internal component armoring.",
+    "manufacturer": "Shengli Arms",
+    "primaryFactory": "Victoria",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type II Endo Steel",
+      "ENGINE": "VOX 325 XL",
+      "ARMOR": "Valiant DefCo",
+      "JUMPJET": "Hellespont Leapers",
+      "COMMUNICATIONS": "Dian-bao Comms, heavily insulated",
+      "TARGETING": "Dynatec Special T&T"
+    }
+  },
+  "mulId": 9501,
+  "role": "Skirmisher",
+  "source": "Shrap12"
+}

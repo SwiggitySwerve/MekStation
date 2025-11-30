@@ -1,0 +1,201 @@
+{
+  "id": "regent-d",
+  "chassis": "Regent",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 42,
+        "rear": 16
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ultra-ac-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "Clan LB 2-X AC Ammo (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ultra AC/2 Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)"
+    ],
+    "RIGHT_TORSO": [
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "CLLBXAC2 (OMNIPOD)",
+      "Clan LB 2-X Cluster Ammo (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ultra AC/2 Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLSmallPulseLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 8363,
+  "role": "Sniper",
+  "source": "RG21"
+}

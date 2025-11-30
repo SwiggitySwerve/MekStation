@@ -1,0 +1,173 @@
+{
+  "id": "cronus-cns-3m",
+  "chassis": "Cronus",
+  "model": "CNS-3M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "RENAISSANCE",
+  "year": 3031,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "2-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issrm4",
+      "location": "CENTER_TORSO,_AMMO:25"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMediumLaser",
+      "ISSRM4 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISSRM4"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 4020,
+  "role": "Skirmisher",
+  "source": "TR:3067"
+}

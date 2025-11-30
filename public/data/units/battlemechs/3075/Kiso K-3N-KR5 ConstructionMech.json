@@ -1,0 +1,108 @@
+{
+  "id": "kiso-k-3n-kr5-constructionmech",
+  "chassis": "Kiso",
+  "model": "K-3N-KR5 ConstructionMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2703,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 32,
+      "FRL": 32,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 14
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 14
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 16
+      },
+      "HEAD": 9,
+      "RLL": 32,
+      "RRL": 32
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Communications Equipment (3 ton)",
+      "Communications Equipment (3 ton)",
+      "Communications Equipment (3 ton)",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe"
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Dual Saw",
+      "Dual Saw",
+      "Dual Saw",
+      "Dual Saw",
+      "Dual Saw",
+      "Dual Saw",
+      "Dual Saw"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cargo Container (10 tons)",
+      "Cargo Container (10 tons)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 1803,
+  "source": "TR:3075"
+}

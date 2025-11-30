@@ -1,0 +1,188 @@
+{
+  "id": "centurion-cn9-ylw2-yen-lo-wang",
+  "chassis": "Centurion",
+  "model": "CN9-YLW2 'Yen Lo Wang'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3051,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "CENTER_TORSO_(R)"
+    },
+    {
+      "id": "2-ismediumpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isgaussrifle",
+      "location": "RIGHT_ARM,_AMMO:16"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Triple Strength Myomer",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "Triple Strength Myomer",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Triple Strength Myomer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGauss Ammo",
+      "ISGauss Ammo",
+      "Triple Strength Myomer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "ISMediumPulseLaser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Triple Strength Myomer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Triple Strength Myomer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "non_standard"
+  ],
+  "mulId": 3923,
+  "role": "Brawler",
+  "source": "TR:3050"
+}

@@ -1,0 +1,166 @@
+{
+  "id": "phoenix-hawk-lam-phx-hk1rb",
+  "chassis": "Phoenix Hawk LAM",
+  "model": "PHX-HK1RB",
+  "unitType": "BattleMech",
+  "configuration": "LAM",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Landing Gear",
+      "Avionics",
+      "Jump Jet",
+      "Jump Jet",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Landing Gear",
+      "Avionics",
+      "Jump Jet",
+      "Jump Jet",
+      "ISSNPPC",
+      "ISSNPPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Landing Gear",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Avionics",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "mulId": 4821,
+  "role": "Striker",
+  "source": "TR:3085"
+}

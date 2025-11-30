@@ -1,0 +1,174 @@
+{
+  "id": "nyx-nx-80c",
+  "chassis": "Nyx",
+  "model": "NX-80C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3078,
+  "tonnage": 30,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 10,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo SRM-4",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 4",
+      "ISC3SlaveUnit"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "difficult_maintain"
+  ],
+  "mulId": 2308,
+  "role": "Striker",
+  "source": "TR:3085"
+}

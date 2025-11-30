@@ -1,0 +1,180 @@
+{
+  "id": "arctic-fox-af1u",
+  "chassis": "Arctic Fox",
+  "model": "AF1U",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 30,
+  "engine": {
+    "type": "XL",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrt-10",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Light PPC (omnipod)",
+      "Light PPC (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "LRT 10 (omnipod)",
+      "LRT 10 (omnipod)",
+      "ISArtemisIV (omnipod)",
+      "IS Ammo LRTorpedo-10 Artemis-capable (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISUMU (omnipod)",
+      "ISUMU (omnipod)",
+      "ISUMU (omnipod)",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISUMU (omnipod)",
+      "ISUMU (omnipod)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMASS (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "weak_head_1"
+  ],
+  "fluff": {
+    "overview": "<P>The Kell Hounds' first OmniMech came with their salvage from Luthien, and recognizing the value of a reconfigurable 'Mech, they sought to replicate the machine. The Arctic Fox is their successful attempt, embodying versatility and adaptability in battle.</P>",
+    "capabilities": "<P>Well armored for a light âMech, the Arctic Fox can stand up to most Inner Sphere designs of similar weight. Upon reaching an efficient range for its weapons load, the OmniMech is best used holding that range and taking advantage of natural cover. For warriors with a penchant for up-close-and-personal combat, however, the Arctic Fox does not disappoint. The Arctic Foxâs snarling visage is backed by fourteen tons of pod space for weapons.</P>",
+    "history": "<P>Morgan Kell had the Arc-Royal facilities attempt a clone of the machine. However, only after Phelan Kell and his Wolves-In-Exile arrived were the final bugs worked out. In return for the Kell Hounds' material support for Phelan's Wolves, Clan technical advisors helped the Kells finish reverse-engineering a Clan Uller (known to the Clans as a Kit Fox). Though the Kells have access to Clan materials, the Arctic Fox is built with only Inner Sphere technology, for logistical as well as strategic reasons. The Kell Hounds use most of the Clan material they get for the upkeep of their captured Clan 'Mechs. Also, with their support of \"training farm\" units and ARDC defense regiments, the Kells wished to offer this versatile design to those who could afford it, but had no Clan technology. The Kell Hounds do not use the designation of AF1. In Clan fashion, they refer to the basic machine as the Arctic Fox Prime. The name evokes the 'Mech's progenitor, the Clan Kit Fox, as well as the new Wolf-in-Exile Clan 'Mech, the Arctic Wolf. Variants are designated A, B, C and D.</P>",
+    "deployment": "<!-- Variant U --><P>An Underwater combat configuration, propels at 54 km/h underwater using five UMUs. Equipped with a MechWarrior Aquatic Survival System for pilot protection against hull breaches, a light PPC, and an Artemis IV-enhanced LRT-10 for enemy engagement.</P>",
+    "manufacturer": "Arc-Royal MechWorks",
+    "primaryFactory": "Arc-Royal",
+    "systemManufacturer": {
+      "CHASSIS": "AR-3 Endo Steel",
+      "ENGINE": "GM 180 XL",
+      "ARMOR": "Royal-7 Standard",
+      "COMMUNICATIONS": "K9 Communications System",
+      "TARGETING": "Type IV Bloodhound T & T System"
+    }
+  },
+  "mulId": 98,
+  "role": "Sniper",
+  "source": "TR:3085"
+}

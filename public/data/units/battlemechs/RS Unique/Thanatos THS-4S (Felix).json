@@ -1,0 +1,217 @@
+{
+  "id": "thanatos-tns-4s-felix",
+  "chassis": "Thanatos",
+  "model": "TNS-4S (Felix)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "1-iserlargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isguardianecm",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISMediumPulseLaser",
+      null,
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERMediumLaser",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERMediumLaser",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 3173,
+  "role": "Skirmisher",
+  "source": "RS:UM"
+}

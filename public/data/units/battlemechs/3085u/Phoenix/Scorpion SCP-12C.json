@@ -1,0 +1,127 @@
+{
+  "id": "scorpion-scp-12c",
+  "chassis": "Scorpion",
+  "model": "SCP-12C",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 26,
+      "FRL": 26,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "RLL": 26,
+      "RRL": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "inarc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "ISiNarc Pods",
+      "ISiNarc Pods",
+      "ISiNarc Pods",
+      "ISiNarc Pods",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "bad_rep_clan",
+    "bad_rep_is",
+    "hard_pilot"
+  ],
+  "mulId": 2834,
+  "role": "Skirmisher",
+  "source": "TR:3085S"
+}

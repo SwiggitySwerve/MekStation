@@ -1,0 +1,181 @@
+{
+  "id": "grim-reaper-grm-r-einar",
+  "chassis": "Grim Reaper",
+  "model": "GRM-R (Einar)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "laser-ams",
+      "location": "HEAD"
+    },
+    {
+      "id": "light-tag",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERLargeLaser",
+      "CLERMediumLaser",
+      "IS Modular Armor",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLightTAG",
+      "IS Modular Armor",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLArtemisV",
+      "CLArtemisV",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable",
+      "IS Modular Armor",
+      "CLCASEII"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Modular Armor",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLLaserAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "pro_actuator",
+    "difficult_maintain",
+    "non_standard",
+    "poor_sealing"
+  ],
+  "mulId": 5550,
+  "role": "Missile Boat",
+  "source": "XTR:ComStar"
+}

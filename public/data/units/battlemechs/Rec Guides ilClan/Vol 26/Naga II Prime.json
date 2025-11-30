@@ -1,0 +1,189 @@
+{
+  "id": "naga-ii-prime",
+  "chassis": "Naga II",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2866,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC10 (OMNIPOD)",
+      "CLLBXAC10 (OMNIPOD)",
+      "CLLBXAC10 (OMNIPOD)",
+      "CLLBXAC10 (OMNIPOD)",
+      "CLLBXAC10 (OMNIPOD)",
+      "Clan LB 10-X AC Ammo (OMNIPOD)",
+      "Clan LB 10-X Cluster Ammo (OMNIPOD)",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "Clan Ammo LRM-20 (OMNIPOD)",
+      "Clan Ammo LRM-20 (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERSmallLaser (OMNIPOD)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "bad_rep_clan"
+  ],
+  "fluff": {
+    "overview": "The Naga II is a refashioned version of the early Clan Woodsman OmniMech, developed by Clan Wolf. This model diverged from the initial Woodsman design due to technical challenges with its XL engine and endo-steel structure, which led to the creation of the Naga and eventually the Naga II. The Naga II's existence is primarily attributed to necessity, utilized when more advanced OmniMechs are not available.",
+    "capabilities": "Engineered with a focus on heavy firepower, the Naga II serves as a formidable artillery platform. Its design allows for significant weapon customization due to its ample pod space. Despite its notable firepower, the Naga II is encumbered by lighter armor compared to contemporary OmniMechs. This makes it a suitable choice for specific combat roles, particularly in scenarios requiring heavy bombardment from a distance.",
+    "history": "The Naga II saw initial use within Clan Wolfâs garrison clusters after Operation Revival. Its combat effectiveness, however, was questioned following a notable engagement in 3055, where its vulnerabilities were exposed during a raid on Icar. Despite this, conversions from Naga to Naga II continued as situational demands arose. The Exiled Wolves also utilized the Naga II, notably during conflicts like the fall of Arc-Royal, further indicating the continued, albeit limited, relevance of the Naga II in modern Clan warfare. Its deployment, while effective in certain contexts, often highlights the trade-off between its powerful offensive capabilities and its defensive shortcomings.",
+    "deployment": "<p>The Naga II Prime, an 80-ton Clan Omnimech, is engineered for brawler combat roles. Its power comes from a 400 XL Clan Engine, housed within a Clan Endo Steel frame, which strikes a balance between mobility and resilience. For armaments, the Prime configuration boasts an Ultra AC/10 and an LB 10-X AC, mounted on the arms, providing substantial ballistic firepower effective in close combat scenarios. Supplementing this, an LRM 20 launcher in the right torso extends its engagement range, while a centrally mounted ER Small Laser offers precision targeting. The mech's heat management is efficiently handled by 12 Clan Double Heat Sinks, ensuring operational efficiency during prolonged engagements. The standard armor of the Naga II Prime offers adequate protection, though it may fall short against more heavily armored contemporary designs. Lacking jump jets, the mech compensates with notable speed and an extensive torso twist range, enhancing its maneuverability and tactical flexibility in close-range combat. The inclusion of stable weapon mounts ensures the increased accuracy of its armaments, a crucial feature for its designated battlefield role.</p>",
+    "manufacturer": "Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Type BMH-7 Endo Steel",
+      "ENGINE": "Fusion 400 XL",
+      "ARMOR": "Forged Type 34 Standard",
+      "COMMUNICATIONS": "Type G3, Mk. XII",
+      "TARGETING": "Version Kappa-III TTS"
+    }
+  },
+  "mulId": 9322,
+  "role": "Brawler",
+  "source": "RG26"
+}

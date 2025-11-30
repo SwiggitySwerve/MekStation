@@ -1,0 +1,186 @@
+{
+  "id": "wolverine-wvr-10v2",
+  "chassis": "Wolverine",
+  "model": "WVR-10V2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3143,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "ext_twist",
+    "imp_com",
+    "pro_actuator",
+    "ubiquitous_clan",
+    "ubiquitous_is",
+    "cramped_cockpit"
+  ],
+  "fluff": {
+    "overview": "The Wolverine commonly served as a heavy scout unit. Often deployed in situations where heavy opposition could easily destroy lighter BattleMechs, it has had a reliable service record ever since its initial deployment within the Star League Defense Force. With respectable armor, speed, and firepower, it can easily outfight lighter enemy scouts and defend itself capably if ambushed.",
+    "capabilities": "The autocannon, missile system and laser found on most Wolverines are all reliable and well-storied systems. Unfortunately, the jump jets suffer from an opposing reputation; the Northrup 12000's are underpowered and prone to breakdowns. The one defining system to be found on the Wolverine, however, are its superb Tek BattleCom and Garret T11-b communications systems. The comgear, regardless of the manufacturer, is well-shielded and features a multi-channel transmitter and receiver, making the Wolverine a powerful Command BattleMech for scouting formations.",
+    "history": "A widespread part of every major military, the Wolverine has manufacturing plants scattered throughout the entire Inner Sphere. While certain states-notably the Free Worlds League-have larger numbers of the design, only the Capellans began facing a shortage of the Wolverine after the loss of their Nanking facilities.",
+    "manufacturer": "Gibson Federated BattleMechs (A Division of Free Worlds Defense Industries),Kallon Weapon Industries",
+    "primaryFactory": "Gibson,Thermopolis",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-A",
+      "ENGINE": "Core Tek 275",
+      "ARMOR": "Maximillian 60",
+      "JUMPJET": "Northrup 12000",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Sync Tracker(39-42071)"
+    }
+  },
+  "mulId": 8257,
+  "role": "Sniper",
+  "source": "RG18"
+}

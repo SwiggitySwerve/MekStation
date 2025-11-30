@@ -1,0 +1,131 @@
+{
+  "id": "scorpion-scp-12k",
+  "chassis": "Scorpion",
+  "model": "SCP-12K",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3071,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 22,
+      "FRL": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 22,
+      "RRL": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "c3-master-with-tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "mml-9",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "IS Ammo MML-9 LRM",
+      "IS Ammo MML-9 SRM",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "bad_rep_clan",
+    "bad_rep_is",
+    "hard_pilot"
+  ],
+  "mulId": 2835,
+  "role": "Missile Boat",
+  "source": "TR:3085"
+}

@@ -1,0 +1,185 @@
+{
+  "id": "longbow-lgb-0w-vijay",
+  "chassis": "Longbow",
+  "model": "LGB-0W (Vijay)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 9,
+      "RIGHT_ARM": 9,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISArtemisIV",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISArtemisIV",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "LRM 5",
+      "IS Ammo LRM-20",
+      "IS Ammo LRM-20",
+      "ISArtemisIV",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "LRM 5",
+      "IS Ammo LRM-20",
+      "IS Ammo LRM-20",
+      "ISArtemisIV",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo LRM-5",
+      "IS Ammo LRM-5"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "searchlight",
+    "ubiquitous_clan",
+    "anti_air",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Longbow, introduced in 2480 as the LGB-0C Longbow, has seen service in the armies of the Inner Sphere since the days of the Star League and is one of the most well-known fire support 'Mechs in existence.",
+    "capabilities": "The Longbow is a massive BattleMech weighing in at 85 tons and is able to move at a top speed of 54.0 km/h, thanks to a Strand 255 fusion engine. The Longbow is protected by fourteen and a half tons of armor. Some have criticized the design for its lack of CASE - making an otherwise rugged 'Mech vulnerable to a loss by an ammunition explosion. As a fire-support 'Mech though, the Longbow is a trusted and reliable machine that can be counted on to carry out the mission it is designed for.",
+    "deployment": "To add some speed to the Longbow, the OW variant removes two Medium Lasers and five and a half tons of armor. This allowed the Strand 255 Fusion Engine to be replaced with a larger Strand 340, increasing the top speed of the Longbow to 64 km/h, allowing the 'Mech to keep up with most heavy 'Mechs. The LGB-0W used the O/P 3000 COMSET communications system and the Octagon Tartrac System C targeting and tracking system.\nmanufacturer:StarCorps Industries,StarCorps (FWL) Industries,StarCorps Industries,StarCorps Industries\nprimaryfactory:Crofton,Emris IV,Fletcher (TH),Loburg\nsystemmanufacturer:CHASSIS:StarCorps 100 LGB\nsystemmanufacturer:ENGINE:Strand 340\nsystemmanufacturer:ARMOR:StarSlab/9.5 Mk II\nsystemmanufacturer:COMMUNICATIONS:O/P 3000 COMSET\nsystemmanufacturer:TARGETING:Octagon Tartrac System C"
+  },
+  "role": "Missile Boat",
+  "source": "Force Manual: Davion"
+}

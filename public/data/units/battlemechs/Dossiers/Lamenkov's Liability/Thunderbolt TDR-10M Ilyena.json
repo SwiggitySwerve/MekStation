@@ -1,0 +1,198 @@
+{
+  "id": "thunderbolt-tdr-10m-ilyena",
+  "chassis": "Thunderbolt",
+  "model": "TDR-10M (Ilyena)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3085,
+  "tonnage": 65,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-isc3mastercomputer",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismml5",
+      "location": "RIGHT_TORSO,_AMMO:48"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islightppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islightppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isheavyppc",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISLightPPC",
+      "ISLightPPC",
+      "ISLightPPC",
+      "ISLightPPC",
+      "ISERMediumLaser",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISMML5",
+      "ISMML5",
+      "ISMML5",
+      "ISMML5 SRM Ammo",
+      "ISMML5 LRM Ammo",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "rugged_2",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Thunderbolt commonly known as the T-Bolt, is a venerable BattleMech with a lineage dating back to 2491. As one of the pioneering designs for planetary assault, it is distinguished by its robust firepower and has become a staple across the Successor States. Despite being eclipsed by newer, larger 'Mechs, the Thunderbolt's exceptional design and formidable reputation have ensured its continuous production and operational use.",
+    "capabilities": "The Thunderbolt, with its inception dating back to 2491, has firmly established itself as a paragon of battlefield endurance and versatility. Renowned for its multi-faceted armament, the 'Mech is equipped with a robust array of weaponry tailored for engagements at various ranges. Its arsenal, typically comprising a balanced mix of energy weapons and missile launchers, enables the Thunderbolt to deliver substantial firepower in combat scenarios ranging from long-distance bombardment to close-quarters engagements.<p>Armor-wise, the Thunderbolt stands out for its exceptional resilience. Its thick plating, often surpassing that of 'Mechs well above its weight class, ensures it can endure severe punishment on the front lines. This durability, combined with its moderate speed, makes the Thunderbolt a formidable opponent capable of holding its ground under heavy fire.</p><p>However, the Thunderbolt's impressive offensive capability comes with the challenge of heat management. Pilots must skillfully balance the 'Mech's weapon output to prevent overheating, which could lead to shutdowns or ammunition explosions. Tactical deployment near natural cooling sources has become a standard practice to mitigate this risk, allowing the Thunderbolt to sustain its barrage of firepower effectively.</p><p>Throughout its service history, the Thunderbolt has undergone numerous iterations and upgrades, reflecting the changing dynamics of warfare. Modern variants have seen enhancements like CASE II technology integration, which secures its ammunition storage, and the introduction of advanced sensor and communication systems to improve battlefield coordination.</p><p>From the original TDR-5S to the advanced TDR-10M and TDR-12R models, the Thunderbolt's evolution continues to be driven by the need for a 'Mech that balances offensive power, defensive capability, and strategic flexibility. Its enduring presence in the arsenals of Inner Sphere and Periphery forces underscores the Thunderbolt's iconic status and persistent efficacy in combat operations.</p>",
+    "history": "The Thunderbolt, a BattleMech with a service record spanning over seven centuries, has been a mainstay in the arsenals of Inner Sphere and Periphery forces. Since its introduction in 2491, the Thunderbolt has seen extensive use in various military campaigns, with Houses Steiner and Marik as its primary operators. These mercantile states have also facilitated its distribution, making it a common fixture in many other military forces.<p>The Fourth Succession War and the Andurien War significantly impacted the distribution and deployment of the Thunderbolt, particularly affecting House Liao's previously substantial numbers. However, the Taurian Concordat, hosting two Thunderbolt manufacturing facilities, has leveraged this 'Mech as the backbone of its military might.</p><p>Notably, during 3083 in Operation Golden Fortress, Capellan forces utilized Thunderbolts extensively in the defense of Tikonov, demonstrating their strategic value in urban warfare by employing LRM minefields to ensnare Republic combat vehicles, showcasing the 'Mech's adaptability to various combat situations.</p><p>In 3145, the Earthwerks Thunderbolts, specifically the TDR-12R models, played pivotal roles in the defense of Kogan Gate. Their indirect fire capabilities and subsequent melee engagements highlighted the Thunderbolt's enduring presence on the battlefield and its ability to adapt to evolving warfare dynamics.</p><p>Historical engagements like the battle of Chesterton in 2828 and the bizarre \"La Guerra de Queso\" on Illiushin in 2847 underline the Thunderbolt's versatile service record. In Chesterton, the Thunderbolt's durability was tested in harsh chemical warfare conditions, while on Illiushin, the 'Mech's involvement in a pirate raid gone comically awry shows its ubiquitous presence across the galaxy, even in less conventional military operations.</p>",
+    "deployment": "The TDR-10M Ilyena, a command variant used by Lamenkov's Liability, adapts the TDR-10M framework to enhance battlefield command and control. This model integrates a C3 master computer, augmenting its tactical coordination capabilities. It retains the high-speed, versatile armament of the base 10M, including a Light PPC for ranged engagements. This setup allows the Ilyena to serve as a central node in network-centric warfare, directing allied forces effectively while still possessing the firepower to defend itself in combat situations, embodying a blend of leadership and lethality.",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerks TDR",
+      "ENGINE": "Magna 260 Light",
+      "ARMOR": "Ryerson 150",
+      "COMMUNICATIONS": "Neil 8000",
+      "TARGETING": "RCA Instatrac Mark X"
+    }
+  },
+  "mulId": 3233,
+  "role": "Sniper",
+  "source": "BD:LL"
+}

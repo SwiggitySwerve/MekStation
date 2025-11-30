@@ -1,0 +1,187 @@
+{
+  "id": "galahad-3",
+  "chassis": "Galahad",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERPPC",
+      "CLERPPC",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERPPC",
+      "CLERPPC",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer"
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "ext_twist",
+    "multi_trac"
+  ],
+  "mulId": 1172,
+  "role": "Sniper",
+  "source": "TR:3055U"
+}

@@ -1,0 +1,178 @@
+{
+  "id": "war-crow-b",
+  "chassis": "War Crow",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 70,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Streak LRM 15 Ammo (OMNIPOD)",
+      "Clan Streak LRM 15 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLLargePulseLaser (OMNIPOD)",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "CLStreakLRM15 (OMNIPOD)",
+      "CLStreakLRM15 (OMNIPOD)",
+      "CLStreakLRM15 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "CLMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (OMNIPOD)",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (OMNIPOD)",
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "unbalanced"
+  ],
+  "mulId": 7547,
+  "role": "Skirmisher",
+  "source": "RG07"
+}

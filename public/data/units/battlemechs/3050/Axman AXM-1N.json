@@ -1,0 +1,211 @@
+{
+  "id": "axman-axm-1n",
+  "chassis": "Axman",
+  "model": "AXM-1N",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3048,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ac-20",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Medium Laser",
+      "Medium Laser",
+      "Medium Laser"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20",
+      "ISCASE",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Autocannon/20",
+      "Autocannon/20"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Ferro-Fibrous",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "Developed by Team Banzai as the big brother of the highly successful Hatchetman, the Axman was designed exclusively to be a 'Mech killer",
+    "capabilities": "The Axman has a ground speed of only 64.8 km/h, which is average for a Heavy weight, but improved in part by the inclusion of Jump Jets. The 'Mech is covered with eleven tons of Ferro-Fibrous armor that gives it a great deal of protection, with ten Double Heat Sinks offering average heat dissipation. Much like its lighter brother, the Axman was designed to utilize the Full-Head Ejection System to safe-guard its MechWarrior.",
+    "history": "The Axman was also intended as a symbol of solidarity throughout the Federated Commonwealth by using components that were produced in Federated Suns, Lyran Commonwealth, and even former Capellan Confederation space. The collapse of the Federated Commonwealth in 3057 almost rendered the design extinct because of this, production slowing to a trickle as both the Federated Suns and Lyran Alliance were forced to rely on surplus stores while developing new variants utilizing locally sourced components.",
+    "deployment": "The two primary weapons on board the Axman are its massive Hatchet, which alone weighs five tons and can cleave through enemy 'Mech armor like a knife through butter, and a Luxor Devastator-20 Autocannon/20, which can strip over a ton of armor off of an enemy 'Mech with ease. The 'Mech also carries a trio of Intek Medium Lasers and a highly accurate Sutel Precision Line Large Pulse Laser for short to intermediate range combat.",
+    "manufacturer": "Johnston Industries",
+    "primaryFactory": "New Syrtis",
+    "systemManufacturer": {
+      "CHASSIS": "Dorwinion AXM Standard",
+      "ENGINE": "Magna 260 XL",
+      "ARMOR": "Kallon Unity Weave Ferro-Fibrous",
+      "JUMPJET": "HildCo Model 12",
+      "COMMUNICATIONS": "Johnston Wide Band",
+      "TARGETING": "Rander Pinpoint-HY"
+    }
+  },
+  "mulId": 184,
+  "role": "Skirmisher",
+  "source": "TR:3050"
+}

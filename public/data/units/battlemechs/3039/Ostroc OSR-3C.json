@@ -1,0 +1,202 @@
+{
+  "id": "ostroc-osr-3c",
+  "chassis": "Ostroc",
+  "model": "OSR-3C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2876,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Large Laser",
+      "Large Laser",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Ostroc is a heavy 'Mech, weighing in at the lower end of its weight class, originally designed to act as an urban combatant during the Age of War.",
+    "capabilities": "Its unique walker/pod profile, later seen in the Stalker and Marauder, combined with a low silhouette similar to the UrbanMech makes the Ostroc difficult to spot in an urban environment. Fast for its size, well-armored and boasting good medium- and short-range firepower, the Ostroc was also capable when fighting outside a cityscape, particularly as a heavy scout/raider.",
+    "history": "The best-known of Ostmann Industries' Ost Class of 'Mechs, the Ostroc debuted in 2511 and proved so successful in this role production continued for approximately 200 years. While a quality 'Mech, the low production capacity of Ostmann Industries made the Ostroc a rarity; indeed the company licensed their other Ost 'Mechs out to Kong Interstellar just to maintain their rate of production, and the majority of those produced were assigned garrison duties within the Terran Hegemony. Still, the 'Mech saw action in every major conflict of the Star League, especially towards the end in the civil war and subsequent First Succession War. The destruction of Ostmann Industries meant an end to any new Ostrocs, although all sides of the Succession Wars continued to field these 'Mechs in combat, particularly the Draconis Combine. It was because of the small number and wide dispersal of surviving Ostrocs that the design was largely passed over while others were being updated after the Helm Memory Core discovery. A major revitalization of the design took place within the Capellan Confederation after the Clan Invasion. Having largely rebuilt their forces after the previous decades' setbacks, the Strategios wanted to update the ancient 'Mech, but rather than reverse-engineering the original they ordered all Capellan 'Mech manufacturers to submit bids for a replacement. Ceres Metals was the only one to send in a proposal which matched exactly what they wanted and won the contract, completing the first production run in January 3067. Versions of these new Ostrocs also started showing up in the Taurian Concordat and Circinus Federation, a result of espionage according to Capellan charges.",
+    "deployment": "The 3C variant looks to improve the long-range direct firepower of the Ostroc. Introduced in 2876, the two medium lasers and the SRM-4 have been removed in order to add a third large laser mounted in the right torso.",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Field Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Ost II",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Riese 475",
+      "COMMUNICATIONS": "Ostmann-L",
+      "TARGETING": "Ferdinand-a"
+    }
+  },
+  "mulId": 2354,
+  "role": "Skirmisher",
+  "source": "TR:3039"
+}

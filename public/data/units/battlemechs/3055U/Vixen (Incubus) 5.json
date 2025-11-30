@@ -1,0 +1,182 @@
+{
+  "id": "vixen-5",
+  "chassis": "Vixen",
+  "model": "5",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 30,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLATM6",
+      "CLATM6",
+      "CLATM6",
+      "Clan Ammo ATM-6",
+      "Clan Ammo ATM-6",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLLightMG",
+      "CLLightMG",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLLightMG",
+      "CLLightMG",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Light Machine Gun Ammo - Full",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "mulId": 3445,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

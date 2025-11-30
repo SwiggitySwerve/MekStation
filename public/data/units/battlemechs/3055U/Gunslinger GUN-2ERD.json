@@ -1,0 +1,201 @@
+{
+  "id": "gunslinger-gun-2erd",
+  "chassis": "Gunslinger",
+  "model": "GUN-2ERD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 85,
+  "engine": {
+    "type": "XL",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 11
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 11
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "c3-master-with-tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ]
+  },
+  "quirks": [
+    "cowl"
+  ],
+  "fluff": {
+    "overview": "The Clan invasion produced some strange bedfellows, the most unlikely of which was the Federated Commonwealth-Draconis Combine quasi-alliance. Though that relationship has deteriorated over the years, the Gunslinger stands as a testament to what can happen when two bitter enemies put aside their mutual hatred and work together to achieve a common goal.",
+    "capabilities": "To power the Gunslinger, a VOX 255 XL engine is used to give the 'Mech a top speed of 54 km/h. This is augmented by a pair of HildCo Model 12 jump jets that allow the Gunslinger to traverse rough terrain and provide extra mobility at close ranges. The 'Mech is also equipped with a Guardian ECM Suite and a Beagle Active Probe, giving the Gunslinger superior detection capabilities and protection from advanced enemy electronic warfare equipment. Finally, the Gunslinger is protected by fifteen and a half tons of armor, giving the 'Mech excellent armor protection.",
+    "history": "On December 5, 3053, the first FedCom Gunslinger rolled off the assembly line at Defiance Industries. Because of issues with the Gauss weapons, it took nearly two years for the first Combine Gunslinger to leave the Quentin plant. Since then, both plants have built as many Gunslingers as they possibly can each year, severely taxing their resources while breaking production records year after year. Beginning with Operation Guerrero in 3057 and the Lyran Alliance's Jade Falcon invasion in 3058, the Gunslinger demonstrated its capabilities, as it has in every other significant military operation in the Inner Sphere since. As a result, the Gunslinger is still in high demand.",
+    "deployment": "TThe 2ERD model of the Gunslinger upgrades the medium lasers to ER medium lasers and removes the two rear Medium Pulse Lasers, the Beagle Probe and the Small Laser. The 'Mech then adds an additional jump jet allowing the 'Mech to jump up to ninety meters and also adds a C3 master computer.",
+    "manufacturer": "Defiance Industries, Independence Weaponry",
+    "primaryFactory": "Hesperus II,Quentin",
+    "systemManufacturer": {
+      "CHASSIS": "Star League XT",
+      "ENGINE": "VOX 255 XL",
+      "ARMOR": "Kevlar 5000",
+      "JUMPJET": "HildCo Model 12",
+      "COMMUNICATIONS": "Nashan Quartet ComSy with Guardian ECM",
+      "TARGETING": "Nashan Diana Mark II Targeting Computer"
+    }
+  },
+  "mulId": 1349,
+  "role": "Juggernaut",
+  "source": "TR:3055U"
+}

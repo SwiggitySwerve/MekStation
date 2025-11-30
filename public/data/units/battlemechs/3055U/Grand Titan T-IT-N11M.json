@@ -1,0 +1,209 @@
+{
+  "id": "grand-titan-t-it-n11m",
+  "chassis": "Grand Titan",
+  "model": "T-IT-N11M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 29,
+      "RIGHT_ARM": 29,
+      "LEFT_TORSO": {
+        "front": 31,
+        "rear": 11
+      },
+      "RIGHT_TORSO": {
+        "front": 31,
+        "rear": 11
+      },
+      "CENTER_TORSO": {
+        "front": 42,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISStreakSRM4",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "IS Streak SRM 4 Ammo",
+      "IS Light Gauss Ammo",
+      "ISCASE",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISStreakSRM4",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Grand Titan was designed by Vining Engineering and Salvage Team to take on the best 'Mechs that the Inner Sphere or the Clans had to offer.",
+    "capabilities": "The 'Mech is built on an Endo Steel chassis and with a LTV 400 XL Engine, which propels the Grand Titan to a top speed of 64.8 kph, to save as much weight as possible. The Grand Titan also carries eighteen tons of armor.",
+    "history": "The design of the Grand Titan was sold to Earthwerks Incorporated in the Free Worlds League and has become a 'Mech commonly seen in the FWLM and the Word of Blake militia.",
+    "deployment": "The N11M model of the Grand Titan is a major modification of the design. The 'Mech carries as its primary long-range weapons a Light Gauss Rifle and an ER PPC which gives the 'Mech powerful long-range reach. The 'Mech has for short-range combat four Medium Pulse Lasers and two Streak SRM-4 launchers. It is also protected by a Guardian ECM Suite. This upgrade brings the Grand Titan to modern standards and makes it as powerful on the battlefield now as it was when it was first released.",
+    "manufacturer": "Earthwerks Ltd.",
+    "primaryFactory": "Keystone Plant #3",
+    "systemManufacturer": {
+      "CHASSIS": "Corean Model 101BLP Endo Steel",
+      "ENGINE": "LTV 400 XL",
+      "ARMOR": "Durallex Heavy",
+      "COMMUNICATIONS": "Hartford JEA-1",
+      "TARGETING": "O/P FiberFeed 201 with Artemis IV FCS Interface"
+    }
+  },
+  "mulId": 1266,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

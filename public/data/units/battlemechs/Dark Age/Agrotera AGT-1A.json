@@ -1,0 +1,184 @@
+{
+  "id": "agrotera-agt-1a",
+  "chassis": "Agrotera",
+  "model": "AGT-1A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3108,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "tag",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISAES",
+      "ISAES",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISMediumPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "Jump Jet",
+      "ISSmallPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "Jump Jet",
+      "ISSmallPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISTAG",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "fluff": {
+    "overview": "The Agrotera is a medium BattleMech that would go on to serve in the armed forces of both the Magistracy of Canopus and its ally, the Capellan Confederation. Based on the Word of Blake's variant of the Phoenix Hawk, the Agrotera is designed as a multipurpose and ammunition-efficient design.",
+    "capabilities": "Designed with advanced technology in mind, the 'Mech's engineers outfitted the Agrotera with new advancements made during the Jihad. Like the 3060s redesigned Phoenix Hawk, the 'Mech is fitted with a Full-Head Ejection System, which allows for increased comfort and safety for the MechWarrior should its nine and a half tons of standard armor fail. A partial wing boosts mobility and cooling. The design also benefits from weight savings by being fitted with a Rawlings 300 XL extralight engine and an XL gyro. TAG equipment is fitted to allow the Agrotera to act as a spotter for friendly fire-support units.",
+    "history": "The design would see action with the MoC's 1st Magistracy Highlanders on Bethonolog in 3108 against more dangerous pirates, where a pair of Agroteras engaged a full lance of heavy BattleMechs. While trying to buy time for the rest of the Highlanders to arrive, the two 'Mechs managed to force the bandits into submission through the Agrotera's steady delivery of damaging blows against them while simultaneously outmaneuvering them. Their performance soon proved to be too much for the pirates, and the survivors surrendered just as the rest of the Highlanders' heavier units arrived on the scene.\nmanufacturer:Majesty Metals and Manufacturing\nprimaryfactory:Canopus IV\nsystemmanufacturer:CHASSIS:Earthwerks PXH II Reinforced Endo Steel\nsystemmanufacturer:ENGINE:Rawlings 300 XL\nsystemmanufacturer:ARMOR:Durallex Light\nsystemmanufacturer:JUMPJET:Rawlings 45 with Partial Wing\nsystemmanufacturer:COMMUNICATIONS:Tek BattleCom\nsystemmanufacturer:TARGETING:Tek Tru-Trak with TAG",
+    "deployment": "The Agrotera's long-range weapon is its Ceres Arms Smasher ER PPC, mounted in its left arm actuator, its accuracy enhanced with the fitting of an Actuator Enhancement System. In addition to the ER PPC, the 'Mech also has a single Diverse Optics medium variable speed pulse laser found in the right arm, a regular medium pulse laser, and a pair of Diverse Optics small pulse lasers, one on each of the side torsos as a means to deter infantry and battle armor threats."
+  },
+  "mulId": 6459,
+  "role": "Striker",
+  "source": "TR:3145:CC"
+}

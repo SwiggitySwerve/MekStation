@@ -1,0 +1,112 @@
+{
+  "id": "daedalus-gtx2b-navvy",
+  "chassis": "Daedalus",
+  "model": "GTX2B 'Navvy'",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2750,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 19,
+      "FRL": 19,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 19,
+      "RRL": 19
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 795,
+  "role": "Ambusher",
+  "source": "His:OK"
+}

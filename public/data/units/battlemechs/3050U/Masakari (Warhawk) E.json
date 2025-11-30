@@ -1,0 +1,196 @@
+{
+  "id": "masakari-e",
+  "chassis": "Masakari",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 42,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 35,
+      "RIGHT_LEG": 35
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLSRM6 (omnipod)",
+      "Clan Ammo SRM-6 (omnipod)",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "imp_target_long"
+  ],
+  "fluff": {
+    "overview": "Introduced by Clan Smoke Jaguar in 2999 in preparation for the anticipated return to the Inner Sphere, while the Dragoon Compromise stalled such plans, the Jaguars unleashed the powerful Warhawk on their Warden opponents to deadly effect.",
+    "capabilities": "The Warhawk was powered by a massive 340 XL Engine that gave it a top speed of 64.8 km/h and mounted thirteen and a half tons of Ferro-Fibrous armor to protect itself from enemy fire. To dissipate the massive waste heat produced in its various configurations, it carried a staggering twenty double heat sinks. Additionally, though not truly fixed equipment on the chassis, the Warhawk managed to incorporate an advanced Targeting Computer into each of its configurations, making all of its direct fire weapons extremely accurate.",
+    "history": "Deployed extensively in the Jaguar frontline forces, and often seen paired with the Dire Wolf, the design truly came to prominence as originally intended, on the battlefields of the Jaguars' Invasion Corridor and earned the code name of Masakari - a Japanese battle-axe used on medieval Terra - from warriors within the DCMS who faced it. Though it appeared in the Toumans of a number of other Clans, such as the Ghost Bears and Jade Falcons, the Jaguars jealously guarded their production, and all examples of the highly prized 'Mech outside of the Jaguars were battlefield salvage until production lines and design specs finally spread to the Fire Mandrills, Diamond Sharks and Goliath Scorpions upon the Smoke Jaguars' Annihilation. Produced exclusively on the Clan Homeworlds, the design was one of many lost to the Inner Sphere Clans after contact with the Homeworlds ceased during the Jihad. Though it appeared in the Toumans of a number of other Clans, such as the Ghost Bears and Jade Falcons, the Jaguars jealously guarded their production, and all examples of the highly prized 'Mech outside of the Jaguars were battlefield salvage until production lines and design specs finally spread to the Fire Mandrills, Diamond Sharks and Goliath Scorpions upon the Smoke Jaguars' Annihilation. Produced exclusively on the Clan Homeworlds, the design was one of many lost to the Inner Sphere Clans after contact with the Homeworlds ceased during the Jihad.",
+    "deployment": "A sort of fusion between the B and C variants, the Warhawk E mounted an ER PPC, a Large Pulse Laser, and an SRM-6. The new addition to the design was three Plasma Cannons. The Targeting Computer made the energy weapons more accurate.",
+    "manufacturer": "Phan Industrialplex,Abysmal Manufacturing Complex,Kindraa Kline Primary Production Facility,Imperial BattleMechs",
+    "primaryFactory": "Huntress,Huntress,Dagda,Antwerp",
+    "systemManufacturer": {
+      "CHASSIS": "Huntress WH",
+      "ENGINE": "General Systems 340 XL",
+      "ARMOR": "Forging X85 Ferro-Fibrous",
+      "COMMUNICATIONS": "Series 10 CBS MultiFreq",
+      "TARGETING": "HawkEye J360"
+    }
+  },
+  "mulId": 2095,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

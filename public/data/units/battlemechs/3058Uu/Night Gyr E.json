@@ -1,0 +1,212 @@
+{
+  "id": "night-gyr-e",
+  "chassis": "Night Gyr",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLATM6 (omnipod)",
+      "CLATM6 (omnipod)",
+      "CLATM6 (omnipod)",
+      "Clan Ammo ATM-6 (omnipod)",
+      "Clan Ammo ATM-6 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "Clan Ammo SRM-6 (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLSRM6 (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Night Gyr came back with Clan Jade Falcon leaders following their return to the Clan homeworlds in 3051 to elect a new ilKhan. It has become more prevalent in the Falcon touman following the Refusal War.",
+    "capabilities": "No expense was spared in the manufacture of this OmniMech that uses an XL Engine and Endo Steel to save weight. It also incorporates eleven and a half tons of Ferro-Fibrous armor. Though it is on the slow end for a Clan heavy 'Mech, the Night Gyr mounts four fixed jump jets that enable it to jump up to 120 meters in a single bound. The design was a testbed for some new technologies, including the Laser Heat Sink, which was eventually phased out due to a lack of increased performance.",
+    "history": "During the Wars of Reaving, Night Gyr's production facilities on Ironhold, would end up being destroyed in 3076.\nmanufacturer:Ironhold Gamma Complex",
+    "deployment": "This variant uses massed pulse lasers, two large and six medium, in conjunction with an ATM 6 and an SRM-6. The ATM only mounts two tons of ammunition, limiting its flexibility.",
+    "primaryFactory": "Ironhold",
+    "systemManufacturer": {
+      "CHASSIS": "JF 7 Light Endo Steel",
+      "ENGINE": "300 JF Extralight",
+      "ARMOR": "Compound JF Ferro Fibrous",
+      "JUMPJET": "JF Standard",
+      "COMMUNICATIONS": "JF 3048 Series II",
+      "TARGETING": "Ironhold Mk II"
+    }
+  },
+  "mulId": 2267,
+  "role": "Skirmisher",
+  "source": "TR:3058U"
+}

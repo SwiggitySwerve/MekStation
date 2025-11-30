@@ -1,0 +1,183 @@
+{
+  "id": "ghost-gst-10a-aurora",
+  "chassis": "Ghost",
+  "model": "GST-10A 'Aurora'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3130,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-small-pulse-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-9",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "inarc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISiNarc Pods",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "IS Ammo MML-9 LRM",
+      "IS Ammo MML-9 SRM",
+      "ISERMediumLaser",
+      "Mek Void Signature System"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERSmallPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Mek Void Signature System"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "imp_com",
+    "imp_sensors"
+  ],
+  "mulId": 8373,
+  "role": "Striker",
+  "source": "XTR:Royal Fantasy"
+}

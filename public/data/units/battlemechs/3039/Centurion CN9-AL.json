@@ -1,0 +1,196 @@
+{
+  "id": "centurion-cn9-al",
+  "chassis": "Centurion",
+  "model": "CN9-AL",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2915,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Small Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "LRM 10",
+      "LRM 10",
+      "IS Ammo LRM-10",
+      "IS Ammo LRM-10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "Medium Laser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "non_standard"
+  ],
+  "mulId": 518,
+  "role": "Brawler",
+  "source": "TR:3039"
+}

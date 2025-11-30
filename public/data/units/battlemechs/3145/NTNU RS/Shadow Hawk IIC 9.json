@@ -1,0 +1,190 @@
+{
+  "id": "shadow-hawk-iic-9",
+  "chassis": "Shadow Hawk IIC",
+  "model": "9",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3134,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Ammo ATM-6",
+      "Clan Ammo ATM-6",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLATM6",
+      "CLATM6",
+      "CLATM6",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "imp_life_support"
+  ],
+  "fluff": {
+    "overview": "The Shadow Hawk IIC is a second-line Clan BattleMech based upon the Shadow Hawk that was first fielded by the Star League.",
+    "capabilities": "The inexpensive unit is protected by seven and a half tons of Ferro-Fibrous armor, mounted on a weight-saving Endo Steel chassis. This medium 'Mech can reach a respectable top speed of 97 km/h, though it also carries enough jump jets to vault up to 180 meters at a time.",
+    "deployment": "This variant was introduced in the Dark Age. It carries an ER Large Laser, an ATM-6, and two ER Medium Lasers. It has a top speed of 96 km/h, and can jump 180 meters at a time.",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Lang T3",
+      "ENGINE": "Consolidated Fusion 270 Standard",
+      "ARMOR": "Compound H17 Ferro-Fibrous",
+      "JUMPJET": "Northrup Starlifters M45",
+      "COMMUNICATIONS": "JNE Integrated",
+      "TARGETING": "TRTTS Mark II"
+    }
+  },
+  "mulId": 6911,
+  "role": "Skirmisher",
+  "source": "RS:3145-NTNU"
+}

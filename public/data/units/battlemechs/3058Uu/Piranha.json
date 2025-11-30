@@ -1,0 +1,217 @@
+{
+  "id": "piranha-unknown",
+  "chassis": "Piranha",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3051,
+  "tonnage": 20,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "Clan Machine Gun Ammo - Half",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "Clan Machine Gun Ammo - Half",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "CLERSmallLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short"
+  ],
+  "mulId": 2535,
+  "role": "Striker",
+  "source": "TR:3058U"
+}

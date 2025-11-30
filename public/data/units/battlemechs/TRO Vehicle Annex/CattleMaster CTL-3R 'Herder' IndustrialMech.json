@@ -1,0 +1,153 @@
+{
+  "id": "cattlemaster-ctl-3r-herder-industrialmech",
+  "chassis": "CattleMaster",
+  "model": "CTL-3R 'Herder' IndustrialMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3024,
+  "tonnage": 25,
+  "engine": {
+    "type": "ICE",
+    "rating": 100
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 4,
+      "RIGHT_ARM": 4,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Retractable Blade",
+      "Searchlight",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Cargo (3 tons)",
+      "Cargo (3 tons)",
+      "Cargo (3 tons)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "mulId": 3905,
+  "role": "None",
+  "source": "RS:VA"
+}

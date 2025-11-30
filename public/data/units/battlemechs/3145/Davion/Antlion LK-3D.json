@@ -1,0 +1,141 @@
+{
+  "id": "antlion-lk-3d",
+  "chassis": "Antlion",
+  "model": "LK-3D",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3117,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 20,
+      "FRL": 20,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "RLL": 20,
+      "RRL": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mech-mortar-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mech-mortar-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "HEAD"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Clan Mech Mortar-4",
+      "Clan Mech Mortar-4",
+      "BloodhoundActiveProbe",
+      "BloodhoundActiveProbe",
+      "BloodhoundActiveProbe",
+      "RemoteSensorDispenser"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Mech Mortar-4",
+      "Clan Mech Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "Clan Ammo SC Mortar-4",
+      "ISCASEII"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "Light Machine Gun",
+      "Light Machine Gun"
+    ]
+  },
+  "fluff": {
+    "overview": "<p>The Antlion, a unique quad BattleMech developed by StarCorps, is a specialized unit in the Armed Forces of the Federated Suns, purpose-built for indirect fire support. Designed to address the diminishing efficiency of LRMs due to the rise of anti-missile systems, the Antlion stands out for its specific role in warfare. Despite limited adoption beyond the AFFS and select mercenary units, its production continues, underscoring its niche yet vital function on the battlefield. The Antlion represents a tactical shift in mech warfare, focusing on bombardment from cover rather than direct engagement.</p>",
+    "capabilities": "<p>The Antlion is characterized by its light frame and slow speed, making it unsuitable for direct combat. Its primary strength lies in its exceptional sensor capabilities, with an active probe that ensures nothing can approach undetected within a 240-meter radius. However, its armament, limited to a pair of light machine guns, offers minimal offensive capability, barely posing a threat even to unarmored infantry. The Antlion's real value is in its specialized role, utilizing its advanced sensor systems for indirect fire missions and tactical positioning rather than frontline engagement.</p>",
+    "history": "<p>\nThe Antlion's inception by StarCorps marks a strategic evolution in BattleMech design, focusing on indirect fire support to counteract the growing efficiency of anti-missile systems. Initially designed to complement the Osiris and intended for the Federated Suns' military, the Antlion found its place after Gittleman and Abzug moved to the New Colony Region and collaborated with Detroit Consolidated MechWorks. This transition facilitated the Antlion's integration into the AFFS and highlighted its unique role in modern warfare.",
+    "deployment": "This is the only known variant",
+    "manufacturer": "StarCorps Industries",
+    "primaryFactory": "Crofton",
+    "systemManufacturer": {
+      "CHASSIS": "StarFrame Medium Reinforced",
+      "ENGINE": "GM SuperFusion 225 XL",
+      "ARMOR": "Valiant Ringmail Light Ferro-Fibrous with CASE II",
+      "COMMUNICATIONS": "O/P 3950 COMSET M7",
+      "TARGETING": "Martin-Quarry Tarsys XLR 2.7 with Bloodhound Active"
+    }
+  },
+  "mulId": 6338,
+  "role": "Missile Boat",
+  "source": "TR:3145:FS"
+}

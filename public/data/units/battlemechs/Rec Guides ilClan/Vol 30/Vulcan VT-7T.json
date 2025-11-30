@@ -1,0 +1,189 @@
+{
+  "id": "vulcan-vt-7t",
+  "chassis": "Vulcan",
+  "model": "VT-7T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3091,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heavy Machine Gun",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heavy Flamer",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERMediumLaser",
+      "Supercharger",
+      "ISTargeting Computer",
+      "ISTargeting Computer"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "IS Heavy Machine Gun Ammo - Half",
+      "IS Heavy Flamer Ammo",
+      "ISCASEII"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Vulcan was designed as an anti-infantry 'Mech in 2775 during the closing years of the Amaris Civil War.",
+    "capabilities": "The Vulcan is lightly armored at only five tons, though this is typically sufficient when facing infantry forces and its narrow profile makes it a harder target to hit. A cruising speed of 97.2 km/h is enhanced by six jump jets mounted in the rear of the Vulcan's torso, specially vented to reduce heat buildup, giving it a jumping range of 180 meters.",
+    "history": "As the SLDF battled Republican troops in the streets and thoroughfares of the Terran Hegemony, many 'Mechs were destroyed by dug-in infantry during these urban battles. In response to this problem, MatherTechno Inc. designed the Vulcan to pack weaponry capable of taking out large numbers of enemy troops and capable of unparalleled mobility in an urban environment, though not intended to engage in all-out battles with larger 'Mechs. The Vulcan's distinct profile would eventually give rise to its nickname \"Scarecrow.\" Production of the Vulcan began as soon as MatherTechno's factory on Northwind was liberated by the SLDF, with Aleksandr Kerensky himself specifically ordering their production lines converted to produce the Vulcan. The design's baptism of fire came during Operation Liberation, the final battle of the civil war to liberate Terra from Stefan Amaris, where it served as part of the Volunteer Regiments and earned its reputation as a tough city fighter. Each of the Great Houses had a sizable number of Vulcans at the start of the First Succession War when, just a few months into the conflict, MatherTechno's factory on Northwind was destroyed. Only the Lyran Commonwealth and Free Worlds League managed to acquire the design specifications for the Vulcan and keep it in limited production throughout the rest of the Succession Wars, with the League awarding the schematics to Nimakachi Fusion Products Limited and the Commonwealth giving theirs to Coventry Metal Works. Of the other Great Houses the Capellan Confederation had the fewest number of Vulcans as a result of the loss of Sappho, where the majority of their Vulcans were stationed, to House Marik during the Second Succession War. The Federated Suns kept their Vulcans going thanks to several spare part supply dumps located in their territory, and used the 'Mech extensively during the reconquest of Kentares IV. The majority of the Draconis Combine's Vulcan inventory was used during a raid on Dobson in 3020 where they decimated several key Davion aerospace fighter bases. Following the recovery of several lostech components Nimakachi was able to create a new variant, the VT-5M, and begin limited production in 3050, eventually increasing their lines to produce twenty a month. Coventry Metal Works produced their own upgraded variant around the same time, the VT-5S, which played a pivotal role during the FedCom Civil War as part of the Allied forces. The Word of Blake purchased a number of Vulcans in preparation for their seizure of Terra in 3058, codenamed Operation Odysseus. The Blakists would go on to seize more Vulcans after the start of the Jihad following their sacking of Nimakachi's Tematagi plant in 3069, with many transferred to the Protectorate Militia for policing duties.",
+    "deployment": "The new -7T entered markets with the incendiary payload of the Coventry versions and the endurance, heat dissipation, and accuracy of the Nimakachi builds.",
+    "manufacturer": "Nimakachi Fusion Products Ltd.,Coventry Metal Works",
+    "primaryFactory": "Tematagi, Coventry",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-II Delux Endo Steel",
+      "ENGINE": "VOX 240 XL",
+      "ARMOR": "StarSlab 1/d",
+      "JUMPJET": "Model 9 Pitban",
+      "COMMUNICATIONS": "Hartford 200S",
+      "TARGETING": "Hartford TA10"
+    }
+  },
+  "mulId": 9427,
+  "role": "Scout",
+  "source": "RG30"
+}

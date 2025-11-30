@@ -1,0 +1,118 @@
+{
+  "id": "guard-gs-54-securitymech",
+  "chassis": "Guard",
+  "model": "GS-54 SecurityMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2914,
+  "tonnage": 15,
+  "engine": {
+    "type": "ICE",
+    "rating": 75
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 3,
+      "FRL": 3,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "HEAD": 5,
+      "RLL": 3,
+      "RRL": 3
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Machine Gun Ammo - Half",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 4253,
+  "role": "Ambusher",
+  "source": "TR:I"
+}

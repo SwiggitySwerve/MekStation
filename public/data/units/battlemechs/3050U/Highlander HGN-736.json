@@ -1,0 +1,200 @@
+{
+  "id": "highlander-hgn-736",
+  "chassis": "Highlander",
+  "model": "HGN-736",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 16
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "1-isgaussrifle",
+      "location": "RIGHT_ARM,_AMMO:16"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isstreaksrm4",
+      "location": "LEFT_ARM,_AMMO:25"
+    },
+    {
+      "id": "1-islrm20",
+      "location": "LEFT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-isimprovedc3cpu",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISStreakSRM4",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "ISLRM20",
+      "ISLRM20",
+      "ISLRM20",
+      "ISLRM20",
+      "ISLRM20",
+      "ISArtemisIV",
+      "ISStreakSRM4 Ammo",
+      "ISLRM20 Ammo Artemis-capable",
+      "ISLRM20 Ammo Artemis-capable",
+      "ISCASE",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "ISGauss Ammo",
+      "ISGauss Ammo",
+      "ISImprovedC3CPU",
+      "ISImprovedC3CPU",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "cowl",
+    "reinforced_legs",
+    "difficult_eject"
+  ],
+  "fluff": {
+    "overview": "The Highlander is one of the most well-known Star League Defense Force assault 'Mechs, serving with distinction for almost two centuries since first entering service in 2592.",
+    "capabilities": "Initially designed as a dedicated city and installation defender, the original model featured a variety of weaponry along with fifteen and a half tons of Ferro-Fibrous armor, but perhaps its most useful asset were the three HildCo jump jets giving it a jumping range of 90 meters. The heaviest 'Mech design to feature jump jets at the time, their original task was to allow the Highlander the ability to jump over inconvenient obstacles such as buildings and outpace other 'Mechs with a faster ground speed, but because of this increased mobility and its versatile weaponry the Highlander proved to be a capable fighter on any battlefield and within decades nearly every BattleMech regiment of the Regular and Royal Armies featured them.",
+    "history": "During the design's initial trial runs pilots began using these 'Mechs in what would infamously become known as the \"Highlander Burial\". Leaping into the air and landing directly on their enemy, a Highlander could literally drive a light 'Mech into the ground. So successful was this maneuver that the design team re-engineered the legs to withstand repeated death-from-above attacks and turned what had been a desperation move into an art form, giving Highlander pilots an additional psychological edge. As with other Star League era designs the Highlander would suffer the loss of technology brought about by the Succession Wars, and when StarCorps' factory on Son Hoa was devastated towards the end of the Second Succession War the original HGN-732 became virtually extinct. An agreement between StarCorps and Hollis Incorporated to rebuild destroyed chassis from scratch using readily-available technology kept the line going until the mid-3030s when limited production was restarted by StarCorps on Son Hoa and Corey, producing barely a dozen new 'Mechs per year. These HGN-733 Highlanders were used in small numbers by the Capellan Confederation and Lyran Commonwealth, commonly as part of lances containing Exterminators, Victors, Grasshoppers and Catapults. Unbeknownst to many, ComStar also maintained a large stock of Highlanders left over from the Star League, some of which they gifted to the Draconis Combine during the War of 3039. The appearance of so many seemingly rare 733s, along with a few 732s whose advanced technology managed to slip through ComStar screening, had a large impact on Lyran morale during that conflict. ComStar would also use the design in their own military forces, the Com Guard, and even during the Clan Invasion a few original 732s would take to the field as part of the Clans' fighting forces. The Northwind Highlanders especially favored this namesake Battlemech. In fact, during the Succession Wars, they were the only Inner Sphere army to keep a large number of them operational, along with ComStar. The Highlanders are specially skilled in delivering the famed Highlander Burial maneuver. By 3057 StarCorps' Son Hoa line was at full production, producing brand-new original-spec Highlanders for Lyran units of the Federated Commonwealth, just in time to take part in the FedCom Civil War. Highlanders would continue to be produced all the way through to the Jihad, where advanced variants fought both for and against the Word of Blake.",
+    "deployment": "This ComStar version of the Highlander introduced in the late 3050s has been upgraded to carry the improved C3 computer, as well as upgrading the LRM-20 with an Artemis IV fire control system and replacing the SRM-6 to a Streak SRM-4. This was accomplished by replacing the twelve single heat sinks of the 732 model with ten double heat sinks and by only using one ton of ammunition for the upgraded SRM launcher.",
+    "manufacturer": "StarCorps Industries",
+    "primaryFactory": "Son Hoa",
+    "systemManufacturer": {
+      "CHASSIS": "Star League XT",
+      "ENGINE": "GM 270",
+      "ARMOR": "Grumman-3 Ferro Fibrous with CASE",
+      "JUMPJET": "HildCo Model 10",
+      "COMMUNICATIONS": "Hector VII",
+      "TARGETING": "Starlight LX-1"
+    }
+  },
+  "mulId": 1521,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

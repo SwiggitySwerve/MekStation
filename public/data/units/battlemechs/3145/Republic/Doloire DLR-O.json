@@ -1,0 +1,178 @@
+{
+  "id": "doloire-dlr-o",
+  "chassis": "Doloire",
+  "model": "DLR-O",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3121,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 38,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "ISAngelECMSuite (omnipod)",
+      "ISAngelECMSuite (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "Clan Gauss Ammo (omnipod)",
+      "Clan Gauss Ammo (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "command_mech"
+  ],
+  "mulId": 6678,
+  "role": "Brawler",
+  "source": "TR:3145:RotS"
+}

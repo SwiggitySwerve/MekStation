@@ -1,0 +1,196 @@
+{
+  "id": "axman-axm-6t",
+  "chassis": "Axman",
+  "model": "AXM-6T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3083,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "1-isthunderbolt15",
+      "location": "RIGHT_TORSO,_AMMO:16"
+    },
+    {
+      "id": "1-isthunderbolt15",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISThunderbolt15",
+      "ISThunderbolt15",
+      "ISThunderbolt15",
+      "ISThunderbolt15 Ammo",
+      "ISThunderbolt15 Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISThunderbolt15",
+      "ISThunderbolt15",
+      "ISThunderbolt15",
+      "ISThunderbolt15 Ammo",
+      "ISThunderbolt15 Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "Developed by Team Banzai as the big brother of the highly successful Hatchetman, the Axman was designed exclusively to be a 'Mech killer",
+    "capabilities": "The Axman has a ground speed of only 64.8 km/h, which is average for a Heavy weight, but improved in part by the inclusion of Jump Jets. The 'Mech is covered with eleven tons of Ferro-Fibrous armor that gives it a great deal of protection, with ten Double Heat Sinks offering average heat dissipation. Much like its lighter brother, the Axman was designed to utilize the Full-Head Ejection System to safe-guard its MechWarrior.",
+    "history": "The Axman was also intended as a symbol of solidarity throughout the Federated Commonwealth by using components that were produced in Federated Suns, Lyran Commonwealth, and even former Capellan Confederation space. The collapse of the Federated Commonwealth in 3057 almost rendered the design extinct because of this, production slowing to a trickle as both the Federated Suns and Lyran Alliance were forced to rely on surplus stores while developing new variants utilizing locally sourced components.",
+    "deployment": "This is the production variant of the AXM-6X described under \"Custom Variants\". This version, introduced in 3083, uses an Inner Sphere produced XL engine and lacks the Supercharger of the 6X. The top speed of the 6T is 86 km/h. The armor protection and weapon configuration are identical to the Axman 6X, but the Thunderbolt launchers have two tons of ammunition each. Dev note- Handheld weapons NOT available in MegaMek so none are included.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Furillo",
+    "systemManufacturer": {
+      "CHASSIS": "Dorwinion AXM Endo Steel",
+      "ENGINE": "Vox 325 XL",
+      "ARMOR": "Lexington Ltd. Light Ferro-Fibrous with CASE",
+      "COMMUNICATIONS": "Neil 8000",
+      "TARGETING": "RCA Instatrac Mark X"
+    }
+  },
+  "mulId": 3771,
+  "role": "Missile Boat",
+  "source": "TR:Proto"
+}

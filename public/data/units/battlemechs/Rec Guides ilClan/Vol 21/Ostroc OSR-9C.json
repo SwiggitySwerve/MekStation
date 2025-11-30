@@ -1,0 +1,197 @@
+{
+  "id": "ostroc-osr-9c",
+  "chassis": "Ostroc",
+  "model": "OSR-9C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2905,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 19
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Jump Jet",
+      "Large Laser",
+      "Large Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Jump Jet",
+      "Large Laser",
+      "Large Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS Ammo SRM-2"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Ostroc is a heavy 'Mech, weighing in at the lower end of its weight class, originally designed to act as an urban combatant during the Age of War.",
+    "capabilities": "Its unique walker/pod profile, later seen in the Stalker and Marauder, combined with a low silhouette similar to the UrbanMech makes the Ostroc difficult to spot in an urban environment. Fast for its size, well-armored and boasting good medium- and short-range firepower, the Ostroc was also capable when fighting outside a cityscape, particularly as a heavy scout/raider.",
+    "history": "The best-known of Ostmann Industries' Ost Class of 'Mechs, the Ostroc debuted in 2511 and proved so successful in this role production continued for approximately 200 years. While a quality 'Mech, the low production capacity of Ostmann Industries made the Ostroc a rarity; indeed the company licensed their other Ost 'Mechs out to Kong Interstellar just to maintain their rate of production, and the majority of those produced were assigned garrison duties within the Terran Hegemony. Still, the 'Mech saw action in every major conflict of the Star League, especially towards the end in the civil war and subsequent First Succession War. The destruction of Ostmann Industries meant an end to any new Ostrocs, although all sides of the Succession Wars continued to field these 'Mechs in combat, particularly the Draconis Combine. It was because of the small number and wide dispersal of surviving Ostrocs that the design was largely passed over while others were being updated after the Helm Memory Core discovery. A major revitalization of the design took place within the Capellan Confederation after the Clan Invasion. Having largely rebuilt their forces after the previous decades' setbacks, the Strategios wanted to update the ancient 'Mech, but rather than reverse-engineering the original they ordered all Capellan 'Mech manufacturers to submit bids for a replacement. Ceres Metals was the only one to send in a proposal which matched exactly what they wanted and won the contract, completing the first production run in January 3067. Versions of these new Ostrocs also started showing up in the Taurian Concordat and Circinus Federation, a result of espionage according to Capellan charges.",
+    "deployment": "Known as the Ostroc Mk II, this 'Mech might as well be considered a new, different design (much like the Grand Dragon evolved from the Dragon, the Mauler from the Daboku or the Hatamoto-Chi from the Charger). The Ostroc Mk II swaps the SRM-4 for one SRM-2 launcher in each side torso, with one ton of ammunition in the center torso. Half a ton of armor was added to the front torso and legs (adding one point to each leg and side torso, and four to center torso), and four more heat sinks were installed along with three jump jets for a jump capacity of 90 meters. To make room for these components, the engine had to be changed to a Pitban 240, reducing the top speed to 64.8 km/h.",
+    "manufacturer": "Diplass BattleMechs,Kong Interstellar Corporation,Kong Interstellar Corporation,Ostmann Industries",
+    "primaryFactory": "Apollo,Connaught,Loxley,Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Ost II",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Riese 475",
+      "COMMUNICATIONS": "Ostmann-L",
+      "TARGETING": "Ferdinand-a",
+      "JUMPJET": "HildCo 13 Jump Jets"
+    }
+  },
+  "mulId": 8356,
+  "role": "Juggernaut",
+  "source": "RG21"
+}

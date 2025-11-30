@@ -1,0 +1,182 @@
+{
+  "id": "warwolf-a",
+  "chassis": "Warwolf",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "REACTIVE",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Reactive",
+      "Clan Reactive",
+      "Clan Reactive",
+      "Clan Reactive",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Reactive",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "CLCASEII (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLStreakLRM10 (omnipod)",
+      "CLStreakLRM10 (omnipod)",
+      "Clan Streak LRM 10 Ammo (omnipod)",
+      "CLCASEII (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Reactive"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Reactive"
+    ]
+  },
+  "mulId": 6288,
+  "role": "Brawler",
+  "source": "TR:3145:C"
+}

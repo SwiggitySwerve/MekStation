@@ -1,0 +1,137 @@
+{
+  "id": "thunder-stallion-4",
+  "chassis": "Thunder Stallion",
+  "model": "4",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 35,
+      "FRL": 35,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 15
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 15
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "RLL": 35,
+      "RRL": 35
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLMediumPulseLaser"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLERLargeLaser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "cramped_cockpit"
+  ],
+  "mulId": 7720,
+  "role": "Juggernaut",
+  "source": "Shrap03"
+}

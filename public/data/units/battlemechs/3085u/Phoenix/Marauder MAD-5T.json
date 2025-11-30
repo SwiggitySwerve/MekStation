@@ -1,0 +1,179 @@
+{
+  "id": "marauder-mad-5t",
+  "chassis": "Marauder",
+  "model": "MAD-5T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rotary-ac-5",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5 Ammo",
+      "ISRotaryAC5 Ammo",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hyper_actuator",
+    "low_profile"
+  ],
+  "mulId": 2044,
+  "role": "Brawler",
+  "source": "TR:3085"
+}

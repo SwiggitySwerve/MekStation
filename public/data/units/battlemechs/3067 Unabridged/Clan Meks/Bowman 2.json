@@ -1,0 +1,187 @@
+{
+  "id": "bowman-2",
+  "chassis": "Bowman",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2974,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-cllrm20",
+      "location": "RIGHT_ARM,_AMMO:24"
+    },
+    {
+      "id": "3-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clerlargelaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-cllrm20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-clecmsuite",
+      "location": "HEAD"
+    },
+    {
+      "id": "2-clantipersonnelpod",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "2-clantipersonnelpod",
+      "location": "RIGHT_LEG"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20 Ammo",
+      "CLLRM20 Ammo",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20 Ammo",
+      "CLLRM20 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLERLargeLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLAntiPersonnelPod",
+      "CLAntiPersonnelPod"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLAntiPersonnelPod",
+      "CLAntiPersonnelPod"
+    ]
+  },
+  "quirks": [
+    "fast_reload",
+    "stable",
+    "bad_rep_clan"
+  ],
+  "mulId": 3858,
+  "role": "Missile Boat",
+  "source": "RS:3067u"
+}

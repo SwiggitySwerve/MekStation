@@ -1,0 +1,190 @@
+{
+  "id": "koschei-ksc-5mc",
+  "chassis": "Koschei",
+  "model": "KSC-5MC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rotary-ac-5",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      "ISRotaryAC5 Ammo",
+      "ISRotaryAC5 Ammo",
+      "ISRotaryAC5 Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_life_support",
+    "weak_head_1"
+  ],
+  "mulId": 1825,
+  "role": "Skirmisher",
+  "source": "TR:3075"
+}

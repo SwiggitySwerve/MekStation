@@ -1,0 +1,183 @@
+{
+  "id": "wolverine-wvr-1r",
+  "chassis": "Wolverine",
+  "model": "WVR-1R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2471,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 265
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "ac-5",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      "IS Ammo AC/5",
+      "IS Ammo AC/5",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISPrototypeJumpJet",
+      "ISPrototypeJumpJet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISPrototypeJumpJet",
+      "ISPrototypeJumpJet"
+    ]
+  },
+  "quirks": [
+    "pro_actuator",
+    "stable",
+    "obsolete"
+  ],
+  "fluff": {
+    "overview": "The Wolverine commonly served as a heavy scout unit. Often deployed in situations where heavy opposition could easily destroy lighter BattleMechs, it has had a reliable service record ever since its initial deployment within the Star League Defense Force. With respectable armor, speed, and firepower, it can easily outfight lighter enemy scouts and defend itself capably if ambushed.",
+    "capabilities": "The autocannon, missile system and laser found on most Wolverines are all reliable and well-storied systems. Unfortunately, the jump jets suffer from an opposing reputation; the Northrup 12000's are underpowered and prone to breakdowns. The one defining system to be found on the Wolverine, however, are its superb Tek BattleCom and Garret T11-b communications systems. The comgear, regardless of the manufacturer, is well-shielded and features a multi-channel transmitter and receiver, making the Wolverine a powerful Command BattleMech for scouting formations.",
+    "history": "A widespread part of every major military, the Wolverine has manufacturing plants scattered throughout the entire Inner Sphere. While certain states-notably the Free Worlds League-have larger numbers of the design, only the Capellans began facing a shortage of the Wolverine after the loss of their Nanking facilities.",
+    "deployment": "Infamously nicknamed the \"Varnay-1R\", the original primitive Wolverine was introduced in 2471. It mounted an Autocannon/5 with 2 tons of ammunition in the right arm and a Medium Laser in the left to provide coverage in the \"weak zone\" sixty-meters inside the main gun's reach. A 265 Primitive Engine gave the 'Mech a top speed of 64 km/h with four Prototype jump jets providing enhanced mobility for a total jumping distance of 120 meters. The design was also heavily protected by 14.5 tons of armor",
+    "manufacturer": "Bordello Military Goods, Inc.,Nimakachi Fusion Products Limited,Norse BattleMech Works,McRae Quik Construct,Pesht Motors,Asuncion Industries",
+    "primaryFactory": "Antwerp,Lesnovo,Marduk,New Ivaarsen,Pesht,Sarna",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "JUMPJET": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 7406,
+  "role": "Skirmisher",
+  "source": "XTR:Primitives V"
+}

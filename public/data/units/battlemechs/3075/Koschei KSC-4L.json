@@ -1,0 +1,170 @@
+{
+  "id": "koschei-ksc-4l",
+  "chassis": "Koschei",
+  "model": "KSC-4L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2723,
+  "tonnage": 65,
+  "engine": {
+    "type": "FUSION",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "ISArtemisIV",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "IS Ammo LRM-15 Artemis-capable",
+      "IS Ammo LRM-15 Artemis-capable",
+      "ISCASE",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_life_support",
+    "weak_head_1"
+  ],
+  "mulId": 1823,
+  "role": "Missile Boat",
+  "source": "TR:3075"
+}

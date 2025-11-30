@@ -1,0 +1,211 @@
+{
+  "id": "savage-coyote-w",
+  "chassis": "Savage Coyote",
+  "model": "W",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLSmallPulseLaser (omnipod)",
+      "CLFlamer (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLSmallPulseLaser (omnipod)",
+      "CLFlamer (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLightActiveProbe (omnipod)",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLightTAG (omnipod)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet (omnipod)",
+      "Clan Improved Jump Jet (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "oversized"
+  ],
+  "fluff": {
+    "overview": "The Savage Coyote OmniMech was created as a showcase OmniMech. The 'Mech was also part of Khan Koga's attempts to revitalize the fading Clan that invented the OmniMech.",
+    "capabilities": "This assault 'Mech uses an XL Engine to save enough weight to devote forty-five tons of space to modular equipment and fifteen tons of armor. The base chassis contains fourteen fixed double heat sinks.",
+    "history": "Following the development of Advanced Tactical Missile technology. The creation of the Savage Coyote was a direct result of both the warriors of Clan Coyote clamoring for new weapons to use and the election of Khan Sullivan Koga in 3052.",
+    "deployment": "Like the J configuration, this version uses five Improved Jump Jets. It also has twenty double heat sinks. It's equipped with four Large Pulse Lasers, two Small Pulse Lasers, two Flamers, and an ER Medium Laser. It also has a Light TAG and Light Active Probe.",
+    "manufacturer": "Landen, Picuris, and Zuni âMech Production Complexes",
+    "systemManufacturer": {
+      "CHASSIS": "Assault Series SXG",
+      "ENGINE": "Type 255 Extralight",
+      "ARMOR": "Forging ZK11 Standard",
+      "COMMUNICATIONS": "TJ6 âBellâ Integrated Communications System",
+      "TARGETING": "TRTTS Mark II CWS"
+    }
+  },
+  "mulId": 5706,
+  "role": "Sniper",
+  "source": "TR:J"
+}

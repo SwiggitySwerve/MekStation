@@ -1,0 +1,173 @@
+{
+  "id": "lu-wei-bing-ln-4b",
+  "chassis": "Lu Wei Bing",
+  "model": "LN-4B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3110,
+  "tonnage": 85,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 39,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "lb-20-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMML5",
+      "ISMML5",
+      "ISMML5",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISLBXAC20",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "IS Ammo MML-5 LRM",
+      "IS Ammo MML-5 SRM",
+      "ISCASEII"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAngelECMSuite",
+      "ISAngelECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit (armored)",
+      "IS Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 6471,
+  "role": "Brawler",
+  "source": "TR:3145:CC"
+}

@@ -1,0 +1,181 @@
+{
+  "id": "sha-yu-syu-4b",
+  "chassis": "Sha Yu",
+  "model": "SYU-4B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMediumPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Stealth",
+      "IS Stealth",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMediumPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Stealth",
+      "IS Stealth",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISC3SlaveUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Stealth",
+      "IS Stealth",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "IS Ammo LRM-5",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Stealth",
+      "IS Stealth"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Stealth",
+      "IS Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Stealth",
+      "IS Stealth"
+    ]
+  },
+  "quirks": [
+    "imp_com"
+  ],
+  "mulId": 5027,
+  "role": "Striker",
+  "source": "TR:3067"
+}

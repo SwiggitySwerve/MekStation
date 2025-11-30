@@ -1,0 +1,130 @@
+{
+  "id": "white-flame-whf-3c",
+  "chassis": "White Flame",
+  "model": "WHF-3C",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 70,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 29,
+      "FRL": 29,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 29,
+      "RRL": 29
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "ams",
+      "location": "HEAD"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISAMS Ammo",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "mulId": 5405,
+  "role": "Skirmisher",
+  "source": "RS:3067u"
+}

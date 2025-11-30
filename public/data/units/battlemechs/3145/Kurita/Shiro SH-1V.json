@@ -1,0 +1,177 @@
+{
+  "id": "shiro-sh-1v",
+  "chassis": "Shiro",
+  "model": "SH-1V",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3135,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "HARDENED",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "IS LB 2-X AC Ammo",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Sword",
+      "Sword",
+      "Sword",
+      "Sword",
+      "Sword",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10",
+      "CLLRM10",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10",
+      "CLLRM10",
+      "Clan Ammo LRM-10",
+      "Clan Ammo LRM-10",
+      "Clan Ammo LRM-10",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "mulId": 6416,
+  "role": "Missile Boat",
+  "source": "TR:3145:DC"
+}

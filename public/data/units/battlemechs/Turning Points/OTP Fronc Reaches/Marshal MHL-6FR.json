@@ -1,0 +1,178 @@
+{
+  "id": "marshal-mhl-6fr",
+  "chassis": "Marshal",
+  "model": "MHL-6FR",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3086,
+  "tonnage": 55,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISSNPPC",
+      "ISSNPPC"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Flamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_2"
+  ],
+  "mulId": 7698,
+  "role": "Skirmisher",
+  "source": "OTP:FR"
+}

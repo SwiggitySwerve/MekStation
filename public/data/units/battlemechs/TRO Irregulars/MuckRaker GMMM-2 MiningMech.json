@@ -1,0 +1,158 @@
+{
+  "id": "muckraker-gmmm-2-miningmech",
+  "chassis": "MuckRaker",
+  "model": "GMMM-2 MiningMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2737,
+  "tonnage": 70,
+  "engine": {
+    "type": "ICE",
+    "rating": 140
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Dumper (Front)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Dumper (Front)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The MuckRaker is the most prominent departure from the MiningMech pattern so heavily influenced by the Dig Lord. Introduced at the height of the Star League as a âwalking dump-truckâ for deployment at inaccessible mining sites, its eminent usefulness and simple, yet sturdy construction ensured continuing usage even while many other IndustrialMech classes disappeared during the Succession Wars. More common now than ever before, it is not rare to see MuckRakers deployed as mobile weapons platforms. While GM may be just as complicit to on-site military modifications as other manufacturers, there is evidence that third parties are focusing particularly on the MuckRaker, most troubling of which is a surfaced copy of a Zhanzheng de guang Terrorist Handbook recommending this MiningMech above all other IndustrialMechs for ad-hoc weaponizing.",
+    "capabilities": "The MuckRaker is bigger, slower, but extremely well-armored compared to its peers, and also features a sturdy gyro which makes the unit very stable. The terroristsâ pamphlet particularly focuses on the large truck bed which âpresents the finest platform of any IndustrialMech for weapon jury-rigging.â In general, such modified MuckRakers are lumbering monstrosities with autocannons welded onto their backhoe arm and banks of missiles occupying the MiningMechsâ cargo space. They will not catch any foe on the open battlefield, but are a veritable nightmare when encountered in confined spaces.",
+    "deployment": "With such a long history, the MuckRaker has spread to every corner of the Inner Sphere and Periphery and has expanded its usage profile to more than just mining. From construction to archaeology, from salvage to simple garbage collection, this venerable design has seen it all. It is hardly surprising, therefore, to find it taking a prominent role in the increasing militarization of IndustrialMechs currently seen in the Republic. A recent Wyldâs Jokers raid against the town of Marlinspike on Addicks drew reprisals from an unexpected source. While the Jokers lance looted the town, a single teenage resident on his sport monocycle raced into the surrounding mountains, where many of the townsfolk worked in the mines. Quickly rigging ad-hoc armaments from material at the site, the miners descended from the mountains and struck back at the Jokers. Led by four MuckRakers mounting homemade rocket launchers and harpoon guns made from modified industrial air hammers, they managed to surprise and outmaneuver the Bannson forces, pinning them down in the townâs central square. A four-hour standoff followed until a detachment from the local Standing Guard arrived to take the Jokers into custody. Flush with pride after receiving compliments from the Guard commander on their skill and bravery, the leader of the miners, a young townswoman named Felina Robbins, offered their services to complement the militia. Although the militia commander politely declined, many in the town have begun to promote the Marlinspike MuckRakers to other nearby communities.\nmanufacturer:General Motors\nprimaryfactory:El Dorado, New Valencia, Talcott\nsystemmanufacturer:CHASSIS:GM Specialheavy Industrial\nsystemmanufacturer:ENGINE:GM 140 Turbine\nsystemmanufacturer:ARMOR:Durallex\nsystemmode:ARMOR:Heavy Industrial\nsystemmanufacturer:COMMUNICATIONS:Overlook J9\nsystemmanufacturer:TARGETING:Kallon Lock-On"
+  },
+  "mulId": 4220,
+  "role": "None",
+  "source": "TR:I"
+}

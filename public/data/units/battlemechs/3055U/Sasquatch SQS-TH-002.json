@@ -1,0 +1,177 @@
+{
+  "id": "sasquatch-sqs-th-002",
+  "chassis": "Sasquatch",
+  "model": "SQS-TH-002",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 85,
+  "engine": {
+    "type": "XXL",
+    "rating": 425
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargeShield",
+      "ISLargeShield",
+      "ISLargeShield",
+      "ISLargeShield",
+      "ISLargeShield",
+      "ISLargeShield",
+      "ISLargeShield",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser (R)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 2799,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

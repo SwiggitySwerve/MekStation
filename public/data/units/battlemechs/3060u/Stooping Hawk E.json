@@ -1,0 +1,181 @@
+{
+  "id": "stooping-hawk-e",
+  "chassis": "Stooping Hawk",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLATM3 (omnipod)",
+      "CLATM3 (omnipod)",
+      "CLATM3 (omnipod)",
+      "CLATM3 (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLATM3 (omnipod)",
+      "CLATM3 (omnipod)",
+      "Clan Ammo ATM-3 (omnipod)",
+      "Clan Ammo ATM-3 ER (omnipod)",
+      "Clan Ammo ATM-3 HE (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "CLLBXAC10 (omnipod)",
+      "Clan LB 10-X AC Ammo (omnipod)",
+      "Clan LB 10-X Cluster Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "rugged_2"
+  ],
+  "mulId": 3080,
+  "role": "Skirmisher",
+  "source": "TR:3060"
+}

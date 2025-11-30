@@ -1,0 +1,174 @@
+{
+  "id": "shadow-cat-ii-unknown",
+  "chassis": "Shadow Cat II",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "hag-20",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLRM10",
+      "Clan Ammo LRM-10",
+      "Clan Ammo LRM-10",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLRM10",
+      "CLERMediumLaser",
+      "HAG/20 Ammo",
+      "HAG/20 Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "low_profile"
+  ],
+  "mulId": 2894,
+  "role": "Skirmisher",
+  "source": "TR:3085"
+}

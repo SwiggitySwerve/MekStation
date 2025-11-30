@@ -1,0 +1,175 @@
+{
+  "id": "locust-lct-5s",
+  "chassis": "Locust",
+  "model": "LCT-5S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 4,
+      "RIGHT_ARM": 4,
+      "LEFT_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 2
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 5,
+      "RIGHT_LEG": 5
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mml-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMML3",
+      "ISMML3",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMML3",
+      "ISMML3",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Ammo MML-3 SRM",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "compact_mech",
+    "low_profile",
+    "cramped_cockpit",
+    "no_arms",
+    "weak_legs",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 8199,
+  "role": "Striker",
+  "source": "RG16"
+}

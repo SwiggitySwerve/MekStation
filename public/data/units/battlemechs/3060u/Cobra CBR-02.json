@@ -1,0 +1,173 @@
+{
+  "id": "cobra-cbr-02",
+  "chassis": "Cobra",
+  "model": "CBR-02",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "Medium Laser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "mulId": 655,
+  "role": "Missile Boat",
+  "source": "TR:3060"
+}

@@ -1,0 +1,189 @@
+{
+  "id": "lightray-lgh-4w",
+  "chassis": "Lightray",
+  "model": "LGH-4W",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 385
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Lightray was designed by Martinson Armaments to be a heavy scout 'Mech and was put into production in 3064.",
+    "capabilities": "The Lightray is built on a lightweight Geometric 33B Endo Steel chassis to help maximize the available weight for weapons and equipment and features a gigantic LTV 385 XL engine, the largest that can possibly be carried by a 'Mech its size. The engine allows the scout 'Mech to outpace most other medium designs with a top speed of 118 kilometers per hour, though it lacks the added maneuverability that could be provided by jump jets. The Lightray carries ten and a half tons of Strasbourg Armaments Type 4 Ferro-Fibrous armor, giving the 'Mech a great deal of protection.",
+    "deployment": "The main weapon of the Lightray is its Tronel XIII Large Pulse Laser. Coupled with the Targeting Computer technology stolen from House Davion, this Word of Blake design is deadly accurate, even when moving at its top speed. The pair of Diverse Optics ER Medium Lasers and the Diverse Optics ER Small Laser add to the close-range damage the 'Mech can deal.",
+    "manufacturer": "Martinson Armaments",
+    "primaryFactory": "Australia, Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Geometric 33B Endo Steel",
+      "ENGINE": "LTV 385 XL",
+      "ARMOR": "Strasbourg Armaments Type 4 Ferro-Fibrous",
+      "COMMUNICATIONS": "Blow 107 Net (Improved)",
+      "TARGETING": "Scope 3580 with Targeting Computer"
+    }
+  },
+  "mulId": 4519,
+  "role": "Skirmisher",
+  "source": "TR:3067"
+}

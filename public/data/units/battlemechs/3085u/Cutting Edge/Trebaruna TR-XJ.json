@@ -1,0 +1,125 @@
+{
+  "id": "trebaruna-tr-xj",
+  "chassis": "Trebaruna",
+  "model": "TR-XJ",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3081,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 39,
+      "FRL": 39,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 50,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 39,
+      "RRL": 39
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "command_mech"
+  ],
+  "mulId": 3293,
+  "role": "Juggernaut",
+  "source": "TR:3085"
+}

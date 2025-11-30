@@ -1,0 +1,185 @@
+{
+  "id": "wendigo-xp-prime",
+  "chassis": "Wendigo-XP",
+  "model": "(Prime)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "STANDARD",
+  "era": "ILCLAN",
+  "year": 3151,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "protomech-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLStreakSRM6 (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISRISCLaserPulseModule (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISRISCLaserPulseModule (OMNIPOD)",
+      "ISSuperCooledMyomer",
+      "Clan Reflective",
+      "Clan Reflective",
+      "Clan Reflective"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISRISCLaserPulseModule (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISRISCLaserPulseModule (OMNIPOD)",
+      "CLProtoMechAC2 (OMNIPOD)",
+      "CLProtoMechAC2 (OMNIPOD)",
+      "ISSuperCooledMyomer",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Streak SRM 6 Ammo (OMNIPOD)",
+      "ISSuperCooledMyomer",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Reflective",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan ProtoMech AC/2 Ammo (OMNIPOD)",
+      "ISRISCEmergencyCoolantSystem",
+      "ISSuperCooledMyomer",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Reflective",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cockpit",
+      "Sensors"
+    ],
+    "HEAD": [
+      "Sensors",
+      "Sensors",
+      "CLLRM10 (OMNIPOD)",
+      "Clan Ammo LRM-10 (OMNIPOD)",
+      "ISReconCamera (OMNIPOD)",
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISSuperCooledMyomer",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISSuperCooledMyomer",
+      null
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "prototype"
+  ],
+  "role": "Brawler",
+  "source": "XTR:RISC"
+}

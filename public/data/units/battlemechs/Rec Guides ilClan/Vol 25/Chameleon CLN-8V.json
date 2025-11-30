@@ -1,0 +1,206 @@
+{
+  "id": "chameleon-cln-8v",
+  "chassis": "Chameleon",
+  "model": "CLN-8V",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3086,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMediumXPulseLaser",
+      "IS Machine Gun Ammo - Half",
+      "ISCASEII",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Machine Gun",
+      "Machine Gun"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_pilot",
+    "distracting"
+  ],
+  "fluff": {
+    "overview": "Since the Terran Hegemony introduced it in 2510, the Chameleon has been the premiere training BattleMech for light- and medium-BattleMech MechWarriors.",
+    "capabilities": "The Chameleon was designed to help a new MechWarrior master the skills of maneuvering and heat management, with a top speed of 97.2 km/h and a jumping distance of 180 meters. The 'Mech also had an almost all energy weapons loadout, but cooled only by 10 single heat sinks; this paucity of freezers forces MechWarriors to concentrate on the 'Mech's heat levels.",
+    "history": "In fact, with its role away from the battlefield, except in the most desperate of circumstances, the Chameleon has suffered relatively little attrition. Combined with its continuous production on Hesperus II, the Chameleon is one of the most common BattleMechs. Even in the 31st century, the Chameleon is widely used at academies and training cadres throughout the Inner Sphere. In some instances, the Chameleon had been forced into combat situations, notably during the Dragoon Civil War. Production of the Chameleon halted briefly in 3052 when Defiance Industries decided to switch its production to the Nightsky, but was quickly resumed when J.B. BattleMechs Incorporated purchased the rights to the design. J.B. BattleMechs also introduced two battleworthy variants of the Chameleon. The Chameleon is a training 'Mech, intended to simulate a variety of opponents by mounting a wide variety of weapon systems. While a medium 'Mech by design, it doesn't always look like one; it can be fitted out with extra plates to modify its appearance, and carries special electronics to falsify its signature. It is these special abilities that let it look and scan as something other than what it is, hence the machine's name.",
+    "deployment": "No information on this variant",
+    "manufacturer": "J.B. BattleMechs Inc.",
+    "primaryFactory": "Storfors",
+    "systemManufacturer": {
+      "CHASSIS": "Enran TXS2A",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "SimplePlate Manufacturers Type M with CASE II",
+      "JUMPJET": "McCloud Specials",
+      "COMMUNICATIONS": "JoLex Systems",
+      "TARGETING": "OptiSight-12"
+    }
+  },
+  "mulId": 9267,
+  "role": "Striker",
+  "source": "RG25"
+}

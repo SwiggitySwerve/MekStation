@@ -1,0 +1,130 @@
+{
+  "id": "rhino-unknown",
+  "chassis": "Rhino",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 21,
+      "FRL": 21,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 21,
+      "RRL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_LEFT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_LEFT_LEG"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Ram Plate",
+      "Spikes",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Ram Plate",
+      "Spikes",
+      "CLMASC",
+      "CLMASC",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Ram Plate",
+      "Spikes"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7883,
+  "role": "Skirmisher",
+  "source": "OTP:HC"
+}

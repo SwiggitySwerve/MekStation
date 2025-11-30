@@ -1,0 +1,179 @@
+{
+  "id": "orion-c-2",
+  "chassis": "Orion",
+  "model": "C 2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3143,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "extended-lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "CLStreakSRM4",
+      "IS Ammo Extended LRM-15",
+      "IS Ammo Extended LRM-15",
+      "IS Ammo Extended LRM-15",
+      "Clan Streak SRM 4 Ammo",
+      "CLCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "CLERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "anti_air",
+    "rugged_1"
+  ],
+  "mulId": 8317,
+  "role": "Brawler",
+  "source": "RG19"
+}

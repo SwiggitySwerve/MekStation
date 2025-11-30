@@ -1,0 +1,183 @@
+{
+  "id": "rifleman-ii-rfl-3n-2",
+  "chassis": "Rifleman II",
+  "model": "RFL-3N-2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2720,
+  "tonnage": 80,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Medium Laser",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Medium Laser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "imp_com",
+    "searchlight"
+  ],
+  "mulId": 2709,
+  "role": "Brawler",
+  "source": "TR:3075"
+}

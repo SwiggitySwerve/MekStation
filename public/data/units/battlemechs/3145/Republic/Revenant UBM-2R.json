@@ -1,0 +1,145 @@
+{
+  "id": "revenant-ubm-2r",
+  "chassis": "Revenant",
+  "model": "UBM-2R",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3139,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 14,
+      "FRL": 14,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "RLL": 14,
+      "RRL": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "IS Light Machine Gun Ammo - Half",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "IS Light Machine Gun Ammo - Half",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISDroneOperatingSystem",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_com"
+  ],
+  "mulId": 6673,
+  "role": "Striker",
+  "source": "TR:3145:RotS"
+}

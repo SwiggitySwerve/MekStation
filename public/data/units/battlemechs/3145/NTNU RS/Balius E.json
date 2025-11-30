@@ -1,0 +1,148 @@
+{
+  "id": "balius-e",
+  "chassis": "Balius",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3127,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 390
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 27,
+      "FRL": 27,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 27,
+      "RRL": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakLRM15 (omnipod)",
+      "CLStreakLRM15 (omnipod)",
+      "CLStreakLRM15 (omnipod)",
+      "Clan Streak LRM 15 Ammo (omnipod)",
+      "Clan Streak LRM 15 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargePulseLaser (omnipod)",
+      "CLERLargePulseLaser (omnipod)",
+      "CLERLargePulseLaser (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImprovedMediumHeavyLaser (R) (omnipod)",
+      "CLImprovedMediumHeavyLaser (R) (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLFlamer",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Balius is a quadrupedal, front-line OmniMech produced by Clan Hell's Horses.",
+    "capabilities": "The Balius, a true frontline Omni, employs weight-saving technologies such as an Endo Steel chassis, eleven tons of ferro-fibrous armor, and an XL engine. In a quad, though, this leaves limited room for other components. The Balius, on the other hand, has a top speed of 97 km/h, which is fairly fast for a 'Mech of its size. The Balius is equipped with a Creosote Special-H Flamer that can be used against troops as well as as a psychological weapon.",
+    "history": "As of 3075, few details were available about the 'Mech. It is a totem 'Mech, resembling a horse, that is meant to improve morale as much as to be an effective combat unit. There is apparently no factory producing this design. Instead, it is hand-crafted by a crew of technicians specifically selected for the task by the Khan. This has led to few Balius' being produced, so the 'Mech is only in the hands of select Bloodnamed warriors.",
+    "deployment": "This variant of the Balius carries a Streak LRM-15 and a Streak SRM-6, supported by an ER Large Pulse Laser. A single Improved Heavy Medium Laser covers the rear arc.",
+    "manufacturer": "Manufacturing Site #3,Transitional Facility HH-Beta",
+    "primaryFactory": "New Oslo,Nouveaux Paris",
+    "systemManufacturer": {
+      "CHASSIS": "Type BMHQ-5 Endo Steel",
+      "ENGINE": "390 XL",
+      "ARMOR": "Forged Type HH35 Ferro-Fibrous",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 6883,
+  "role": "Skirmisher",
+  "source": "RS:3145-NTNU"
+}

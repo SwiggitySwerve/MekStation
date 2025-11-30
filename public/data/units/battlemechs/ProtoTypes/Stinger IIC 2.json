@@ -1,0 +1,173 @@
+{
+  "id": "stinger-iic-2",
+  "chassis": "Stinger IIC",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3086,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 100
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 8
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "cramped_cockpit",
+    "difficult_eject",
+    "combat_computer"
+  ],
+  "fluff": {
+    "history": "Based off the Fluff, crit placement is likely wrong.\nSource:TR:Proto"
+  },
+  "mulId": 5136,
+  "role": "Scout"
+}

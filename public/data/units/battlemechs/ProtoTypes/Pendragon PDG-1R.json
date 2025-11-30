@@ -1,0 +1,183 @@
+{
+  "id": "pendragon-pdg-1r",
+  "chassis": "Pendragon",
+  "model": "PDG-1R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3083,
+  "tonnage": 95,
+  "engine": {
+    "type": "XL",
+    "rating": 380
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 48,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "extended-lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "extended-lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "IS Ammo Extended LRM-15",
+      "IS Ammo Extended LRM-15",
+      "ISCASEII",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "Extended LRM 15",
+      "IS Ammo Extended LRM-15",
+      "IS Ammo Extended LRM-15",
+      "ISCASEII",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "PPC Capacitor",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "difficult_maintain",
+    "imp_target_long"
+  ],
+  "mulId": 4799,
+  "role": "Missile Boat",
+  "source": "TR:Proto"
+}

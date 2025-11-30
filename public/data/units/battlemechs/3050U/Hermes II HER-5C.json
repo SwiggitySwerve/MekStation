@@ -1,0 +1,174 @@
+{
+  "id": "hermes-ii-her-5c",
+  "chassis": "Hermes II",
+  "model": "HER-5C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-iserlargelaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "3-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isimprovednarc",
+      "location": "LEFT_ARM,_AMMO:12"
+    },
+    {
+      "id": "1-isimprovedc3cpu",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISiNarc Pods",
+      "ISiNarc Pods",
+      "ISiNarc Pods"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedC3CPU",
+      "ISImprovedC3CPU"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "imp_com"
+  ],
+  "mulId": 1499,
+  "role": "Striker",
+  "source": "TR:3050"
+}

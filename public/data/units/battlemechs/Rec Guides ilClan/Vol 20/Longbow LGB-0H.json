@@ -1,0 +1,271 @@
+{
+  "id": "longbow-lgb-0h",
+  "chassis": "Longbow",
+  "model": "LGB-0H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 37,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ppc",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10",
+      "RL10"
+    ],
+    "LEFT_TORSO": [
+      "PPC",
+      "PPC",
+      "PPC",
+      "RL10",
+      "RL10",
+      "RL10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "PPC",
+      "PPC",
+      "PPC",
+      "RL10",
+      "RL10",
+      "RL10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The Longbow, introduced in 2480 as the LGB-0C Longbow, has seen service in the armies of the Inner Sphere since the days of the Star League and is one of the most well-known fire support 'Mechs in existence.",
+    "capabilities": "The Longbow is a massive BattleMech weighing in at 85 tons and is able to move at a top speed of 54.0 km/h, thanks to a Strand 255 fusion engine. The Longbow is protected by fourteen and a half tons of armor. Some have criticized the design for its lack of CASE - making an otherwise rugged 'Mech vulnerable to a loss by an ammunition explosion. As a fire-support 'Mech though, the Longbow is a trusted and reliable machine that can be counted on to carry out the mission it is designed for.",
+    "deployment": "Unknown\nmanufacturer:StarCorps Industries,StarCorps (FWL) Industries,StarCorps Industries,StarCorps Industries\nprimaryfactory:Crofton,Emris IV,Fletcher (TH),Loburg\nsystemmanufacturer:CHASSIS:StarCorps 100 LGB\nsystemmanufacturer:ENGINE:Strand 340\nsystemmanufacturer:ARMOR:StarSlab/9.5 Mk II\nsystemmanufacturer:COMMUNICATIONS:O/P 3000 COMSET\nsystemmanufacturer:TARGETING:Octagon Tartrac System C"
+  },
+  "mulId": 8330,
+  "role": "Sniper",
+  "source": "RG20"
+}

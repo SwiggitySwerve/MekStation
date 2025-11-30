@@ -1,0 +1,197 @@
+{
+  "id": "cerberus-mr-v2",
+  "chassis": "Cerberus",
+  "model": "MR-V2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3054,
+  "tonnage": 95,
+  "engine": {
+    "type": "XL",
+    "rating": 380
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "Machine Gun (R)",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "Machine Gun (R)",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Machine Gun Ammo - Half",
+      "ISAMS Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "barrel_fists_la",
+    "barrel_fists_ra",
+    "imp_target_long",
+    "vestigial_hands_la",
+    "vestigial_hands_ra"
+  ],
+  "mulId": 528,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

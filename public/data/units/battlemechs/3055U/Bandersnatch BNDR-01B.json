@@ -1,0 +1,208 @@
+{
+  "id": "bandersnatch-bndr-01b",
+  "chassis": "Bandersnatch",
+  "model": "BNDR-01B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 75,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "Medium Laser",
+      "Medium Laser"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "PPC",
+      "PPC",
+      "PPC",
+      "Medium Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "IS Streak SRM 2 Ammo",
+      "ISCASE",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 5",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISStreakSRM2",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "stable",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Bandersnatch, who receives his name from the monster mentioned in Lewis Carroll's \"Wonderland\" series, is the brainchild of Felifious Bander and is built around the concept of an affordable and effective BattleMech for sale to mercenary units.",
+    "capabilities": "The Bandersnatch is built using some common components with the Marauder in an attempt to make the 'Mech cheaper and easier to repair. The 'Mech has a top speed of 64.8 kph which is average for a 'Mech of its weight. The Bandersnatch also uses double heat sinks for their superior heat dissipation capabilities, allowing a heavy weapons payload to be used by the 'Mech. Finally, the Bandersnatch carries a respectable eleven tons of armor. While not the maximum amount of armor that the chassis can handle, the 'Mech is still well protected.",
+    "deployment": "A complete upgrade of the original design, the 01B variant replaces the XL engine with a Light Fusion Engine. To make up for the weight lost to the engine, the entire weapons arsenal has been re-evaluated and the 'Mech carries a new weapons compliment. The primary long-range weapons are a pair of LRM-5 launchers. For intermediate ranges, the 01B model carries an Ultra Autocannon/10 and a PPC providing it with a powerful punch. Finally, for close range combat, the 'Mech has four Medium Lasers and a Streak SRM-2 launcher.",
+    "manufacturer": "Bander BattleMechs, Kressly WarWorks",
+    "primaryFactory": "Terra Firma (Bander BattleMechs), Epsilon Eridani (Kressly WarWorks)",
+    "systemManufacturer": {
+      "CHASSIS": "Bander Custom 1",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Valiant Chainmail",
+      "COMMUNICATIONS": "Winston Mega Boozee Mark IX",
+      "TARGETING": "Winston Sidewinder"
+    }
+  },
+  "mulId": 219,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

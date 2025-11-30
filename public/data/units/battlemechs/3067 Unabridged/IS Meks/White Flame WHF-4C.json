@@ -1,0 +1,138 @@
+{
+  "id": "white-flame-whf-4c",
+  "chassis": "White Flame",
+  "model": "WHF-4C",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 70,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 30,
+      "FRL": 30,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 30,
+      "RRL": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "tag",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISTAG",
+      "ISERMediumLaser"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "mulId": 5693,
+  "role": "Skirmisher",
+  "source": "RS:3067u"
+}

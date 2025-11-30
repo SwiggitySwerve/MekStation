@@ -1,0 +1,178 @@
+{
+  "id": "tempest-tmp-3g",
+  "chassis": "Tempest",
+  "model": "TMP-3G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 4",
+      "IS Ammo SRM-4",
+      "IS Gauss Ammo",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel",
+      "IS Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "Medium Laser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "mulId": 5188,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

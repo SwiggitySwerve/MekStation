@@ -1,0 +1,197 @@
+{
+  "id": "fujin-rjn-301-f",
+  "chassis": "Fujin",
+  "model": "RJN-301-F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3139,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-2-i-os",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Ballistic-Reinforced",
+      "IS Ballistic-Reinforced",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Ballistic-Reinforced",
+      "IS Ballistic-Reinforced",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISStreakSRM6",
+      "ISStreakSRM6",
+      "IS Streak SRM 6 Ammo",
+      "ISCASEII",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Ballistic-Reinforced",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISSRM2IOS",
+      "IS Ballistic-Reinforced",
+      "IS Ballistic-Reinforced",
+      "IS Ballistic-Reinforced",
+      "IS Ballistic-Reinforced",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Ballistic-Reinforced",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "no_arms"
+  ],
+  "fluff": {
+    "overview": "The Raijin is designed to be highly mobile and capable of engaging an enemy at a variety of ranges.",
+    "capabilities": "The 'Mech's relatively light armor can be a liability if it is engaged in close combat or finds itself in a protracted engagement.",
+    "history": "The Raijin was designed after the Battle of Tukayyid to rearm ComGuard units that had suffered losses in the campaign. Despite having stockpiled Star League-era BattleMechs at his disposal, Precentor Martial Focht wanted something unfamiliar to both the Inner Sphere and the Clans. The Raijin was redesigned after Word of Blake forces lost considerable amounts of the design during its taking of Terra from ComStar in 3058. Newly redesigned Raijin II units began to be deployed in 3066, with older versions of the 'Mech being refitted to RJN-200-A variant standards. While off-shoots of the 200-A were deployed to elite Divisions.",
+    "deployment": "Unknown",
+    "manufacturer": "Independence Weaponry",
+    "primaryFactory": "Quentin",
+    "systemManufacturer": {
+      "CHASSIS": "TSN Light Endo-Steel",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Durallex Ballistic-Reinforced with CASE II",
+      "COMMUNICATIONS": "Garret T-22",
+      "TARGETING": "Garret D2j (I)"
+    }
+  },
+  "mulId": 8414,
+  "role": "Striker",
+  "source": "RG23"
+}

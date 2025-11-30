@@ -1,0 +1,871 @@
+{
+  "$schema": "../_schema/ammunition-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.954Z",
+  "count": 42,
+  "items": [
+    {
+      "id": "ac-2-ammo",
+      "name": "AC/2 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "ac-2"
+      ],
+      "shotsPerTon": 45,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 1000,
+      "battleValue": 5,
+      "isExplosive": true,
+      "introductionYear": 2290
+    },
+    {
+      "id": "ac-5-ammo",
+      "name": "AC/5 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "ac-5"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 4500,
+      "battleValue": 9,
+      "isExplosive": true,
+      "introductionYear": 2250
+    },
+    {
+      "id": "ac-10-ammo",
+      "name": "AC/10 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "ac-10"
+      ],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 6000,
+      "battleValue": 15,
+      "isExplosive": true,
+      "introductionYear": 2443
+    },
+    {
+      "id": "ac-20-ammo",
+      "name": "AC/20 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "ac-20"
+      ],
+      "shotsPerTon": 5,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 10000,
+      "battleValue": 22,
+      "isExplosive": true,
+      "introductionYear": 2500
+    },
+    {
+      "id": "ac-2-ap-ammo",
+      "name": "AC/2 Armor-Piercing Ammo",
+      "category": "Autocannon",
+      "variant": "Armor-Piercing",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "ac-2"
+      ],
+      "shotsPerTon": 22,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 4000,
+      "battleValue": 7,
+      "isExplosive": true,
+      "introductionYear": 3055,
+      "special": [
+        "+4 damage vs armor"
+      ]
+    },
+    {
+      "id": "ac-5-ap-ammo",
+      "name": "AC/5 Armor-Piercing Ammo",
+      "category": "Autocannon",
+      "variant": "Armor-Piercing",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "ac-5"
+      ],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 9000,
+      "battleValue": 14,
+      "isExplosive": true,
+      "introductionYear": 3055,
+      "special": [
+        "+4 damage vs armor"
+      ]
+    },
+    {
+      "id": "ac-2-precision-ammo",
+      "name": "AC/2 Precision Ammo",
+      "category": "Autocannon",
+      "variant": "Precision",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "ac-2"
+      ],
+      "shotsPerTon": 22,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 6000,
+      "battleValue": 7,
+      "isExplosive": true,
+      "introductionYear": 3062,
+      "special": [
+        "-1 to-hit modifier"
+      ]
+    },
+    {
+      "id": "uac-2-ammo",
+      "name": "Ultra AC/2 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "uac-2",
+        "clan-uac-2"
+      ],
+      "shotsPerTon": 45,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 1000,
+      "battleValue": 8,
+      "isExplosive": true,
+      "introductionYear": 2827
+    },
+    {
+      "id": "uac-5-ammo",
+      "name": "Ultra AC/5 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "uac-5",
+        "clan-uac-5"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 9000,
+      "battleValue": 15,
+      "isExplosive": true,
+      "introductionYear": 2825
+    },
+    {
+      "id": "uac-10-ammo",
+      "name": "Ultra AC/10 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "uac-10",
+        "clan-uac-10"
+      ],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 12000,
+      "battleValue": 26,
+      "isExplosive": true,
+      "introductionYear": 2825
+    },
+    {
+      "id": "uac-20-ammo",
+      "name": "Ultra AC/20 Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "uac-20",
+        "clan-uac-20"
+      ],
+      "shotsPerTon": 5,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 20000,
+      "battleValue": 35,
+      "isExplosive": true,
+      "introductionYear": 2825
+    },
+    {
+      "id": "lb-2-x-ammo",
+      "name": "LB 2-X Slug Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-2-x-ac",
+        "clan-lb-2-x-ac"
+      ],
+      "shotsPerTon": 45,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 2000,
+      "battleValue": 6,
+      "isExplosive": true,
+      "introductionYear": 2595
+    },
+    {
+      "id": "lb-5-x-ammo",
+      "name": "LB 5-X Slug Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-5-x-ac",
+        "clan-lb-5-x-ac"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 9000,
+      "battleValue": 12,
+      "isExplosive": true,
+      "introductionYear": 2595
+    },
+    {
+      "id": "lb-10-x-ammo",
+      "name": "LB 10-X Slug Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-10-x-ac",
+        "clan-lb-10-x-ac"
+      ],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 12000,
+      "battleValue": 19,
+      "isExplosive": true,
+      "introductionYear": 2595
+    },
+    {
+      "id": "lb-20-x-ammo",
+      "name": "LB 20-X Slug Ammo",
+      "category": "Autocannon",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-20-x-ac",
+        "clan-lb-20-x-ac"
+      ],
+      "shotsPerTon": 5,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 20000,
+      "battleValue": 30,
+      "isExplosive": true,
+      "introductionYear": 2595
+    },
+    {
+      "id": "lb-10-x-cluster-ammo",
+      "name": "LB 10-X Cluster Ammo",
+      "category": "Autocannon",
+      "variant": "Cluster",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-10-x-ac",
+        "clan-lb-10-x-ac"
+      ],
+      "shotsPerTon": 10,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 15000,
+      "battleValue": 19,
+      "isExplosive": true,
+      "introductionYear": 2595,
+      "special": [
+        "-2 to-hit vs aerospace",
+        "Cluster damage"
+      ]
+    },
+    {
+      "id": "lb-20-x-cluster-ammo",
+      "name": "LB 20-X Cluster Ammo",
+      "category": "Autocannon",
+      "variant": "Cluster",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lb-20-x-ac",
+        "clan-lb-20-x-ac"
+      ],
+      "shotsPerTon": 5,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 25000,
+      "battleValue": 30,
+      "isExplosive": true,
+      "introductionYear": 2595,
+      "special": [
+        "-2 to-hit vs aerospace",
+        "Cluster damage"
+      ]
+    },
+    {
+      "id": "gauss-ammo",
+      "name": "Gauss Ammo",
+      "category": "Gauss",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "gauss-rifle",
+        "clan-gauss-rifle"
+      ],
+      "shotsPerTon": 8,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 20000,
+      "battleValue": 40,
+      "isExplosive": true,
+      "introductionYear": 2590
+    },
+    {
+      "id": "light-gauss-ammo",
+      "name": "Light Gauss Ammo",
+      "category": "Gauss",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "light-gauss-rifle"
+      ],
+      "shotsPerTon": 16,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 20000,
+      "battleValue": 20,
+      "isExplosive": true,
+      "introductionYear": 3056
+    },
+    {
+      "id": "heavy-gauss-ammo",
+      "name": "Heavy Gauss Ammo",
+      "category": "Gauss",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "heavy-gauss-rifle"
+      ],
+      "shotsPerTon": 4,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 20000,
+      "battleValue": 43,
+      "isExplosive": true,
+      "introductionYear": 3061
+    },
+    {
+      "id": "ap-gauss-ammo",
+      "name": "AP Gauss Ammo",
+      "category": "Gauss",
+      "variant": "Standard",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "ap-gauss-rifle"
+      ],
+      "shotsPerTon": 40,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 3000,
+      "battleValue": 3,
+      "isExplosive": true,
+      "introductionYear": 3069
+    },
+    {
+      "id": "mg-ammo",
+      "name": "MG Ammo",
+      "category": "Machine Gun",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "machine-gun",
+        "clan-machine-gun"
+      ],
+      "shotsPerTon": 200,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 1000,
+      "battleValue": 1,
+      "isExplosive": true,
+      "introductionYear": 1950
+    },
+    {
+      "id": "mg-ammo-half",
+      "name": "MG Ammo (Half)",
+      "category": "Machine Gun",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "machine-gun",
+        "clan-machine-gun"
+      ],
+      "shotsPerTon": 100,
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costPerTon": 500,
+      "battleValue": 1,
+      "isExplosive": true,
+      "introductionYear": 1950
+    },
+    {
+      "id": "light-mg-ammo",
+      "name": "Light MG Ammo",
+      "category": "Machine Gun",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "light-machine-gun"
+      ],
+      "shotsPerTon": 200,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 1000,
+      "battleValue": 1,
+      "isExplosive": true,
+      "introductionYear": 3068
+    },
+    {
+      "id": "heavy-mg-ammo",
+      "name": "Heavy MG Ammo",
+      "category": "Machine Gun",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "heavy-machine-gun"
+      ],
+      "shotsPerTon": 100,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 1000,
+      "battleValue": 1,
+      "isExplosive": true,
+      "introductionYear": 3068
+    },
+    {
+      "id": "lrm-ammo",
+      "name": "LRM Ammo",
+      "category": "LRM",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "lrm-5",
+        "lrm-10",
+        "lrm-15",
+        "lrm-20",
+        "clan-lrm-5",
+        "clan-lrm-10",
+        "clan-lrm-15",
+        "clan-lrm-20"
+      ],
+      "shotsPerTon": 120,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 30000,
+      "battleValue": 17,
+      "isExplosive": true,
+      "introductionYear": 2295
+    },
+    {
+      "id": "lrm-fragmentation-ammo",
+      "name": "LRM Fragmentation Ammo",
+      "category": "LRM",
+      "variant": "Fragmentation",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lrm-5",
+        "lrm-10",
+        "lrm-15",
+        "lrm-20"
+      ],
+      "shotsPerTon": 120,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 30000,
+      "battleValue": 17,
+      "isExplosive": true,
+      "introductionYear": 3054,
+      "special": [
+        "+2 damage vs infantry"
+      ]
+    },
+    {
+      "id": "lrm-thunder-ammo",
+      "name": "LRM Thunder Ammo",
+      "category": "LRM",
+      "variant": "Thunder",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lrm-5",
+        "lrm-10",
+        "lrm-15",
+        "lrm-20"
+      ],
+      "shotsPerTon": 120,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 60000,
+      "battleValue": 17,
+      "isExplosive": true,
+      "introductionYear": 3054,
+      "special": [
+        "Minefield deployment"
+      ]
+    },
+    {
+      "id": "lrm-swarm-ammo",
+      "name": "LRM Swarm Ammo",
+      "category": "LRM",
+      "variant": "Swarm",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "lrm-5",
+        "lrm-10",
+        "lrm-15",
+        "lrm-20"
+      ],
+      "shotsPerTon": 120,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 30000,
+      "battleValue": 17,
+      "isExplosive": true,
+      "introductionYear": 3049,
+      "special": [
+        "Ignore AMS"
+      ]
+    },
+    {
+      "id": "srm-ammo",
+      "name": "SRM Ammo",
+      "category": "SRM",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "compatibleWeaponIds": [
+        "srm-2",
+        "srm-4",
+        "srm-6",
+        "clan-srm-2",
+        "clan-srm-4",
+        "clan-srm-6"
+      ],
+      "shotsPerTon": 100,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 27000,
+      "battleValue": 12,
+      "isExplosive": true,
+      "introductionYear": 2370
+    },
+    {
+      "id": "srm-inferno-ammo",
+      "name": "SRM Inferno Ammo",
+      "category": "SRM",
+      "variant": "Inferno",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "srm-2",
+        "srm-4",
+        "srm-6"
+      ],
+      "shotsPerTon": 100,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 13500,
+      "battleValue": 12,
+      "isExplosive": true,
+      "introductionYear": 2370,
+      "special": [
+        "Causes 2 heat per missile",
+        "No physical damage"
+      ]
+    },
+    {
+      "id": "srm-fragmentation-ammo",
+      "name": "SRM Fragmentation Ammo",
+      "category": "SRM",
+      "variant": "Fragmentation",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "srm-2",
+        "srm-4",
+        "srm-6"
+      ],
+      "shotsPerTon": 100,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 27000,
+      "battleValue": 12,
+      "isExplosive": true,
+      "introductionYear": 3054,
+      "special": [
+        "+2 damage vs infantry"
+      ]
+    },
+    {
+      "id": "srm-tandem-charge-ammo",
+      "name": "SRM Tandem-Charge Ammo",
+      "category": "SRM",
+      "variant": "Tandem-Charge",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "compatibleWeaponIds": [
+        "srm-2",
+        "srm-4",
+        "srm-6"
+      ],
+      "shotsPerTon": 50,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 54000,
+      "battleValue": 24,
+      "isExplosive": true,
+      "introductionYear": 3057,
+      "damageModifier": 1,
+      "special": [
+        "Extra damage vs armor"
+      ]
+    },
+    {
+      "id": "streak-srm-ammo",
+      "name": "Streak SRM Ammo",
+      "category": "SRM",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "streak-srm-2",
+        "streak-srm-4",
+        "streak-srm-6",
+        "clan-streak-srm-2",
+        "clan-streak-srm-4",
+        "clan-streak-srm-6"
+      ],
+      "shotsPerTon": 100,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 54000,
+      "battleValue": 17,
+      "isExplosive": true,
+      "introductionYear": 2647
+    },
+    {
+      "id": "mrm-ammo",
+      "name": "MRM Ammo",
+      "category": "MRM",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "mrm-10",
+        "mrm-20",
+        "mrm-30",
+        "mrm-40"
+      ],
+      "shotsPerTon": 240,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 5000,
+      "battleValue": 11,
+      "isExplosive": true,
+      "introductionYear": 3058
+    },
+    {
+      "id": "atm-standard-ammo",
+      "name": "ATM Standard Ammo",
+      "category": "ATM",
+      "variant": "Standard",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "atm-3",
+        "atm-6",
+        "atm-9",
+        "atm-12"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 75000,
+      "battleValue": 26,
+      "isExplosive": true,
+      "introductionYear": 3054
+    },
+    {
+      "id": "atm-er-ammo",
+      "name": "ATM Extended Range Ammo",
+      "category": "ATM",
+      "variant": "Extended Range",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "atm-3",
+        "atm-6",
+        "atm-9",
+        "atm-12"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 75000,
+      "battleValue": 26,
+      "isExplosive": true,
+      "introductionYear": 3054,
+      "damageModifier": 0.5,
+      "rangeModifier": 2,
+      "special": [
+        "Double range",
+        "Half damage"
+      ]
+    },
+    {
+      "id": "atm-he-ammo",
+      "name": "ATM High Explosive Ammo",
+      "category": "ATM",
+      "variant": "High Explosive",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "atm-3",
+        "atm-6",
+        "atm-9",
+        "atm-12"
+      ],
+      "shotsPerTon": 20,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 75000,
+      "battleValue": 26,
+      "isExplosive": true,
+      "introductionYear": 3054,
+      "damageModifier": 1.5,
+      "rangeModifier": 0.5,
+      "special": [
+        "Half range",
+        "+50% damage"
+      ]
+    },
+    {
+      "id": "ams-ammo",
+      "name": "AMS Ammo",
+      "category": "AMS",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "ams"
+      ],
+      "shotsPerTon": 12,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 2000,
+      "battleValue": 11,
+      "isExplosive": true,
+      "introductionYear": 2617
+    },
+    {
+      "id": "clan-ams-ammo",
+      "name": "AMS Ammo (Clan)",
+      "category": "AMS",
+      "variant": "Standard",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "clan-ams"
+      ],
+      "shotsPerTon": 24,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 2000,
+      "battleValue": 11,
+      "isExplosive": true,
+      "introductionYear": 2831
+    },
+    {
+      "id": "narc-ammo",
+      "name": "NARC Beacon Pods",
+      "category": "NARC",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "narc",
+        "clan-narc"
+      ],
+      "shotsPerTon": 6,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 6000,
+      "battleValue": 30,
+      "isExplosive": true,
+      "introductionYear": 2587
+    },
+    {
+      "id": "inarc-ammo",
+      "name": "iNARC Pods",
+      "category": "NARC",
+      "variant": "Standard",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "compatibleWeaponIds": [
+        "inarc"
+      ],
+      "shotsPerTon": 4,
+      "weight": 1,
+      "criticalSlots": 1,
+      "costPerTon": 7500,
+      "battleValue": 21,
+      "isExplosive": true,
+      "introductionYear": 3062
+    }
+  ]
+}

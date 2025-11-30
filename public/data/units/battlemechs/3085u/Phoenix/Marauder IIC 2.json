@@ -1,0 +1,195 @@
+{
+  "id": "marauder-iic-2",
+  "chassis": "Marauder IIC",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 24
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "heavy-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLMediumPulseLaser",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLMediumPulseLaser",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Given the Marauder's outstanding performance and sterling reputation, it was only natural for the Clans to commit resources to constructing a worthy successor.",
+    "capabilities": "While fundamentally comparable to the original Marauder in many aspects, even Golden Century ClanTech's sophisticated capabilities could not prevent the BattleMech's chassis from growing to accommodate all of its enhancements. As a result, the Marauder IIC received ten tons of overall bulk, similar to other classic 'Mechs modified by the Clans at the period. The IIC followed in both function and form the huge footsteps of its ancestor, emphasizing a perfect blend of long-range, high yield firepower, robust armor, and the mobility to keep up with its supporting troops. Although the Clans' dueling heritage prized individual warrior prowess and rapid encounters over drawn-out campaigns, their choice for high-power energy weapons over ballistics and missiles allows this 'Mech to stay lethal in the hands of an expert MechWarrior nearly indefinitely. When combined with its other characteristics, the Marauder IIC's battlefield durability cemented its position as a suitable command 'Mech, as well as its appeal among the glory-seeking warriors that comprise the majority of the Clan officer corps.",
+    "history": "The Marauder IIC had that designation prior to the introduction of Omni technology and the construction of the Timber Wolf. The Marauder IIC was built from the ground up in the image of its forefather, taking full advantage of the cutting-edge technology available at the time to improve on every aspect of the original.Â The end result was a bigger, stronger, more resilient, and durable Marauderâone that is still popular today, despite being classified as a \"second-line\" BattleMech. The Jade Falcons continue to build the Marauder IIC in its original architecture, joining the Rasalhague Dominion's \"Phoenix\" versions as the fearsome core of numerous Clan attack formations.",
+    "deployment": "In order to humiliate Clan Blood Spirit, Clan Star Adder upgraded their second-line forces and used them to retaliate against that Clan's interference in their Absorption of Clan Burrock. Part of this upgrade was the Marauder IIC 2. Adder scientists retained the Medium Pulse Lasers, but exchanged the PPCs and small lasers for two Series 4D-2 Heavy Large Lasers and a dorsal mounted Series XIV ER Large Laser. The result is a hard-hitting design that is most effective at close range. In order to help the 'Mech get to close range, it includes four Guld Mk. III jump jets that are capable of vaulting the 'Mech up to 120 meters in a single bound. Three extra heat sinks enable the firing of all the close-range weapons. The weight left over was used in the form of an additional ton of armor, bringing it to twelve-and-a-half tons, equivalent to fifteen tons of standard armor.",
+    "manufacturer": "Albion MMA Complex,Gorton, Kingsley, & Thorpe Enterprises (Refit),Olivetti Weaponry (Refit)",
+    "primaryFactory": "Albion (New Bergan),Satalice,Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "Type 850 Light",
+      "ENGINE": "Consolidated Fusion 340",
+      "ARMOR": "Forging MD4 Ferro-Fibrous",
+      "JUMPJET": "Unknown",
+      "COMMUNICATIONS": "Series D8 CC-25Xa",
+      "TARGETING": "âHermesâ CT-42 Mk. II"
+    }
+  },
+  "mulId": 2066,
+  "role": "Skirmisher",
+  "source": "TR:CI"
+}

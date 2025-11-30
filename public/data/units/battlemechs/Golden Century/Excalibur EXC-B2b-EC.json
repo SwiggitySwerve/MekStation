@@ -1,0 +1,181 @@
+{
+  "id": "excalibur-exc-b2b-ec",
+  "chassis": "Excalibur",
+  "model": "EXC-B2b-EC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2825,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "prototype-er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "prototype-er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaserPrototype",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved LRM 20",
+      "Improved LRM 20",
+      "Improved LRM 20",
+      "Improved LRM 20",
+      "CLArtemisIV",
+      "ClanImprovedLRM20Ammo (Clan) Artemis-capable",
+      "ClanImprovedLRM20Ammo (Clan) Artemis-capable",
+      "ISAMS Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImpGaussAmmo",
+      "CLImpGaussAmmo",
+      "CLImpGaussAmmo",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAntiMissileSystem",
+      "CLERSmallLaserPrototype (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "vestigial_hands_la",
+    "vestigial_hands_ra"
+  ],
+  "fluff": {
+    "history": "After KLONDIKE, Wolf techs radically altered the regular Excaliburs in their possession. They replaced the gauss rifle and LRM launcher with new improved versions, which freed up enough room to include a prototype ER medium laser in the left arm and four tons of additional armor. The biggest change to the old design was the replacement of the single heat sinks with surplus doubles and moving the anti-missile ammunition to a CASE-protected torso location. Throughout the early clan years, Wolf Excaliburs were some of the coolest-running âMechs in clan space."
+  },
+  "mulId": 7683,
+  "role": "Missile Boat",
+  "source": "TR:GC"
+}

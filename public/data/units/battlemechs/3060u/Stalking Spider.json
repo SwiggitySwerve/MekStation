@@ -1,0 +1,133 @@
+{
+  "id": "stalking-spider-unknown",
+  "chassis": "Stalking Spider",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3059,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 20,
+      "FRL": 20,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 20,
+      "RRL": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLSRM4",
+      "CLSRM4",
+      "Clan Ammo SRM-4",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLERPPC",
+      "CLERPPC",
+      "CLMASC",
+      "CLMASC",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 3045,
+  "role": "Skirmisher",
+  "source": "TR:3060"
+}

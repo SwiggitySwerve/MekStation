@@ -1,0 +1,198 @@
+{
+  "id": "marauder-iic-7",
+  "chassis": "Marauder IIC",
+  "model": "7",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3081,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "hag-30",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLStreakSRM4",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLStreakSRM4"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Gauss Ammo",
+      "Clan Gauss Ammo",
+      "Clan Streak SRM 4 Ammo",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "HAG/30 Ammo",
+      "HAG/30 Ammo",
+      "HAG/30 Ammo",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLECMSuite",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Given the Marauder's outstanding performance and sterling reputation, it was only natural for the Clans to commit resources to constructing a worthy successor.",
+    "capabilities": "While fundamentally comparable to the original Marauder in many aspects, even Golden Century ClanTech's sophisticated capabilities could not prevent the BattleMech's chassis from growing to accommodate all of its enhancements. As a result, the Marauder IIC received ten tons of overall bulk, similar to other classic 'Mechs modified by the Clans at the period. The IIC followed in both function and form the huge footsteps of its ancestor, emphasizing a perfect blend of long-range, high yield firepower, robust armor, and the mobility to keep up with its supporting troops. Although the Clans' dueling heritage prized individual warrior prowess and rapid encounters over drawn-out campaigns, their choice for high-power energy weapons over ballistics and missiles allows this 'Mech to stay lethal in the hands of an expert MechWarrior nearly indefinitely. When combined with its other characteristics, the Marauder IIC's battlefield durability cemented its position as a suitable command 'Mech, as well as its appeal among the glory-seeking warriors that comprise the majority of the Clan officer corps.",
+    "history": "The Marauder IIC had that designation prior to the introduction of Omni technology and the construction of the Timber Wolf. The Marauder IIC was built from the ground up in the image of its forefather, taking full advantage of the cutting-edge technology available at the time to improve on every aspect of the original.Â The end result was a bigger, stronger, more resilient, and durable Marauderâone that is still popular today, despite being classified as a \"second-line\" BattleMech. The Jade Falcons continue to build the Marauder IIC in its original architecture, joining the Rasalhague Dominion's \"Phoenix\" versions as the fearsome core of numerous Clan attack formations.",
+    "deployment": "Developed following the poor staying power of the Marauder IIC 4 and inspired by the Viking, this Gorton, Kingsley, and Thorpe-produced variant of the Marauder IIC was introduced in 3081 and uses a Targeting Computer to guide a Type 0 HAG 30, Omega 12-Coil Gauss Rifle, Kolibri Delta Series Large Pulse and Series 1g ER Small Laser. A Smartshot Mark V Streak SRM-4 mounted in each arm keeps battle armor at bay. An ECM Suite jams enemy targeting systems. To make room for all the weaponry a smaller 255-rated XL engine is used, dropping the top speed of the 'Mech to about 55 km/h. Sixteen and a half tons of standard armor provide the maximum amount of protection that the chassis can carry.",
+    "manufacturer": "Gorton, Kingsley, & Thorpe Enterprises",
+    "primaryFactory": "Satalice",
+    "systemManufacturer": {
+      "CHASSIS": "Type GB-850 Light",
+      "ENGINE": "255 XL Fusion Engine",
+      "ARMOR": "Compound 12A1 Standard with CASE",
+      "COMMUNICATIONS": "Series D8 CC-25Xa with ECM",
+      "TARGETING": "âHermesâ CT-42 Mk. II"
+    }
+  },
+  "mulId": 2071,
+  "role": "Juggernaut",
+  "source": "TR:3085"
+}

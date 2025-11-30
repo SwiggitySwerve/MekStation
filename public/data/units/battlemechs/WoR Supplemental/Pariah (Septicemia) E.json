@@ -1,0 +1,210 @@
+{
+  "id": "pariah-septicemia-e",
+  "chassis": "Pariah (Septicemia)",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLLightTAG (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "NovaCEWS (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "multi_trac",
+    "bad_rep_clan"
+  ],
+  "fluff": {
+    "overview": "The backbone of The Society's military forces, the Septicemia was a utilitarian medium-class workhorse. Devoid of the more experimental technology utilized by the Cephalus and Osteon to allow it to be built in higher volumes, the Septicemia saves weight with an XL Engine, Endo Steel chassis, and nine tons of Ferro-Fibrous armor. While the location of its weaponry in its torsos hampers its ability to carry Battle Armor, this was intentional to try and ensure hand actuators were retained to maximize its physical combat abilities.",
+    "capabilities": "One of the rarer configurations, the Septicemia E consists of a pair of ER PPCs and six ER Medium Lasers tied into a Targeting Computer. It also carries a Light TAG to locate hidden units, but the most dangerous part of its equipment is the Nova CEWS system that allowed it to share targeting data with friendly units.",
+    "history": "Despite its role in the Wars of Reaving, the Septicemia would see service after the conflict in the toumans of the four surviving Homeworld Clans. Avoiding extinction unlike the Cephalus and Osteon due to the capture of its production plant and lack of integrated Nova Combined Electronic Warfare System, while the other surviving Clans would push for a renaming of the Septicemia to excise its Taint (Void and Codex being popular suggestions), Khan Magnus DelVillar from Clan Stone Lion successfully campaigned against any moves to rename or remodel the design, citing that it would serve as a constant reminder of the dark crucible from which the Clans had emerged.",
+    "deployment": "Planning their OmniMech forces around a single mass-produced design intended to work in concert with two rarer but cutting-edge units, the Septicemia was built using proven technology with a focus towards mutual support on the battlefield, its every aspect intended to allow it to engage the Clan toumans using methods of warfare they found dezgra. Appearing during the Wars of Reaving when Clan warriors were even more intent on an exceedingly strict adherence of zellbrigen to avoid accusations of Taint, the Septicemia would prove frighteningly effective, earning it the nickname of \"Pariah\" by the Clan Diamond Shark forces that first faced it on Babylon in 3072.",
+    "manufacturer": "Kerensky Memorial Manufacturing",
+    "primaryFactory": "Strana Mechty",
+    "systemManufacturer": {
+      "CHASSIS": "55T Battle Epsilon-5 Profile Endo-Steel",
+      "ENGINE": "275 Type II XL",
+      "ARMOR": "Compound SJ8CW Ferro-Fibrous",
+      "COMMUNICATIONS": "GBX Series Integrated II",
+      "TARGETING": "Catâs Eye MD7"
+    }
+  },
+  "mulId": 5023,
+  "role": "Skirmisher",
+  "source": "WoR"
+}

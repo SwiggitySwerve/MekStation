@@ -1,0 +1,195 @@
+{
+  "id": "bowman-3",
+  "chassis": "Bowman",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-clecmsuite",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-clbpod",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "1-clbpod",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-clatm9",
+      "location": "LEFT_TORSO,_AMMO:21"
+    },
+    {
+      "id": "1-clhag20",
+      "location": "RIGHT_ARM,_AMMO:18"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20 Ammo",
+      "CLHAG20 Ammo",
+      "CLHAG20 Ammo",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLATM9",
+      "CLATM9",
+      "CLATM9",
+      "CLATM9",
+      "CLATM9 Ammo",
+      "CLATM9 ER Ammo",
+      "CLATM9 HE Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLERMediumLaser",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Endo-Steel",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLBPod",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLBPod",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "fast_reload",
+    "stable",
+    "bad_rep_clan"
+  ],
+  "mulId": 5690,
+  "role": "Skirmisher",
+  "source": "RS:3067u"
+}

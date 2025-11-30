@@ -1,0 +1,169 @@
+{
+  "id": "jackal-ja-kl-1579",
+  "chassis": "Jackal",
+  "model": "JA-KL-1579",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 30,
+  "engine": {
+    "type": "XL",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isangelecm",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isantimissilesystem",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-iserppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "IS AMS Ammo",
+      "ISAngelECM",
+      "ISAngelECM"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPCCapacitor",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Endo-Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "weak_legs"
+  ],
+  "mulId": 1654,
+  "role": "Scout",
+  "source": "XTR:Marik"
+}

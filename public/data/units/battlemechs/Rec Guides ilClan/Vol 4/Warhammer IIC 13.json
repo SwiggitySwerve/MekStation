@@ -1,0 +1,213 @@
+{
+  "id": "warhammer-iic-13",
+  "chassis": "Warhammer IIC",
+  "model": "13",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3150,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 21
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERPPC",
+      "CLERPPC",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERPPC",
+      "CLERPPC",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLRM15",
+      "CLLRM15",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "Clan Ammo LRM-15",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLRM15",
+      "CLLRM15",
+      "CLSRM6",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "Clan Ammo LRM-15",
+      "Clan Ammo LRM-15",
+      "Clan Ammo SRM-6"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "searchlight",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Clan's interpretation on the classic Warhammer has never been subtle. The BattleMech's hyper-advanced technology only emphasized and improved its duty as a frontline brawler; boosting its mass by 10 tons (with equivalent increases in armor protection) made it even more powerful.",
+    "capabilities": "Thanks to their technological expertise, they were able to add ten tons with the same speed and firepower and nearly double the armor of the original. The Warhammer IIC is built on an Endo Steel frame and is protected by tons of ferro-fibrous armor. The result is a dangerous 'Mech, able to hold its own in any battle against the Inner Sphere. Also note that the armor was the primary concern when designing the IIC version rivaling even 100 ton assault 'Mechs in durability and protection.",
+    "history": "The Warhammer IIC is now the most common Clan BattleMech in the Inner Sphere. These remarkable machines are fielded by every major Inner Sphere force, Clan, and many large mercenary groups. It is only found on the periphery, where its equally outstanding price tag is simply too high for these countries to justify.",
+    "deployment": "A variant produced by the Raven Alliance, this version combines the secondary arrays of the original model and the version 2, at the expense of armor protection. It mounts an ER PPC in each arm and an LRM-15 on each shoulder. Five Medium Pulse Lasers and an SRM-6 launcher add additional power at close range.",
+    "manufacturer": "Snow Raven Industrial Complex Alpha,Mu Manufacturing Plant 3H,Sheridan LM-TA 8-10",
+    "primaryFactory": "Dante,Paxon,Sheridan",
+    "systemManufacturer": {
+      "CHASSIS": "SFX-80 Endo",
+      "ENGINE": "Type 320 XL Fusion",
+      "ARMOR": "Unknown Standard Armor",
+      "COMMUNICATIONS": "TDWS-37 Mk 2.2",
+      "TARGETING": "âHephaestusâ CT-44"
+    }
+  },
+  "mulId": 7498,
+  "role": "Brawler",
+  "source": "RG04"
+}

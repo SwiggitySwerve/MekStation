@@ -1,0 +1,179 @@
+{
+  "id": "man-o-war-f",
+  "chassis": "Man O' War",
+  "model": "F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3127,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "rotary-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC2 (OMNIPOD)",
+      "CLRotaryAC2 (OMNIPOD)",
+      "CLRotaryAC2 (OMNIPOD)",
+      "CLRotaryAC2 (OMNIPOD)",
+      "CLRotaryAC2 Ammo (OMNIPOD)",
+      "CLRotaryAC2 Ammo (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLImprovedHeavyLargeLaser (OMNIPOD)",
+      "CLImprovedHeavyLargeLaser (OMNIPOD)",
+      "CLImprovedHeavyLargeLaser (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "Clan Ammo ATM-3 (OMNIPOD)",
+      "Clan Ammo ATM-3 (OMNIPOD)",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLHeavyFlamer (OMNIPOD)",
+      "CL Heavy Flamer Ammo (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The Gargoyle is an extremely fast assault OmniMech developed with the Timber Wolf as replacements for the first-generation Woodsman OmniMech. The Gargoyle is therefore commonly seen among Clan Wolf, and was a featured assault OmniMech during the Clan Invasion. The Gargoyle earned the name Man O' War from the Inner Sphere forces because of its effectiveness. Along with the Timber Wolf and Naga, the Gargoyle debuted in 2945.",
+    "capabilities": "The Gargoyle F is capable of engaging the enemy from afar and utilizing its speed to decrease the range while increasing its damage output. Carrying an Imp. Heavy Large Laser and twin ATM-3s in the right arm, the F is hindered somewhat by only carrying two tons of missile ammo. This forces the pilot to choose between ammo types before a mission. A newly developed Clan Rotary AC/2 and its two tons of ammo are fitted into the left arm. A Heavy Flamer and one ton of fuel reside in the center torso.",
+    "deployment": "The Gargoyle is capable of reaching ground speeds of up to 86.4 km/h thanks to its massive 400 Model SF-3 XL Engine, accounting for over twenty percent of the 'Mech's mass. Built on a standard structure, the Gargoyle has sixteen double heat sinks in its base chassis, which can dissipate heat from most of the Gargoyle's configurations quite effectively. The Gargoyle carries eleven tons of Ferro-Fibrous armor which is light for its size, but provides protection equal to that of most heavy 'Mechs. Even the Gargoyles relatively light twenty-one and half tons of available pod space emphasizes speed; all Gargoyle configs mount weaponry almost exclusively in the arms, reducing the amount of time required to alter the weapon systems; however, with most of the weaponry placed in the arms, the Gargoyle is at the risk of being disarmed by a couple of well-placed shots.\nmanufacturer:Wolf Clan Site OZ-1, Tokasha Mechworks, Tamar HH Industriplex Alpha\nprimaryfactory:Tamar, Tokasha,  Tamar\nsystemmanufacturer:CHASSIS:Clan Series Assault SXC\nsystemmanufacturer:ENGINE:400 Model SF-3 XL\nsystemmanufacturer:ARMOR:Forging C629/j Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:Raldon R1\nsystemmanufacturer:TARGETING:Version Kappa-III TTS"
+  },
+  "mulId": 7755,
+  "role": "Brawler",
+  "source": "RG11"
+}

@@ -1,0 +1,190 @@
+{
+  "id": "shadow-hawk-iic-7",
+  "chassis": "Shadow Hawk IIC",
+  "model": "7",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3080,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      "CLMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Ammo ATM-6",
+      "Clan Ammo ATM-6 ER",
+      "Clan Ammo ATM-6 HE",
+      "Liquid Storage (1 ton)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLATM6",
+      "CLATM6",
+      "CLATM6",
+      "CLERLargeLaser",
+      "Liquid Storage (1 ton)",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "imp_life_support"
+  ],
+  "fluff": {
+    "overview": "The Shadow Hawk IIC is a second-line Clan BattleMech based upon the Shadow Hawk that was first fielded by the Star League.",
+    "capabilities": "The inexpensive unit is protected by seven and a half tons of Ferro-Fibrous armor, mounted on a weight-saving Endo Steel chassis. This medium 'Mech can reach a respectable top speed of 97 km/h, though it also carries enough jump jets to vault up to 180 meters at a time.",
+    "deployment": "This Clan Snow Raven variant is used in space combat to support or repel boarding attacks. By carrying eight Improved Jump Jets tied into extended capacity fuel tanks, the Shadow Hawk IIC 7 can maneuver in space very easily. On the ground the smaller XL Engine used reduces the top speed slightly, but the jump jets easily compensate for this. To reduce handling problems in space the weapons array consists of low-recoil ER Large and Medium lasers with a Medium Pulse Laser. In fact the only recoil-inducing weapon is the ATM-6 in the right torso. Three tons of ammunition space allow the IIC 7 pilot to tailor the weapon load depending on the situation.",
+    "manufacturer": "Eden Rose [Potemkin Class]/Facility 12-D,Snow Raven Industrial Complex Alpha",
+    "primaryFactory": "Dante,Dante",
+    "systemManufacturer": {
+      "CHASSIS": "Lang T3",
+      "ENGINE": "Consolidated Fusion 270 Standard",
+      "ARMOR": "Compound H17 Ferro-Fibrous",
+      "JUMPJET": "Northrup Starlifters M45",
+      "COMMUNICATIONS": "JNE Integrated",
+      "TARGETING": "TRTTS Mark II"
+    }
+  },
+  "mulId": 2917,
+  "role": "Striker",
+  "source": "TR:3085"
+}

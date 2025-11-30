@@ -1,0 +1,196 @@
+{
+  "id": "ryoken-ii-unknown",
+  "chassis": "Ryoken II",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15",
+      "CLLRM15",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "Clan Ammo LRM-15",
+      "Clan LB 2-X AC Ammo"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15",
+      "CLLRM15",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "CLLBXAC2",
+      "Clan Ammo LRM-15",
+      "Clan LB 2-X Cluster Ammo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "fluff": {
+    "overview": "After the success of the Mad Cat Mk II design, which increased the tonnage and weaponry of the Mad Cat, Clan Ghost Bear applied these same changes to the medium Ryoken.",
+    "capabilities": "The Ryoken II is slower than its antecedent, only capable of 87 km/h, though it has more weight available for equipment and weapons. It is built on an Endo Steel chassis and is protected by thirteen and a half tons of armor.",
+    "history": "The Ryoken II, first walked off the assembly line in 3075 during the Word of Blake Jihad. When the Ghost Bears later decided to sell some to the Republic of the Sphere, it caused a ruckus among some of the Clans, including a few Trials of Grievance from Clan Hell's Horses.",
+    "deployment": "A long-range combatant, the Ryoken II carries four Type OVR-X LB-X Autocannon/2s that make excellent anti-aircraft guns. Two Type XVI LRM-15s allow the use of indirect support as well as direct. Limited ammunition forces any MechWarrior to make quick work of his or her enemies. The standard complement of double heat sinks keep the 'Mech chilly.",
+    "manufacturer": "Bergan Industries",
+    "primaryFactory": "Alshain",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM ENDO 5",
+      "ENGINE": "GM 375 Fusion Extralight",
+      "ARMOR": "Forging ZK20",
+      "COMMUNICATIONS": "Garret GBX-2 Amalgamated Targeting and Tracking",
+      "TARGETING": "Alshain B4 Series 2 T&T"
+    }
+  },
+  "mulId": 2758,
+  "role": "Sniper",
+  "source": "TR:3075"
+}

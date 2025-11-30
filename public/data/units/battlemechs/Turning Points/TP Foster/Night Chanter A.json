@@ -1,0 +1,174 @@
+{
+  "id": "night-chanter-a",
+  "chassis": "Night Chanter",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2865,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLLRM10 (OMNIPOD)",
+      "Clan Ammo LRM-10 (OMNIPOD)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "Clan Machine Gun Ammo - Full (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERPPC (OMNIPOD)",
+      "CLERPPC (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod (OMNIPOD)",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod (OMNIPOD)",
+      null
+    ]
+  },
+  "mulId": 9233,
+  "role": "Sniper",
+  "source": "TP:Foster"
+}

@@ -1,0 +1,191 @@
+{
+  "id": "wolverine-wvr-7d",
+  "chassis": "Wolverine",
+  "model": "WVR-7D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "ISUltraAC5",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "ISCASE",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "IS Ultra AC/5 Ammo",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISCASE",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "ext_twist",
+    "imp_com",
+    "pro_actuator",
+    "ubiquitous_clan",
+    "ubiquitous_is",
+    "cramped_cockpit"
+  ],
+  "fluff": {
+    "overview": "The Wolverine commonly served as a heavy scout unit. Often deployed in situations where heavy opposition could easily destroy lighter BattleMechs, it has had a reliable service record ever since its initial deployment within the Star League Defense Force. With respectable armor, speed, and firepower, it can easily outfight lighter enemy scouts and defend itself capably if ambushed.",
+    "capabilities": "The autocannon, missile system and laser found on most Wolverines are all reliable and well-storied systems. Unfortunately, the jump jets suffer from an opposing reputation; the Northrup 12000's are underpowered and prone to breakdowns. The one defining system to be found on the Wolverine, however, are its superb Tek BattleCom and Garret T11-b communications systems. The comgear, regardless of the manufacturer, is well-shielded and features a multi-channel transmitter and receiver, making the Wolverine a powerful Command BattleMech for scouting formations.",
+    "history": "A widespread part of every major military, the Wolverine has manufacturing plants scattered throughout the entire Inner Sphere. While certain states-notably the Free Worlds League-have larger numbers of the design, only the Capellans began facing a shortage of the Wolverine after the loss of their Nanking facilities.",
+    "deployment": "The 7D variant of the Wolverine is a major upgrade to the design introduced in 3050 by the Federated Suns' new Nanking factory. The standard engine on the 'Mech was replaced with a Nissan 275 XL version and the armor has been upgraded to Kallon Unity Weave Ferro-Fibrous material with an extra half-ton added. To increase the Wolverine's speed, MASC has been added, allowing it to move up to 108 km/h in bursts. Finally, the weapons payload has been upgraded as well. The autocannon has been upgraded to a General Motors Nova-5 Ultra Autocannon/5 and the medium laser is now a Sutel Precision Line Medium Pulse Laser. The design retains its jumping capability, as well as the SRM-6, although CASE now protects the SRM reloads.",
+    "manufacturer": "Kallon Weapon Industries",
+    "primaryFactory": "Nanking",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-A",
+      "ENGINE": "Core Tek 275",
+      "ARMOR": "Kallon Unity Weave Ferro-Fibrous",
+      "JUMPJET": "Northrup 12000",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Sync Tracker(39-42071)"
+    }
+  },
+  "mulId": 3574,
+  "role": "Skirmisher",
+  "source": "RG18"
+}

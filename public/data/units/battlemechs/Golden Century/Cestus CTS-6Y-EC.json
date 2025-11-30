@@ -1,0 +1,189 @@
+{
+  "id": "cestus-cts-6y-ec",
+  "chassis": "Cestus",
+  "model": "CTS-6Y-EC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2825,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "improved-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "prototype-er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "prototype-er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-gauss-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Improved Large Laser",
+      "CLERMediumLaserPrototype",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Improved Large Laser",
+      "CLERMediumLaserPrototype",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "Improved Gauss Rifle",
+      "CLImpGaussAmmo",
+      "CLImpGaussAmmo",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImpGaussAmmo",
+      "CLImpGaussAmmo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The SLDF's original design specifications for the Cestus, a medium fire-support BattleMech, asked for two PPCs, two big lasers, and a pair of medium pulse lasers.",
+    "capabilities": "The new generation of Cestus BattleMechs produced in the last decade is powered by GM's efficient 260 XL engine, with a top speed of 64 kphâa rating that many perceive to be on the slow side for a 'Mech at the light end of the heavy spectrum. The Cestus' weaponry, on the other hand, makes it a lethal foe at any range. The huge torso-mounted Gauss gun can provide catastrophic damage at long range. The Gauss rifle is supported by large and medium lasers installed in each arm. The Cestus retains both of its hand actuators for close-range fighting, capable of gripping or striking an opponent as needed.",
+    "history": "The CTS-6Y Cestus began production for the Star League Defense Force in 2766. However the original CTS-6X Cestus was produced during 2603. Introduced by General Motors and constructed at their Kathil plant, the Cestus served in the Armed Forces of the Federated Suns after the Fall of the Star League until its factory became a casualty during a Capellan Confederation Armed Forces raid at the beginning of the Second TR:GC. The 'Mech was originally designed to carry a heavy energy weapons payload, but because of complications encountered with the heat sinks on the 'Mech, the upgraded Cestus was modified to carry a mix of ballistic and energy weapons. The Cestus was reintroduced by both Blue Shot Weapons and General Motors in the mid-3050s.",
+    "deployment": "Clan Fire Mandrill refitted their rare Cestuses with prototype ER medium lasers, Improved Large Lasers, and an Improved Gauss Rifle. The Gauss Rifle has four tons of ammunition, and fourteen double heat sinks keep the heat under control.",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "GM Heavy CVA",
+      "ENGINE": "GM 260 XL",
+      "ARMOR": "Durallex Special Heavy",
+      "COMMUNICATIONS": "TharHes Thalia HM-22",
+      "TARGETING": "Salamander Systems CommPhase Unit"
+    }
+  },
+  "mulId": 7681,
+  "role": "Brawler",
+  "source": "TR:GC"
+}

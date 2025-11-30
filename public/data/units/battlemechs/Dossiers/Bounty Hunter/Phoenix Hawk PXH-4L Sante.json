@@ -1,0 +1,184 @@
+{
+  "id": "phoenix-hawk-pxh-4l-sante",
+  "chassis": "Phoenix Hawk",
+  "model": "PXH-4L (Sante)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 5
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "tag",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Machine Gun",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERLargeLaser",
+      "ISERMediumLaser",
+      "Machine Gun",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Machine Gun Ammo - Half",
+      "ISTAG"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "imp_com",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 5807,
+  "role": "Striker",
+  "source": "BD:BH"
+}

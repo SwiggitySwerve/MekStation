@@ -1,0 +1,109 @@
+{
+  "id": "heavy-forester-hfl-1-loggermech",
+  "chassis": "Heavy Forester",
+  "model": "HFL-1 LoggerMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2700,
+  "tonnage": 60,
+  "engine": {
+    "type": "ICE",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 16,
+      "FRL": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 16,
+      "RRL": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 4529,
+  "role": "None",
+  "source": "TR:I"
+}

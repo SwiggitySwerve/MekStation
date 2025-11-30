@@ -1,0 +1,181 @@
+{
+  "id": "berserker-brz-d4",
+  "chassis": "Berserker",
+  "model": "BRZ-D4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3112,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 37,
+      "RIGHT_LEG": 37
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "flamer",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "bombast-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Bombast Laser",
+      "Bombast Laser",
+      "Bombast Laser",
+      "IS Endo-Composite",
+      "TSM",
+      "TSM",
+      "TSM",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "TSM"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      "TSM"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro (armored)",
+      "Gyro (armored)",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAngelECMSuite",
+      "ISAngelECMSuite",
+      "IS Endo-Composite",
+      "IS Endo-Composite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Flamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "mulId": 6831,
+  "role": "Juggernaut",
+  "source": "RS:3145-NTNU"
+}

@@ -1,0 +1,178 @@
+{
+  "id": "ryoken-iii-c",
+  "chassis": "Ryoken III",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3147,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-9",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISPlasmaRifle (OMNIPOD)",
+      "ISPlasmaRifle (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo ATM-9 ER (OMNIPOD)",
+      "Clan Ammo ATM-9 HE (OMNIPOD)",
+      "Clan Ammo ATM-9 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPlasmaRifleAmmo (OMNIPOD)",
+      "ISPlasmaRifleAmmo (OMNIPOD)",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ]
+  },
+  "mulId": 8451,
+  "role": "Striker",
+  "source": "RG24"
+}

@@ -1,0 +1,149 @@
+{
+  "id": "sirocco-src-3c",
+  "chassis": "Sirocco",
+  "model": "SRC-3C",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 40,
+      "FRL": 40,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 15
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 15
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "RLL": 40,
+      "RRL": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_LEFT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISERMediumLaser",
+      "ISERMediumLaser (R)"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISERMediumLaser",
+      "ISERMediumLaser (R)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 2951,
+  "role": "Juggernaut",
+  "source": "TR:3060"
+}

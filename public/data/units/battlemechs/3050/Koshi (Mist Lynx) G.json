@@ -1,0 +1,237 @@
+{
+  "id": "koshi-g",
+  "chassis": "Koshi",
+  "model": "G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 25,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 4,
+      "RIGHT_ARM": 4,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 5,
+      "RIGHT_LEG": 5
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun-array",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERSmallLaser (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "Clan Heavy Machine Gun Array (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERSmallLaser (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "CLHeavyMG (omnipod)",
+      "Clan Heavy Machine Gun Array (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Heavy Machine Gun Ammo - Full (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLActiveProbe",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLERSmallLaser (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLERSmallLaser (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_sensors",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Weighing in at twenty five tons, the Mist Lynx is a lightweight workhorse OmniMech. The Mist Lynx is a common light OmniMech among the Clans that invaded the Inner Sphere, and is part of the toumans of every clan.",
+    "capabilities": "The Mist Lynx is built on a lightweight Endo Steel chassis to save weight and is powered by a 175 XL engine that gives the 'Mech a top speed of 118.8 km/h. The Mist Lynx also has six Jump Jets that allow the 'Mech to jump up to one hundred and eighty meters. The Mist Lynx has a fixed Active Probe that allows the 'Mech to protect itself from ambush by letting it detect any hidden enemy units before they can strike. For protection from enemy fire, the Mist Lynx has three and a half tons of Ferro-Fibrous armor.",
+    "deployment": "Before the Great Refusal, the Mist Lynx was most prominently fielded by Clan Smoke Jaguar and earned the code name Koshi, or \"small death\", from the DCMS forces which encountered it during Operation Revival. Designed by Clan Smoke Jaguar around 2910, production of the Mist Lynx was continued by Clans Ice Hellion and Steel Viper after the Annihilation of Clan Smoke Jaguar.\nmanufacturer:Huntress Production Facility Epsilon, Arcadia BattleMech Plant CM-O3, Manufacturing Plant SFF-AL1\nprimaryfactory:Huntress, Arcadia,  Alnabog\nsystemmanufacturer:CHASSIS:Light Series II Endo-steel\nsystemmanufacturer:ENGINE:Type II 175 XL\nsystemmanufacturer:ARMOR:Compound H17 Ferro-Fibrous\nsystemmanufacturer:JUMPJET:Clan Light Series Mk. I\nsystemmanufacturer:COMMUNICATIONS:Build 1685/5 Tacticom\nsystemmanufacturer:TARGETING:Series III GDS with Active Probe"
+  },
+  "mulId": 1833,
+  "role": "Striker",
+  "source": "TR:3050"
+}

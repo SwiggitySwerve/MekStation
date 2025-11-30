@@ -1,0 +1,175 @@
+{
+  "id": "pacifier-ccu-40-securitymech",
+  "chassis": "Pacifier",
+  "model": "CCU-40 SecurityMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3130,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 90
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 7,
+      "RIGHT_ARM": 7,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 3
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 3
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-3",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light Machine Gun",
+      "MechSprayer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light Machine Gun",
+      "MechSprayer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 LRM",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 SRM",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Light Machine Gun Ammo - Half",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "Some âMechs gain undeserved reputations which haunt them for their entire, often short, production runs. Occasionally, events or exceptional circumstances can redeem their fortunes: the Pacifier is one of those lucky few that received a second chance.",
+    "capabilities": "Conceived as a multi-functional civilian tool, the 30-ton Pacifier entered service in 3038. Built for ease of piloting, Alshain Weapons cut corners with their quality, and the âMech soon acquired a bad reputation. Left to the dregs of the militia and castoffs from the DCMS, it was often used as a punishment posting, which further mired its standing. Although slow, its speed is adequate for the urban environments in which it is designed to operate. Twin arm-mounted sprayers make it equally at home in fire-fighting or riot control duties, while the missile launchers and machine guns normally make use of non-lethal loadouts. Twin fully-articulated hands enable the Pacifier to help with fire rescue and accident recovery duties. To further keep costs down Alshain used a fuel cell engine and industrial grade armor, and contracted with Nimakachi Fusion Products to supply them with actuators and other parts. Pilots often dourly joke that the Pacifier is the bastard offspring of a Panther and Spider, a joke that is further reinforced given the lack of an ejection seat.",
+    "deployment": "Deployed thinly across many worlds of the Combine, the Pacifier does yeoman work regardless of its lowly reputation. Its first steps to redemption occurred during the Clan Invasion where pilots stood up bravely, if futilely, trying to buy time for frontline military forces to arrive or re-group. In one notable engagement on Luthien, a Pacifier of the 1st Omega Regiment faced off against the marauding 4th Nova Cat Regulars Striker Trinary in defense of Imperial City. With the remaining Cats fleeing from a Dragoon airstrike, the pilot destroyed two OmniMechs and damaged another before being killed. Likewise during the Jihad, many pilots fought valiantly defending their cities from the Word of Blake, Black Dragons, and Davions alike, destroying many machines in the process but forcing a reevaluation of the unit and its MechWarriors. In the face of these losses, Alshain introduced an upgraded Pacifier in the 3080s. A solid defensive unit, one could suspect the Combine of trying to bolster its second line forces in the face of the MMRP, particularly given the increased production of recent years.\nmanufacturer:Alshain Weapons\nprimaryfactory:Tok Do\nsystemmanufacturer:CHASSIS:Alshain Type 40-30L\nsystemmanufacturer:ENGINE:Hermes 90 Fuel Cell\nsystemmanufacturer:ARMOR:Maximillian 23 Heavy Industrial\nsystemmanufacturer:COMMUNICATIONS:Sipher CommCon CSU-4\nsystemmanufacturer:TARGETING:Catâs Eyes 5"
+  },
+  "mulId": 7824,
+  "role": "Ambusher",
+  "source": "TR:I"
+}

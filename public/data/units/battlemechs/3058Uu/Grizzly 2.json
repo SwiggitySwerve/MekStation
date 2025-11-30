@@ -1,0 +1,209 @@
+{
+  "id": "grizzly-2",
+  "chassis": "Grizzly",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-9",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERLargeLaser",
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "CLGaussRifle",
+      "Clan Gauss Ammo",
+      "Clan Gauss Ammo"
+    ],
+    "LEFT_TORSO": [
+      "CLATM9",
+      "CLATM9",
+      "CLATM9",
+      "CLATM9",
+      "Clan Ammo ATM-9",
+      "Clan Ammo ATM-9",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Grizzly is a multi-role heavy 'Mech with design elements shared with Clan Ghost Bear's two most common Omnis, the Vulture and the Gladiator. Because it lacks a specific combat emphasis, it has been plagued with the \"jack of all trades, master of none\" stigma and has never truly found a role in the Ghost Bear troops.",
+    "capabilities": "Despite problems in its designâits layers of sloped armor tend to lodge in place when destroyed, causing havoc with joints and even weapon portsâit is still used by several garrison troops. The Grizzly can jump and has a variety of weaponry that cover a wide spectrum of fighting ranges.",
+    "history": "Because it lacks a specific combat emphasis, it has been plagued with the \"jack of all trades, master of none\" stigma and has never truly found a role in the Ghost Bear troops.Â With reports of atrocities in the Rasalhague Republic during the current Jihad, the Bear Touman has began to reconsider this out-of-production design for immediate production in order to fast augment material for their anticipated entry into conflict. The Grizzly's production ended in 3013, yet there are still a big number of the design distributed around the Ghost Bear Touman. After the Combine War in 3063 revealed that the Combine was using combat armor personnel more successfully, a recent redesign of the Grizzly was tested. In tandem with the Golem battle armor project, the Technician and Scientist Caste set out to create a 'Mech design to compliment the urban-style defensive armor. Most deployed Grizzlys are being recalled to be reconfigured as a newer, more lethal urban defence variant.",
+    "deployment": "During the Combine-Ghost Bear War, Star Captain Scott of the Gurdel Bloodhouse came to fame for his customized Grizzly that has reignited this failed design. A potent urban defender, Scott's loadout is now a standard, with old Grizzlies being recalled for refit. The variant keeps the Gauss rifle, but swaps out the pulse lasers for an ER Large Laser and six ER Micro Lasers. The missile launcher is replaced with an ATM 9 and two tons of ammunition that are usually High-Explosive rounds as they are the most useful in an urban environment. This refit is especially potent against infantry, both conventional and battle armor.",
+    "manufacturer": "JÃ¶tunn BattleWorx,Bergan Industries - Alshain Weapons(formerly GK&T owned),Field Refit",
+    "primaryFactory": "Goito,Jarett,Various",
+    "systemManufacturer": {
+      "CHASSIS": "Type 56-45C Modified Endo Steel",
+      "ARMOR": "Arcadia Compound Delta VII Standard",
+      "JUMPJET": "Clan Standard 14X Series",
+      "COMMUNICATIONS": "Garret T10B",
+      "TARGETING": "Series VI KITT"
+    }
+  },
+  "mulId": 1333,
+  "role": "Skirmisher",
+  "source": "TR:3058U"
+}

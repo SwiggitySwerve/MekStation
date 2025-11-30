@@ -1,0 +1,140 @@
+{
+  "id": "harvester-tripod-r-h3l-3x",
+  "chassis": "'Harvester Tripod'",
+  "model": "R/H3L-3X",
+  "unitType": "BattleMech",
+  "configuration": "Tripod",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3136,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21,
+      "CL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLPlasmaCannon",
+      "CLPlasmaCannonAmmo",
+      "CLPlasmaCannonAmmo",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLPlasmaCannon",
+      "CLPlasmaCannonAmmo",
+      "CLPlasmaCannonAmmo",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "RISC Viral Jammer (Decoy)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "no_arms",
+    "distracting",
+    "prototype"
+  ],
+  "role": "Sniper",
+  "source": "XTR:RISC"
+}

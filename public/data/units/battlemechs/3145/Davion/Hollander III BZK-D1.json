@@ -1,0 +1,158 @@
+{
+  "id": "hollander-iii-bzk-d1",
+  "chassis": "Hollander III",
+  "model": "BZK-D1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3114,
+  "tonnage": 35,
+  "engine": {
+    "type": "XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 7,
+      "RIGHT_ARM": 7,
+      "LEFT_TORSO": {
+        "front": 12,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 12,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "ISCASEII"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "mulId": 6333,
+  "role": "Sniper",
+  "source": "TR:3145:FS"
+}

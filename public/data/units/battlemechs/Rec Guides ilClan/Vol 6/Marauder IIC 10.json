@@ -1,0 +1,211 @@
+{
+  "id": "marauder-iic-10",
+  "chassis": "Marauder IIC",
+  "model": "10",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 20
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLMediumPulseLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLMediumPulseLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "CLERPPC",
+      "CLERPPC",
+      "CLSmallPulseLaser",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "CLSmallPulseLaser",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERSmallLaser",
+      "CLERSmallLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Given the Marauder's outstanding performance and sterling reputation, it was only natural for the Clans to commit resources to constructing a worthy successor.",
+    "capabilities": "While fundamentally comparable to the original Marauder in many aspects, even Golden Century ClanTech's sophisticated capabilities could not prevent the BattleMech's chassis from growing to accommodate all of its enhancements. As a result, the Marauder IIC received ten tons of overall bulk, similar to other classic 'Mechs modified by the Clans at the period. The IIC followed in both function and form the huge footsteps of its ancestor, emphasizing a perfect blend of long-range, high yield firepower, robust armor, and the mobility to keep up with its supporting troops. Although the Clans' dueling heritage prized individual warrior prowess and rapid encounters over drawn-out campaigns, their choice for high-power energy weapons over ballistics and missiles allows this 'Mech to stay lethal in the hands of an expert MechWarrior nearly indefinitely. When combined with its other characteristics, the Marauder IIC's battlefield durability cemented its position as a suitable command 'Mech, as well as its appeal among the glory-seeking warriors that comprise the majority of the Clan officer corps.",
+    "history": "The Marauder IIC had that designation prior to the introduction of Omni technology and the construction of the Timber Wolf. The Marauder IIC was built from the ground up in the image of its forefather, taking full advantage of the cutting-edge technology available at the time to improve on every aspect of the original.Â The end result was a bigger, stronger, more resilient, and durable Marauderâone that is still popular today, despite being classified as a \"second-line\" BattleMech. The Jade Falcons continue to build the Marauder IIC in its original architecture, joining the Rasalhague Dominion's \"Phoenix\" versions as the fearsome core of numerous Clan attack formations.",
+    "deployment": "This variant uses six Improved Jump Jets to cover 180 meters at a time. The weapons have changed: Each arm carries a Large Pulse Laser over a Medium Pulse Laser. There is an ER PPC in the left torso, and a pair of ER Small Lasers in the center torso. A Small Pulse Laser is mounted in each side torso for anti-infantry work. Twenty double heat sinks are fitted, and the 'Mech is protected by thirteen tons of armor.",
+    "manufacturer": "Olivetti Weaponry",
+    "primaryFactory": "Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "Type 850 Light",
+      "ENGINE": "Consolidated Fusion 340",
+      "ARMOR": "Compound 12A1 Standard with CASE",
+      "COMMUNICATIONS": "Series D8 CC-25Xa",
+      "TARGETING": "âHermesâ CT-42 Mk. II",
+      "JUMPJET": "Unknown Improved"
+    }
+  },
+  "mulId": 7538,
+  "role": "Skirmisher",
+  "source": "RG06"
+}

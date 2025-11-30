@@ -1,0 +1,184 @@
+{
+  "id": "corsair-cor-7r",
+  "chassis": "Corsair",
+  "model": "COR-7R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 31,
+      "RIGHT_ARM": 31,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 43,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 22
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ac-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "HEAD"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "rocket-launcher-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rocket-launcher-20",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "RL20",
+      "RL20",
+      "RL20",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Large Laser",
+      "Large Laser",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "RL20",
+      "RL20",
+      "RL20",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20"
+    ],
+    "RIGHT_TORSO": [
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "RL10",
+      "RL10"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "RL10",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "source": "Videogame (Apocryphal)"
+}

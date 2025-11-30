@@ -1,0 +1,168 @@
+{
+  "id": "cephalus-b",
+  "chassis": "Cephalus",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 25,
+  "engine": {
+    "type": "XXL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 10,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mech-taser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Mek Taser (omnipod)",
+      "Mek Taser (omnipod)",
+      "Mek Taser (omnipod)",
+      "Taser Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLightTAG (omnipod)",
+      "Clan Endo Steel",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Mek Null Signature System",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "NovaCEWS",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Null Signature System",
+      "Chameleon Light Polarization Shield"
+    ]
+  },
+  "quirks": [
+    "imp_life_support",
+    "bad_rep_clan",
+    "difficult_maintain",
+    "no_arms"
+  ],
+  "mulId": 5638,
+  "role": "Scout",
+  "source": "WoR"
+}

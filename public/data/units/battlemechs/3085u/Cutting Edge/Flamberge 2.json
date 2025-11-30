@@ -1,0 +1,204 @@
+{
+  "id": "flamberge-2",
+  "chassis": "Flamberge",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3087,
+  "tonnage": 70,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLSRM6",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "Clan Ammo SRM-6",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLSRM6",
+      "CLMediumPulseLaser",
+      "Clan Ammo SRM-6",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLMediumPulseLaser"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "CLMicroPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "Initially a Partial Wing test-bed, the Flamberge became a prominent Clan Jade Falcon OmniMech, helping to inspire the Falcon's Dark Age era design style aesthetic.",
+    "capabilities": "Built on an Endo Steel chassis, powered by a 280 rated XL Engine, and clad in thirteen and a half tons of armor, while slower than other front-line OmniMechs of similar weight, the bulk of the Flamberge's variants feature Jump Jets and the design was built with them in mind. Mounting eleven double heat sinks on its base frame, the design had thirty-five tons of available pod space.",
+    "history": "Developing the experimental Partial Wing technology in the 3060s, attempts by the Falcon scientists to develop a new production design using it were unsuccessful and the project was ultimately shelved. Cut-off from the Clan Homeworlds as losses mounted in the Jihad, in 3074 then Khan Marthe Pryde tasked Merchant Daniel and the Falcon design teams to use whatever was available to rebuild her forces. After removing much of the internal components of the wings, retaining the inbuilt Pattern J7 SRM-6 launchers in the shoulders to avoid further delays, the reborn test-bed featured an imposing bird-like cosmetic appearance that helped the Flamberge secure a prominent position in the Clan Jade Falcon Touman.",
+    "deployment": "Attempting to re-add the Partial Wing to the Flamberge when the Falcons secured a number of Clan Wolf scientists after the conclusion of the Jihad, this variant introduced 3087 mounted an array of pulse lasers and enough improved jump jets to virtually fly around the battlefield. A Large Pulse Laser is supported by five Medium Pulse lasers and a Micro Pulse Laser. This version retains the paired SRM-6 missile launchers of the original. The Flamberge 2 also possesses an experimental Partial Wing and six Improved Jump Jets that allow it to cover 210 meters in a single jump.",
+    "manufacturer": "Olivetti Weaponry",
+    "primaryFactory": "Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "JF 7 Light Endo Steel",
+      "ENGINE": "280 XL Fusion",
+      "ARMOR": "JF Standard",
+      "COMMUNICATIONS": "JF Integrated",
+      "TARGETING": "JFIX/Olivetti Pinpoint Advanced"
+    }
+  },
+  "mulId": 1114,
+  "role": "Skirmisher",
+  "source": "TR:3085"
+}

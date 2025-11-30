@@ -1,0 +1,185 @@
+{
+  "id": "linebacker-d",
+  "chassis": "Linebacker",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 390
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "CLStreakSRM6 (omnipod)",
+      "Clan Streak SRM 6 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "CLERSmallLaser (R) (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 1889,
+  "role": "Skirmisher",
+  "source": "TR:3055U"
+}

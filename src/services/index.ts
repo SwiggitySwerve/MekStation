@@ -25,14 +25,18 @@ export * from './units';
 // Re-export construction services
 export * from './construction';
 
+// Re-export conversion services
+export * from './conversion';
+
 // ============================================================================
 // SERVICE REGISTRY
 // ============================================================================
 
 import { indexedDBService, fileService } from './persistence';
-import { equipmentLookupService, equipmentCalculatorService } from './equipment';
-import { canonicalUnitService, customUnitService, unitSearchService } from './units';
+import { getEquipmentLoader, getEquipmentRegistry, getEquipmentNameMapper } from './equipment';
+import { getUnitFactory } from './units';
 import { mechBuilderService, validationService, calculationService } from './construction';
+import { getMTFImportService } from './conversion';
 
 /**
  * Centralized service registry for singleton access
@@ -46,15 +50,14 @@ export const services = {
 
   // Equipment
   equipment: {
-    lookup: equipmentLookupService,
-    calculator: equipmentCalculatorService,
+    loader: getEquipmentLoader(),
+    registry: getEquipmentRegistry(),
+    nameMapper: getEquipmentNameMapper(),
   },
 
   // Units
   units: {
-    canonical: canonicalUnitService,
-    custom: customUnitService,
-    search: unitSearchService,
+    factory: getUnitFactory(),
   },
 
   // Construction
@@ -62,6 +65,11 @@ export const services = {
     builder: mechBuilderService,
     validation: validationService,
     calculation: calculationService,
+  },
+
+  // Conversion
+  conversion: {
+    importer: getMTFImportService(),
   },
 } as const;
 
@@ -72,8 +80,8 @@ export async function initializeServices(): Promise<void> {
   // Initialize IndexedDB
   await services.persistence.db.initialize();
   
-  // Initialize search index
-  await services.units.search.initialize();
+  // Initialize equipment registry
+  await services.equipment.registry.initialize();
 }
 
 /**

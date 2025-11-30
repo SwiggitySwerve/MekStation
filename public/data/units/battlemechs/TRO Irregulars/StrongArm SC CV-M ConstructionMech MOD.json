@@ -1,0 +1,163 @@
+{
+  "id": "strongarm-sc-cv-m-constructionmech-mod",
+  "chassis": "StrongArm",
+  "model": "SC CV-M ConstructionMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3132,
+  "tonnage": 35,
+  "engine": {
+    "type": "ICE",
+    "rating": 140
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 9
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-flamer",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heavy Flamer",
+      "IS Heavy Flamer Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The StrongArm MOD should serve as a cautionary example of the worst possible modification one can perform on an IndustrialMech. All MODs tend to be shoddy, yet generally at least minimally combat-worthy, but the StrongArm MOD features no upgrade to its armor, lacks gunsights and a proper cooling system, and has a flamer that is as dangerous to itself as it is to the enemy. Even the userâs manualâaptly named Brainless Guide to PilotingÂ® the StrongArm MODâyields no better guidance than to roughly point the weapon at the enemy and hope for the best.",
+    "capabilities": "The original StrongArm ConstructionMech is a high-quality product of the Sitwell Corporation, heavily based on their established Powerman. The modification comes with all the drawbacks of similarly militarized IndustrialMechs, in that the right arm heavy flamer installation is open and improvised, but its workmanship is even poorer than on most other documented chassis. Its single retrofitted heat sink does not come close to dissipating the hellish temperature of the âMech-class weapon when fired, it lacks any targeting system, and the heavy armor is not upgraded, thereby limiting the pilotâs protection in combat situations. Though it is purchased by everyone and their grandmother, the StrongArm MOD is a deluded manâs ride and it speaks volumes that its producer would stay anonymous, selling refit kits via third parties.",
+    "deployment": "Given how widespread the StrongArm has become throughout the Republic, it is no surprise that nearly every RAF unit has at least one story of meeting an overconfident and sometimes even delusional StrongArm MOD pilot on the field. The cheapness of the base model and the ease with which it can be modded more than offset the severe lack of effectiveness the design provides, making it one of the more common militarized IndustrialMechs seen in the wild. Perhaps the most infamous incident occurred in 3126 on Caselton, when the workers of Caselton Consolidated Construction Professionals staged a two-week work stoppage on the site of Battlementâs new opera house. Though Governor Lafontaine Avendout favored waiting out the striking workers, Legate Dumaka Odoh pushed for a more aggressive solution. When, as part of their demands, the workers were supplied with several kegs of Wolf Cola and meals from local favorite KrÃ¼pe Meats, Legate Odoh ordered the food and drink drugged, ostensibly in the hopes of incapacitating the workers. However, as later revealed in court testimony, the actual drugs made the workers paranoid and violent and they burst forth from their barricades in their ConstructionMechs, over half of which were StrongArm MODs. The possession of military-scale weaponry by the workers, even weaponry as ridiculously ineffectual as that of the StrongArm, took local militia forces by surprise and in the ensuing confusion three militia soldiers and all twenty-eight construction workers were killed, along with millions of stones of damage to surrounding buildings within the capital. The official investigation of the incident uncovered the Legateâs plan to use the strike to get an increase in his budget and the backchannel deals he set up to supply the striking workers with MOD kits for their ConstructionMechs in order to make them a more effective threat. Governor Avendout resigned in the wake of the scandal, despite no evidence of wrongdoing on his part, and Legate Odoh was sentenced to life imprisonment in a mining colony in the Bordon system.\nmanufacturer:Sitwell Corporation\nprimaryfactory:Saiph\nsystemmanufacturer:CHASSIS:PowerBuild CCV\nsystemmanufacturer:ENGINE:Skobel 140 ICE\nsystemmanufacturer:ARMOR:Hughes IndusWeave\nsystemmanufacturer:COMMUNICATIONS:SineWave 5000"
+  },
+  "mulId": 7858,
+  "role": "Ambusher",
+  "source": "TR:I"
+}

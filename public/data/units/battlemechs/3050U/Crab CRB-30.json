@@ -1,0 +1,196 @@
+{
+  "id": "crab-crb-30",
+  "chassis": "Crab",
+  "model": "CRB-30",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-iserppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-iserppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isimprovedc3cpu",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isguardianecm",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedC3CPU",
+      "ISImprovedC3CPU",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "Designed in 2719 during the last days of the Star League, the Crab was built as a medium-weight raider and guerrilla fighter for the Star League Defense Force.",
+    "capabilities": "Although lacking hand actuators or jump jets, it possessed good overland speed and its all-energy weapons payload was suitable for long-range missions without the prospect for resupply. The Crab also boasted a highly advanced communications system, the Dalban Series K, and was built mostly with proven parts easy to maintain. The term \"Crab walk\" soon became synonymous with easy duty, since technicians spent less than half the time maintaining the Crab than with other 'Mechs of the same weight class.",
+    "history": "Less than a thousand Crabs had been produced when the Succession Wars began. So popular was the Crab that many believed it was likely to become the standard medium 'Mech of the SLDF. Unfortunately the Amaris Civil War and the dissolution of the Star League put an end to any future plans for the Crab. Cosara Weaponries' Crab factory on Northwind was practically destroyed in 2786, one of many strategic targets attacked in the opening salvos of the First Succession War. Although dedicated technicians were able to keep portions of the assembly line open, producing what spare parts they still could to rebuild damaged Crabs, the technology used for both the original's advanced armor plating and communications system became lost. Designated as CRB-20 models, these Crabs were only slightly inferior to the original: with the destruction of the military infrastructure necessary for the Dalban Series K's more advanced functions to work, its replacement by lesser systems ironically became less of an issue. By the end of the Fourth Succession War a hundred or so Crabs were still active in the Inner Sphere and all were CRB-20s. Unbeknownst to many, ComStar had secreted away massive stockpiles of Star League technology and 'Mechs, including the Crab. When it came time to form their own military original CRB-27 Crabs were used to outfit the Com Guards, while at the same time gifting downgraded CRB-20s to the Draconis Combine during the War of 3039 as part of Operation Rosebud. Concurrently the discovery of the Helm Memory Core allowed the refit line on Northwind to start upgrading the remaining downgraded Crabs to their original specification. Unknown to anyone in the Inner Sphere was the continued existence of the Crab in the arsenal of the Clans, although by the time of the Clan Invasion these had been relegated to second-line and garrison units. Eventually Cosara Weaponries was able to restart production of the original Crab in the 3050s and brand-new variants began turning up. Among these were new CRB-30s built by ComStar (later acquired by the Word of Blake) which made use of new C3 technology; it was also rumored ComStar sold these models to the rump Free Rasalhague Republic. During the Jihad the Word of Blake managed to capture the Northwind factory and begin producing their own radical variant known as the CRB-45.",
+    "deployment": "The CRB-30 is a complete rework of the CRB-27 Crab introduced in 3061. To start, the standard engine has been replaced with an ExtraLight model. The CRB-30 puts this free weight to good use by replacing the twin large lasers with a pair of ER PPCs and upgrading the medium and small lasers to an ER Medium Laser and an ER Small Laser. The standard heat sinks have all been replaced with double heat sinks, though two have been removed, so the PPCs must use volley fire. The last part of this upgrade is the addition of a Guardian ECM Suite and an improved C3 computer.",
+    "manufacturer": "Cosara Weaponries,Field Refits (Odin Manufacturing)",
+    "primaryFactory": "Northwind,Orestes",
+    "systemManufacturer": {
+      "CHASSIS": "Hollis Mark 1A",
+      "ENGINE": "Magna 250 XL",
+      "ARMOR": "Paulina Ferro-Fibrous",
+      "COMMUNICATIONS": "Dalban Series K with C3i",
+      "TARGETING": "650 RND with ECM"
+    }
+  },
+  "mulId": 718,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

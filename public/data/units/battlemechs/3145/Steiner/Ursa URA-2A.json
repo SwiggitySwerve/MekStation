@@ -1,0 +1,137 @@
+{
+  "id": "ursa-ura-2a",
+  "chassis": "Ursa",
+  "model": "URA-2A",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3122,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 23,
+      "FRL": 23,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 23,
+      "RRL": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "rotary-ac-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "ISRotaryAC2 Ammo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 6627,
+  "role": "Skirmisher",
+  "source": "TR:3145:LC"
+}

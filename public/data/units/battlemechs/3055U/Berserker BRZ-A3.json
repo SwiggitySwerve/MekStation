@@ -1,0 +1,177 @@
+{
+  "id": "berserker-brz-a3",
+  "chassis": "Berserker",
+  "model": "BRZ-A3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAntiMissileSystem",
+      "ISAMS Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Flamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "mulId": 329,
+  "role": "Juggernaut",
+  "source": "TR:3055U"
+}

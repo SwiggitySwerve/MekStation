@@ -1,0 +1,180 @@
+{
+  "id": "bakeneko-bkn-1k",
+  "chassis": "Bakeneko",
+  "model": "BKN-1K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3100,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-3",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light PPC",
+      "Light PPC",
+      "PPC Capacitor",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 LRM",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 SRM",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "CLMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "fluff": {
+    "overview": "The Bakeneko is a medium BattleMech originally created by the Draconis Combine and Clan Nova Cat at the dawn of the 32nd Century in a collaboration between Clan Nova Cat scientists and engineers from LAW.",
+    "capabilities": "The product of a hybrid of Clan and Inner Sphere technology, the 'Mech benefits significantly from its dual heritage. Using a Clan-built 330-rated extralight engine and an Inner Sphere endo steel chassis, the Bakeneko was able carry a large array of weapons and equipment while maintaining a decent top speed of 97.2 km/h. It was also fitted with MASC, giving it crucial bursts of extra acceleration, and its six Icarus 99 TurboProp Experimental jump jets allowed it to leap up to 180 meters.",
+    "history": "Based on the Phoenix Hawk, this slightly bigger design was intended as a fire support and skirmisher unit with the same mobility of the older design. The 'Mech was put into production in early 3100, where it was deployed to both Clan Nova Cat and the DCMS' 11th Ghost and 5th Sword of Light Regiments during the last year of the 2nd Combine-Dominion War prior to the invasion of Irece in June, 3100. During the invasion, the greatly expanded factories which housed the Bakeneko's production lines were destroyed. The Bakeneko had a reputation as an effective fighting machine, as it was credited numerous kills by Draconis Combine forces during the conflict.\nmanufacturer:Irece Alpha\nprimaryfactory:Irece\nsystemmanufacturer:CHASSIS:Alshain Type N endo steel\nsystemmanufacturer:ENGINE:Clan Fusion 330 XL engine\nsystemmanufacturer:ARMOR:StarSlab-5X with Clan CASE\nsystemmanufacturer:JUMPJET:Icarus 99 TurboProp Experimental\nsystemmanufacturer:COMMUNICATIONS:JNE Integrated\nsystemmanufacturer:TARGETING:Build 3 Cat TTS",
+    "deployment": "The Bakeneko's main weaponry comes from an arm-mounted Clan produced \"Blinding Vision-Mk2\" large pulse laser and a Lord's Light 4 light PPC, enhanced with a PPC capacitor. Additionally, found in the 'Mech's side torsos are a pair of Shigunga-Light MML-3s, each supplied by a ton of ammunition, providing supplemental firepower at long and short ranges, while at short ranges a head-mounted Victory Heartbeat ER medium laser provides additional firepower. Protecting the design from enemy fire, the chassis was fitted with 11.5 tons of StarSlab-5X standard armor, with Clan CASE installed to mitigate any explosive detonations from its ammunition and PPC capacitor."
+  },
+  "mulId": 6975,
+  "role": "Skirmisher",
+  "source": "TR:DA"
+}

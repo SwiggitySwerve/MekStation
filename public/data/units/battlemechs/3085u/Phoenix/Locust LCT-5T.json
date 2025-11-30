@@ -1,0 +1,199 @@
+{
+  "id": "locust-lct-5t",
+  "chassis": "Locust",
+  "model": "LCT-5T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 20,
+  "engine": {
+    "type": "XL",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 8
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "ISLMGA",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "ISLMGA",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Heat Sink",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Heat Sink",
+      "IS Light Machine Gun Ammo - Half",
+      "ISCASE",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "compact_mech",
+    "low_profile",
+    "cramped_cockpit",
+    "no_arms",
+    "weak_legs",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 1909,
+  "role": "Scout",
+  "source": "TR:3085"
+}

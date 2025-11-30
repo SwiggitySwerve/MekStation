@@ -1,0 +1,179 @@
+{
+  "id": "beowulf-beo-x-7a",
+  "chassis": "Beowulf",
+  "model": "BEO-X-7a",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "tag",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "BloodhoundActiveProbe (armored)",
+      "BloodhoundActiveProbe (armored)",
+      "BloodhoundActiveProbe (armored)",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISTAG",
+      "ISMASC",
+      "ISMASC",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISAngelECMSuite (armored)",
+      "ISAngelECMSuite (armored)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "exp_actuator",
+    "prototype"
+  ],
+  "mulId": 5548,
+  "role": "Skirmisher",
+  "source": "XTR:ComStar"
+}

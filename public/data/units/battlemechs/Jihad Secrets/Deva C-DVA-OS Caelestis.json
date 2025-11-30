@@ -1,0 +1,176 @@
+{
+  "id": "deva-c-dva-os-caelestis",
+  "chassis": "Deva",
+  "model": "C-DVA-OS Caelestis",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 70,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "blazer-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "blazer-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "laser-ams",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "Blazer Cannon (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger (omnipod)",
+      "ISERSmallLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISLaserAntiMissileSystem (omnipod)",
+      "ISLaserAntiMissileSystem (omnipod)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "imp_sensors",
+    "bad_rep_clan",
+    "bad_rep_is"
+  ],
+  "mulId": 891,
+  "role": "Skirmisher",
+  "source": "JSBD"
+}

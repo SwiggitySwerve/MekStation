@@ -1,0 +1,182 @@
+{
+  "id": "spatha-sp2-x-warlord",
+  "chassis": "Spatha",
+  "model": "SP2-X 'Warlord'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 60,
+  "engine": {
+    "type": "XXL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumvsplaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumvsplaser",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-sword",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islaserantimissilesystem",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isangelecm",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Blue Shield Particle Field Damper",
+      "Reflective",
+      "Reflective",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Sword",
+      "Sword",
+      "Sword",
+      "Sword",
+      "Blue Shield Particle Field Damper",
+      "Reflective",
+      "Reflective",
+      "Reflective"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISAngelECM",
+      "ISAngelECM",
+      "Blue Shield Particle Field Damper",
+      "Reflective",
+      "Reflective",
+      "Reflective"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISLaserAntiMissileSystem",
+      "ISLaserAntiMissileSystem",
+      "Blue Shield Particle Field Damper",
+      "Reflective"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Blue Shield Particle Field Damper",
+      "Reflective"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Blue Shield Particle Field Damper",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Blue Shield Particle Field Damper",
+      "Triple Strength Myomer"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "non_standard"
+  ],
+  "mulId": 2999,
+  "role": "Skirmisher",
+  "source": "XTR:Gladiators"
+}

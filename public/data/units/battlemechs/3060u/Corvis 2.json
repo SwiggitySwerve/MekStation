@@ -1,0 +1,166 @@
+{
+  "id": "corvis-2",
+  "chassis": "Corvis",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 40,
+  "engine": {
+    "type": "FUSION",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "hag-20",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      "CLHeavyMediumLaser",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "CLHAG20",
+      "Hyper-Assault Gauss Rifle/20 Ammo",
+      "Hyper-Assault Gauss Rifle/20 Ammo",
+      "Hyper-Assault Gauss Rifle/20 Ammo"
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "mulId": 701,
+  "role": "Brawler",
+  "source": "TR:3060"
+}

@@ -1,0 +1,191 @@
+{
+  "id": "jade-hawk-jhk-03",
+  "chassis": "Jade Hawk",
+  "model": "JHK-03",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3135,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 29,
+      "RIGHT_LEG": 29
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "CLERSmallLaser",
+      "CLERSmallLaser",
+      "TSM",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "CLERSmallLaser",
+      "CLERSmallLaser",
+      "TSM",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "CLSRM6",
+      "CLSRM6",
+      "Clan Ammo SRM-6",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "CLSRM6",
+      "CLSRM6",
+      "Clan Ammo SRM-6",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CL Super Charger"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "TSM",
+      "TSM"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "reinforced_legs",
+    "non_standard"
+  ],
+  "mulId": 6564,
+  "role": "Skirmisher",
+  "source": "TR:3145:Merc"
+}

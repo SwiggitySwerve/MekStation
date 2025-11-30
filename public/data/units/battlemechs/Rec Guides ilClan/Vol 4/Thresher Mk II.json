@@ -1,0 +1,178 @@
+{
+  "id": "thresher-mk-ii-unknown",
+  "chassis": "Thresher Mk II",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3149,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERPPC",
+      "CLERPPC",
+      "CLSRM4",
+      "Clan Ammo SRM-4",
+      "CLCASEII",
+      "Clan Endo Steel",
+      "Clan Reflective",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLFlamer",
+      "Clan Endo Steel",
+      "Clan Reflective",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLMASC",
+      "CLMASC",
+      "Clan Reflective",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLRM15",
+      "CLLRM15",
+      "Clan Ammo LRM-15",
+      "Clan Ammo LRM-15",
+      "Supercharger (Clan)",
+      "CLCASEII",
+      "Clan Reflective",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Reflective",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_target_med",
+    "ramshackle"
+  ],
+  "mulId": 7502,
+  "role": "Skirmisher",
+  "source": "RG04"
+}

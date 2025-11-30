@@ -1,0 +1,181 @@
+{
+  "id": "orion-on3-mx",
+  "chassis": "Orion",
+  "model": "ON3-MX",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "extended-lrm-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-gauss-rifle",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Extended LRM 10",
+      "Extended LRM 10",
+      "Extended LRM 10",
+      "Extended LRM 10",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo Extended LRM-10",
+      "IS Ammo Extended LRM-10",
+      "IS Ammo Extended LRM-10",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISCASE",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "easy_maintain",
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Orion was built in 2456 as the first true heavy BattleMech. Originally designed for the Terran Hegemony to maintain its dominance and built on Hesperus II.",
+    "capabilities": "The Orion is a dependable workhorse design that can handle almost any combat role, thanks to its mix of long and short-range weaponry and its respectable armoring.",
+    "history": "After the K model was introduced in 2525 the 'Mech first saw combat during the Reunification War and continued to serve the Star League and its Member States for the next few centuries. Perhaps its most famous role was as the personal 'Mech of Aleksandr Kerensky during the Amaris Civil War, and it was while piloting his Orion that the general kicked down the palace doors to take the Usurper prisoner. The inspiration for the Orion's beginnings is said to be a direct result of Operation Prometheus when the Terran Hegemony realized they would no longer be the sole user of BattleMechs. Work began shortly after with the HAF requesting machines suited for various combat roles and the Hegemony's military leadership were soon accepting proposals for competing designs almost simultaneously. With other designs already underway, it would be General Mechanics winning a contract for a proposal that would ultimately become the Hegemony's premier heavy attack BattleMech: the Orion. Ironically, GM had actually unveiled a prototype as early as 2453, but the HAF, while interested at the time, were dismissive as it did not meet the High Command's requirements for speed and armor, and its armament was considered too lackluster for a front-line war machine. GM had returned to the drawing board in the following years, further refining their design by settling for a smaller, less powerful engine to free up weight for additional weaponry. It would not be until GM's third prototype - the ON1-H which mounted a newly developed class-10 heavy autocannon, that the HAF would finally approve the design one year following Operation Prometheus in 2456. Following the successful introduction of the prototype, the HAF immediately pushed General Mechanics to produce as many Orions as possible. The armed forces of the Hegemony quickly assigned them to BattleMech regiments in whole companies at a time, adding to their growing ranks of Mackies, Banshees, and later Archers and Griffins. After the fall of the Star League, Kali Yama Weapons Industries took over production of the Orion, building new models from their factories on Kalidasa. This left the Free Worlds League as the only producer of new Orions during the Succession Wars, although the other Successor States were capable of building spare parts to repair their 'Mechs, and meant the Free Worlds League Military was the largest Orion user. When Kali Yama merged to create the Kali Yama - Alphard Trading Corporation Orion production was started up on Kendall as well. The League's dominance in new Orions began to change during the Clan Invasion when the Successor States met on Outreach and agreed to work together to combat the Clans. Kali Yama/ATC was among those companies which agreed to sell war materiel, including the Orion, to the other States undergoing Clan attacks. In spite of the design's age it still finds itself utilized extensively on the modern battlefield and new variants continue to be produced\nmanufacturer:KaliYama/Alphard Trading Corp.\nprimaryfactory:Kendall\nsystemmanufacturer:CHASSIS:Kali Yama Chassis\nsystemmanufacturer:ENGINE:Hermes 300 XL\nsystemmanufacturer:ARMOR:Valiant Lamellor with CASE II\nsystemmanufacturer:COMMUNICATIONS:Irian Orator-5K\nsystemmanufacturer:TARGETING:Wasat Aggressor Type 5 with TAG",
+    "deployment": "This experimental Orion 3100 variant was introduced in 3075 as \"a BattleMech for the thirty-second century\"; although its flaws prevented any immediate production it gave Kali Yama valuable experience and a few prototypes were sold. It is equipped with an experimental Extended LRM-10 and Improved Heavy Gauss Rifle. Three tons of ammunition feeds the LRM launcher while the iHGR gets four tons of ammunition. For close in work, this Orion variant has an ER Medium Laser in each arm. To provide room for these weapons, the 'Mech has an XL Engine, standard armor, and standard internal structure, and only the ELRM ammo is protected by CASE."
+  },
+  "mulId": 2339,
+  "role": "Sniper",
+  "source": "XTR:Marik"
+}

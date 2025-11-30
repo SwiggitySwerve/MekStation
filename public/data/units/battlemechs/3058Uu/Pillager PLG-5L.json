@@ -1,0 +1,198 @@
+{
+  "id": "pillager-plg-5l",
+  "chassis": "Pillager",
+  "model": "PLG-5L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 52,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "arrow-iv",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISERMediumLaser"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERMediumLaser",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISArrowIVAmmo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISArrowIVAmmo",
+      "ISArrowIVAmmo"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra"
+  ],
+  "fluff": {
+    "overview": "The largest BattleMech ever built by HildCo Interplanetary, the Pillager is built as a larger version of the Victor, and is intended for assaulting urban centers and hardened fortifications.",
+    "capabilities": "Based on a range of engine types, the Pillager has average mobility for its size, with a top speed of 54 km/h. Three HildCo Model 13 jump jets allow the 'Mech to jump up to ninety meters, increasing its mobility. The Pillager possesses outstanding armor protection and more than enough heat sinks to meet the Pillager's needs.",
+    "history": "The Pillager was the largest 'Mech ever built by HildCo during the Reunification War. The destruction of the manufacturing facilities that produced the Pillager's advanced technologies halted production during the Second Succession War, but the decoding of the Gray Death memory core allowed the Pillager to be reintroduced to the Inner Sphere. The Pillager has a long and colorful battle history. From the Reunification Battle through the Succession Wars, it has seen action in every war. Records show that during those fights, enemy forces tended to retreat at the sight of approaching Pillagers. The Pillager most recently demonstrated its amazing strength during the FedCom and the Capellan/St. Ives Civil Wars. When a Pillager-led unit attacked, many strongholds and defenses crumbled. Even now, in the struggle between Hasek's Capellan March and House Liao, the Pillager is making an impact on the battlefield, just as it did during the Amaris Civil War. The Pillager now serves in the majority of house militaries and mercenary troops. Because of the reintegration of St. Ives, the Capellan military has the most brawny 'Mechs.",
+    "deployment": "The 5L is an upgrade to the original 3Z. It removed one of the Gauss rifles, to make room for an Arrow IV Artillery piece and three tons of ammunition. The remaining rifle has four tons of ammunition. Three lasers remain, all of them ER medium lasers, though the large is upgraded to an ER PPC. Only ten double heat sinks remain, potentially causing serious heat problems for a MechWarrior who wishes to fire indiscriminately. Finally, a Guardian ECM Suite aids the 'Mech defensively.",
+    "manufacturer": "HildCo Interplanetary",
+    "primaryFactory": "St. Ives",
+    "systemManufacturer": {
+      "CHASSIS": "HildCo Heavy Type VIIQT",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "StarSlab/9.5 Mk II",
+      "JUMPJET": "HildCo Model 13",
+      "COMMUNICATIONS": "CeresCom Recon Model 12K with ECM",
+      "TARGETING": "C-Apple Churchill"
+    }
+  },
+  "mulId": 2528,
+  "role": "Missile Boat",
+  "source": "TR:3058U"
+}

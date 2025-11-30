@@ -1,0 +1,198 @@
+{
+  "id": "uziel-uzl-3s",
+  "chassis": "Uziel",
+  "model": "UZL-3S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-2-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERMediumLaser",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERSmallLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERSmallLaser",
+      "IS Ammo SRM-6",
+      "IS LB 2-X AC Ammo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 6",
+      "SRM 6"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "cowl",
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Built at Defiance Industries' Furillo plant, the Uziel is an effective medium 'Mech that is looked down upon by the LAAF simply because it is produced on Furillo and not at the prestigious Hesperus facility. A varied weapons mix makes the Uziel an excellent trooper 'Mech.",
+    "capabilities": "The Uziel is built on a Foundation E50 Endo Steel chassis that has a GM 300 XL engine that provides the 'Mech with a top speed of 97.2 km/h. The 'Mech's mobility is enhanced with six Rawlings 50 jump jets that allow the 'Mech to jump up to one hundred and eighty meters. The Uziel is armored with eight tons of Maximillian 100 armor that gives the Uziel adequate protection from enemy fire. To dissipate the heat produced by the 'Mech's weapons, it carries eleven double heat sinks.",
+    "deployment": "The Uziel has a wide variety of weapons for a medium 'Mech. For long range combat, the Uziel has a Defiance Shredder LB-X Autocannon/2 that can strike a target at extreme ranges. The rest of the Uziels arsenal is based around shorter range combat with a Thunderbolt-12 Large Pulse Laser and a Defiance Model XII ER Medium Laser for medium range combat. It also has two Diverse Optics Type ER Small Lasers and a Harvester 20K SRM-6 for close combat.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Furillo",
+    "systemManufacturer": {
+      "CHASSIS": "Foundation E50 Endo Steel",
+      "ENGINE": "GM 300 XL",
+      "ARMOR": "Maximillian 100",
+      "JUMPJET": "Rawlings 50",
+      "COMMUNICATIONS": "Neil 6000-g",
+      "TARGETING": "RCA Instatrac Mark XXII"
+    }
+  },
+  "mulId": 5332,
+  "role": "Striker",
+  "source": "TR:3067"
+}

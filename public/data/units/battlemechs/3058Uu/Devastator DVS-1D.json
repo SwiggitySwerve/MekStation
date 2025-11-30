@@ -1,0 +1,205 @@
+{
+  "id": "devastator-dvs-1d",
+  "chassis": "Devastator",
+  "model": "DVS-1D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "RENAISSANCE",
+  "year": 3036,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 47,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 39,
+      "RIGHT_LEG": 39
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "autocannon-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "autocannon-10",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10"
+    ],
+    "LEFT_TORSO": [
+      "Large Laser",
+      "Large Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Large Laser",
+      "Large Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser (R)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "Designed by General Kerensky himself right before the start of the Amaris Civil War, development of the Devastator ended abruptly when Stefan the Usurper took control of the Terran Hegemony.",
+    "capabilities": "In order to overcome its poor speed, long-range power was designed. Although the Devastator is capable of holding its own in close quarters battle, its capacity to control heat is its most striking trait. Pilots are able to move with the utmost speed and fire all of the heavy weaponry without fear thanks to fourteen double heat sinks. A Devastator pilot just needs to slightly scale back his movements to prevent the design from overheating, even when doused in inferno gel or subjected to several engine strikes.",
+    "history": "Although funds were diverted to the war effort, the design team remained so committed to the project that, just before General Kerensky launched the invasion of Terra, they submitted six prototypes for testing, with team expenses covered out of pocket. As no battle logs for the Devastator have ever been discovered, historians are unable to assess how one of the final original Star League Defense Force designs performed or even if any of the prototypes survived. The blueprints were recovered in 3023 on Hoff by a team looking into a recently found Star League facility, but the first engineers to look at the blueprints were unable to replicate any of the new technology that went into the original. The NAIS didn't build a Devastator prototype utilizing available technologies until 3033. A few years later, moderate production started, and until early 3048, when the Federated Commonwealth was able to start producing a fully equipped version, the low tech DVS-1D was given to elite units.",
+    "deployment": "The low-tech version of the Devastator introduced in 3036, the 1D used a standard engine, so components had to be downgraded. The Gauss Rifles became Autocannon/10s and the PPCs were replaced with Large Lasers. One ton of armor was removed, while fifteen single heat sinks strained to keep the 'Mech's heat under control. The vast majority of these that were produced were upgraded by the late 3060s, leaving most 1Ds in the hands of the Taurian Concordat.",
+    "manufacturer": "Norse-Storm BattleMechs, Inc.",
+    "primaryFactory": "Loxley",
+    "systemManufacturer": {
+      "CHASSIS": "Star League XT",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Durallex Heavy",
+      "COMMUNICATIONS": "Johnston Wide Band",
+      "TARGETING": "Randar Pinpoint-HY"
+    }
+  },
+  "mulId": 893,
+  "role": "Juggernaut",
+  "source": "TR:3058U"
+}

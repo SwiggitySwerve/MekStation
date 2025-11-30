@@ -1,0 +1,161 @@
+{
+  "id": "ebony-meb-13",
+  "chassis": "Ebony",
+  "model": "MEB-13",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3137,
+  "tonnage": 25,
+  "engine": {
+    "type": "XL",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-re-engineered-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heat-Dissipating",
+      "IS Heat-Dissipating",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heat-Dissipating",
+      "IS Heat-Dissipating"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heat-Dissipating",
+      "IS Heat-Dissipating"
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "mulId": 6943,
+  "role": "Scout",
+  "source": "RS:3145-NTNU"
+}

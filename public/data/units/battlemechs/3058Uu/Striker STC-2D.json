@@ -1,0 +1,177 @@
+{
+  "id": "striker-stc-2d",
+  "chassis": "Striker",
+  "model": "STC-2D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUSION",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "autocannon-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Large Laser",
+      "Large Laser",
+      "IS Ammo AC/5",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 3095,
+  "role": "Brawler",
+  "source": "TR:3058U"
+}

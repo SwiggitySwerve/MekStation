@@ -1,0 +1,173 @@
+{
+  "id": "sling-sl-1h",
+  "chassis": "Sling",
+  "model": "SL-1H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2766,
+  "tonnage": 25,
+  "engine": {
+    "type": "XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-istag",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Heat Sink",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISTAG",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "cramped_cockpit"
+  ],
+  "mulId": 2968,
+  "role": "Striker",
+  "source": "His:OK"
+}

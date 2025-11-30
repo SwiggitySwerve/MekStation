@@ -1,0 +1,201 @@
+{
+  "id": "fox-cs-1",
+  "chassis": "Fox",
+  "model": "CS-1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2824,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "improved-lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Improved LRM 15",
+      "Improved LRM 15",
+      "Medium Laser",
+      "Machine Gun",
+      "Machine Gun",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Improved LRM 15",
+      "Improved LRM 15",
+      "Medium Laser",
+      "Machine Gun",
+      "Machine Gun",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ClanImprovedLRM15Ammo",
+      "ClanImprovedLRM15Ammo",
+      "IS Machine Gun Ammo - Half",
+      "ISCASE",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ClanImprovedLRM15Ammo",
+      "ClanImprovedLRM15Ammo",
+      "IS Machine Gun Ammo - Half",
+      "ISCASE",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "IS Streak SRM 2 Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISStreakSRM2",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISStreakSRM2",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "variable_range_long"
+  ],
+  "mulId": 4182,
+  "role": "Missile Boat",
+  "source": "TR:GC"
+}

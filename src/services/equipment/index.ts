@@ -1,21 +1,31 @@
 /**
- * Equipment Services Exports
+ * Equipment Services
  * 
- * @spec openspec/specs/equipment-services/spec.md
+ * Central export for equipment loading, registry, and name mapping services.
+ * 
+ * @module services/equipment
  */
 
-export { EquipmentLookupService, equipmentLookupService } from './EquipmentLookupService';
-export type { IEquipmentLookupService } from './EquipmentLookupService';
+export {
+  EquipmentLoaderService,
+  getEquipmentLoader,
+  type IEquipmentLoadResult,
+  type IEquipmentValidationResult,
+  type IEquipmentFilter,
+} from './EquipmentLoaderService';
 
-export { EquipmentCalculatorService, equipmentCalculatorService, VARIABLE_EQUIPMENT } from './EquipmentCalculatorService';
-export type { IEquipmentCalculatorService } from './EquipmentCalculatorService';
+export {
+  EquipmentRegistry,
+  getEquipmentRegistry,
+  type AnyEquipment,
+  type EquipmentCategoryType,
+  type IRegistryStats,
+  type IEquipmentLookupResult,
+} from './EquipmentRegistry';
 
-// Formula system
-export { FormulaEvaluator, formulaEvaluator } from './FormulaEvaluator';
-export type { IFormulaEvaluator, FormulaContext } from './FormulaEvaluator';
-
-export { FormulaRegistry, formulaRegistry } from './FormulaRegistry';
-export type { IFormulaRegistry } from './FormulaRegistry';
-
-export { BUILTIN_FORMULAS, getBuiltinEquipmentIds, hasBuiltinFormulas, getBuiltinFormulas } from './builtinFormulas';
-
+export {
+  EquipmentNameMapper,
+  getEquipmentNameMapper,
+  type INameMappingResult,
+  type IMappingStats,
+} from './EquipmentNameMapper';

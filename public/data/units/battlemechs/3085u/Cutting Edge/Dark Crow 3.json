@@ -1,0 +1,173 @@
+{
+  "id": "dark-crow-3",
+  "chassis": "Dark Crow",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3084,
+  "tonnage": 55,
+  "engine": {
+    "type": "XXL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "rotary-ac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rotary-ac-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "CLRotaryAC2",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor",
+      "Ferro-Lamellor"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLRotaryAC2 Ammo",
+      "Endo-Composite"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLRotaryAC2 Ammo",
+      "Endo-Composite"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Liquid Storage (1 ton)",
+      "Endo-Composite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "low_arms"
+  ],
+  "mulId": 825,
+  "role": "Striker",
+  "source": "TR:3085"
+}

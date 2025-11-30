@@ -1,0 +1,174 @@
+{
+  "id": "griffin-iic-7",
+  "chassis": "Griffin IIC",
+  "model": "7",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3083,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "er-medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-lrm-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumPulseLaser",
+      "CLERMediumPulseLaser",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumPulseLaser",
+      "CLERMediumPulseLaser",
+      "CLStreakLRM10",
+      "CLStreakLRM10",
+      "Clan Streak LRM 10 Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra"
+  ],
+  "mulId": 1316,
+  "role": "Striker",
+  "source": "TR:3085"
+}

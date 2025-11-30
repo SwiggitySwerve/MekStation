@@ -1,0 +1,178 @@
+{
+  "id": "catapult-cplt-k5",
+  "chassis": "Catapult",
+  "model": "CPLT-K5",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isc3slaveunit",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-ismrm30",
+      "location": "RIGHT_ARM,_AMMO:32"
+    },
+    {
+      "id": "1-ismrm30",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISMRM30",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMRM30 Ammo",
+      "ISMRM30 Ammo",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMRM30 Ammo",
+      "ISMRM30 Ammo",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "weak_head_1"
+  ],
+  "mulId": 489,
+  "role": "Skirmisher",
+  "source": "TR:3050"
+}

@@ -1,0 +1,215 @@
+{
+  "id": "shadow-hawk-shd-3h2",
+  "chassis": "Shadow Hawk",
+  "model": "SHD-3H2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2775,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "srm-4",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ac-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "vehicular-grenade-launcher",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "vehicular-grenade-launcher",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Small Laser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "Small Laser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      "Autocannon/5",
+      "ISVehicularGrenadeLauncher",
+      "IS Ammo AC/5",
+      "IS Machine Gun Ammo - Half",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "SRM 4",
+      "LRM 5",
+      "ISVehicularGrenadeLauncher",
+      "IS Ammo SRM-4",
+      "IS Ammo LRM-5",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Machine Gun"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Machine Gun",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "SRM 4",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "SRM 4",
+      "IS Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "imp_life_support",
+    "ubiquitous_clan",
+    "rugged_1",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Shadow Hawk, from its inception, was designed to be a multi-purpose generalist. One of the fabled \"trio\" of 55-ton 'Mechs, its comrades are much more specialized designs. The Griffin is a long-ranged support platform, the Wolverine a heavy scout and skirmisher. The Shadow Hawk, however, can accomplish both rolesâalbeit, not as well as the two other designs. This has not hampered its popularity, and it has offered sterling service from the first days it entered battle.",
+    "capabilities": "Most Shadow Hawks carry a varied array of weaponry. With both short and long-ranged weapons, missiles, lasers, and autocannons, the Shadow Hawk is never on a battlefield where it cannot contribute at least some firepower. Its speed is average for a design of its size, while the jump jets give it some maneuverability even on broken terrain. If the Shadow Hawk has one limitation, it is that it has difficulty bringing forward overwhelming firepower in any specific situation, causing some to disparage it as badly designed and flawed.",
+    "deployment": "The Shadow Hawk is a widespread design. Every Successor State makes good use of the BattleMech, while the factories on Dunianshire ensure that a steady number enter periphery forces every year. As such a flexible design, it has a home in nearly every type of command, and few are the commanders who cannot find a use for their Shadow Hawk. Neither the massive number of upgrade kits nor the Jihad managed to put a dent in the number of SHD-2H's in service. Even today, the militaries from the greatest house to the lowliest mercenary group still use this venerable variant.\nsystemmanufacturer:CHASSIS:Earthwerks\nsystemmode:CHASSIS:SHD\nsystemmanufacturer:ENGINE:CoreTek\nsystemmode:ENGINE:275\nsystemmanufacturer:ARMOR:Maximilian\nsystemmode:ARMOR:43\nsystemmanufacturer:COMMUNICATIONS:O/P\nsystemmode:COMMUNICATIONS:300 COMSET\nsystemmanufacturer:TARGETING:O/P\nsystemmode:TARGETING:2000A"
+  },
+  "mulId": 9538,
+  "role": "Skirmisher",
+  "source": "Shrap14"
+}

@@ -1,0 +1,172 @@
+{
+  "id": "phoenix-hawk-pxh-5l",
+  "chassis": "Phoenix Hawk",
+  "model": "PXH-5L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 5
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "imp_com",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 2505,
+  "role": "Skirmisher",
+  "source": "TR:3085"
+}

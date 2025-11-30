@@ -1,0 +1,179 @@
+{
+  "id": "marauder-mad-4x",
+  "chassis": "Marauder",
+  "model": "MAD-4X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "RENAISSANCE",
+  "year": 3039,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "blazer-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "blazer-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Blazer Cannon",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel Prototype",
+      "Endo Steel Prototype"
+    ]
+  },
+  "quirks": [
+    "combat_computer",
+    "command_mech",
+    "hyper_actuator",
+    "low_profile",
+    "cramped_cockpit",
+    "difficult_maintain",
+    "no_eject"
+  ],
+  "mulId": 5768,
+  "role": "Brawler",
+  "source": "XTR:SW"
+}

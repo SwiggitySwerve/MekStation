@@ -1,0 +1,194 @@
+{
+  "id": "raijin-ii-rjn-200-a",
+  "chassis": "Raijin II",
+  "model": "RJN-200-A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "TSM",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "TSM",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISStreakSRM4",
+      "IS Streak SRM 4 Ammo",
+      "ISCASE",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "TSM",
+      "TSM"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Raijin is designed to be highly mobile and capable of engaging an enemy at a variety of ranges.",
+    "capabilities": "The 'Mech's relatively light armor can be a liability if it is engaged in close combat or finds itself in a protracted engagement.",
+    "history": "The Raijin was designed after the Battle of Tukayyid to rearm ComGuard units that had suffered losses in the campaign. Despite having stockpiled Star League-era BattleMechs at his disposal, Precentor Martial Focht wanted something unfamiliar to both the Inner Sphere and the Clans. The Raijin was redesigned after Word of Blake forces lost considerable amounts of the design during its taking of Terra from ComStar in 3058. Newly redesigned Raijin II units began to be deployed in 3066, with older versions of the 'Mech being refitted to RJN-200-A variant standards. While off-shoots of the 200-A were deployed to elite Divisions.",
+    "deployment": "The first of the Raijin II designs, the 200-A model completely redesigns the 'Mech to enhance its combat capabilities and is built on an Endo Steel chassis to save weight. Increased ground speed is achieved through the use of Triple Strength Myomers that increases the 'Mech's top speed to 118.8 km/h under the proper conditions. The 200-A model is protected by a respectable eleven tons of standard armor; giving it superior armor protection to older models. The 'Mech is armed with an Blankenburg ER PPC as its primary weapon. This is supported by three Diverse Optics Sunbeam ER Medium Lasers and a Holly Streak SRM-4 launcher for close combat. The RJN-200-A also carries Exeter Longscan 200 w/C3i Computer, allowing it to share targeting data with friendly units.",
+    "manufacturer": "Krupp Armament Works",
+    "primaryFactory": "Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Krupp 200-ES Endo Steel",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Krupp Standard Plate with CASE",
+      "JUMPJET": "Rawlings 60",
+      "COMMUNICATIONS": "Exeter Longscan 200 with C3i Computer",
+      "TARGETING": "Garret T12A"
+    }
+  },
+  "mulId": 2628,
+  "role": "Skirmisher",
+  "source": "TR:3055U"
+}

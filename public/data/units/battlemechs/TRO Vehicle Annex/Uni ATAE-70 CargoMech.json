@@ -1,0 +1,109 @@
+{
+  "id": "uni-atae-70-cargomech",
+  "chassis": "Uni",
+  "model": "ATAE-70 CargoMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 27,
+      "FRL": 27,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 27,
+      "RRL": 27
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cargo (1 ton)",
+      "Environmental Sealing"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Environmental Sealing",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 5321,
+  "role": "Ambusher",
+  "source": "RS:VA"
+}

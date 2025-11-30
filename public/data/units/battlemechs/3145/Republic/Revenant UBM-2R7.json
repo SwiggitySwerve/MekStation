@@ -1,0 +1,112 @@
+{
+  "id": "revenant-ubm-2r7",
+  "chassis": "Revenant",
+  "model": "UBM-2R7",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3144,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 11,
+      "FRL": 11,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 6
+      },
+      "HEAD": 6,
+      "RLL": 11,
+      "RRL": 11
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "MediumBridgeLayer",
+      "MediumBridgeLayer",
+      "MediumBridgeLayer",
+      "MediumBridgeLayer",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISDroneOperatingSystem",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_com"
+  ],
+  "mulId": 6717,
+  "role": "Scout",
+  "source": "TR:3145:RotS"
+}

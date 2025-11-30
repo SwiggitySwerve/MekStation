@@ -1,0 +1,192 @@
+{
+  "id": "perseus-p1c",
+  "chassis": "Perseus",
+  "model": "P1C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 21,
+      "RIGHT_ARM": 21,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "light-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLightGaussRifle (OMNIPOD)",
+      "ISLightGaussRifle (OMNIPOD)",
+      "ISLightGaussRifle (OMNIPOD)",
+      "ISLightGaussRifle (OMNIPOD)",
+      "ISLightGaussRifle (OMNIPOD)",
+      "IS Light Gauss Ammo (OMNIPOD)",
+      "IS Light Gauss Ammo (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "ISUltraAC10 (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "IS Ultra AC/10 Ammo (OMNIPOD)",
+      "IS Streak SRM 2 Ammo (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "IS Ultra AC/10 Ammo (OMNIPOD)",
+      "IS Ultra AC/10 Ammo (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser (R) (OMNIPOD)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISStreakSRM2 (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser (OMNIPOD)",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)"
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "The Perseus is the product of a program begun by the League Central Coordination and Command to create an OmniMech completely indigenous to the Free Worlds League from concept to production.",
+    "capabilities": "While on paper the Perseus is a capable 'Mech with forty-tons of available pod space, the design has earned something of a lackluster reputation when compared to other modern OmniMechs such as the Templar or Hauptmann. This is largely due to the small size of it's weapon bays which limit the type of weaponry of the Perseus can mount, only the arms can carry larger autocannons and the hand and lower-arm actuators must be removed to be able do so, with a number of configurations also forced to mount weaponry in the 'Mech's legs. More critically the small size of the bays hampers the volume of extra double heat sinks that can be carried, consequently most of the Perseus's configurations utilize ballistic and missile weaponry over more heat-intensive energy loadouts. Built on a lightweight Endo Steel chassis, the Perseus is powered by a Hermes 300 XL engine helping save even more weight and giving the 'Mech a top speed of 64.8 km/h. The advanced structure and engine save a great deal of weight for weapons and equipment. The Perseus is protected by fourteen tons of Valiant Lamellor armor, giving it around average armor protection for a 'Mech of its size. It also has twelve double heat sinks that are fixed on the chassis.",
+    "history": "The Perseus shares much with the venerable Orion, a staple of Free Worlds League Military, both broadly resembling the older design visually and using a number of the same components. This similarity prompted more than a few FWLM technicians to nickname the new design the \"Omni-Orion\" and the deployment of Perseus has largely been to front-line units that fielded large concentrations of its progenitor, replacing older Orions on a one-for-one basis.\nmanufacturer:Kali Yama Weapons Industries\nprimaryfactory:Kalidasa\nsystemmanufacturer:CHASSIS:Kali Yama Endo Steel\nsystemmanufacturer:ENGINE:Hermes 300 XL\nsystemmanufacturer:ARMOR:Valiant Lamellor\nsystemmanufacturer:COMMUNICATIONS:Irian Orator-5K\nsystemmanufacturer:TARGETING:Wasat Aggressor Type 5 with OmniLink",
+    "deployment": "An all around configuration, the C is built to be capable of engaging an enemy at both long and short ranges. To do this, the Perseus C carries a Light Gauss Rifle, giving the 'Mech an extremely long reach. This is backed up by an Ultra Autocannon/10 capable of engaging the enemy as they close. For close combat, the Perseus C has three ER Medium Lasers, a Medium Pulse Laser, and a Streak SRM-2 launcher. Two tons of gauss reloads, three tons of Ultra autocannon ammunition and a ton of missile reloads give the design adequate field endurance."
+  },
+  "mulId": 4811,
+  "role": "Brawler",
+  "source": "TR:3067"
+}

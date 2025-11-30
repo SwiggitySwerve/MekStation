@@ -1,0 +1,194 @@
+{
+  "id": "blood-kite-unknown",
+  "chassis": "Blood Kite",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2907,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 39,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 21
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "1-clerlargelaser",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-clerlargelaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-cllrm15",
+      "location": "RIGHT_ARM,_AMMO:48"
+    },
+    {
+      "id": "1-clsrm4",
+      "location": "LEFT_TORSO,_AMMO:25"
+    },
+    {
+      "id": "1-clsrm4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-clsrm4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-cllrm15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-cllrm15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-clerlargelaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLRM15",
+      "CLLRM15",
+      "CLLRM15 Ammo",
+      "CLLRM15 Ammo",
+      "CLSRM4",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "CLLRM15",
+      "CLLRM15",
+      "CLLRM15 Ammo",
+      "CLLRM15 Ammo",
+      "CLSRM4",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Jump Jet"
+    ],
+    "RIGHT_TORSO": [
+      "CLLRM15",
+      "CLLRM15",
+      "CLLRM15 Ammo",
+      "CLLRM15 Ammo",
+      "CLSRM4",
+      "CLSRM4 Ammo",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "Endo-Steel",
+      "Jump Jet"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "CLERLargeLaser",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERLargeLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_2"
+  ],
+  "mulId": 3836,
+  "role": "Sniper",
+  "source": "TR:3067"
+}

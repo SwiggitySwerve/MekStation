@@ -1,0 +1,176 @@
+{
+  "id": "commando-com-7a",
+  "chassis": "Commando",
+  "model": "COM-7A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 25,
+  "engine": {
+    "type": "FUSION",
+    "rating": 150
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 11,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "SRM 4",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "IS Ammo SRM-4",
+      "IS Ammo SRM-4",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 4",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "exp_actuator",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Created for the Lyran Commonwealth Armed Forces and one of the first 'Mechs ever designed for reconnaissance, the Commando was much lighter and faster than its precursors, though it still utilized primitive BattleMech technology.",
+    "capabilities": "With only four tons of armor to protect itself, the Commando is not meant to participate in a stand-up fight against heavier enemies, but it excels at hit-and-run tactics and as a scout hunter.",
+    "history": "In 2463 Coventry Metal Works (then known as Coventry Defense Conglomerate) introduced their second BattleMech, the COM-1A Commando. The Commando was able to destroy much heavier Kuritan Gladiators during the first large-scale battle between BattleMechs in 2475 on Nox. The installed Large Laser caused several problems and other 'Mechs were soon introduced (like the Wasp in 2464 and the Stinger in 2479) that were better equipped for scouting and even mounted jump jets. The Commando's profile was radically changed with the introduction of the sophisticated COM-2D variant in 2486, which exchanged the laser weaponry with short range missiles and turned the machine into a striker. The Commando became popular among LCAF forces and, nearly 600 years later, is still mainly in use by Lyrans. The Commonwealth went to great pains to keep the 'Mech solely in Lyran hands, especially during the years of the Star League. It took an alliance with the Federated Suns and the creation of the Federated Commonwealth to break the stranglehold. The Commando was chosen as the standard light BattleMech for the Armed Forces of the Federated Commonwealth next to the Valkyrie, and after the upgrade to the COM-5S model in 3050, Vandenberg Mechanized Industries was allowed to produce the old COM-2D for the Taurian Defense Force. Furthermore, the Marian Hegemony deploys the Rocket Launcher-packed COM-4H, and the Word of Blake produced its own variant (the COM-7B) during its occupation of Coventry from 3068 to 3074.\nmanufacturer:Coventry Metal Works\nprimaryfactory:Coventry\nsystemmanufacturer:CHASSIS:Coventry Metal Works\nsystemmanufacturer:ENGINE:GM 150\nsystemmanufacturer:ARMOR:Lexington Limited\nsystemmanufacturer:COMMUNICATIONS:TharHes Crystal Flower RG-2\nsystemmanufacturer:TARGETING:TharHes Star Shark",
+    "deployment": "This version removed all the missile racks and replaced them with an Autocannon/2 with a ton of ammunition. It appears to have been an experiment in providing direct fire support."
+  },
+  "mulId": 9630,
+  "role": "Striker",
+  "source": "Shrap16"
+}

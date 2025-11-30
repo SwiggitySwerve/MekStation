@@ -1,0 +1,207 @@
+{
+  "id": "blackjack-bj-4",
+  "chassis": "Blackjack",
+  "model": "BJ-4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 45,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 17,
+      "RIGHT_LEG": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-islac5",
+      "location": "RIGHT_ARM,_AMMO:80"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islac5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLAC5",
+      "ISLAC5",
+      "ISERMediumLaser",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLAC5",
+      "ISLAC5",
+      "ISERMediumLaser",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISLAC5 Ammo",
+      "ISLAC5 Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISLAC5 Ammo",
+      "ISLAC5 Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The original contract between General Motors and the SLDF sought for \"a medium BattleMech with insurrection suppression and fire-support capabilities.\" The outcome was the Blackjack. Despite meeting all of its production requirements, the Blackjack gained an unjust reputation and was rejected by the Star League.",
+    "capabilities": "The Blackjack's original mission was to assist in suppressing insurgent groups (mostly in the Periphery) that defied Star League authority in the decades preceding its demise. The Blackjack is only a minor success in its secondary capacity as a fire support platform. The autocannons lacked the firepower to take on heavily defended targets. At close range, though, the combination of lasers poses a significantly bigger threat. The addition of jump jets came late in the design phase, but the Whitworth Jetlift units have proven to be a vital asset over the decades.Â The Blackjack's sole significant disadvantage was negative press, which stated that the entire project was a shambles because the 'Mech's basic architecture was defective and unstable.Â The 'Mech's tiny footpads were alleged to cause falls and hamper maneuverability, or that the StarGuard II armor was brittle and tended to break off. Despite the fact that none of these accusations were ever proven, the Blackjack went out of favor, and few grieved the loss of GM's production line.",
+    "history": "The Blackjack had limited use in the Star League, and manufacture was shortly discontinued. Relegated to service with Hegemony planetary militia or sold to League member nations, it can still be encountered on the battlefield today. The majority of them now fight for the Capellan Confederation and the Federated Suns.Â The Confederation has nothing but disdain for the design. The breakaway St. Ives Compact, on the other hand, could not be as picky, and the Blackjack serves in the St. Ives Lancers.Â The Federated Suns used the Blackjack in the March Militias until the myth of the Blackjack's inferiority was busted on Xhosa VII in 3022. The Crucis Lancers and Deneb Light Cavalry were re-interested in the 'Mech.",
+    "deployment": "Many Blackjacks in the Federated Suns were upgraded to this model during the FedCom Civil War. A half-ton of armor is removed, though the remaining is upgraded to light ferro-fibrous, resulting in almost the same amount of armor protection. All the weapons of the BJ-2 were stripped out and a light fusion engine was added to free up additional mass. Each arm mounts a light autocannon/5 and an ER medium laser, while two tons of CASE-protected ammo in each torso allow the BJ-4 to make use of special munitions. A targeting computer makes all the weapons more accurate.",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Talcott",
+    "systemManufacturer": {
+      "CHASSIS": "GM BJ-1",
+      "ENGINE": "GM 180 Light",
+      "ARMOR": "StarGuard I Light",
+      "JUMPJET": "Whitworth Jetlift",
+      "COMMUNICATIONS": "Dalban Micronics",
+      "TARGETING": "Dalban AQ"
+    }
+  },
+  "mulId": 389,
+  "role": "Brawler",
+  "source": "TR:3050"
+}

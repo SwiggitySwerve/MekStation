@@ -1,0 +1,179 @@
+{
+  "id": "flea-fire-ant",
+  "chassis": "Flea",
+  "model": "'Fire Ant'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "HEAD": 5,
+      "LEFT_LEG": 4,
+      "RIGHT_LEG": 4
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "3-ismachine-gun",
+      "location": "RIGHT_ARM,_AMMO:100"
+    },
+    {
+      "id": "3-ismachine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isflamer",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isflamer",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isflamer",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMachine Gun",
+      "ISMachine Gun",
+      "ISMachine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMachine Gun",
+      "ISMachine Gun",
+      "ISMachine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "ISFlamer",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "ISFlamer",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMASC",
+      "ISMG Ammo (100)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISFlamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "imp_life_support",
+    "no_arms"
+  ],
+  "mulId": 1135,
+  "role": "Scout",
+  "source": "TR:3050"
+}

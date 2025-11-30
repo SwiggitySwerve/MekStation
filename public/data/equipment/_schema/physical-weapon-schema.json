@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://megamek-web.app/schemas/physical-weapon.json",
+  "title": "BattleTech Physical Weapon",
+  "description": "Schema for BattleTech physical/melee weapon definitions",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "name",
+    "techBase",
+    "rulesLevel",
+    "weightFormula",
+    "damageFormula",
+    "criticalSlots",
+    "requiresLowerArm",
+    "requiresHand",
+    "validLocations",
+    "introductionYear"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier for the physical weapon (kebab-case)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Hatchet",
+        "Sword",
+        "Claws",
+        "Mace",
+        "Lance",
+        "Flail",
+        "Wrecking Ball",
+        "Talons",
+        "Retractable Blade"
+      ],
+      "description": "Physical weapon type"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name of the weapon"
+    },
+    "techBase": {
+      "type": "string",
+      "enum": ["INNER_SPHERE", "CLAN", "BOTH"],
+      "description": "Technology base for the weapon"
+    },
+    "rulesLevel": {
+      "type": "string",
+      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "description": "Rules level/complexity"
+    },
+    "weightFormula": {
+      "type": "string",
+      "enum": ["tonnage_divisor", "fixed"],
+      "description": "How weight is calculated"
+    },
+    "tonnageDivisor": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Divisor for tonnage-based weight calculation"
+    },
+    "fixedWeight": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Fixed weight if weightFormula is 'fixed'"
+    },
+    "damageFormula": {
+      "type": "string",
+      "enum": ["tonnage_divisor", "tonnage_divisor_plus", "fixed"],
+      "description": "How damage is calculated"
+    },
+    "damageDivisor": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Divisor for tonnage-based damage calculation"
+    },
+    "damageBonus": {
+      "type": "number",
+      "description": "Bonus damage added (for tonnage_divisor_plus)"
+    },
+    "fixedDamage": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Fixed damage if damageFormula is 'fixed'"
+    },
+    "criticalSlots": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Critical slots (0 if calculated from tonnage)"
+    },
+    "requiresLowerArm": {
+      "type": "boolean",
+      "description": "Whether lower arm actuator is required"
+    },
+    "requiresHand": {
+      "type": "boolean",
+      "description": "Whether hand actuator is required"
+    },
+    "validLocations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Valid mounting locations"
+    },
+    "introductionYear": {
+      "type": "integer",
+      "minimum": 1950,
+      "maximum": 3200,
+      "description": "Year the weapon was introduced"
+    },
+    "costFormula": {
+      "type": "string",
+      "description": "Cost calculation formula"
+    },
+    "special": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Special rules for this weapon"
+    }
+  },
+  "additionalProperties": false
+}
+

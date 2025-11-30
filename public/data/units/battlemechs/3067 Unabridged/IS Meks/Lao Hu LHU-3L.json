@@ -1,0 +1,183 @@
+{
+  "id": "lao-hu-lhu-3l",
+  "chassis": "Lao Hu",
+  "model": "LHU-3L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islrm10",
+      "location": "LEFT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-isrotaryac5",
+      "location": "RIGHT_ARM,_AMMO:60"
+    },
+    {
+      "id": "1-isplasmarifle",
+      "location": "LEFT_ARM,_AMMO:10"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "ISRotaryAC5",
+      "IS Rotary AC/5 Ammo",
+      "IS Rotary AC/5 Ammo",
+      "IS Rotary AC/5 Ammo",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISLRM10",
+      "ISLRM10",
+      "ISArtemisIV",
+      "ISLRM10 Ammo Artemis-capable",
+      "ISPlasmaRifle Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "good_rep_1"
+  ],
+  "fluff": {
+    "overview": "Designed by a student at the Victoria Academy of Arms and Technology, the Lao Hu (\"Tiger\") is based on the Thunder BattleMech and is designed to correct perceived flaws in the Thunder by using new technologies available to the Capellan Confederation.",
+    "capabilities": "The Lao Hu is built on a lightweight Chariot Type II Endo Steel that carries a GM 375 XL Engine which gives the 'Mech a top speed of 86.4 km/h while sacrificing some survivability for more free weight and a heavier weapons payload. The Lao Hu is protected by an impressive thirteen and a half tons of armor, making it capable of weathering hits from all but the heaviest weapons.",
+    "deployment": "Introduced in the Jihad, this version of the Lao Hu turns the enemy's equipment against him. It carries a Rotary AC/5 in the right arm, while the left carries a Plasma Rifle. An advanced Targeting Computer ties into these weapons, making them more accurate. The LRM-10 has been enhanced with an Artemis IV fire control system.",
+    "manufacturer": "Shengli Arms",
+    "primaryFactory": "Victoria",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type II Endo Steel",
+      "ENGINE": "GM 375 XL",
+      "ARMOR": "Star Shell Standard",
+      "COMMUNICATIONS": "Dian-bao Comms, Standard",
+      "TARGETING": "O/P 911 Targeting and Tracking System"
+    }
+  },
+  "mulId": 5695,
+  "role": "Skirmisher",
+  "source": "RS:3067u"
+}

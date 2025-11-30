@@ -1,0 +1,177 @@
+{
+  "id": "raptor-rtx1-og",
+  "chassis": "Raptor",
+  "model": "RTX1-OG",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 25,
+  "engine": {
+    "type": "XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "plasma-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISPlasmaRifle (omnipod)",
+      "ISPlasmaRifle (omnipod)",
+      "ISPlasmaRifleAmmo (omnipod)",
+      "ISPlasmaRifleAmmo (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISSmallPulseLaser (omnipod)",
+      "ISSmallPulseLaser (omnipod)",
+      "ISSmallPulseLaser (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 2654,
+  "role": "Striker",
+  "source": "TR:3058U"
+}

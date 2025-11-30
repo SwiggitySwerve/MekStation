@@ -1,0 +1,204 @@
+{
+  "id": "naga-ii-c",
+  "chassis": "Naga II",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2866,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Streak SRM 6 Ammo (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC5 (OMNIPOD)",
+      "CLUltraAC5 (OMNIPOD)",
+      "CLUltraAC5 (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Ultra AC/5 Ammo (OMNIPOD)",
+      "Clan Ultra AC/5 Ammo (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "Clan Machine Gun Ammo - Full (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "bad_rep_clan"
+  ],
+  "fluff": {
+    "overview": "The Naga II is a refashioned version of the early Clan Woodsman OmniMech, developed by Clan Wolf. This model diverged from the initial Woodsman design due to technical challenges with its XL engine and endo-steel structure, which led to the creation of the Naga and eventually the Naga II. The Naga II's existence is primarily attributed to necessity, utilized when more advanced OmniMechs are not available.",
+    "capabilities": "Engineered with a focus on heavy firepower, the Naga II serves as a formidable artillery platform. Its design allows for significant weapon customization due to its ample pod space. Despite its notable firepower, the Naga II is encumbered by lighter armor compared to contemporary OmniMechs. This makes it a suitable choice for specific combat roles, particularly in scenarios requiring heavy bombardment from a distance.",
+    "history": "The Naga II saw initial use within Clan Wolfâs garrison clusters after Operation Revival. Its combat effectiveness, however, was questioned following a notable engagement in 3055, where its vulnerabilities were exposed during a raid on Icar. Despite this, conversions from Naga to Naga II continued as situational demands arose. The Exiled Wolves also utilized the Naga II, notably during conflicts like the fall of Arc-Royal, further indicating the continued, albeit limited, relevance of the Naga II in modern Clan warfare. Its deployment, while effective in certain contexts, often highlights the trade-off between its powerful offensive capabilities and its defensive shortcomings.\nmanufacturer:Refit\nprimaryfactory:Various\nsystemmanufacturer:CHASSIS:Type BMH-7 Endo Steel\nsystemmanufacturer:ENGINE:Fusion 400 XL\nsystemmanufacturer:ARMOR:Forged Type 34 Standard\nsystemmanufacturer:COMMUNICATIONS:Type G3, Mk. XII\nsystemmanufacturer:TARGETING:Version Kappa-III TTS",
+    "deployment": "The Naga II Model C is an 80-ton Clan Omnimech tailored for brawling, boasting an array of versatile weaponry. Powered by a 400 XL Clan Engine and constructed with Clan Endo Steel, it combines mobility and resilience, moving at a speed of 54 km/h.<p>Its armament is a balanced mix of missile, ballistic, and energy weapons, making it adept in various combat scenarios. The right arm houses a Clan Ultra AC/5, providing reliable ballistic firepower, while the left arm is equipped with a Streak SRM 6 and a Clan Large Pulse Laser for close-range engagement. Additionally, the right and left arms each mount a Clan Medium Pulse Laser, enhancing its short to medium-range combat abilities.</p><p>The left torso features a Clan LRM 15, allowing for effective indirect fire support. Machine Guns in both torsos offer additional close-range defense against infantry and light vehicles. This modelâs 13 Clan Double Heat Sinks efficiently manage the heat generated by its diverse weaponry, maintaining operational effectiveness during prolonged engagements. The Naga II C, with its extended twisting capability and stable weapons platform, excels in frontline combat, delivering a balanced offensive across various ranges.</p>"
+  },
+  "mulId": 9325,
+  "role": "Brawler",
+  "source": "RG26"
+}

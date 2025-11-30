@@ -1,0 +1,177 @@
+{
+  "id": "raven-rvn-3l",
+  "chassis": "Raven",
+  "model": "RVN-3L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3048,
+  "tonnage": 35,
+  "engine": {
+    "type": "XL",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 8
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "narc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "tag",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISNarcBeacon",
+      "ISNarcBeacon",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Medium Laser",
+      "Medium Laser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo SRM-6 Narc-capable",
+      "ISNarc Pods",
+      "ISNarc Pods",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "ISCASE",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "SRM 6",
+      "SRM 6",
+      "ISTAG",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "no_arms"
+  ],
+  "mulId": 2664,
+  "role": "Scout",
+  "source": "TR:3050"
+}

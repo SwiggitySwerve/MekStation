@@ -1,0 +1,171 @@
+{
+  "id": "urbanknight-um-dkx",
+  "chassis": "UrbanKnight",
+  "model": "UM-DKX",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "battlemech-taser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Small Laser",
+      "Mek Null Signature System",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Mek Taser",
+      "Mek Taser",
+      "Mek Taser",
+      "Taser Ammo",
+      "Taser Ammo",
+      "Mek Null Signature System",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "ChainDrapeCape",
+      "ChainDrapeCape",
+      "ChainDrapeCape",
+      "Mek Null Signature System",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "ChainDrapeCape",
+      "ChainDrapeCape",
+      "ChainDrapeCape",
+      "Mek Null Signature System",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Mek Null Signature System",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Mek Null Signature System"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Mek Null Signature System"
+    ]
+  },
+  "quirks": [
+    "difficult_eject",
+    "nimble_jumper",
+    "cowl",
+    "difficult_maintain",
+    "no_arms",
+    "distracting",
+    "reinforced_legs",
+    "imp_sensors",
+    "pro_actuator"
+  ],
+  "role": "Scout"
+}

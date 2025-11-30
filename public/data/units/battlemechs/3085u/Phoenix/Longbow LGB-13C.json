@@ -1,0 +1,210 @@
+{
+  "id": "longbow-lgb-13c",
+  "chassis": "Longbow",
+  "model": "LGB-13C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 85,
+  "engine": {
+    "type": "XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 21,
+      "RIGHT_ARM": 21,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "ISERSmallLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "searchlight",
+    "ubiquitous_is",
+    "no_arms"
+  ],
+  "fluff": {
+    "overview": "The Longbow, introduced in 2480 as the LGB-0C Longbow, has seen service in the armies of the Inner Sphere since the days of the Star League and is one of the most well-known fire support 'Mechs in existence.",
+    "capabilities": "The Longbow is a massive BattleMech weighing in at 85 tons and is able to move at a top speed of 54.0 km/h, thanks to a Strand 255 fusion engine. The Longbow is protected by fourteen and a half tons of armor. Some have criticized the design for its lack of CASE - making an otherwise rugged 'Mech vulnerable to a loss by an ammunition explosion. As a fire-support 'Mech though, the Longbow is a trusted and reliable machine that can be counted on to carry out the mission it is designed for.",
+    "deployment": "This upgrade of the 12C mounts six Doombud MML 7s, each of which is tied to an Artemis IV FCS. Six tons of CASE-protected ammunition supply these launchers. Three Diverse Optics ER Small Lasers provide paltry backup, though massed short-range missiles coming from the Multi-Missile Launchers are sure to deter smaller 'Mechs. A larger engine brings the 13C to a speed that matches that of the OW.",
+    "manufacturer": "StarCorps Industries,StarCorps (FWL) Industries,StarCorps Industries,StarCorps Industries",
+    "primaryFactory": "Crofton,Emris IV,Fletcher (TH),Loburg",
+    "systemManufacturer": {
+      "CHASSIS": "StarCorps 100 LGB",
+      "ENGINE": "Strand 340 XL",
+      "ARMOR": "StarSlab/9.5 Mk II",
+      "COMMUNICATIONS": "O/P 3000 COMSET",
+      "TARGETING": "Octagon Tartrac System C"
+    }
+  },
+  "mulId": 1933,
+  "role": "Missile Boat",
+  "source": "TR:3085"
+}

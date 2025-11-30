@@ -1,0 +1,188 @@
+{
+  "id": "coyotl-prime",
+  "chassis": "Coyotl",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2854,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 11
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLStreakSRM4 (OMNIPOD)",
+      "Clan Streak SRM 4 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (OMNIPOD)",
+      "CLERPPC (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10 (OMNIPOD)",
+      "Clan Ammo LRM-10 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "ext_twist"
+  ],
+  "fluff": {
+    "overview": "The Coyotl has the honor of being the first OmniMech.",
+    "capabilities": "Built on an endo steel chassis and powered by a Pitban 280 XL engine, these lightweight technologies allowed the Coyotl to carry a great deal of equipment. The powerful engine allowed the 'Mech to move up to 118.8 km/h, giving it the ability to avoid enemy fire as well as dash about the battlefield",
+    "history": "Developed by Clan Coyote with some help from Clan Sea Fox, the Coyotl was first fielded in 2854. Taking the modular nature of the earlier Mercury to its logical conclusion, the Coyotl was originally developed along the same lines. When the Coyote scientists saw that they could create the OmniMech, they jumped at the chance. The result was a 'Mech that could have its weapons load tailored for a particular mission, though the Coyotes did not fully capitalize on Omni technology until 2859, when the Coyotes equipped all of their Alpha Galaxy with OmniMechs and expanded rapidly within the Kerensky Cluster. Though a useful 'Mech that demonstrated how effective an OmniMech could be, the Coyotl couldn't compete with later designs from other Clans. Furthermore, the Coyotl production became ever more stifled as the fortunes of Clan Coyote waned and territory was lost. With the supply of spare parts dwindling, the Coyotes shut down their production lines in 2943. Sensing a sales opportunity, the Coyotl was one of a number of Golden Century designs Clan Sea Fox would revive to sell during the Dark Age era.",
+    "deployment": "The Primary configuration of the Coyotl used an ER PPC and LRM-10 as the primary long range weapons, while a medium pulse laser and Streak SRM-4 provided short range firepower. Originally the engineers thought they would build each variant around the PPC, but this proved to be too limiting, particularly with the high heat it caused. The missile systems were added to provide firepower at a lower heat cost.",
+    "manufacturer": "Drennan Industriplex,Manufacturing Plant SFF-TU1",
+    "primaryFactory": "Tamaron,Tukayyid",
+    "systemManufacturer": {
+      "CHASSIS": "Coyotl",
+      "ENGINE": "Pitban 280 XL",
+      "ARMOR": "CI Standard",
+      "COMMUNICATIONS": "CI-Com 2",
+      "TARGETING": "CI-X 2"
+    }
+  },
+  "mulId": 714,
+  "role": "Striker",
+  "source": "TR:GC"
+}

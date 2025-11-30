@@ -1,0 +1,177 @@
+{
+  "id": "eyleuka-eyl-45b",
+  "chassis": "Eyleuka",
+  "model": "EYL-45B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Stealth",
+      "Stealth",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISERMediumLaser",
+      "Stealth",
+      "Stealth"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "ISTAG",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "ISERMediumLaser",
+      "Stealth",
+      "Stealth"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISSNPPC",
+      "ISSNPPC"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "exp_actuator"
+  ],
+  "mulId": 1010,
+  "role": "Striker",
+  "source": "TR:3075"
+}

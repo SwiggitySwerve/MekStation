@@ -1,0 +1,181 @@
+{
+  "id": "prefect-prf-1r-veronica",
+  "chassis": "Prefect",
+  "model": "PRF-1R (Veronica)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3085,
+  "tonnage": 75,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issnppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-iserppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isc3slaveunit",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isguardianecm",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISC3SlaveUnit",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist"
+  ],
+  "mulId": 2570,
+  "role": "Skirmisher",
+  "source": "BD:LL"
+}

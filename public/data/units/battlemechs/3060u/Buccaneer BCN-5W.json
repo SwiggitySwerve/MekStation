@@ -1,0 +1,178 @@
+{
+  "id": "buccaneer-bcn-5w",
+  "chassis": "Buccaneer",
+  "model": "BCN-5W",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-machine-gun-array",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Heavy Machine Gun",
+      "Heavy Machine Gun",
+      "Heavy Machine Gun",
+      "ISHMGA",
+      "IS Heavy Machine Gun Ammo - Half"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "bad_rep_is"
+  ],
+  "mulId": 437,
+  "role": "Scout",
+  "source": "TR:3060"
+}

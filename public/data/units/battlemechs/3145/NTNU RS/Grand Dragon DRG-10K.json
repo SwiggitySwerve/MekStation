@@ -1,0 +1,190 @@
+{
+  "id": "grand-dragon-drg-10k",
+  "chassis": "Grand Dragon",
+  "model": "DRG-10K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3114,
+  "tonnage": 60,
+  "engine": {
+    "type": "XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 27,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mrm-20",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "MRM 20",
+      "MRM 20",
+      "MRM 20",
+      "ISApollo",
+      "IS MRM 20 Ammo",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Anti-Penetrative Ablation",
+      "IS Anti-Penetrative Ablation"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Anti-Penetrative Ablation",
+      "IS Anti-Penetrative Ablation"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Anti-Penetrative Ablation",
+      "IS Anti-Penetrative Ablation"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "low_profile",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Grand Dragon is the successful follow-up to the Dragon BattleMech.",
+    "capabilities": "Protected by ten tons of armor, the Grand Dragon uses thirteen double heat sinks for excellent heat management and uses a 16.5 ton Hermes 360 XL engine to achieve a moderate cruising speed of 64 km/h. Originally the Grand Dragon used the same Alshain Type 56-60H chassis as was found in the Dragon 'Mech it replaced. However, when the new Nykvarn plant was being set up an innovative engineering team came up with a way to increase the Grand Dragon's rotation from 250Â° to 300Â° by using an alternative assembly method for the hip and torso structure. This improvement was responsible for Nykvarn being awarded the honor of restarting Grand Dragon production, with all new Grand Dragons using this Nykvarn Type 58-66SH chassis",
+    "history": "The 'Mech was originally a simple variant of the Dragon with some modifications, chiefly replacing the autocannon with a particle projection cannon, introduced around the end of the Fourth Succession War. In 3040 this DRG-1G variant was turned into a production model, with several of the Dragon's production lines turned over to building Grand Dragons. As it reached Draconis Combine Mustered Soldiery units the Grand Dragon became well-liked for its all-around effectiveness in terms of speed, heat management and weaponry. Luthien Armor Works went ahead with phasing in the Grand Dragon, retooling their Dragon factories on Luthien, Saffel, Yorii and Dieron to build the new 'Mechs exclusively, by 3055 all Dragon production had ceased in favor of the Grand Dragon. Just like the Dragon, the Grand Dragon quickly became a favorite in the DCMS, with nearly every line unit fielding a company of either design. Production of the Grand Dragon continued unabated until the Jihad, when the Word of Blake devastated LAW's factories in 3068. It took two years for LAW to get new Grand Dragon factories up and running, the first on Nykvarn followed by Abiy Adi and Savinsville, and ensure the continued use of the 'Mech in years to come.",
+    "deployment": "This thirty-second century variant of the Grand Dragon uses an Endo Steel skeleton and an XL Engine to save weight. It can hit speeds of 97km/h. It carries a pair of ER medium lasers, a Snub Nose PPC, and an MRM-20 with Apollo FCS. It is protected by CASE and Anti-Penetrative Ablation Armor.",
+    "manufacturer": "Luthien Armor Works",
+    "primaryFactory": "Nykvarn",
+    "systemManufacturer": {
+      "CHASSIS": "Nykvarn Type 58-66SH",
+      "ENGINE": "Hermes 360 XL",
+      "ARMOR": "Starshield APAA with CASE",
+      "COMMUNICATIONS": "Sipher CommSys 3",
+      "TARGETING": "Eagle Eye SY10-10"
+    }
+  },
+  "mulId": 6889,
+  "role": "Skirmisher",
+  "source": "RS:3145-NTNU"
+}

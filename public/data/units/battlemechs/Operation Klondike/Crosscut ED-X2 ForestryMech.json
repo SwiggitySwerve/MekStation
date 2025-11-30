@@ -1,0 +1,170 @@
+{
+  "id": "crosscut-ed-x2-loggermech",
+  "chassis": "Crosscut",
+  "model": "ED-X2 LoggerMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2715,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 90
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 5,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 5,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 3
+      },
+      "HEAD": 4,
+      "LEFT_LEG": 4,
+      "RIGHT_LEG": 4
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-lift-hoist",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-chainsaw",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-cargo-1-ton",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-cargo-1-ton",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "mulId": 741,
+  "role": "Ambusher",
+  "source": "RS:OK"
+}

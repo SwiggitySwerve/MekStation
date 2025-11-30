@@ -1,0 +1,186 @@
+{
+  "id": "wolf-trap-tora-wft-2",
+  "chassis": "Wolf Trap (Tora)",
+  "model": "WFT-2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3071,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-9",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "ISLMGA",
+      "IS Ammo MML-9 LRM",
+      "IS Ammo MML-9 SRM",
+      "IS Light Machine Gun Ammo - Full",
+      "ISCASE",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is",
+    "bad_rep_clan"
+  ],
+  "mulId": 3556,
+  "role": "Striker",
+  "source": "TR:3050"
+}

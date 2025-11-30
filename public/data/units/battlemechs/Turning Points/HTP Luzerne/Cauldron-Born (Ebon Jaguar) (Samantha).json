@@ -1,0 +1,195 @@
+{
+  "id": "cauldron-born-samantha",
+  "chassis": "Cauldron-Born",
+  "model": "(Samantha)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3059,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERSmallLaser (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10 (omnipod)",
+      "CLLRM10 (omnipod)",
+      "CLLRM10 (omnipod)",
+      "Clan Ammo LRM-10 (omnipod)",
+      "Clan Ammo LRM-10 (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Introduced in 3049 to address flaws in the venerable Hellbringer, by Operation REVIVAL the Ebon Jaguar had only just started to spread through the Jaguar's touman with the Inner Sphere first encountering the design during the Battle of Luthien.",
+    "capabilities": "A custom configuration used by the 6th Striker Cluster CO Star Captain Samantha Kotare during the Operation Bulldog assault against Luzerne, her OmniMech was armed with an ER PPC and an Ultra AC/20 in its arms, supported by a trio of LRM-10's mounted in its right torso, and an ER Small Laser in its left. Two tons of reloads were carried for both the Ultra Autocannon and the LRM launchers.",
+    "history": "Facing it for the first time when engaging the First Jaguar Guards Cluster in the Kado-Guchi Valley, the 'Mech's ability to take damage and remain operational led the Inner Sphere warriors who fought it to call it the Cauldron-Born after the unstoppable zombies of Irish myth. Paradoxically many of the other Clans also used the Inner Sphere Cauldron-Born reporting name, having first learned detailed information of the design from Inner Sphere sources. By Operation BULLDOG the Cauldron-Born made up a large proportion of the heavy 'Mechs of the rebuilding Smoke Jaguars, and following their Annihilation the design proliferated the remaining Clans, save the Jade Falcons, Wolves and Coyotes who continued to favor the Hellbringer. Following the Wars of Reaving the Ebon Jaguar had finally supplanted the Hellbringer in most Homeworld Clans, save the Coyotes who remained loyal to redeeming the honor of the design.",
+    "manufacturer": "Huntress Manufacturing Plant DL-6",
+    "primaryFactory": "Huntress",
+    "systemManufacturer": {
+      "CHASSIS": "CSJ Type 65.43 Endo",
+      "ENGINE": "Consolidated Fusion 325 XL",
+      "ARMOR": "Composite A-4 Ferro-Fibrous",
+      "COMMUNICATIONS": "Hector CC-22E",
+      "TARGETING": "Integrated Bravo-7"
+    }
+  },
+  "mulId": 5862,
+  "role": "Skirmisher",
+  "source": "HTP:Luzerne"
+}

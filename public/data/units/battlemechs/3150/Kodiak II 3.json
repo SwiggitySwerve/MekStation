@@ -1,0 +1,184 @@
+{
+  "id": "kodiak-ii-3",
+  "chassis": "Kodiak II",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3146,
+  "tonnage": 100,
+  "engine": {
+    "type": "XXL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 33,
+      "RIGHT_ARM": 33,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mrm-40",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mrm-40",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "ISApollo",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "MRM 40",
+      "ISApollo",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "IS MRM 40 Ammo",
+      "IS MRM 40 Ammo",
+      "IS MRM 40 Ammo",
+      "IS MRM 40 Ammo",
+      "Clan LB 20-X Cluster Ammo",
+      "CLCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLBXAC20",
+      "Clan LB 20-X AC Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "distracting"
+  ],
+  "fluff": {
+    "overview": "Designed for Clan Ghost Bear, the Kodiak II is an Assault Class BattleMech which was first produced during the last decade of the thirty-first century.",
+    "capabilities": "The 'Mech was engineered so it could serve as both a Command 'Mech and as a powerful assault 'Mech via a fitting of a heavy arsenal of missiles and a large array of energy weaponry. The design is based on the fourth variant of the original Kodiak. The Kodiak II is known for its Command facilities and its endurance. The powerful 'Mech carries 19 tons of Alshain Weapon's Forging AD56 Standard armor, giving it heavy resistance against weapons fire directed at it. At the heart of the machine is a 400-rated Extra-Light Fusion Engine, which while not as quick as other designs its weight saving qualities allows the 'Mech to carry is substantial weapons load out.",
+    "history": "The Kodiak II would become a favorite design within the Clan Ghost Bear touman, being produced on Alshain at the Alshain Weapons factory. One of the Kodiak II's noted actions was during a border skirmish on the world of Jabuka, wherein elements of Clan Jade Falcon's 53rd Battle Cluster tangled with the 2nd Bear Regulars commanded by Star Colonel Anton Hall from the cockpit of a Kodiak II. The 'Mech would show its perseverance in the face of the 53rd's artillery bombardment of the Star Colonel's surviving units and ended up being the deciding factor which won the battle for the Ghost Bears.",
+    "deployment": "No information on this variant.",
+    "manufacturer": "Alshain Weapons",
+    "primaryFactory": "Alshain",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain LXL Endo Steel",
+      "ENGINE": "400 Fusion XL",
+      "ARMOR": "Forging AD56 Standard",
+      "COMMUNICATIONS": "Garret L20",
+      "TARGETING": "RCA Instatrac Mark IX with Artemis IV"
+    }
+  },
+  "mulId": 8067,
+  "source": "TR:3150"
+}

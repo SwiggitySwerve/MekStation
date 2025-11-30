@@ -1,0 +1,168 @@
+{
+  "id": "sun-spider-d",
+  "chassis": "Sun Spider",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 70,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Clan Endo Steel",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Clan Endo Steel",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "CLECMSuite",
+      "Clan Ultra AC/20 Ammo",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "CLHeavyMG",
+      "CLHeavyMG",
+      "Clan Heavy Machine Gun Ammo - Full",
+      "Clan Ultra AC/20 Ammo",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ultra AC/20 Ammo"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ultra AC/20 Ammo"
+    ]
+  },
+  "source": "Videogame (Apocryphal)"
+}

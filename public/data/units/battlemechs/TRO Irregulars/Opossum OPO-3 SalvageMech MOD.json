@@ -1,0 +1,163 @@
+{
+  "id": "opossum-opo-3-salvagemech-mod",
+  "chassis": "Opossum",
+  "model": "OPO-3 SalvageMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 25,
+  "engine": {
+    "type": "ICE",
+    "rating": 75
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 5,
+      "RIGHT_LEG": 5
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-ac-2",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Salvage Arm",
+      "Salvage Arm",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Light Auto Cannon/2",
+      "IS Ammo LAC/2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "DiNapoli Industries may be remembered for their licensed production of the Demeter AgroMech, but it was the Opossum SalvageMech with which they entered the market in 3110. The small IndustrialMech was cheaper and more reliable than competitors like the Fwltur while offering similar performance under normal circumstances. Its reasonably sturdy armor and advanced electronics suite also predestined it as a MOD, which first showed up in the ranks of the Twenty-first Centauri Lancers. DiNapoli was taken over by Bannson Universal Unlimited in June 3132, and it is likely that arming civilian machinery, thereby reinforcing Jacob Bannsonâs private army, was a further motive for the buyoutânext to accessing DiNapoliâs DropShip facilities. Of course, the Steel Wolves took control of Ankaa only a few months later and now field the Opossum themselves.",
+    "capabilities": "The Opossum SalvageMech is rarely moddedâBannsonâs focus on paramilitary DiNapoli equipment has largely been aimed at the Demeter. It was actually a mercenary command who came up with a standardized modification to mate the Opossumâs high-grade armor and electronics with a ballistic weapon by removing the right arm assembly. Though the addition of the light autocannon limits this SalvageMechâs ability to grab, drag, and repair damaged âMechs in the field, the capability for self-defense is valued by mercenaries and splinter factions which do not possess the assets to field purely non-combatant units, let alone the resources to protect them.",
+    "deployment": "Though it debuted in several small actions during 3131, the Twenty-first Centauri Lancersâ MOD of the Opossum didn't really attract much public attention until May 3132, when the Lancers deployed Rasbidâs light support lance to Ventabren to assist in a joint Oriente-Republic salvage operation of a Golden Dawn-era battlefield. Captain Chak Rasbid had lobbied heavily for the assignment when it became available, touting the proven record for both salvage retrieval and combat effectiveness displayed by lance tech Jon Roberson in the previous yearâs actions as a prime advantage for his command. Roberson justified his captainâs faith when, two weeks into the assignment, the salvage site was attacked by assailants in unmarked vehicles and battle armor. Once again, Roberson proved the value of a combat-capable SalvageMech when he used his âMechâs autocannon to defend himself against several attackers while in the middle of a delicate extraction operation on a BattleMech with a damaged fusion reactor. His coolness under fire, as well as the capabilities of his MODded âMech, impressed both the Oriente and RAF on-site officials and he enjoyed a day or two as a local news item on Ventabren and nearby worlds. The successful completion of this mission and in particular the performance of Robersonâs unique MOD under such conditions convinced Lancer Colonel Richard Haskell to implement similar modifications to a significant proportion of the unitâs Opossums.\nmanufacturer:DiNapoli Industries\nprimaryfactory:Ankaa\nsystemmanufacturer:CHASSIS:IM Heavy II\nsystemmanufacturer:ENGINE:InterComBust 75 ICE\nsystemmanufacturer:ARMOR:StrongArm III Heavy Industrial\nsystemmanufacturer:COMMUNICATIONS:Garret T10B\nsystemmanufacturer:TARGETING:Apple Churchill 2000"
+  },
+  "mulId": 7848,
+  "role": "Sniper",
+  "source": "TR:I"
+}

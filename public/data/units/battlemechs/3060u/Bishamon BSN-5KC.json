@@ -1,0 +1,129 @@
+{
+  "id": "bishamon-bsn-5kc",
+  "chassis": "Bishamon",
+  "model": "BSN-5KC",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 22,
+      "FRL": 22,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 22,
+      "RRL": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 334,
+  "role": "Striker",
+  "source": "TR:3060"
+}

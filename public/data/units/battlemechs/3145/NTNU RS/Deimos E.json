@@ -1,0 +1,216 @@
+{
+  "id": "deimos-e",
+  "chassis": "Deimos",
+  "model": "E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLERLargeLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "CLERMediumLaser",
+      "Clan Streak SRM 4 Ammo (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakSRM4 (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "CLERMediumLaser",
+      "Radical Heat Sink System (omnipod)",
+      "Radical Heat Sink System (omnipod)",
+      "Radical Heat Sink System (omnipod)",
+      "CLMASC",
+      "CLMASC",
+      "CLMASC",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CL Super Charger (omnipod)",
+      "CLAMS Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "anti_air"
+  ],
+  "fluff": {
+    "overview": "The Deimos is a Clan Assault OmniMech, which was developed by Clan Snow Raven.",
+    "capabilities": "The 85-tonner is powered by a Type 255-rated Extralight Fusion Engine, which it shares with the second-line Assault 'Mech, the Omen. Fourteen Double Heat Sinks are fitted to mitigate any heat issues that the 'Mech's systems may generate. Because its top speed is slower than more typical OmniMechs of the same size, engineers installed a MASC system, which allows the Deimos to go marginally faster and keep up with comparable older designs. The 'Mech is protected by 14.5 tons of Standard Armor, where it again differs from more typical contemporaries. Aside from its 43-ton equipment capacity, the 'Mech has a few permanently mounted weapons. These include two ER Medium Lasers, one assigned to each of the 'Mech's side torsos. To provide protection from inbound missile fire, an Anti-Missile System is mounted in the Deimos' head. The single ton of ammunition for the AMS is located in the center torso.",
+    "history": "The 'Mech was first introduced during the middle of the 3060s, allegedly on the Kerensky Cluster world of Lum. However, Inner Sphere intelligence agencies stopped hearing rumors about the 'Mech during the Jihad and it faded from memory. In 3085, the Snow Ravens revealed the existence of the Deimos to the Inner Sphere. It was produced on the Clan's Inner Sphere world, Dante. When it first appeared in the Inner Sphere, the Deimos was considered the pride of the Clan and at least one was assigned to every cluster within the Snow Raven touman.",
+    "deployment": "The E configuration was also introduced during the Dark Age in 3140. It carries a Targeting Computer to control two ER Medium Lasers, two Large Pulse Lasers, an ER PPC, and ER Large Laser. Four Streak SRM-4s are also carried. The Deimos E can also reach speeds nearing 86km/h by using an engine Supercharger and the MASC system. It retains the AMS as well. Finally it mounts a Radical Heat Sink System to augment the sixteen double heat sinks.",
+    "manufacturer": "Snow Raven Industrial Complex Alpha",
+    "primaryFactory": "Dante",
+    "systemManufacturer": {
+      "CHASSIS": "Model MHO-14E Endo-Steel",
+      "ENGINE": "Type 255 Extralight",
+      "ARMOR": "Longanecker PlastiSteel",
+      "COMMUNICATIONS": "TDWS-37 Mk. 2.2",
+      "TARGETING": "Hermes CT-44"
+    }
+  },
+  "mulId": 6855,
+  "role": "Brawler",
+  "source": "RS:3145-NTNU"
+}

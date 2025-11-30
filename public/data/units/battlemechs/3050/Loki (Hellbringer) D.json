@@ -1,0 +1,232 @@
+{
+  "id": "loki-d",
+  "chassis": "Loki",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "anti-battlearmor-pods-b-pods",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "anti-battlearmor-pods-b-pods",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "anti-battlearmor-pods-b-pods",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "anti-battlearmor-pods-b-pods",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      "CLPlasmaCannonAmmo (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLMicroPulseLaser (omnipod)",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISBPod (omnipod)",
+      "ISBPod (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISBPod (omnipod)",
+      "ISBPod (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "The Hellbringer is a very widespread design developed by Clan Hell's Horses. However, due to its poor armor, the Hellbringer is often passed over for more robust OmniMechs.",
+    "capabilities": "This variant is a vicious infantry hunter. It has four Plasma Cannons that are capable of dealing immense damage to conventional troops. Four B-Pods provide defense against battle armor, while four Medium Pulse Lasers provide accurate damage potential against hardened targets. A head-mounted Micro Pulse Laser provides added firepower against unarmored infantry.",
+    "history": "The Inner Sphere first encountered the Hellbringer facing Clan Jade Falcon, which favors the design for its immense offensive potential. Earning the codename Loki by Galen Cox, an AFFC officer who declared each of the Hellbringer's various versions as an \"utterly mad configuration,\" the 'Mech does at first glance appear to be highly unusual, mounting a spread of weapons, anti-personnel equipment and electronics. The Hellbringer utilizes a standard internal structure, and has decent mobility, with a top speed of 86.4 km/h. Though it has vast firepower at its disposal, the design is not particularly durable, mounting a mere eight tons of Standard armor, and the Hellbringer is not particularly suitable for defensive situations or extended engagements. In the aftermath of the Battle of Tokasha and the loss of Tokasha Mechworks, the Hell's Horses began developing several OmniMechs. Only the Hellbringer met with success. Development time for the Hellbringer was reduced through the use of modules used in the Summoner. Despite the poor armor, the Hellbringer devotes almost 43% of its mass to pods, allowing for great offensive potential. The design spread quickly after its introduction for two reasons: the Horses promptly lost the primary production facility, and used their remaining production to curry favor with other Clans through trade and gifts. After The Wars of Reaving in Clan Space, the Hellbringer would fall out of favor with the surviving Home Clans due in part to its association with the Inner Sphere based Clans. The design would be replaced by the Ebon Jaguar in military service of those in Clan Space, with the exception of Clan Coyote which still fields the 'Mech. Even after the introduction of the updated and upgraded Loki II successor design in 3121, Clan Jade Falcon would continue to produce the cheap and easy to manufacture original version on Sudeten during the Dark Age era, with disgraced, solahma or even just overly aggressive warriors still finding its offense over defense focus desirable.\nmanufacturer:Various, Olivetti Weaponry\nprimaryfactory:Various, Sudeten\nsystemmanufacturer:CHASSIS:T-E H65 Standard\nsystemmanufacturer:ENGINE:Fusion 325 XL\nsystemmanufacturer:ARMOR:Forging Omni-H24\nsystemmanufacturer:COMMUNICATIONS:CH2B Alpha-Com\nsystemmanufacturer:TARGETING:Version Delta-II TTS(A)"
+  },
+  "mulId": 1926,
+  "role": "Striker",
+  "source": "TR:CI"
+}

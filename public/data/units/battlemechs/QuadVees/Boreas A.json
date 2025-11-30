@@ -1,0 +1,130 @@
+{
+  "id": "boreas-a",
+  "chassis": "Boreas",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3132,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 21,
+      "FRL": 21,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "HEAD": 8,
+      "RLL": 21,
+      "RRL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-20",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "HAG/20 Ammo (omnipod)",
+      "HAG/20 Ammo (omnipod)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "fluff": {
+    "overview": "Developed by Clan Hell's Horses in 3132, the Boreas is an experimental Heavy Class hybrid Quad BattleMech / Combat Vehicle known as a QuadVee.",
+    "capabilities": "The Boreas utilizes a Standard 240-rated Fusion Engine to move up to 64 km/h while in either Vehicle or BattleMech form. The vehicle is protected by 11.5 tons of armor, giving it less than stellar armor for a typical Clan BattleMech. Aside from its revolutionary conversion abilities, scientists also created a two-man cockpit. The cockpit is set up for pilot and gunner positions. This arrangement allows for the gunner to target multiple enemies with little trouble while the pilot handles the 'Mech's movement. Unlike other quadruped 'Mechs, the Boreas has a turret-like structure mounted on the main body. This allows all weapons mounted in this section to be aimed with any facing the gunner chooses. Should the vehicle's gyro be destroyed during combat, the vehicle can simply convert itself into vehicular form. It would also be able to be change into a 'Mech should one of its four tracks be rendered useless. Built with the modularity of an OmniMech, this OmniQuadVee has twelve tons of Pod Space, which gives some flexibility over later fixed-configuration QuadVees.",
+    "history": "Created by Hell's Horses scientists, the Mech has the ability to transform itself from a tracked combat vehicle into a quadruped BattleMech, benefiting from some of the best qualities of both. Developed at the Csesztreg Industriplex Alpha Annex on Csesztreg. The Boreas was the first of its kind to be developed, it would be later in 3136 when production versions of the QuadVee would be fielded in combat with OmniPod technology.",
+    "deployment": "The A is only armed with a singular weapon, the Class-20 Hyper-Assault Gauss Rifle with two tons of ammunition.",
+    "manufacturer": "Csesztreg Industriplex Alpha Annex",
+    "primaryFactory": "Csesztreg",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "240 Standard Fusion",
+      "ARMOR": "Unknown",
+      "JUMPJET": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 7352,
+  "role": "Sniper",
+  "source": "XTR:RotS 2"
+}

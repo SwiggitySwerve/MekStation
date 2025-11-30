@@ -1,0 +1,197 @@
+{
+  "id": "hierofalcon-a",
+  "chassis": "Hierofalcon",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3148,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLAPGaussRifle (omnipod)",
+      "CLFlamer (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLAPGaussRifle (omnipod)",
+      "CLFlamer (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLAPGaussRifle Ammo (omnipod)",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet (omnipod)",
+      "Improved Jump Jet (omnipod)"
+    ]
+  },
+  "fluff": {
+    "overview": "The Hierofalcon is a Medium Clan OmniMech designed primarily as a striker type design by Clan Jade Falcon. Developed by the Falcons in the mid-3140s as part of the Clan's increasing emphases on maneuverability and fast movement.",
+    "capabilities": "As part of the push to be ever more flexible in movement, the 'Mech features a 270 Rated Extra-Light Engine. The addition of a permanently equipped Partial Wing adds to its maneuverability and cooling abilities. The 'Mech's hull is protected by 7.5 tons of Ferro-Fibrous Armor, giving it modest protection from enemy fire, while an ECM Suite provides additional protection from other threats. The Mech was constructed to handle 19 tons of OmniPods for weapons and equipment.",
+    "history": "Developed by the Falcons in the mid-3140s as part of the Clan's increasing emphases on maneuverability and fast movement, the 'Mech began construction in 3148 on Alyina's CJF Factory Zone 4, The Hierofalcon was designed at the same time as the larger Jade Phoenix. The duo were part of a new generation of OmniMechs intended to eventually replace the Standard BattleMechs used by the Clan. One of its noted early actions was in 3149, in a skirmish against the Falcons' former close allies, Clan Hell's Horses on Hyperion. The light and swift Hieronfalcons overwhelmed the Horses' Nova, gaining a reputation among the Horses as being a terror on the battlefield.",
+    "deployment": "A close range fighter with the added role of anti-infantry striker, this configuration features a right arm mounted Large Pulse Laser, a pair of AP Gauss Rifles split between the arms, two ER Medium Lasers, and a Flamer mounted in the left arm. To assist it in reaching its targets, six Improved Jump Jets are also fitted.",
+    "manufacturer": "CJF Factory Zone 4",
+    "primaryFactory": "Alyina",
+    "systemManufacturer": {
+      "CHASSIS": "JF 4 Light Endo Steel",
+      "ENGINE": "Light Force 270 XL",
+      "ARMOR": "Compound JF Ferro-Fibrous",
+      "COMMUNICATIONS": "JF Integrated",
+      "TARGETING": "Series JFVII Integrated"
+    }
+  },
+  "mulId": 7485,
+  "role": "Striker",
+  "source": "RG03"
+}

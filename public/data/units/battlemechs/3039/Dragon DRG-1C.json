@@ -1,0 +1,207 @@
+{
+  "id": "dragon-drg-1c",
+  "chassis": "Dragon",
+  "model": "DRG-1C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2752,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "autocannon-2",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Autocannon/2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Medium Laser (R)",
+      "IS Ammo LRM-10",
+      "IS Ammo LRM-10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "IS Ammo AC/2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 10",
+      "LRM 10"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Dragon is a heavy BattleMech originally designed in a bid to replace the Shadow Hawk.",
+    "capabilities": "A close assault 'Mech, its versatile design allows it to be used in both offensive and defensive operations. It boasts above-average firepower and plenty of ammunition for extended combat, while a Vlar 300 fusion engine gives it a high top speed for a heavy 'Mech. Armor coverage for the Dragon's ten tons is thick around the torso, and especially the rear, for when it is surrounded by opponents, while the squat design gives it a smaller profile and makes it harder to knock over. The lack of any especially heat-intensive equipment makes the use of only ten heat sinks a non-issue. The Dragon's only major problem is it requires frequent maintenance and/or overhaul of its hip actuator.",
+    "history": "Debuting in 2754 during the twilight years of the Star League, the Dragon was turned down by the SLDF in favor of an upgraded Shadow Hawk, though it would be quietly picked up by the Draconis Combine. With the dissolution of the Star League and the onset of the Succession Wars, the Dragon became the Combine's standard heavy 'Mech. Multiple production lines on many well-defended worlds, including Luthien, meant the design was so prevalent every battalion and almost every company featured the Dragon, with some battalions comprised of nothing but these 'Mechs. So many were produced that the Federated Suns and Lyran Commonwealth employed salvaged Dragons in their own arsenals, while many mercenary commands used captured or purchased models. The Free Rasalhague Republic would also adopt the 'Mech following their formation. The beginning of the end came around 3025 when the Grand Dragon, an improved version of the Dragon, entered the prototype phase. By 3040 initial production had begun on this upgraded model with several Dragon factories switching over entirely to producing Grand Dragons. Even as the Combine was phasing it out of service the original Dragon was not wholly abandoned and it saw combat during the Clan Invasion. By 3065 Luthien Armor Works had ceased production altogether on the Dragon, though it would remain within the DCMS' inventory for some time.",
+    "deployment": "The 1C Dragon replaces the Autocannon/5 with a longer range Autocannon/2 and adds three additional tons of armor protection. This allows the Dragon to have an ever further direct fire reach, while reducing the direct fire capability at range by sixty percent.",
+    "manufacturer": "Luthien Armor Works",
+    "primaryFactory": "Luthien",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain Type 56-60H",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Starshield",
+      "COMMUNICATIONS": "Sipher CommSys 3",
+      "TARGETING": "Eagle Eye SY10-10"
+    }
+  },
+  "mulId": 908,
+  "role": "Skirmisher",
+  "source": "TR:3039"
+}

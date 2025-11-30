@@ -1,0 +1,118 @@
+{
+  "id": "guard-gs-107x-securitymech",
+  "chassis": "Guard",
+  "model": "GS-107X SecurityMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 15,
+  "engine": {
+    "type": "FUSION",
+    "rating": 60
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 6,
+      "FRL": 6,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 9,
+      "RLL": 6,
+      "RRL": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7823,
+  "role": "Ambusher",
+  "source": "TR:I"
+}

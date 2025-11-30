@@ -1,0 +1,183 @@
+{
+  "id": "lao-hu-lhu-2b",
+  "chassis": "Lao Hu",
+  "model": "LHU-2B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLBXAC20",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "good_rep_1"
+  ],
+  "fluff": {
+    "overview": "Designed by a student at the Victoria Academy of Arms and Technology, the Lao Hu (\"Tiger\") is based on the Thunder BattleMech and is designed to correct perceived flaws in the Thunder by using new technologies available to the Capellan Confederation.",
+    "capabilities": "The Lao Hu is built on a lightweight Chariot Type II Endo Steel that carries a GM 375 XL Engine which gives the 'Mech a top speed of 86.4 km/h while sacrificing some survivability for more free weight and a heavier weapons payload. The Lao Hu is protected by an impressive thirteen and a half tons of armor, making it capable of weathering hits from all but the heaviest weapons.",
+    "deployment": "The Lao Hu is capable of engaging an enemy at most any range. For long-range combat, the Lao Hu has a Martell ER Large Laser and a Zeus LRM-15 launcher, giving the 'Mech a powerful long range punch. For close combat, the Lao Hu has a devastating Shengli LB-X Autocannon/20 which is capable of firing both solid rounds for armor penetration and cluster rounds allowing it to find holes in already damaged armor and for anti-aircraft use.",
+    "manufacturer": "Shengli Arms",
+    "primaryFactory": "Victoria",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type II Endo Steel",
+      "ENGINE": "GM 375 XL",
+      "ARMOR": "Star Shell Standard",
+      "COMMUNICATIONS": "Dian-bao Comms, Standard",
+      "TARGETING": "O/P 911 Targeting and Tracking System"
+    }
+  },
+  "mulId": 4478,
+  "role": "Skirmisher",
+  "source": "TR:3067"
+}

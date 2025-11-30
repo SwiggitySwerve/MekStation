@@ -1,0 +1,206 @@
+{
+  "id": "juggernaut-jg-r9t3",
+  "chassis": "Juggernaut",
+  "model": "JG-R9T3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "magshot",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "magshot",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "magshot",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "magshot",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "magshot",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "magshot",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-x-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser",
+      "ISMediumXPulseLaser"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser",
+      "ISMediumXPulseLaser"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR Ammo",
+      "IS Coolant Pod",
+      "IS Coolant Pod"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR",
+      "ISMagshotGR Ammo",
+      "IS Coolant Pod",
+      "IS Coolant Pod"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMediumXPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Coolant Pod",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Coolant Pod",
+      null
+    ]
+  },
+  "quirks": [
+    "imp_life_support",
+    "difficult_maintain"
+  ],
+  "mulId": 1715,
+  "role": "Juggernaut",
+  "source": "TR:3055U"
+}

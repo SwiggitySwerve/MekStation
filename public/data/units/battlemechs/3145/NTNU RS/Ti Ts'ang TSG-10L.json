@@ -1,0 +1,197 @@
+{
+  "id": "ti-tsang-tsg-10l",
+  "chassis": "Ti Ts'ang",
+  "model": "TSG-10L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3125,
+  "tonnage": 60,
+  "engine": {
+    "type": "XXL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-vsp-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "tag",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "Small Laser",
+      "Small Laser",
+      "Small Laser",
+      "Small Laser",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Heat-Dissipating"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Heat-Dissipating"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "Medium Laser",
+      "IS Endo-Composite",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "Medium Laser",
+      "ISChaffPod",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger",
+      "ISTAG"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heat-Dissipating",
+      "IS Heat-Dissipating"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heat-Dissipating",
+      "IS Heat-Dissipating"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator"
+  ],
+  "mulId": 6884,
+  "role": "Skirmisher",
+  "source": "RS:3145-NTNU"
+}

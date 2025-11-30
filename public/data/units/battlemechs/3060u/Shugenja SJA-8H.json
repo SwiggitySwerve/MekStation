@@ -1,0 +1,183 @@
+{
+  "id": "shugenja-sja-8h",
+  "chassis": "Shugenja",
+  "model": "SJA-8H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 75,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "b-pod",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mrm-30",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "c3-master-with-tag",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "MRM 30",
+      "MRM 30",
+      "MRM 30",
+      "MRM 30",
+      "MRM 30",
+      "IS MRM 30 Ammo",
+      "IS MRM 30 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISBPod",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod",
+      null
+    ]
+  },
+  "quirks": [
+    "cowl",
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "mulId": 2943,
+  "role": "Brawler",
+  "source": "TR:3060"
+}

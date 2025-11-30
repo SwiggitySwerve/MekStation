@@ -1,0 +1,166 @@
+{
+  "id": "kyudo-ky2-d-01",
+  "chassis": "Kyudo",
+  "model": "KY2-D-01",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2443,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 9,
+      "RIGHT_ARM": 9,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islrm10",
+      "location": "LEFT_ARM,_AMMO:12"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLRM10",
+      "ISLRM10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "ISLRM10 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_pilot",
+    "exp_actuator"
+  ],
+  "mulId": 1850,
+  "role": "Missile Boat",
+  "source": "XTR:Primitives I"
+}

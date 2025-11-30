@@ -1,0 +1,194 @@
+{
+  "id": "quickdraw-qkd-4h",
+  "chassis": "Quickdraw",
+  "model": "QKD-4H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2847,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "LRM 10",
+      "LRM 10",
+      "IS Ammo LRM-10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Medium Laser",
+      "Medium Laser",
+      "IS Ammo SRM-4",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "SRM 4 (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Few business decisions have been as questionable as those that lead to the original reasoning for the Quickdraw. Intended to replace the Rifleman, the Quickdraw lacked any of the capabilities that made the Rifleman such a popular fire support platform. Had the Star League stood for longer, perhaps the Quickdraw would have faded into obscurity, but the rapid start of the Succession Wars only seven years after the Quickdraw's introduction instead sent it into the armies of every Great House. There it created its own legacy as a generalist workhouse, able to fill many different roles with its maneuverable movement profile and varied armament.",
+    "capabilities": "Many Quickdraw variants carry weapons for every angle, including rarely seen rear-mount firepower. With its specially-modified arm actuators allowing it to flip its arms towards the rear, the Quickdraw is well suited for forays in the midst of an enemy formation. Pilots must be cautious of the Quickdraw's fragility in physical combat, however. The ankle actuators, though allowing the Quickdraw unparalleled stability on uneven ground, are susceptible to damage that can quickly paralyze the BattleMech.",
+    "deployment": "The Quickdraw shows few favorites, and has notable concentrations in most armies of the Inner Sphere. The Draconis Combine and Free Worlds League are both home to manufacturing lines for the design, and the 'Mech tends to be a more common sight in most of their formations as a result. The -4H variant is a simple swap, bringing all of the lasers to the front of the 'Mech while positioning the SRM in its rear.",
+    "systemManufacturer": {
+      "CHASSIS": "Technicron",
+      "ENGINE": "Vlar",
+      "ARMOR": "Riese",
+      "COMMUNICATIONS": "Garret",
+      "TARGETING": "Dynatec"
+    }
+  },
+  "mulId": 2611,
+  "role": "Skirmisher",
+  "source": "TR:3039"
+}

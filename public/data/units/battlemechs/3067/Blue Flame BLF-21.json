@@ -1,0 +1,134 @@
+{
+  "id": "blue-flame-blf-21",
+  "chassis": "Blue Flame",
+  "model": "BLF-21",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 45,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 22,
+      "FRL": 22,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 22,
+      "RRL": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISStreakSRM2",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISStreakSRM2",
+      "IS Streak SRM 2 Ammo",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISStreakSRM2",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "directional_torso_mount",
+    "bad_rep_is"
+  ],
+  "mulId": 3840,
+  "role": "Sniper",
+  "source": "TR:3067"
+}

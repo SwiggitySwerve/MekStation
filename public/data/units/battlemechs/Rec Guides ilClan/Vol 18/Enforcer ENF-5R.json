@@ -1,0 +1,181 @@
+{
+  "id": "enforcer-enf-5r",
+  "chassis": "Enforcer",
+  "model": "ENF-5R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3142,
+  "tonnage": 50,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "large-re-engineered-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "Large Re-engineered Laser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERSmallLaser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo",
+      "ISCASEII",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "fluff": {
+    "overview": "Since it first walked off of the production line, the Enforcer has been the iconic medium-weight workhorse of the Federated Suns' Succession Wars era military.",
+    "capabilities": "The Enforcer fulfilled the roles of a mobile barrage vehicle, laying down an intense hail of fire as a prelude to an offensive or to blunt an enemy's attack, and as a trooper 'Mech, using its thick frontal armor and good jumping distance of one hundred and twenty meters to effectively brawl with the enemy despite lacking hand actuators. The sturdy and inexpensive design's mobility also made it an ideal city fighter, especially when sniping the enemy during hit-and-run attacks. One of the design's problems was that, with most of its nine tons of armor concentrated forward, the amount of protection in its rear torso is less than on some light 'Mechs. The Enforcer's biggest flaw though was its limited ammunition stores, though when possible a truck-and-crane reloading system is used during less-mobile battles. Attempts were made to replace the small laser with another ton of ammunition, however there were complicated linkage problems in getting the ammo from the left torso to the right arm, increasing the rate of jamming or reducing the rate of fire to unacceptable levels. What's more the rounds had to be routed along the 'Mechs back where its armor was weakest.",
+    "history": "This is in large part due to production of the Enforcer remaining largely undisturbed throughout the Succession Wars, despite the relative lack of industrialization that has long hampered the Federated Suns. With the autocannon-obsessed Armed Forces of the Federated Suns building up its BattleMech forces upon the collapse of the Star League, the discovery on Achernar of schematics for an unbuilt autocannon-carrying Star League 'Mech was a case of perfect timing. Modifying the design by swapping two medium lasers for a single larger one, Achernar BattleMechs rushed it through development and began production in 2777.",
+    "manufacturer": "Kallon Industries",
+    "primaryFactory": "Wernke",
+    "systemManufacturer": {
+      "CHASSIS": "Dorwinion Standard",
+      "ENGINE": "Magna 250 XL",
+      "ARMOR": "StarGuard CIV Ferro-Fibrous with CASE",
+      "JUMPJET": "McCloud Specials",
+      "COMMUNICATIONS": "Achernar Electronics HICS-11",
+      "TARGETING": "Federated Hunter"
+    }
+  },
+  "mulId": 8249,
+  "role": "Brawler",
+  "source": "RG18"
+}

@@ -1,0 +1,196 @@
+{
+  "id": "shogun-shg-2f-trisha",
+  "chassis": "Shogun",
+  "model": "SHG-2F (Trisha)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3071,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-5-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lb-5-x-ac",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      "ISLBXAC5",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "IS LB 5-X Cluster Ammo",
+      "ISCASE",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISSNPPC",
+      "ISSNPPC",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "IS LB 5-X AC Ammo",
+      "ISCASE",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "barrel_fists_la",
+    "barrel_fists_ra",
+    "difficult_maintain",
+    "non_standard"
+  ],
+  "fluff": {
+    "overview": "The initial specifications for the 'Mech were for a \"highly survivable multi-role assault BattleMech.\" When the Shogun project started the design phase in 2771, those needs had altered little, save to compensate for fundamental flaws in the Stalker's design.",
+    "capabilities": "Though the Shogun isn't any faster than its predecessor, the inclusion of jump jets allows it to be much more maneuverable. The Shogun's CASE and ferro fiber armor also make it significantly more survivable than the Stalker.",
+    "history": "The Shogun's history was cloaked in myth and legend, at least until the Clan and Inner Sphere records could be compared. The SLDF issued the original requirements for the Shogun in the late 26th century, although the 'Mech itself did not reach construction for another two centuries. The success and widespread distribution of the Stalkerâwhich served the role of the Shogun, if imperfectlyâalong with the outbreak of the Reunification War, and then the tranquility of the Star League's Golden Age, saw the original design criteria scrapped. After General Kerensky's conflict, the SLDF needed a new attack BattleMech to replenish its ranks. The Shogun had a good chance of succeeding the Stalker, but Kerensky's Exodus and the First Succession War interfered. Mitchell Vehicles, who won the design when the SLDF regained Graham IV, completed only eight manufacturing runs prior to the Exodus, and only a few more before their plants were destroyed in the First Succession War. That left the Shogun to slip into obscurityâat least until the Wolf's Dragoons returned a few to the Inner Sphere before the Exodus, and only a few more runs before their factories were destroyed in the First Succession War. As a result, the Shogun died quicklyâat least until the Wolf's Dragoons returned a few to the Inner Sphere.",
+    "deployment": "A custom Shogun created by the Wannamaker's Widowmakers from salvage found on Outreach after Word of Blake bombardment. The two damaged long-range missile launchers are replaced with a pair of LB-5X ACs. The ER PPC is swapped out for a snub-nosed version.",
+    "manufacturer": "Refit",
+    "primaryFactory": "Outreach",
+    "systemManufacturer": {
+      "CHASSIS": "Kitushi Shogun",
+      "ENGINE": "Strand 255",
+      "ARMOR": "Riese-350",
+      "JUMPJET": "Anderson Propulsion 21",
+      "COMMUNICATIONS": "HartfordCo COM 4000",
+      "TARGETING": "HartfordCo XKZ 1"
+    }
+  },
+  "mulId": 5058,
+  "role": "Juggernaut",
+  "source": "TR:3050"
+}

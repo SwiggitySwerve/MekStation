@@ -1,0 +1,193 @@
+{
+  "id": "wendigo-b",
+  "chassis": "Wendigo",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3150,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERSmallLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERSmallLaser (OMNIPOD)",
+      "Clan Reflective",
+      "Clan Reflective",
+      "Clan Reflective"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Reflective"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Reflective"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cockpit",
+      "Sensors"
+    ],
+    "HEAD": [
+      "Sensors",
+      "Sensors",
+      "CLERSmallLaser (OMNIPOD)",
+      "CLERSmallLaser (OMNIPOD)",
+      "CLERSmallLaser (OMNIPOD)",
+      "CLECMSuite (OMNIPOD)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet (OMNIPOD)",
+      "Improved Jump Jet (OMNIPOD)"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "mulId": 6405,
+  "role": "Skirmisher",
+  "source": "TR:3145:DC"
+}

@@ -1,0 +1,338 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://megamek-web.app/schemas/unit.json",
+  "title": "BattleTech Unit",
+  "description": "Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)",
+  "type": "object",
+  "required": [
+    "id",
+    "chassis",
+    "model",
+    "unitType",
+    "configuration",
+    "techBase",
+    "rulesLevel",
+    "era",
+    "year",
+    "tonnage",
+    "engine",
+    "gyro",
+    "cockpit",
+    "structure",
+    "armor",
+    "heatSinks",
+    "movement",
+    "equipment",
+    "criticalSlots"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier for the unit (kebab-case)"
+    },
+    "chassis": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Chassis name (e.g., 'Atlas')"
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Model designation (e.g., 'AS7-D')"
+    },
+    "variant": {
+      "type": "string",
+      "description": "Optional variant name"
+    },
+    "unitType": {
+      "type": "string",
+      "enum": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station",
+        "Infantry",
+        "Battle Armor",
+        "Support Vehicle"
+      ],
+      "description": "Type of unit"
+    },
+    "configuration": {
+      "type": "string",
+      "enum": ["Biped", "Quad", "Tripod", "LAM", "QuadVee"],
+      "description": "Mech configuration"
+    },
+    "techBase": {
+      "type": "string",
+      "enum": ["INNER_SPHERE", "CLAN", "MIXED"],
+      "description": "Technology base"
+    },
+    "rulesLevel": {
+      "type": "string",
+      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "description": "Rules level/complexity"
+    },
+    "era": {
+      "type": "string",
+      "description": "BattleTech era identifier"
+    },
+    "year": {
+      "type": "integer",
+      "minimum": 1950,
+      "maximum": 3200,
+      "description": "Introduction year"
+    },
+    "tonnage": {
+      "type": "number",
+      "minimum": 10,
+      "maximum": 200,
+      "description": "Unit tonnage"
+    },
+    "engine": {
+      "type": "object",
+      "required": ["type", "rating"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["FUSION", "XL", "CLAN_XL", "LIGHT", "COMPACT", "XXL", "ICE", "FUEL_CELL", "FISSION"],
+          "description": "Engine type"
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Engine rating"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gyro": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["STANDARD", "XL", "COMPACT", "HEAVY_DUTY", "NONE"],
+          "description": "Gyro type"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cockpit": {
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "SMALL",
+        "COMMAND_CONSOLE",
+        "TORSO_MOUNTED",
+        "PRIMITIVE",
+        "INDUSTRIAL",
+        "SUPERHEAVY",
+        "SUPERHEAVY_TRIPOD",
+        "INTERFACE",
+        "QUADVEE"
+      ],
+      "description": "Cockpit type"
+    },
+    "structure": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "STANDARD",
+            "ENDO_STEEL",
+            "ENDO_STEEL_CLAN",
+            "ENDO_COMPOSITE",
+            "REINFORCED",
+            "COMPOSITE",
+            "INDUSTRIAL"
+          ],
+          "description": "Internal structure type"
+        }
+      },
+      "additionalProperties": false
+    },
+    "armor": {
+      "type": "object",
+      "required": ["type", "allocation"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "STANDARD",
+            "FERRO_FIBROUS",
+            "FERRO_FIBROUS_CLAN",
+            "LIGHT_FERRO_FIBROUS",
+            "HEAVY_FERRO_FIBROUS",
+            "STEALTH",
+            "REACTIVE",
+            "REFLECTIVE",
+            "HARDENED",
+            "PRIMITIVE",
+            "INDUSTRIAL"
+          ],
+          "description": "Armor type"
+        },
+        "allocation": {
+          "type": "object",
+          "description": "Armor points per location",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "integer", "minimum": 0 },
+              {
+                "type": "object",
+                "required": ["front", "rear"],
+                "properties": {
+                  "front": { "type": "integer", "minimum": 0 },
+                  "rear": { "type": "integer", "minimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "heatSinks": {
+      "type": "object",
+      "required": ["type", "count"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["SINGLE", "DOUBLE", "DOUBLE_CLAN", "COMPACT", "LASER"],
+          "description": "Heat sink type"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of heat sinks"
+        }
+      },
+      "additionalProperties": false
+    },
+    "movement": {
+      "type": "object",
+      "required": ["walk", "jump"],
+      "properties": {
+        "walk": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Walking MP"
+        },
+        "jump": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Jumping MP"
+        },
+        "jumpJetType": {
+          "type": "string",
+          "enum": ["STANDARD", "IMPROVED", "MECHANICAL", "UMU"],
+          "description": "Jump jet type"
+        },
+        "enhancements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Movement enhancements (MASC, Supercharger, etc.)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "location"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Equipment ID reference"
+          },
+          "location": {
+            "type": "string",
+            "description": "Mounting location"
+          },
+          "slots": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "Specific slot indices"
+          },
+          "isRearMounted": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether weapon is rear-facing"
+          },
+          "linkedAmmo": {
+            "type": "string",
+            "description": "Linked ammunition ID"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Mounted equipment list"
+    },
+    "criticalSlots": {
+      "type": "object",
+      "description": "Critical slot assignments per location",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "quirks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Unit quirks"
+    },
+    "fluff": {
+      "type": "object",
+      "properties": {
+        "overview": { "type": "string" },
+        "capabilities": { "type": "string" },
+        "history": { "type": "string" },
+        "deployment": { "type": "string" },
+        "variants": { "type": "string" },
+        "notableUnits": { "type": "string" },
+        "manufacturer": { "type": "string" },
+        "primaryFactory": { "type": "string" },
+        "systemManufacturer": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Fluff/flavor text"
+    },
+    "mulId": {
+      "type": "integer",
+      "description": "Master Unit List ID"
+    },
+    "role": {
+      "type": "string",
+      "description": "Combat role"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source book/publication"
+    }
+  },
+  "additionalProperties": false
+}
+

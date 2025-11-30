@@ -1,0 +1,194 @@
+{
+  "id": "amarok-unknown",
+  "chassis": "Amarok",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3149,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "HARDENED",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "rotary-ac-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5",
+      "CLRotaryAC5 Ammo",
+      "CLRotaryAC5 Ammo"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERPPC",
+      "CLERPPC",
+      "PPC Capacitor",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Supercharger",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "<p>The Amarok, crafted to counter the age-old DFA tactic, inherits the Hammerhead's physical attributes, notably its hardened armor, which significantly shields the cockpit, thus, minimizing vulnerability during engagements.</p>",
+    "capabilities": "<p>Boasting a mass more than doubled, a sizable portion is dedicated to its formidable arsenal. The ER PPC, amplified by a capacitor, serves as a long-range deterrent against incoming Mechs, while a rotary autocannon and large pulse laser offer reliable secondary firepower, complemented by twin Streak missile launchers.</p><p>An innovative feature, inspired by Solaris VII data, employs a pre-programmed routine to lock the arms above the cockpit, potentially thwarting DFA assaults. However, certain technical glitches have led to disabling this feature by many Amarok pilots, with plans to omit it in future productions. The Amarok's demand remains unaffected, as warriors vie for possession through Trials.</p>",
+    "history": "<p>The Amarok, a pivotal invention by Ramiel Bekker, stands as Clan Wolf's stalwart defense against the Jade Falcons' notorious Death From Above (DFA) assaults. Assembled under time constraints, Bekker sought Clan Sea Fox's aid, replicating the collaborative essence from the Stormwolf venture. This venture was a boon for the ilKhanate post Gray Monday, promising a resurgence through this special order. Despite inter-Khanate disagreements owing to the Hammerhead-derived designs, successful Trials ensured a swift Amarok production, with Khan Hawker spearheading diplomacy to bolster inter-Clan cooperation.</p> <p>Bekker envisioned Amaroks fortifying most Clusters against major Jade Falcon threats. In reality, they concentrated mainly in Alpha and Beta Galaxies, with notable engagements occurring on Skye. Amaroks, often operating in groups, significantly disrupted enemy formations. However, they faced a severe onslaught from Turkina Keshik. Despite this, the Ninth Wolf Guard's Amaroks showcased their prowess by ambushing the Keshik, highlighting the strategic significance of the Amarok in battlefield control.</p>",
+    "deployment": "<p>The original Amarok model emerges as a formidable adversary on the battlefield, tailored to counter Death From Above (DFA) tactics predominantly employed by the Jade Falcons. Its design, heavily influenced by the Hammerhead, incorporates hardened armor and a substantial arsenal comprising an ER PPC enhanced with a capacitor, a rotary autocannon, a large pulse laser, and paired Streak missile launchers. Despite certain technical challenges with its innovative arm-lock mechanism intended to shield against DFA assaults, the Amarok has earned a revered status among MechWarriors, often requiring a Trial of Possession for assignment due to its high demand.</p>",
+    "manufacturer": "Manufacturing Plant SFF-TU1",
+    "primaryFactory": "Tukayyid",
+    "systemManufacturer": {
+      "CHASSIS": "SFAM Endo 4",
+      "ENGINE": "Type 79 400 XL Fusion",
+      "ARMOR": "Double-Forged ZX20 Hardened",
+      "COMMUNICATIONS": "Khan Series (Type 6c)",
+      "TARGETING": "Series XIV OPT"
+    }
+  },
+  "mulId": 8239,
+  "role": "Juggernaut",
+  "source": "RG17"
+}

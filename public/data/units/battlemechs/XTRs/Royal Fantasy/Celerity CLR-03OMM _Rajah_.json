@@ -1,0 +1,118 @@
+{
+  "id": "celerity-clr-03omm-rajah",
+  "chassis": "Celerity",
+  "model": "CLR-03OMM 'Rajah'",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 15,
+  "engine": {
+    "type": "FUSION",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 1,
+      "FRL": 1,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "HEAD": 4,
+      "RLL": 1,
+      "RRL": 1
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERSmallLaser",
+      "Spikes",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERSmallLaser",
+      "ISDroneOperatingSystem",
+      "Spikes",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      null,
+      null
+    ]
+  },
+  "mulId": 8366,
+  "role": "Scout",
+  "source": "XTR:Royal Fantasy"
+}

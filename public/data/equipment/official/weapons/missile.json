@@ -1,0 +1,844 @@
+{
+  "$schema": "../_schema/weapon-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.920Z",
+  "count": 35,
+  "items": [
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "1/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "ammoPerTon": 24,
+      "costCBills": 30000,
+      "battleValue": 45,
+      "introductionYear": 2295
+    },
+    {
+      "id": "lrm-10",
+      "name": "LRM 10",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "1/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 5,
+      "criticalSlots": 2,
+      "ammoPerTon": 12,
+      "costCBills": 100000,
+      "battleValue": 90,
+      "introductionYear": 2295
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "1/missile",
+      "heat": 5,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "ammoPerTon": 8,
+      "costCBills": 175000,
+      "battleValue": 136,
+      "introductionYear": 2295
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "1/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 10,
+      "criticalSlots": 5,
+      "ammoPerTon": 6,
+      "costCBills": 250000,
+      "battleValue": 181,
+      "introductionYear": 2295
+    },
+    {
+      "id": "clan-lrm-5",
+      "name": "LRM 5 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 24,
+      "costCBills": 30000,
+      "battleValue": 55,
+      "introductionYear": 2824
+    },
+    {
+      "id": "clan-lrm-10",
+      "name": "LRM 10 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 2.5,
+      "criticalSlots": 1,
+      "ammoPerTon": 12,
+      "costCBills": 100000,
+      "battleValue": 109,
+      "introductionYear": 2824
+    },
+    {
+      "id": "clan-lrm-15",
+      "name": "LRM 15 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 5,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 3.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 8,
+      "costCBills": 175000,
+      "battleValue": 164,
+      "introductionYear": 2824
+    },
+    {
+      "id": "clan-lrm-20",
+      "name": "LRM 20 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "ammoPerTon": 6,
+      "costCBills": 250000,
+      "battleValue": 220,
+      "introductionYear": 2824
+    },
+    {
+      "id": "srm-2",
+      "name": "SRM 2",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 50,
+      "costCBills": 10000,
+      "battleValue": 21,
+      "introductionYear": 2370
+    },
+    {
+      "id": "srm-4",
+      "name": "SRM 4",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "ammoPerTon": 25,
+      "costCBills": 60000,
+      "battleValue": 39,
+      "introductionYear": 2370
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 3,
+      "criticalSlots": 2,
+      "ammoPerTon": 15,
+      "costCBills": 80000,
+      "battleValue": 59,
+      "introductionYear": 2370
+    },
+    {
+      "id": "clan-srm-2",
+      "name": "SRM 2 (Clan)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "ammoPerTon": 50,
+      "costCBills": 10000,
+      "battleValue": 21,
+      "introductionYear": 2824
+    },
+    {
+      "id": "clan-srm-4",
+      "name": "SRM 4 (Clan)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 25,
+      "costCBills": 60000,
+      "battleValue": 39,
+      "introductionYear": 2824
+    },
+    {
+      "id": "clan-srm-6",
+      "name": "SRM 6 (Clan)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "ammoPerTon": 15,
+      "costCBills": 80000,
+      "battleValue": 59,
+      "introductionYear": 2824
+    },
+    {
+      "id": "streak-srm-2",
+      "name": "Streak SRM 2",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "ammoPerTon": 50,
+      "costCBills": 15000,
+      "battleValue": 30,
+      "introductionYear": 2647,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "streak-srm-4",
+      "name": "Streak SRM 4",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 3,
+      "criticalSlots": 1,
+      "ammoPerTon": 25,
+      "costCBills": 90000,
+      "battleValue": 59,
+      "introductionYear": 3058,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "streak-srm-6",
+      "name": "Streak SRM 6",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 4.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 15,
+      "costCBills": 120000,
+      "battleValue": 89,
+      "introductionYear": 3058,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "clan-streak-srm-2",
+      "name": "Streak SRM 2 (Clan)",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 12
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 50,
+      "costCBills": 15000,
+      "battleValue": 40,
+      "introductionYear": 2826,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "clan-streak-srm-4",
+      "name": "Streak SRM 4 (Clan)",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 12
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "ammoPerTon": 25,
+      "costCBills": 90000,
+      "battleValue": 79,
+      "introductionYear": 2826,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "clan-streak-srm-6",
+      "name": "Streak SRM 6 (Clan)",
+      "category": "Missile",
+      "subType": "Streak SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 12
+      },
+      "weight": 3,
+      "criticalSlots": 2,
+      "ammoPerTon": 15,
+      "costCBills": 120000,
+      "battleValue": 118,
+      "introductionYear": 2826,
+      "special": [
+        "No ammo wasted on miss"
+      ]
+    },
+    {
+      "id": "mrm-10",
+      "name": "MRM 10",
+      "category": "Missile",
+      "subType": "MRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 8,
+        "long": 15
+      },
+      "weight": 3,
+      "criticalSlots": 2,
+      "ammoPerTon": 24,
+      "costCBills": 50000,
+      "battleValue": 56,
+      "introductionYear": 3058,
+      "special": [
+        "+1 to-hit penalty"
+      ]
+    },
+    {
+      "id": "mrm-20",
+      "name": "MRM 20",
+      "category": "Missile",
+      "subType": "MRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 8,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "ammoPerTon": 12,
+      "costCBills": 125000,
+      "battleValue": 112,
+      "introductionYear": 3058,
+      "special": [
+        "+1 to-hit penalty"
+      ]
+    },
+    {
+      "id": "mrm-30",
+      "name": "MRM 30",
+      "category": "Missile",
+      "subType": "MRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 8,
+        "long": 15
+      },
+      "weight": 10,
+      "criticalSlots": 5,
+      "ammoPerTon": 8,
+      "costCBills": 225000,
+      "battleValue": 168,
+      "introductionYear": 3058,
+      "special": [
+        "+1 to-hit penalty"
+      ]
+    },
+    {
+      "id": "mrm-40",
+      "name": "MRM 40",
+      "category": "Missile",
+      "subType": "MRM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
+      "heat": 12,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 8,
+        "long": 15
+      },
+      "weight": 12,
+      "criticalSlots": 7,
+      "ammoPerTon": 6,
+      "costCBills": 350000,
+      "battleValue": 224,
+      "introductionYear": 3058,
+      "special": [
+        "+1 to-hit penalty"
+      ]
+    },
+    {
+      "id": "atm-3",
+      "name": "ATM 3",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 20,
+      "costCBills": 50000,
+      "battleValue": 53,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-6",
+      "name": "ATM 6",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 3.5,
+      "criticalSlots": 3,
+      "ammoPerTon": 10,
+      "costCBills": 125000,
+      "battleValue": 105,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-9",
+      "name": "ATM 9",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "ammoPerTon": 7,
+      "costCBills": 225000,
+      "battleValue": 147,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-12",
+      "name": "ATM 12",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 8,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 5,
+      "ammoPerTon": 5,
+      "costCBills": 350000,
+      "battleValue": 212,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "mml-3",
+      "name": "MML 3",
+      "category": "Missile",
+      "subType": "MML",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1-2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 40,
+      "costCBills": 45000,
+      "battleValue": 29,
+      "introductionYear": 3068,
+      "special": [
+        "Can fire LRM or SRM ammo"
+      ]
+    },
+    {
+      "id": "mml-5",
+      "name": "MML 5",
+      "category": "Missile",
+      "subType": "MML",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1-2/missile",
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 3,
+      "criticalSlots": 3,
+      "ammoPerTon": 24,
+      "costCBills": 75000,
+      "battleValue": 45,
+      "introductionYear": 3068,
+      "special": [
+        "Can fire LRM or SRM ammo"
+      ]
+    },
+    {
+      "id": "mml-7",
+      "name": "MML 7",
+      "category": "Missile",
+      "subType": "MML",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1-2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 4.5,
+      "criticalSlots": 4,
+      "ammoPerTon": 17,
+      "costCBills": 105000,
+      "battleValue": 67,
+      "introductionYear": 3068,
+      "special": [
+        "Can fire LRM or SRM ammo"
+      ]
+    },
+    {
+      "id": "mml-9",
+      "name": "MML 9",
+      "category": "Missile",
+      "subType": "MML",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": "1-2/missile",
+      "heat": 5,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 6,
+      "criticalSlots": 5,
+      "ammoPerTon": 13,
+      "costCBills": 125000,
+      "battleValue": 86,
+      "introductionYear": 3068,
+      "special": [
+        "Can fire LRM or SRM ammo"
+      ]
+    },
+    {
+      "id": "narc",
+      "name": "NARC Missile Beacon",
+      "category": "Missile",
+      "subType": "NARC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 3,
+      "criticalSlots": 2,
+      "ammoPerTon": 6,
+      "costCBills": 100000,
+      "battleValue": 30,
+      "introductionYear": 2587,
+      "isExplosive": true,
+      "special": [
+        "Homing beacon"
+      ]
+    },
+    {
+      "id": "inarc",
+      "name": "iNARC Launcher",
+      "category": "Missile",
+      "subType": "iNARC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 9,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 3,
+      "ammoPerTon": 4,
+      "costCBills": 250000,
+      "battleValue": 75,
+      "introductionYear": 3062,
+      "isExplosive": true,
+      "special": [
+        "Multiple pod types"
+      ]
+    },
+    {
+      "id": "clan-narc",
+      "name": "NARC Missile Beacon (Clan)",
+      "category": "Missile",
+      "subType": "NARC",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 12
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "ammoPerTon": 6,
+      "costCBills": 100000,
+      "battleValue": 30,
+      "introductionYear": 2831,
+      "isExplosive": true,
+      "special": [
+        "Homing beacon"
+      ]
+    }
+  ]
+}

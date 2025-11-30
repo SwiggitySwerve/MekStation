@@ -1,0 +1,187 @@
+{
+  "id": "flea-fle-4",
+  "chassis": "Flea",
+  "model": "FLE-4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2501,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 3,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 3,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 2
+      },
+      "HEAD": 5,
+      "LEFT_LEG": 3,
+      "RIGHT_LEG": 3
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Small Laser",
+      "Small Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Flamer (R)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "imp_life_support",
+    "no_arms"
+  ],
+  "fluff": {
+    "overview": "The Flea was the direct descendant of the Free Worlds League first scout 'Mech, the Trooper. Neither the Trooper nor the Flea would impress any military analysts, though, with their generally slow speed and fragile armor making them easy prey for even the lightest opposing BattleMechs. With production of the Flea ceasing even before the start of the Succession Wars, this generally unpopular design seemed destined for the history books until the appearance of Wolf's Dragoons and their many ancient BattleMechs, Flea included.",
+    "capabilities": "The Flea, as a 'Mech with many different variants, can accomplish many different roles. However, most of these models work best in infantry support roles, where the heavier armor and firepower of the 'Mech make it a valued friend and a dangerous foe. The firepower of the Flea itself is stronger than one might suspect; if cornered, inattentive scout 'Mechs can quickly find themselves at the mercy of a Flea.",
+    "deployment": "The main Earthwerks factory for the Flea was reopened following the signing of an exclusive contract with the Wolf's Dragoons. Initially only producing replacement parts and an occasional replacement 'Mech, Earthwerks eventually opened a second line to keep up with increasing demand. Expiration of the Dragoon contract in 3041 was welcomed by Earthwerks; the publicity gained through the Dragoons had created a healthy market for the Flea. Their original model, the FLE-4, would remain in Free Worlds League service until the tail end of the Clan Invasion.",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerks",
+      "ENGINE": "GM",
+      "ARMOR": "Livingston",
+      "COMMUNICATIONS": "Neil",
+      "TARGETING": "Dalban"
+    }
+  },
+  "mulId": 1140,
+  "role": "Scout",
+  "source": "TR:3039"
+}

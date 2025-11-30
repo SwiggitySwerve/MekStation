@@ -1,0 +1,187 @@
+{
+  "id": "shadow-cat-iii-b",
+  "chassis": "Shadow Cat III",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3111,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "CLATM3 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "Clan Ammo ATM-3 (OMNIPOD)",
+      "Clan Ammo ATM-3 ER (OMNIPOD)",
+      "ISAngelECMSuite (OMNIPOD)",
+      "ISAngelECMSuite (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "Clan Ammo ATM-3 (OMNIPOD)",
+      "Clan Ammo ATM-3 HE (OMNIPOD)",
+      "CLActiveProbe (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "CLMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (OMNIPOD)",
+      "Jump Jet (OMNIPOD)"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (OMNIPOD)",
+      "Jump Jet (OMNIPOD)"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Shadow Cat III was born from the Shadow Cat, after Clan Nova Cat's Touman and facilities were heavily damaged during the Second Combine-Dominion War.",
+    "capabilities": "This expensive OmniMech makes use of weight-saving technologies in the form of an Endo Steel internal structure, an XL Engine, and eight tons of Ferro-Fibrous armor. The Shadow Cat III employs more pod space than the Shadow Cat at the expense of jump jets, but keeps the Myomer Accelerated Signal Circuitry that enables it to move up to 130 km/h in bursts.",
+    "history": "The Clan's scientists took a cue from Clan Jade Falcon's Thor II, and removed the Shadow Cat's fixed jump jets to free up mass that would be used mostly for pod space and an enhancement of the 'Mech's armor coverage.\nmanufacturer:Barcella Beta\nprimaryfactory:Irece\nsystemmanufacturer:CHASSIS:Type 79-45 Endo Steel\nsystemmanufacturer:ENGINE:RFUM 270 XL\nsystemmanufacturer:ARMOR:Compound H17Ferro-Fibrous with CASE\nsystemmanufacturer:JUMPJET:Model KY Boosters\nsystemmanufacturer:COMMUNICATIONS:Sipher CommCon SCU-9\nsystemmanufacturer:TARGETING:Build 4 CAT TTS",
+    "deployment": "This variant is also a fusion of long-range weaponry with a scouting system. This configuration uses four ATM 3 launchers backed by two ER Medium Lasers. A Targeting Computer enhances the lasers' precision, while an Active Probe and an Angel ECM round out the variant's electronic warfare suite. Six jump jets allow it to navigate through difficult terrain."
+  },
+  "mulId": 7493,
+  "role": "Striker",
+  "source": "RG03"
+}

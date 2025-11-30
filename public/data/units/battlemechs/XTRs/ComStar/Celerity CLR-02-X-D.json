@@ -1,0 +1,113 @@
+{
+  "id": "celerity-clr-02-x-d",
+  "chassis": "Celerity",
+  "model": "CLR-02-X-D",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "tonnage": 15,
+  "engine": {
+    "type": "XXL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 1,
+      "FRL": 1,
+      "LEFT_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "HEAD": 3,
+      "RLL": 1,
+      "RRL": 1
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 16,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "ISMASC",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDroneOperatingSystem",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ]
+  },
+  "quirks": [
+    "prototype",
+    "exp_actuator"
+  ],
+  "mulId": 5553,
+  "role": "Scout",
+  "source": "XTR:ComStar"
+}

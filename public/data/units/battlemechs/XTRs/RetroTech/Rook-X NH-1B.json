@@ -1,0 +1,187 @@
+{
+  "id": "rook-nh-1x-rook-x",
+  "chassis": "Rook",
+  "model": "NH-1X 'Rook-X'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "RIGHT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "LEFT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-iserppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "ISMediumLaser",
+      "ISERSmallLaser (R)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPCCapacitor",
+      "ISMediumLaser",
+      "ISERSmallLaser (R)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "mulId": 4935,
+  "role": "Juggernaut",
+  "source": "XTR:RetroTech"
+}

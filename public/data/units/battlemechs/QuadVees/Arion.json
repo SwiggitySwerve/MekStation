@@ -1,0 +1,122 @@
+{
+  "id": "arion-unknown",
+  "chassis": "Arion",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "QuadVee",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3136,
+  "tonnage": 35,
+  "engine": {
+    "type": "FUSION",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 5,
+      "FRL": 5,
+      "LEFT_TORSO": {
+        "front": 5,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 5,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 6,
+        "rear": 3
+      },
+      "HEAD": 3,
+      "RLL": 5,
+      "RRL": 5
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "CLSRM4",
+      "Clan Ammo SRM-4",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "CLSRM4",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 6252,
+  "role": "Striker",
+  "source": "TR:3145:C"
+}

@@ -1,0 +1,153 @@
+{
+  "id": "carbine-con-8h-haulermech",
+  "chassis": "Carbine",
+  "model": "CON-8H HaulerMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 30,
+  "engine": {
+    "type": "ICE",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "HEAD": 4,
+      "LEFT_LEG": 3,
+      "RIGHT_LEG": 3
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 0
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Lift Hoist",
+      "Lift Hoist",
+      "Lift Hoist",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Cargo (1 ton)",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Cargo (1 ton)",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Extended Fuel Tank (1 ton)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "mulId": 7162,
+  "role": "Ambusher",
+  "source": "TR:VAr"
+}

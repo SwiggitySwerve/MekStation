@@ -1,0 +1,184 @@
+{
+  "id": "nightstar-nsr-9ss",
+  "chassis": "Nightstar",
+  "model": "NSR-9SS",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 95,
+  "engine": {
+    "type": "XL",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 50,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "ultra-ac-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20",
+      "ISUltraAC20"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Ultra AC/20 Ammo",
+      "IS Ultra AC/20 Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLBXAC20",
+      "IS Ultra AC/20 Ammo",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMediumPulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "ISMediumPulseLaser"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "ISMediumPulseLaser"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "good_rep_1",
+    "variable_range_long",
+    "difficult_maintain"
+  ],
+  "mulId": 2287,
+  "role": "Juggernaut",
+  "source": "TR:3058U"
+}

@@ -1,0 +1,210 @@
+{
+  "id": "penetrator-ptr-6t",
+  "chassis": "Penetrator",
+  "model": "PTR-6T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 21,
+      "RIGHT_ARM": 21,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAntiMissileSystem",
+      "ISAMS Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "good_rep_1",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The designers at Kallon Industries used the Black Hawk Clan OmniMech as the basis for the Penetrator.",
+    "capabilities": "The Penetrator has an all energy weapons arsenal and uses twelve double heat sinks to handle the massive heat load from its weapons. The 'Mech is lacking in speed though when compared to the Black Hawk. This is because the 'Mechs designers used a Vlar 300 fusion engine for its combat durability, giving the 'Mech a top speed of 64.8 km/h. To help offset the 'Mech's lack of mobility, the Penetrator has four Anderson 398 jump jets giving it added mobility with a jumping distance of one hundred and twenty meters. The Penetrator also carries a respectable thirteen tons of armor. The 'Mech's heavy armor protection, combined with its standard engine and unlimited amounts of ammunition, make for a 'Mech that is very rugged and hard to kill.",
+    "history": "With the threat of the Clans looming over it, the Federated Commonwealth dispatched a large number of Penetrators to units stationed in Lyran space. Following the secession of the Commonwealth's Lyran half and the formation of the Lyran Alliance under Katherine Steiner-Davion in 3058, many Penetrators ended up on the LAAF's rolls. Penetrators served on both sides of the FedCom Civil War, demonstrating their toughness yet again. The 'Mech's low reliance on ammunition made it ideal for the mobile campaigns that defined that conflict. Archer's Avengers and other allied forces conducted a planet-hopping campaign, always staying one step ahead of the Loyalist forces pursuing them. The Avengers had to live off the land because reliable supply lines were almost non-existent. The Penetrator was an ideal combat unit because it required little ammunition and had few advanced components. Several Penetrators were captured by mercenary units during the FedCom Civil War. According to rumors, Kallon Industries may soon change its policy of only selling the design to the Federated Commonwealth and now the Federated Suns.",
+    "deployment": "The 6T variant of the Penetrator is a field modification that replaces the six Medium Pulse Lasers with six ER Medium Lasers. The 'Mech then adds an advanced Targeting Computer, making its ER Large Lasers more accurate and making the ER Medium Lasers similar in accuracy to the Medium Pulse Lasers at longer ranges. The 'Mech has also had two additional double heat sinks added to help with the increased heat output.",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis G",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Durallex Heavy",
+      "JUMPJET": "Anderson 398",
+      "COMMUNICATIONS": "Dalban Micronics",
+      "TARGETING": "Matabushi Sentinel"
+    }
+  },
+  "mulId": 2469,
+  "role": "Skirmisher",
+  "source": "TR:3055U"
+}

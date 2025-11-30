@@ -1,0 +1,186 @@
+{
+  "id": "centurion-cn9-h",
+  "chassis": "Centurion",
+  "model": "CN9-H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumlaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isrocketlauncher10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islbxac10",
+      "location": "RIGHT_ARM,_AMMO:20"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10 Ammo",
+      "ISLBXAC10 CL Ammo",
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      "ISRocketLauncher10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "non_standard"
+  ],
+  "mulId": 3922,
+  "role": "Brawler",
+  "source": "XTR:RetroTech"
+}

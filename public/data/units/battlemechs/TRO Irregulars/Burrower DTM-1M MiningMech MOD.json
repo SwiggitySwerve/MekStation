@@ -1,0 +1,166 @@
+{
+  "id": "burrower-dtm-1m-miningmech-mod",
+  "chassis": "Burrower",
+  "model": "DTM-1M MiningMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3132,
+  "tonnage": 65,
+  "engine": {
+    "type": "ICE",
+    "rating": 195
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 11,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 4
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-9",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Machine Gun",
+      "Machine Gun",
+      "IS Machine Gun Ammo - Half",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      "Rock Cutter",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "IS Ammo MML-9 LRM",
+      "IS Ammo MML-9 SRM",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Tracks",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Tracks",
+      null
+    ]
+  },
+  "mulId": 7875,
+  "role": "Ambusher",
+  "source": "TR:I"
+}

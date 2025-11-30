@@ -1,0 +1,177 @@
+{
+  "id": "gã¶tterdã¤mmerung-gtd-30s",
+  "chassis": "GÃ¶tterdÃ¤mmerung",
+  "model": "GTD-30S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 75,
+  "engine": {
+    "type": "COMPACT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-flamer",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Life Support",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Life Support",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Cockpit",
+      "Sensors",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ER Flamer",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Sensors",
+      "Sensors",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ]
+  },
+  "mulId": 8062,
+  "source": "TR:3145:LC"
+}

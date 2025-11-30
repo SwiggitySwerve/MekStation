@@ -1,0 +1,193 @@
+{
+  "id": "hauptmann-ha1-om",
+  "chassis": "Hauptmann",
+  "model": "HA1-OM",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3120,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "c3-master-boosted-with-tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISDoubleHeatSink (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)",
+      "ISC3MasterBoostedSystemUnit (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      "LRM 15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "IS Ammo LRM-15 (omnipod)",
+      "ISCASE",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "ext_twist"
+  ],
+  "fluff": {
+    "overview": "The first OmniMech both designed and built by the Lyran Alliance. The OmniMech is named after the rank held by officers in the LAAF.",
+    "capabilities": "The Hauptmann is built on a standard chassis and powered by a 285 fusion engine, adding to the 'Mech's durability as it cannot be killed by a side torso loss. The Hauptmann has eleven double heat sinks fixed on the chassis and can add more if needed in its various configurations. For protection, the Hauptmann carries eighteen and a half tons of armor and has CASE fixed in the right torso to protect against an ammunition explosion.",
+    "history": "The inspiration for the Hauptmann is drawn from the Daishi OmniMech used by the Clans. Using information from captured Daishis and data gleaned from the construction of the Firestarter OmniMech, which was shared by the Draconis Combine, the end result is a powerful OmniMech capable of defending itself in most combat situations.",
+    "deployment": "The Hauptmann-M configuration is equipped with a Clan-spec ER PPC. This is supplemented by three LRM-15 launchers. This long-range weaponry is a good choice as the M configuration carries a C3 Boosted Master computer into combat.",
+    "manufacturer": "Coventry Metal Works",
+    "primaryFactory": "Coventry",
+    "systemManufacturer": {
+      "CHASSIS": "Coventry HAI III",
+      "ENGINE": "Pitban 285",
+      "ARMOR": "Glasgow Limited with CASE",
+      "COMMUNICATIONS": "TharHes Muse 54-58S",
+      "TARGETING": "Cyclops 9c"
+    }
+  },
+  "mulId": 6838,
+  "role": "Missile Boat",
+  "source": "RS:3145-NTNU"
+}

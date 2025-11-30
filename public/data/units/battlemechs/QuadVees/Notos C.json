@@ -1,0 +1,142 @@
+{
+  "id": "notos-c",
+  "chassis": "Notos",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 24,
+      "FRL": 24,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 8,
+      "RLL": 24,
+      "RRL": 24
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImprovedMediumHeavyLaser (omnipod)",
+      "CLImprovedMediumHeavyLaser (omnipod)",
+      "CLSRM6 (omnipod)",
+      "Clan Ammo SRM-6 (omnipod)",
+      "CLAPGaussRifle (omnipod)",
+      "CLActiveProbe (omnipod)",
+      "CLLightTAG (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImprovedMediumHeavyLaser (omnipod)",
+      "CLImprovedMediumHeavyLaser (omnipod)",
+      "CLSRM6 (omnipod)",
+      "Clan Ammo SRM-6 (omnipod)",
+      "CLAPGaussRifle (omnipod)",
+      "CLECMSuite (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLSRM6 (omnipod)",
+      "CLAPGaussRifle Ammo (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7373,
+  "role": "Skirmisher",
+  "source": "XTR:RotS 3"
+}

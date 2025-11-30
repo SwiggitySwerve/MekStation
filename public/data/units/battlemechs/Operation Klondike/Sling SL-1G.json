@@ -1,0 +1,173 @@
+{
+  "id": "sling-sl-1g",
+  "chassis": "Sling",
+  "model": "SL-1G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2766,
+  "tonnage": 25,
+  "engine": {
+    "type": "XL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 3
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 5,
+      "RIGHT_LEG": 5
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_ARM,_AMMO:48"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-istag",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLRM5",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLRM5",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISLRM5 Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISLRM5 Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Heat Sink",
+      "ISLRM5"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISTAG",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "cramped_cockpit"
+  ],
+  "mulId": 2967,
+  "role": "Missile Boat",
+  "source": "His:OK"
+}

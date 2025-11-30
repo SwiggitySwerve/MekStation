@@ -1,0 +1,189 @@
+{
+  "id": "penetrator-ptr-7d",
+  "chassis": "Penetrator",
+  "model": "PTR-7D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3133,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "LEFT_TORSO": [
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "good_rep_1",
+    "stable"
+  ],
+  "mulId": 8001,
+  "source": "RS:3150"
+}

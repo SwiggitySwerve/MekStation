@@ -1,0 +1,177 @@
+{
+  "id": "sha-yu-syu-6b",
+  "chassis": "Sha Yu",
+  "model": "SYU-6B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isguardianecm",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issnppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-issnppc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISGuardianECM",
+      "ISGuardianECM"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth Armor",
+      "Stealth Armor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth Armor",
+      "Stealth Armor"
+    ]
+  },
+  "quirks": [
+    "imp_com"
+  ],
+  "mulId": 5670,
+  "role": "Striker",
+  "source": "RS:3067u"
+}

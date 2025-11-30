@@ -1,0 +1,207 @@
+{
+  "id": "mad-cat-iii-unknown",
+  "chassis": "Mad Cat III",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3086,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Endo-Composite",
+      "Endo-Composite",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Endo-Composite",
+      "Endo-Composite",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLArtemisV",
+      "CLArtemisV",
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLArtemisV",
+      "CLArtemisV",
+      "CLERMicroLaser",
+      "CLERMicroLaser",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable",
+      "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMicroLaser",
+      "CLERMicroLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "bad_rep_clan",
+    "difficult_maintain",
+    "imp_com"
+  ],
+  "mulId": 4561,
+  "role": "Missile Boat",
+  "source": "TR:Proto"
+}

@@ -1,0 +1,165 @@
+{
+  "id": "jaguar-2",
+  "chassis": "Jaguar",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3123,
+  "tonnage": 35,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 16,
+      "FRL": 16,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 16,
+      "RRL": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun-array",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun-array",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLMediumPulseLaser",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMGA",
+      "Clan Machine Gun Ammo - Half",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLMediumPulseLaser",
+      "CLMG",
+      "CLMG",
+      "CLMG",
+      "CLMGA",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLActiveProbe",
+      "CLLightTAG"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "mulId": 6613,
+  "role": "Striker",
+  "source": "TR:3145:LC"
+}

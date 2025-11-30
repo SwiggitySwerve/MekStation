@@ -1,0 +1,209 @@
+{
+  "id": "chameleon-trc-4b",
+  "chassis": "Chameleon",
+  "model": "TRC-4B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2510,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Small Laser",
+      "Small Laser",
+      "IS Ammo MG - Full",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Small Laser",
+      "Small Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Machine Gun",
+      "Machine Gun"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_pilot"
+  ],
+  "fluff": {
+    "overview": "Since the Terran Hegemony introduced it in 2510, the Chameleon has been the premiere training BattleMech for light- and medium-BattleMech MechWarriors.",
+    "capabilities": "The Chameleon was designed to help a new MechWarrior master the skills of maneuvering and heat management, with a top speed of 97.2 km/h and a jumping distance of 180 meters. The 'Mech also had an almost all energy weapons loadout, but cooled only by 10 single heat sinks; this paucity of freezers forces MechWarriors to concentrate on the 'Mech's heat levels.",
+    "history": "In fact, with its role away from the battlefield, except in the most desperate of circumstances, the Chameleon has suffered relatively little attrition. Combined with its continuous production on Hesperus II, the Chameleon is one of the most common BattleMechs. Even in the 31st century, the Chameleon is widely used at academies and training cadres throughout the Inner Sphere. In some instances, the Chameleon had been forced into combat situations, notably during the Dragoon Civil War. Production of the Chameleon halted briefly in 3052 when Defiance Industries decided to switch its production to the Nightsky, but was quickly resumed when J.B. BattleMechs Incorporated purchased the rights to the design. J.B. BattleMechs also introduced two battleworthy variants of the Chameleon. The Chameleon is a training 'Mech, intended to simulate a variety of opponents by mounting a wide variety of weapon systems. While a medium 'Mech by design, it doesn't always look like one; it can be fitted out with extra plates to modify its appearance, and carries special electronics to falsify its signature. It is these special abilities that let it look and scan as something other than what it is, hence the machine's name.",
+    "deployment": "Also referred to as the CHM-3 Chameleon Training Scout, this formerly common but now obscure training 'Mech was armed with one large laser, two medium lasers, four small lasers, and two machine guns. With only 10 single heat sink this 'Mech was quite prone to overheating, forcing trainees to carefully manage their heat. As manufactured, this 'Mech is perhaps the only Level 1 official, if not canonical, design with 3 critical spaces of equipment installed in the center torso, two machine guns and half a ton of ammo, in violation of the design rules released with it. Additionally, as released, a quarter ton of armor remained unallocated.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Hesperus II",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "JUMPJET": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 546,
+  "role": "Scout",
+  "source": "RG25"
+}

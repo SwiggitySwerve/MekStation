@@ -1,0 +1,197 @@
+{
+  "id": "avalanche-avl-1o",
+  "chassis": "Avalanche",
+  "model": "AVL-1O",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3133,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 8
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "LRM 10 (OMNIPOD)",
+      "LRM 10 (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "LRM 10 (OMNIPOD)",
+      "LRM 10 (OMNIPOD)",
+      "IS Ammo LRM-10 (OMNIPOD)",
+      "IS Ammo LRM-10 (OMNIPOD)",
+      "ISCASE",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Avalanche is a thirty-second century medium OmniMech, first deployed by the Draconis Combine and Clan Nova Cat.",
+    "capabilities": "Constructed using Inner Sphere technologies, the 'Mech design was envisioned with economics in mind. The Avalanche is powered by a 250-rated fusion engine, giving it a modest maximum speed of 86 km/h, while its hull is protected by 10 tons of standard armor, which gives it less armor protection than other designs of the time. Mobility is enhanced with five jump jets, and CASE mounted in its right torso protects against complete destruction from a magazine detonation. Additional equipment and weapons are allotted 16 tons of pod space, giving decent flexibility.",
+    "history": "The 'Mech was conceived as part of a joint project between House Kurita and its then ally Clan Nova Cat, and served as part of an effort to aid in the rebuilding the Clan's depleted touman as a result of the aftermath of the 2nd Combine-Dominion War that ended in 3101. The 'Mech would be developed over the next 30 years, however development would prove to be challenging for both groups. After decades of development, the Avalanche would still have a number of design flaws which would give it a bad reputation among warriors of Clan Nova Cat. The 'Mech would soon be deployed shortly before House Kurita's invasion of the Republic of the Sphere, where it would serve among House Kurita's elite forces. After the destruction of Clan Nova Cat, as a result of its revolt against Coordinator Yori Kurita, the dead Clan's allotment of Avalanches would be sold off to other Inner Sphere powers.",
+    "deployment": "The Avalanche gains its name from its primary configuration which consists of two LRM-10 launchers in its torso, which obscure it in a white, snow-like cloud of smoke when firing. These are backed up with a quartet of ER medium lasers mounted in the arms.",
+    "manufacturer": "Luthien Armor Works",
+    "primaryFactory": "Luthien",
+    "systemManufacturer": {
+      "CHASSIS": "Luthien Class M Endo Steel",
+      "ENGINE": "Hermes 250",
+      "ARMOR": "Mitchel Argon Standard",
+      "JUMPJET": "Icarus Standard",
+      "COMMUNICATIONS": "Sipher CommCon SCU-9",
+      "TARGETING": "Matabushi Stalker"
+    }
+  },
+  "mulId": 6396,
+  "role": "Missile Boat",
+  "source": "TR:3145:DC"
+}

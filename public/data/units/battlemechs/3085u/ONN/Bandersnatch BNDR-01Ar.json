@@ -1,0 +1,212 @@
+{
+  "id": "bandersnatch-bndr-01ar",
+  "chassis": "Bandersnatch",
+  "model": "BNDR-01Ar",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3071,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "HEAD"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "Medium Laser",
+      "Medium Laser",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "Medium Laser",
+      "Medium Laser",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo",
+      "ISCASE",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser (R)",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo",
+      "ISCASE",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "LRM 5",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "stable",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Bandersnatch, who receives his name from the monster mentioned in Lewis Carroll's \"Wonderland\" series, is the brainchild of Felifious Bander and is built around the concept of an affordable and effective BattleMech for sale to mercenary units.",
+    "capabilities": "The Bandersnatch is built using some common components with the Marauder in an attempt to make the 'Mech cheaper and easier to repair. The 'Mech has a top speed of 64.8 kph which is average for a 'Mech of its weight. The Bandersnatch also uses double heat sinks for their superior heat dissipation capabilities, allowing a heavy weapons payload to be used by the 'Mech. Finally, the Bandersnatch carries a respectable eleven tons of armor. While not the maximum amount of armor that the chassis can handle, the 'Mech is still well protected.",
+    "deployment": "A simple refit, this version carries a Guardian ECM Suite in the center torso to offset the Blakist C3i system. To make room for this system, all rear defenses have been removed except for a single ER Small Laser. BV (2.0) = 1522",
+    "manufacturer": "Bander BattleMechs, Kressly WarWorks",
+    "primaryFactory": "Terra Firma (Bander BattleMechs), Epsilon Eridani (Kressly WarWorks)",
+    "systemManufacturer": {
+      "CHASSIS": "Bander Custom 1",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Valiant Chainmail",
+      "COMMUNICATIONS": "Winston Mega Boozee Mark IX",
+      "TARGETING": "Winston Sidewinder"
+    }
+  },
+  "mulId": 218,
+  "role": "Brawler",
+  "source": "TR:3085"
+}

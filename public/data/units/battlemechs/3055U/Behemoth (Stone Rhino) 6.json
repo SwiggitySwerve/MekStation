@@ -1,0 +1,228 @@
+{
+  "id": "behemoth-6",
+  "chassis": "Behemoth",
+  "model": "6",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2999,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 16
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 16
+      },
+      "CENTER_TORSO": {
+        "front": 43,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 18
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 2
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "barrel_fists_la",
+    "barrel_fists_ra",
+    "pro_actuator",
+    "oversized",
+    "poor_performance",
+    "weak_head_1"
+  ],
+  "fluff": {
+    "overview": "The Stone Rhino was one of the most remarkable surprises sprung upon the Inner Sphere by the invading Clans. The Inner Sphere named the 'Mech Behemoth. It was apparently derived from the Matar, which was also known as \"Amaris' Folly\".",
+    "capabilities": "Though visually resembling the Matar, the Stone Rhino is ten tons lighter than \"Amaris' Folly\", marking it an assault-class 'Mech instead of a superheavy design. Despite the reduced weight it achieves a roughly similar damage output through superior Clan weaponry. Similar to its progenitor, the Stone Rhino is a fairly slow design with the addition of Jump Jets barely mitigating the mobility issues over short distances. Eighteen tons of armor provides reasonable protection until the 'Mech becomes a target of priority. Thus, despite bringing awesome firepower to the battlefield, these machines often cannot be used effectively by field commanders because they ultimately cannot afford to lose one.",
+    "history": "Developed during the Golden Century as somewhat of a passion project, the Scientist Caste of Clan Smoke Jaguar sought to prove the superiority of the Clans by turning the flawed Matar into a successful design to achieve what the Inner Sphere could not. The resulting 'Mech was christened the Stone Rhino in honor of the nearly indestructible beast native to Eden. Mainly seen in the Smoke Jaguars touman, scattered examples of the Stone Rhino do appear in other Clans even though it was produced in somewhat limited numbers. Because of these low production numbers, most Stone Rhinos in existence are ancient machines with long and storied histories of their combat actions and their quirks in the hangar. Following the fall of the Smoke Jaguars, Clan Goliath Scorpion's need for new machines to defend their captured Jaguar holdings led them to revisit the Matars original design specs. They rapidly developed a visually different and powerful \"new\" 'Mech that was immediately put into production on Tokasha while still using the Stone Rhino name. However, the Scorpions would soon need to scramble to establish new production elsewhere after Clan Hell's Horses captured their Tokasha holdings. This allowed the Horses to produce new variants, and the Horses ultimately established a production line for the 'Mech on Csesztreg following their ejection from the Clan Homeworlds.\nmanufacturer:Tokasha Mechworks\nprimaryfactory:Tokasha\nsystemmanufacturer:CHASSIS:Star League Monster (Standard)\nsystemmanufacturer:ENGINE:Type 79 400 XL Fusion\nsystemmanufacturer:ARMOR:Compound 12A1 Standard with CASE\nsystemmanufacturer:JUMPJET:Grandthrust Mk. 5\nsystemmanufacturer:COMMUNICATIONS:Garret L15\nsystemmanufacturer:TARGETING:RCA Instatrac Version 8a",
+    "deployment": "A close combat dueling design based on the Stone Rhino 5, the Stone Rhino 6 is armed with a simple yet effective loadout of 14 Medium Pulse Lasers. These are backed up by a single ER Small Laser."
+  },
+  "mulId": 3816,
+  "role": "Brawler",
+  "source": "TR:3055U"
+}

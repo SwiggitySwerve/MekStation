@@ -1,0 +1,174 @@
+{
+  "id": "loki-mk-ii-t",
+  "chassis": "Loki Mk II",
+  "model": "T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3142,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLUltraAC10 (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "CLTargeting Computer (OMNIPOD)",
+      "Supercharger (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLSRM4 (OMNIPOD)",
+      "Clan Ammo SRM-4 (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Ultra AC/10 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "mulId": 9573,
+  "role": "Brawler",
+  "source": "RG33"
+}

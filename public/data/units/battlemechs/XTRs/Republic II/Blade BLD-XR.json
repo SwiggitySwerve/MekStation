@@ -1,0 +1,174 @@
+{
+  "id": "blade-bld-xr",
+  "chassis": "Blade",
+  "model": "BLD-XR",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3125,
+  "tonnage": 35,
+  "engine": {
+    "type": "XL",
+    "rating": 245
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "REACTIVE",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lac-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lac-2",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Light PPC",
+      "Light PPC",
+      "Light Auto Cannon/2",
+      "IS Ammo LAC/2",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reactive",
+      "IS Reactive",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Light PPC",
+      "Light PPC",
+      "Light Auto Cannon/2",
+      "IS Ammo LAC/2",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reactive",
+      "IS Reactive",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Reactive",
+      "IS Reactive"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Reactive",
+      "IS Reactive"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "pro_actuator"
+  ],
+  "mulId": 7345,
+  "role": "Sniper",
+  "source": "XTR:RotS 2"
+}

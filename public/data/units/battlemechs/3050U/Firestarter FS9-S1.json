@@ -1,0 +1,196 @@
+{
+  "id": "firestarter-fs9-s1",
+  "chassis": "Firestarter",
+  "model": "FS9-S1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3049,
+  "tonnage": 35,
+  "engine": {
+    "type": "FUSION",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 7,
+      "RIGHT_ARM": 7,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 13,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser",
+      "Flamer",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser",
+      "Flamer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISAMS Ammo",
+      "ISAntiMissileSystem",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Small Laser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Flamer (R)",
+      "Flamer"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "Originally intended as a mobile incendiary âMech, the Firestarter evolved into a decent scouting and reconnaissance platform.",
+    "capabilities": "Despite being shielded by five and a half tons of armor and capable of jumping 180 meters, the Firestarter was powerless against medium or heavyweight opponents. Instead, an entire strategy was built around its ability to cause wildfires, with strategically positioned blazes routing an opponent or covering a withdrawal and impeding any pursuit. Firestarter MechWarriors enjoyed setting fire to densely forested areas when enemy 'Mechs marched through them, as well as any buildings where the enemy was hiding.Â",
+    "history": "Firestarters, both ancient and contemporary, can still be found in abundance among planetary militias and House troops. Even though Blakist forces have taken over CMW's principal plant on Coventry, spare parts are still accessible from other Firestarter producers (including LAW, Ceres Metals, Defiance, and Independence Weaponry). Loki field offices near the Circinus Federation frontier are concerned about reports of a new variety using endo steel technology on Federation-occupied worlds. With its particular load-out, this new variation appears to be designed to spread chaos and destruction. Firestarters have also been seen in Level II formations with Blakist soldiers in their Protectorate, most frequently at \"police demonstrations\" and guarding suspected prison sites. These versions are thought to be Coventry goods.\nmanufacturer:Coventry Metal Works\nprimaryfactory:Coventry\nsystemmanufacturer:CHASSIS:Foundation Ultralight Endo Steel\nsystemmanufacturer:ENGINE:Omni 210\nsystemmanufacturer:ARMOR:Livingston Ceramics\nsystemmanufacturer:JUMPJET:Luxor Load Lifters\nsystemmanufacturer:COMMUNICATIONS:Cyclops 14 with ECM\nsystemmanufacturer:TARGETING:Cyclops 9",
+    "deployment": "The FS9-S1 is identical to the FS9-S, except that it carries a Guardian ECM suite instead of the Beagle active probe."
+  },
+  "mulId": 1113,
+  "role": "Scout",
+  "source": "TR:3050"
+}

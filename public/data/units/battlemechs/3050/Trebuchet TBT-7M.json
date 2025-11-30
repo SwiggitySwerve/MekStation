@@ -1,0 +1,211 @@
+{
+  "id": "trebuchet-tbt-7m",
+  "chassis": "Trebuchet",
+  "model": "TBT-7M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3048,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "1-islrm15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-islrm15",
+      "location": "LEFT_ARM,_AMMO:16"
+    },
+    {
+      "id": "1-isnarcbeacon",
+      "location": "LEFT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "2-ismediumlaser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLRM15",
+      "ISLRM15",
+      "ISLRM15",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISNarcBeacon",
+      "ISNarcBeacon",
+      "ISLRM15 Ammo Narc-capable",
+      "ISNarc Pods",
+      "ISNarc Pods",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLRM15",
+      "ISLRM15",
+      "ISLRM15",
+      "ISLRM15 Ammo Narc-capable",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "The Trebuchet (also jovially referred to as the Trenchbucket) is a mainline medium weight BattleMech considered to be a fine blend of long- and short-range fire support for a unit of its size.",
+    "capabilities": "Unlike many other pre-Clan 'Mechs, the Trebuchet was designed from the beginning to work as part of a lance instead of functioning as a standalone model.",
+    "history": "The Trebuchet first walked off assembly lines in 2780 for the SLDF in the final years of the Star League, between the liberation of Terra from Stefan Amaris and Aleksandr Kerensky's departure. With the onset of the Succession Wars the Trebuchet would become an almost exclusive staple of the Free Worlds League since its manufacturing site on Stewart fell within their territory. However the original TBT-3C models proved to be too difficult to repair and produce with the disappearance of advanced technology, and in 2799 Corean Enterprises went back to the drawing board to create the TBT-5N using older, mass-producible technology. The Free Worlds League Military often partnered the Trebuchet with the Archer, while lances consisting of an Archer, two Trebuchets and a Centurion became a common configuration used for siege operations and by the Regulan Hussars. However the design also found its way into the hands of the other Great Houses and served with distinction during the Succession Wars in nearly every major operation, with a number of variants created to fulfill various needs. The technological renaissance which swept through the Inner Sphere during the 3030s allowed first Kali Yama and then the Irian corporations to begin producing the Trebuchet as well, culminating in upgraded designs debuting several years prior to the Clan Invasion. As late as 3071 advanced Trebuchet variants would continue to be produced and found themselves used by new actors on the galactic stage, most notoriously the Word of Blake.",
+    "deployment": "Upgraded with Star League technology, the 7M variant is built with on an Endo Steel chassis and uses a 250 Magna XL engine, giving it the same performance but allowing the design to mount ten double heat sinks and five Rawlings 50 jump jets for a jumping distance of one hundred and fifty meters. It also allows for the Zeus LRM-15s' ammo to be protected by CASE and for a Narc Missile Beacon with two tons of ammo, improving not only the Trebuchet's accuracy but allowing it to share targeting information with other similarly-equipped 'Mechs.",
+    "manufacturer": "Irian BattleMechs Unlimited,Kali Yama Weapons Industries Inc,Corean Enterprises,Corean Enterprises - MacAdams-Suharno",
+    "primaryFactory": "Irian,Kalidasa,New Avalon,Stewart",
+    "systemManufacturer": {
+      "CHASSIS": "Corean-II Deluxe Endo Steel",
+      "ENGINE": "Magna 250 XL",
+      "ARMOR": "Starshield with CASE",
+      "JUMPJET": "Rawlings 50",
+      "COMMUNICATIONS": "Corean TransBand-J9",
+      "TARGETING": "Corean B-Tech"
+    }
+  },
+  "mulId": 3300,
+  "role": "Missile Boat",
+  "source": "TR:3050"
+}

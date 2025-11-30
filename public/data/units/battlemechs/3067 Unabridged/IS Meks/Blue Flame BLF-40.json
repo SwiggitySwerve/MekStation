@@ -1,0 +1,130 @@
+{
+  "id": "blue-flame-blf-40",
+  "chassis": "Blue Flame",
+  "model": "BLF-40",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 45,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 22,
+      "FRL": 22,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 22,
+      "RRL": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light PPC",
+      "Light PPC",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Light PPC",
+      "Light PPC",
+      "ISMediumVSPLaser (R)",
+      "ISMediumVSPLaser (R)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light PPC",
+      "Light PPC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISC3iUnit",
+      "ISC3iUnit"
+    ]
+  },
+  "quirks": [
+    "directional_torso_mount",
+    "bad_rep_is"
+  ],
+  "mulId": 5672,
+  "role": "Sniper",
+  "source": "RS:3067u"
+}

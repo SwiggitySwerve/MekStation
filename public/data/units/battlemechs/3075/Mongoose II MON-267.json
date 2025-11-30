@@ -1,0 +1,177 @@
+{
+  "id": "mongoose-ii-mon-267",
+  "chassis": "Mongoose II",
+  "model": "MON-267",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 9,
+      "RIGHT_ARM": 9,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "ISMASC",
+      "ISMASC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "Luthien Armor Works was working on an upgrade of the Mongoose for ComStar to be a faster and tougher scout 'Mech, when the chaos on Luthien during the early years of the Jihad forced them to look elsewhere.",
+    "capabilities": "The result is the Mongoose II, an effective hunter-killer that is able to find hidden enemies and provide long range fire support. Equipped with an impressive suite of electronics, the 'Mech carries a Beagle Active Probe, Guardian ECM Suite, C3i Computer, and MASC that enables it move up to 172 km/h in bursts. A respectable seven tons of armor protects the Mongoose II.",
+    "history": "ComStar financed a refit of a lost Rim Worlds Republic factory on Kwangjong-ni. New versions of the Zeus and Banshee were walking off the line for battlefield testing when Word of Blake conquered Hesperus II. Anxious to stay solvent, ComStar C-bills paid for the upgrade to the Kwangjong-ni facility. In exchange, Defiance sold them sixty-six percent of its production for its first two years.",
+    "deployment": "This variant is built using a C3 Slave Unit so that it can integrate with the C3 systems in use by the Lyran Alliance. Six and a half tons of Stealth Armor use the ECM Suite to make the 267 a difficult target at range, taking advantage of the long range weapon. A Targeting Computer makes the laser even more accurate.",
+    "manufacturer": "Arc-Royal MechWorks, Defiance Manufacturing Annex",
+    "primaryFactory": "Arc-Royal,Kwangjong-ni",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain Type 69-40S",
+      "ENGINE": "Pitban 320 XL",
+      "ARMOR": "Unknown Stealth",
+      "COMMUNICATIONS": "Nashan Comm-i U-284",
+      "TARGETING": "Nashan Trac V-102 with Active Probe"
+    }
+  },
+  "mulId": 2217,
+  "role": "Scout",
+  "source": "TR:3075"
+}

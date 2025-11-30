@@ -1,0 +1,214 @@
+{
+  "id": "daishi-widowmaker",
+  "chassis": "Daishi",
+  "model": "'Widowmaker'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 47,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 41,
+      "RIGHT_LEG": 41
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 25
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)",
+      "Clan Ultra AC/20 Ammo (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)",
+      "CLUltraAC20 (omnipod)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERSmallLaser (omnipod)",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_long",
+    "difficult_eject"
+  ],
+  "fluff": {
+    "overview": "The Dire Wolf is one of the OmniMechs that became feared throughout the Inner Sphere during the initial Clan Invasion and rightly so.",
+    "capabilities": "The Dire Wolf weighs in at an impressive one hundred tons and has a relatively slow cruising speed of 54 km/h provided by a 300 XL engine. Its speed and armor protection matches that of an Atlas, but it has superior potential firepower with fifty and a half tons of free pod space for weapons and equipment. It is these traits which saw the 'Mech christened Daishi (pseudo-Japanese for \"Great Death\") by the criminal underbelly of the Draconis Combine, a name that would be proven grimly accurate time and time again.",
+    "history": "The Dire Wolf was the brainchild of the Clan Wolf scientist caste, but was actually first produced by Clan Smoke Jaguar. Hearing rumors that Clan Wolf was developing the \"Ultimate Assault OmniMech\", the Jaguars won the plans and production rights in a trial that, rumor has it, was fought dishonorably. Production commenced on Huntress in 3010. In 3019, Clan Wolf began production of the OmniMech on Strana Mechty as well; Star Colonel Ulric won a trial of possession to expand manufacture into Clan Wolf. Beyond the limited manufacture of the Dire Wolf on Outreach, all Dire Wolves outside of Clans Smoke Jaguar and Wolf (or the Wolf's Dragoons) are either gifts, isorla, or were acquired through trade.\nmanufacturer:Phan Industriplex, Wolf Clan Site #1, Svarstaad Industriplex Delta\nprimaryfactory:Huntress, Strana Mechty, Svarstaad\nsystemmanufacturer:CHASSIS:Titan HX\nsystemmanufacturer:ENGINE:Starfire 300 XL\nsystemmanufacturer:ARMOR:Compound 12B2 Standard\nsystemmanufacturer:COMMUNICATIONS:TJ6 âBellâ Integrated Communication System\nsystemmanufacturer:TARGETING:Mars System 9",
+    "deployment": "The preferred configuration of the Black Widow Natasha Kerensky, the Widowmaker can do a great deal of damage at any range. For long range combat, an ER PPC backed up by a Large Pulse Laser mounted in each arm. For close combat, the Widowmaker carries three ER Medium Lasers, an ER Small Laser, and an Ultra Autocannon/20. This mix of weaponry served Natasha Kerensky well until her death at the hands of Jade Falcon Star Commander Joanna. The Widowmaker now rests on the floor of the Great Gash on Twycross, in silent memorial to its legendary pilot."
+  },
+  "mulId": 811,
+  "role": "Juggernaut",
+  "source": "TR:3050"
+}

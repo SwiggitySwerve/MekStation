@@ -1,0 +1,188 @@
+{
+  "id": "arcas-2",
+  "chassis": "Arcas",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "1-clerppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-clerppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clmediumpulselaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-clmediumpulselaser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLERPPC",
+      "CLERPPC",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLERPPC",
+      "CLERPPC",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLDouble Heat Sink",
+      "CLMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "First produced in 3061, the Arcas is expensive for a second-line 'Mech.",
+    "capabilities": "It utilizes an XL Engine that enables it to move up to 86 km/h and jump jets for a maximum jump capacity of one hundred fifty meters at a time. The Arcas mounts thirteen and a half tons of standard armor, the most a 'Mech of its size can carry. This variant is used primarily when far from supply lines. It removes the missiles and ER Large Lasers for a pair of ER PPCs and additional double heat sinks.",
+    "history": "Following the move of Clan Ghost Bear to the Inner Sphere, Khan Bjorn Jorgensson ordered the creation of a new BattleMech. The Arcas was designed as a symbol to mark the beginning of a new era, so Loremaster Laurie Tseng named it after a character in the mythology of the Greeks who eventually became the constellation known as Ursa Minor.",
+    "manufacturer": "Bergan Industries",
+    "primaryFactory": "Alshain",
+    "systemManufacturer": {
+      "CHASSIS": "Bergan Version 6.3 Endo Steel",
+      "ENGINE": "325 XL",
+      "ARMOR": "Compound 12A1 Standard",
+      "JUMPJET": "Clan Standard Type A3",
+      "COMMUNICATIONS": "Garret L15",
+      "TARGETING": "RCA Instatrac Version 8"
+    }
+  },
+  "mulId": 3718,
+  "role": "Skirmisher",
+  "source": "TR:3067"
+}

@@ -1,0 +1,191 @@
+{
+  "id": "mad-cat-mk-iv-c",
+  "chassis": "Mad Cat Mk IV",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3136,
+  "tonnage": 75,
+  "engine": {
+    "type": "XXL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 31,
+      "RIGHT_LEG": 31
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLArtemisV (omnipod)",
+      "CLArtemisV (omnipod)",
+      "Clan Ammo LRM-15 (Clan) Artemis V-capable (omnipod)",
+      "Clan Ammo LRM-15 (Clan) Artemis V-capable (omnipod)",
+      "CLCASEII (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLArtemisV (omnipod)",
+      "CLArtemisV (omnipod)",
+      "Clan Ammo LRM-15 (Clan) Artemis V-capable (omnipod)",
+      "CLCASEII (omnipod)",
+      "Clan Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro (armored)",
+      "Gyro (armored)",
+      "Gyro (armored)",
+      "Gyro (armored)",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "stable",
+    "pro_actuator",
+    "non_standard"
+  ],
+  "mulId": 6573,
+  "role": "Missile Boat",
+  "source": "TR:3145:Merc"
+}

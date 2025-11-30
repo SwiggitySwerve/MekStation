@@ -1,0 +1,188 @@
+{
+  "id": "warhammer-whm-9k",
+  "chassis": "Warhammer",
+  "model": "WHM-9K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3105,
+  "tonnage": 70,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-9",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "IS Ammo MML-9 LRM",
+      "IS Ammo MML-9 SRM",
+      "ISCASEII",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "rugged_2",
+    "searchlight",
+    "stable",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Warhammer proved to be a very capable 'Mech, and for centuries practically defined the entire class of heavy 'Mechs. Boasting incredible firepower and respectable armoring, the Warhammer served prominently in the Star League Defense Force and was one of the premier 'Mechs in the Gunslinger Program. Indeed, many of the greatest MechWarriors in history were Warhammer pilots.",
+    "capabilities": "The Warhammer was well-protected with strong armor for its age and weight, and the large number of heat sinks allowed it to \"fire and maneuver\" without fear. The most common engine arrangement propels the 'Mech to a cruising speed of 43.2 km/h and a top speed of 64.8 km/h, which is quick enough to keep up with most battles. The 'Mech's electronics, albeit antiquated by the 31st Century, were basic and functional, allowing it to assume command tasks when necessary. The targeting mechanism, in particular, made use of an unique Searchlight positioned above the 'Mech's left shoulder. The device could act as a conventional searchlight or immediately connect to the O/P 1500 ARB tracking system, transforming the 'Mech into a capable night fighter.",
+    "history": "StarCorps Industries introduced the Warhammer BattleMech in 2515 as \"a mobile 'Mech with adequate firepower to destroy or severely damage any 'Mech of the same weight class or lower.\" The Warhammer continued to serve in the forces of the Great Houses throughout the Succession Wars after the Star League's demise. Despite very modest production rates, the large number of Warhammer factories dispersed over both the Inner Sphere and Periphery contributed to its endurance; Ronin Inc. was never able to construct more than five Warhammers per year from their Wallis factory. The recovery of the Helm Memory Core would prompt Inner Sphere manufacturers to create a slew of new Lostech-powered Warhammer versions, while the Periphery continued to produce original models for mercenaries and black marketeers. After the Clan Invasion, StarCorps chose to rehabilitate the ancient 'Mech with the greatest technological advancements, giving it new life. Initially, the business planned to construct only one new variety from its Crofton plant, but when word of the idea spread, other departments within StarCorps became involved and gathered on Crofton for a week-long conference to iron out the details. The conference turned out to be more jubilant than expected, and at the end of the bacchanalian \"negotiations,\" it was determined that four new variations would be built: one for each of the Federated Suns, Capellan, Free Worlds League, and Lyran forces, employing technology unique to each realm. During the FedCom Civil War, some of these new 'Mechs were put through their paces.",
+    "deployment": "House Kuritaâs â9K drops the Warhammer's complement of short range weaponry to focus on sheer long range power. A Heavy PPC is carried in both arms, while a large MML-9 resides in the right torso and provides some short range bite if an opponent gets within the PPCs' minimum range. Its two tons of ammo are mounted alongside in a CASE II magazine. 16 double heat sinks keep the design fairly cool, though overtaxing them isnât difficult. A light engine and endo steel are utilized.",
+    "manufacturer": "Alshain Weapons",
+    "primaryFactory": "Tok Do",
+    "systemManufacturer": {
+      "CHASSIS": "StarCorps 200-Endo Steel",
+      "ENGINE": "GM 280 Light",
+      "ARMOR": "Leviathon Plus",
+      "COMMUNICATIONS": "Sipher Security Plus",
+      "TARGETING": "Matabushi Sentinel"
+    }
+  },
+  "mulId": 7567,
+  "role": "Brawler",
+  "source": "RG07"
+}

@@ -1,0 +1,118 @@
+{
+  "id": "notos-d",
+  "chassis": "Notos",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 24,
+      "FRL": 24,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 8,
+      "RLL": 24,
+      "RRL": 24
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "Laser Heat Sink (omnipod)",
+      "Laser Heat Sink (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Laser Heat Sink (omnipod)",
+      "Laser Heat Sink (omnipod)",
+      "Laser Heat Sink (omnipod)",
+      "Laser Heat Sink (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser (omnipod)",
+      "CLERLargeLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7374,
+  "role": "Skirmisher",
+  "source": "XTR:RotS 3"
+}

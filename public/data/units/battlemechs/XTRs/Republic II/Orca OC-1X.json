@@ -1,0 +1,193 @@
+{
+  "id": "orca-oc-1x",
+  "chassis": "Orca",
+  "model": "OC-1X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3103,
+  "tonnage": 200,
+  "engine": {
+    "type": "XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 61,
+      "RIGHT_ARM": 61,
+      "LEFT_TORSO": {
+        "front": 61,
+        "rear": 20
+      },
+      "RIGHT_TORSO": {
+        "front": 61,
+        "rear": 20
+      },
+      "CENTER_TORSO": {
+        "front": 90,
+        "rear": 30
+      },
+      "HEAD": 12,
+      "LEFT_LEG": 80,
+      "RIGHT_LEG": 80
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 19
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "sniper-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISERLargeLaser",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISERPPC",
+      "ISERPPC",
+      "IS Ammo LRM-20|IS Ammo LRM-20",
+      "IS Ammo LRM-20",
+      "IS Ammo SRM-6|IS Ammo SRM-6",
+      "IS Gauss Ammo|IS Gauss Ammo",
+      "ISCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERPPC",
+      "ISERPPC",
+      "ISSniperCannonAmmo|ISSniperCannonAmmo",
+      "ISSniperCannonAmmo",
+      "ISCASEII",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "SRM 6",
+      "ISSmallXPulseLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISGuardianECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "hard_pilot",
+    "obsolete",
+    "poor_performance",
+    "prototype"
+  ],
+  "mulId": 7356,
+  "role": "Sniper",
+  "source": "XTR:RotS 2"
+}

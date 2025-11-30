@@ -1,0 +1,188 @@
+{
+  "id": "legacy-lgc-01",
+  "chassis": "Legacy",
+  "model": "LGC-01",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3064,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERSmallLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISStreakSRM4",
+      "IS Streak SRM 4 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "directional_torso_mount",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Legacy was produced as a testbed for new technologies, including the Ultra AC/10 and C3i Computer.",
+    "capabilities": "They upgraded its targeting system and included the C3i, which allows six units to coordinate fire. Its thick armor protection, standard fusion engine, and CASE give the Legacy remarkable staying power on the battlefield. One of the weaknesses of the 'Mech is its slow speed compared to other 'Mechs of similar size, but the inclusion of jump jets sought to counter that with superior maneuverability.",
+    "history": "At the request of Word of Blake Precentor Martial Cameron St. Jamais. The designers used a failed Star League 'Mech called the Rising Star as the base for the Legacy.\nmanufacturer:Skobel MechWorks\nprimaryfactory:Russia, Terra\nsystemmanufacturer:CHASSIS:Skobel Template 8 Endo Steel\nsystemmanufacturer:ENGINE:Pitban 240\nsystemmanufacturer:ARMOR:Aldis Plate with CASE\nsystemmanufacturer:JUMPJET:CurtissJet 80\nsystemmanufacturer:COMMUNICATIONS:Skobel Wave VII Comm with C3i Computer\nsystemmanufacturer:TARGETING:Falcon 15 Watcher",
+    "deployment": "The main guns on the Legacy are its two large-bore Mydron Excel autocannon, which are capable of punching through any opposing 'Mech with amazing speed. The three Diverse Optics lasers and the Guided Technologies 2nd Gen 4-tube are clearly backup weapons. The lack of significant long-range weapons hampers the design somewhat, an absence that is only exacerbated by its slow speed. Moreover, the 'Mech's vaunted durability is limited due to its reliance on ammo-fed weaponry. Should the Legacy run out of ammunition, it is clearly advantageous for the pilot to quit the field rather than attempt to use energy weaponry that can be outclassed by 'Mechs half its size."
+  },
+  "mulId": 4488,
+  "role": "Juggernaut",
+  "source": "TR:3067"
+}

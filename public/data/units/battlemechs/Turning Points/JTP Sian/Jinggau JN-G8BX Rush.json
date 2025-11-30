@@ -1,0 +1,202 @@
+{
+  "id": "jinggau-jn-g8bx-rush",
+  "chassis": "Jinggau",
+  "model": "JN-G8BX (Rush)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 35,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-issniperartcannon",
+      "location": "RIGHT_ARM,_AMMO:20"
+    },
+    {
+      "id": "1-ismediumxpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumxpulselaser",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-ismediumxpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumxpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-istag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isc3slaveunit",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon",
+      "ISSniperCannon"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISC3SlaveUnit",
+      "ISTAG",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISSniperCannonAmmo",
+      "ISSniperCannonAmmo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISMediumXPulseLaser",
+      "Light Ferro-Fibrous"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "weak_head_2"
+  ],
+  "fluff": {
+    "overview": "The Jinggau is made to engage in direct combat, not lurk at the periphery or wait for a few fortunate long-range hits.",
+    "capabilities": "It can close relatively easily in virtually any terrain thanks to its top-end mobility for its weight, which includes a running speed of over 85 kph and a 150-meter leap capacity. With more than eleven tons of armor, the Jinggau has a very good chance of surviving whether traversing wide terrain or fighting in stand-up combat. The major offense comes from a number of strong hitting primary weapons including the Zhi-tong-yao (\"painkiller\") Gauss rifle. The weapon fires piercing shots until the Jinggau is within striking distance of its secondary lasers, which can frighten the pilot of even an assault mech. At that point, the main armaments continue to unleash their knockdown power punches while the lasers look for vulnerable areas to butcher an enemy machine.",
+    "history": "Word of Blake's Toyama faction started sending technicians and supplies to Capellan Chancellor Sun-Tzu Liao toward the end of 3058 to assist with the completion of overhauling the old Star League production facility on Victoria. This assistance, which appeared to be a personal debt owed to Chancellor Liao, aided the Capellans in finishing up construction on the Jinggau assembly line and increased production of the Duan Gung BattleMech design. The first Jinggau, which is Chinese for siren, is said to have left the factory in early 3059, but for unknown reasons, production was suspended for more than a year before being partially resumed. Presenting a lance of Jinggau to the Fourth Tau Ceti Rangers, Sun-Tzu Liao said, âThis is not a âMech relegated to support roles, or reconnaissance or garrison duty. This is a BattleMech for seeking out your opponent and doing him harm. This is a âMech with which to make your enemy miserable.â The Jinggau's extended-range medium lasers, which are made by the Free Worlds League, intrigue engineers studying it. All of the Jinggau's components, with the exception of its jump jets and targeting system, are supposed to be constructed on Victoria, just like the Duan Gung.",
+    "deployment": "This was testbed 'Mech which was fitted with experimental weaponry and equipment by Warrior House Imarra. The Jinggau's main weaponry was replaced with an experimental Sniper Cannon and four Medium X-Pulse Lasers. The 'Mech was equipped with an XL Gyro, TAG, and a C3 slave.",
+    "manufacturer": "Refit",
+    "primaryFactory": "Victoria",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type II Endo Steel",
+      "ENGINE": "VOX 325 XL",
+      "ARMOR": "Hellespont Lite",
+      "JUMPJET": "Hellespont Leapers",
+      "COMMUNICATIONS": "Dian-bao Comms, heavily insulated",
+      "TARGETING": "Dynatec Special T&T"
+    }
+  },
+  "mulId": 1709,
+  "role": "Missile Boat",
+  "source": "JTP:Sian"
+}

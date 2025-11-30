@@ -1,0 +1,224 @@
+{
+  "id": "black-lanner-f",
+  "chassis": "Black Lanner",
+  "model": "F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3121,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 385
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 13,
+      "RIGHT_ARM": 13,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLightMG (OMNIPOD)",
+      "CLLightMG (OMNIPOD)",
+      "CLLightMG (OMNIPOD)",
+      "CLLMGA (OMNIPOD)",
+      "CLLightMG (OMNIPOD)",
+      "CLLightMG (OMNIPOD)",
+      "CLLightMG (OMNIPOD)",
+      "CLLMGA (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Light Machine Gun Ammo - Half (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLightActiveProbe (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "CLMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "fluff": {
+    "overview": "Newly developed by Clan Jade Falcon for the Clan Invasion of the Inner Sphere, the Black Lanner is a fast medium OmniMech that can take on a variety of roles.",
+    "capabilities": "Intended as a front-line 'Mech, the Black Lanner makes use of all weight-saving technology available to the Clan Jade Falcon scientists who designed it, including an XL Engine, Endo Steel, and eight tons of Ferro-Fibrous armor. The Black Lanner also includes a MASC system on the base chassis that enables it to run up to 151 km/h in bursts, allowing it to outrun many 'Mechs half its size. The design sacrifices pod space for that speed however, with an engine almost half the Black Lanner's weight leaving a mere thirteen tons for offensive weaponry.",
+    "history": "Its development triggered from the lessons learned from the Jade Falcon touman's performance during the Placement Trials for Operation REVIVAL, delays with the initial models meant the Black Lanner only arrived in the Inner Sphere with the returning Falcon Khans following the selection of ilKhan Ulric Kerensky, first seeing action during the Battle of Tukayyid as fire-support units in light reconnaissance Stars. Since its initial deployment, the Black Lanner remained primarily a Jade Falcon design, with Clan Ice Hellion and Steel Viper also using a sizable number acquired due to numerous battles and trials between rival Clans since Tukayyid. While used for independent operations, the Black Lanner is most frequently seen in conjunction with lighter designs. Mixed Stars of Black Lanners, Fire Falcons and Fire Moths are common, with the lighter 'Mechs acting as spotters and harassers for the heavier 'Mechs, flushing out the opposing units for the Black Lanner to move in for the kill. This synergistic relationship is similar to that shared between the smaller indigenous Fire Falcon and the introduced black lanners on Ironhold, both birds benefiting from the presence of the other. Originally built on the Jade Falcon homeworld of Ironhold, production would also eventually begin in the Inner Sphere to mitigate the distance to the Clan Homeworlds. By the dawn of the Wars of Reaving, production of the Black Lanner would cease in Clan Space by 3068 as tensions between the Falcons and the Homeworld Clans increased.",
+    "deployment": "This scouting configuration carries five Medium Pulse Lasers in the right arm. These are backed up by two Machine Gun Arrays in the left arm, each of which carries three Light Machine Guns. The six machine guns all use the same half ton ammunition bay.",
+    "manufacturer": "Ironhold Alpha Complex, Olivetti Weapons",
+    "primaryFactory": "Ironhold, Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "JF 5 Light Endo Steel",
+      "ENGINE": "385 JF Extralight",
+      "ARMOR": "Compound JF Ferro-Fibrous",
+      "COMMUNICATIONS": "JF Integrated",
+      "TARGETING": "Series JFVII Integrated"
+    }
+  },
+  "mulId": 8185,
+  "role": "Scout",
+  "source": "RG15"
+}

@@ -1,0 +1,129 @@
+{
+  "id": "thunder-fox-tft-c3",
+  "chassis": "Thunder Fox",
+  "model": "TFT-C3",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3085,
+  "tonnage": 55,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 17,
+      "FRL": 17,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "RLL": 17,
+      "RRL": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "c3-master-with-tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMediumXPulseLaser",
+      "ISERMediumLaser",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 3218,
+  "role": "Skirmisher",
+  "source": "TR:3085"
+}

@@ -1,0 +1,176 @@
+{
+  "id": "loki-mk-ii-hel-c",
+  "chassis": "Loki Mk II (Hel)",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3130,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-12",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-12",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "atm-12",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "atm-12",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "Clan Ammo ATM-12 HE (OMNIPOD)",
+      "Clan Ammo ATM-12 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "Clan Ammo ATM-12 HE (OMNIPOD)",
+      "Clan Ammo ATM-12 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "Clan Ammo ATM-12 HE (OMNIPOD)",
+      "Clan Ammo ATM-12 (OMNIPOD)",
+      "Clan Ammo ATM-12 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "CLATM12 (OMNIPOD)",
+      "Clan Ammo ATM-12 ER (OMNIPOD)",
+      "Clan Ammo ATM-12 ER (OMNIPOD)",
+      "Clan Ammo ATM-12 ER (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "fluff": {
+    "overview": "Introduced before the Blackout, the Loki Mk II has become prevalent within the Clans, particularly the Jade Falcon and Hellâs Horses toumans. It represents an evolution in Clan warfare, balancing firepower, armor, and versatility.",
+    "capabilities": "The Loki Mk II trades some of the original Lokiâs speed for an impressive forty tons of pod space and significantly increased armor. This design shift allows for a variety of configurations, each suited to different combat roles. The primary configuration is tailored for long-range engagement, while the A configuration offers a balanced mix of anti-armor and anti-personnel weaponry, suitable for operations away from supply lines. The B configuration provides heavy fire support, though its specialization comes at the cost of reduced defensive capabilities.",
+    "history": "The Loki Mk II's combat history is marked by notable deployments and engagements. In July 3142, the Ninth Falcon Talon Cluster of the Jade Falcons used it in a bombardment campaign on Sargasso. The robustness of the Mk IIâs armor was proven when Star Captain Henryâs unit survived a rockslide triggered during combat with the Wolves-in-Exile. Despite losing their Long Toms, the Mk IIs played a crucial role in thwarting the recapture of the world.\nmanufacturer:Csesztreg, Sudeten\nprimaryfactory:Csesztreg Industriplex Alpha , Olivetti Weaponry\nsystemmanufacturer:CHASSIS:T-E H65 Omni\nsystemmanufacturer:ENGINE:Model SF-3 (XL)\nsystemmanufacturer:ARMOR:Compound H17 Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:CH2B Alpha-Com\nsystemmanufacturer:TARGETING:Version Delta-II TTS(A)",
+    "deployment": "No information on this variant"
+  },
+  "mulId": 9571,
+  "role": "Missile Boat",
+  "source": "RG33"
+}

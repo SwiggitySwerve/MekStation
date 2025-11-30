@@ -1,0 +1,126 @@
+{
+  "id": "heavy-forester-hfl-1m-loggermech-mod",
+  "chassis": "Heavy Forester",
+  "model": "HFL-1M LoggerMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3015,
+  "tonnage": 60,
+  "engine": {
+    "type": "ICE",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 16,
+      "FRL": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 16,
+      "RRL": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ac-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ac-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Autocannon/2",
+      "Machine Gun",
+      "IS Ammo MG - Full",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Autocannon/2",
+      "Machine Gun",
+      "IS Ammo AC/2",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7871,
+  "role": "Sniper",
+  "source": "TR:I"
+}

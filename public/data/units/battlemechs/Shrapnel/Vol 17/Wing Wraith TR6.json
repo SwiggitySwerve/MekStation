@@ -1,0 +1,180 @@
+{
+  "id": "wing-wraith-tr6",
+  "chassis": "'Wing' Wraith",
+  "model": "TR6",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3150,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "large-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "Endo-Composite",
+      "Endo-Composite",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser",
+      "Endo-Composite",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "ISPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Composite",
+      "Endo-Composite"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Composite",
+      "Endo-Composite"
+    ]
+  },
+  "fluff": {
+    "overview": "The Wraith is a 'Mech that, when properly employed, can wreak havoc on an enemy with its astounding speed and maneuverability. Initially developed by Curtiss Militech, it later became a key asset for the Capellan Confederation following the company's financial distress post-Jihad. The Wraith's speed, firepower, and decent armor make it a considerable threat to many 'Mechs, some being almost twice its weight.",
+    "capabilities": "The âWingâ Wraith enhances the base designâs accurate and ammunition-independent loadout with improved heat dissipation and jump range. Despite the advantages of the partial-wing technology, the TR6 suffers from slower ground speed and a demanding maintenance schedule, making it a less popular export than the more straightforward TR5. However, both variants share parts and construction processes, making continued production a low-cost endeavor.",
+    "history": "The Wing Wraith project, spearheaded by Hellespont Industries, dates back to the Capellan Crusades, but it wasnât until the 3140s that the mass-produced TR6 variant saw production. The Wraithâs assets were acquired by the Capellan Confederation after Curtiss Hydroponics, the original manufacturer, was forced to sell its military holdings to remain solvent following the Jihad. The destruction of Curtiss Militechâs homeworld, Paradise, by the Regulans during the Jihad significantly contributed to the financial distress that led to this sale. Hellespont Industries capitalized on this opportunity, integrating advanced partial-wing technology into the Wraith design to enhance its maneuverability and heat dissipation capabilities.<p>The TR6âs first major combat deployment occurred during the Victoria Rangersâ assault on Victoria in 3144. However, the results were underwhelming due to the Wraiths being reassigned to unsuitable roles, leading to significant damage and operational issues. Despite this setback, the TR6 found its stride during House Davionâs Operation Cerberus. On Narellan, Wraiths from the Second St. Ives Cheveau-LÃ©gers conducted effective raiding operations against the Second Davion Auxiliaries, showcasing their capability in hit-and-run tactics alongside Canopian Agroteras. This success spurred increased orders from various factions, including the Sea Foxes and the Magistracy Armed Forces, solidifying the Wing Wraithâs reputation as a valuable raider and scout hunter in the Capellan Confederation's arsenal.</p>",
+    "deployment": "The TR6 incorporates the improved heat dissipation and jump range of the âWingâ Wraith but suffers from slower ground speed and a more demanding maintenance schedule. It is designed for Capellan use and excels as a raider and scout hunter.",
+    "manufacturer": "Hellespont Industries",
+    "primaryFactory": "Sian",
+    "systemManufacturer": {
+      "CHASSIS": "Hellespont Wraith Endo-Composite",
+      "ENGINE": "Magna 330 XL",
+      "ARMOR": "Hellespont Stealth",
+      "JUMPJET": "Hellespont Leapers with Partial Wing",
+      "COMMUNICATIONS": "Ceres Metals Model 666",
+      "TARGETING": "Ceres Bullseye"
+    }
+  },
+  "source": "Shrap17"
+}

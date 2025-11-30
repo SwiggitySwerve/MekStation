@@ -1,0 +1,195 @@
+{
+  "id": "fire-falcon-i",
+  "chassis": "Fire Falcon",
+  "model": "I",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3134,
+  "tonnage": 25,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 11
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPlasmaCannon (OMNIPOD)",
+      "CLPlasmaCannonAmmo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "imp_sensors"
+  ],
+  "fluff": {
+    "overview": "The Fire Falcon was created in the early-3050s, apparently as a replacement for the Mist Lynx.",
+    "capabilities": "The Fire Falcon is faster, has more front-facing armor, and more pod space, though it lacks the Jump Jets of that earlier 'Mech. It makes use of weight-saving materials in the form of an XL Engine, an Endo Steel internal structure, and four tons of Ferro-Fibrous armor. Clan Jade Falcon first produced this OmniMech on their capital of Ironhold, but they soon began to produce it on the Occupation Zone headquarters of Sudeten. In November of 3069, Clan Steel Viper would sack Ironhold as part that Clan's effort to expel the Jade Falcons from the Clan Homeworlds. The invasion would end up destroying the Fire Falcon's production facilities, letting the design fade from use by Homeworlds based Clans.",
+    "deployment": "This striker configuration carries a pair of ER Medium Lasers in each arm. These are supported by another ER Medium Laser in the right torso and a Plasma Cannon with a ton of ammunition in the left torso. An extra Double Heat Sink is carried in the center torso.",
+    "manufacturer": "Ironhold Alpha Complex, Olivetti Weapons",
+    "primaryFactory": "Ironhold, Sudeten",
+    "systemManufacturer": {
+      "CHASSIS": "JF 3 Light Endo-Steel",
+      "ENGINE": "JF 200 XL",
+      "ARMOR": "Compound JF Ferro-Fibrous",
+      "COMMUNICATIONS": "JF Integrated",
+      "TARGETING": "Series JFVIII KITT"
+    }
+  },
+  "mulId": 8181,
+  "role": "Striker",
+  "source": "RG15"
+}

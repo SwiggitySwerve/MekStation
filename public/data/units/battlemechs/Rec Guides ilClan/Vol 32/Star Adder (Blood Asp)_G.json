@@ -1,0 +1,200 @@
+{
+  "id": "star-adder-g",
+  "chassis": "Star Adder",
+  "model": "G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3074,
+  "tonnage": 90,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 11
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 11
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-40",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHAG40 (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "HAG/40 Ammo (omnipod)",
+      "HAG/40 Ammo (omnipod)",
+      "HAG/40 Ammo (omnipod)",
+      "HAG/40 Ammo (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLERLargeLaser (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "One of the first 'Mechs to field the breakthrough Heavy Laser technology, the Blood Asp proves to be an offensive powerhouse. Delivering incredible damage at all ranges, the Blood Asp makes short work of any enemy regardless of size.",
+    "capabilities": "Based on the Kingfisher, the Blood Asp adds an XL engine, but space constraints forced the replacement of the Kingfisher's ferro-fibrous armor with standard plate. The Blood Asp incorporates sixteen tons of this armor and fourteen double heat sinks in the base chassis.",
+    "history": "Created by Clan Star Adder as an insult to their enemies, Clan Blood Spirit, the Blood Asp has a large amount of available pod space for its size.",
+    "deployment": "Another configuration that premiered during the relentless fighting of the Jihad era, variant G centers around the new Hyper-Assault Gauss Rifle technology. A massive Class 40 Hyper-Assault Gauss Rifle has been fitted in the left Arm and part of the left torso, along with four tons of ammunition. As its alternative weapons, the 'Mech includes a pair of ER Large Lasers split between its right arm and right torso, and a pair of Medium Pulse Lasers and Heavy Medium Lasers. Its direct fire weapons are backed up by a Targeting Computer for increased accuracy. To help cope with heat, it has also been provided with an additional three Double Heat Sinks.",
+    "manufacturer": "Sheridan LM-TA 8-10,Snow Raven Industrial Complex Alpha",
+    "primaryFactory": "Sheridan,Dante",
+    "systemManufacturer": {
+      "CHASSIS": "Type MAES-90 Light",
+      "ENGINE": "Consolidated Fusion 360 XL",
+      "ARMOR": "Forging ZZ7 Ceramic Plate",
+      "COMMUNICATIONS": "Series D8 CC-25X",
+      "TARGETING": "âHermesâ CT-42 Mk. II"
+    }
+  },
+  "mulId": 405,
+  "role": "Brawler",
+  "source": "TR:3060"
+}

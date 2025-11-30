@@ -1,0 +1,196 @@
+{
+  "id": "hauptmann-ha1-o",
+  "chassis": "Hauptmann",
+  "model": "HA1-O",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISERLargeLaser (OMNIPOD)",
+      "ISERLargeLaser (OMNIPOD)",
+      "ISMediumPulseLaser (OMNIPOD)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISERLargeLaser (OMNIPOD)",
+      "ISERLargeLaser (OMNIPOD)",
+      "ISMediumPulseLaser (OMNIPOD)"
+    ],
+    "LEFT_TORSO": [
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISLBXAC20 (OMNIPOD)",
+      "ISStreakSRM2 (OMNIPOD)"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISStreakSRM2 (OMNIPOD)",
+      "IS LB 20-X AC Ammo (OMNIPOD)",
+      "IS LB 20-X AC Ammo (OMNIPOD)",
+      "IS LB 20-X Cluster Ammo (OMNIPOD)",
+      "IS Streak SRM 2 Ammo (OMNIPOD)",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite (OMNIPOD)",
+      "ISGuardianECMSuite (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "ext_twist"
+  ],
+  "fluff": {
+    "overview": "The first OmniMech both designed and built by the Lyran Alliance. The OmniMech is named after the rank held by officers in the LAAF.",
+    "capabilities": "The Hauptmann is built on a standard chassis and powered by a 285 fusion engine, adding to the 'Mech's durability as it cannot be killed by a side torso loss. The Hauptmann has eleven double heat sinks fixed on the chassis and can add more if needed in its various configurations. For protection, the Hauptmann carries eighteen and a half tons of armor and has CASE fixed in the right torso to protect against an ammunition explosion.",
+    "history": "The inspiration for the Hauptmann is drawn from the Daishi OmniMech used by the Clans. Using information from captured Daishis and data gleaned from the construction of the Firestarter OmniMech, which was shared by the Draconis Combine, the end result is a powerful OmniMech capable of defending itself in most combat situations.\nmanufacturer:Coventry Metal Works\nprimaryfactory:Coventry\nsystemmanufacturer:CHASSIS:Coventry HAI III\nsystemmanufacturer:ENGINE:Pitban 285\nsystemmanufacturer:ARMOR:Glasgow Limited with CASE\nsystemmanufacturer:COMMUNICATIONS:TharHes Muse 54-58S\nsystemmanufacturer:TARGETING:Cyclops 9c",
+    "deployment": "The primary configuration carries a varied and powerful arsenal. For long range combat, the Hauptmann carries two ER Large Lasers as its primary long range weapons. These give the Hauptmann Prime a good long range damage capability. For close combat, the 'Mech has an LB-X Autocannon/20 for devastating close range firepower backed up by two Medium Pulse Lasers, an ER Small Laser, and a pair of Streak SRM-2 launchers. Finally, to protect the 'Mech against enemy electronic warfare systems, the Hauptmann Prime has a Guardian ECM Suite."
+  },
+  "mulId": 1420,
+  "role": "Juggernaut",
+  "source": "TR:3060"
+}

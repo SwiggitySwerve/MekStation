@@ -1,0 +1,195 @@
+{
+  "id": "hellion-b",
+  "chassis": "Hellion",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3059,
+  "tonnage": 30,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHeavyLargeLaser (omnipod)",
+      "CLHeavyLargeLaser (omnipod)",
+      "CLHeavyLargeLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "CLHeavyMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLHeavySmallLaser (omnipod)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "weak_head_1"
+  ],
+  "fluff": {
+    "overview": "The Hellion is a product of Clan Ice Hellion and their philosophy that espouses speed above all else. Based on the Mist Lynx, the Hellion is a fast OmniMech that has respectable firepower.",
+    "capabilities": "This light 'Mech is rather difficult to kill, incorporating five and a half tons of Ferro-Fibrous armor. To save weight, the Hellion also uses an Endo Steel chassis. While it is not especially fast for its size, the Hellion does use MASC to allow for bursts of additional speed.",
+    "deployment": "A dangerous heavy laser configuration, the Hellion B has a Heavy Large Laser, four Heavy Medium Lasers, and a Heavy Small Laser. Added to all this laser power are three additional double heat sinks. Even with the extra heat sinks, the Hellion B will not last long firing all of its weapons.",
+    "manufacturer": "Hector MechWorks Facility Alpha,Prosoma War Works,Svarstaad Industriplex Alpha",
+    "primaryFactory": "Hector,Valencia,Svarstaad",
+    "systemManufacturer": {
+      "CHASSIS": "Hellion Light Endo Steel V5",
+      "ENGINE": "210 XL",
+      "ARMOR": "Compound Gamma Ferro-Fibrous",
+      "COMMUNICATIONS": "HCFA 3035 3.0",
+      "TARGETING": "HCFA 3047 1.5"
+    }
+  },
+  "mulId": 4304,
+  "role": "Striker",
+  "source": "TR:3067"
+}

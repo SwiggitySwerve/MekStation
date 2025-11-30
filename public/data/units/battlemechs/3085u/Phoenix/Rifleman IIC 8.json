@@ -1,0 +1,206 @@
+{
+  "id": "rifleman-iic-8",
+  "chassis": "Rifleman IIC",
+  "model": "8",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3078,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERLargeLaser",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle Ammo",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "The Rifleman IIC is an upgrade of the venerable Rifleman BattleMech. Five tons heavier than the design it is based on, the Rifleman IIC is also slower.",
+    "capabilities": "Five tons heavier than the design it is based on, the Rifleman IIC is also slower. This creates a great deal more room with which to mount other equipment. Further weight savings are found in the use of an Endo Steel frame. One of the first upgrades to the design was maxing out its protection, with eleven tons of Ferro-Fibrous armor.",
+    "history": "An ancient rebuild of an already ancient design, the Rifleman IIC has soldiered on throughout the centuries. The âMech can be found in service with most Clans (a notable exception is Clan Wolf, which prefers the Glass Spider) and several Inner Sphere powers. Its simplicity is matched only by its effectiveness, and new variants continue to debut.",
+    "deployment": "This version carries an ER Large Laser and pair of AP Gauss Rifles in each arm. These are supported by a Streak SRM-6 mounted in the left and right torsos. A head mounted ECM Suite can disrupt targeting networks, and five jump jets allow the IIC 8 to cover 150 meters at a time. The Endo Steel chassis allowed the engineers to install a Consolidated 325 XL engine, increasing ground speed to a maximum of 86 km/h.",
+    "manufacturer": "Trellshire Heavy Industries (Refits)",
+    "primaryFactory": "Twycross",
+    "systemManufacturer": {
+      "CHASSIS": "CCo-B Endo",
+      "ENGINE": "Consolidated 325 XL",
+      "ARMOR": "Forging ZM15 Ferro-Fibrous",
+      "JUMPJET": "\"Highlifter\" 44",
+      "COMMUNICATIONS": "Garret T11-A",
+      "TARGETING": "GH D5j TTS with Active Probe"
+    }
+  },
+  "mulId": 2717,
+  "role": "Skirmisher",
+  "source": "TR:3085"
+}

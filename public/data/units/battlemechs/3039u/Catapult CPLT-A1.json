@@ -1,0 +1,178 @@
+{
+  "id": "catapult-cplt-a1",
+  "chassis": "Catapult",
+  "model": "CPLT-A1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2563,
+  "tonnage": 65,
+  "engine": {
+    "type": "FUSION",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "weak_head_1"
+  ],
+  "fluff": {
+    "overview": "The Catapult, though a well-designed BattleMech, has had a tumultuous existence. Produced by Hollis Incorporated in record numbers for the SLDF, the Terran Hegemony ultimately decided to forgo contract renewal, leaving Hollis with a BattleMech line but no customer. When the facility was eventually retooled to produce the BattleMaster, they chose to completely abandon their Catapult chassis, and its numbers began to decline. The attrition of the Succession Wars left the Draconis Combine with many Catapults but no parts for them. Contracting Yori Mech Works, a production line was eventually built and new Catapults began entering the DCMS by 3033. The Capellan Confederation would follow suit and the Catapult would finally claim the popularity that it deserved.",
+    "capabilities": "Carrying two LRM launchers in its \"ears\" and four medium lasers in its body, the Catapult was a fire support 'Mech akin to the slightly larger Archer. The inclusion of jump jets, though, and the placement of the lasers allowed many Catapults to be their own bodyguards. Many Catapult MechWarriors choose to fire all of their LRM missiles at their chosen targets before closing in to exploit any armor breaches with their lasers. This does make the Catapult slightly more flexible than many traditional support 'Mechs, although its limited ammunition stores can hamper it in extended ranged battles.",
+    "deployment": "While visible in every military of note, the Capellan Confederation and Draconis Combine would lay claim to the lion's share of the design. When production for the Catapult began in both states, the divide only increased, with many states losing all of their examples of the design by the conclusion of the Jihad. Produced in a limited run, the CPLT-A1 increased endurance by toughening the armor and increasing LRM ammunition. Much more limited in its role than the -C1, this Catapult was rarely seen outside of the Capellan Confederation and the short-lived St. Ives Compact. The Jihad destroyed all CPLT-A1's, and House Liao choose not to modify any existing Catapults back towards the uncommon variant's specifications.",
+    "systemManufacturer": {
+      "CHASSIS": "Hollis",
+      "ENGINE": "Magna",
+      "ARMOR": "Durallex",
+      "COMMUNICATIONS": "O/P",
+      "TARGETING": "O/P"
+    }
+  },
+  "mulId": 477,
+  "role": "Missile Boat",
+  "source": "TR:3039"
+}

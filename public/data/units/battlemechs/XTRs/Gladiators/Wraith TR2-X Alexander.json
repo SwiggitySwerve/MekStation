@@ -1,0 +1,186 @@
+{
+  "id": "wraith-tr2-x-alexander",
+  "chassis": "Wraith",
+  "model": "TR2-X 'Alexander'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 385
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-issnppc",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISSNPPC",
+      "ISSNPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Endo-Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "ubiquitous_is",
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Wraith is a 'Mech that, when properly employed, can wreak havoc on an enemy with its astounding speed and maneuverability.",
+    "capabilities": "It is built around a massive LTV 385 XL engine that allows it to reach speeds of just under 119 km/h. The 'Mech is also fitted with seven CurtissJet 55 jump jets which allow it to jump up to two hundred and ten meters, giving it the ability to outmaneuver most BattleMechs in existence, and also allowing the Wraith to quickly traverse any rough terrain. The 'Mech's speed, firepower, and decent armor make the Wraith a considerable threat to many 'Mechs â some being almost twice its weight.",
+    "history": "The Wraith marked Curtiss Militech's entry into BattleMech production. When the design was announced, many felt that the design would be little more than a walking water cooler. What the critics got was a shock. Following the destruction of its sole factory, Curtiss Hydroponics announced its withdrawal from the military market altogether and the sale of its Curtiss Militech assets. By 3085, Hellespont Industrials have expressed interest in the Wraith; and by 3145 Production had been ongoing at one of Hellespont Industrials locations in the Sian Commonality for Capellan use.",
+    "deployment": "Developed under the guidance of Angelique Claw for Zellbrigen Stables, the Wraith Alexander combines Experimental Technology from the Clans and Inner Sphere to create a unique 'Mech. The use of a Clan-made XL engine keeps the speed high, and allows for the installation of more equipment. The jump jets, Endo Steel structure, and Snub-Nose PPC are of Inner Sphere manufacture, but the two ER Medium Lasers, ferro-fibrous armor, and twin Partial Wings were built by the Clans. The partial wings increase the Wraith's jump range to 270 meters.",
+    "manufacturer": "Refit",
+    "primaryFactory": "Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Curtiss Wraith Endo",
+      "ENGINE": "385 JF Extralight",
+      "ARMOR": "Unknown",
+      "JUMPJET": "CurtissJet 55",
+      "COMMUNICATIONS": "CurtissComm Mk I",
+      "TARGETING": "Dynatec 2780"
+    }
+  },
+  "mulId": 3590,
+  "role": "Skirmisher",
+  "source": "XTR:Gladiators"
+}

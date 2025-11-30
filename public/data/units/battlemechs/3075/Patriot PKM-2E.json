@@ -1,0 +1,182 @@
+{
+  "id": "patriot-pkm-2e",
+  "chassis": "Patriot",
+  "model": "PKM-2E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "tag",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ams",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "Heavy PPC",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTAG",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "ISAMS Ammo",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "pro_actuator",
+    "stable"
+  ],
+  "mulId": 2449,
+  "role": "Sniper",
+  "source": "TR:3075"
+}

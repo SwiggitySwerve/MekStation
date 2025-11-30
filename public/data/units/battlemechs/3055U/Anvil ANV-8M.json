@@ -1,0 +1,190 @@
+{
+  "id": "anvil-anv-8m",
+  "chassis": "Anvil",
+  "model": "ANV-8M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "arrow-iv",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV"
+    ],
+    "LEFT_TORSO": [
+      "ISArrowIVAmmo",
+      "ISArrowIVAmmo",
+      "ISArrowIVAmmo",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISCASE",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "ISArrowIV",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      null
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "<p>The Anvil, initially conceived as an independent brawler Mech, evolved into a tactical indirect fire unit during its development. Merging elements with the Stingray, which was subsequently renamed the Anvil, this Mech became part of a dynamic duo with the Hammer. Serving in the Free Worlds League Military (FWLM), the Anvil is designed for close combat, perfectly complementing the Hammer's long-range capabilities. The pairing of these two Mechs showcases a broad weapon range and quick terrain traversal, with the Anvil excelling in deadly accurate large pulse laser attacks in close quarters.</p>",
+    "capabilities": "<p>The Anvil was at the forefront of FWLM's advanced technologies when first fielded, including an endo steel internal structure and double heat sinks. Its standout features are the large pulse lasers, supplemented by standard medium lasers, providing a robust close-combat arsenal. Despite its limited jump capability, the Anvil's maneuverability complements its combat role effectively. While its armor and power plant technologies were relatively standard for the time, the inclusion of Guardian ECM enhances its defensive capabilities. The Anvil, though not agile, plays a crucial role in the FWLM's strategy, especially in tandem with the Hammer.</p>",
+    "history": "<p>The Anvil BattleMech's development journey and deployment history in the Free Worlds League Military (FWLM) reflect a tale of adaptability and strategic innovation. Originally conceptualized as a standalone brawler, the Anvil's mission underwent a substantial transformation during its development phase. An insightful engineer's proposal to match it with the Stingray design, later renamed the Hammer, led to the creation of a formidable Mech duo, optimizing the Anvil for close combat engagements complemented by the Hammer's long-range capabilities.<p>This effective pairing of the Hammer and Anvil has been a staple strategy within the FWLM, making solo deployments of the Anvil a rarity. The duo has seen action in various significant military operations, including Operation Guerrero and clashes against the Clans. The Anvil, equipped with its advanced technologies like Guardian ECM and large pulse lasers, played a crucial role in these encounters, especially in urban combat scenarios where indirect fire and maneuverability were key. The synergy between the Anvil and Hammer units, capitalizing on the Anvil's close-combat prowess and the Hammer's long-range fire support, has been a hallmark of their operational success.<p>Despite facing challenges in keeping up with rapid technological advancements in mech warfare, the Anvil has remained a reliable asset in the FWLM's arsenal. Various proposed upgrades and field modifications, such as enhancing armor or adjusting weapon systems, demonstrate the ongoing efforts to maintain the Anvil's relevance on the battlefield. The Anvil's enduring service, marked by both successes and adaptations, showcases the dynamic nature of Mech warfare and the strategic flexibility of FWLM's military doctrine.</p>",
+    "deployment": "A radical modification for artillery support, featuring an Arrow IV system, ER large laser, ER medium lasers, reduced engine, and MASC system.",
+    "manufacturer": "Gibson Federated BattleMechs (A Division of Free Worlds Defense Industries)-Refit",
+    "primaryFactory": "Gibson",
+    "systemManufacturer": {
+      "CHASSIS": "Duralyte 314 Endo Steel",
+      "ENGINE": "240 GM",
+      "ARMOR": "Jolassa-325",
+      "JUMPJET": "Chilton 365",
+      "COMMUNICATIONS": "Datacom 50 with Guardian ECM Suite",
+      "TARGETING": "Dynatec 1122"
+    }
+  },
+  "mulId": 53,
+  "role": "Missile Boat",
+  "source": "TR:3055U"
+}

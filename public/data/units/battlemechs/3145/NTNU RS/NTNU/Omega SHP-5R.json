@@ -1,0 +1,173 @@
+{
+  "id": "omega-shp-5r",
+  "chassis": "Omega",
+  "model": "SHP-5R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3103,
+  "tonnage": 150,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 44,
+      "RIGHT_ARM": 44,
+      "LEFT_TORSO": {
+        "front": 45,
+        "rear": 19
+      },
+      "RIGHT_TORSO": {
+        "front": 45,
+        "rear": 19
+      },
+      "CENTER_TORSO": {
+        "front": 60,
+        "rear": 20
+      },
+      "HEAD": 12,
+      "LEFT_LEG": 62,
+      "RIGHT_LEG": 62
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 23
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "heavy-ppc",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "IS LB 10-X AC Ammo|IS LB 10-X AC Ammo",
+      "ISCASEII",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "IS LB 10-X Cluster Ammo|IS LB 10-X Cluster Ammo",
+      "ISCASEII",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heavy PPC",
+      "Heavy PPC",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heavy PPC",
+      "Heavy PPC",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Heavy PPC",
+      "Heavy PPC",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISGuardianECMSuite",
+      "ISC3SlaveUnit",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ]
+  },
+  "mulId": 7997,
+  "source": "RS:3150"
+}

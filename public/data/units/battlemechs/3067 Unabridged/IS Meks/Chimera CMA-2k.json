@@ -1,0 +1,193 @@
+{
+  "id": "chimera-cma-2k",
+  "chassis": "Chimera",
+  "model": "CMA-2K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "1-isc3slaveunit",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-issnppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-issmalllaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issmallpulselaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-sword",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Sword",
+      "Sword",
+      "Sword",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISSmallPulseLaser",
+      "ISSmallLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISC3SlaveUnit",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "nimble_jumper"
+  ],
+  "mulId": 5667,
+  "role": "Striker",
+  "source": "RS:3067u"
+}

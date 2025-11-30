@@ -67,4 +67,4 @@ success*.txt
 /test-*.html
 
 # Disabled file backups
-**/*.disabled
+**/*.disabledscripts/megameklab-conversion/__pycache__/

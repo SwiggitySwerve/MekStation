@@ -1,0 +1,5227 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-11-29T23:24:29.618790",
+  "totalUnits": 522,
+  "units": [
+    {
+      "id": "annihilator-anh-1a",
+      "chassis": "Annihilator",
+      "model": "ANH-1A",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3009,
+      "role": "Juggernaut",
+      "path": "Annihilator ANH-1A.json"
+    },
+    {
+      "id": "annihilator-anh-2a",
+      "chassis": "Annihilator",
+      "model": "ANH-2A",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Juggernaut",
+      "path": "Annihilator ANH-2A.json"
+    },
+    {
+      "id": "annihilator-anh-3a",
+      "chassis": "Annihilator",
+      "model": "ANH-3A",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Juggernaut",
+      "path": "Annihilator ANH-3A.json"
+    },
+    {
+      "id": "annihilator-anh-4a",
+      "chassis": "Annihilator",
+      "model": "ANH-4A",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Annihilator ANH-4A.json"
+    },
+    {
+      "id": "annihilator-c",
+      "chassis": "Annihilator",
+      "model": "C",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 2848,
+      "role": "Sniper",
+      "path": "Annihilator C.json"
+    },
+    {
+      "id": "assassin-servitor",
+      "chassis": "Assassin",
+      "model": "'Servitor'",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3066,
+      "role": "Striker",
+      "path": "Assassin Servitor.json"
+    },
+    {
+      "id": "assassin-asn-23",
+      "chassis": "Assassin",
+      "model": "ASN-23",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Assassin ASN-23.json"
+    },
+    {
+      "id": "assassin-asn-30",
+      "chassis": "Assassin",
+      "model": "ASN-30",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Scout",
+      "path": "Assassin ASN-30.json"
+    },
+    {
+      "id": "assassin-asn-99",
+      "chassis": "Assassin",
+      "model": "ASN-99",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Scout",
+      "path": "Assassin ASN-99.json"
+    },
+    {
+      "id": "atlas-as7-c",
+      "chassis": "Atlas",
+      "model": "AS7-C",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Atlas AS7-C.json"
+    },
+    {
+      "id": "atlas-as7-cm",
+      "chassis": "Atlas",
+      "model": "AS7-CM",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Atlas AS7-CM.json"
+    },
+    {
+      "id": "atlas-as7-k",
+      "chassis": "Atlas",
+      "model": "AS7-K",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Sniper",
+      "path": "Atlas AS7-K.json"
+    },
+    {
+      "id": "atlas-as7-s",
+      "chassis": "Atlas",
+      "model": "AS7-S",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Atlas AS7-S.json"
+    },
+    {
+      "id": "atlas-as7-s2",
+      "chassis": "Atlas",
+      "model": "AS7-S2",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3061,
+      "role": "Sniper",
+      "path": "Atlas AS7-S2.json"
+    },
+    {
+      "id": "awesome-aws-10km",
+      "chassis": "Awesome",
+      "model": "AWS-10KM",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Juggernaut",
+      "path": "Awesome AWS-10KM.json"
+    },
+    {
+      "id": "awesome-aws-9m",
+      "chassis": "Awesome",
+      "model": "AWS-9M",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Brawler",
+      "path": "Awesome AWS-9M.json"
+    },
+    {
+      "id": "awesome-aws-9ma",
+      "chassis": "Awesome",
+      "model": "AWS-9Ma",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Awesome AWS-9Ma.json"
+    },
+    {
+      "id": "awesome-aws-9q",
+      "chassis": "Awesome",
+      "model": "AWS-9Q",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Sniper",
+      "path": "Awesome AWS-9Q.json"
+    },
+    {
+      "id": "awesome-aws-9q-klatt",
+      "chassis": "Awesome",
+      "model": "AWS-9Q (Klatt)",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Sniper",
+      "path": "Awesome AWS-9Q (Klatt).json"
+    },
+    {
+      "id": "axman-axm-1n",
+      "chassis": "Axman",
+      "model": "AXM-1N",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Skirmisher",
+      "path": "Axman AXM-1N.json"
+    },
+    {
+      "id": "axman-axm-2n",
+      "chassis": "Axman",
+      "model": "AXM-2N",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Axman AXM-2N.json"
+    },
+    {
+      "id": "axman-axm-4d",
+      "chassis": "Axman",
+      "model": "AXM-4D",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Brawler",
+      "path": "Axman AXM-4D.json"
+    },
+    {
+      "id": "banshee-bnc-5s",
+      "chassis": "Banshee",
+      "model": "BNC-5S",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3053,
+      "role": "Sniper",
+      "path": "Banshee BNC-5S.json"
+    },
+    {
+      "id": "banshee-bnc-5s-sawyer",
+      "chassis": "Banshee",
+      "model": "BNC-5S (Sawyer)",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Sniper",
+      "path": "Banshee BNC-5S (Sawyer).json"
+    },
+    {
+      "id": "banshee-bnc-5s-vandergriff",
+      "chassis": "Banshee",
+      "model": "BNC-5S (Vandergriff)",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Skirmisher",
+      "path": "Banshee BNC-5S (Vandergriff).json"
+    },
+    {
+      "id": "banshee-bnc-6s",
+      "chassis": "Banshee",
+      "model": "BNC-6S",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Banshee BNC-6S.json"
+    },
+    {
+      "id": "banshee-bnc-7s",
+      "chassis": "Banshee",
+      "model": "BNC-7S",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Brawler",
+      "path": "Banshee BNC-7S.json"
+    },
+    {
+      "id": "banshee-bnc-8s",
+      "chassis": "Banshee",
+      "model": "BNC-8S",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Brawler",
+      "path": "Banshee BNC-8S.json"
+    },
+    {
+      "id": "black-hawk-a",
+      "chassis": "Black Hawk",
+      "model": "A",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 2870,
+      "role": "Sniper",
+      "path": "Black Hawk (Nova) A.json"
+    },
+    {
+      "id": "black-hawk-b",
+      "chassis": "Black Hawk",
+      "model": "B",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 2870,
+      "role": "Sniper",
+      "path": "Black Hawk (Nova) B.json"
+    },
+    {
+      "id": "black-hawk-c",
+      "chassis": "Black Hawk",
+      "model": "C",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 2870,
+      "role": "Sniper",
+      "path": "Black Hawk (Nova) C.json"
+    },
+    {
+      "id": "black-hawk-d",
+      "chassis": "Black Hawk",
+      "model": "D",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 2870,
+      "role": "Missile Boat",
+      "path": "Black Hawk (Nova) D.json"
+    },
+    {
+      "id": "black-hawk-e",
+      "chassis": "Black Hawk",
+      "model": "E",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Skirmisher",
+      "path": "Black Hawk (Nova) E.json"
+    },
+    {
+      "id": "black-hawk-f",
+      "chassis": "Black Hawk",
+      "model": "F",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Black Hawk (Nova) F.json"
+    },
+    {
+      "id": "black-hawk-h",
+      "chassis": "Black Hawk",
+      "model": "H",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Black Hawk (Nova) H.json"
+    },
+    {
+      "id": "black-hawk-prime",
+      "chassis": "Black Hawk",
+      "model": "Prime",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 2870,
+      "role": "Skirmisher",
+      "path": "Black Hawk (Nova) Prime.json"
+    },
+    {
+      "id": "black-hawk-s",
+      "chassis": "Black Hawk",
+      "model": "S",
+      "tonnage": 50,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Black Hawk (Nova) S.json"
+    },
+    {
+      "id": "black-knight-bl-12-knt",
+      "chassis": "Black Knight",
+      "model": "BL-12-KNT",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Brawler",
+      "path": "Black Knight BL-12-KNT.json"
+    },
+    {
+      "id": "black-knight-bl-6-knt",
+      "chassis": "Black Knight",
+      "model": "BL-6-KNT",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2578,
+      "role": "Brawler",
+      "path": "Black Knight BL-6-KNT.json"
+    },
+    {
+      "id": "black-knight-bl-6-rr",
+      "chassis": "Black Knight",
+      "model": "BL-6-RR",
+      "tonnage": 75,
+      "techBase": "MIXED",
+      "year": 3057,
+      "role": "Brawler",
+      "path": "Black Knight BL-6-RR.json"
+    },
+    {
+      "id": "black-knight-bl-6b-knt",
+      "chassis": "Black Knight",
+      "model": "BL-6b-KNT",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2751,
+      "role": "Brawler",
+      "path": "Black Knight BL6b-KNT.json"
+    },
+    {
+      "id": "blackjack-bj-2",
+      "chassis": "Blackjack",
+      "model": "BJ-2",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Sniper",
+      "path": "Blackjack BJ-2.json"
+    },
+    {
+      "id": "blackjack-bj-3",
+      "chassis": "Blackjack",
+      "model": "BJ-3",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3042,
+      "role": "Brawler",
+      "path": "Blackjack BJ-3.json"
+    },
+    {
+      "id": "blackjack-bj-4",
+      "chassis": "Blackjack",
+      "model": "BJ-4",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Brawler",
+      "path": "Blackjack BJ-4.json"
+    },
+    {
+      "id": "bombardier-bmb-05a",
+      "chassis": "Bombardier",
+      "model": "BMB-05A",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Missile Boat",
+      "path": "Bombardier BMB-05A.json"
+    },
+    {
+      "id": "bombardier-bmb-12d",
+      "chassis": "Bombardier",
+      "model": "BMB-12D",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 2735,
+      "role": "Missile Boat",
+      "path": "Bombardier BMB-12D.json"
+    },
+    {
+      "id": "bombardier-bmb-14c",
+      "chassis": "Bombardier",
+      "model": "BMB-14C",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Missile Boat",
+      "path": "Bombardier BMB-14C.json"
+    },
+    {
+      "id": "bombardier-bmb-14k",
+      "chassis": "Bombardier",
+      "model": "BMB-14K",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Missile Boat",
+      "path": "Bombardier BMB-14K.json"
+    },
+    {
+      "id": "caesar-ces-3r",
+      "chassis": "Caesar",
+      "model": "CES-3R",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Brawler",
+      "path": "Caesar CES-3R.json"
+    },
+    {
+      "id": "caesar-ces-3r-archangel",
+      "chassis": "Caesar",
+      "model": "CES-3R 'Archangel'",
+      "tonnage": 70,
+      "techBase": "MIXED",
+      "year": 3057,
+      "role": "Brawler",
+      "path": "Caesar CES-3R Archangel.json"
+    },
+    {
+      "id": "caesar-ces-3r-gertrude",
+      "chassis": "Caesar",
+      "model": "CES-3R (Gertrude)",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Caesar CES-3R Gertrude.json"
+    },
+    {
+      "id": "caesar-ces-3s",
+      "chassis": "Caesar",
+      "model": "CES-3S",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Brawler",
+      "path": "Caesar CES-3S.json"
+    },
+    {
+      "id": "caesar-ces-4r",
+      "chassis": "Caesar",
+      "model": "CES-4R",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Skirmisher",
+      "path": "Caesar CES-4R.json"
+    },
+    {
+      "id": "caesar-ces-4s",
+      "chassis": "Caesar",
+      "model": "CES-4S",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Brawler",
+      "path": "Caesar CES-4S.json"
+    },
+    {
+      "id": "cataphract-ctf-3d",
+      "chassis": "Cataphract",
+      "model": "CTF-3D",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Cataphract CTF-3D.json"
+    },
+    {
+      "id": "cataphract-ctf-3l",
+      "chassis": "Cataphract",
+      "model": "CTF-3L",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Cataphract CTF-3L.json"
+    },
+    {
+      "id": "cataphract-ctf-3ll",
+      "chassis": "Cataphract",
+      "model": "CTF-3LL",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Cataphract CTF-3LL.json"
+    },
+    {
+      "id": "cataphract-ctf-4l",
+      "chassis": "Cataphract",
+      "model": "CTF-4L",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Sniper",
+      "path": "Cataphract CTF-4L.json"
+    },
+    {
+      "id": "cataphract-ctf-4x",
+      "chassis": "Cataphract",
+      "model": "CTF-4X",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3029,
+      "role": "Sniper",
+      "path": "Cataphract CTF-4X.json"
+    },
+    {
+      "id": "cataphract-ctf-5d",
+      "chassis": "Cataphract",
+      "model": "CTF-5D",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Skirmisher",
+      "path": "Cataphract CTF-5D.json"
+    },
+    {
+      "id": "catapult-cplt-c2",
+      "chassis": "Catapult",
+      "model": "CPLT-C2",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Missile Boat",
+      "path": "Catapult CPLT-C2.json"
+    },
+    {
+      "id": "catapult-cplt-c3",
+      "chassis": "Catapult",
+      "model": "CPLT-C3",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Missile Boat",
+      "path": "Catapult CPLT-C3.json"
+    },
+    {
+      "id": "catapult-cplt-c4c",
+      "chassis": "Catapult",
+      "model": "CPLT-C4C",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3055,
+      "role": "Missile Boat",
+      "path": "Catapult CPLT-C4C.json"
+    },
+    {
+      "id": "catapult-cplt-c5",
+      "chassis": "Catapult",
+      "model": "CPLT-C5",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3061,
+      "role": "Missile Boat",
+      "path": "Catapult CPLT-C5.json"
+    },
+    {
+      "id": "catapult-cplt-c6",
+      "chassis": "Catapult",
+      "model": "CPLT-C6",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Skirmisher",
+      "path": "Catapult CPLT-C6.json"
+    },
+    {
+      "id": "catapult-cplt-h2",
+      "chassis": "Catapult",
+      "model": "CPLT-H2",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Skirmisher",
+      "path": "Catapult CPLT-H2.json"
+    },
+    {
+      "id": "catapult-cplt-k2k",
+      "chassis": "Catapult",
+      "model": "CPLT-K2K",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Sniper",
+      "path": "Catapult CPLT-K2K.json"
+    },
+    {
+      "id": "catapult-cplt-k3",
+      "chassis": "Catapult",
+      "model": "CPLT-K3",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Sniper",
+      "path": "Catapult CPLT-K3.json"
+    },
+    {
+      "id": "catapult-cplt-k4",
+      "chassis": "Catapult",
+      "model": "CPLT-K4",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Sniper",
+      "path": "Catapult CPLT-K4.json"
+    },
+    {
+      "id": "catapult-cplt-k5",
+      "chassis": "Catapult",
+      "model": "CPLT-K5",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Skirmisher",
+      "path": "Catapult CPLT-K5.json"
+    },
+    {
+      "id": "centurion-cn10-b",
+      "chassis": "Centurion",
+      "model": "CN10-B",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Brawler",
+      "path": "Centurion CN10-B.json"
+    },
+    {
+      "id": "centurion-cn9-d",
+      "chassis": "Centurion",
+      "model": "CN9-D",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D.json"
+    },
+    {
+      "id": "centurion-cn9-d3",
+      "chassis": "Centurion",
+      "model": "CN9-D3",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D3.json"
+    },
+    {
+      "id": "centurion-cn9-d3d",
+      "chassis": "Centurion",
+      "model": "CN9-D3D",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D3D.json"
+    },
+    {
+      "id": "centurion-cn9-d4d",
+      "chassis": "Centurion",
+      "model": "CN9-D4D",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3066,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D4D.json"
+    },
+    {
+      "id": "centurion-cn9-d5",
+      "chassis": "Centurion",
+      "model": "CN9-D5",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D5.json"
+    },
+    {
+      "id": "centurion-cn9-d9",
+      "chassis": "Centurion",
+      "model": "CN9-D9",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-D9.json"
+    },
+    {
+      "id": "centurion-cn9-da",
+      "chassis": "Centurion",
+      "model": "CN9-Da",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Skirmisher",
+      "path": "Centurion CN9-Da.json"
+    },
+    {
+      "id": "centurion-cn9-ylw2-yen-lo-wang",
+      "chassis": "Centurion",
+      "model": "CN9-YLW2 'Yen Lo Wang'",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Brawler",
+      "path": "Centurion CN9-YLW2.json"
+    },
+    {
+      "id": "champion-c",
+      "chassis": "Champion",
+      "model": "C",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 2867,
+      "role": "Skirmisher",
+      "path": "Champion C.json"
+    },
+    {
+      "id": "champion-chp-1n",
+      "chassis": "Champion",
+      "model": "CHP-1N",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2602,
+      "role": "Skirmisher",
+      "path": "Champion CHP-1N.json"
+    },
+    {
+      "id": "champion-chp-3n",
+      "chassis": "Champion",
+      "model": "CHP-3N",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Skirmisher",
+      "path": "Champion CHP-3N.json"
+    },
+    {
+      "id": "champion-chp-3p",
+      "chassis": "Champion",
+      "model": "CHP-3P",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3061,
+      "role": "Skirmisher",
+      "path": "Champion CHP-3P.json"
+    },
+    {
+      "id": "charger-cgr-2a2",
+      "chassis": "Charger",
+      "model": "CGR-2A2",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Scout",
+      "path": "Charger CGR-2A2.json"
+    },
+    {
+      "id": "charger-cgr-3k",
+      "chassis": "Charger",
+      "model": "CGR-3K",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Charger CGR-3K.json"
+    },
+    {
+      "id": "charger-cgr-c",
+      "chassis": "Charger",
+      "model": "CGR-C",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Skirmisher",
+      "path": "Charger CGR-C.json"
+    },
+    {
+      "id": "charger-cgr-kmz",
+      "chassis": "Charger",
+      "model": "CGR-KMZ",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Sniper",
+      "path": "Charger CGR-KMZ.json"
+    },
+    {
+      "id": "charger-cgr-sa5",
+      "chassis": "Charger",
+      "model": "CGR-SA5",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Juggernaut",
+      "path": "Charger CGR-SA5.json"
+    },
+    {
+      "id": "cicada-cda-3f",
+      "chassis": "Cicada",
+      "model": "CDA-3F",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Striker",
+      "path": "Cicada CDA-3F.json"
+    },
+    {
+      "id": "cicada-cda-3g",
+      "chassis": "Cicada",
+      "model": "CDA-3G",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3056,
+      "role": "Striker",
+      "path": "Cicada CDA-3G.json"
+    },
+    {
+      "id": "cicada-cda-3m",
+      "chassis": "Cicada",
+      "model": "CDA-3M",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Striker",
+      "path": "Cicada CDA-3M.json"
+    },
+    {
+      "id": "cicada-cda-3ma",
+      "chassis": "Cicada",
+      "model": "CDA-3MA",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Cicada CDA-3MA.json"
+    },
+    {
+      "id": "cicada-cda-3p",
+      "chassis": "Cicada",
+      "model": "CDA-3P",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Cicada CDA-3P.json"
+    },
+    {
+      "id": "clint-clnt-2-3u",
+      "chassis": "Clint",
+      "model": "CLNT-2-3U",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Clint CLNT-2-3U.json"
+    },
+    {
+      "id": "clint-clnt-2-3ul",
+      "chassis": "Clint",
+      "model": "CLNT-2-3UL",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Clint CLNT-2-3UL.json"
+    },
+    {
+      "id": "clint-clnt-3-3t",
+      "chassis": "Clint",
+      "model": "CLNT-3-3T",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Clint CLNT-3-3T.json"
+    },
+    {
+      "id": "clint-clnt-5u",
+      "chassis": "Clint",
+      "model": "CLNT-5U",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Clint CLNT-5U.json"
+    },
+    {
+      "id": "clint-clnt-6s",
+      "chassis": "Clint",
+      "model": "CLNT-6S",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Clint CLNT-6S.json"
+    },
+    {
+      "id": "commando-com-1b",
+      "chassis": "Commando",
+      "model": "COM-1B",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3015,
+      "role": "Striker",
+      "path": "Commando COM-1B.json"
+    },
+    {
+      "id": "commando-com-1c",
+      "chassis": "Commando",
+      "model": "COM-1C",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3020,
+      "role": "Striker",
+      "path": "Commando COM-1C.json"
+    },
+    {
+      "id": "commando-com-4h",
+      "chassis": "Commando",
+      "model": "COM-4H",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Striker",
+      "path": "Commando COM-4H.json"
+    },
+    {
+      "id": "commando-com-5s",
+      "chassis": "Commando",
+      "model": "COM-5S",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Commando COM-5S.json"
+    },
+    {
+      "id": "commando-com-7b",
+      "chassis": "Commando",
+      "model": "COM-7B",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Commando COM-7B.json"
+    },
+    {
+      "id": "commando-com-7s",
+      "chassis": "Commando",
+      "model": "COM-7S",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Striker",
+      "path": "Commando COM-7S.json"
+    },
+    {
+      "id": "crab-crb-27",
+      "chassis": "Crab",
+      "model": "CRB-27",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 2719,
+      "role": "Skirmisher",
+      "path": "Crab CRB-27.json"
+    },
+    {
+      "id": "crab-crb-30",
+      "chassis": "Crab",
+      "model": "CRB-30",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3061,
+      "role": "Sniper",
+      "path": "Crab CRB-30.json"
+    },
+    {
+      "id": "crab-crb-45",
+      "chassis": "Crab",
+      "model": "CRB-45",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "Crab CRB-45.json"
+    },
+    {
+      "id": "crab-crb-c",
+      "chassis": "Crab",
+      "model": "CRB-C",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3056,
+      "role": "Skirmisher",
+      "path": "Crab CRB-C.json"
+    },
+    {
+      "id": "crockett-crk-5003-1",
+      "chassis": "Crockett",
+      "model": "CRK-5003-1",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 2735,
+      "role": "Sniper",
+      "path": "Crockett CRK-5003-1.json"
+    },
+    {
+      "id": "crockett-crk-5003-3",
+      "chassis": "Crockett",
+      "model": "CRK-5003-3",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Sniper",
+      "path": "Crockett CRK-5003-3.json"
+    },
+    {
+      "id": "crockett-crk-5004-1",
+      "chassis": "Crockett",
+      "model": "CRK-5004-1",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Juggernaut",
+      "path": "Crockett CRK-5004-1.json"
+    },
+    {
+      "id": "crockett-crk-5005-1",
+      "chassis": "Crockett",
+      "model": "CRK-5005-1",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "Crockett CRK-5005-1.json"
+    },
+    {
+      "id": "cyclops-cp-11-a",
+      "chassis": "Cyclops",
+      "model": "CP-11-A",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3045,
+      "role": "Sniper",
+      "path": "Cyclops CP-11-A.json"
+    },
+    {
+      "id": "cyclops-cp-11-a-dc",
+      "chassis": "Cyclops",
+      "model": "CP-11-A-DC",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3045,
+      "role": "Sniper",
+      "path": "Cyclops CP-11-A-DC.json"
+    },
+    {
+      "id": "cyclops-cp-11-c",
+      "chassis": "Cyclops",
+      "model": "CP-11-C",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Brawler",
+      "path": "Cyclops CP-11-C.json"
+    },
+    {
+      "id": "cyclops-cp-11-g",
+      "chassis": "Cyclops",
+      "model": "CP-11-G",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Sniper",
+      "path": "Cyclops CP-11-G.json"
+    },
+    {
+      "id": "cyclops-cp-11-h",
+      "chassis": "Cyclops",
+      "model": "CP-11-H",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Juggernaut",
+      "path": "Cyclops CP-11-H.json"
+    },
+    {
+      "id": "cyclops-cp-12-k",
+      "chassis": "Cyclops",
+      "model": "CP-12-K",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3059,
+      "role": "Brawler",
+      "path": "Cyclops CP-12-K.json"
+    },
+    {
+      "id": "daishi-prometheus",
+      "chassis": "Daishi",
+      "model": "'Prometheus'",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3051,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) Prometheus.json"
+    },
+    {
+      "id": "daishi-widowmaker",
+      "chassis": "Daishi",
+      "model": "'Widowmaker'",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) Widowmaker.json"
+    },
+    {
+      "id": "daishi-hohiro",
+      "chassis": "Daishi",
+      "model": "(Hohiro)",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Daishi (Dire Wolf) Hohiro.json"
+    },
+    {
+      "id": "daishi-a",
+      "chassis": "Daishi",
+      "model": "A",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) A.json"
+    },
+    {
+      "id": "daishi-b",
+      "chassis": "Daishi",
+      "model": "B",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Sniper",
+      "path": "Daishi (Dire Wolf) B.json"
+    },
+    {
+      "id": "daishi-c",
+      "chassis": "Daishi",
+      "model": "C",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) C.json"
+    },
+    {
+      "id": "daishi-d",
+      "chassis": "Daishi",
+      "model": "D",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) D.json"
+    },
+    {
+      "id": "daishi-h",
+      "chassis": "Daishi",
+      "model": "H",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) H.json"
+    },
+    {
+      "id": "daishi-prime",
+      "chassis": "Daishi",
+      "model": "Prime",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) Prime.json"
+    },
+    {
+      "id": "daishi-s",
+      "chassis": "Daishi",
+      "model": "S",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) S.json"
+    },
+    {
+      "id": "daishi-w",
+      "chassis": "Daishi",
+      "model": "W",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 3049,
+      "role": "Juggernaut",
+      "path": "Daishi (Dire Wolf) W.json"
+    },
+    {
+      "id": "dasher-a",
+      "chassis": "Dasher",
+      "model": "A",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 2874,
+      "role": "Scout",
+      "path": "Dasher (Fire Moth) A.json"
+    },
+    {
+      "id": "dasher-b",
+      "chassis": "Dasher",
+      "model": "B",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 2874,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) B.json"
+    },
+    {
+      "id": "dasher-c",
+      "chassis": "Dasher",
+      "model": "C",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 2874,
+      "role": "Missile Boat",
+      "path": "Dasher (Fire Moth) C.json"
+    },
+    {
+      "id": "dasher-d",
+      "chassis": "Dasher",
+      "model": "D",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 2874,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) D.json"
+    },
+    {
+      "id": "dasher-e",
+      "chassis": "Dasher",
+      "model": "E",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 3055,
+      "role": "Scout",
+      "path": "Dasher (Fire Moth) E.json"
+    },
+    {
+      "id": "dasher-f",
+      "chassis": "Dasher",
+      "model": "F",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) F.json"
+    },
+    {
+      "id": "dasher-h",
+      "chassis": "Dasher",
+      "model": "H",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 3060,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) H.json"
+    },
+    {
+      "id": "dasher-k",
+      "chassis": "Dasher",
+      "model": "K",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 3071,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) K.json"
+    },
+    {
+      "id": "dasher-prime",
+      "chassis": "Dasher",
+      "model": "Prime",
+      "tonnage": 20,
+      "techBase": "CLAN",
+      "year": 2874,
+      "role": "Striker",
+      "path": "Dasher (Fire Moth) Prime.json"
+    },
+    {
+      "id": "dervish-dv-7d",
+      "chassis": "Dervish",
+      "model": "DV-7D",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Missile Boat",
+      "path": "Dervish DV-7D.json"
+    },
+    {
+      "id": "dervish-dv-8d",
+      "chassis": "Dervish",
+      "model": "DV-8D",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Missile Boat",
+      "path": "Dervish DV-8D.json"
+    },
+    {
+      "id": "dervish-dv-9d",
+      "chassis": "Dervish",
+      "model": "DV-9D",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Missile Boat",
+      "path": "Dervish DV-9D.json"
+    },
+    {
+      "id": "dragon-drg-5n",
+      "chassis": "Dragon",
+      "model": "DRG-5N",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Skirmisher",
+      "path": "Dragon DRG-5N.json"
+    },
+    {
+      "id": "dragon-drg-7n",
+      "chassis": "Dragon",
+      "model": "DRG-7N",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Skirmisher",
+      "path": "Dragon DRG-7N.json"
+    },
+    {
+      "id": "dragonfly-a",
+      "chassis": "Dragonfly",
+      "model": "A",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 2940,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) A.json"
+    },
+    {
+      "id": "dragonfly-b",
+      "chassis": "Dragonfly",
+      "model": "B",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 2940,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) B.json"
+    },
+    {
+      "id": "dragonfly-c",
+      "chassis": "Dragonfly",
+      "model": "C",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 2940,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) C.json"
+    },
+    {
+      "id": "dragonfly-d",
+      "chassis": "Dragonfly",
+      "model": "D",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 2940,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) D.json"
+    },
+    {
+      "id": "dragonfly-e",
+      "chassis": "Dragonfly",
+      "model": "E",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) E.json"
+    },
+    {
+      "id": "dragonfly-f",
+      "chassis": "Dragonfly",
+      "model": "F",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) F.json"
+    },
+    {
+      "id": "dragonfly-g",
+      "chassis": "Dragonfly",
+      "model": "G",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 3071,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) G.json"
+    },
+    {
+      "id": "dragonfly-h",
+      "chassis": "Dragonfly",
+      "model": "H",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) H.json"
+    },
+    {
+      "id": "dragonfly-i",
+      "chassis": "Dragonfly",
+      "model": "I",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Dragonfly (Viper) I.json"
+    },
+    {
+      "id": "dragonfly-prime",
+      "chassis": "Dragonfly",
+      "model": "Prime",
+      "tonnage": 40,
+      "techBase": "CLAN",
+      "year": 2940,
+      "role": "Scout",
+      "path": "Dragonfly (Viper) Prime.json"
+    },
+    {
+      "id": "enforcer-enf-5d",
+      "chassis": "Enforcer",
+      "model": "ENF-5D",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Enforcer ENF-5D.json"
+    },
+    {
+      "id": "enforcer-iii-enf-6g",
+      "chassis": "Enforcer III",
+      "model": "ENF-6G",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Skirmisher",
+      "path": "Enforcer III ENF-6G.json"
+    },
+    {
+      "id": "enforcer-iii-enf-6h",
+      "chassis": "Enforcer III",
+      "model": "ENF-6H",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Skirmisher",
+      "path": "Enforcer III ENF-6H.json"
+    },
+    {
+      "id": "enforcer-iii-enf-6t",
+      "chassis": "Enforcer III",
+      "model": "ENF-6T",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Sniper",
+      "path": "Enforcer III ENF-6T.json"
+    },
+    {
+      "id": "exterminator-ext-4a",
+      "chassis": "Exterminator",
+      "model": "EXT-4A",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3007,
+      "role": "Skirmisher",
+      "path": "Exterminator EXT-4A.json"
+    },
+    {
+      "id": "exterminator-ext-4c",
+      "chassis": "Exterminator",
+      "model": "EXT-4C",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 2630,
+      "role": "Skirmisher",
+      "path": "Exterminator EXT-4C.json"
+    },
+    {
+      "id": "exterminator-ext-4d",
+      "chassis": "Exterminator",
+      "model": "EXT-4D",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 2630,
+      "role": "Skirmisher",
+      "path": "Exterminator EXT-4D.json"
+    },
+    {
+      "id": "exterminator-ext-5e",
+      "chassis": "Exterminator",
+      "model": "EXT-5E",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "path": "Exterminator EXT-5E.json"
+    },
+    {
+      "id": "exterminator-ext-5f",
+      "chassis": "Exterminator",
+      "model": "EXT-5F",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3074,
+      "role": "Skirmisher",
+      "path": "Exterminator EXT-5F.json"
+    },
+    {
+      "id": "falcon-flc-4p",
+      "chassis": "Falcon",
+      "model": "FLC-4P",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Scout",
+      "path": "Falcon FLC-4P.json"
+    },
+    {
+      "id": "falcon-flc-5p",
+      "chassis": "Falcon",
+      "model": "FLC-5P",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Striker",
+      "path": "Falcon FLC-5P.json"
+    },
+    {
+      "id": "falcon-flc-6c",
+      "chassis": "Falcon",
+      "model": "FLC-6C",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3065,
+      "role": "Sniper",
+      "path": "Falcon FLC-6C.json"
+    },
+    {
+      "id": "fenris-a",
+      "chassis": "Fenris",
+      "model": "A",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 2948,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) A.json"
+    },
+    {
+      "id": "fenris-b",
+      "chassis": "Fenris",
+      "model": "B",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 2948,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) B.json"
+    },
+    {
+      "id": "fenris-c",
+      "chassis": "Fenris",
+      "model": "C",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 2948,
+      "role": "Missile Boat",
+      "path": "Fenris (Ice Ferret) C.json"
+    },
+    {
+      "id": "fenris-d",
+      "chassis": "Fenris",
+      "model": "D",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 2948,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) D.json"
+    },
+    {
+      "id": "fenris-e",
+      "chassis": "Fenris",
+      "model": "E",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 3056,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) E.json"
+    },
+    {
+      "id": "fenris-h",
+      "chassis": "Fenris",
+      "model": "H",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 3061,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) H.json"
+    },
+    {
+      "id": "fenris-l",
+      "chassis": "Fenris",
+      "model": "L",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Scout",
+      "path": "Fenris (Ice Ferret) L.json"
+    },
+    {
+      "id": "fenris-prime",
+      "chassis": "Fenris",
+      "model": "Prime",
+      "tonnage": 45,
+      "techBase": "CLAN",
+      "year": 2948,
+      "role": "Striker",
+      "path": "Fenris (Ice Ferret) Prime.json"
+    },
+    {
+      "id": "firefly-c",
+      "chassis": "Firefly",
+      "model": "C",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 2839,
+      "role": "Striker",
+      "path": "Firefly C.json"
+    },
+    {
+      "id": "firefly-ffl-4a",
+      "chassis": "Firefly",
+      "model": "FFL-4A",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2801,
+      "role": "Striker",
+      "path": "Firefly FFL-4A.json"
+    },
+    {
+      "id": "firefly-ffl-4b",
+      "chassis": "Firefly",
+      "model": "FFL-4B",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Striker",
+      "path": "Firefly FFL-4B.json"
+    },
+    {
+      "id": "firefly-ffl-4c",
+      "chassis": "Firefly",
+      "model": "FFL-4C",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Striker",
+      "path": "Firefly FFL-4C.json"
+    },
+    {
+      "id": "firefly-ffl-4d",
+      "chassis": "Firefly",
+      "model": "FFL-4D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Striker",
+      "path": "Firefly FFL-4D.json"
+    },
+    {
+      "id": "firefly-ffl-4da",
+      "chassis": "Firefly",
+      "model": "FFL-4DA",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Striker",
+      "path": "Firefly FFL-4DA.json"
+    },
+    {
+      "id": "firestarter-fs9-b",
+      "chassis": "Firestarter",
+      "model": "FS9-B",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Scout",
+      "path": "Firestarter FS9-B.json"
+    },
+    {
+      "id": "firestarter-fs9-c",
+      "chassis": "Firestarter",
+      "model": "FS9-C",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Striker",
+      "path": "Firestarter FS9-C.json"
+    },
+    {
+      "id": "firestarter-fs9-p",
+      "chassis": "Firestarter",
+      "model": "FS9-P",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Striker",
+      "path": "Firestarter FS9-P.json"
+    },
+    {
+      "id": "firestarter-fs9-s",
+      "chassis": "Firestarter",
+      "model": "FS9-S",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Scout",
+      "path": "Firestarter FS9-S.json"
+    },
+    {
+      "id": "firestarter-fs9-s1",
+      "chassis": "Firestarter",
+      "model": "FS9-S1",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Scout",
+      "path": "Firestarter FS9-S1.json"
+    },
+    {
+      "id": "firestarter-fs9-s2",
+      "chassis": "Firestarter",
+      "model": "FS9-S2",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3075,
+      "role": "Scout",
+      "path": "Firestarter FS9-S2.json"
+    },
+    {
+      "id": "firestarter-fs9-s3",
+      "chassis": "Firestarter",
+      "model": "FS9-S3",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3075,
+      "role": "Scout",
+      "path": "Firestarter FS9-S3.json"
+    },
+    {
+      "id": "flashman-fls-8k",
+      "chassis": "Flashman",
+      "model": "FLS-8K",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2701,
+      "role": "Skirmisher",
+      "path": "Flashman FLS-8K.json"
+    },
+    {
+      "id": "flashman-fls-9b",
+      "chassis": "Flashman",
+      "model": "FLS-9B",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Skirmisher",
+      "path": "Flashman FLS-9B.json"
+    },
+    {
+      "id": "flashman-fls-9c",
+      "chassis": "Flashman",
+      "model": "FLS-9C",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3061,
+      "role": "Skirmisher",
+      "path": "Flashman FLS-9C.json"
+    },
+    {
+      "id": "flashman-fls-9m",
+      "chassis": "Flashman",
+      "model": "FLS-9M",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Brawler",
+      "path": "Flashman FLS-9M.json"
+    },
+    {
+      "id": "flashman-fls-c",
+      "chassis": "Flashman",
+      "model": "FLS-C",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Skirmisher",
+      "path": "Flashman FLS-C.json"
+    },
+    {
+      "id": "flea-fire-ant",
+      "chassis": "Flea",
+      "model": "'Fire Ant'",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Scout",
+      "path": "Flea Fire Ant.json"
+    },
+    {
+      "id": "flea-fle-17",
+      "chassis": "Flea",
+      "model": "FLE-17",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Striker",
+      "path": "Flea FLE-17.json"
+    },
+    {
+      "id": "flea-fle-19",
+      "chassis": "Flea",
+      "model": "FLE-19",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Flea FLE-19.json"
+    },
+    {
+      "id": "flea-fle-20",
+      "chassis": "Flea",
+      "model": "FLE-20",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Striker",
+      "path": "Flea FLE-20.json"
+    },
+    {
+      "id": "gladiator-a",
+      "chassis": "Gladiator",
+      "model": "A",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3001,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) A.json"
+    },
+    {
+      "id": "gladiator-b",
+      "chassis": "Gladiator",
+      "model": "B",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3001,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) B.json"
+    },
+    {
+      "id": "gladiator-c",
+      "chassis": "Gladiator",
+      "model": "C",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3001,
+      "role": "Missile Boat",
+      "path": "Gladiator (Executioner) C.json"
+    },
+    {
+      "id": "gladiator-d",
+      "chassis": "Gladiator",
+      "model": "D",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3001,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) D.json"
+    },
+    {
+      "id": "gladiator-e",
+      "chassis": "Gladiator",
+      "model": "E",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3060,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) E.json"
+    },
+    {
+      "id": "gladiator-h",
+      "chassis": "Gladiator",
+      "model": "H",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) H.json"
+    },
+    {
+      "id": "gladiator-k",
+      "chassis": "Gladiator",
+      "model": "K",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) K.json"
+    },
+    {
+      "id": "gladiator-p",
+      "chassis": "Gladiator",
+      "model": "P",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Skirmisher",
+      "path": "Gladiator (Executioner) P.json"
+    },
+    {
+      "id": "gladiator-prime",
+      "chassis": "Gladiator",
+      "model": "Prime",
+      "tonnage": 95,
+      "techBase": "CLAN",
+      "year": 3001,
+      "role": "Sniper",
+      "path": "Gladiator (Executioner) Prime.json"
+    },
+    {
+      "id": "grand-dragon-drg-5k",
+      "chassis": "Grand Dragon",
+      "model": "DRG-5K",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Grand Dragon DRG-5K.json"
+    },
+    {
+      "id": "grand-dragon-drg-5k-dc",
+      "chassis": "Grand Dragon",
+      "model": "DRG-5K-DC",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Grand Dragon DRG-5K-DC.json"
+    },
+    {
+      "id": "grand-dragon-drg-7k",
+      "chassis": "Grand Dragon",
+      "model": "DRG-7K",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Skirmisher",
+      "path": "Grand Dragon DRG-7K.json"
+    },
+    {
+      "id": "grand-dragon-drg-9kc",
+      "chassis": "Grand Dragon",
+      "model": "DRG-9KC",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Skirmisher",
+      "path": "Grand Dragon DRG-9KC.json"
+    },
+    {
+      "id": "grand-dragon-drg-c",
+      "chassis": "Grand Dragon",
+      "model": "DRG-C",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Grand Dragon DRG-C.json"
+    },
+    {
+      "id": "grasshopper-ghr-5j",
+      "chassis": "Grasshopper",
+      "model": "GHR-5J",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-5J.json"
+    },
+    {
+      "id": "grasshopper-ghr-5n",
+      "chassis": "Grasshopper",
+      "model": "GHR-5N",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3040,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-5N.json"
+    },
+    {
+      "id": "grasshopper-ghr-6k",
+      "chassis": "Grasshopper",
+      "model": "GHR-6K",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-6K.json"
+    },
+    {
+      "id": "grasshopper-ghr-7k",
+      "chassis": "Grasshopper",
+      "model": "GHR-7K",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-7K.json"
+    },
+    {
+      "id": "grasshopper-ghr-7k-gravedigger",
+      "chassis": "Grasshopper",
+      "model": "GHR-7K 'Gravedigger'",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-7K Gravedigger.json"
+    },
+    {
+      "id": "grasshopper-ghr-c",
+      "chassis": "Grasshopper",
+      "model": "GHR-C",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Skirmisher",
+      "path": "Grasshopper GHR-C.json"
+    },
+    {
+      "id": "guillotine-glt-3n",
+      "chassis": "Guillotine",
+      "model": "GLT-3N",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 2499,
+      "role": "Skirmisher",
+      "path": "Guillotine GLT-3N.json"
+    },
+    {
+      "id": "guillotine-glt-5m",
+      "chassis": "Guillotine",
+      "model": "GLT-5M",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Guillotine GLT-5M.json"
+    },
+    {
+      "id": "guillotine-glt-6wb",
+      "chassis": "Guillotine",
+      "model": "GLT-6WB",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Brawler",
+      "path": "Guillotine GLT-6WB.json"
+    },
+    {
+      "id": "guillotine-glt-6wb2",
+      "chassis": "Guillotine",
+      "model": "GLT-6WB2",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "Guillotine GLT-6WB2.json"
+    },
+    {
+      "id": "guillotine-glt-6wb3",
+      "chassis": "Guillotine",
+      "model": "GLT-6WB3",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3080,
+      "role": "Brawler",
+      "path": "Guillotine GLT-6WB3.json"
+    },
+    {
+      "id": "guillotine-glt-8d",
+      "chassis": "Guillotine",
+      "model": "GLT-8D",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Skirmisher",
+      "path": "Guillotine GLT-8D.json"
+    },
+    {
+      "id": "hatamoto-chi-htm-27t",
+      "chassis": "Hatamoto-Chi",
+      "model": "HTM-27T",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3042,
+      "role": "Brawler",
+      "path": "Hatamoto-Chi HTM-27T.json"
+    },
+    {
+      "id": "hatamoto-chi-htm-28t",
+      "chassis": "Hatamoto-Chi",
+      "model": "HTM-28T",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3059,
+      "role": "Sniper",
+      "path": "Hatamoto-Chi HTM-28T.json"
+    },
+    {
+      "id": "hatamoto-chi-htm-28t-shin",
+      "chassis": "Hatamoto-Chi",
+      "model": "HTM-28T (Shin)",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Brawler",
+      "path": "Hatamoto-Chi HTM-28T (Shin).json"
+    },
+    {
+      "id": "hatamoto-hi-htm-27u",
+      "chassis": "Hatamoto-Hi",
+      "model": "HTM-27U",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Brawler",
+      "path": "Hatamoto-Hi HTM-27U.json"
+    },
+    {
+      "id": "hatamoto-hi-htm-c",
+      "chassis": "Hatamoto-Hi",
+      "model": "HTM-C",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Brawler",
+      "path": "Hatamoto-Hi HTM-C.json"
+    },
+    {
+      "id": "hatamoto-hi-htm-cm",
+      "chassis": "Hatamoto-Hi",
+      "model": "HTM-CM",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Brawler",
+      "path": "Hatamoto-Hi HTM-CM.json"
+    },
+    {
+      "id": "hatamoto-kaze-htm-27v",
+      "chassis": "Hatamoto-Kaze",
+      "model": "HTM-27V",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Sniper",
+      "path": "Hatamoto-Kaze HTM-27V.json"
+    },
+    {
+      "id": "hatamoto-ku-htm-27w",
+      "chassis": "Hatamoto-Ku",
+      "model": "HTM-27W",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Sniper",
+      "path": "Hatamoto-Ku HTM-27W.json"
+    },
+    {
+      "id": "hatamoto-mizo-htm-27y",
+      "chassis": "Hatamoto-Mizo",
+      "model": "HTM-27Y",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Hatamoto-Mizo HTM-27Y.json"
+    },
+    {
+      "id": "hatchetman-hct-5d",
+      "chassis": "Hatchetman",
+      "model": "HCT-5D",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Hatchetman HCT-5D.json"
+    },
+    {
+      "id": "hatchetman-hct-5dd",
+      "chassis": "Hatchetman",
+      "model": "HCT-5DD",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Skirmisher",
+      "path": "Hatchetman HCT-5DD.json"
+    },
+    {
+      "id": "hatchetman-hct-5k",
+      "chassis": "Hatchetman",
+      "model": "HCT-5K",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3075,
+      "role": "Brawler",
+      "path": "Hatchetman HCT-5K.json"
+    },
+    {
+      "id": "hatchetman-hct-5s",
+      "chassis": "Hatchetman",
+      "model": "HCT-5S",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Brawler",
+      "path": "Hatchetman HCT-5S.json"
+    },
+    {
+      "id": "hatchetman-hct-6d",
+      "chassis": "Hatchetman",
+      "model": "HCT-6D",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Skirmisher",
+      "path": "Hatchetman HCT-6D.json"
+    },
+    {
+      "id": "hatchetman-hct-6s",
+      "chassis": "Hatchetman",
+      "model": "HCT-6S",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Brawler",
+      "path": "Hatchetman HCT-6S.json"
+    },
+    {
+      "id": "hermes-her-1s",
+      "chassis": "Hermes",
+      "model": "HER-1S",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2632,
+      "role": "Scout",
+      "path": "Hermes HER-1S.json"
+    },
+    {
+      "id": "hermes-her-3s",
+      "chassis": "Hermes",
+      "model": "HER-3S",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Scout",
+      "path": "Hermes HER-3S.json"
+    },
+    {
+      "id": "hermes-her-3s1",
+      "chassis": "Hermes",
+      "model": "HER-3S1",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Scout",
+      "path": "Hermes HER-3S1.json"
+    },
+    {
+      "id": "hermes-her-3s2",
+      "chassis": "Hermes",
+      "model": "HER-3S2",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Scout",
+      "path": "Hermes HER-3S2.json"
+    },
+    {
+      "id": "hermes-her-4k",
+      "chassis": "Hermes",
+      "model": "HER-4K",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Striker",
+      "path": "Hermes HER-4K.json"
+    },
+    {
+      "id": "hermes-her-4m",
+      "chassis": "Hermes",
+      "model": "HER-4M",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Striker",
+      "path": "Hermes HER-4M.json"
+    },
+    {
+      "id": "hermes-her-4s",
+      "chassis": "Hermes",
+      "model": "HER-4S",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Striker",
+      "path": "Hermes HER-4S.json"
+    },
+    {
+      "id": "hermes-her-4wb",
+      "chassis": "Hermes",
+      "model": "HER-4WB",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Hermes HER-4WB.json"
+    },
+    {
+      "id": "hermes-ii-her-5c",
+      "chassis": "Hermes II",
+      "model": "HER-5C",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Hermes II HER-5C.json"
+    },
+    {
+      "id": "hermes-ii-her-5me-mercury-elite",
+      "chassis": "Hermes II",
+      "model": "HER-5ME 'Mercury Elite'",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3056,
+      "role": "Sniper",
+      "path": "Hermes II HER-5ME.json"
+    },
+    {
+      "id": "hermes-ii-her-5s",
+      "chassis": "Hermes II",
+      "model": "HER-5S",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Hermes II HER-5S.json"
+    },
+    {
+      "id": "hermes-ii-her-5sa",
+      "chassis": "Hermes II",
+      "model": "HER-5SA",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Hermes II HER-5SA.json"
+    },
+    {
+      "id": "hermes-ii-her-6d",
+      "chassis": "Hermes II",
+      "model": "HER-6D",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Hermes II HER-6D.json"
+    },
+    {
+      "id": "highlander-hgn-694",
+      "chassis": "Highlander",
+      "model": "HGN-694",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Juggernaut",
+      "path": "Highlander HGN-694.json"
+    },
+    {
+      "id": "highlander-hgn-732",
+      "chassis": "Highlander",
+      "model": "HGN-732",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 2592,
+      "role": "Sniper",
+      "path": "Highlander HGN-732.json"
+    },
+    {
+      "id": "highlander-hgn-734",
+      "chassis": "Highlander",
+      "model": "HGN-734",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Juggernaut",
+      "path": "Highlander HGN-734.json"
+    },
+    {
+      "id": "highlander-hgn-736",
+      "chassis": "Highlander",
+      "model": "HGN-736",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Sniper",
+      "path": "Highlander HGN-736.json"
+    },
+    {
+      "id": "highlander-hgn-738",
+      "chassis": "Highlander",
+      "model": "HGN-738",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Juggernaut",
+      "path": "Highlander HGN-738.json"
+    },
+    {
+      "id": "hoplite-c",
+      "chassis": "Hoplite",
+      "model": "C",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3052,
+      "role": "Brawler",
+      "path": "Hoplite C.json"
+    },
+    {
+      "id": "hoplite-hop-4a",
+      "chassis": "Hoplite",
+      "model": "HOP-4A",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 2578,
+      "role": "None",
+      "path": "Hoplite HOP-4A.json"
+    },
+    {
+      "id": "hoplite-hop-4b",
+      "chassis": "Hoplite",
+      "model": "HOP-4B",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 2581,
+      "role": "Sniper",
+      "path": "Hoplite HOP-4B.json"
+    },
+    {
+      "id": "hoplite-hop-4c",
+      "chassis": "Hoplite",
+      "model": "HOP-4C",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 2584,
+      "role": "Brawler",
+      "path": "Hoplite HOP-4C.json"
+    },
+    {
+      "id": "hoplite-hop-4d",
+      "chassis": "Hoplite",
+      "model": "HOP-4D",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "Hoplite HOP-4D.json"
+    },
+    {
+      "id": "hornet-hnt-161",
+      "chassis": "Hornet",
+      "model": "HNT-161",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Striker",
+      "path": "Hornet HNT-161.json"
+    },
+    {
+      "id": "hornet-hnt-171",
+      "chassis": "Hornet",
+      "model": "HNT-171",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Striker",
+      "path": "Hornet HNT-171.json"
+    },
+    {
+      "id": "hunchback-hbk-5h",
+      "chassis": "Hunchback",
+      "model": "HBK-5H",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-5H.json"
+    },
+    {
+      "id": "hunchback-hbk-5m",
+      "chassis": "Hunchback",
+      "model": "HBK-5M",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3046,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-5M.json"
+    },
+    {
+      "id": "hunchback-hbk-5n",
+      "chassis": "Hunchback",
+      "model": "HBK-5N",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-5N.json"
+    },
+    {
+      "id": "hunchback-hbk-5p",
+      "chassis": "Hunchback",
+      "model": "HBK-5P",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-5P.json"
+    },
+    {
+      "id": "hunchback-hbk-5s",
+      "chassis": "Hunchback",
+      "model": "HBK-5S",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-5S.json"
+    },
+    {
+      "id": "hunchback-hbk-5sg",
+      "chassis": "Hunchback",
+      "model": "HBK-5SG",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Brawler",
+      "path": "Hunchback HBK-5SG.json"
+    },
+    {
+      "id": "hunchback-hbk-5ss",
+      "chassis": "Hunchback",
+      "model": "HBK-5SS",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Missile Boat",
+      "path": "Hunchback HBK-5SS.json"
+    },
+    {
+      "id": "hunchback-hbk-6n",
+      "chassis": "Hunchback",
+      "model": "HBK-6N",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3059,
+      "role": "Juggernaut",
+      "path": "Hunchback HBK-6N.json"
+    },
+    {
+      "id": "hunchback-hbk-6s",
+      "chassis": "Hunchback",
+      "model": "HBK-6S",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Striker",
+      "path": "Hunchback HBK-6S.json"
+    },
+    {
+      "id": "hussar-hsr-200-d",
+      "chassis": "Hussar",
+      "model": "HSR-200-D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2620,
+      "role": "Scout",
+      "path": "Hussar HSR-200-D.json"
+    },
+    {
+      "id": "hussar-hsr-400-d",
+      "chassis": "Hussar",
+      "model": "HSR-400-D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Scout",
+      "path": "Hussar HSR-400-D.json"
+    },
+    {
+      "id": "hussar-hsr-500-d",
+      "chassis": "Hussar",
+      "model": "HSR-500-D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Scout",
+      "path": "Hussar HSR-500-D.json"
+    },
+    {
+      "id": "hussar-hsr-900-d",
+      "chassis": "Hussar",
+      "model": "HSR-900-D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Scout",
+      "path": "Hussar HSR-900-D.json"
+    },
+    {
+      "id": "hussar-hsr-950-d",
+      "chassis": "Hussar",
+      "model": "HSR-950-D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Hussar HSR-950-D.json"
+    },
+    {
+      "id": "imp-c",
+      "chassis": "Imp",
+      "model": "C",
+      "tonnage": 100,
+      "techBase": "CLAN",
+      "year": 2863,
+      "role": "Juggernaut",
+      "path": "Imp C.json"
+    },
+    {
+      "id": "imp-imp-2e",
+      "chassis": "Imp",
+      "model": "IMP-2E",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3005,
+      "role": "Juggernaut",
+      "path": "Imp IMP-2E.json"
+    },
+    {
+      "id": "imp-imp-3e",
+      "chassis": "Imp",
+      "model": "IMP-3E",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Imp IMP-3E.json"
+    },
+    {
+      "id": "imp-imp-4e",
+      "chassis": "Imp",
+      "model": "IMP-4E",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Juggernaut",
+      "path": "Imp IMP-4E.json"
+    },
+    {
+      "id": "jagermech-jm6-dd",
+      "chassis": "JagerMech",
+      "model": "JM6-DD",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Sniper",
+      "path": "JagerMech JM6-DD.json"
+    },
+    {
+      "id": "jagermech-jm6-dda",
+      "chassis": "JagerMech",
+      "model": "JM6-DDa",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "JagerMech JM6-DDa.json"
+    },
+    {
+      "id": "jagermech-jm6-dg",
+      "chassis": "JagerMech",
+      "model": "JM6-DG",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3054,
+      "role": "Sniper",
+      "path": "Jagermech JM6-DG.json"
+    },
+    {
+      "id": "jagermech-jm6-dgr",
+      "chassis": "JagerMech",
+      "model": "JM6-DGr",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Sniper",
+      "path": "JagerMech JM6-DGr.json"
+    },
+    {
+      "id": "jagermech-jm6-h",
+      "chassis": "JagerMech",
+      "model": "JM6-H",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Brawler",
+      "path": "JagerMech JM6-H.json"
+    },
+    {
+      "id": "jagermech-jm7-d",
+      "chassis": "JagerMech",
+      "model": "JM7-D",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Sniper",
+      "path": "JagerMech JM7-D.json"
+    },
+    {
+      "id": "jagermech-jm7-f",
+      "chassis": "JagerMech",
+      "model": "JM7-F",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "JagerMech JM7-F.json"
+    },
+    {
+      "id": "jagermech-jm7-g",
+      "chassis": "JagerMech",
+      "model": "JM7-G",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Sniper",
+      "path": "JagerMech JM7-G.json"
+    },
+    {
+      "id": "javelin-jvn-10p",
+      "chassis": "Javelin",
+      "model": "JVN-10P",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Striker",
+      "path": "Javelin JVN-10P.json"
+    },
+    {
+      "id": "javelin-jvn-11a-fire-javelin",
+      "chassis": "Javelin",
+      "model": "JVN-11A 'Fire Javelin'",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3053,
+      "role": "Striker",
+      "path": "Javelin JVN-11A Fire Javelin.json"
+    },
+    {
+      "id": "javelin-jvn-11b",
+      "chassis": "Javelin",
+      "model": "JVN-11B",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Javelin JVN-11B.json"
+    },
+    {
+      "id": "javelin-jvn-11d",
+      "chassis": "Javelin",
+      "model": "JVN-11D",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Javelin JVN-11D.json"
+    },
+    {
+      "id": "javelin-jvn-11f",
+      "chassis": "Javelin",
+      "model": "JVN-11F",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Scout",
+      "path": "Javelin JVN-11F.json"
+    },
+    {
+      "id": "jenner-jr7-c",
+      "chassis": "Jenner",
+      "model": "JR7-C",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Jenner JR7-C.json"
+    },
+    {
+      "id": "jenner-jr7-c2",
+      "chassis": "Jenner",
+      "model": "JR7-C2",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Missile Boat",
+      "path": "Jenner JR7-C2.json"
+    },
+    {
+      "id": "jenner-jr7-c3",
+      "chassis": "Jenner",
+      "model": "JR7-C3",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Jenner JR7-C3.json"
+    },
+    {
+      "id": "jenner-jr7-k",
+      "chassis": "Jenner",
+      "model": "JR7-K",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3047,
+      "role": "Striker",
+      "path": "Jenner JR7-K.json"
+    },
+    {
+      "id": "jenner-jr7-k-grace",
+      "chassis": "Jenner",
+      "model": "JR7-K (Grace)",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3039,
+      "role": "Scout",
+      "path": "Jenner JR7-K Grace.json"
+    },
+    {
+      "id": "katana-crockett-crk-5003-2",
+      "chassis": "Katana (Crockett)",
+      "model": "CRK-5003-2",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3035,
+      "role": "Juggernaut",
+      "path": "Katana (Crockett) CRK-5003-2.json"
+    },
+    {
+      "id": "katana-crockett-crk-5003-c",
+      "chassis": "Katana (Crockett)",
+      "model": "CRK-5003-C",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Juggernaut",
+      "path": "Katana (Crockett) CRK-5003-C.json"
+    },
+    {
+      "id": "katana-crockett-crk-5003-cj",
+      "chassis": "Katana (Crockett)",
+      "model": "CRK-5003-CJ",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Skirmisher",
+      "path": "Katana (Crockett) CRK-5003-CJ.json"
+    },
+    {
+      "id": "katana-crockett-crk-5003-cm",
+      "chassis": "Katana (Crockett)",
+      "model": "CRK-5003-CM",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Juggernaut",
+      "path": "Katana (Crockett) CRK-5003-CM.json"
+    },
+    {
+      "id": "king-crab-kgc-000",
+      "chassis": "King Crab",
+      "model": "KGC-000",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 2743,
+      "role": "Juggernaut",
+      "path": "King Crab KGC-000.json"
+    },
+    {
+      "id": "king-crab-kgc-001",
+      "chassis": "King Crab",
+      "model": "KGC-001",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Juggernaut",
+      "path": "King Crab KGC-001.json"
+    },
+    {
+      "id": "king-crab-kgc-005",
+      "chassis": "King Crab",
+      "model": "KGC-005",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Juggernaut",
+      "path": "King Crab KGC-005.json"
+    },
+    {
+      "id": "king-crab-kgc-007",
+      "chassis": "King Crab",
+      "model": "KGC-007",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Juggernaut",
+      "path": "King Crab KGC-007.json"
+    },
+    {
+      "id": "king-crab-kgc-008",
+      "chassis": "King Crab",
+      "model": "KGC-008",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "King Crab KGC-008.json"
+    },
+    {
+      "id": "king-crab-kgc-008b",
+      "chassis": "King Crab",
+      "model": "KGC-008B",
+      "tonnage": 100,
+      "techBase": "INNER_SPHERE",
+      "year": 3080,
+      "role": "Sniper",
+      "path": "King Crab KGC-008B.json"
+    },
+    {
+      "id": "kintaro-kto-19",
+      "chassis": "Kintaro",
+      "model": "KTO-19",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 2587,
+      "role": "Skirmisher",
+      "path": "Kintaro KTO-19.json"
+    },
+    {
+      "id": "kintaro-kto-20",
+      "chassis": "Kintaro",
+      "model": "KTO-20",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3035,
+      "role": "Skirmisher",
+      "path": "Kintaro KTO-20.json"
+    },
+    {
+      "id": "kintaro-kto-21",
+      "chassis": "Kintaro",
+      "model": "KTO-21",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Kintaro KTO-21.json"
+    },
+    {
+      "id": "kintaro-kto-c",
+      "chassis": "Kintaro",
+      "model": "KTO-C",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Skirmisher",
+      "path": "Kintaro KTO-C.json"
+    },
+    {
+      "id": "kintaro-kto-k",
+      "chassis": "Kintaro",
+      "model": "KTO-K",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Skirmisher",
+      "path": "Kintaro KTO-K.json"
+    },
+    {
+      "id": "koshi-a",
+      "chassis": "Koshi",
+      "model": "A",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Scout",
+      "path": "Koshi (Mist Lynx) A.json"
+    },
+    {
+      "id": "koshi-b",
+      "chassis": "Koshi",
+      "model": "B",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) B.json"
+    },
+    {
+      "id": "koshi-c",
+      "chassis": "Koshi",
+      "model": "C",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) C.json"
+    },
+    {
+      "id": "koshi-d",
+      "chassis": "Koshi",
+      "model": "D",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) D.json"
+    },
+    {
+      "id": "koshi-e",
+      "chassis": "Koshi",
+      "model": "E",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) E.json"
+    },
+    {
+      "id": "koshi-f",
+      "chassis": "Koshi",
+      "model": "F",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 3063,
+      "role": "Scout",
+      "path": "Koshi (Mist Lynx) F.json"
+    },
+    {
+      "id": "koshi-g",
+      "chassis": "Koshi",
+      "model": "G",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) G.json"
+    },
+    {
+      "id": "koshi-h",
+      "chassis": "Koshi",
+      "model": "H",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Striker",
+      "path": "Koshi (Mist Lynx) H.json"
+    },
+    {
+      "id": "koshi-p",
+      "chassis": "Koshi",
+      "model": "P",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 3061,
+      "role": "Scout",
+      "path": "Koshi (Mist Lynx) P.json"
+    },
+    {
+      "id": "koshi-prime",
+      "chassis": "Koshi",
+      "model": "Prime",
+      "tonnage": 25,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Scout",
+      "path": "Koshi (Mist Lynx) Prime.json"
+    },
+    {
+      "id": "lancelot-lnc25-01",
+      "chassis": "Lancelot",
+      "model": "LNC25-01",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2581,
+      "role": "Skirmisher",
+      "path": "Lancelot LNC25-01.json"
+    },
+    {
+      "id": "lancelot-lnc25-03",
+      "chassis": "Lancelot",
+      "model": "LNC25-03",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2876,
+      "role": "Skirmisher",
+      "path": "Lancelot LNC25-03.json"
+    },
+    {
+      "id": "lancelot-lnc25-04",
+      "chassis": "Lancelot",
+      "model": "LNC25-04",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Sniper",
+      "path": "Lancelot LNC25-04.json"
+    },
+    {
+      "id": "lancelot-lnc25-05",
+      "chassis": "Lancelot",
+      "model": "LNC25-05",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2594,
+      "role": "Skirmisher",
+      "path": "Lancelot LNC25-05.json"
+    },
+    {
+      "id": "lancelot-lnc25-06",
+      "chassis": "Lancelot",
+      "model": "LNC25-06",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Sniper",
+      "path": "Lancelot LNC25-06.json"
+    },
+    {
+      "id": "lancelot-lnc25-08",
+      "chassis": "Lancelot",
+      "model": "LNC25-08",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Sniper",
+      "path": "Lancelot LNC25-08.json"
+    },
+    {
+      "id": "loki-a",
+      "chassis": "Loki",
+      "model": "A",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) A.json"
+    },
+    {
+      "id": "loki-b",
+      "chassis": "Loki",
+      "model": "B",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) B.json"
+    },
+    {
+      "id": "loki-c",
+      "chassis": "Loki",
+      "model": "C",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) C.json"
+    },
+    {
+      "id": "loki-d",
+      "chassis": "Loki",
+      "model": "D",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) D.json"
+    },
+    {
+      "id": "loki-e",
+      "chassis": "Loki",
+      "model": "E",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Loki (Hellbringer) E.json"
+    },
+    {
+      "id": "loki-f",
+      "chassis": "Loki",
+      "model": "F",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) F.json"
+    },
+    {
+      "id": "loki-h",
+      "chassis": "Loki",
+      "model": "H",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Sniper",
+      "path": "Loki (Hellbringer) H.json"
+    },
+    {
+      "id": "loki-prime",
+      "chassis": "Loki",
+      "model": "Prime",
+      "tonnage": 65,
+      "techBase": "CLAN",
+      "year": 2926,
+      "role": "Striker",
+      "path": "Loki (Hellbringer) Prime.json"
+    },
+    {
+      "id": "mad-cat-pryde",
+      "chassis": "Mad Cat",
+      "model": "(Pryde)",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 3052,
+      "role": "Missile Boat",
+      "path": "Mad Cat (Timber Wolf) Pryde.json"
+    },
+    {
+      "id": "mad-cat-a",
+      "chassis": "Mad Cat",
+      "model": "A",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Mad Cat (Timber Wolf) A.json"
+    },
+    {
+      "id": "mad-cat-b",
+      "chassis": "Mad Cat",
+      "model": "B",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Sniper",
+      "path": "Mad Cat (Timber Wolf) B.json"
+    },
+    {
+      "id": "mad-cat-c",
+      "chassis": "Mad Cat",
+      "model": "C",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Sniper",
+      "path": "Mad Cat (Timber Wolf) C.json"
+    },
+    {
+      "id": "mad-cat-d",
+      "chassis": "Mad Cat",
+      "model": "D",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Mad Cat (Timber Wolf) D.json"
+    },
+    {
+      "id": "mad-cat-e",
+      "chassis": "Mad Cat",
+      "model": "E",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Sniper",
+      "path": "Mad Cat (Timber Wolf) E.json"
+    },
+    {
+      "id": "mad-cat-f",
+      "chassis": "Mad Cat",
+      "model": "F",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Missile Boat",
+      "path": "Mad Cat (Timber Wolf) F.json"
+    },
+    {
+      "id": "mad-cat-h",
+      "chassis": "Mad Cat",
+      "model": "H",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Missile Boat",
+      "path": "Mad Cat (Timber Wolf) H.json"
+    },
+    {
+      "id": "mad-cat-prime",
+      "chassis": "Mad Cat",
+      "model": "Prime",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Brawler",
+      "path": "Mad Cat (Timber Wolf) Prime.json"
+    },
+    {
+      "id": "mad-cat-s",
+      "chassis": "Mad Cat",
+      "model": "S",
+      "tonnage": 75,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Skirmisher",
+      "path": "Mad Cat (Timber Wolf) S.json"
+    },
+    {
+      "id": "man-o-war-a",
+      "chassis": "Man O' War",
+      "model": "A",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) A.json"
+    },
+    {
+      "id": "man-o-war-b",
+      "chassis": "Man O' War",
+      "model": "B",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Sniper",
+      "path": "Man O' War (Gargoyle) B.json"
+    },
+    {
+      "id": "man-o-war-c",
+      "chassis": "Man O' War",
+      "model": "C",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) C.json"
+    },
+    {
+      "id": "man-o-war-d",
+      "chassis": "Man O' War",
+      "model": "D",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) D.json"
+    },
+    {
+      "id": "man-o-war-e",
+      "chassis": "Man O' War",
+      "model": "E",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 3060,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) E.json"
+    },
+    {
+      "id": "man-o-war-g",
+      "chassis": "Man O' War",
+      "model": "G",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) G.json"
+    },
+    {
+      "id": "man-o-war-h",
+      "chassis": "Man O' War",
+      "model": "H",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) H.json"
+    },
+    {
+      "id": "man-o-war-m",
+      "chassis": "Man O' War",
+      "model": "M",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Sniper",
+      "path": "Man O' War (Gargoyle) M.json"
+    },
+    {
+      "id": "man-o-war-prime",
+      "chassis": "Man O' War",
+      "model": "Prime",
+      "tonnage": 80,
+      "techBase": "CLAN",
+      "year": 2945,
+      "role": "Skirmisher",
+      "path": "Man O' War (Gargoyle) Prime.json"
+    },
+    {
+      "id": "masakari-a",
+      "chassis": "Masakari",
+      "model": "A",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 2999,
+      "role": "Sniper",
+      "path": "Masakari (Warhawk) A.json"
+    },
+    {
+      "id": "masakari-b",
+      "chassis": "Masakari",
+      "model": "B",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 2999,
+      "role": "Brawler",
+      "path": "Masakari (Warhawk) B.json"
+    },
+    {
+      "id": "masakari-c",
+      "chassis": "Masakari",
+      "model": "C",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 2999,
+      "role": "Sniper",
+      "path": "Masakari (Warhawk) C.json"
+    },
+    {
+      "id": "masakari-d",
+      "chassis": "Masakari",
+      "model": "D",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Sniper",
+      "path": "Masakari (Warhawk) D.json"
+    },
+    {
+      "id": "masakari-e",
+      "chassis": "Masakari",
+      "model": "E",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Masakari (Warhawk) E.json"
+    },
+    {
+      "id": "masakari-h",
+      "chassis": "Masakari",
+      "model": "H",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Brawler",
+      "path": "Masakari (Warhawk) H.json"
+    },
+    {
+      "id": "masakari-prime",
+      "chassis": "Masakari",
+      "model": "Prime",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 2999,
+      "role": "Sniper",
+      "path": "Masakari (Warhawk) Prime.json"
+    },
+    {
+      "id": "mauler-mal-1k",
+      "chassis": "Mauler",
+      "model": "MAL-1K",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Juggernaut",
+      "path": "Mauler MAL-1K.json"
+    },
+    {
+      "id": "mauler-mal-1r",
+      "chassis": "Mauler",
+      "model": "MAL-1R",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Sniper",
+      "path": "Mauler MAL-1R.json"
+    },
+    {
+      "id": "mauler-mal-2r",
+      "chassis": "Mauler",
+      "model": "MAL-2R",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Juggernaut",
+      "path": "Mauler MAL-2R.json"
+    },
+    {
+      "id": "mauler-mal-3r",
+      "chassis": "Mauler",
+      "model": "MAL-3R",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Sniper",
+      "path": "Mauler MAL-3R.json"
+    },
+    {
+      "id": "mauler-mal-c",
+      "chassis": "Mauler",
+      "model": "MAL-C",
+      "tonnage": 90,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Mauler MAL-C.json"
+    },
+    {
+      "id": "mercury-mcy-102",
+      "chassis": "Mercury",
+      "model": "MCY-102",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Scout",
+      "path": "Mercury MCY-102.json"
+    },
+    {
+      "id": "mercury-mcy-104",
+      "chassis": "Mercury",
+      "model": "MCY-104",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Mercury MCY-104.json"
+    },
+    {
+      "id": "mercury-mcy-97",
+      "chassis": "Mercury",
+      "model": "MCY-97",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Scout",
+      "path": "Mercury MCY-97.json"
+    },
+    {
+      "id": "mercury-mcy-99",
+      "chassis": "Mercury",
+      "model": "MCY-99",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 2742,
+      "role": "Scout",
+      "path": "Mercury MCY-99.json"
+    },
+    {
+      "id": "mongoose-mon-66",
+      "chassis": "Mongoose",
+      "model": "MON-66",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 2660,
+      "role": "Scout",
+      "path": "Mongoose MON-66.json"
+    },
+    {
+      "id": "mongoose-mon-69",
+      "chassis": "Mongoose",
+      "model": "MON-69",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 2819,
+      "role": "Striker",
+      "path": "Mongoose MON-69.json"
+    },
+    {
+      "id": "mongoose-mon-70",
+      "chassis": "Mongoose",
+      "model": "MON-70",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 2819,
+      "role": "Striker",
+      "path": "Mongoose MON-70.json"
+    },
+    {
+      "id": "mongoose-mon-76",
+      "chassis": "Mongoose",
+      "model": "MON-76",
+      "tonnage": 25,
+      "techBase": "INNER_SPHERE",
+      "year": 3077,
+      "role": "Striker",
+      "path": "Mongoose MON-76.json"
+    },
+    {
+      "id": "orion-on1-m",
+      "chassis": "Orion",
+      "model": "ON1-M",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Brawler",
+      "path": "Orion ON1-M.json"
+    },
+    {
+      "id": "orion-on1-m-dc",
+      "chassis": "Orion",
+      "model": "ON1-M-DC",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3053,
+      "role": "Brawler",
+      "path": "Orion ON1-M-DC.json"
+    },
+    {
+      "id": "orion-on1-ma",
+      "chassis": "Orion",
+      "model": "ON1-MA",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Brawler",
+      "path": "Orion ON1-MA.json"
+    },
+    {
+      "id": "orion-on1-mb",
+      "chassis": "Orion",
+      "model": "ON1-MB",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Brawler",
+      "path": "Orion ON1-MB.json"
+    },
+    {
+      "id": "orion-on1-mc",
+      "chassis": "Orion",
+      "model": "ON1-MC",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3058,
+      "role": "Brawler",
+      "path": "Orion ON1-MC.json"
+    },
+    {
+      "id": "orion-on1-md",
+      "chassis": "Orion",
+      "model": "ON1-MD",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Orion ON1-MD.json"
+    },
+    {
+      "id": "orion-on2-m",
+      "chassis": "Orion",
+      "model": "ON2-M",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Brawler",
+      "path": "Orion ON2-M.json"
+    },
+    {
+      "id": "panther-pnt-10k",
+      "chassis": "Panther",
+      "model": "PNT-10K",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Brawler",
+      "path": "Panther PNT-10K.json"
+    },
+    {
+      "id": "panther-pnt-10ka",
+      "chassis": "Panther",
+      "model": "PNT-10KA",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3055,
+      "role": "Brawler",
+      "path": "Panther PNT-10KA.json"
+    },
+    {
+      "id": "panther-pnt-12a",
+      "chassis": "Panther",
+      "model": "PNT-12A",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Brawler",
+      "path": "Panther PNT-12A.json"
+    },
+    {
+      "id": "panther-pnt-14s",
+      "chassis": "Panther",
+      "model": "PNT-14S",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Scout",
+      "path": "Panther PNT-14S.json"
+    },
+    {
+      "id": "panther-pnt-16k",
+      "chassis": "Panther",
+      "model": "PNT-16K",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Brawler",
+      "path": "Panther PNT-16K.json"
+    },
+    {
+      "id": "panther-pnt-c",
+      "chassis": "Panther",
+      "model": "PNT-C",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Brawler",
+      "path": "Panther PNT-C.json"
+    },
+    {
+      "id": "panther-pnt-ca",
+      "chassis": "Panther",
+      "model": "PNT-CA",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3055,
+      "role": "Brawler",
+      "path": "Panther PNT-CA.json"
+    },
+    {
+      "id": "puma-a",
+      "chassis": "Puma",
+      "model": "A",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3012,
+      "role": "Missile Boat",
+      "path": "Puma (Adder) A.json"
+    },
+    {
+      "id": "puma-b",
+      "chassis": "Puma",
+      "model": "B",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Sniper",
+      "path": "Puma (Adder) B.json"
+    },
+    {
+      "id": "puma-c",
+      "chassis": "Puma",
+      "model": "C",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3012,
+      "role": "Missile Boat",
+      "path": "Puma (Adder) C.json"
+    },
+    {
+      "id": "puma-d",
+      "chassis": "Puma",
+      "model": "D",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Sniper",
+      "path": "Puma (Adder) D.json"
+    },
+    {
+      "id": "puma-e",
+      "chassis": "Puma",
+      "model": "E",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3060,
+      "role": "Sniper",
+      "path": "Puma (Adder) E.json"
+    },
+    {
+      "id": "puma-h",
+      "chassis": "Puma",
+      "model": "H",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Brawler",
+      "path": "Puma (Adder) H.json"
+    },
+    {
+      "id": "puma-j",
+      "chassis": "Puma",
+      "model": "J",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "Puma (Adder) J.json"
+    },
+    {
+      "id": "puma-prime",
+      "chassis": "Puma",
+      "model": "Prime",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3010,
+      "role": "Sniper",
+      "path": "Puma (Adder) Prime.json"
+    },
+    {
+      "id": "quickdraw-qkd-5k",
+      "chassis": "Quickdraw",
+      "model": "QKD-5K",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Quickdraw QKD-5K.json"
+    },
+    {
+      "id": "quickdraw-qkd-5k2",
+      "chassis": "Quickdraw",
+      "model": "QKD-5K2",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3057,
+      "role": "Skirmisher",
+      "path": "Quickdraw QKD-5K2.json"
+    },
+    {
+      "id": "quickdraw-qkd-5m",
+      "chassis": "Quickdraw",
+      "model": "QKD-5M",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Quickdraw QKD-5M.json"
+    },
+    {
+      "id": "quickdraw-qkd-8k",
+      "chassis": "Quickdraw",
+      "model": "QKD-8K",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Skirmisher",
+      "path": "Quickdraw QKD-8K.json"
+    },
+    {
+      "id": "quickdraw-qkd-c",
+      "chassis": "Quickdraw",
+      "model": "QKD-C",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3053,
+      "role": "Skirmisher",
+      "path": "Quickdraw QKD-C.json"
+    },
+    {
+      "id": "raven-rvn-3l",
+      "chassis": "Raven",
+      "model": "RVN-3L",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Scout",
+      "path": "Raven RVN-3L.json"
+    },
+    {
+      "id": "raven-rvn-3m",
+      "chassis": "Raven",
+      "model": "RVN-3M",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3053,
+      "role": "Missile Boat",
+      "path": "Raven RVN-3M.json"
+    },
+    {
+      "id": "raven-rvn-4l",
+      "chassis": "Raven",
+      "model": "RVN-4L",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Scout",
+      "path": "Raven RVN-4L.json"
+    },
+    {
+      "id": "raven-rvn-4lc",
+      "chassis": "Raven",
+      "model": "RVN-4LC",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Scout",
+      "path": "Raven RVN-4LC.json"
+    },
+    {
+      "id": "raven-rvn-sr-shattered-raven",
+      "chassis": "Raven",
+      "model": "RVN-SR 'Shattered Raven'",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Scout",
+      "path": "Raven RVN-SR.json"
+    },
+    {
+      "id": "raven-rvn-ss-shattered-raven",
+      "chassis": "Raven",
+      "model": "RVN-SS 'Shattered Raven'",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Raven RVN-SS.json"
+    },
+    {
+      "id": "ryoken-kotare",
+      "chassis": "Ryoken",
+      "model": "(Kotare)",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Ryoken (Stormcrow) (Kotare).json"
+    },
+    {
+      "id": "ryoken-a",
+      "chassis": "Ryoken",
+      "model": "A",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 2930,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) A.json"
+    },
+    {
+      "id": "ryoken-b",
+      "chassis": "Ryoken",
+      "model": "B",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 2930,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) B.json"
+    },
+    {
+      "id": "ryoken-c",
+      "chassis": "Ryoken",
+      "model": "C",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 2930,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) C.json"
+    },
+    {
+      "id": "ryoken-d",
+      "chassis": "Ryoken",
+      "model": "D",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 2930,
+      "role": "Missile Boat",
+      "path": "Ryoken (Stormcrow) D.json"
+    },
+    {
+      "id": "ryoken-e",
+      "chassis": "Ryoken",
+      "model": "E",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) E.json"
+    },
+    {
+      "id": "ryoken-f",
+      "chassis": "Ryoken",
+      "model": "F",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) F.json"
+    },
+    {
+      "id": "ryoken-g",
+      "chassis": "Ryoken",
+      "model": "G",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) G.json"
+    },
+    {
+      "id": "ryoken-h",
+      "chassis": "Ryoken",
+      "model": "H",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) H.json"
+    },
+    {
+      "id": "ryoken-prime",
+      "chassis": "Ryoken",
+      "model": "Prime",
+      "tonnage": 55,
+      "techBase": "CLAN",
+      "year": 2930,
+      "role": "Striker",
+      "path": "Ryoken (Stormcrow) Prime.json"
+    },
+    {
+      "id": "sentinel-stn-3l",
+      "chassis": "Sentinel",
+      "model": "STN-3L",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 2652,
+      "role": "Striker",
+      "path": "Sentinel STN-3L.json"
+    },
+    {
+      "id": "sentinel-stn-3m",
+      "chassis": "Sentinel",
+      "model": "STN-3M",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3035,
+      "role": "Striker",
+      "path": "Sentinel STN-3M.json"
+    },
+    {
+      "id": "sentinel-stn-4d",
+      "chassis": "Sentinel",
+      "model": "STN-4D",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Striker",
+      "path": "Sentinel STN-4D.json"
+    },
+    {
+      "id": "sentinel-stn-5wb",
+      "chassis": "Sentinel",
+      "model": "STN-5WB",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Sentinel STN-5WB.json"
+    },
+    {
+      "id": "sentinel-stn-c",
+      "chassis": "Sentinel",
+      "model": "STN-C",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Sniper",
+      "path": "Sentinel STN-C.json"
+    },
+    {
+      "id": "shogun-c",
+      "chassis": "Shogun",
+      "model": "C",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 2850,
+      "role": "Missile Boat",
+      "path": "Shogun C.json"
+    },
+    {
+      "id": "shogun-shg-2e",
+      "chassis": "Shogun",
+      "model": "SHG-2E",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3005,
+      "role": "Missile Boat",
+      "path": "Shogun SHG-2E.json"
+    },
+    {
+      "id": "shogun-shg-2f",
+      "chassis": "Shogun",
+      "model": "SHG-2F",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3029,
+      "role": "Missile Boat",
+      "path": "Shogun SHG-2F.json"
+    },
+    {
+      "id": "shogun-shg-2f-trisha",
+      "chassis": "Shogun",
+      "model": "SHG-2F (Trisha)",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Juggernaut",
+      "path": "Shogun SHG-2F (Trisha).json"
+    },
+    {
+      "id": "spider-sdr-7k",
+      "chassis": "Spider",
+      "model": "SDR-7K",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Striker",
+      "path": "Spider SDR-7K.json"
+    },
+    {
+      "id": "spider-sdr-7k2",
+      "chassis": "Spider",
+      "model": "SDR-7K2",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Scout",
+      "path": "Spider SDR-7K2.json"
+    },
+    {
+      "id": "spider-sdr-7kc",
+      "chassis": "Spider",
+      "model": "SDR-7KC",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Scout",
+      "path": "Spider SDR-7KC.json"
+    },
+    {
+      "id": "spider-sdr-7m",
+      "chassis": "Spider",
+      "model": "SDR-7M",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Striker",
+      "path": "Spider SDR-7M.json"
+    },
+    {
+      "id": "spider-sdr-8m",
+      "chassis": "Spider",
+      "model": "SDR-8M",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Striker",
+      "path": "Spider SDR-8M.json"
+    },
+    {
+      "id": "spider-sdr-c",
+      "chassis": "Spider",
+      "model": "SDR-C",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Spider SDR-C.json"
+    },
+    {
+      "id": "stalker-stk-3f-jamison",
+      "chassis": "Stalker",
+      "model": "STK-3F (Jamison)",
+      "tonnage": 85,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Missile Boat",
+      "path": "Stalker STK-3F (Jamison).json"
+    },
+    {
+      "id": "stalker-stk-5m",
+      "chassis": "Stalker",
+      "model": "STK-5M",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Stalker STK-5M.json"
+    },
+    {
+      "id": "stalker-stk-5s",
+      "chassis": "Stalker",
+      "model": "STK-5S",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Juggernaut",
+      "path": "Stalker STK-5S.json"
+    },
+    {
+      "id": "stalker-stk-6m",
+      "chassis": "Stalker",
+      "model": "STK-6M",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Sniper",
+      "path": "Stalker STK-6M.json"
+    },
+    {
+      "id": "stalker-stk-7d",
+      "chassis": "Stalker",
+      "model": "STK-7D",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Juggernaut",
+      "path": "Stalker STK-7D.json"
+    },
+    {
+      "id": "stalker-stk-8s",
+      "chassis": "Stalker",
+      "model": "STK-8S",
+      "tonnage": 85,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Juggernaut",
+      "path": "Stalker STK-8S.json"
+    },
+    {
+      "id": "thor-a",
+      "chassis": "Thor",
+      "model": "A",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 2872,
+      "role": "Sniper",
+      "path": "Thor (Summoner) A.json"
+    },
+    {
+      "id": "thor-b",
+      "chassis": "Thor",
+      "model": "B",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 2872,
+      "role": "Missile Boat",
+      "path": "Thor (Summoner) B.json"
+    },
+    {
+      "id": "thor-c",
+      "chassis": "Thor",
+      "model": "C",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 2872,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) C.json"
+    },
+    {
+      "id": "thor-d",
+      "chassis": "Thor",
+      "model": "D",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 2872,
+      "role": "Sniper",
+      "path": "Thor (Summoner) D.json"
+    },
+    {
+      "id": "thor-e",
+      "chassis": "Thor",
+      "model": "E",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) E.json"
+    },
+    {
+      "id": "thor-f",
+      "chassis": "Thor",
+      "model": "F",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) F.json"
+    },
+    {
+      "id": "thor-g",
+      "chassis": "Thor",
+      "model": "G",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) G.json"
+    },
+    {
+      "id": "thor-h",
+      "chassis": "Thor",
+      "model": "H",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) H.json"
+    },
+    {
+      "id": "thor-hh",
+      "chassis": "Thor",
+      "model": "HH",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3070,
+      "role": "Skirmisher",
+      "path": "Thor (Summoner) HH.json"
+    },
+    {
+      "id": "thor-m",
+      "chassis": "Thor",
+      "model": "M",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Thor (Summoner) M.json"
+    },
+    {
+      "id": "thor-prime",
+      "chassis": "Thor",
+      "model": "Prime",
+      "tonnage": 70,
+      "techBase": "CLAN",
+      "year": 2872,
+      "role": "Sniper",
+      "path": "Thor (Summoner) Prime.json"
+    },
+    {
+      "id": "thorn-the-n",
+      "chassis": "Thorn",
+      "model": "THE-N",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 2549,
+      "role": "Striker",
+      "path": "Thorn THE-N.json"
+    },
+    {
+      "id": "thorn-the-n1",
+      "chassis": "Thorn",
+      "model": "THE-N1",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Thorn THE-N1.json"
+    },
+    {
+      "id": "thorn-the-n2",
+      "chassis": "Thorn",
+      "model": "THE-N2",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Striker",
+      "path": "Thorn THE-N2.json"
+    },
+    {
+      "id": "thug-thg-11e",
+      "chassis": "Thug",
+      "model": "THG-11E",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 2572,
+      "role": "Brawler",
+      "path": "Thug THG-11E.json"
+    },
+    {
+      "id": "thug-thg-11e-reich",
+      "chassis": "Thug",
+      "model": "THG-11E (Reich)",
+      "tonnage": 80,
+      "techBase": "MIXED",
+      "year": 3071,
+      "role": "Brawler",
+      "path": "Thug THG-11E (Reich).json"
+    },
+    {
+      "id": "thug-thg-12e",
+      "chassis": "Thug",
+      "model": "THG-12E",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Brawler",
+      "path": "Thug THG-12E.json"
+    },
+    {
+      "id": "thug-thg-12k",
+      "chassis": "Thug",
+      "model": "THG-12K",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Brawler",
+      "path": "Thug THG-12K.json"
+    },
+    {
+      "id": "thug-thg-13k",
+      "chassis": "Thug",
+      "model": "THG-13K",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Brawler",
+      "path": "Thug THG-13K.json"
+    },
+    {
+      "id": "trebuchet-tbt-3c",
+      "chassis": "Trebuchet",
+      "model": "TBT-3C",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 2780,
+      "role": "Missile Boat",
+      "path": "Trebuchet TBT-3C.json"
+    },
+    {
+      "id": "trebuchet-tbt-7m",
+      "chassis": "Trebuchet",
+      "model": "TBT-7M",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Missile Boat",
+      "path": "Trebuchet TBT-7M.json"
+    },
+    {
+      "id": "trebuchet-tbt-8b",
+      "chassis": "Trebuchet",
+      "model": "TBT-8B",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Missile Boat",
+      "path": "Trebuchet TBT-8B.json"
+    },
+    {
+      "id": "trebuchet-tbt-9k",
+      "chassis": "Trebuchet",
+      "model": "TBT-9K",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3059,
+      "role": "Striker",
+      "path": "Trebuchet TBT-9K.json"
+    },
+    {
+      "id": "uller-a",
+      "chassis": "Uller",
+      "model": "A",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 2890,
+      "role": "Sniper",
+      "path": "Uller (Kit Fox) A.json"
+    },
+    {
+      "id": "uller-b",
+      "chassis": "Uller",
+      "model": "B",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 2890,
+      "role": "Striker",
+      "path": "Uller (Kit Fox) B.json"
+    },
+    {
+      "id": "uller-c",
+      "chassis": "Uller",
+      "model": "C",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Uller (Kit Fox) C.json"
+    },
+    {
+      "id": "uller-d",
+      "chassis": "Uller",
+      "model": "D",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 2890,
+      "role": "Missile Boat",
+      "path": "Uller (Kit Fox) D.json"
+    },
+    {
+      "id": "uller-e",
+      "chassis": "Uller",
+      "model": "E",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Striker",
+      "path": "Uller (Kit Fox) E.json"
+    },
+    {
+      "id": "uller-f",
+      "chassis": "Uller",
+      "model": "F",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Uller (Kit Fox) F.json"
+    },
+    {
+      "id": "uller-h",
+      "chassis": "Uller",
+      "model": "H",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Striker",
+      "path": "Uller (Kit Fox) H.json"
+    },
+    {
+      "id": "uller-prime",
+      "chassis": "Uller",
+      "model": "Prime",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 2890,
+      "role": "Sniper",
+      "path": "Uller (Kit Fox) Prime.json"
+    },
+    {
+      "id": "uller-s",
+      "chassis": "Uller",
+      "model": "S",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Uller (Kit Fox) S.json"
+    },
+    {
+      "id": "uller-w",
+      "chassis": "Uller",
+      "model": "W",
+      "tonnage": 30,
+      "techBase": "CLAN",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Uller (Kit Fox) W.json"
+    },
+    {
+      "id": "urbanmech-um-r63",
+      "chassis": "UrbanMech",
+      "model": "UM-R63",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Sniper",
+      "path": "UrbanMech UM-R63.json"
+    },
+    {
+      "id": "urbanmech-um-r68",
+      "chassis": "UrbanMech",
+      "model": "UM-R68",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Ambusher",
+      "path": "UrbanMech UM-R68.json"
+    },
+    {
+      "id": "urbanmech-um-r69",
+      "chassis": "UrbanMech",
+      "model": "UM-R69",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Sniper",
+      "path": "Urbanmech UM-R69.json"
+    },
+    {
+      "id": "urbanmech-um-r70",
+      "chassis": "UrbanMech",
+      "model": "UM-R70",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 3066,
+      "role": "Ambusher",
+      "path": "UrbanMech UM-R70.json"
+    },
+    {
+      "id": "victor-vtr-10d",
+      "chassis": "Victor",
+      "model": "VTR-10D",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Skirmisher",
+      "path": "Victor VTR-10D.json"
+    },
+    {
+      "id": "victor-vtr-10l",
+      "chassis": "Victor",
+      "model": "VTR-10L",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3066,
+      "role": "Skirmisher",
+      "path": "Victor VTR-10L.json"
+    },
+    {
+      "id": "victor-vtr-10s",
+      "chassis": "Victor",
+      "model": "VTR-10S",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Victor VTR-10S.json"
+    },
+    {
+      "id": "victor-vtr-11d",
+      "chassis": "Victor",
+      "model": "VTR-11D",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Skirmisher",
+      "path": "Victor VTR-11D.json"
+    },
+    {
+      "id": "victor-vtr-9d",
+      "chassis": "Victor",
+      "model": "VTR-9D",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Victor VTR-9D.json"
+    },
+    {
+      "id": "victor-vtr-9k",
+      "chassis": "Victor",
+      "model": "VTR-9K",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "path": "Victor VTR-9K.json"
+    },
+    {
+      "id": "victor-vtr-c",
+      "chassis": "Victor",
+      "model": "VTR-C",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3054,
+      "role": "Skirmisher",
+      "path": "Victor VTR-C.json"
+    },
+    {
+      "id": "vindicator-vnd-3l",
+      "chassis": "Vindicator",
+      "model": "VND-3L",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Brawler",
+      "path": "Vindicator VND-3L.json"
+    },
+    {
+      "id": "vindicator-vnd-4l",
+      "chassis": "Vindicator",
+      "model": "VND-4L",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3063,
+      "role": "Skirmisher",
+      "path": "Vindicator VND-4L.json"
+    },
+    {
+      "id": "vindicator-vnd-5l",
+      "chassis": "Vindicator",
+      "model": "VND-5L",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "path": "Vindicator VND-5L.json"
+    },
+    {
+      "id": "vindicator-vnd-6l",
+      "chassis": "Vindicator",
+      "model": "VND-6L",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Skirmisher",
+      "path": "Vindicator VND-6L.json"
+    },
+    {
+      "id": "vulcan-vt-5m",
+      "chassis": "Vulcan",
+      "model": "VT-5M",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Vulcan VT-5M.json"
+    },
+    {
+      "id": "vulcan-vt-5s",
+      "chassis": "Vulcan",
+      "model": "VT-5S",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Striker",
+      "path": "Vulcan VT-5S.json"
+    },
+    {
+      "id": "vulcan-vt-6c",
+      "chassis": "Vulcan",
+      "model": "VT-6C",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Striker",
+      "path": "Vulcan VT-6C.json"
+    },
+    {
+      "id": "vulcan-vt-6m",
+      "chassis": "Vulcan",
+      "model": "VT-6M",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Vulcan VT-6M.json"
+    },
+    {
+      "id": "vulture-a",
+      "chassis": "Vulture",
+      "model": "A",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 2963,
+      "role": "Skirmisher",
+      "path": "Vulture (Mad Dog) A.json"
+    },
+    {
+      "id": "vulture-b",
+      "chassis": "Vulture",
+      "model": "B",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 2963,
+      "role": "Skirmisher",
+      "path": "Vulture (Mad Dog) B.json"
+    },
+    {
+      "id": "vulture-c",
+      "chassis": "Vulture",
+      "model": "C",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 2963,
+      "role": "Sniper",
+      "path": "Vulture (Mad Dog) C.json"
+    },
+    {
+      "id": "vulture-d",
+      "chassis": "Vulture",
+      "model": "D",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 3054,
+      "role": "Skirmisher",
+      "path": "Vulture (Mad Dog) D.json"
+    },
+    {
+      "id": "vulture-e",
+      "chassis": "Vulture",
+      "model": "E",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Vulture (Mad Dog) E.json"
+    },
+    {
+      "id": "vulture-f",
+      "chassis": "Vulture",
+      "model": "F",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 3069,
+      "role": "Skirmisher",
+      "path": "Vulture (Mad Dog) F.json"
+    },
+    {
+      "id": "vulture-h",
+      "chassis": "Vulture",
+      "model": "H",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 3059,
+      "role": "Missile Boat",
+      "path": "Vulture (Mad Dog) H.json"
+    },
+    {
+      "id": "vulture-prime",
+      "chassis": "Vulture",
+      "model": "Prime",
+      "tonnage": 60,
+      "techBase": "CLAN",
+      "year": 2963,
+      "role": "Missile Boat",
+      "path": "Vulture (Mad Dog) Prime.json"
+    },
+    {
+      "id": "whitworth-wth-1h",
+      "chassis": "Whitworth",
+      "model": "WTH-1H",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3066,
+      "role": "Juggernaut",
+      "path": "Whitworth WTH-1H.json"
+    },
+    {
+      "id": "whitworth-wth-2",
+      "chassis": "Whitworth",
+      "model": "WTH-2",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Missile Boat",
+      "path": "Whitworth WTH-2.json"
+    },
+    {
+      "id": "whitworth-wth-2a",
+      "chassis": "Whitworth",
+      "model": "WTH-2A",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3068,
+      "role": "Juggernaut",
+      "path": "Whitworth WTH-2A.json"
+    },
+    {
+      "id": "whitworth-wth-3",
+      "chassis": "Whitworth",
+      "model": "WTH-3",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Missile Boat",
+      "path": "Whitworth WTH-3.json"
+    },
+    {
+      "id": "whitworth-wth-k",
+      "chassis": "Whitworth",
+      "model": "WTH-K",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Missile Boat",
+      "path": "Whitworth WTH-K.json"
+    },
+    {
+      "id": "wolf-trap-tora-wft-1",
+      "chassis": "Wolf Trap (Tora)",
+      "model": "WFT-1",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Striker",
+      "path": "Wolf Trap (Tora) WFT-1.json"
+    },
+    {
+      "id": "wolf-trap-tora-wft-2",
+      "chassis": "Wolf Trap (Tora)",
+      "model": "WFT-2",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3071,
+      "role": "Striker",
+      "path": "Wolf Trap (Tora) WFT-2.json"
+    },
+    {
+      "id": "wolf-trap-tora-wft-b",
+      "chassis": "Wolf Trap (Tora)",
+      "model": "WFT-B",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Striker",
+      "path": "Wolf Trap (Tora) WFT-B.json"
+    },
+    {
+      "id": "wolf-trap-tora-wft-c",
+      "chassis": "Wolf Trap (Tora)",
+      "model": "WFT-C",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Striker",
+      "path": "Wolf Trap (Tora) WFT-C.json"
+    },
+    {
+      "id": "wolfhound-wlf-1-allard",
+      "chassis": "Wolfhound",
+      "model": "WLF-1 (Allard)",
+      "tonnage": 35,
+      "techBase": "MIXED",
+      "year": 3062,
+      "role": "Striker",
+      "path": "Wolfhound WLF-1 (Allard).json"
+    },
+    {
+      "id": "wolfhound-wlf-2",
+      "chassis": "Wolfhound",
+      "model": "WLF-2",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Striker",
+      "path": "Wolfhound WLF-2.json"
+    },
+    {
+      "id": "wolfhound-wlf-3s",
+      "chassis": "Wolfhound",
+      "model": "WLF-3S",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3064,
+      "role": "Striker",
+      "path": "Wolfhound WLF-3S.json"
+    },
+    {
+      "id": "wolfhound-wlf-4w",
+      "chassis": "Wolfhound",
+      "model": "WLF-4W",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3069,
+      "role": "Sniper",
+      "path": "Wolfhound WLF-4W.json"
+    },
+    {
+      "id": "wolfhound-iic-grinner",
+      "chassis": "Wolfhound IIC",
+      "model": "'Grinner'",
+      "tonnage": 35,
+      "techBase": "CLAN",
+      "year": 3051,
+      "role": "Striker",
+      "path": "Wolfhound IIC.json"
+    },
+    {
+      "id": "wyvern-wve-10n",
+      "chassis": "Wyvern",
+      "model": "WVE-10N",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3065,
+      "role": "Brawler",
+      "path": "Wyvern WVE-10N.json"
+    },
+    {
+      "id": "wyvern-wve-5n",
+      "chassis": "Wyvern",
+      "model": "WVE-5N",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 2660,
+      "role": "Brawler",
+      "path": "Wyvern WVE-5N.json"
+    },
+    {
+      "id": "wyvern-wve-9n",
+      "chassis": "Wyvern",
+      "model": "WVE-9N",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Brawler",
+      "path": "Wyvern WVE-9N.json"
+    },
+    {
+      "id": "zeus-zeu-10wb",
+      "chassis": "Zeus",
+      "model": "ZEU-10WB",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3070,
+      "role": "Sniper",
+      "path": "Zeus ZEU-10WB.json"
+    },
+    {
+      "id": "zeus-zeu-9s",
+      "chassis": "Zeus",
+      "model": "ZEU-9S",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3048,
+      "role": "Sniper",
+      "path": "Zeus ZEU-9S.json"
+    },
+    {
+      "id": "zeus-zeu-9s-dc",
+      "chassis": "Zeus",
+      "model": "ZEU-9S-DC",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Sniper",
+      "path": "Zeus ZEU-9S-DC.json"
+    },
+    {
+      "id": "zeus-zeu-9s2",
+      "chassis": "Zeus",
+      "model": "ZEU-9S2",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3051,
+      "role": "Sniper",
+      "path": "Zeus ZEU-9S2.json"
+    },
+    {
+      "id": "zeus-zeu-9t",
+      "chassis": "Zeus",
+      "model": "ZEU-9T",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3062,
+      "role": "Brawler",
+      "path": "Zeus ZEU-9T.json"
+    },
+    {
+      "id": "zeus-x-zeu-9wd",
+      "chassis": "Zeus-X",
+      "model": "ZEU-9WD",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3067,
+      "role": "Brawler",
+      "path": "Zeus X ZEU-9WD.json"
+    }
+  ]
+}

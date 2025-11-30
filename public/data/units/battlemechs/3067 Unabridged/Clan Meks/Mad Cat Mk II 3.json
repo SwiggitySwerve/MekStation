@@ -1,0 +1,208 @@
+{
+  "id": "mad-cat-mk-ii-3",
+  "chassis": "Mad Cat Mk II",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3082,
+  "tonnage": 90,
+  "engine": {
+    "type": "XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 29,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 29,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-cllightactiveprobe",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-clermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-cllrm10",
+      "location": "RIGHT_TORSO,_AMMO:24"
+    },
+    {
+      "id": "1-cllrm10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-clhag30",
+      "location": "RIGHT_ARM,_AMMO:32"
+    },
+    {
+      "id": "1-clhag30",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30 Ammo",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30 Ammo",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLLRM10",
+      "CLLRM10 Ammo",
+      "CLHAG30 Ammo",
+      "CLHAG30 Ammo",
+      "CLHAG30 Ammo",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLLRM10",
+      "CLLRM10 Ammo",
+      "CLHAG30 Ammo",
+      "CLHAG30 Ammo",
+      "CLHAG30 Ammo",
+      "Endo-Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Endo-Steel",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLLightActiveProbe",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "Designed to be sold to fellow Clans, this rebuild of the Timber Wolf carries thirteen tons of ferro-fibrous armor while being one of most nimble BattleMechs of its class, yet still packing serious weaponry.",
+    "capabilities": "This variant removes the Gauss Rifles, jump jets, and one heat sink of the original and replaces them with a HAG/30 in each arm. The side torsos each mount an LRM-10 and a pair of ER Medium Lasers. A Light Active Probe is mounted in the head, and the remaining tonnage is given over to more armor protection.",
+    "history": "The Mad Cat Mk II was in development for fifteen months by the time production began in 3061. The sole rationale for the Mad Cat Mk II was to increase profits for Clan Diamond Shark after war with the Inner Sphere in the 3050s.",
+    "deployment": "Despite this, Mk II's most notable potential buyers, Clan Wolf and Clan Jade Falcon, did not purchase even a single unit, though they won some numbers in Trials. Significant numbers of Mad Cat Mk II were sold to Clan Nova Cat, and the Mech served also in Clan Ice Hellion, Clan Jade Falcon, Clan Wolf-in-Exile in addition to Diamond Shark itself. On a limited basis, Clan Diamond Shark sold unmodified Mad Cat Mk IIs to Inner Sphere factions, most notably the Draconis Combine and Federated Commonwealth, and also the Lyran Alliance bought an unknown amount of Mad Cat Mark IIs.",
+    "manufacturer": "Manufacturing Plant DSF-94",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 4",
+      "ENGINE": "Type 79 360 XL Fusion",
+      "ARMOR": "Forging ZM15 Ferro Fibrous",
+      "JUMPJET": "Grandthrust Mk. 5",
+      "COMMUNICATIONS": "MegaBand System 21",
+      "TARGETING": "Dtrac Suite 4"
+    }
+  },
+  "mulId": 5716,
+  "role": "Brawler",
+  "source": "RS:3067u"
+}

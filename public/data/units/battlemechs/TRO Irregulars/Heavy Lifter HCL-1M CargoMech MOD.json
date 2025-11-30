@@ -1,0 +1,122 @@
+{
+  "id": "heavy-lifter-hcl-1m-cargomech-mod",
+  "chassis": "Heavy Lifter",
+  "model": "HCL-1M CargoMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3132,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 16,
+      "FRL": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 16,
+      "RRL": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Medium Laser",
+      "Medium Laser",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Environmental Sealing",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Large Laser",
+      "Large Laser",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Industrial Triple Strength Myomer",
+      "Environmental Sealing",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Environmental Sealing"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Environmental Sealing",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7869,
+  "role": "Brawler",
+  "source": "TR:I"
+}

@@ -1,0 +1,204 @@
+{
+  "id": "imp-imp-2e",
+  "chassis": "Imp",
+  "model": "IMP-2E",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3005,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 21
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 30
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-islrm15",
+      "location": "RIGHT_ARM,_AMMO:8"
+    },
+    {
+      "id": "2-ismediumlaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLRM15",
+      "ISLRM15",
+      "ISLRM15",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISPPC",
+      "ISPPC",
+      "ISPPC",
+      "ISMediumLaser",
+      "ISLRM15 Ammo",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISPPC",
+      "ISPPC",
+      "ISPPC",
+      "ISMediumLaser",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumLaser",
+      "ISMediumLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "difficult_maintain"
+  ],
+  "mulId": 4358,
+  "role": "Juggernaut",
+  "source": "TR:3050"
+}

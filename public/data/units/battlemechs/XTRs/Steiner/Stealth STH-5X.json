@@ -1,0 +1,196 @@
+{
+  "id": "stealth-sth-5x",
+  "chassis": "Stealth",
+  "model": "STH-5X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "er-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ER Flamer",
+      "Chameleon Light Polarization Shield",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ER Flamer",
+      "Chameleon Light Polarization Shield",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "ISMASC",
+      "ISMASC",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "CLActiveProbe",
+      "CLECMSuite",
+      "Chameleon Light Polarization Shield"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Chameleon Light Polarization Shield",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Chameleon Light Polarization Shield",
+      "IS Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_sensors"
+  ],
+  "fluff": {
+    "overview": "The Stealth is a heavy scout 'Mech that is in use by the Federated Suns and the Lyran Alliance.",
+    "capabilities": "The 'Mech has a GM 315 XL Engine that allows the Stealth to move at speeds of 118.8 kph and the MASC system on board can push the 'Mech to 151.2 kph in short bursts. This amazing mobility is augmented by jump jets which the Stealth can use to jump up to two hundred and ten meters. The Stealth is also outfitted with a Cyclops-Beagle Sensory Active Probe that the Stealth can use to find hidden enemy units.",
+    "deployment": "This version uses an experimental Composite Structure as its skeleton. An XL Engine and MASC allow this Stealth variant to reach speeds of 140km/h. In addition, several Clan spec systems have been installed on the chassis, including an Active Probe, ECM Suite, a Streak SRM-6, and a trio of ER Medium Lasers. Two arm mounted ER Flamers provide anti-infantry capabilities. Most interesting is the use of a Chameleon Light Polarization Shield to make this Stealth live up to its name.",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Kathil",
+    "systemManufacturer": {
+      "CHASSIS": "GM Stealth Endo Steel",
+      "ENGINE": "GM 315 XL",
+      "ARMOR": "Durallex Medium",
+      "JUMPJET": "100AFVTA",
+      "COMMUNICATIONS": "Dalban Micronics",
+      "TARGETING": "Dalban HiRez with Active Probe"
+    }
+  },
+  "mulId": 5130,
+  "role": "Striker",
+  "source": "XTR:Steiner"
+}

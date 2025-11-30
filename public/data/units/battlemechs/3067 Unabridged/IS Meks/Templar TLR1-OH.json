@@ -1,0 +1,191 @@
+{
+  "id": "templar-tlr1-oh",
+  "chassis": "Templar",
+  "model": "TLR1-OH",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3080,
+  "tonnage": 85,
+  "engine": {
+    "type": "XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "mrm-30",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mrm-30",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "ISApollo (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "MRM 30 (omnipod)",
+      "ISApollo (omnipod)",
+      "ER Flamer (omnipod)",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "Jump Jet (omnipod)",
+      "Light PPC (omnipod)",
+      "Light PPC (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISTargeting Computer (omnipod)",
+      "ISC3SlaveUnit (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light PPC (omnipod)",
+      "Light PPC (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "IS MRM 30 Ammo (omnipod)",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "Jump Jet (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "capabilities": "This variation carries an MRM-30 with Apollo FCS in each arm. These are supported by a pair of Light PPCs. An ER Flamer provides anti-infantry support, and a Targeting Computer enhances the accuracy of the energy weapons. A C3 Slave unit allows the Templar to share targeting data with lancemates, and additional mobility is provided via four jump jets.",
+    "history": "With a noticeable lack of OmniMechs designed in the Federated Suns, Field Marshal Duke George Hasek went over the heads of the Department of the Quartermaster and commissioned Kallon Industries to design an assault OmniMech and backed the project with his own considerable financial resources. The resulting 'Mech is a force to be reckoned with on the modern battlefield.",
+    "deployment": "The Templar is built on a lightweight Kallon Type XIX Endo Steel chassis and is powered by a KalTek 340 XL engine that gives the 'Mech a top speed of 64.8 km/h while sacrificing durability. The Templar has thirteen fixed double heat sinks and is armored with sixteen and a half tons of Starshield A armor with CASE fixed in the right torso. Overall, this allows the Templar to have forty tons of free pod space for weapons and equipment which the 'Mech uses effectively in its various configurations.",
+    "manufacturer": "Kallon Industries",
+    "primaryFactory": "Talon",
+    "systemManufacturer": {
+      "CHASSIS": "Kallon Type XIX Endo Steel",
+      "ENGINE": "KalTek 340 Extralight",
+      "ARMOR": "Starshield A with CASE",
+      "COMMUNICATIONS": "Newberg Telescan 17",
+      "TARGETING": "Spar 3C MegaTrak"
+    }
+  },
+  "mulId": 5711,
+  "role": "Brawler",
+  "source": "RS:3067u"
+}

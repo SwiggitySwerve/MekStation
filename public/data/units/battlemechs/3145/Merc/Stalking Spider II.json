@@ -1,0 +1,130 @@
+{
+  "id": "stalking-spider-ii-unknown",
+  "chassis": "Stalking Spider II",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3110,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 20,
+      "FRL": 20,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 20,
+      "RRL": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "heavy-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyMG",
+      "CLHeavyMG",
+      "Clan Heavy Machine Gun Ammo - Half",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyLargeLaser (T)",
+      "CLHeavyLargeLaser (T)",
+      "CLHeavyLargeLaser (T)",
+      "CLSRM4 (T)",
+      "CLSRM4 (T)",
+      "Clan Ammo SRM-4",
+      "CLQuadTurret",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 6553,
+  "role": "Skirmisher",
+  "source": "TR:3145:Merc"
+}

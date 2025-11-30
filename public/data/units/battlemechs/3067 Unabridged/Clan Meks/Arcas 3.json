@@ -1,0 +1,188 @@
+{
+  "id": "arcas-3",
+  "chassis": "Arcas",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3078,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLMediumPulseLaser",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLStreakSRM4",
+      "CLMediumPulseLaser",
+      "Clan Streak SRM 4 Ammo",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "First produced in 3061, the Arcas is expensive for a second-line 'Mech.",
+    "capabilities": "It utilizes an XL Engine that enables it to move up to 86 km/h. The Arcas mounts thirteen and a half tons of standard armor, the most a 'Mech of its size can carry. This version carries a Targeting Computer to counteract the inaccuracy of its Heavy Large Laser. A Streak SRM-4 and pair of Medium Pulse Lasers rounds out the armament. Seven Improved Jump Jets allow the Arcas 3 to cover 210 meters in a single jump.",
+    "history": "Following the move of Clan Ghost Bear to the Inner Sphere, Khan Bjorn Jorgensson ordered the creation of a new BattleMech. The Arcas was designed as a symbol to mark the beginning of a new era, so Loremaster Laurie Tseng named it after a character in the mythology of the Greeks who eventually became the constellation known as Ursa Minor.",
+    "manufacturer": "Bergan Industries",
+    "primaryFactory": "Alshain",
+    "systemManufacturer": {
+      "CHASSIS": "Bergan Version 6.3 Endo Steel",
+      "ENGINE": "325 XL",
+      "ARMOR": "Compound 12A1 Standard",
+      "JUMPJET": "Clan Standard Type A3",
+      "COMMUNICATIONS": "Garret L15",
+      "TARGETING": "RCA Instatrac Version 8"
+    }
+  },
+  "mulId": 5686,
+  "role": "Skirmisher",
+  "source": "TR:J"
+}

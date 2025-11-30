@@ -1,0 +1,222 @@
+{
+  "id": "annihilator-anh-3a",
+  "chassis": "Annihilator",
+  "model": "ANH-3A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 100,
+  "engine": {
+    "type": "COMPACT",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 16
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "2-islac2",
+      "location": "RIGHT_ARM,_AMMO:360"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "2-islac2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "2-islac2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "2-islac2",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISLAC2",
+      "ISLAC2",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISLAC2",
+      "ISLAC2",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISERMediumLaser",
+      "ISLAC2",
+      "ISLAC2",
+      "ISLAC2 Ammo",
+      "ISLAC2 Ammo",
+      "ISLAC2 Ammo",
+      "ISLAC2 Ammo",
+      "ISLAC2 Ammo",
+      "ISCASE",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "ISERMediumLaser",
+      "ISLAC2",
+      "ISLAC2",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Light Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "Originally developed in the final year of the Amaris Civil War as the ultimate fixed position city defense BattleMech.",
+    "capabilities": "The Annihilator is armed with an arsenal that is built to instill fear in an enemy as much as damage them. The 100-ton 'Mech has a maximum speed of 32.4 km/h, making it one of the slowest 'Mechs ever designed together with the UrbanMech. It is by no means intended to use speed to outmaneuver an enemy, instead depending on its twelve and a half tons of armor to weather any fire that is directed at the 'Mech.",
+    "history": "The Annihilator was built as a sign of the military strength of both the Star League in Exile and the newly created Clans. Discontinued before the Clans' Golden Century, in one of their few missteps, the Wolf's Dragoons brought a number of unknown designs with them in 3009, raising more questions to their origins while at the same time adding to their mystique. It was exclusive to the Dragoons until the Jihad disseminated the design to Arc-Royal due to the strengthening of the relationship that Wolf's Dragoons forged with the Kell Hounds and Clan Wolf-in-Exile following their flight from Outreach.",
+    "deployment": "This upgrade made use of double heat sinks and used the tonnage saved to max out the armor on the Annihilator. Offensively, four ER Medium Lasers and eight Light Autocannon/2s were incredibly accurate thanks to the inclusion of a Targeting Computer. Ample autocannon ammunition (five tons) allowed flexibility when choosing special munitions, making this 'Mech very effective against vehicles. To fit all this equipment, a Compact Engine and Compact Gyro are mounted in the center torso. The 'Mech is protected by Light Ferro Fibrous armor and CASE.",
+    "manufacturer": "Arc-Royal MechWorks",
+    "primaryFactory": "Arc-Royal",
+    "systemManufacturer": {
+      "CHASSIS": "Star League MN-01",
+      "ENGINE": "Nissan 200",
+      "ARMOR": "Starshield Light Ferro-Fibrous",
+      "COMMUNICATIONS": "Garret T19-G",
+      "TARGETING": "Wasat Aggressor Type 5"
+    }
+  },
+  "mulId": 41,
+  "role": "Juggernaut",
+  "source": "TR:3050"
+}

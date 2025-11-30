@@ -1,0 +1,205 @@
+{
+  "id": "vulture-f",
+  "chassis": "Vulture",
+  "model": "F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "hag-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "CLHAG20 (omnipod)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (omnipod)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (omnipod)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "The Mad Dog is a heavy Clan OmniMech used for long-range indirect fire support. With hunched shoulders, a protruding head, and reverse-jointed legs, the Mad Dog resembles a vulture, so much so that it was codenamed Vulture and Hagetaka (\"Vulture\" in Japanese) by the Inner Sphere forces which first encountered it.",
+    "capabilities": "The Mad Dog F has a pair of HAG 20s. Though they don't have the sheer power of the larger guns, the four tons of ammunition provide substantially better staying power than the E variant has. To back the HAGs up, the F mounts four ER Medium Lasers.",
+    "history": "The Mad Dog was designed by Clan Smoke Jaguar as a second generation OmniMech based on the original heavy OmniMech Lupus of Clan Coyote. The Mad Dog also used some of the same moulds of the Clan Wolf Timber Wolf OmniMech. However, despite using some of the same moulds (which might be viewed as high praise), the Mad Dog was named as a slur to the Lupus and Timber Wolf, and to Clans Wolf and Coyote. Because of its widespread production, most Clans maintain a large number of Mad Dogs in their toumans.\nmanufacturer:Various,Svarstaad Industriplex Beta\nprimaryfactory:Various,Svarstaad\nsystemmanufacturer:CHASSIS:Eden Mk 60-OM\nsystemmanufacturer:ENGINE:300 Type I XL\nsystemmanufacturer:ARMOR:Compound SJ6CW Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:Build OSJ-41\nsystemmanufacturer:TARGETING:Catâs Eye MD6",
+    "deployment": "The name also fit the battlefield role of the Mad Dog; to act as a support 'Mech, and it often holds a hill maintaining constant watch over the entire battlefield, like a vulture waiting for its prey. With its ample firepower and decent speed of 86.4 km/h, it makes a highly mobile firing platform, and as such has spread to near ubiquity among the forces deployed by the Clans, although the design is favored more by Clan Ghost Bear MechWarriors. The Mad Dog carries eight and a half tons of Ferro-Fibrous armor for decent protection, although it will not be able to stand up to heavy fire."
+  },
+  "mulId": 3471,
+  "role": "Skirmisher",
+  "source": "TR:3050"
+}

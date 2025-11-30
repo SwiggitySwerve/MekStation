@@ -1,0 +1,170 @@
+{
+  "id": "diomede-d-m3d-3-constructionmech",
+  "chassis": "Diomede",
+  "model": "D-M3D-3 ConstructionMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3084,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 33,
+      "RIGHT_ARM": 33,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 16
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "nail-rivet-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "nail-rivet-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      "Heavy-Duty Pile Driver",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Nail/Rivet Gun",
+      "Nail/Rivet Gun",
+      "IS Ammo Nail/Rivet - Full",
+      "IS Ammo Nail/Rivet - Full",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "IS Ammo MML-7 LRM",
+      "IS Ammo MML-7 SRM",
+      "MechSprayer",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Searchlight",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "IS Ammo MML-7 LRM",
+      "IS Ammo MML-7 SRM",
+      "MechSprayer",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Lift Hoist/Arresting Hoist (R)",
+      "Searchlight",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ejection Seat (Industrial Mech)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Tracks"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Tracks"
+    ]
+  },
+  "mulId": 901,
+  "role": "Missile Boat",
+  "source": "TR:3085"
+}

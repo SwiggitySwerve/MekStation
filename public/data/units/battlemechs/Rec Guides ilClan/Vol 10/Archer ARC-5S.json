@@ -1,0 +1,212 @@
+{
+  "id": "archer-arc-5s",
+  "chassis": "Archer",
+  "model": "ARC-5S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "narc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumPulseLaser",
+      "ISStreakSRM2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumPulseLaser",
+      "ISStreakSRM2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "ISNarcBeacon",
+      "ISNarcBeacon",
+      "ISNarc Pods",
+      "IS Ammo LRM-15 Narc-capable",
+      "IS Streak SRM 2 Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "IS Ammo LRM-15 Narc-capable",
+      "IS Ammo LRM-15 Narc-capable",
+      "IS Ammo LRM-15 Narc-capable",
+      "IS Streak SRM 2 Ammo",
+      "ISCASE",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser (R)",
+      "ISMediumPulseLaser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "command_mech",
+    "stable",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "One of the most iconic BattleMechs is the Archer, with its low-slung torso, enormous fists, and missile-bay covers. The Archer was first manufactured in 2474 for heavy-hitting, long-range brawling, and fire-support.",
+    "capabilities": "Two enormous missile launchers with tons of ammo power the Archer. The missiles were formidable, but their short-range inaccuracy required four medium lasers, two rear-facing and one in each arm. Enlarged hand actuators allow the design to undertake severe physical attacks and transport captured supplies during raids. The cockpit of the Archer is situated beneath the center midsection, giving the pilot a unique battlefield view. The torso armor belt above the cockpit protects the gyro and engine from the superior armor. Many pilots initially entered battle with their missile bays locked to hide the 'Mech's real capabilities, leading some to believe it was a close-combat design. As the Archer became famous, this pretext became meaningless. Archer pilots rarely learn new skills, but this hasn't tarnished the 'Mech's reputation.",
+    "history": "The design was constructed at the request of Terran Hegemony's HAF for a new \"heavy fire support BattleMech\" and took nearly nine years to complete. This owed in part to the design team, which included former HAF MechWarriors, field technicians, and general officer advisors, and the company's engineer team, led by Supervising Engineer Linn Tommi, disagreeing over theoretical and practical concerns. The intricate engineering proposal presented to the HAF includes complicated, difficult-to-repair stabilizing technology and powerful, computer-slaved sensors designed to make the Archer the most accurate BattleMech in existence. However, the final prototype abandoned these criteria in favor of a sturdier, blockier, and more heavily armored frame that is still in use today. It was so effective that it remained the Hegemony standard for more than a decade and a half, until technological developments allowed Earthwerks to produce a more efficient variant. The Archer, which debuted in 2474, quickly became one of the most well-known and commonly deployed BattleMechs. The Archer was a contemporary of 'Mechs such as the Thunderbolt and the Banshee, and its primary job was fire support, though early in its combat career it was regarded an attack 'Mech capable of long-range brawling, and it was deployed in a variety of different duties. More than 100,000 Archers were built between its introduction and the outbreak of the First Succession War, with tens of thousands of variation types produced over the centuries. Though many were destroyed or deconstructed for spare components, they remained a common sight in the Great House troops, with six distinct manufacturers creating new Archers throughout the Succession Wars. The retrieval of the Helm Memory Core had a significant impact on the creation of the Archer. New variations were created that used rediscovered lostech, giving the venerable 'Mech a few new tricks to surprise its opponents. By the time of the Clan Invasion, most of the major manufacturers had switched over to building these new variants for the Free Worlds League, Federated Commonwealth, Free Rasalhague Republic, and Wolf's Dragoons; only Vandenberg Mechanized Industries continued to build original ARC-2R Archers for the Taurian Concordat. As technology advanced, newer, more advanced models of the Archer were produced.",
+    "deployment": "The 5S variant of the Archer, built out of Defiance Industries' massive Hesperus II complex in 3050, was the official variant for the Armed Forces of the Federated Commonwealth. The 5S upgraded the engine to an Edasich Motors 280 XL engine, cutting the engine's weight in half while retaining the same speed profile. The 5S also reduced the LRM-20 launchers to Coventry Star Fire LRM-15s. This saved weight was used to add two Coventry T4H Streak SRM-2 launchers, one in each arm and fed by two tons of reloads in the side torsos. They also upgraded the four medium lasers to medium pulse lasers. Finally, the 'Mech carried a Doering Electronics Glowworm Narc Missile Beacon launcher in its left torso along with one ton of ammo. This allowed the Archer to tag enemy units with a beacon so that friendly 'Mechs could more easily hit the unit with their own missile weapons. All of the ammunition carried by the 5S was protected by CASE.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Hesperus II",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerks Archer",
+      "ENGINE": "Edasich Motors 280 XL",
+      "ARMOR": "Maximillian 100 with CASE",
+      "COMMUNICATIONS": "Neil 9000",
+      "TARGETING": "RCA Instatrac Mark XII"
+    }
+  },
+  "mulId": 80,
+  "role": "Missile Boat",
+  "source": "RG10"
+}

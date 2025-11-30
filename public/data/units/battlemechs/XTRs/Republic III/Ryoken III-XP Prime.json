@@ -1,0 +1,184 @@
+{
+  "id": "ryoken-iii-xp-prime",
+  "chassis": "Ryoken III-XP",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3143,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERMediumPulseLaser (OMNIPOD)",
+      "CLERMediumPulseLaser (OMNIPOD)",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERLargePulseLaser (OMNIPOD)",
+      "CLERMediumPulseLaser (OMNIPOD)",
+      "CLERMediumPulseLaser (OMNIPOD)",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLSRM6 (OMNIPOD)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLSRM6 (OMNIPOD)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Clan Ammo SRM-6 (OMNIPOD)",
+      "Clan Ammo SRM-6 (OMNIPOD)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ]
+  },
+  "fluff": {
+    "overview": "Developed during the mid-Dark Ages in the 32nd Century, the Ryoken III-XP was an experimental medium OmniMech which was first fielded by Clan Wolf.",
+    "capabilities": "Built with a mix of Inner Sphere and Clan technologies, the Ryoken III-XP is a powerful and swift design. Using a combination of a 330-rated Extra-Light Fusion Engine and Triple Strength Myomer, the 'Mech is able to achieve speeds up to 110 km/h. Perhaps the most startling innovation included in this design is the Clan Interface Armor, which allows a MechWarrior to interface with their 'Mech while being completely armored should they be forced to eject. This combination interface allows the Ryoken III pilot's a degree of control in combat, and removes the need to have a Gyro mounted in the 'Mech. This technology was thought to have been lost at the time of Ryoken III's baptism in combat by Inner Sphere powers. In addition to having its pilot encased in a power-armor interface, the Mech's hull is protected by 11.5 tons of Ferro-Lamellor Armor.",
+    "history": "Also known as the Skinwalker, it was created by the newly transplanted Clan Wolf, which had renovated a factory that had once belonged to the former Marik-Stewart Commonwealth. This 'Mech, when it was first deployed into combat, surprised many with its use of a mix of experimental and exotic technologies, the likes of which was rarely seen in Clan design before. The design was first encountered in combat in 3148, when Republic Remnant forces raided Kalidasa.\nmanufacturer:Kali Yama Weapons Industries Inc.\nprimaryfactory:Kalidasa\nsystemmanufacturer:CHASSIS:Prototype Hybrid Chassis\nsystemmanufacturer:ENGINE:330 Fusion Extralight\nsystemmanufacturer:ARMOR:Unknown\nsystemmanufacturer:COMMUNICATIONS:Unknown\nsystemmanufacturer:TARGETING:Unknown",
+    "deployment": "The Prime configuration is armed with two pairs of Extended Range Large and Medium Pulse Lasers mounted on each of the 'Mech's arm actuators. Backing up the lasers is a pair of 6-tubed SRM launchers which are mounted in the torso sides. The launchers are supplied by two tons of ammunition from the center torso. To help alleviate the weapon system's heat burden, two additional Double Heat Sinks are added."
+  },
+  "mulId": 7378,
+  "role": "Striker",
+  "source": "XTR:RotS 3"
+}

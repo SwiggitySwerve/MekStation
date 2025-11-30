@@ -1,0 +1,169 @@
+{
+  "id": "uraeus-uae-7r",
+  "chassis": "Uraeus",
+  "model": "UAE-7R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3135,
+  "tonnage": 75,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 29,
+      "RIGHT_LEG": 29
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "bombast-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumVibroblade",
+      "ISMediumVibroblade",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "ISUltraAC10",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Bombast Laser (T)",
+      "Bombast Laser (T)",
+      "Bombast Laser (T)",
+      "ISShoulderTurret (armored)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "ISStreakSRM4",
+      "IS Streak SRM 4 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo",
+      "ISCASEII",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "bad_rep_clan"
+  ],
+  "mulId": 6677,
+  "role": "Brawler",
+  "source": "TR:3145:RotS"
+}

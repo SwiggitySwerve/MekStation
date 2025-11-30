@@ -1,0 +1,199 @@
+{
+  "id": "cauldron-born-b",
+  "chassis": "Cauldron-Born",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3049,
+  "tonnage": 65,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "clan-tag",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC (omnipod)",
+      "CLERPPC (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLTAG (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLActiveProbe (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Introduced in 3049 to address flaws in the venerable Hellbringer, by Operation REVIVAL the Ebon Jaguar had only just started to spread through the Jaguar's touman with the Inner Sphere first encountering the design during the Battle of Luthien.",
+    "capabilities": "This variant, once called by a DCMS warrior the best forward observer ever built, uses an ER PPC and a Large Pulse Laser mounted in each arm. To supplement this, it carries a pair of Medium Pulse Lasers, as well as an Active Probe, and a TAG spotting laser. This variant is not as prone to overheating as the A, but a MechWarrior must use volley fire if he or she intends to use both the PPCs and Large Pulse Lasers.",
+    "history": "Facing it for the first time when engaging the First Jaguar Guards Cluster in the Kado-Guchi Valley, the 'Mech's ability to take damage and remain operational led the Inner Sphere warriors who fought it to call it the Cauldron-Born after the unstoppable zombies of Irish myth. Paradoxically many of the other Clans also used the Inner Sphere Cauldron-Born reporting name, having first learned detailed information of the design from Inner Sphere sources. By Operation BULLDOG the Cauldron-Born made up a large proportion of the heavy 'Mechs of the rebuilding Smoke Jaguars, and following their Annihilation the design proliferated the remaining Clans, save the Jade Falcons, Wolves and Coyotes who continued to favor the Hellbringer. Following the Wars of Reaving the Ebon Jaguar had finally supplanted the Hellbringer in most Homeworld Clans, save the Coyotes who remained loyal to redeeming the honor of the design.",
+    "manufacturer": "Huntress Manufacturing Plant DL-6",
+    "primaryFactory": "Huntress",
+    "systemManufacturer": {
+      "CHASSIS": "CSJ Type 65.43 Endo",
+      "ENGINE": "Consolidated Fusion 325 XL",
+      "ARMOR": "Composite A-4 Ferro-Fibrous",
+      "COMMUNICATIONS": "Hector CC-22E",
+      "TARGETING": "Integrated Bravo-7"
+    }
+  },
+  "mulId": 491,
+  "role": "Sniper",
+  "source": "TR:CI"
+}

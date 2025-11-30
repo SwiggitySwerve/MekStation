@@ -1,0 +1,179 @@
+{
+  "id": "trooper-tp-1r",
+  "chassis": "Trooper",
+  "model": "TP-1R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2475,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 145
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 3,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 3,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 2
+      },
+      "HEAD": 5,
+      "LEFT_LEG": 3,
+      "RIGHT_LEG": 3
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Small Laser",
+      "Small Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "IS Machine Gun Ammo - Half",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Flamer",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "imp_life_support",
+    "bad_rep_is",
+    "exp_actuator",
+    "no_arms",
+    "no_eject",
+    "weak_legs"
+  ],
+  "mulId": 7407,
+  "role": "Scout",
+  "source": "XTR:Primitives V"
+}

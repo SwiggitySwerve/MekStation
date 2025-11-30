@@ -1,0 +1,207 @@
+{
+  "id": "crusader-crd-9r",
+  "chassis": "Crusader",
+  "model": "CRD-9R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3129,
+  "tonnage": 65,
+  "engine": {
+    "type": "XXL",
+    "rating": 325
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "srm-6",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "Light PPC",
+      "Light PPC",
+      "Machine Gun",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "Light PPC",
+      "Light PPC",
+      "Machine Gun",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "IS Ammo SRM-6",
+      "IS Machine Gun Ammo - Half",
+      "ISCASEII",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "SRM 6",
+      "SRM 6"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "SRM 6",
+      "SRM 6"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_1",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Crusader was initially designed as a close combat BattleMech for the Star League Defense Force, but soon proved itself to be a very adaptable, multi-role design. This reliable workhorse of the SLDF, while not excelling in any one job, was quite capable of accomplishing just about any mission, whether it be close assault, anti-aircraft, counter-insurgency, or even reconnaissance. Its versatility and large number of manufacturers ensured the Crusader its place as one of the most common heavy 'Mechs in the Inner Sphere.",
+    "capabilities": "Each arm was equipped with an LRM launcher, laser and machine gun, while the SRM launchers were built into the legs and mounted at hip height to provide a stable firing location and avoid interference with the LRMs' flight path. Early Crusader models had issues with the arm-mounted launchers and lasers overheating and causing stress to the actuators and internal structure, but this was rectified with the additions of the now-distinctive collars which deflect hot gasses away. The Crusader was well-protected with twelve tons of armor, particularly around the legs, which made it a good hand-to-hand combatant. A thirteen and a half ton fusion engine allowed the Crusader to achieve a decent cruising speed of 43.2 km/h. One disadvantage to the Crusader was its inadequate heat management system, carrying just ten standard heat sinks to handle all the waste heat produced by its weapons and equipment.",
+    "history": "The Crusader received its baptism of fire during the Reunification War and remained a common fixture in the regiments of the SLDF for many centuries. Even after the fall of the Star League, the various Successor States continued to field large numbers of Crusaders in their armies, thanks to factories located on Tharkad, Oliver, Asuncion and Bernardo. House Steiner in particular was a notable Crusader user, thanks in part to their well-trained technicians who could have damaged units turned around and ready to fight in a single day. A variety of new production variants and field modification kits were turned out for the Crusader after the recovery of the Helm Memory Core, just in time for the Clan Invasion. In the wake of the Clan Invasion, one of the first new Crusader variants was built by the Cosby BattleMech Research Firm, the (in)famous producer of the No-Dachi 'Mech. Hoping to overcome the lack of prestige of their previous design and win the favor of the Coordinator, the company acquired manufacturing rights to the Crusader through the hostile takeover of another company and unveiled an updated variant of the 'Mech around the start of the FedCom Civil War. Additional variants would continue to be produced in the years since, including models utilized by the Word of Blake during the Jihad.",
+    "deployment": "An experiment in speed, this Crusader carries a 325 rated XXL Engine to reach a top speed of 86km/h. An XL Gyro is also fitted, as are twelve double heat sinks. The armament consists of an LRM-15 in each shoulder and a Light PPC and Machine Gun in each forearm. The hip-mounted missile launchers are standard SRM-6s. A ton of SRM ammo, a ton of machine gun ammo, and two tons of LRM ammo are stored in the right torso, protected by CASE II. Twelve tons of standard armor provide protection.",
+    "manufacturer": "Brigadier Corporation",
+    "primaryFactory": "Oliver",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-B",
+      "ENGINE": "Ford 325 XXL",
+      "ARMOR": "Riese-500 with CASE II",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Garret A6"
+    }
+  },
+  "mulId": 8233,
+  "role": "Missile Boat",
+  "source": "RG17"
+}

@@ -1,0 +1,129 @@
+{
+  "id": "trebaruna-tr-xb",
+  "chassis": "Trebaruna",
+  "model": "TR-XB",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3081,
+  "tonnage": 95,
+  "engine": {
+    "type": "FUSION",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 30,
+      "FRL": 30,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 30,
+      "RRL": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "Light PPC",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer"
+    ],
+    "RIGHT_TORSO": [
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISCASE",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "command_mech"
+  ],
+  "mulId": 3292,
+  "role": "Sniper",
+  "source": "TR:3085"
+}

@@ -1,0 +1,193 @@
+{
+  "id": "jackalope-jlp-bd-l-harvey",
+  "chassis": "Jackalope",
+  "model": "JLP-BD-L 'Harvey'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3136,
+  "tonnage": 30,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 13,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 11,
+      "RIGHT_LEG": 11
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "m-pod",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "m-pod",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "risc-advanced-point-defense-system",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMPod",
+      "ISAPDS Ammo",
+      "Supercharger",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMPod",
+      "ISMASC",
+      "ISMASC",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISAPDS",
+      "ISAPDS"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "compact_mech",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Jackalope, once thought to be a myth, emerged as a prominent 'Mech following the widespread combat post-Blackout, earning a nearly indelible reputation. Produced by the Galatean Defense League and utilized extensively by the RAF and on Mizar, its visibility in Solaris VII's combats prior to Clan Wolf's conquest cemented its place in popular culture.",
+    "capabilities": "The Jackalope is a swift, well-armed reconnaissance unit. Its relatively light armor is compensated by a compact design and effective Clean-Sweep anti-missile systems. Typically operating independently or in scout lances, its operational range is primarily limited by the ammunition for its missile launchers, making it a versatile asset in fast-paced recon missions.",
+    "history": "The Jackalope's deployment extends across a wide array of military and mercenary units, with its presence notably strong in the Republic Remnant due to the heroics of figures like Gloria Hansen. Her actions, particularly during significant conflicts with Clan Wolf, have not only etched the Jackalope into the annals of military legend but also inspired a generation of MechWarriors within the Remnant and beyond.<p>In the tumultuous period following the Blackout, the Jackalope's usage expanded significantly. The 'Mech's adaptability made it a preferred choice in diverse combat scenarios, from guerrilla warfare to structured battlefield engagements. Its presence in the Free Worlds League and the RAF showcases its strategic value, serving in roles that capitalize on its reconnaissance and quick-strike capabilities.</p><p>Mercenary groups, especially those operating on the fringes of the Inner Sphere, prize the Jackalope for its reliability and combat prowess. In the training regiments of prestigious units like the Wolf Dragoons, the Jackalope serves as a crucial element in preparing MechWarriors for the rigors of front-line combat. The losses incurred during the invasion of the Federated Suns highlighted the Jackalope's role in rapid response and high-mobility tactics, leading to an accelerated transition of trainees into active combat roles to replenish striker and Gamma Regiment ranks. This dynamic shift underscores the Jackalope's integral part in both training and operational deployment, solidifying its stature as a versatile and indispensable asset in modern warfare.</p>",
+    "deployment": "No Information on this variant",
+    "manufacturer": "Victory Conditions Industries, Eris Enterprises Design Group",
+    "primaryFactory": "Mizar,Capolla",
+    "systemManufacturer": {
+      "CHASSIS": "Triumph Dynamic Endo Steel",
+      "ENGINE": "Victory 240 XL",
+      "ARMOR": "Advantage Ferro-Fibrous",
+      "COMMUNICATIONS": "Angst Clear Channel 5",
+      "TARGETING": "O/P TA1240 with Light Active Probe"
+    }
+  },
+  "mulId": 9635,
+  "role": "Scout",
+  "source": "Shrap16"
+}

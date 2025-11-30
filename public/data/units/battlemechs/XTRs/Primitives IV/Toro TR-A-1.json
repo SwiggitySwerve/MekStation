@@ -1,0 +1,186 @@
+{
+  "id": "toro-tr-a-1",
+  "chassis": "Toro",
+  "model": "TR-A-1",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2481,
+  "tonnage": 35,
+  "engine": {
+    "type": "FUSION",
+    "rating": 170
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "SRM 2",
+      "IS Ammo SRM-2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      null
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "cramped_cockpit",
+    "obsolete"
+  ],
+  "fluff": {
+    "overview": "The Toro was the Taurian Concordat's first indigenous BattleMech. First produced in 2481, the design was based on captured Firebees and developed as a collaboration between the three best arms manufacturers in the Concordat.",
+    "capabilities": "The light 'Mech is slow by 31st century standards, but it was quite maneuverable for the Age of War. The design topped out at 86 km/h. It was protected by a respectable six and a half tons of armor. Its comparatively low cost allowed entire battalions to swiftly be equipped with BattleMechs",
+    "history": "The Toro took to the front lines against the Star League in the Reunification War, but was not enough to stop the combined might of the Inner Sphere. The League shut down and demolished all of the Toro factories by 2598 in the hope that it would crush Taurian nationalism, though there is no evidence it had the desired effect. Under the Star League aegis, the Taurian heavy industry produced League 'Mechs, a situation they pragmatically continued with following its fall. Thanks to the dissemination of the Hegemony Memory Core during the Jihad the Toro was finally revived by manufacturers in the Concordat, Calderon Protectorate, Magistracy of Canopus and ironically the Federated Suns.",
+    "deployment": "The original prototype was closer to a variant of the primitive Firebee, developed in 2481. It had two SRM-2s which shared a ton of ammunition and a Large Laser. Though it could only manage 64 km/h, the A-1 had more armor protection than the Firebee, ten and a half tons of Primitive Armor.",
+    "manufacturer": "Taurus WarWorks",
+    "primaryFactory": "Taurus (discontinued 2598)",
+    "systemManufacturer": {
+      "CHASSIS": "Humanoid Mk. VI TR",
+      "ENGINE": "Magna 175",
+      "ARMOR": "Ecto-Mineral Armorplate 2",
+      "COMMUNICATIONS": "VeraTech MilCom Suite 3",
+      "TARGETING": "VeraTech MechTnT XVT20S"
+    }
+  },
+  "mulId": 3276,
+  "role": "Brawler",
+  "source": "XTR:Primitives IV"
+}

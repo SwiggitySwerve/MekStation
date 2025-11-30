@@ -1,0 +1,200 @@
+{
+  "id": "star-adder-b",
+  "chassis": "Star Adder",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 90,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 11
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 11
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLArtemisIV (omnipod)",
+      "Clan Ammo LRM-20 (Clan) Artemis-capable (omnipod)",
+      "Clan Ammo LRM-20 (Clan) Artemis-capable (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLArtemisIV (omnipod)",
+      "Clan Ammo LRM-20 (Clan) Artemis-capable (omnipod)",
+      "Clan Ammo LRM-20 (Clan) Artemis-capable (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "CLMediumPulseLaser (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "CLGaussRifle (omnipod)",
+      "Clan Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLECMSuite (omnipod)",
+      "Clan Gauss Ammo (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Gauss Ammo (omnipod)",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Gauss Ammo (omnipod)",
+      null
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "One of the first 'Mechs to field the breakthrough Heavy Laser technology, the Blood Asp proves to be an offensive powerhouse. Delivering incredible damage at all ranges, the Blood Asp makes short work of any enemy regardless of size.",
+    "capabilities": "Based on the Kingfisher, the Blood Asp adds an XL engine, but space constraints forced the replacement of the Kingfisher's ferro-fibrous armor with standard plate. The Blood Asp incorporates sixteen tons of this armor and fourteen double heat sinks in the base chassis.",
+    "history": "Created by Clan Star Adder as an insult to their enemies, Clan Blood Spirit, the Blood Asp has a large amount of available pod space for its size.",
+    "deployment": "The second alternate configuration is a fire-support design that uses a Gauss rifle and a pair of LRM-20s with Artemis IV Fire Control Systems. In case an enemy unit gets close, it mounts four Medium Pulse Lasers and an ECM Suite. Two additional heat sinks ensure this design stays cool.",
+    "manufacturer": "Sheridan LM-TA 8-10",
+    "primaryFactory": "Sheridan",
+    "systemManufacturer": {
+      "CHASSIS": "Type MAES-90 Light",
+      "ENGINE": "Consolidated Fusion 360 XL",
+      "ARMOR": "Forging ZZ7 Ceramic Plate",
+      "COMMUNICATIONS": "Series D8 CC-25X with ECM",
+      "TARGETING": "âHermesâ CT-42 Mk. II"
+    }
+  },
+  "mulId": 400,
+  "role": "Missile Boat",
+  "source": "TR:3060"
+}

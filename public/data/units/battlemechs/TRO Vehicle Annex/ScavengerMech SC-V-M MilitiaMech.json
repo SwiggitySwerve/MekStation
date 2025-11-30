@@ -1,0 +1,113 @@
+{
+  "id": "scavenger-sc-v-m-militiamech",
+  "chassis": "Scavenger",
+  "model": "SC-V-M MilitiaMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2990,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 13,
+      "FRL": 13,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "RLL": 13,
+      "RRL": 13
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 3
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ac-10",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Extended Fuel Tank",
+      "Extended Fuel Tank",
+      "Extended Fuel Tank",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "Searchlight",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 7174,
+  "source": "RS:VA"
+}

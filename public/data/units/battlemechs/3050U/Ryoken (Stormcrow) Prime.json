@@ -1,0 +1,192 @@
+{
+  "id": "ryoken-prime",
+  "chassis": "Ryoken",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2930,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 22
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Stormcrow is a wide-spread, second generation OmniMech fielded by many Clans. However, within the Clan Smoke Jaguar touman, the Stormcrow was especially common during the Clan Invasion and was codenamed the Ryokenï¼a misspelling of ryÅken - hunting dog) by the warriors of the DCMS who encountered it. Because of its versatility through its combination of mobility, armor, and firepower in its various configurations, the Stormcrow is a feared opponent on the battlefield.",
+    "capabilities": "The Stormcrow is built on a lightweight Endo Steel chassis and is powered by a 330 XL engine that propels it to a top speed of 97.2 km/h. The Stormcrow is protected by nine and a half tons of Ferro-Fibrous armor, giving the 'Mech the ability to survive encounters with other units that it isn't capable of outpacing.",
+    "history": "The Stormcrow was designed by Clan Hell's Horses and debuted during the Battle of Tokasha. It is also implied that Stormcrow prototypes were produced on Tokasha at Tokasha MechWorks. However, prototypes of the Stormcrow had only just debuted when Clan Ghost Bear won Tokasha through the Battle of Tokasha. As a result of the upheaval, design copies and moulds for the Stormcrow were scattered throughout Clan space. The final production version of the Stormcrow debuted in 2930, when Clan Snow Raven scientists finished with a series of minor design changes and rechristened the OmniMech.",
+    "deployment": "The primary configuration of the Stormcrow is capable of engaging an enemy at any range and uses its speed to strike at its target with a great deal of force and evade a counterattack. The 'Mech's primary weapons are a pair of ER large lasers allowing the 'Mech to strike at long range. For close combat, the Stormcrow carries three ER medium lasers. To handle the heavy heat load, the Stormcrow Prime has twelve double heat sinks on top of the ten mounted in the base chassis.",
+    "manufacturer": "Industrial Complex Alpha, Various",
+    "primaryFactory": "Dante,Various",
+    "systemManufacturer": {
+      "CHASSIS": "Model MHO-7E Endo-Steel",
+      "ENGINE": "Fusion 330 Extralight",
+      "ARMOR": "Compound H17/2 Ferro-Fibrous",
+      "COMMUNICATIONS": "GBX Series Integrated",
+      "TARGETING": "Tokasha B4-T&T"
+    }
+  },
+  "mulId": 2757,
+  "role": "Striker",
+  "source": "TR:3050"
+}

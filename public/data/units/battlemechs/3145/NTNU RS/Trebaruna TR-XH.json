@@ -1,0 +1,121 @@
+{
+  "id": "trebaruna-tr-xh",
+  "chassis": "Trebaruna",
+  "model": "TR-XH",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3115,
+  "tonnage": 95,
+  "engine": {
+    "type": "XL",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "HARDENED",
+    "allocation": {
+      "FLL": 23,
+      "FRL": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "RLL": 23,
+      "RRL": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "improved-heavy-gauss-rifle",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC (T)",
+      "ISERPPC (T)",
+      "ISERPPC (T)",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISImprovedHeavyGauss Ammo",
+      "ISQuadTurret"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedHeavyGaussRifle",
+      "ISImprovedHeavyGaussRifle"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISImprovedHeavyGauss Ammo",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "command_mech"
+  ],
+  "mulId": 6834,
+  "role": "Sniper",
+  "source": "RS:3145-NTNU"
+}

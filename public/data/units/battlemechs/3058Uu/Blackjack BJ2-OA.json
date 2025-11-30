@@ -1,0 +1,193 @@
+{
+  "id": "blackjack-bj2-oa",
+  "chassis": "Blackjack",
+  "model": "BJ2-OA",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "lrm-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "IS Ammo LRM-20 (omnipod)",
+      "IS Ammo LRM-20 (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "LRM 20 (omnipod)",
+      "IS Ammo LRM-20 (omnipod)",
+      "IS Ammo LRM-20 (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Small Laser (omnipod)",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "non_standard"
+  ],
+  "fluff": {
+    "overview": "An upgrade of the Blackjack BattleMech, the Blackjack OmniMech is a powerful and adaptable medium weight workhorse.",
+    "capabilities": "Weighing five tons heavier than its parent design, the use of advanced construction materials gives the OmniMech Blackjack 26.5 tons of pod space, allowing it to carry an impressive weapons payload. A maneuverable and enduring design for its size, four permanently mounted Icarus jump jets that allow the Blackjack to jump up to one hundred and twenty meters, the 'Mech protected by nine-and-a-half tons of armor. The Blackjack is also built with a weight saving Alshain 50 Endo Steel chassis and a Nissan 200 XL Engine giving it a top speed of 64.8 kph.",
+    "history": "Much like the Firestarter OmniMech, the genesis of the omni-Blackjack stems from the Combine's technology exchange program during the initial Clan Invasion with Ceres Metals Industries ' St. Ives Compact branch offering Luthien Armor Works specifications and licences to manufacturer the ill-regarded Blackjack. Even though it received the upgraded and more effective BJ-2 version, LAW manufactured only a few examples before reworking and retooling the line to manufacture an OmniMech version. As well as returning the updated Omni version to Ceres, LAW also exported the BJ2-0 Blackjack to the Free Worlds League's Irian BattleMechs Unlimited, making it the first OmniMech exported for manufacturing. Any goodwill LAW earned from this decision was short-lived when both IBMU and CMI discovered the first production runs of their Blackjacks could only mount Inner Sphere OmniPods, accusing the Combine of only exporting so-called \"monkey\" versions, the Combine company's claims of not having perfected the complex software interfaces to support Clan weapons when the plans were exported ringing hollow when Draconis Combine Mustered Soldiery Blackjacks did not suffer from this lack. LAW eventually offered up the required details allowing both companies to resolve the issue in future production runs with earlier versions being upgraded during their first major overhaul.",
+    "deployment": "Intended for long-range fire support, the A configuration carries two LRM-20 launchers. For close range defense, two medium lasers and a small laser are carried.",
+    "manufacturer": "Irian BattleMechs Unlimited,Luthien Armor Works,General Motors/Blackwell Corporation,Irian BattleMechs Unlimited,Ceres Metals Industries,Ceres Metals Industries",
+    "primaryFactory": "Irian,Luthien,New Valencia,Shiro III,St. Ives,Warlock",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain 50 Endo Steel",
+      "ENGINE": "Nissan 200 XL",
+      "ARMOR": "Mitchell Argon",
+      "JUMPJET": "Icarus Standard",
+      "COMMUNICATIONS": "Sipher Security Plus",
+      "TARGETING": "Matabushi Sentinel"
+    }
+  },
+  "mulId": 379,
+  "role": "Missile Boat",
+  "source": "TR:3058U"
+}

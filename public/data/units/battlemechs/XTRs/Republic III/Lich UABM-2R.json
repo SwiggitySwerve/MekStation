@@ -1,0 +1,129 @@
+{
+  "id": "lich-uabm-2r",
+  "chassis": "Lich",
+  "model": "UABM-2R",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 90,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 34,
+      "FRL": 34,
+      "LEFT_TORSO": {
+        "front": 29,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 29,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "RLL": 34,
+      "RRL": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-gauss-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "HarJel II Self-Repair System",
+      "ISCASEII",
+      "IS Endo-Composite"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "HarJel II Self-Repair System",
+      "ISCASEII",
+      "IS Endo-Composite"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDroneOperatingSystem",
+      "HarJel II Self-Repair System"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISAngelECMSuite",
+      "ISAngelECMSuite"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 7385,
+  "role": "Sniper",
+  "source": "XTR:RotS 3"
+}

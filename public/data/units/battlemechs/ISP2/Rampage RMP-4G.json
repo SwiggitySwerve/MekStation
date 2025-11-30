@@ -1,0 +1,184 @@
+{
+  "id": "rampage-rmp-4g",
+  "chassis": "Rampage",
+  "model": "RMP-4G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2750,
+  "tonnage": 85,
+  "engine": {
+    "type": "XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islbxac10",
+      "location": "RIGHT_ARM,_AMMO:20"
+    },
+    {
+      "id": "1-isgaussrifle",
+      "location": "LEFT_ARM,_AMMO:16"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isantimissilesystem",
+      "location": "RIGHT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "1-isflamer",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islargepulselaser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGauss Ammo",
+      "ISGauss Ammo",
+      "ISFlamer",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumLaser",
+      "ISAntiMissileSystem",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISLBXAC10 Ammo",
+      "ISLBXAC10 Ammo",
+      "ISAMS Ammo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "vestigial_hands_ra",
+    "bad_rep_clan",
+    "bad_rep_is",
+    "obsolete"
+  ],
+  "mulId": 2636,
+  "role": "Sniper",
+  "source": "ISP2"
+}

@@ -1,0 +1,174 @@
+{
+  "id": "excalibur-exc-b2-risc",
+  "chassis": "Excalibur",
+  "model": "EXC-B2-RISC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3135,
+  "tonnage": 70,
+  "engine": {
+    "type": "XXL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "laser-ams",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLArtemisV",
+      "CLArtemisV",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo LRM-20",
+      "Clan Ammo LRM-20",
+      "Clan Gauss Ammo",
+      "Clan Gauss Ammo",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer",
+      "ISCASEII",
+      "IS Endo-Composite"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "CLLaserAntiMissileSystem",
+      "Mek Null Signature System",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Null Signature System",
+      "ISSuperCooledMyomer"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "prototype",
+    "vestigial_hands_ra"
+  ],
+  "role": "Sniper",
+  "source": "XTR:RISC"
+}

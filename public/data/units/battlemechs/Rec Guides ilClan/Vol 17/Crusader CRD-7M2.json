@@ -1,0 +1,199 @@
+{
+  "id": "crusader-crd-7m2",
+  "chassis": "Crusader",
+  "model": "CRD-7M2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3088,
+  "tonnage": 65,
+  "engine": {
+    "type": "XL",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 21,
+      "RIGHT_LEG": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "Large Laser",
+      "Large Laser",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "Large Laser",
+      "Large Laser",
+      "Machine Gun"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "ISCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Machine Gun Ammo - Half",
+      "ISAMS Ammo",
+      "ISCASEII"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISAntiMissileSystem",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_1",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Crusader was initially designed as a close combat BattleMech for the Star League Defense Force, but soon proved itself to be a very adaptable, multi-role design. This reliable workhorse of the SLDF, while not excelling in any one job, was quite capable of accomplishing just about any mission, whether it be close assault, anti-aircraft, counter-insurgency, or even reconnaissance. Its versatility and large number of manufacturers ensured the Crusader its place as one of the most common heavy 'Mechs in the Inner Sphere.",
+    "capabilities": "Each arm was equipped with an LRM launcher, laser and machine gun, while the SRM launchers were built into the legs and mounted at hip height to provide a stable firing location and avoid interference with the LRMs' flight path. Early Crusader models had issues with the arm-mounted launchers and lasers overheating and causing stress to the actuators and internal structure, but this was rectified with the additions of the now-distinctive collars which deflect hot gasses away. The Crusader was well-protected with twelve tons of armor, particularly around the legs, which made it a good hand-to-hand combatant. A thirteen and a half ton fusion engine allowed the Crusader to achieve a decent cruising speed of 43.2 km/h. One disadvantage to the Crusader was its inadequate heat management system, carrying just ten standard heat sinks to handle all the waste heat produced by its weapons and equipment.",
+    "history": "The Crusader received its baptism of fire during the Reunification War and remained a common fixture in the regiments of the SLDF for many centuries. Even after the fall of the Star League, the various Successor States continued to field large numbers of Crusaders in their armies, thanks to factories located on Tharkad, Oliver, Asuncion and Bernardo. House Steiner in particular was a notable Crusader user, thanks in part to their well-trained technicians who could have damaged units turned around and ready to fight in a single day. A variety of new production variants and field modification kits were turned out for the Crusader after the recovery of the Helm Memory Core, just in time for the Clan Invasion. In the wake of the Clan Invasion, one of the first new Crusader variants was built by the Cosby BattleMech Research Firm, the (in)famous producer of the No-Dachi 'Mech. Hoping to overcome the lack of prestige of their previous design and win the favor of the Coordinator, the company acquired manufacturing rights to the Crusader through the hostile takeover of another company and unveiled an updated variant of the 'Mech around the start of the FedCom Civil War. Additional variants would continue to be produced in the years since, including models utilized by the Word of Blake during the Jihad.",
+    "deployment": "A variation of the CRD-7M, this configuration retains the XL Gyro, jump jets, armor, Artemis-enhanced MML-7s, and anti-missile system of the original. The Streak SRM-4s and Light PPCs are replaced by arm mounted Large Lasers. The right arm also carries a single Machine Gun. The left torso carries three tons of MML ammo protected by CASE II, while the right torso carries a ton of MML ammo, a ton of AMS ammo, and a half ton of Machine Gun ammunition; All are protected by CASE II. Two additional double heat sinks take the total up to twelve.",
+    "manufacturer": "Kallon Weapon Industries, Kallon Weapon Industries",
+    "primaryFactory": "Bernardo, Loyalty",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-B",
+      "ENGINE": "Hermes 260 XL",
+      "ARMOR": "Riese-500 with CASE",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Garret A6 with Artemis IV FCS"
+    }
+  },
+  "mulId": 8228,
+  "role": "Brawler",
+  "source": "RG17"
+}

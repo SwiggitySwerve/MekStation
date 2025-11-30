@@ -1,0 +1,129 @@
+{
+  "id": "thunder-fox-tft-a9",
+  "chassis": "Thunder Fox",
+  "model": "TFT-A9",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 220
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 17,
+      "FRL": 17,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "RLL": 17,
+      "RRL": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-gauss-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISStreakSRM4",
+      "ISERSmallLaser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "ISLightGaussRifle",
+      "IS Streak SRM 4 Ammo",
+      "IS Light Gauss Ammo",
+      "ISCASE",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Light Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 3217,
+  "role": "Sniper",
+  "source": "TR:3085"
+}

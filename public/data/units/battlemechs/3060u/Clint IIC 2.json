@@ -1,0 +1,194 @@
+{
+  "id": "clint-iic-2",
+  "chassis": "Clint IIC",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "CLMediumPulseLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ]
+  },
+  "quirks": [
+    "imp_target_long",
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "The Clan refit of the prototyle Clint the SLDF took into exile. Primarily designed as a cheap recon unit, with the capabilities of a well-armed, low-end medium weight 'Mech, and in this regard it served well.",
+    "capabilities": "It is capable of ranging far beyond supply lines thanks to its four tons of ammunition, though it only uses 10 single heat sinks and seven tons of standard armor.",
+    "history": "When General Aleksandr Kerensky led most of the Star League Defense Force into exile in 2784, they brought prototypes of the Clint BattleMech with them. After the annihilation of Clan Wolverine, Clan Snow Raven revisited these prototypes and was able to begin mass-production of the 'Mech in 2830 and introduced them in 2842. They ensured that it kept up with advances in Clan technology, eventually becoming the design that is now known as the Clint IIC. Production ceased in 2917, and in the late 30th century, the Ravens decided to decommission many less-effective designs of all sorts. It seemed fortuitous, then, when Clan Blood Spirit offered to trade some of their WarShips to the Ravens in exchange for ground units. The Ravens were only too happy to get rid of vehicles that were going to be stockpiled anyways, so many Clint IICs found their way into Clan Blood Spirit, but most of them were subsequently destroyed during the Spirits' conflict with the Adders and Burrocks. The waning fortunes of the Clint IIC were reversed in 3052, when the Ravens restarted production of the 'Mech to trade to the invading Clans for resources from the Inner Sphere.",
+    "deployment": "Developed during the Jihad in 3073, the Clint IIC 2 was fitted with an all-energy weapons configuration. The 'Mech mounts five medium pulse lasers divided amongst its center torso, left torso, and right arm; one in each of the torso locations, and the remaining three in the arm. This variant has been provided eight improved jump jets to greatly enhance its mobility in tactical situations. To cope with the new levels of heat, 10 double heat sinks are used instead of the single versions. Additionally, an ECM suite has been allocated to the head. Lastly, ferro-fibrous armor now protects the design in place of the original standard armor.",
+    "manufacturer": "Eden Rose [Potemkin Class]/Facility 12-D (Refit), Snow Raven Industrial Complex Alpha (Refit)",
+    "primaryFactory": "Eden Rose [Potemkin Class], Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "SR 2830/b",
+      "ENGINE": "Type 81 Fusion 240 XL",
+      "ARMOR": "Alpha Compound Ferro-Fibrous",
+      "JUMPJET": "Andoran Model JJII-Improved",
+      "COMMUNICATIONS": "Raldon R1 with ECM",
+      "TARGETING": "Sloane 220 Lockover System"
+    }
+  },
+  "mulId": 653,
+  "role": "Striker",
+  "source": "TR:3060"
+}

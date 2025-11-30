@@ -1,0 +1,182 @@
+{
+  "id": "phoenix-hawk-iic-9",
+  "chassis": "Phoenix Hawk IIC",
+  "model": "9",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2853,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Ammo LRM-20",
+      "Clan Ammo LRM-20",
+      "Clan Ammo LRM-20",
+      "Clan Ammo LRM-20",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20",
+      "CLLRM20"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "Clan Ultra AC/10 Ammo",
+      "Clan Ultra AC/10 Ammo",
+      "Clan Machine Gun Ammo - Half",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLMG"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLMG",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "Though in many ways it resembles the combat prowess of the Inner Sphere's Charger, the Phoenix Hawk IIC is a fixture of many second-line Clan Clusters and front-line Successor State regiments during the Word of Blake Jihad.",
+    "capabilities": "Built around the Type 79 400 XL Engine mounted on an Endo Steel skeleton fitted with five Jump Jets, the Phoenix Hawk IIC features as close as possible ground speed and agility to the original Phoenix Hawk as can be reasonably achieved on an 80-ton assault 'Mech, making it an effective fast interdiction unit. Ten and half tons of Ferro-Fibrous armor provide eighty-one percent of the maximum possible protection at its weight class, while ten Double Heat Sinks are sufficient for weapons array.",
+    "history": "During the reign of the lackluster Khan Jacob Masters, Clan Steel Viper entered a period of stagnation in all areas, including technological development. In a rare fit of innovation at the time, though one many observers considered oddball at best, the Steel Viper Scientist Caste decided to base a new assault-class BattleMech on the venerable 45-ton Phoenix Hawk chassis. At 80-tons, the resulting design was almost twice as heavy as the original, though it is severely under-gunned for an assault 'Mech due its incredible speed for a 'Mech its size. Following the introduction of the OmniMech by Clan Coyote just three years later however, the Phoenix Hawk IIC largely saw itself relegated to second-line status. The Phoenix Hawk IIC would gain a new vitality following Clan Jade Falcon's ejection of the Steel Vipers from the Inner Sphere in 3061. Seeking to rapidly rebuild their weakened touman, Khan Perigard Zalman approached Clan Diamond Shark offering captured Heavy Laser technology and the plans for the ancient design in return for the production of a new variant for the Steel Viper's second-line clusters. Initially observers were curious why the Sharks dealt so fairly with such a weakened \"customer\", but the rapid development of even more deadly variations not included in the deal agreed with the Vipers provided some explanation, with production of the visually reworked chassis initiated at both Auxiliary Production Site #5 on Babylon and the rebuilt Trellshire Heavy Industries of Twycross. By 3078 six variations of the Phoenix Hawk IIC were walking off Trellshire's production lines for the garrison forces of Diamond Shark as well as for sale to both Clan and Inner Sphere buyers. While some among the Clans opposed such sales to Spheroids, the focus on designs like the Phoenix Hawk IIC that are considered mediocre by Clan warrior but are still outstanding by Inner Sphere standards appears to be a conscious choice by the Sharks. Many of the variants also utilize ammunition-hungry weapons, a decision Clan observers wryly note ensures Inner Sphere buyers either make steady munitions purchases or are forced to more frequently buy replacement parts from the accelerated wear caused by using inferior Spheroid ordnance, both ensuring frequent repeat business for the Diamond Sharks.\nmanufacturer:Auxiliary Production Site 5, Trellshire Heavy Industries\nprimaryfactory:Babylon, Twycross\nsystemmanufacturer:CHASSIS:SFAM 4\nsystemmanufacturer:ENGINE:Type 70 400 XL Fusion\nsystemmanufacturer:ARMOR:Forging AM15 Ferro-Fibrous with CASE\nsystemmanufacturer:JUMPJET:Grandthrust Mk. 5\nsystemmanufacturer:COMMUNICATIONS:MegaBand System 21\nsystemmanufacturer:TARGETING:Dtrac Suite 4"
+  },
+  "mulId": 8196,
+  "role": "Sniper",
+  "source": "RG15"
+}

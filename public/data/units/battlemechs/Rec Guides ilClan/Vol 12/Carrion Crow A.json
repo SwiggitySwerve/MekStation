@@ -1,0 +1,185 @@
+{
+  "id": "carrion-crow-a",
+  "chassis": "Carrion Crow",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3145,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLHAG20 (OMNIPOD)",
+      "CLHAG20 (OMNIPOD)",
+      "CLHAG20 (OMNIPOD)",
+      "CLHAG20 (OMNIPOD)",
+      "CLHAG20 (OMNIPOD)",
+      "CLHAG20 (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/20 Ammo (OMNIPOD)",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERSmallLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_short",
+    "unbalanced"
+  ],
+  "fluff": {
+    "overview": "The Carrion Crow is a Raven Alliance OmniMech designed alongside the heavier and more expensive War Crow.",
+    "capabilities": "An extralight engine drives the 'Mech at a top speed of 111km/h. Protection for the engine and Endo-Steel chassis is provided by nine and a half tons of Ferro-Lamellor armor. Fourteen and a half tons of pod space allows the Carrion Crow to carry weapons that let it effectively fight heavier units.",
+    "history": "Deployment of the Carrion Crow is limited to the Raven touman with the Alliance Military Corps not receiving any of these 'Mechs. A fast 'Mech, the Carrion Crow is intended to be a standard medium 'Mech for the Alliance.",
+    "deployment": "This configuration carries a HAG 20 and three tons of armor in the left arm. The center torso carries an Improved Heavy Medium Laser, and the head has an ER Small Laser.",
+    "manufacturer": "Snow Raven Industrial Complex Beta",
+    "primaryFactory": "Mitchella",
+    "systemManufacturer": {
+      "CHASSIS": "Raven Endo Steel",
+      "ENGINE": "Type 280 Extralight",
+      "ARMOR": "Compound LZ-7 Ferro-Lamellor",
+      "COMMUNICATIONS": "TDWS-37 Mk. 2.2",
+      "TARGETING": "âHermesâ CT-44"
+    }
+  },
+  "mulId": 7776,
+  "role": "Striker",
+  "source": "RG12"
+}

@@ -1,0 +1,197 @@
+{
+  "id": "starslayer-sty-2c",
+  "chassis": "Starslayer",
+  "model": "STY-2C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2772,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 17,
+      "RIGHT_LEG": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "SRM 4",
+      "Medium Laser",
+      "Medium Laser",
+      "IS Ammo SRM-4",
+      "ISCASE",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Large Laser",
+      "Large Laser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser (R)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Starslayer was intended to replace the Crab as the Star League's standard medium 'Mech after Cosara Weaponries were unable to meet the SLDF's required production volumes.",
+    "capabilities": "The Starslayer is built on a Thor-4 chassis and reaches a top speed of 86.4 km/h with its Magna 250 fusion engine. The Starslayer also has five Odin's Own Model 34z jump jets which give it the ability to jump up to one hundred and fifty meters. Finally, the design carries nine and a half tons of Norse-34 ferro-fibrous with CASE. The CASE protects the BattleMech from complete destruction in the event of an ammunition explosion.",
+    "history": "Though Blue Shot's design won selection in 2765, the Starslayer would also be plagued with technical delays with its tracking system that would delay full production until 2772 and the Amaris Civil War. Despite the SLDF's desperate need for matÃ©riel, tensions between General Kerensky and Archon Robert Steiner II would result in Blue Shot delaying SLDF shipments until 2781 due to lack of \"up-to-date\" shipping information and as a result the Starslayer would be far more common in the LCAF service than the SLDF. By now a thoroughly Lyran Commonwealth design, production of the original 2C Starslayer would cease during the technological decline of the early Succession Wars, with Blue Shot Weaponry resuming with the superior and updated STY-3C model in wake of the Clan Invasion.",
+    "deployment": "The original Starslayer, introduced in 2772, used a standard chassis and only mounted seven tons of ferro-fibrous armor, carrying an array of lasers developed in-house by Blueshot including Blueshot large lasers, Razzing Devil medium lasers and a Blueshot Standard small laser. Only the Moonshot missile rack had to be licensed for manufacture",
+    "manufacturer": "Blue Shot Weapons",
+    "primaryFactory": "Loxley",
+    "systemManufacturer": {
+      "CHASSIS": "Thor-4",
+      "ENGINE": "Magna 250",
+      "ARMOR": "Norse-34 Ferro-Fibrous with CASE",
+      "JUMPJET": "Odinâs Own Model 34z",
+      "COMMUNICATIONS": "Tek BattleCom",
+      "TARGETING": "FireScan with IndirecTrack"
+    }
+  },
+  "mulId": 3048,
+  "role": "Skirmisher",
+  "source": "TR:3058U"
+}

@@ -1,0 +1,187 @@
+{
+  "id": "battleaxe-bkx-1x",
+  "chassis": "BattleAxe",
+  "model": "BKX-1X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2459,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_TORSO,_AMMO:24"
+    },
+    {
+      "id": "1-issrm6",
+      "location": "RIGHT_TORSO,_AMMO:15"
+    },
+    {
+      "id": "1-ismachine-gun",
+      "location": "CENTER_TORSO,_AMMO:200"
+    },
+    {
+      "id": "1-ismachine-gun",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islargelaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "ISLRM5",
+      "ISLRM5 Ammo",
+      "ISMG Ammo (100)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "ISSRM6",
+      "ISSRM6",
+      "ISLRM5",
+      "ISSRM6 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Heat Sink",
+      "ISMachine Gun"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMachine Gun",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "hard_pilot",
+    "poor_performance",
+    "prototype"
+  ],
+  "mulId": 5584,
+  "role": "Juggernaut",
+  "source": "XTR:Primitives II"
+}

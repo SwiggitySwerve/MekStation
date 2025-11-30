@@ -1,0 +1,201 @@
+{
+  "id": "warhammer-iic-8",
+  "chassis": "Warhammer IIC",
+  "model": "8",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3079,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 19
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLPlasmaCannon",
+      "CLPlasmaCannonAmmo",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLPlasmaCannon",
+      "CLPlasmaCannonAmmo",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "CLERMediumLaser",
+      "Clan Streak SRM 6 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "searchlight",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Clan's interpretation on the classic Warhammer has never been subtle. The BattleMech's hyper-advanced technology only emphasized and improved its duty as a frontline brawler; boosting its mass by 10 tons (with equivalent increases in armor protection) made it even more powerful.",
+    "capabilities": "Thanks to their technological expertise, they were able to add ten tons with the same speed and firepower and nearly double the armor of the original. The Warhammer IIC is built on an Endo Steel frame and is protected by tons of ferro-fibrous armor. The result is a dangerous 'Mech, able to hold its own in any battle against the Inner Sphere. Also note that the armor was the primary concern when designing the IIC version rivaling even 100 ton assault 'Mechs in durability and protection.",
+    "history": "The Warhammer IIC is now the most common Clan BattleMech in the Inner Sphere. These remarkable machines are fielded by every major Inner Sphere force, Clan, and many large mercenary groups. It is only found on the periphery, where its equally outstanding price tag is simply too high for these countries to justify.",
+    "deployment": "This Diamond Shark-produced variant uses arm mounted Plasma Cannons and Heavy Large Lasers as its main armament. These are supported by two ER Medium Lasers and a Streak SRM-6. Nineteen double heat sinks are installed to keep things cool. The 'Mech's top speed is increased to 85 km/h by using a huge 400XL engine. Shark engineers used Endo Steel and ferro-fibrous armor to maximize weight savings.",
+    "manufacturer": "CDS Poseidon [Potemkin Class]/Auxiliary Production Site #4,Trellshire Heavy Industries",
+    "primaryFactory": "Itabaiana,Twycross",
+    "systemManufacturer": {
+      "CHASSIS": "SFX-80 Endo",
+      "ENGINE": "Type 79 400 XL",
+      "ARMOR": "Forging ZM15 Ferro-Fibrous",
+      "COMMUNICATIONS": "TDWS-37 Mk 2.2",
+      "TARGETING": "âHephaestusâ CT-44"
+    }
+  },
+  "mulId": 3507,
+  "role": "Skirmisher",
+  "source": "RS:3085u-PP"
+}

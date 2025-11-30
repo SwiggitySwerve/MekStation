@@ -1,0 +1,218 @@
+{
+  "id": "assassin-servitor",
+  "chassis": "Assassin",
+  "model": "'Servitor'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "small-x-pulse-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISSmallVibroblade",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumXPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "SRM 2",
+      "IS Ammo SRM-2",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser",
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISSmallXPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISSmallXPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "cramped_cockpit",
+    "non_standard",
+    "poor_life_support"
+  ],
+  "fluff": {
+    "overview": "Many military finance experts outside the Star League saw the Assassin as more of a political pork project than a powerful fighting machine, yet it turned out to be a strong 'Mech in combat against light lances.",
+    "capabilities": "The Assassin was able to destroy these lighter 'Mechs due to its good speed and maneuverability, good armor coverage (in comparison to the 'Mechs it was built to battle against), and strong weaponry.Â The weapons of the 'Mech is essentially comprised of three systems: the long-range missile rack, the short-range missile rack, and the arm-mounted Martell midrange laser. The design is limited in durability unless assigned supply units for support because it can only carry a total of seventy-four salvos for both launchers. The most significant disadvantage for most pilots is the incredibly tight cockpitâone of the most confined cockpit designs in the Inner Sphere.",
+    "history": "Maltex has changed the cockpit cooling system dozens of times over the Assassin's four hundred year service history in a bid to provide extra elbow room, but none of the attempts have been effective. As a result, most pilots experience a tight, painful ride that limits in-cockpit time to half that of most other conventional designs; many ex-Assassin pilots have established a history of back issues that will bother them for the rest of their lives. The ammo feed system for the short-range missile rack was the only other issue with the Assassin (mostly those made up to 2815). It commonly failed during high-heat settings due to chronic jamming and could only be repaired through total disassembly in a mechanical bay. Under significant corporate pressure, Holly ultimately introduced a new feed system in 2815 and even paid several years of recall repairs; nonetheless, there are still a huge number of individually owned Assassins that may still mount the problematic system. Maltex produced only a few hundred ASN-21s after their launch. Due to a lack of spare parts, those Assassins in service were utilized sparingly, however House Marik enthusiastically used the 'Mech late in the Third Succession War. When a rush of new BattleMech types entered the markets after 3058, the Assassin was nearly phased out of service. Those that have stayed in service are usually family heirlooms with some modifications.",
+    "deployment": "A custom variant of the ASN-99 Assassin. The stealth armor and Guardian ECM suite are removed, and the head-mounted TAG is swapped for a small laser. Each arm has new weapons, with the left holding a small vibroblade and right mounting a medium X-Pulse laser, and each leg contains a small X-Pulse laser. The SRM-2s of the ASN-99 are retained.",
+    "manufacturer": "Reft",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Hellespont Type A 40 series",
+      "ENGINE": "VOX 280 XL",
+      "ARMOR": "100 AFVTA",
+      "JUMPJET": "Lox Lift Series 1",
+      "COMMUNICATIONS": "Garret T15 B with ECM",
+      "TARGETING": "Garret 500S"
+    }
+  },
+  "mulId": 3737,
+  "role": "Striker",
+  "source": "TR:3050"
+}

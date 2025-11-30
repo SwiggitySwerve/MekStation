@@ -1,0 +1,193 @@
+{
+  "id": "zeus-leonidas",
+  "chassis": "Zeus",
+  "model": "(Leonidas)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 80,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISArtemisIV",
+      "IS Ammo LRM-20 Artemis-capable",
+      "IS Ammo LRM-20 Artemis-capable",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser (R)",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "barrel_fists_ra",
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "The Zeus was first built by the Lyran Commonwealth in 2787, just as the First Succession War began. Built at the request of Lyran Commonwealth Armed Forces commanders for a new light-assault 'Mech designed to engage the enemy at long range and perform hit-and-run attacks.",
+    "capabilities": "The Zeus is fast enough to keep up with most heavy 'Mechs, and with a sturdy frame, eleven and a half tons of standard armor and a versatile weapons array, is equally capable of defeating them. Its use of reliable, low-maintenance and easily modified systems at a time when most 'Mechs were built with cutting-edge technology also proved fortuitous, allowing the Zeus to be produced long after those advanced components had become Lostech.",
+    "history": "Three years before its release, the first two prototypes of the Zeus would have their first \"test run\" when they were forced to repel an attack on the Hesperus II factory by the Draconis Combine Mustered Soldiery. As the enemy pushed through Lyran lines, the two 'Mechs were summoned to aid, and through sheer novelty and long-range firepower, the Kuritans were forced to pause. This enabled more reinforcements to push back DCMS forces. While these prototypes were effective in repelling the attack, they were considerably more advanced than the commercial model and armed with a PPC, which proved unpredictable and unreliable during the combat. Inadequate shielding caused wild magnetic interactions between the weapon and the Zeus' engine, which was later revealed to be the source of this behavior. To guarantee that the Zeus arrived at the front lines as soon as possible, the complex energy weapon was replaced with a basic autocannon. The 'Mech initially appeared in substantial numbers after the 15th Lyran Guards regained the planet Sakhalin, and the Zeus had a long and storied history within the Commonwealth during the Succession Wars, becoming a well-respected assault 'Mech. Engineers were able to put a PPC on the Zeus again after the end of the Third Succession War, with the resulting ZEU-6T variant being the standard during the Fourth Succession War and later the War of 3039. The design was also well received by mercenary units, particularly the Zeta Battalion of Wolf's Dragoons.",
+    "deployment": "The personal 'Mech of Hauptmann-General Leonidas Brannock, commander of the 4th Skye Guards during their assault on Glengarry, the Zeus Leonidas was based on the ZEU-9S. It carried an Artemis IV enhanced LRM-20 and a Gauss rifle (each with two tons of ammunition) in place of the PPC and LRM-15. The rest of the weapons remained the same. It also carried an extra heat sink, bringing the total to twelve. To make room for this equipment the Leonidas used an XL engine.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Hesperus II",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type III",
+      "ENGINE": "Pitban 320 XL",
+      "ARMOR": "Glasgow Limited Primo Ferro-Fibrous",
+      "COMMUNICATIONS": "TharHes Calliope ZE-2",
+      "TARGETING": "TharHes Ares-7"
+    }
+  },
+  "mulId": 3638,
+  "role": "Sniper",
+  "source": "HTP:Glengarry"
+}

@@ -1,0 +1,204 @@
+{
+  "id": "commando-com-7t-blazing-inferno-ii",
+  "chassis": "Commando",
+  "model": "COM-7T 'Blazing Inferno II'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 25,
+  "engine": {
+    "type": "FUSION",
+    "rating": 150
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 7,
+      "RIGHT_ARM": 7,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 11,
+      "RIGHT_LEG": 11
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "Triple Strength Myomer",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "Small Laser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERSmallLaser",
+      "ISERSmallLaser"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERSmallLaser",
+      "ISERSmallLaser"
+    ]
+  },
+  "quirks": [
+    "exp_actuator",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Created for the Lyran Commonwealth Armed Forces and one of the first 'Mechs ever designed for reconnaissance, the Commando was much lighter and faster than its precursors, though it still utilized primitive BattleMech technology.",
+    "capabilities": "With only four tons of armor to protect itself, the Commando is not meant to participate in a stand-up fight against heavier enemies, but it excels at hit-and-run tactics and as a scout hunter.",
+    "history": "In 2463 Coventry Metal Works (then known as Coventry Defense Conglomerate) introduced their second BattleMech, the COM-1A Commando. The Commando was able to destroy much heavier Kuritan Gladiators during the first large-scale battle between BattleMechs in 2475 on Nox. The installed Large Laser caused several problems and other 'Mechs were soon introduced (like the Wasp in 2464 and the Stinger in 2479) that were better equipped for scouting and even mounted jump jets. The Commando's profile was radically changed with the introduction of the sophisticated COM-2D variant in 2486, which exchanged the laser weaponry with short range missiles and turned the machine into a striker. The Commando became popular among LCAF forces and, nearly 600 years later, is still mainly in use by Lyrans. The Commonwealth went to great pains to keep the 'Mech solely in Lyran hands, especially during the years of the Star League. It took an alliance with the Federated Suns and the creation of the Federated Commonwealth to break the stranglehold. The Commando was chosen as the standard light BattleMech for the Armed Forces of the Federated Commonwealth next to the Valkyrie, and after the upgrade to the COM-5S model in 3050, Vandenberg Mechanized Industries was allowed to produce the old COM-2D for the Taurian Defense Force. Furthermore, the Marian Hegemony deploys the Rocket Launcher-packed COM-4H, and the Word of Blake produced its own variant (the COM-7B) during its occupation of Coventry from 3068 to 3074.\nmanufacturer:Coventry Metal Works\nprimaryfactory:Coventry\nsystemmanufacturer:CHASSIS:Foundation Ultralight Endo Steel\nsystemmanufacturer:ENGINE:GM 150\nsystemmanufacturer:ARMOR:Lexington Ltd. High Grade Ferro-Fibrous with CASE\nsystemmanufacturer:COMMUNICATIONS:Cyclops 14\nsystemmanufacturer:TARGETING:Cyclops MultiTasker 10",
+    "deployment": "The COM-5S was introduced in 3050 and was the first Commando to feature Star League technology. Its new Cyclops MultiTasker 10 Targeting System links an Artemis IV Fire Control System to the Coventry 90mm SRM-6, which replaces the Shannon Six-Shooter, and exchanges the SRM-4 with a Coventry T4H Streak-2 launcher. Additionally, the chassis has been upgraded with Endo Steel, the armor has been upgraded to Ferro-Fibrous, and CASE has been added to protect the ammunition. The variant is also equipped with a new communications system called Cyclops 14."
+  },
+  "mulId": 9638,
+  "role": "Striker",
+  "source": "Shrap16"
+}

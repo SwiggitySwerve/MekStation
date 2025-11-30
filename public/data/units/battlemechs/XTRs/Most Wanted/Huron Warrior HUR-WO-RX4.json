@@ -1,0 +1,166 @@
+{
+  "id": "huron-warrior-hur-wo-rx4",
+  "chassis": "Huron Warrior",
+  "model": "HUR-WO-RX4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "REACTIVE",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "silver-bullet-gauss-rifle",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLargeXPulseLaser",
+      "ISLargeXPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISSBGR",
+      "ISSBGR",
+      "ISSBGR",
+      "ISSBGR",
+      "ISSBGR",
+      "ISSBGR",
+      "ISSBGR",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Silver Bullet Gauss Ammo",
+      "Silver Bullet Gauss Ammo",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      "IS Reactive",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Supercharger",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hard_pilot"
+  ],
+  "mulId": 5782,
+  "role": "Skirmisher",
+  "source": "XTR:Most Wanted"
+}

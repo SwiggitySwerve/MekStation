@@ -1,0 +1,194 @@
+{
+  "id": "katana-crockett-crk-5003-cm",
+  "chassis": "Katana (Crockett)",
+  "model": "CRK-5003-CM",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-issrm6",
+      "location": "LEFT_TORSO,_AMMO:15"
+    },
+    {
+      "id": "1-islbxac10",
+      "location": "LEFT_TORSO,_AMMO:20"
+    },
+    {
+      "id": "1-isc3mastercomputer",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISSRM6",
+      "ISSRM6",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10"
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISC3MasterComputer",
+      "ISSRM6 Ammo",
+      "ISLBXAC10 CL Ammo",
+      "ISLBXAC10 Ammo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_pilot",
+    "poor_life_support"
+  ],
+  "fluff": {
+    "overview": "The Katana began its existence when the Draconis Combine was given several downgraded Crockett BattleMechs by ComStar as part of Operation Rosebud.",
+    "capabilities": "The Katana shares many of the same features as the Crockett, right down to the serial number. Just like the Crockett, the Katana mounts the same fusion engine and jump jets for similar ground speed and leaping ability. It is also protected by the same twelve and a half tons of armor and utilizes the same electronic systems. Unlike the original 'Mech, the Katana makes do with twenty standard heat sinks.",
+    "history": "During negotiations in 3035 Primus Myndo Waterly gave the Combine the Blankenburg Technologies storage facility on Soul as a gesture of good faith. The facility was handed over to Independence Weaponry (although for appearance's sake it was \"leased\" from Blankenburg) which, beyond a treasure trove of lostech weapons, also contained a number of Crocketts. IW went about reverse-engineering the weapons so they could produce copies at a nearby facility for sale to other Combine manufacturers and closely examined the Crocketts for several months. After making minor modifications these 'Mechs were renamed Katanas and used to replace Chargers in several DCMS units. The Katana quickly become a mainstay in many of the heavier mobile line units, especially after the invention of the C3 Computer. Recognizing the value in this new technology, IW quickly developed several new Katana variants which could effectively operate as part of C3 lances. When the \"lease\" expired and the Soul facility was returned to Blankenburg, the company hired on the entire IW Katana engineering team and entered into a technology-sharing agreement to continue production of new Katanas.",
+    "deployment": "Introduced at the same time as the C variant, this modification is intended to carry a C3 Computer onto the battlefield to coordinate a C3 Lance. The CM variant does this by removing both of the small lasers and one of the SRM-6 launchers to make room for the master computer. This also allows the 'Mech to share targeting data with friendly units.",
+    "manufacturer": "Blankenburg Technologies (Refit)",
+    "primaryFactory": "Soul",
+    "systemManufacturer": {
+      "CHASSIS": "Geometric 530 Hard Core",
+      "ENGINE": "Strand 255",
+      "ARMOR": "CarbonStrand 30 Weight AS",
+      "JUMPJET": "Geotec 300",
+      "COMMUNICATIONS": "GRPNTR Groundpainter 5",
+      "TARGETING": "Scope 30 RNDST"
+    }
+  },
+  "mulId": 1763,
+  "role": "Juggernaut",
+  "source": "TR:3050"
+}

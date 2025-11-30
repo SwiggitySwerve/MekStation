@@ -1,0 +1,177 @@
+{
+  "id": "orochi-or-2i",
+  "chassis": "Orochi",
+  "model": "OR-2I",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3084,
+  "tonnage": 90,
+  "engine": {
+    "type": "XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "thunderbolt-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "thunderbolt-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "ISStreakSRM4",
+      "IS Streak SRM 4 Ammo",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "ISStreakSRM4",
+      "IS Streak SRM 4 Ammo",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "no_arms"
+  ],
+  "mulId": 2343,
+  "role": "Missile Boat",
+  "source": "TR:DA"
+}

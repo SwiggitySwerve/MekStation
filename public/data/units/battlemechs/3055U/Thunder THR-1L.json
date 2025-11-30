@@ -1,0 +1,182 @@
+{
+  "id": "thunder-thr-1l",
+  "chassis": "Thunder",
+  "model": "THR-1L",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ac-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      "Autocannon/20",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20",
+      "IS Ammo AC/20",
+      "ISCASE",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Autocannon/20",
+      "Autocannon/20",
+      "ISMediumPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "cowl"
+  ],
+  "fluff": {
+    "overview": "The Thunder is a product of the aftermath of the Fourth Succession War.",
+    "capabilities": "The primary weapon on the Thunder is the massive Kali Yama Big Bore Autocannon/20 which is capable of devastating most lighter 'Mechs with a single shot. This is backed up with three highly accurate Ceres Arms Model W Medium Pulse Lasers. Finally, for token long range defense capabilities, and giving the 'Mech limited indirect fire capabilities, the Thunder carries a Sian/Ceres Jaguar LRM-5 launcher.",
+    "history": "The 'Mech was built to make the most of new technologies that had made their way to the Capellan Confederation at the beginning of the 3050s. This was done by building the 'Mech around a Magna 350 XL Engine to maximize the available weight in the 'Mech. The Thunder also uses double heat sinks to make it capable of handling a high heat load from its weapons systems. The 'Mech is well protected with thirteen and a half tons of armor. Its weapons payload, and the design in general, uses a mix of advanced and off the shelf parts. This balanced mix makes the Thunder a valuable asset on the modern battlefield.\nmanufacturer:Ceres Metals Industries\nprimaryfactory:Sian, Capella and St. Ives\nsystemmanufacturer:CHASSIS:Hollis Mk III\nsystemmanufacturer:ENGINE:Magna 350 XL\nsystemmanufacturer:ARMOR:Ceres Heavy with CASE\nsystemmanufacturer:COMMUNICATIONS:Ceres Metals Model 21-Rs\nsystemmanufacturer:TARGETING:C-Apple Churchill"
+  },
+  "mulId": 3214,
+  "role": "Skirmisher",
+  "source": "TR:3055U"
+}

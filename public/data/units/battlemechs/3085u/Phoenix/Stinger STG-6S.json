@@ -1,0 +1,172 @@
+{
+  "id": "stinger-stg-6s",
+  "chassis": "Stinger",
+  "model": "STG-6S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 20,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 140
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light Machine Gun",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Light Machine Gun",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Light Machine Gun Ammo - Half",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "rugged_1",
+    "ubiquitous_clan",
+    "ubiquitous_is",
+    "cramped_cockpit"
+  ],
+  "mulId": 3067,
+  "role": "Scout",
+  "source": "TR:3085"
+}

@@ -1,0 +1,114 @@
+{
+  "id": "uni-atae-70-artillerymech",
+  "chassis": "Uni",
+  "model": "ATAE-70 ArtilleryMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3090,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 21,
+      "FRL": 21,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 21,
+      "RRL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 5
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "thumper",
+      "location": "NONE"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumper",
+      "ISThumperAmmo",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISThumper",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 8101,
+  "role": "Missile Boat",
+  "source": "XTR:Caveat"
+}

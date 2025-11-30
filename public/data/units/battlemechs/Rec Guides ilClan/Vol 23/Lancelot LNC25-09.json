@@ -1,0 +1,190 @@
+{
+  "id": "lancelot-lnc25-09",
+  "chassis": "Lancelot",
+  "model": "LNC25-09",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3147,
+  "tonnage": 60,
+  "engine": {
+    "type": "XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERLargeLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMediumPulseLaser",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Heavy Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "low_profile",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Lancelot was originally conceived in response to a Star League Defense Force contract for a medium BattleMech that could operate with minimal logistical support, was fast enough to take part in mobile operations and packed sufficient firepower to be a viable threat on the battlefield.",
+    "capabilities": "Krupp Technologies attempted to combine the speed of a medium 'Mech with the survivability of a heavy 'Mech in the Lancelot. Despite the use of a lightweight Extralight engine, the production Lancelot ended up in the heavyweight class, but the SLDF was impressed enough with the unit's speed and firepower during its trial runs to make an initial order of 250 in 2581.",
+    "history": "An entirely energy-based armament allowed the Lancelot to operate away from friendly supply lines for extended periods, while the use of a Hermes 360XL engine not only made it faster than any other heavy 'Mech at the time but also allowed for thirteen double heat sinks to be installed. The use of only nine and a half tons of armor was considered light for its tonnage, however this was partially offset by the design's mobility and its subtle curves, presenting a narrower silhouette for the enemy to target. Its advanced Krupp KBC battle computer, long a standard in the industry, offered superior internal system monitoring, such as current armor status and skin temperature, without distracting the pilot during combat. The most exceptional part of the Lancelot was its KBC Starsight Model 3 T&T System, which could track and prioritize hundreds of targets and projectiles at once. This also made the Lancelot superior at shooting down enemy fighters, and by all indications it was replacing the Rifleman as the SLDF's standard anti-aircraft 'Mech before the Amaris Civil War put an end to that plan. Many Lancelots, along with Krupp's factory on Mars, were destroyed during the Civil War, and as the advanced systems which had gone into their construction became lostech these 'Mechs came to the brink of extinction. Luthien Armor Works obtained copies of the design and began production after the Second Succession War, but their LNC25-02 model was greatly reduced in capability, most significantly the loss of its mobility. With only average speed now and enough armor plating to withstand only a few solid hits, pilots derisively began referring to the 'Mech as \"the Coffin.\" Whereas before the fall of the Star League the Lancelot could be found in almost all militaries, by the end of the Succession Wars less than a dozen still-functional original models were in service, many heavily modified due to battle damage, alongside a few hundred 02 models, most of which were in the hands of the Draconis Combine. In the wake of the Clan Invasion and the Battle of Tukayyid, Precentor Martial Anastasius Focht would rebuild the Krupp Stellar factory on Mars to restart production of original model Lancelots for the Com Guards along with other advanced variants. Examples of these 'Mechs would also be used by the Word of Blake in the prosecution of their Jihad.",
+    "deployment": "Unknown",
+    "manufacturer": "Luthien Armor Works",
+    "primaryFactory": "Luthien",
+    "systemManufacturer": {
+      "CHASSIS": "MangoTech 500SJ",
+      "ENGINE": "Hermes 360 XL",
+      "ARMOR": "PanzerSlab Heavy Ferro-Fibrous",
+      "COMMUNICATIONS": "Krupp-COMM 500",
+      "TARGETING": "KBC Starsight Model 3"
+    }
+  },
+  "mulId": 8417,
+  "role": "Skirmisher",
+  "source": "RG23"
+}

@@ -1,0 +1,197 @@
+{
+  "id": "mercury-ii-mcy-100",
+  "chassis": "Mercury II",
+  "model": "MCY-100",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2823,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "2-issmalllaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isbeagleactiveprobe",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isguardianecm",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISSmallLaser",
+      "ISSmallLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISBeagleActiveProbe",
+      "ISBeagleActiveProbe",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumLaser",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "bad_rep_clan"
+  ],
+  "fluff": {
+    "overview": "The Mercury II is a BattleMech designed by Clan Wolverine. The Not-Named-Clan designed the 'Mech in 2823 during the Clans' early years.",
+    "capabilities": "The Mercury II was an enlarged and updated design of the Mercury produced by Clan Wolverine. This 'Mech lacks its predecessor's unique modular repair system, being a standard post-SLDF/early Clan era BattleMech.",
+    "history": "The fledgling society built this new design around the existing Mercury, but upgraded it to make it a more effective combatant at the cost of speed. Since the design was produced in the formative years of the Clans, it uses Star League technology. The Wolverines spared no expense in the production of the Mercury II, including seven and a half tons of Ferro-Fibrous armor, double heat sinks and an XL Engine. Despite this the medium 'Mech is still slower than its lighter antecedent, only managing 119 km/h, though it makes up for that with jump jets that enable it to leap up to 210 meters at a time. The inclusion of a Beagle Active Probe and Guardian ECM Suite make the 'Mech a capable scout. Clan Coyote claimed their losses on the battlefield during the Not-Named-Clan's annihilation had been acceptable due to capturing a Mercury II, and the design appears to have inspired in part the Coyotl, the very first OmniMech.",
+    "deployment": "Though the Mercury II is designed to be a scout, it can hold its own in a fight. An ER Large Laser gives it a credible ranged threat, while paired Medium Lasers and Small Lasers make it an effective hunter-killer.",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown 280 XL",
+      "ARMOR": "Unknown Ferro-Fibrous",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 2173,
+  "role": "Striker",
+  "source": "JSBD"
+}

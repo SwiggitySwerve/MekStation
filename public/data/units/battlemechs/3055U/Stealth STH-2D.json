@@ -1,0 +1,178 @@
+{
+  "id": "stealth-sth-2d",
+  "chassis": "Stealth",
+  "model": "STH-2D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISStreakSRM6",
+      "ISStreakSRM6",
+      "ISERMediumLaser",
+      "IS Streak SRM 6 Ammo",
+      "ISMASC",
+      "ISMASC"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERMediumLaser",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "imp_sensors"
+  ],
+  "fluff": {
+    "overview": "The Stealth is a heavy scout 'Mech that is in use by the Federated Suns and the Lyran Alliance.",
+    "capabilities": "The 'Mech has a GM 315 XL Engine that allows the Stealth to move at speeds of 118.8 kph and the MASC system on board can push the 'Mech to 151.2 kph in short bursts. This amazing mobility is augmented by jump jets which the Stealth can use to jump up to two hundred and ten meters. The Stealth is also outfitted with a Cyclops-Beagle Sensory Active Probe that the Stealth can use to find hidden enemy units.",
+    "deployment": "The 2D removes the weapons from the Stealth and retains the Active Probe. The Stealth has been re armed with a Streak SRM-6 launcher and a trio of ER Medium Lasers, making the 'Mech devastatingly powerful at short to medium ranges.\nmanufacturer:General Motors\nprimaryfactory:Kathil\nsystemmanufacturer:CHASSIS:GM Stealth Endo Steel\nsystemmanufacturer:ENGINE:GM 315 XL\nsystemmanufacturer:ARMOR:Durallex Medium\nsystemmanufacturer:JUMPJET:100AFVTA\nsystemmanufacturer:COMMUNICATIONS:Dalban Micronics\nsystemmanufacturer:TARGETING:Dalban HiRez with Active Probe"
+  },
+  "mulId": 3054,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

@@ -1,0 +1,125 @@
+{
+  "id": "doom-courser-d",
+  "chassis": "Doom Courser",
+  "model": "D",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3147,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 30,
+      "FRL": 30,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 30,
+      "RRL": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-40",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)",
+      "CLHAG40 (OMNIPOD)"
+    ],
+    "RIGHT_TORSO": [
+      "CLERPPC (T) (OMNIPOD)",
+      "CLERPPC (T) (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/40 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/40 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/40 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/40 Ammo (OMNIPOD)",
+      "Hyper-Assault Gauss Rifle/40 Ammo (OMNIPOD)",
+      "ISQuadTurret",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Doom Coursers often deploy as the backbone of a Star of lighter BattleMechs and tanks, using their turreted guns to blast whatever prey the skirmishers flush out.\nmanufacturer:Csesztreg Industriplex Alpha\nprimaryfactory:Csesztreg\nsystemmanufacturer:CHASSIS:Csesztreg Quad 70.1 Endo-Composite\nsystemmanufacturer:ENGINE:Clan Standard 280 series\nsystemmanufacturer:ARMOR:Compound H17 Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:CH3V Series Integrated\nsystemmanufacturer:TARGETING:Version Kappa-III TTS"
+  },
+  "mulId": 8397,
+  "role": "Sniper",
+  "source": "RG22"
+}

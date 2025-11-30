@@ -1,0 +1,189 @@
+{
+  "id": "malak-c-mk-o-invictus",
+  "chassis": "Malak",
+  "model": "C-MK-O Invictus",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 30,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Retractable Blade (OMNIPOD)",
+      "Retractable Blade (OMNIPOD)",
+      "Retractable Blade (OMNIPOD)",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Flamer (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "SRM 2 (OMNIPOD)",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Light PPC (OMNIPOD)",
+      "Light PPC (OMNIPOD)",
+      "IS Ammo SRM-2 (OMNIPOD)",
+      "ISCASE (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISERMediumLaser (OMNIPOD)",
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "imp_sensors",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Malak is the lightest in the Word of Blake's Celestial series of OmniMechs designed for the Manei Domini. The Malak, Arabic for \"angel,\" features a dazzling array of new construction materials in an attempt to free up as much weight as possible in a fast and reliable package.",
+    "capabilities": "The 'Mech is protected with six tons of Light Ferro-Fibrous armor which weighs less than standard armor. To free up even more space, the 'Mech mounts an XL Gyro, and a small cockpit in addition to its Endo Steel frame. A C3i Computer allows it to sync with other Manei Domini so equipped. Nine and a half tons are left for modular equipment.",
+    "deployment": "The Invictus variant of this light 'Mech features a Light PPC, an ER Medium Laser, and a Flamer that allow it to operate far from supply lines. The SRM-2 is capable of mounting inferno munitions, which can make quick work of vehicles and infantry. To protect the 'Mech from ammunition explosions it mounts CASE in the right torso. For close combat it carries a Retractable Blade.",
+    "manufacturer": "Gibson Federated BattleMechs, Martinson Armaments",
+    "primaryFactory": "Gibson (Gibson Federated), Terra (Martinson)",
+    "systemManufacturer": {
+      "CHASSIS": "Celestial Series MK1E",
+      "ENGINE": "DefHes 210 Light Fusion",
+      "ARMOR": "Divine Shield Light Ferro",
+      "COMMUNICATIONS": "Masterâs Voice Cel-Alpha with C3i Computer",
+      "TARGETING": "Masterâs Sight 1-Omega"
+    }
+  },
+  "mulId": 1994,
+  "role": "Striker",
+  "source": "TR:3075"
+}

@@ -1,0 +1,190 @@
+{
+  "id": "vindicator-vnd-1r-vong",
+  "chassis": "Vindicator",
+  "model": "VND-1R (Vong)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "RENAISSANCE",
+  "year": 3020,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "Small Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ]
+  },
+  "quirks": [
+    "rugged_1",
+    "difficult_eject"
+  ],
+  "fluff": {
+    "overview": "The Vindicator is one of the most well-known Capellan Confederation BattleMechs. This workhorse of the CCAF was built in 2826 between the First and Second Succession War to maximize the effectiveness of the Confederation's surviving production capabilities and fulfill as many roles as possible.",
+    "capabilities": "The 'Mech has a top speed of only 64.8 km/h, which allows it to keep up with most heavy 'Mechs and some slower medium 'Mechs. Four jump jets give it a jumping capability of up to 120 meters that, while not up to par with the greater distances of 'Mechs like the Phoenix Hawk, allows the Vindicator the ability to outmaneuver most heavier 'Mechs, as well as making it easier to traverse rough terrain. It also carries more armor than the Phoenix Hawk with good overall coverage, particularly on its rear torso and legs, making it better protected than smaller 'Mechs. Armament for the 'Mech is adequate though its primary weapons are unsuited for point-blank ranges, while sixteen heat sinks help keep it cool.",
+    "history": "Designed by committee, the Vindicator's \"jack-of-all-trades\" nature means it does not excel in any one role but fulfills them adequately. With almost all of its components produced on Capella, the Vindicator is also cheap, easy to mass produce, and quick to repair with a ready supply of spare parts. Unfortunately, early models of the Vindicator suffered from a design flaw wherein the head-mounted laser created a bulge in the cockpit. More than making the space cramped for tall MechWarriors, it also interfered with the ejection propulsion system, resulting in the deaths of a number of MechWarriors when their ejection seats exploded during ejection. Engineers managed to redesign the cockpit layout prior to the War of 3039, eliminating the deadly intrusion and decreasing the chance of said unfortunate malfunction. Due to its relatively lackluster design and the outrageous mark-ups on spare parts sold to out-of-state parties, the Vindicator has remained almost exclusive to the Capellan Confederation since its introduction. Even in the wake of the Fourth Succession War, with a good portion of their military complex and resources gone, the Capellan leadership continued funding production of this 'Mech and updated it with the rediscovery of lostech. Following the introduction of the Firestarter OmniMech and its spread by the Second Star League production of the Vindicator was curtailed, though the line would be partially revived with a couple of specialized variants in 3060.",
+    "deployment": "The customized Vindicator used by Major Choung Vong in the Third and Fourth Succession Wars moved the head-mounted medium laser to the arm in place of the small laser, simply to make the cockpit roomier for its brutally effective but rather rotund pilot.",
+    "manufacturer": "Refit",
+    "primaryFactory": "Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Ceresplex IV",
+      "ENGINE": "GM 180",
+      "ARMOR": "Starshield",
+      "JUMPJET": "Anderson Propulsion 30",
+      "COMMUNICATIONS": "CeresCom Model 21-Rs",
+      "TARGETING": "C-Apple Churchill"
+    }
+  },
+  "mulId": 3423,
+  "role": "Brawler",
+  "source": "TR:3039"
+}

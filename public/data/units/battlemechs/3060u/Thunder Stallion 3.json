@@ -1,0 +1,125 @@
+{
+  "id": "thunder-stallion-3",
+  "chassis": "Thunder Stallion",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 85,
+  "engine": {
+    "type": "FUSION",
+    "rating": 255
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 36,
+      "FRL": 36,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 16
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 16
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "RLL": 36,
+      "RRL": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "hag-40",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lb-20-x-ac",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo"
+    ],
+    "RIGHT_TORSO": [
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "Clan LB 20-X AC Ammo",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "cramped_cockpit"
+  ],
+  "mulId": 3226,
+  "role": "Juggernaut",
+  "source": "TR:3060"
+}

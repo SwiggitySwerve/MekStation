@@ -1,0 +1,149 @@
+{
+  "id": "goliath-gol-1h",
+  "chassis": "Goliath",
+  "model": "GOL-1H",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2652,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUSION",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 24,
+      "FRL": 24,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 13
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 13
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "RLL": 30,
+      "RRL": 30
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "LRM 10",
+      "LRM 10",
+      "Machine Gun",
+      "IS Ammo MG - Full",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "PPC",
+      "PPC",
+      "PPC",
+      "LRM 10",
+      "LRM 10",
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo LRM-10",
+      "IS Ammo LRM-10"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Goliath is based on lessons that were learned from the Scorpion.",
+    "capabilities": "The Goliath is armed with what would be considered a paltry armament for a 'Mech of its size.",
+    "history": "The Goliath is the second 'Mech built in 2652 by Brigadier Corporation. The first and most important difference is that the Goliath weighs in at 80 tons allowing it to carry a much heavier weapons payload and armor at the cost of mobility. The Goliath is used as a general assault 'Mech and until recently was not usually seen in large numbers because of the bias against quad 'Mechs prior to the 3060s. In the late 3060s the Goliath saw renewed production and renewed popularity and has since become a powerful and respected assault 'Mech. In 3143, The Corean Enterprises - MacAdams-Suharno plant on Stewart was captured by Clan Wolf, and it's GOL-6M variant production line converted to produce a Clan version of the 'Mech.",
+    "deployment": "The primary weapon is a Rand PPC. This is backed up by two Holly LRM-10 launchers. The Goliath has respectable firepower at long ranges, but when an enemy closes though the 'Mech only has two Ramsey-65 Machine Guns to rely on for defense.",
+    "manufacturer": "Brigadier Corporation, Corean Enterprises - MacAdams-Suharno",
+    "primaryFactory": "Oliver, Stewart",
+    "systemManufacturer": {
+      "CHASSIS": "Corean VIII",
+      "ENGINE": "Hermes 320",
+      "ARMOR": "StarSlab /3",
+      "COMMUNICATIONS": "Corean TransBand-J9",
+      "TARGETING": "Corean B-Tech"
+    }
+  },
+  "mulId": 1229,
+  "role": "Sniper",
+  "source": "TR:3039"
+}

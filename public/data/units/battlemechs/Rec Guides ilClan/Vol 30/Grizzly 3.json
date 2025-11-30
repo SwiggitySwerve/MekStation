@@ -1,0 +1,193 @@
+{
+  "id": "grizzly-3",
+  "chassis": "Grizzly",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 70,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERLargeLaser",
+      "CLERMediumLaser",
+      "CLERSmallLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10",
+      "CLArtemisV",
+      "CLArtemisV",
+      "Clan Ammo LRM-10 (Clan) Artemis V-capable",
+      "CLCASEII",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Grizzly is a multi-role heavy 'Mech with design elements shared with Clan Ghost Bear's two most common Omnis, the Vulture and the Gladiator. Because it lacks a specific combat emphasis, it has been plagued with the \"jack of all trades, master of none\" stigma and has never truly found a role in the Ghost Bear troops.",
+    "capabilities": "Despite problems in its designâits layers of sloped armor tend to lodge in place when destroyed, causing havoc with joints and even weapon portsâit is still used by several garrison troops. The Grizzly can jump and has a variety of weaponry that cover a wide spectrum of fighting ranges.",
+    "history": "Because it lacks a specific combat emphasis, it has been plagued with the \"jack of all trades, master of none\" stigma and has never truly found a role in the Ghost Bear troops.Â With reports of atrocities in the Rasalhague Republic during the current Jihad, the Bear Touman has began to reconsider this out-of-production design for immediate production in order to fast augment material for their anticipated entry into conflict. The Grizzly's production ended in 3013, yet there are still a big number of the design distributed around the Ghost Bear Touman. After the Combine War in 3063 revealed that the Combine was using combat armor personnel more successfully, a recent redesign of the Grizzly was tested. In tandem with the Golem battle armor project, the Technician and Scientist Caste set out to create a 'Mech design to compliment the urban-style defensive armor. Most deployed Grizzlys are being recalled to be reconfigured as a newer, more lethal urban defence variant.",
+    "deployment": "No information on this Variant",
+    "manufacturer": "JÃ¶tunn BattleWorx",
+    "primaryFactory": "Goito",
+    "systemManufacturer": {
+      "CHASSIS": "Type 56-45C Modified Endo Steel",
+      "ARMOR": "Arcadia Compound Delta VII Standard",
+      "JUMPJET": "Clan Standard 14X Series",
+      "COMMUNICATIONS": "Garret T10B",
+      "TARGETING": "Series VI KITT"
+    }
+  },
+  "mulId": 9432,
+  "role": "Skirmisher",
+  "source": "RG30"
+}

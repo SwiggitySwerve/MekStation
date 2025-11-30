@@ -1,0 +1,153 @@
+{
+  "id": "daedalus-gtx2-militarized",
+  "chassis": "Daedalus",
+  "model": "GTX2 (Militarized)",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2801,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 19,
+      "FRL": 19,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 19,
+      "RRL": 19
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "location": "FRONT_LEFT_LEG"
+    },
+    {
+      "id": "machine-gun",
+      "location": "FRONT_LEFT_LEG"
+    },
+    {
+      "id": "machine-gun",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "machine-gun",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "prototype-rocket-launcher-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "prototype-rocket-launcher-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "prototype-rocket-launcher-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "prototype-rocket-launcher-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "IS Ammo MG - Full",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw",
+      "Chainsaw"
+    ],
+    "RIGHT_TORSO": [
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "RocketLauncher20Prototype",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe",
+      "Backhoe"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "Medium Laser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "mulId": 793,
+  "role": "Brawler",
+  "source": "His:OK"
+}

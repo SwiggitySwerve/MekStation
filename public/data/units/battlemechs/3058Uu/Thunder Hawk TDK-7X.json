@@ -1,0 +1,203 @@
+{
+  "id": "thunder-hawk-tdk-7x",
+  "chassis": "Thunder Hawk",
+  "model": "TDK-7X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2771,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 50,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "Medium Laser"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "variable_range_long",
+    "good_rep_1",
+    "difficult_maintain",
+    "command_mech"
+  ],
+  "fluff": {
+    "overview": "The Thunder Hawk, developed by Norse Technologies for the Amaris-Terran Hegemony invasion, became a staple in General Aleksandr Kerensky's forces. Surviving 'Mechs were taken into Exodus, symbolizing their significance. In the 3050s, Norse-Storm BattleMechs revived the Thunder Hawk among other Star League-era designs.",
+    "capabilities": "Dominating the Thunder Hawk's arsenal are three Norse Gauss rifles, accounting for over half its weight. These long-range weapons can incapacitate most foes with a single barrage. Ammunition is distributed throughout the torso to mitigate critical damage risks. However, its Achilles' heel lies in the extra-light Vlar fusion engine. While heavily armored, any breach in the torso significantly compromises the BattleMechâs structural integrity, rendering it inoperable.",
+    "history": "The Thunder Hawk became a hallmark of the Lyran Alliance, extensively utilized during the FedCom Civil War. Contrary to its design as a support 'Mech, Loyalists deployed it in direct combat, leveraging its heavy armor. Post-war, Archon Peter Steiner Davion allocated new Thunder Hawks to units loyal to Allied forces. Plans for export are pending until the completion of military restructuring.",
+    "deployment": "The Thunder Hawk TDK-7X, a 100-ton behemoth, epitomizes long-range combat effectiveness with its primary armament of three Gauss Rifles. These formidable weapons, distributed across its arms and torso, enable the TDK-7X to deliver devastating volleys from a distance, making it a feared sniper on the battlefield. The inclusion of additional Medium Lasers, including one in the head, bolsters its arsenal, offering more versatility in engagements. Powered by a 300 XL Engine, the Thunder Hawk strikes a balance between firepower and mobility, although its top speed of 32.4 km/h limits rapid redeployment.<p>However, the TDK-7X's reliance on a standard internal structure, while providing sturdiness, results in a higher weight and less flexibility compared to more advanced materials. Its cooling system, equipped with 10 single heat sinks, may struggle under the immense heat generated by its weaponry, particularly when the Gauss Rifles and lasers are fired simultaneously. This necessitates careful heat management by the pilot.</p><p>Despite its impressive armament, the Thunder Hawk's maintenance can be challenging, attributed partly to the intricate mechanics of its Gauss Rifles and the sophisticated targeting systems required for long-range precision. These factors, combined with the 'Mech's rarity and specialized role, make it a valuable asset on the battlefield, often reserved for command units and elite pilots who can maximize its potential.</p>",
+    "manufacturer": "Norse-Storm Technologies, Inc",
+    "primaryFactory": "Loxley",
+    "systemManufacturer": {
+      "CHASSIS": "Norse Heavy XTI-4C",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "ArcShield Heavy Type K",
+      "COMMUNICATIONS": "Tek BattleCom",
+      "TARGETING": "DLK Type Phased Array Sensor System"
+    }
+  },
+  "mulId": 3222,
+  "role": "Sniper",
+  "source": "TR:3058U"
+}

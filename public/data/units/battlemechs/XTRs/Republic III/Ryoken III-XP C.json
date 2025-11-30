@@ -1,0 +1,201 @@
+{
+  "id": "ryoken-iii-xp-c",
+  "chassis": "Ryoken III-XP",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3143,
+  "tonnage": 55,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 330
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-9",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "tsemp-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "CLATM9 (omnipod)",
+      "CLATM9 (omnipod)",
+      "CLATM9 (omnipod)",
+      "CLATM9 (omnipod)",
+      "Clan Ammo ATM-9 ER (omnipod)",
+      "Clan Ammo ATM-9 (omnipod)",
+      "Clan Ammo ATM-9 HE (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "TSM",
+      "TSM",
+      "TSM",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)",
+      "CLTargeting Computer (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Cockpit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ]
+  },
+  "fluff": {
+    "overview": "Developed during the mid-Dark Ages in the 32nd Century, the Ryoken III-XP was an experimental medium OmniMech which was first fielded by Clan Wolf.",
+    "capabilities": "Built with a mix of Inner Sphere and Clan technologies, the Ryoken III-XP is a powerful and swift design. Using a combination of a 330-rated Extra-Light Fusion Engine and Triple Strength Myomer, the 'Mech is able to achieve speeds up to 110 km/h. Perhaps the most startling innovation included in this design is the Clan Interface Armor, which allows a MechWarrior to interface with their 'Mech while being completely armored should they be forced to eject. This combination interface allows the Ryoken III pilot's a degree of control in combat, and removes the need to have a Gyro mounted in the 'Mech. This technology was thought to have been lost at the time of Ryoken III's baptism in combat by Inner Sphere powers. In addition to having its pilot encased in a power-armor interface, the Mech's hull is protected by 11.5 tons of Ferro-Lamellor Armor.",
+    "history": "Also known as the Skinwalker, it was created by the newly transplanted Clan Wolf, which had renovated a factory that had once belonged to the former Marik-Stewart Commonwealth. This 'Mech, when it was first deployed into combat, surprised many with its use of a mix of experimental and exotic technologies, the likes of which was rarely seen in Clan design before. The design was first encountered in combat in 3148, when Republic Remnant forces raided Kalidasa.",
+    "deployment": "Ideal for crippling and capturing enemy units, the C configuration's primary gun is a TSEMP Cannon. Mounted in the right arm, the Taser is backed up by six ER Medium Lasers, split in threes between the side torsos and tied into Targeting Computer. An ATM-9 Missile launcher on the left arm rounds out the configuration.",
+    "manufacturer": "Kali Yama Weapons Industries Inc.",
+    "primaryFactory": "Kalidasa",
+    "systemManufacturer": {
+      "CHASSIS": "Prototype Hybrid Chassis",
+      "ENGINE": "330 Fusion Extralight",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 7381,
+  "role": "Striker",
+  "source": "XTR:RotS 3"
+}

@@ -1,0 +1,165 @@
+{
+  "id": "reptar-ept-c-1-militiamech",
+  "chassis": "Reptar",
+  "model": "EPT-C-1 MilitiaMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3086,
+  "tonnage": 35,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 9,
+      "RIGHT_LEG": 9
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 2
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "protomech-ac-8",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      "CLProtoMechAC8",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLLightMG",
+      "Clan Light Machine Gun Ammo - Half",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLLightMG",
+      "Clan ProtoMech AC/8 Ammo",
+      "Clan ProtoMech AC/8 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "mulId": 5797,
+  "source": "Interstellar Players 3"
+}

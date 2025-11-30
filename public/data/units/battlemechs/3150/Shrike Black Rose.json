@@ -1,0 +1,184 @@
+{
+  "id": "shrike-black-rose",
+  "chassis": "Shrike",
+  "model": "'Black Rose'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3134,
+  "tonnage": 95,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 380
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 39,
+      "RIGHT_LEG": 39
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 21
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "CLERPPC",
+      "CLERPPC",
+      "CLERPPC",
+      "CLERPPC",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser",
+      "Clan Ammo LRM-10",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "command_mech",
+    "reinforced_legs"
+  ],
+  "fluff": {
+    "overview": "The Shrike's humble origins derive from Red Devil Industries' Onager, which was clearly inspired by the aesthetics of Olivetti's Flamberge and Eyrie.",
+    "capabilities": "Despite being heavier than its spiritual forefather, the Shrike outperforms the Onager in every way. It can outmaneuver many heavy and assault 'Mechs, and jump jets combined with a partial wing allow the Shrike to reach regions where most 'Mechs in its weight class cannot. The Shrike's armaments and targeting computer let it to remain a safe distance from its opponents, perhaps keeping the pilot safe without sacrificing accuracy, and reinforced legs promote Death From Above strikes on those who get too close. The Shrike is a command 'Mech with heavy armor, a command station, and a terrifying falcon shape.",
+    "history": "At first appearance, one might mistake the ferocious Shrike for another falcon-themed BattleMech manufactured by Olivetti Weaponry. Eagle Craft Group adopted the Onager concept and retooled it to fit the Clan Council's rejuvenation mandates and design philosophy, following in the footsteps of the Eyrie. The heavier Shrike, which debuted shortly after Olivetti's similarly fashioned Gyrfalcon, drew praise from the warrior caste when it outperformed the Onager in every category. Many Falcon fighters issued Trials of Possession for Shrikes after observing them struggle against fast, heavy 'Mechs.Â Because of its agility, thick armor, range, precision, and terrifying battlefield presence, the Shrike has quickly become a favorite among Galaxy and Cluster commanders.Â Although a few salvaged chassis have appeared on Lyran blackÂ markets, the Shrike remains a Jade Falcon asset.\nmanufacturer:Eagle Craft Group\nprimaryfactory:Erewhon\nsystemmanufacturer:CHASSIS:DSAM Endo 4\nsystemmanufacturer:ENGINE:Olivetti 380 XL\nsystemmanufacturer:ARMOR:Forging ZM15 Ferro-Fibrous\nsystemmanufacturer:JUMPJET:Grandthrust Mk 5 with Partial Wing\nsystemmanufacturer:COMMUNICATIONS:Raptor X-T Type iii\nsystemmanufacturer:TARGETING:Goshawk E-Series",
+    "deployment": "No information on this variant"
+  },
+  "mulId": 9215,
+  "source": "TR:DA"
+}

@@ -1,0 +1,183 @@
+{
+  "id": "night-gyr-x",
+  "chassis": "Night Gyr",
+  "model": "X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3074,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "rotary-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "rotary-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakLRM10 (OMNIPOD)",
+      "CLStreakLRM10 (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakLRM10 (OMNIPOD)",
+      "CLStreakLRM10 (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "CLRotaryAC5 Ammo (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Streak LRM 10 Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLMicroPulseLaser (OMNIPOD)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Night Gyr came back with Clan Jade Falcon leaders following their return to the Clan homeworlds in 3051 to elect a new ilKhan. It has become more prevalent in the Falcon touman following the Refusal War.",
+    "capabilities": "No expense was spared in the manufacture of this OmniMech that uses an XL Engine and Endo Steel to save weight. It also incorporates eleven and a half tons of Ferro-Fibrous armor. Though it is on the slow end for a Clan heavy 'Mech, the Night Gyr mounts four fixed jump jets that enable it to jump up to 120 meters in a single bound. The design was a testbed for some new technologies, including the Laser Heat Sink, which was eventually phased out due to a lack of increased performance.",
+    "history": "During the Wars of Reaving, Night Gyr's production facilities on Ironhold, would end up being destroyed in 3076.\nmanufacturer:Ironhold Gamma Complex\nprimaryfactory:Ironhold\nsystemmanufacturer:CHASSIS:JF 7 Light Endo Steel\nsystemmanufacturer:ENGINE:300 JF Extralight\nsystemmanufacturer:ARMOR:Compound JF Ferro Fibrous\nsystemmanufacturer:JUMPJET:JF Standard\nsystemmanufacturer:COMMUNICATIONS:JF 3048 Series II\nsystemmanufacturer:TARGETING:Ironhold Mk II",
+    "deployment": "No Information Available"
+  },
+  "mulId": 8400,
+  "role": "Sniper",
+  "source": "RG22"
+}

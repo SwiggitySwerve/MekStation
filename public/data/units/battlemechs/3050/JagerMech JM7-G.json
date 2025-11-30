@@ -1,0 +1,181 @@
+{
+  "id": "jagermech-jm7-g",
+  "chassis": "JagerMech",
+  "model": "JM7-G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3068,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isrotaryac2",
+      "location": "LEFT_ARM,_AMMO:90"
+    },
+    {
+      "id": "1-isrotaryac2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islbxac2",
+      "location": "LEFT_ARM,_AMMO:90"
+    },
+    {
+      "id": "1-islbxac2",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISRotaryAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISLBXAC2 Ammo",
+      "IS Rotary AC/2 Ammo",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISLBXAC2 CL Ammo",
+      "IS Rotary AC/2 Ammo",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "anti_air"
+  ],
+  "mulId": 4392,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

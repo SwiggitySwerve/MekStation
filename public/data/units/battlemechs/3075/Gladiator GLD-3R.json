@@ -1,0 +1,190 @@
+{
+  "id": "gladiator-gld-3r",
+  "chassis": "Gladiator",
+  "model": "GLD-3R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2490,
+  "tonnage": 55,
+  "engine": {
+    "type": "FUSION",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "LRM 10",
+      "LRM 10",
+      "IS Ammo LRM-10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "LRM 10",
+      "LRM 10",
+      "IS Ammo LRM-10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "cowl",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Gladiator, the first homegrown BattleMech of the Draconis Combine, was a product of intense secrecy and innovation. Developed by a dedicated division of New Samarkand Metals under the watchful eyes of the Draconis Elite Strike Teams, the GLD-1R Gladiator represented House Kurita's foray into the BattleMech era. The project, overseen by Coordinator Kozo Von Rohrs, faced numerous challenges, including resource and personnel restrictions due to its secretive nature. This resulted in a prolonged development process, with the Gladiator not reaching full production until 2468. Its design and deployment marked a significant milestone in the technological advancement of the Draconis Combine, despite initial mechanical and technical problems.",
+    "capabilities": "The GLD-4R Gladiator was known for its straightforward yet effective weapons load-out. It featured a PPC for long-range combat, complemented by twin medium lasers and an SRM 6 rack for close-quarters engagements. The Gladiator was also notable for its impressive mobility, achieving a top speed of eighty-four kilometers per hour. The addition of jump jets in the -4R model further enhanced its maneuverability, allowing it to adapt to various combat situations with agility and effectiveness.",
+    "history": "<p>The history of the Gladiator is a saga of ingenuity, perseverance, and evolving military strategy within the Draconis Combine. Initiated in 2461, following a successful raid that netted BattleMech plans, the development of the Gladiator marked the Combine's ambitious entry into the era of BattleMech technology. Coordinated by Kozo Von Rohrs and meticulously overseen by the Draconis Elite Strike Teams, the project was shrouded in secrecy, leading to the establishment of New Samarkand Armor Works for its design and production. Despite significant challenges, including mechanical and electronic instabilities that sometimes caused the Gladiator to topple over or crippled its electronic systems, the GLD-1R model was pressed into service, with continuous field upgrades attempting to address these \"minor technical difficulties.\"</p><p>The Gladiator's operational history was as tumultuous as its development. Early models, particularly the GLD-1R, were quickly pushed into service despite their flaws. The elite Second Sword of Light's failure to secure Nox in 2475, despite being equipped with refit kits, was a notable blot on the Gladiator's record. This episode and subsequent combat performances led to the design falling out of favor with Coordinator Von Rohrs and the Combine's military. While well-armed and armored, it struggled against the Terran Hegemony's larger mechs and lacked the finesse of more experienced Davion or Steiner MechWarriors. Production of the Gladiator officially ceased in 2488, giving way to the Von Rohrs as the new standard. However, the Gladiator lingered in second-line and militia services before fading into obscurity.</p><p>Despite its official retirement, the Gladiator's presence persisted across the Inner Sphere and Periphery, thanks to salvaged models and secondhand markets. Its resilience in various military capacities, even in the face of technological advancements and changing warfare dynamics, highlights its enduring legacy. The Gladiator's story is a reflection of the Draconis Combine's early struggles and eventual strides in the realm of BattleMech engineering, embodying a period of rapid technological adaptation and military innovation.</p>",
+    "deployment": "A Merryweather test bed, the 3R model replaced the large laser with twin LRM 10 racks, maintaining the speed of the 2R.",
+    "manufacturer": "Merryweather Industries",
+    "primaryFactory": "Alulua Australis",
+    "systemManufacturer": {
+      "CHASSIS": "MW240",
+      "ENGINE": "CoreTek 275",
+      "ARMOR": "Kemplar 5000",
+      "JUMPJET": "GE-2200",
+      "COMMUNICATIONS": "Fujika Multiband",
+      "TARGETING": "General systems AV-12"
+    }
+  },
+  "mulId": 1200,
+  "role": "Missile Boat",
+  "source": "TR:3075"
+}

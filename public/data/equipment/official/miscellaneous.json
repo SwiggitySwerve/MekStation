@@ -1,0 +1,376 @@
+{
+  "$schema": "../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.956Z",
+  "count": 23,
+  "items": [
+    {
+      "id": "single-heat-sink",
+      "name": "Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 2000,
+      "battleValue": 0,
+      "introductionYear": 2022,
+      "special": [
+        "Dissipates 1 heat"
+      ]
+    },
+    {
+      "id": "double-heat-sink",
+      "name": "Double Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 3,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 2567,
+      "special": [
+        "Dissipates 2 heat"
+      ]
+    },
+    {
+      "id": "clan-double-heat-sink",
+      "name": "Double Heat Sink (Clan)",
+      "category": "Heat Sink",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 2825,
+      "special": [
+        "Dissipates 2 heat"
+      ]
+    },
+    {
+      "id": "compact-heat-sink",
+      "name": "Compact Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 3000,
+      "battleValue": 0,
+      "introductionYear": 3058,
+      "special": [
+        "Dissipates 1 heat",
+        "Fits in 1 slot"
+      ]
+    },
+    {
+      "id": "laser-heat-sink",
+      "name": "Laser Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 3075,
+      "special": [
+        "Dissipates 2 heat",
+        "Bonus for energy weapons"
+      ]
+    },
+    {
+      "id": "jump-jet-light",
+      "name": "Jump Jet (Light)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 10-55 tons"
+      ]
+    },
+    {
+      "id": "jump-jet-medium",
+      "name": "Jump Jet (Medium)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 60-85 tons"
+      ]
+    },
+    {
+      "id": "jump-jet-heavy",
+      "name": "Jump Jet (Heavy)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 2,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 90-100 tons"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-light",
+      "name": "Improved Jump Jet (Light)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 10-55 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-medium",
+      "name": "Improved Jump Jet (Medium)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 60-85 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-heavy",
+      "name": "Improved Jump Jet (Heavy)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 4,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 90-100 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "partial-wing",
+      "name": "Partial Wing",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3067,
+      "special": [
+        "+1 Jump MP",
+        "+2 heat dissipation at altitude"
+      ],
+      "variableEquipmentId": "partial-wing"
+    },
+    {
+      "id": "masc",
+      "name": "MASC",
+      "category": "Movement Enhancement",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2740,
+      "special": [
+        "Double running speed for one turn",
+        "Risk of leg damage"
+      ],
+      "variableEquipmentId": "masc-is"
+    },
+    {
+      "id": "clan-masc",
+      "name": "MASC (Clan)",
+      "category": "Movement Enhancement",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2827,
+      "special": [
+        "Double running speed for one turn",
+        "Risk of leg damage"
+      ],
+      "variableEquipmentId": "masc-clan"
+    },
+    {
+      "id": "supercharger",
+      "name": "Supercharger",
+      "category": "Movement Enhancement",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3068,
+      "special": [
+        "+1 running MP",
+        "Risk of engine damage"
+      ],
+      "variableEquipmentId": "supercharger"
+    },
+    {
+      "id": "tsm",
+      "name": "Triple Strength Myomer",
+      "category": "Myomer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "+2 walking MP at 9+ heat",
+        "Double physical attack damage"
+      ],
+      "variableEquipmentId": "tsm"
+    },
+    {
+      "id": "industrial-tsm",
+      "name": "Industrial TSM",
+      "category": "Myomer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2680,
+      "special": [
+        "Improved lifting capacity"
+      ]
+    },
+    {
+      "id": "ams",
+      "name": "Anti-Missile System",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 100000,
+      "battleValue": 32,
+      "introductionYear": 2617,
+      "special": [
+        "Intercepts incoming missiles",
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "clan-ams",
+      "name": "Anti-Missile System (Clan)",
+      "category": "Defensive",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 100000,
+      "battleValue": 32,
+      "introductionYear": 2831,
+      "special": [
+        "Intercepts incoming missiles",
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "laser-ams",
+      "name": "Laser Anti-Missile System",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 225000,
+      "battleValue": 45,
+      "introductionYear": 3059,
+      "special": [
+        "Intercepts incoming missiles",
+        "No ammo required",
+        "Generates heat"
+      ]
+    },
+    {
+      "id": "clan-laser-ams",
+      "name": "Laser Anti-Missile System (Clan)",
+      "category": "Defensive",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 225000,
+      "battleValue": 45,
+      "introductionYear": 3048,
+      "special": [
+        "Intercepts incoming missiles",
+        "No ammo required",
+        "Generates heat"
+      ]
+    },
+    {
+      "id": "reactive-armor",
+      "name": "Reactive Armor",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 14,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3063,
+      "special": [
+        "Reduced damage from missiles and ballistics",
+        "Increased damage from energy"
+      ]
+    },
+    {
+      "id": "stealth-armor",
+      "name": "Stealth Armor",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 12,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3063,
+      "special": [
+        "Requires Guardian ECM",
+        "+2 to hit at medium/long range"
+      ]
+    }
+  ]
+}

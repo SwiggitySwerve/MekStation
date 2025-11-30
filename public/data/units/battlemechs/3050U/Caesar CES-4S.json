@@ -1,0 +1,188 @@
+{
+  "id": "caesar-ces-4s",
+  "chassis": "Caesar",
+  "model": "CES-4S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3064,
+  "tonnage": 70,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islargepulselaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "2-ismediumpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isheavygaussrifle",
+      "location": "RIGHT_TORSO,_AMMO:12"
+    },
+    {
+      "id": "2-isermediumlaser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "ISHeavyGauss Ammo",
+      "ISHeavyGauss Ammo",
+      "ISHeavyGauss Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISHeavyGaussRifle (Split)",
+      "ISHeavyGaussRifle (Split)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator"
+  ],
+  "fluff": {
+    "overview": "Originally a reverse engineered version of the Capellan Confederation's Cataphract intended to mask development of the Federated Commonwealth's fearsome Axman, the Caesar would turn out to be a good but not great BattleMech in its own right.",
+    "capabilities": "The Caesar was built to do as much damage to an enemy at as great a stand-off range as possible. The 'Mech therefore carries primarily long-ranged armament. The 'Mech also uses an 280-rated XL engine and sixteen double heat sinks, both of which save significant amounts of weight, in order to carry as many weapons and as much armor as possible. The 'Mech utilizes CASE to protect against ammunition explosions should an enemy be able to breach the ten and a half tons of armor that protect it.",
+    "history": "Supposedly the sole design intended to come out of Johnston Industries' then-new 'Mech lines on New Syrtis, the Caesar received notable public attention in an attempt to distract from development of the Axman. The finished 'Mech surprisingly enough proved to be a high-quality design itself. Though never attracting great sales, the Caesar would prove to be relatively popular in the Capellan March, among Lyran units on the Clan front, and with both FedCom-employed mercenaries and the Com Guards. Johnston attempted to redress its mediocre sales in the wake of the FedCom Civil War, developing two new variants intended to focus specifically on the qualities desired by the Lyran Alliance and Federated Suns. The resulting upswing in sales saw the Caesar in increasing use among those opposing the Word of Blake during the Jihad, with the LAAF in particular adopting the design almost as a means of honoring the assassinated Caesar Steiner.",
+    "deployment": "The -4S variant, that first saw use during the FedCom Civil War, is intended for close-range combat. The vulnerable XL engine has been replaced with a sturdier light fusion engine, and has been redesigned to use an endo steel internal structure. The 'Mech is armed with a heavy Gauss rifle as its primary weapon. This is backed up by a large pulse laser, two medium pulse lasers, and a pair of ER medium lasers.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Hesperus II",
+    "systemManufacturer": {
+      "CHASSIS": "Dorwinion CES Endo-Steel",
+      "ENGINE": "Defiance 280 Light",
+      "ARMOR": "Durallex Heavy with CASE",
+      "COMMUNICATIONS": "Johnston Wide Band",
+      "TARGETING": "Randar Pinpoint-HY"
+    }
+  },
+  "mulId": 458,
+  "role": "Brawler",
+  "source": "TR:3050"
+}

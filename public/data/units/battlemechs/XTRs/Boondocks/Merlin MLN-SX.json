@@ -1,0 +1,186 @@
+{
+  "id": "merlin-mln-sx",
+  "chassis": "Merlin",
+  "model": "MLN-SX",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 60,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "medium-vsp-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "bombast-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISLaserInsulator",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISLaserInsulator",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo-Composite"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Bombast Laser",
+      "Bombast Laser",
+      "Bombast Laser",
+      "ISLaserInsulator"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Merlin uses components that are all reliable and readily available, making the Merlin a durable and easy-to-repair 'Mech.",
+    "capabilities": "The 'Mech is powered by a Pitban 240 fusion engine that gives it a top speed of 64.8 km/h. The Merlin carries ten and a half tons of armor, which is a respectable amount of protection for its weight. Additionally, the Merlin carries eighteen heat sinks to handle its heavy heat load.",
+    "history": "The Merlin debuted in 3010 as a product of the rebuilt Mountain Wolf BattleMechs. The Merlin was hailed as a technological marvel at the time it was released, as it was the first completely new design to be developed in over 100 years.",
+    "deployment": "An experimental variant of the Merlin which was created by the FedSuns' Sabanillas Mining Company and developed in 3075. Created by retired FedSun Major Caleb Gruber, he used his company to produce three of these modified Merlins. Gruber had the Merlin's internal structured strengthened by installing Endo-Composite Internal Structure and switching out the Standard Pitban Fusion Engine for a Lighter version. He then added five tons of Armored Shielding to protect the 'Mech's engine and side torsos. Gruber then exchanged the original 1A's medium lasers for Blakist tech Medium VSP Lasers. He then added ancient or Retrotech Laser Insulators to help cool down the VSP lasers. Lastly, he exchanged the old PPC for a Bombast Laser. The MLN-SX also sports 14 Double heat sinks.",
+    "manufacturer": "Sabanillas Mining Company",
+    "primaryFactory": "Sabanillas",
+    "systemManufacturer": {
+      "CHASSIS": "Heavy Star QAT-4 Endo-Composite",
+      "ENGINE": "Pitban 240 Light Fusion",
+      "ARMOR": "Longanecker PlastiSteel with CASE",
+      "JUMPJET": "Pitban LFT 50",
+      "COMMUNICATIONS": "Magestrix Alpha",
+      "TARGETING": "Magestrix Gamma"
+    }
+  },
+  "mulId": 2181,
+  "role": "Juggernaut",
+  "source": "XTR:Boondocks"
+}

@@ -1,0 +1,127 @@
+{
+  "id": "scorpion-scp-1n-wendall-2",
+  "chassis": "Scorpion",
+  "model": "SCP-1N (Wendall 2)",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 385
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 16,
+      "FRL": 16,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "RLL": 21,
+      "RRL": 21
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo SRM-6",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Large Laser",
+      "Large Laser",
+      "SRM 6",
+      "SRM 6",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "fluff": {
+    "overview": "Every company has their beginnings. Many know Brigadier Corporation as one of the industrial powerhouses of the Free Worlds League. But at first, Brigadier was little more than a contract manufacturer for existing Hegemony designs. Ambitionâalong with a healthy lust for profitsâwould eventually spurn Brigadier to lunge towards manufacturing their own in-house designs, which would be boldly launched with the Scorpion: a quad BattleMech. Though Dr. Harrison, a strong proponent for quad designs, claimed that his new Scorpion would revolutionize 'Mech warfare, the Scorpion turned out to be barely more than a boondoggle. Sales were low, and few mourned the loss of the main factory on Oliver when they were destroyed in 2837.",
+    "capabilities": "The Scorpion is typically armed with a reliable one-two weapon combination. A primary large energy weapon or autocannon opens up holes, while a missile weapon usually takes advantage of any exposed weaknesses. While powerful in theory, in practice the Scorpion mounts barely more firepower than 'Mechs twenty tons lighter. With armor coverage barely better than some light 'Mechs, a badly positioned Scorpion is easy prey for better-armed BattleMechs. Combined with the bucking, bumpy ride the Scorpion has to offer, few choose to voluntarily pilot the design.",
+    "deployment": "No information on this variant\nmanufacturer:Field Refit\nprimaryfactory:Various\nsystemmanufacturer:CHASSIS:Brigadier\nsystemmode:CHASSIS:800F\nsystemmanufacturer:ENGINE:Vox\nsystemmode:ENGINE:330\nsystemmanufacturer:ARMOR:StarSlab\nsystemmode:ARMOR:/4\nsystemmanufacturer:COMMUNICATIONS:Garret\nsystemmode:COMMUNICATIONS:500A\nsystemmanufacturer:TARGETING:Garret\nsystemmode:TARGETING:GRNDTRK 9"
+  },
+  "mulId": 8276,
+  "role": "Skirmisher",
+  "source": "FM:M"
+}

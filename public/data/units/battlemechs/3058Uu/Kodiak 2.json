@@ -1,0 +1,201 @@
+{
+  "id": "kodiak-2",
+  "chassis": "Kodiak",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-20",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Clan Ultra AC/20 Ammo",
+      "Clan Ultra AC/20 Ammo",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20",
+      "CLUltraAC20"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "distracting"
+  ],
+  "fluff": {
+    "capabilities": "Though not taken to the same extreme as other Clan Totem 'Mechs, the Kodiak does epitomize the Ghost Bears' method of warfare, combining an impressive defensive platform with surprising amounts of speed and firepower. Its massive 400-rated XL Engine propels the Kodiak to a maximum speed of 64.8 km/h, while seventeen and a half tons of Compound 12A2 gives it impressive armor protection. Though it mounts an incredible amount of firepower, even the use of twenty double heat sinks cannot prevent overheating problems when they are all fired simultaneously, though most MechWarriors learn to use their weapons sparingly and love the 'Mech's ability to deliver a massive knockout punch. The Kodiak incorporates the Garret L20 as its communications system, and uses the RCA Instatrac Mark IX for targeting, however the \"claws\" mounted on both of its arms are purely aesthetic.",
+    "history": "The vast majority of Kodiaks are used by the Ghost Bears, and indeed was exclusive to them in the first years since its introduction. Of those which are found in other toumans, Clan Snow Raven has the largest share, payment for their help in relocating to the Inner Sphere, followed by Clan Goliath Scorpion and Clan Cloud Cobra. Among the Crusader Clans though, only Clan Ice Hellion fields a handful of these 'Mechs. As a interesting note, and proof of the expansion of the Kodiak, at least two of these mechs were found in a Smoke Jaguar unit on planet Asgard, during Operation Bulldog.",
+    "deployment": "A more mobile variant that first saw action during the Combine-Ghost Bear War on Richmond, the Kodiak 2 was an attempt to solve the original's heat problem and increase its mobility by mounting jump jets, enabling it to leap up to one hundred and twenty meters, in place of four medium lasers and one missile launcher.",
+    "manufacturer": "Bergan Industries",
+    "primaryFactory": "Alshain",
+    "systemManufacturer": {
+      "CHASSIS": "Bergan Version 12.6 Endo Steel",
+      "ENGINE": "400 XL",
+      "ARMOR": "Compound 12A2",
+      "COMMUNICATIONS": "Garret L20",
+      "TARGETING": "RCA Instatrac Mark IX"
+    }
+  },
+  "mulId": 1806,
+  "role": "Brawler",
+  "source": "TR:3058U"
+}

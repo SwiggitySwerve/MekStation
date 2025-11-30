@@ -1,0 +1,202 @@
+{
+  "id": "crossbow-crs-x",
+  "chassis": "Crossbow",
+  "model": "CRS-X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "AGE_OF_WAR",
+  "year": 2468,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 290
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "PRIMITIVE",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "LRM 5",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "LRM 5",
+      "LRM 5",
+      "IS Ammo LRM-5",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "obsolete",
+    "poor_target_long",
+    "prototype"
+  ],
+  "fluff": {
+    "overview": "The predecessor to Clan Steel Viper's Crossbow OmniMech, the original Crossbow first saw battlefield action for the Lyran Commonwealth in 2468. The 60-ton 'Mech is speedy for its era, capable of 86 km/h. This came at the expense of armor, however, as the Crossbow is only protected by eight tons of armor.",
+    "capabilities": "The prototype used less sophisticated components, forcing the downgrade of many weapon systems. Each arm carried a pair of LRM-5 launchers and a Medium Laser, while a single Large Laser mounted in the torso provided additional long range firepower. The Primitive Engine drove this version of the Crossbow at a top speed of 64km/h. The bulk of the engine, cockpit, and armor required engineers to devote more tonnage to armor. This would be overcome in later versions of the Crossbow",
+    "history": "The production model, the 6B, came a few years later. The heavy 'Mech was the first produced by Arcturan Arms and the third homegrown BattleMech produced in the Commonwealth. Arcturan Arms fell on hard times when the capital was relocated from Arcturus to Tharkad, forcing them to shut down the factory in 2490 after producing only a few hundred Crossbows. MacEnroe Motors bought out the financially troubled company in 2541, which shut down Crossbow production in 2550.",
+    "manufacturer": "Arcturan Arms",
+    "primaryFactory": "Arcturus",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "JUMPJET": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 5583,
+  "role": "Missile Boat",
+  "source": "XTR:Primitives II"
+}

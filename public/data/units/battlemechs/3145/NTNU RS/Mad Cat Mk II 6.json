@@ -1,0 +1,196 @@
+{
+  "id": "mad-cat-mk-ii-6",
+  "chassis": "Mad Cat Mk II",
+  "model": "6",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3139,
+  "tonnage": 90,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 27,
+      "RIGHT_ARM": 27,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 38,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC",
+      "CLERPPC",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERPPC",
+      "CLERPPC",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "HarJel III Self-Repair System",
+      "HarJel III Self-Repair System"
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "Designed to be sold to fellow Clans, this rebuild of the Timber Wolf carries thirteen tons of ferro-fibrous armor while being one of most nimble BattleMechs of its class, yet still packing serious weaponry.",
+    "capabilities": "This version carries an ER PPC in each arm, backed up by a pair of ER Medium Lasers in each side torso. Each arm, leg, and torso location is equipped with a Harjel III repair system.",
+    "history": "The Mad Cat Mk II was in development for fifteen months by the time production began in 3061. The sole rationale for the Mad Cat Mk II was to increase profits for Clan Diamond Shark after war with the Inner Sphere in the 3050s.",
+    "deployment": "Despite this, Mk II's most notable potential buyers, Clan Wolf and Clan Jade Falcon, did not purchase even a single unit, though they won some numbers in Trials. Significant numbers of Mad Cat Mk II were sold to Clan Nova Cat, and the Mech served also in Clan Ice Hellion, Clan Jade Falcon, Clan Wolf-in-Exile in addition to Diamond Shark itself. On a limited basis, Clan Diamond Shark sold unmodified Mad Cat Mk IIs to Inner Sphere factions, most notably the Draconis Combine and Federated Commonwealth, and also the Lyran Alliance bought an unknown amount of Mad Cat Mark IIs.",
+    "manufacturer": "Manufacturing Plant DSF-94",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 4",
+      "ENGINE": "Type 79 360 XL Fusion",
+      "ARMOR": "Forging ZM15 Ferro Fibrous",
+      "JUMPJET": "Grandthrust Mk. 5",
+      "COMMUNICATIONS": "MegaBand System 21",
+      "TARGETING": "Dtrac Suite 4"
+    }
+  },
+  "mulId": 6848,
+  "role": "Sniper",
+  "source": "RS:3145-NTNU"
+}

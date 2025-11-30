@@ -1,0 +1,192 @@
+{
+  "id": "dragoon-aem-05c",
+  "chassis": "Dragoon",
+  "model": "AEM-05C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3136,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 27,
+      "RIGHT_LEG": 27
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "Clan Ferro-Lamellor",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "ISAngelECMSuite",
+      "ISAngelECMSuite",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "ISCASEII",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Lamellor",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "bad_rep_clan",
+    "bad_rep_is",
+    "obsolete"
+  ],
+  "fluff": {
+    "overview": "The brainchild of Stefan Amaris, the Dragoon BattleMech was envisioned as part of Amaris's ambitious plan to create a family of \"modular\" multi-mission combat units for his Amaris Empire Armed Forces.",
+    "capabilities": "Armed with only a few, but powerful weapons found only in the 'Mech's arms. Powered by one of Nissan's 280-rated XL Fusion Engines, the 'Mech is able to achieve a modest pace of 64 km/h. Its defenses include a Guardian ECM Suite, while its armored hull is protected by 11.5 tons of Ferro-Fibrous armor.",
+    "history": "In the year following the Amaris Coup, now-Emperor Amaris would have a means to make his dream into reality, and he began swiftly issuing contracts which would lead to the creation of the Dragoon. Built by Krupp Stellar Technologies Inc. in 2771 as their second BattleMech design, the Dragoon was designed with a similar modular subsystem akin to the Mercury BattleMech. With this system, the 'Mech's maintenance loads would be eased. Its modular nature would allow repair depots and factories to be able to reconfigure the design's weapons systems and its power plant for any needed mission-specific specs. Produced in limited numbers, only the elite of Amaris's regiments and a select few of Amaris's loyal chosen would receive the design and its variants. The design would see service in the Star League Civil War, often being salvaged by the Star League Defense Force. However, after the liberation of Terra, General Kerensky would order the purging of the design and the retooling of Krupp's two Dragoon production lines. The few remaining Dragoons in service elsewhere would become extinct before the 3rd Succession War.",
+    "deployment": "The only known example piloted by Demi-Precentor Jacob Kenyon commander of the Blessed Order's revived First Division's Unending Faith III, this Dragoon variant carries an Angel ECM Suite, Improved C3 Computer, an LB-10X, Plasma Rifle, and a pair of Medium X-Pulse Lasers. It also has three jump jets for a maximum jump range of 90 meters, and is protected by fourteen and a half tons of Clan-built Ferro-Lamellor armor. Two tons of LB-X ammunition are protected by CASE II.",
+    "manufacturer": "Krupp Stellar Technologies, Inc.",
+    "primaryFactory": "Terra",
+    "systemManufacturer": {
+      "CHASSIS": "KruppTech 770",
+      "ENGINE": "Nissan 280 XL",
+      "ARMOR": "PanzerFerro Type 7F",
+      "JUMPJET": "Corwin Consolidated Model 3H",
+      "COMMUNICATIONS": "Krupp-COMM 650 with Guardian ECM",
+      "TARGETING": "KBC Hypersight Model 5"
+    }
+  },
+  "mulId": 7399,
+  "role": "Brawler",
+  "source": "TP:EE"
+}

@@ -1,0 +1,112 @@
+{
+  "id": "celerity-clr-05-x",
+  "chassis": "Celerity",
+  "model": "CLR-05-X",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 15,
+  "engine": {
+    "type": "XXL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 2,
+      "FRL": 2,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 1
+      },
+      "HEAD": 4,
+      "RLL": 2,
+      "RRL": 2
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 16,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMASC",
+      "Spikes",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDroneOperatingSystem",
+      "Supercharger",
+      "Spikes",
+      "IS Impact-Resistant",
+      "IS Impact-Resistant",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "exp_actuator"
+  ],
+  "mulId": 6710,
+  "role": "Scout",
+  "source": "TR:3145:RotS"
+}

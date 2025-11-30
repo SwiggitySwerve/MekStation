@@ -1,0 +1,208 @@
+{
+  "id": "tomahawk-ii-c",
+  "chassis": "Tomahawk II",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3088,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 41,
+      "RIGHT_LEG": 41
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "CLCASEII (omnipod)"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "CLCASEII (omnipod)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLDoubleHeatSink (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLargePulseLaser (omnipod)",
+      "CLLargePulseLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo-Composite",
+      "Clan Endo-Composite"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo-Composite",
+      "Clan Endo-Composite"
+    ]
+  },
+  "quirks": [
+    "difficult_eject"
+  ],
+  "fluff": {
+    "overview": "The Tomahawk II is an Assault OmniMech first produced by Clan Wolf in 3088. The âMech is considered to be, for its time, the superior 'Mech when compared to other contemporaries within the ranks of the Inner Sphere and Inner Sphere Clans.",
+    "capabilities": "The Tomahawk II is designed around the use of a DSAM Endo 10-Composite internal structure, which gives the design its cavernous pod capacity of 56 tons. The 'Mech is powered by a 300-Rated Starfire Extra-Light Fusion Engine, giving it a maximum speed of 54 kph. Protecting the engine and the Tomahawk II's other vitals is 19 tons of Advanced/3 standard armor, providing nearly maximum protection against enemy fire.",
+    "history": "The Tomahawk II was based on early prototypes developed during the Clan Invasion era, which were produced in limited numbers. The Tomahawk II was originally produced at the Wolves' W-7 Facilities on Weingarten until the late 3130s when the Clan undertook its migration to then exFree Worlds League space. Production of the 'Mech would resume on Keystone at Earthwerks-FWL, Incorporated. One of the Tomahawk II's most notable uses was during Clan Wolf's invasion of Tharkad in 3143. Beta Galaxy's Galaxy Commander Alaric Ward utilized a binary of Tomahawk IIs in order to demoralize Tharkard's Lyran defenders. He deployed this elite Binary of Tomahawk IIs to defeat elements of the 2nd Royals at Nagelring in July.",
+    "deployment": "Intended for the fire support role, the C Configuration carries a number of missile batteries and Pulse Laser technologies to play its role, while also providing a means of self-defense. The C Configuration sports six LRM-15 Launchers - one in each arm and two allocated to each side torso. The 'Mech's missile ammunition is found in the arms, with five tons worth of LRM munitions protected by CASE II. Backing up the 'Mech at closer ranges are three Large Pulse Lasers, each mounted in each of the 'Mech's torsos. Six additional Double Heat Sinks are provided to help manage the tremendous heat levels generated.",
+    "manufacturer": "Earthwerks-FWL, Inc.",
+    "primaryFactory": "Keystone",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 10-Composite",
+      "ENGINE": "Starfire 300 XL",
+      "ARMOR": "Advanced/3",
+      "COMMUNICATIONS": "Khan Series (Type 3a)",
+      "TARGETING": "Build 4 MadCat TTS"
+    }
+  },
+  "mulId": 6306,
+  "role": "Missile Boat",
+  "source": "TR:3145:C"
+}

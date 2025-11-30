@@ -1,0 +1,192 @@
+{
+  "id": "bandersnatch-bndr-01a-horus",
+  "chassis": "Bandersnatch",
+  "model": "BNDR-01A (Horus)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 75,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 36,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isac20",
+      "location": "LEFT_ARM,_AMMO:20"
+    },
+    {
+      "id": "1-isac20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20",
+      "ISAC20"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISAC20 Ammo",
+      "ISAC20 Ammo",
+      "ISMediumLaser",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISAC20 Ammo",
+      "ISAC20 Ammo",
+      "ISMediumLaser",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "stable",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Bandersnatch, who receives his name from the monster mentioned in Lewis Carroll's \"Wonderland\" series, is the brainchild of Felifious Bander and is built around the concept of an affordable and effective BattleMech for sale to mercenary units.",
+    "capabilities": "The Bandersnatch is built using some common components with the Marauder in an attempt to make the 'Mech cheaper and easier to repair. The 'Mech has a top speed of 64.8 kph which is average for a 'Mech of its weight. The Bandersnatch also uses double heat sinks for their superior heat dissipation capabilities, allowing a heavy weapons payload to be used by the 'Mech. Finally, the Bandersnatch carries a respectable eleven tons of armor. While not the maximum amount of armor that the chassis can handle, the 'Mech is still well protected.",
+    "deployment": "A unique customized Bandersnatch which was created for ex-Nova Cat MechWarrior Horus. Equipped with Endo Steel, the 'Mech's weaponry had been almost completely refitted with the exception of the rear-firing Medium Lasers. In each arm, the 'Mech has been given a Class 20 Autocannon. It has 2 tons of CASE protected ammunition for the cannons in each side torso. For long-range firepower, it was fitted with a torso-mounted ER Large Laser.",
+    "manufacturer": "Bander BattleMechs, Kressly WarWorks",
+    "primaryFactory": "Terra Firma (Bander BattleMechs), Epsilon Eridani (Kressly WarWorks)",
+    "systemManufacturer": {
+      "CHASSIS": "Bander Custom 1",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Valiant Chainmail",
+      "COMMUNICATIONS": "Winston Mega Boozee Mark IX",
+      "TARGETING": "Winston Sidewinder"
+    }
+  },
+  "mulId": 3780,
+  "role": "Brawler",
+  "source": "RS:UM"
+}

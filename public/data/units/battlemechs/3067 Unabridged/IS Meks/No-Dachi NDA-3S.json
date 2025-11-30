@@ -1,0 +1,209 @@
+{
+  "id": "no-dachi-nda-3s",
+  "chassis": "No-Dachi",
+  "model": "NDA-3S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3081,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isguardianecm",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-mace",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-issmalllaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-issmalllaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-issmalllaser",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-ismediumvsplaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumvsplaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-issmallpulselaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "ISMediumPulseLaser",
+      "ISSmallPulseLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Mace",
+      "Mace",
+      "Mace",
+      "Mace",
+      "Mace",
+      "Mace",
+      "Mace",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumPulseLaser",
+      "ISERMediumLaser",
+      "ISSmallLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMediumPulseLaser",
+      "ISERMediumLaser",
+      "ISSmallLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISGuardianECM",
+      "ISGuardianECM"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISSmallLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator"
+  ],
+  "mulId": 5692,
+  "role": "Brawler",
+  "source": "RS:3067u"
+}

@@ -1,0 +1,221 @@
+{
+  "id": "hellspawn-hsn-7d2-halperin",
+  "chassis": "Hellspawn",
+  "model": "HSN-7D2 (Halperin)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "1-isangelecm",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "RIGHT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "LEFT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isrocketlauncher20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-is-coolant-pod",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-is-coolant-pod",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-is-coolant-pod",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISRocketLauncher20",
+      "ISRocketLauncher20",
+      "ISRocketLauncher20",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISRocketLauncher20",
+      "ISRocketLauncher20",
+      "ISRocketLauncher20",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERSmallLaser (R)",
+      "IS Coolant Pod",
+      "IS Coolant Pod",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERSmallLaser (R)",
+      "IS Coolant Pod",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISAngelECM",
+      "ISAngelECM"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The flagship design of GM's Talcott production facility, the Hellspawn was designed in response to a call from the Armed Forces of the Federated Commonwealth for a modern, highly mobile, fire-support BattleMech to compete with the older Dervish.",
+    "capabilities": "The Hellspawn is built on a GM Fury-M Endo Steel chassis that weighs half as much as a standard chassis. The Hellspawn carries a GM 270 XL engine that gives it a top speed of 97.2 km/h and also weighs half as much as a standard engine while making the 'Mech susceptible to a combat kill from a side torso loss. For protection from enemy electronic warfare equipment such as C3 or Artemis IV, the Hellspawn is equipped with a Guardian ECM Suite. To enhance the 'Mech's mobility it has six Rawlings 80 jump jets that allow the 'Mech to jump up to one hundred and eighty meters. Finally, the Hellspawn has six and a half tons of armor that is barely adequate when compared to other medium 'Mechs.",
+    "deployment": "The personal 'Mech of Crucis March Militia deserter-turned-bandit Greta Halperin, her Hellspawn introduced in 3072 had been extensively modified with experimental technologies to turn it into a deadly first strike backstabber. Both LRM launchers are swapped for two single shot Rocket Launcher 20s and each arm mounted Pulse Laser is replaced with a pair of ER Medium Lasers. The torso mounted pulse laser is dropped entirely for two rear facing ER Small Lasers, while two additional tons of armor improve the Hellspawns weak armor. Two extra heat sinks enhanced by a trio of Coolant Pods allow Halperin to Alpha Strike repeatedly until her targets are destroyed, while switching the Guardian for an advanced Angel ECM Suite prevents any chance of her high-ranked marks calling for help.",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Talcott",
+    "systemManufacturer": {
+      "CHASSIS": "GM Fury-M Endo",
+      "ENGINE": "GM 270 XL",
+      "ARMOR": "StarGuard III",
+      "COMMUNICATIONS": "Dalban SuperMicronics with Guardian ECM",
+      "TARGETING": "GME HiTrak-3"
+    }
+  },
+  "mulId": 1478,
+  "role": "Striker",
+  "source": "XTR:Pirates"
+}

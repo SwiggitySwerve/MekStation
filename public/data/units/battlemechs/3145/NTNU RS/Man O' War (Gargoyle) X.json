@@ -1,0 +1,195 @@
+{
+  "id": "man-o-war-x",
+  "chassis": "Man O' War",
+  "model": "X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3128,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 23,
+      "RIGHT_ARM": 23,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-9",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "tsemp-cannon",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "CLATM9 (OMNIPOD)",
+      "TSEMP Cannon (OMNIPOD)",
+      "TSEMP Cannon (OMNIPOD)",
+      "TSEMP Cannon (OMNIPOD)",
+      "TSEMP Cannon (OMNIPOD)",
+      "TSEMP Cannon (OMNIPOD)",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo ATM-9 HE (OMNIPOD)",
+      "Clan Ammo ATM-9 (OMNIPOD)",
+      "Clan Ammo ATM-9 ER (OMNIPOD)",
+      "CLCASEII (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLSmallPulseLaser (OMNIPOD)",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "fluff": {
+    "overview": "The Gargoyle is an extremely fast assault OmniMech developed with the Timber Wolf as replacements for the first-generation Woodsman OmniMech. The Gargoyle is therefore commonly seen among Clan Wolf, and was a featured assault OmniMech during the Clan Invasion. The Gargoyle earned the name Man O' War from the Inner Sphere forces because of its effectiveness. Along with the Timber Wolf and Naga, the Gargoyle debuted in 2945.",
+    "capabilities": "The Gargoyle T was introduced in the Dark Age. It carries an ATM-9 and TSEMP Cannon from the Inner Sphere in the left arm. The right arm carries six ER Medium Lasers while a Small Pulse Laser is in the center torso. Three tons of ammunition are provided for the ATM system.",
+    "deployment": "The Gargoyle is capable of reaching ground speeds of up to 86.4 km/h thanks to its massive 400 Model SF-3 XL Engine, accounting for over twenty percent of the 'Mech's mass. Built on a standard structure, the Gargoyle has sixteen double heat sinks in its base chassis, which can dissipate heat from most of the Gargoyle's configurations quite effectively. The Gargoyle carries eleven tons of Ferro-Fibrous armor which is light for its size, but provides protection equal to that of most heavy 'Mechs. Even the Gargoyles relatively light twenty-one and half tons of available pod space emphasizes speed; all Gargoyle configs mount weaponry almost exclusively in the arms, reducing the amount of time required to alter the weapon systems; however, with most of the weaponry placed in the arms, the Gargoyle is at the risk of being disarmed by a couple of well-placed shots.\nmanufacturer:Wolf Clan Site OZ-1, Tokasha Mechworks, Tamar HH Industriplex Alpha\nprimaryfactory:Tamar, Tokasha,  Tamar\nsystemmanufacturer:CHASSIS:Clan Series Assault SXC\nsystemmanufacturer:ENGINE:400 Model SF-3 XL\nsystemmanufacturer:ARMOR:Forging C629/j Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:Raldon R1\nsystemmanufacturer:TARGETING:Version Kappa-III TTS"
+  },
+  "mulId": 6861,
+  "role": "Skirmisher",
+  "source": "RS:3145-NTNU"
+}

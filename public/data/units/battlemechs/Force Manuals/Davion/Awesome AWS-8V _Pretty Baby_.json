@@ -1,0 +1,185 @@
+{
+  "id": "awesome-aws-8v-pretty-baby",
+  "chassis": "Awesome",
+  "model": "AWS-8V 'Pretty Baby'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "tonnage": 80,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISStreakSRM2",
+      "ISStreakSRM2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Large Laser",
+      "Large Laser",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISMediumPulseLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Streak SRM 2 Ammo",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "battle_fists_la"
+  ],
+  "fluff": {
+    "overview": "Tasked by the SLDF to replace their aging fleet of Strikers, Technicron Manufacturing would present their Awesome in 2665. Few at the time realized that the design would quickly become one of the most coveted Assault 'Mechs of the Succession Wars to come. Nearly always tasked with the heaviest attacks, the Awesome and its PPC-based armament would come to be regarded as the quintessential \"zombie\" design. Durable, reliable, and near unstoppable, officers jump at any opportunity to field the design within their commands.",
+    "capabilities": "The PPCs of most Awesomes give it intimidating firepower over long ranges. Its thick armor plating, intelligent system placement, and lack of explosive components makes disabling one a challenging task; indeed, even flaking 'Mechs will find their attempts thwarted by the Awesome's unusually heavy rear armor. Careful heat management is a must when at the helm of an Awesome. A standard \"2-3-2\" volley became the norm for most MechWarriors, giving the 'Mech the greatest damage output without compromizing its accuracy. Its slow speed and targeting trouble with the PPCs at short range does give it some weaknesses, however, and it always fares best when well supported by a larger formation.",
+    "deployment": "Highly prized and used without reservation by every power of note, the Awesome is mostly concentrated in true assault formations. The manufacturing plants on Savannah were the only factories to produce the design during the Succession Wars, leading to a much greater concentration of the 'Mech within Free Worlds League space. Certain technicians, whether faced with PPC shortages or dissatisfaction with the Awesome's heat management, would replace one or more PPCs with other weapons. The AWS-8V, a common variant, combined a single PPC with a large laser and an LRM rack. The variant would never prove to be popular, though, and would finally fall out of usage in the aftermath of the Jihad.\nsystemmanufacturer:CHASSIS:Technicron\nsystemmode:CHASSIS:Type G\nsystemmanufacturer:ENGINE:Pitban\nsystemmode:ENGINE:240\nsystemmanufacturer:ARMOR:Durallex\nsystemmode:ARMOR:Heavy Special\nsystemmanufacturer:COMMUNICATIONS:Garrett\nsystemmode:COMMUNICATIONS:T19-G\nsystemmanufacturer:TARGETING:Dynatec\nsystemmode:TARGETING:2780"
+  },
+  "role": "Sniper",
+  "source": "Force Manual: Davion"
+}

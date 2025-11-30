@@ -1,0 +1,178 @@
+{
+  "id": "pendragon-pdg-1x-muse-red",
+  "chassis": "Pendragon",
+  "model": "PDG-1X MUSE RED",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 95,
+  "engine": {
+    "type": "XL",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "COMPOSITE"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 35,
+      "RIGHT_LEG": 35
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "extended-lrm-20",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "extended-lrm-20",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "Extended LRM 20",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "PPC Capacitor",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "ISCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "IS Ammo Extended LRM-20",
+      "ISCASEII",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "mulId": 2464,
+  "role": "Missile Boat",
+  "source": "XTR:Davion"
+}

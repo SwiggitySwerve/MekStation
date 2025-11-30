@@ -1,0 +1,193 @@
+{
+  "id": "naga-ii-a",
+  "chassis": "Naga II",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2866,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-20-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLStreakSRM6 (OMNIPOD)",
+      "Clan Streak SRM 6 Ammo (OMNIPOD)",
+      "Clan LB 20-X AC Ammo (OMNIPOD)",
+      "Clan LB 20-X AC Ammo (OMNIPOD)",
+      "Clan LB 20-X Cluster Ammo (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERSmallLaser (OMNIPOD)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "bad_rep_clan"
+  ],
+  "fluff": {
+    "overview": "The Naga II is a refashioned version of the early Clan Woodsman OmniMech, developed by Clan Wolf. This model diverged from the initial Woodsman design due to technical challenges with its XL engine and endo-steel structure, which led to the creation of the Naga and eventually the Naga II. The Naga II's existence is primarily attributed to necessity, utilized when more advanced OmniMechs are not available.",
+    "capabilities": "Engineered with a focus on heavy firepower, the Naga II serves as a formidable artillery platform. Its design allows for significant weapon customization due to its ample pod space. Despite its notable firepower, the Naga II is encumbered by lighter armor compared to contemporary OmniMechs. This makes it a suitable choice for specific combat roles, particularly in scenarios requiring heavy bombardment from a distance.",
+    "history": "The Naga II saw initial use within Clan Wolfâs garrison clusters after Operation Revival. Its combat effectiveness, however, was questioned following a notable engagement in 3055, where its vulnerabilities were exposed during a raid on Icar. Despite this, conversions from Naga to Naga II continued as situational demands arose. The Exiled Wolves also utilized the Naga II, notably during conflicts like the fall of Arc-Royal, further indicating the continued, albeit limited, relevance of the Naga II in modern Clan warfare. Its deployment, while effective in certain contexts, often highlights the trade-off between its powerful offensive capabilities and its defensive shortcomings.",
+    "deployment": "The Naga II Model A, a brawler-focused Clan Omnimech, weighs 80 tons and showcases remarkable agility for its class. This model is powered by a robust 400 XL Clan Engine and constructed with Clan Endo Steel, balancing speed with durability. Its armament is carefully chosen to suit close-quarters combat, with a primary focus on delivering high-impact blows to its adversaries.<p>For its main weaponry, the Naga II A boasts a LB 20-X AC in its left arm, ideal for ballistic engagements, complemented by two ER Large Lasers in its right arm for substantial energy firepower. A Streak SRM 6 in the left torso adds to its missile capabilities, and an ER Small Laser centrally mounted enhances its precision. Heat dissipation is efficiently managed with 16 Clan Double Heat Sinks, allowing for sustained fire in prolonged battles. While its standard armor provides adequate protection, it may fall short against the heaviest mechs. The model's lack of jump jets is offset by its capacity for extensive torso twisting, granting it increased maneuverability. Stable weapon mounts are a key feature, ensuring accuracy in the heat of battle. This combination of speed, firepower, and agility makes the Naga II Model A a formidable opponent in close-range encounters.</p>",
+    "manufacturer": "Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Type BMH-7 Endo Steel",
+      "ENGINE": "Fusion 400 XL",
+      "ARMOR": "Forged Type 34 Standard",
+      "COMMUNICATIONS": "Type G3, Mk. XII",
+      "TARGETING": "Version Kappa-III TTS"
+    }
+  },
+  "mulId": 9323,
+  "role": "Brawler",
+  "source": "RG26"
+}

@@ -1,0 +1,198 @@
+{
+  "id": "nightsky-ngs-6s",
+  "chassis": "Nightsky",
+  "model": "NGS-6S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 50,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      "Hatchet",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "fluff": {
+    "overview": "The Nightsky was a mid-range continuation of the Federated Commonwealth's successful Hatchetman-Axman series, which established melee combat weapons as a powerful and heat-efficient close-combat option for the experienced MechWarrior. Intended to provide both speed and firepower.",
+    "capabilities": "The Nightsky is built around a massive Vlar 300 XL extralight engine that propels the 'Mech up to speeds of 97.2 km/h. Superb ground speed and the added maneuverability provided by six HildCo Model 13 jump jets that allow the Nightsky to jump up to 180 meters make the Nightsky a capable heavy recon 'Mech. It is also protected with nine and a half tons of armor, providing the Nightsky with good armor protection for its size.",
+    "history": "After their introduction in 3053, Nightskys quickly proliferated throughout the Federated Commonwealth, with many replacing Hatchetmen or Axmen lost in the early years of the Clan invasion. The distribution of this design had become fairly even between the two once-allied states by the time of the Lyran secession from the Commonwealth, resulting in Nightskys appearing among as many pro-Victor Davion troops as pro-Katherine Steiner forces during the FedCom Civil War.",
+    "deployment": "This modification of the Nightsky intended to make the 'Mech more durable and gave it a longer life on the battlefield. The 'Mech replaces the 300-rated XL engine with a 300 light fusion engine. The 'Mech also removes all of its ranged weaponry and replaces it with seven ER medium lasers. When combined with the hatchet, the 'Mech is a monster, both against battle armor and in an urban environment.",
+    "manufacturer": "Defiance Industries",
+    "primaryFactory": "Hesperus II",
+    "systemManufacturer": {
+      "CHASSIS": "Dorwinion Standard",
+      "ENGINE": "Vlar Light 300",
+      "ARMOR": "Kallon Royalstar",
+      "JUMPJET": "HildCo Model 13",
+      "COMMUNICATIONS": "TharHes Calliope Hm10",
+      "TARGETING": "TharHes Ares-8a"
+    }
+  },
+  "mulId": 2283,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

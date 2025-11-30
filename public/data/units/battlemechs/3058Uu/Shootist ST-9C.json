@@ -1,0 +1,188 @@
+{
+  "id": "shootist-st-9c",
+  "chassis": "Shootist",
+  "model": "ST-9C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 34,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "ISCASE",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "command_mech"
+  ],
+  "fluff": {
+    "overview": "Introduced in 2621, the Shootist emerged as a command 'Mech for the Royal BattleMech regiments of the Star League Defense Force (SLDF) within the Terran Hegemony. Initially envisioned as a leadership platform, it maintained its relevance due to its balanced blend of speed and firepower, despite being outpaced by the BattleMaster a decade later. Its prowess in delivering substantial firepower for heavy lances in close combat ensured its continued service within many Royal formations, embodying a tradition where pilots challenge the largest adversary on the battlefield.",
+    "capabilities": "Prioritizing armor protection over firepower due to its original designation as a battlefield command platform, the Shootist boasts twelve tons of ferro-fibrous armor on a standard frame, ensuring well-armored protection across all locations, although vulnerable to concentrated salvos at the rear torso. Despite the armor-centric design, the Shootistâs arsenal is noteworthy. It houses a potent Deathgiver autocannon effective at close range, but the true hallmark is the Blankenburg extended-range large laser, revered for its accuracy and damage output across varying distances. Additionally, the arsenal is complemented by two medium pulse lasers and a head-mounted small laser, showcasing early adoption of the then-newly perfected pulse technology. The Shootist's resilience is further bolstered by a standard engine and CASE (Cellular Ammunition Storage Equipment), allowing it to withstand catastrophic ammunition explosions that would incapacitate most other Star League 'Mech designs.",
+    "history": "The Shootist's narrative is a long, unfolding saga that transcends centuries, albeit in limited numbers. Even during peak production, construction rates barely offset combat attritions, and the tumultuous periods of the Succession Wars left few Shootists intact, except those secured within ComStar's repositories or Clan Brian Caches. Deployment majorly occurred within heavy and command Level IIs by ComStar and later, the Word of Blake, with some commanders employing it for personal battlefield protection. Its effectiveness when deployed in unison was acknowledged by the SLDF, but limited availability restricted such formations. Significant attrition occurred during the harsh confrontations on Tukayyid and the ensuing schism forming the Word of Blake, with violent engagements in the Chaos March further dwindling their numbers. The ongoing conflict threatens the legacy of the Shootist, with less than fifty of these formidable 'Mechs remaining in the Inner Sphere. Adaptations over time led to variant Shootists housing a C3i unit, achieved by altering the laser and heat sink configurations, while retaining or replacing the autocannon with a Gauss rifle. Notably, identical twins Adept Mathew and Simon Kincade, serving with the Fourth Division, utilized their distinctive Shootists in a masterful deception strategy, impressing Precentor Martial Cameron St. Jamais and contributing to the Word of Blake Militiaâs covert expansion, showcasing the Shootistâs enduring strategic utility amidst evolving military theatrics.",
+    "deployment": "TBuilding on the ST-8C, the ST-9C variant removes the autocannon and a heat sink to accommodate a Gauss Rifle, shifting the Shootist's role towards a support 'Mech with the new long-range weaponryâ1â.",
+    "manufacturer": "Various",
+    "primaryFactory": "Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Dennenbach-Mitchell Mark IV",
+      "ENGINE": "VOX 280",
+      "ARMOR": "MV Ferro-Fibrous with CASE",
+      "COMMUNICATIONS": "Domman Echo II",
+      "TARGETING": "Wayne Marksman"
+    }
+  },
+  "mulId": 2941,
+  "role": "Sniper",
+  "source": "TR:3058U"
+}

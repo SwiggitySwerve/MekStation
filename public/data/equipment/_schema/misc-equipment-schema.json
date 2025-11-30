@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://megamek-web.app/schemas/misc-equipment.json",
+  "title": "BattleTech Miscellaneous Equipment",
+  "description": "Schema for BattleTech miscellaneous equipment definitions (heat sinks, jump jets, etc.)",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "category",
+    "techBase",
+    "rulesLevel",
+    "weight",
+    "criticalSlots",
+    "costCBills",
+    "battleValue",
+    "introductionYear"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier for the equipment (kebab-case)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name of the equipment"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Heat Sink",
+        "Jump Jet",
+        "Movement Enhancement",
+        "Defensive",
+        "Myomer",
+        "Industrial"
+      ],
+      "description": "Equipment category"
+    },
+    "techBase": {
+      "type": "string",
+      "enum": ["INNER_SPHERE", "CLAN", "BOTH"],
+      "description": "Technology base for the equipment"
+    },
+    "rulesLevel": {
+      "type": "string",
+      "enum": ["INTRODUCTORY", "STANDARD", "ADVANCED", "EXPERIMENTAL", "UNOFFICIAL"],
+      "description": "Rules level/complexity"
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Weight in tons (0 for variable weight equipment)"
+    },
+    "criticalSlots": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of critical slots required (0 for variable)"
+    },
+    "costCBills": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Cost in C-Bills (0 for variable cost equipment)"
+    },
+    "battleValue": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Battle Value (0 for variable BV equipment)"
+    },
+    "introductionYear": {
+      "type": "integer",
+      "minimum": 1950,
+      "maximum": 3200,
+      "description": "Year the equipment was introduced"
+    },
+    "extinctionYear": {
+      "type": "integer",
+      "minimum": 1950,
+      "maximum": 3200,
+      "description": "Year the equipment became extinct (if applicable)"
+    },
+    "reintroductionYear": {
+      "type": "integer",
+      "minimum": 1950,
+      "maximum": 3200,
+      "description": "Year the equipment was reintroduced (if applicable)"
+    },
+    "special": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Special abilities or rules"
+    },
+    "variableEquipmentId": {
+      "type": "string",
+      "description": "ID for variable equipment formula lookup"
+    }
+  },
+  "additionalProperties": false
+}
+

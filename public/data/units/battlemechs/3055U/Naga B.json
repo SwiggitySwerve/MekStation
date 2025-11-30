@@ -1,0 +1,198 @@
+{
+  "id": "naga-b",
+  "chassis": "Naga",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2869,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "arrow-iv",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "arrow-iv",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLERMediumLaser (omnipod)",
+      "CLArrowIVAmmo (omnipod)",
+      "CLArrowIVAmmo (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLERMediumLaser (omnipod)",
+      "CLERSmallLaser (omnipod)",
+      "CLArrowIVAmmo (omnipod)",
+      "CLArrowIVAmmo (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "bad_rep_clan",
+    "no_arms"
+  ],
+  "fluff": {
+    "overview": "The Naga BattleMech, named for its resemblance to a mythological cobra, stands as an unusual design in a culture that values personal glory and ritual combat. Originating from Clan Wolf, the Naga was developed from a modified Woodsman chassis, equipped to carry a pair of Arrow IV launchers. Despite initial skepticism due to its focus on indirect fire support rather than direct combat, the Naga quickly demonstrated its strategic value on the battlefield.",
+    "capabilities": "The primary role of the Naga is to provide sustained artillery support while maintaining a degree of mobility. Its standard configuration emphasizes this role, equipped with six tons of missile ammunition but minimal short-range defense.",
+    "history": "First deployed in the mid-2900s, the Naga's adoption across various Clans was gradual. Its effectiveness was convincingly demonstrated during the battle for Tukayyid, where Clan Wolf's Naga-equipped artillery Stars played a pivotal role. Notably, the Nagas were instrumental in Wolfâs victory at Brzo and Skupo, significantly weakening ComStarâs Tenth Army. This success led to its wider acceptance and deployment among several other Clans, including the Hellâs Horses, Snow Ravens, Star Adders, Cloud Cobras, and in limited numbers, the Jade Falcons.",
+    "deployment": "The Naga B is a unique 80-ton Clan OmniMech, designed primarily for long-range artillery support, similar to its other series variants. It's propelled by a 400 XL (Clan) Engine and reinforced with Clan Endo Steel structure, optimizing both speed and durability.<p>This B variant of the Naga series features a dual Arrow IV missile system, positioned in the torso, for superior long-range bombardment capabilities. The Naga B, however, shifts its focus slightly more towards medium-range engagements, evidenced by its inclusion of three ER Medium Lasers alongside an ER Small Laser. This armament configuration offers the Naga B more versatility in combat, allowing it to engage effectively at various ranges. Its increased medium-range firepower makes it a formidable opponent not only in long-range artillery scenarios but also in situations where more direct confrontation is inevitable. The Naga B stands as a versatile combat unit, adept at both missile-based artillery strikes and more direct laser engagements.</p>",
+    "manufacturer": "Manufacturing Plant WA3",
+    "primaryFactory": "Arcadia",
+    "systemManufacturer": {
+      "CHASSIS": "Type BMH-7 Endo Steel",
+      "ENGINE": "Fusion 400 XL",
+      "ARMOR": "Forged Type 34 Standard",
+      "COMMUNICATIONS": "Type G3, Mk. XII",
+      "TARGETING": "ArTrack 2 TTS"
+    }
+  },
+  "mulId": 2248,
+  "role": "Missile Boat",
+  "source": "TR:3055U"
+}

@@ -1,0 +1,190 @@
+{
+  "id": "osiris-osr-3d",
+  "chassis": "Osiris",
+  "model": "OSR-3D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 30,
+  "engine": {
+    "type": "XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 11,
+      "RIGHT_LEG": 11
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "SRM 6",
+      "SRM 6",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Machine Gun",
+      "IS Machine Gun Ammo - Half",
+      "IS Ammo SRM-6",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ferro-Fibrous",
+      "IS Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "ext_twist"
+  ],
+  "fluff": {
+    "overview": "The Osiris was essentially modeled after the Clan Dragonfly and designed by the same engineers who designed the Anubis. The Osiris was designed to be a fast, hit-and-fade style offensive platform and can perform well in that capacity with its awesome speed, although it does appear to rely too heavily on its mobility to protect it from damage.",
+    "capabilities": "While the limits of Inner Sphere technology forced the designers to skimp on the specifications somewhat, the Osiris does maintain the same speed as the design it is based off of with its powerful Pharaoh 240 XL. The armor and jump capacity are sadly lacking, however, as the Osiris can only jump half as far as the Dragonfly with its four Rawlings 61 jump jets and is armored with four and a half tons of StarGuard Ferro-Fibrous.",
+    "deployment": "The Osiris' primary weapons are its five Bright Bloom ER Medium Lasers. They can dish out a lot of damage very quickly, and are perfect for a light 'Mech that may be operating far from resupply. The Harpoon-6 SRM-6 gives the 'Mech a supplementary short range punch, while the Double-Gun Machine Gun can quickly deal with unarmored infantry. Pilots do have to be very careful, however, as the 'Mech can overheat rather rapidly if it gets pushed too hard.\nmanufacturer:Achernar BattleMechs\nprimaryfactory:New Avalon\nsystemmanufacturer:CHASSIS:FITES-O\nsystemmanufacturer:ENGINE:Pharaoh 240 XL\nsystemmanufacturer:ARMOR:StarGuard Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:Achernar Electronics HID-8.7\nsystemmanufacturer:TARGETING:Federated Hunter Mk. VII"
+  },
+  "mulId": 4763,
+  "role": "Striker",
+  "source": "TR:3067"
+}

@@ -1,0 +1,188 @@
+{
+  "id": "thunderbolt-iic-2",
+  "chassis": "Thunderbolt IIC",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3088,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 15
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "small-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLSmallPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERLargePulseLaser",
+      "CLERLargePulseLaser",
+      "CLERLargePulseLaser",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "CLMediumPulseLaser",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "CLImprovedHeavyLargeLaser",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLECMSuite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "difficult_maintain",
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "The Thunderbolt IIC is a second-line heavy BattleMech that was originally developed for Clan Jade Falcon in 3085.",
+    "capabilities": "The Thunderbolt IIC is a blend of standard and Advanced Clan technology. Due to the then-experimental nature of its weaponry, its MechWarriors were required to keep detailed logs noting the equipment's performance.",
+    "history": "The design came into existence due to that Clan's need to re-purpose surplus components being produced for their Loki and Thor OmniMech designs. Using one of Olivetti Weaponry's previous Inner Sphere designs, the classic Thunderbolt, they reworked it as a replacement for second-line 'Mechs lost during the Jihad.\nmanufacturer:Olivetti Weaponry\nprimaryfactory:Sudeten\nsystemmanufacturer:CHASSIS:Olivetti TDR-II\nsystemmanufacturer:ARMOR:Forging Omni H24\nsystemmanufacturer:COMMUNICATIONS:Model J-D 067\nsystemmanufacturer:TARGETING:Hawkeye 58",
+    "deployment": "Introduced in 3088, this advanced variant of the Thunderbolt IIC is built with durability in mind. This variant's engine is downgraded to a less fragile 280 Standard Fusion, however its lost speed is compensated with the mobility of four Jump Jets. These jump Jets did cost the 'Mech two of its Double Heatsinks. Further durability is provided with the incorporation of a Heavy-Duty Gyro. Its hull is protected by 11 tons of Ferro Fibrous Armor, and an ECM Suite is included. The Thunderbolt IIC 2 is armed with an Extended Range Large Pulse Laser in its right arm, a standard Heavy Large Laser in place of the Standard's missile launcher, a trio of Medium Pulse Lasers that replaces the extended range trio, and a single Small Pulse Laser in its left arm."
+  },
+  "mulId": 5240,
+  "role": "Skirmisher",
+  "source": "Iron Wind Metals"
+}

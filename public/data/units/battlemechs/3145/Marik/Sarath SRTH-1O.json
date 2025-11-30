@@ -1,0 +1,136 @@
+{
+  "id": "sarath-srth-1o",
+  "chassis": "Sarath",
+  "model": "SRTH-1O",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3122,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 24,
+      "FRL": 24,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "RLL": 24,
+      "RRL": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "BeagleActiveProbe (omnipod)",
+      "BeagleActiveProbe (omnipod)",
+      "Spikes (omnipod)",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Heavy PPC (T) (omnipod)",
+      "Heavy PPC (T) (omnipod)",
+      "Heavy PPC (T) (omnipod)",
+      "Heavy PPC (T) (omnipod)",
+      "Light PPC (T) (omnipod)",
+      "Light PPC (T) (omnipod)",
+      "ISERMediumLaser (T) (omnipod)",
+      "ISQuadTurret",
+      "Spikes (omnipod)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser (omnipod)",
+      "Spikes (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "compact_mech",
+    "low_profile",
+    "bad_rep_is"
+  ],
+  "mulId": 6506,
+  "role": "Skirmisher",
+  "source": "TR:3145:FWL"
+}

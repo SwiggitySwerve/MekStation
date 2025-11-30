@@ -1,0 +1,225 @@
+{
+  "id": "malak-c-mk-oa-dominus",
+  "chassis": "Malak",
+  "model": "C-MK-OA Dominus",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 30,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 210
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "flamer",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERMediumLaser (omnipod)",
+      "Light Machine Gun (omnipod)",
+      "Light Machine Gun (omnipod)",
+      "Light Machine Gun (omnipod)",
+      "ISLMGA (omnipod)",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Light Machine Gun (omnipod)",
+      "Light Machine Gun (omnipod)",
+      "Light Machine Gun (omnipod)",
+      "ISLMGA (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Flamer (omnipod)",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser (omnipod)",
+      "Flamer (omnipod)",
+      "IS Light Machine Gun Ammo - Half (omnipod)",
+      "ISCASE (omnipod)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISERMediumLaser (omnipod)",
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "imp_sensors",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Malak is the lightest in the Word of Blake's Celestial series of OmniMechs designed for the Manei Domini. The Malak, Arabic for \"angel,\" features a dazzling array of new construction materials in an attempt to free up as much weight as possible in a fast and reliable package.",
+    "capabilities": "The 'Mech is protected with six tons of Light Ferro-Fibrous armor which weighs less than standard armor. To free up even more space, the 'Mech mounts an XL Gyro, and a small cockpit in addition to its Endo Steel frame. A C3i Computer allows it to sync with other Manei Domini so equipped. Nine and a half tons are left for modular equipment.",
+    "deployment": "The A configuration of this scout 'Mech uses a pair of ER Medium Lasers as its heavy weapons. Two sets of three Light Machine Guns, each linked to a Machine Gun Array, give the 'Mech the capability to devastate conventional infantry, as can the pair of torso-mounted Flamers. A single ER Small Laser rounds out the weapons array.",
+    "manufacturer": "Gibson Federated BattleMechs, Martinson Armaments",
+    "primaryFactory": "Gibson (Gibson Federated), Terra (Martinson)",
+    "systemManufacturer": {
+      "CHASSIS": "Celestial Series MK1E",
+      "ENGINE": "DefHes 210 Light Fusion",
+      "ARMOR": "Divine Shield Light Ferro",
+      "COMMUNICATIONS": "Masterâs Voice Cel-Alpha with C3i Computer",
+      "TARGETING": "Masterâs Sight 1-Omega"
+    }
+  },
+  "mulId": 1995,
+  "role": "Striker",
+  "source": "TR:3075"
+}

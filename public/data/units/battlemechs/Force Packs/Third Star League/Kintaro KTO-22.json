@@ -1,0 +1,186 @@
+{
+  "id": "kintaro-kto-22",
+  "chassis": "Kintaro",
+  "model": "KTO-22",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3100,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "srm-6",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "inarc",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLSRM6",
+      "LRM 5",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMediumXPulseLaser",
+      "ISMediumXPulseLaser",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo SRM-6 Narc-capable",
+      "IS Ammo LRM-5 Narc-capable",
+      "ISCASEII",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLSRM6",
+      "IS Ammo SRM-6 Narc-capable",
+      "ISiNarc Explosive Pods",
+      "ISiNarc Pods",
+      "ISiNarc Pods",
+      "ISCASEII",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "ISImprovedNarc",
+      "Supercharger"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      null
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "Introduced in 2587 for the SLDF, the Kintaro was designed with one sole mission: tagging enemy units with a Narc Missile Beacon. As such, it is a 'Mech that is intended to work in a team with a missile-heavy lance.",
+    "capabilities": "After it delivers its deadly package to the enemy, the Kintaro disengages and lets its lance mates do most of the work as their missiles track the signal from the beacon. The act of putting this into practice is far less simple. With a maximum speed of 86.4 km/h the Kintaro is not able to engage and disengage from enemy units as easily as its designers envisioned and because of this, if a pilot is not observant of their surroundings and the enemy, they can find themselves in a very dangerous situation.",
+    "history": "The Succession Wars saw the last known Narc factory destroyed in 2792, and the advances made during the Star League era became lostech. The loss of Narc beacons rendered the Kintaro's role unnecessary, and it became just another missile-armed 'Mech. By the Third Succession War the Kintaro was nearly extinct, but in the end was saved when General Dynamics rebuilt a Kintaro factory on Ozawa, though they could only produce the downgraded KTO-18 variant. ComStar however maintained a number of original Kintaros which they used to outfit their Com Guards. They also produced their own slightly-downgraded variant, the KTO-20, which they gifted to the Draconis Combine as part of Operation Rosebud. Concentrated among the Ghost Regiments and certain Sword of Light regiments, the superiority of these 'Mechs over their Federated Commonwealth cousins caused an overreaction during the War of 3039 as they were targeted for destruction more than necessary, leaving other units free to fight.\nmanufacturer:General Mechanics\nprimaryfactory:Mars\nsystemmanufacturer:CHASSIS:Technicron-1\nsystemmanufacturer:ENGINE:Core Tek 275\nsystemmanufacturer:ARMOR:Leopard V Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:OmniComm 3\nsystemmanufacturer:TARGETING:Starbeam 3000",
+    "deployment": "No information on this variant"
+  },
+  "role": "Skirmisher",
+  "source": "ForcePack: Third Star League"
+}

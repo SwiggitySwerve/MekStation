@@ -1,0 +1,199 @@
+{
+  "id": "nobori-nin-c",
+  "chassis": "Nobori-nin",
+  "model": "C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3049,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "ultra-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "flamer",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLUltraAC5 (omnipod)",
+      "CLUltraAC5 (omnipod)",
+      "CLUltraAC5 (omnipod)",
+      "Clan Ultra AC/5 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLStreakSRM4 (omnipod)",
+      "Clan Streak SRM 4 Ammo (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "CLERSmallLaser (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLLRM20 (omnipod)",
+      "CLFlamer (omnipod)",
+      "Clan Ammo LRM-20 (omnipod)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "fluff": {
+    "overview": "Exemplifying the OmniMech concept, the flexible Huntsman was the premier medium 'Mech of Clan Nova Cat during Operation REVIVAL.",
+    "capabilities": "No expense has been spared in the construction of this front-line OmniMech that uses an Extra-Light Engine, Endo Steel structure, and nine tons of Ferro-Fibrous armor. Five jump jets enable it to leap up to 150 meters at a time.",
+    "history": "First seen within the 119th Nova Cat Striker Cluster during the Battle of Luthien, a Draconis Combine Mustered Soldiery intelligence officer dubbed the OmniMech with the name of \"Nobori-nin\" (Japanese for \"Banner-bearer\") due to the single fin-like projection rising from the back of the 'Mech reminding him of the banner samurai worn on their backs in feudal Japan. Prized for its flexibility across a wide range of opponents and battlefield conditions, the Huntsman was almost exclusively a Nova Cat design during the initial Clan Invasion, but prior to the Word of Blake Jihad had entered service with Clans Diamond Shark, Cloud Cobra and Star Adder.",
+    "deployment": "This long-range support variant uses an LRM-20, LRM-15, and an Ultra Autocannon/5 for most of its work. An ER Medium Laser, ER Small Laser, and Streak SRM-4 handle units that get in close. A Flamer provides defense against infantry and combat vehicles.",
+    "manufacturer": "Irece Alpha, Avon Alpha, and Brim Ironworks, Clan Protectorate Arms",
+    "primaryFactory": "Irece, Avon, Brim, Asellus Australis",
+    "systemManufacturer": {
+      "CHASSIS": "Mynx Type Medium Endo Steel",
+      "ENGINE": "250 Consolidated XL Fusion",
+      "ARMOR": "Alpha Compound Ferro-Fibrous",
+      "JUMPJET": "Northrup Starlifters M50s Standard"
+    }
+  },
+  "mulId": 2291,
+  "role": "Missile Boat",
+  "source": "TR:3058U"
+}

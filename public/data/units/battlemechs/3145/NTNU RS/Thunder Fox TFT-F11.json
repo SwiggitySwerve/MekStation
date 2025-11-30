@@ -1,0 +1,117 @@
+{
+  "id": "thunder-fox-tft-f11",
+  "chassis": "Thunder Fox",
+  "model": "TFT-F11",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3119,
+  "tonnage": 55,
+  "engine": {
+    "type": "XXL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "HARDENED",
+    "allocation": {
+      "FLL": 26,
+      "FRL": 26,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 31,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "RLL": 26,
+      "RRL": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Life Support",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cockpit",
+      "Sensors",
+      "Jump Jet",
+      "ISHeadTurret"
+    ],
+    "HEAD": [
+      "Sensors",
+      "Sensors",
+      "CLERPPC (T)",
+      "CLERPPC (T)",
+      "ISTargeting Computer",
+      "ISTargeting Computer"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "mulId": 6892,
+  "role": "Sniper",
+  "source": "RS:3145-NTNU"
+}

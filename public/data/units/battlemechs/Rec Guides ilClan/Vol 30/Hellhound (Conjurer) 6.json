@@ -1,0 +1,196 @@
+{
+  "id": "hellhound-6",
+  "chassis": "Hellhound",
+  "model": "6",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 19
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERMediumPulseLaser",
+      "CLERMediumPulseLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLLRM10",
+      "Clan Ammo LRM-10",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERPPC",
+      "CLERPPC",
+      "CLERMediumLaser",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "ext_twist"
+  ],
+  "fluff": {
+    "overview": "The Conjurer (code-named the Hellhound by the Inner Sphere nations) is a fast, inexpensive medium BattleMech that excels at medium to short range.",
+    "capabilities": "Starting as befitting its status as a second-line 'Mech, most Conjurers uses a standard engine, though it is constructed on an endo steel chassis and uses eight and a half tons of ferro-fibrous armor. Its jump jets enable it to leap up to 180 meters at a time. However Clan Nova Catâs Conjurer program in the 3060s saw refits and various new builds at times only loosely based on the original. It is noteworthy that the Conjurer is, for all intents and purposes, the Wolverine IIC and was even reported as such by ComStar in early sightings, presumably for its obvious heritage; it was designed off the WVR-7H Wolverine II variant of the original Wolverine, taking the concept and rebuilding it with advanced technology in the fashion of a IIC rebuild. However the Clans would not retain the name of the Not-Named Clan for the redesigned 'Mech.",
+    "history": "Even with an established infrastructure, rebuilding a destroyed Touman for any Clan is a hard task.Â Rebuilding was a Herculean effort for the Nova Cats, whose infrastructure could barely maintain current units in the field operating, let alone replace units destroyed during the Ghost Bear-Combine battle. The Nova Cats' ongoing reliance on the Draconis Combine may not be sustainable. It harmed their self-esteem and threatened to demoralize them in the long run. If Khan Santin West and his Nova Cats were to survive as a Clan, they would have to conquer this hurdle.Â Nova Cat scientists, technicians, and Galaxy Commanders looked for a different way to restore their depleted Touman. They updated existing BattleMechs instead of replacing the massive number of lost OmniMechs. The Hellhound was the first such candidate because of its proven battle record and the implications of its moniker. Everyone agreed that retooling this 'Mech would help to shore up the Nova Cats' tattered forces.Â The Hellhound's performance profile needed to be refined to satisfy new Nova Cat warfare doctrines, which meant the Cats needed assistance from their longtime friend and ally, Clan Diamond Shark. Through the Chatterweb, Khan West contacted Shark Khan Barbara Sennet and offered three Carrack Merchant-class warships and the rights to the new Hellhound in exchange for all of the materials and components needed to create it. Khan West has asked assistance in restoring the Cats' infrastructure, including the construction of new factories on Irece and Avon. The Diamond Sharks enthusiastically agreed to the deal.",
+    "deployment": "No Information on this variant",
+    "manufacturer": "Irece Alpha",
+    "primaryFactory": "Irece",
+    "systemManufacturer": {
+      "CHASSIS": "Puma Type Medium Endo Steel",
+      "ENGINE": "Consolidated Fusion 350 XL",
+      "ARMOR": "Alpha Plate Special Ferro-Fibrous",
+      "COMMUNICATIONS": "JNE II Integrated",
+      "TARGETING": "Build 4 CAT Advanced TTS"
+    }
+  },
+  "mulId": 9429,
+  "role": "Skirmisher",
+  "source": "RG30"
+}

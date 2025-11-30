@@ -1,0 +1,196 @@
+{
+  "id": "bushwacker-bsw-x4",
+  "chassis": "Bushwacker",
+  "model": "BSW-X4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3125,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 275
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mml-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMML5",
+      "ISMML5",
+      "ISMML5",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "ISMML5",
+      "ISMML5",
+      "ISMML5",
+      "IS Ammo MML-5 LRM",
+      "IS Ammo MML-5 SRM",
+      "ISCASEII",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Originally a failed BattleMech concept designed to have a smaller forward profile, the Bushwacker would ultimately become a popular Clan Invasion era BattleMech in use within both halves of the Federated Commonwealth.",
+    "capabilities": "Under development on the cusp of the Clan Invasion, the ambitious and unorthodox design of the Bushwacker featured a low-slung and narrow upper torso to present minimal target profile to enemy units. Unfortunately this resulted in a complex and crowded internal layout, with the 'Mech's fusion engine's close proximity to the sensor and communication system resulting in electronic interference and system failures. Unable to overcome these issues, though the evaluators were impressed by the basic design and its capabilities, the 'Mech seemed destined for the scrap-heap. The Bushwacker has a top speed of 86.4 km/h and carries nine tons of armor. What the 'Mech lacks in protection it makes up for in range, using its speed to keep enemies at arm's length while using its slew of long range weaponry to slowly wear down enemies.",
+    "history": "The Bushwacker was ultimately saved by the Clan juggernaut following a successful Armed Forces of the Federated Commonwealth raid against a Clan Jade Falcon base on Twycross, FedCom forces securing a treasure trove of schematics and technical data on numerous Clan designs, including the Vulture. Though a more vertical design, the Clan OmniMech shared the same compressed volume issues, with the Clan engineers making several unusual decisions in its internal layout to alleviate the interference problem. With the TharHes engineers able to adapt the Clan solution to the Bushwacker, re-configuring its internal structure, the 'Mech was given a second lease on life. Full scale production of the corrected Bushwacker began in 3053 on Tharkad following the Truce of Tukayyid, though many FedCom units who served on the Clan frontlines received pre-production models during the initial invasion. This led to the 'Mech being most numerous on the Clan/Lyran Alliance border immediately following the succession, though by the conclusion of the FedCom Civil War the Bushwacker could be found in almost every first echelon unit in both halves of the Federated Commonwealth. For some unknown reason the Bushwacker has since become a favorite of MechWarriors in the Draconis and Capellan Marches of the Federated Suns. With TharHes Industries badly damaged during the Jihad and Word of Blake occupation of Tharkad, the company was forced to sell off the Bushwacker plans to raise much-needed capital to rebuild its production lines. Purchased by Coventry Metal Works, that company used the specs to create the Gauntlet OmniMech, with modern Bushwacker models sharing a similar frame and various other components with it, allowing both CMW and TI to reduce costs for both designs through economies of scale. Though the OmniMech was intended as an exclusively Lyran design, the Bushwacker is not so restricted and is exported outside the Commonwealth, remaining popular within the Armed Forces of the Federated Suns even during the Dark Age Era.",
+    "deployment": "Considered the export counterpart to the Gauntlet, the X4 is constructed around a similar Endo Steel frame, Light Ferro-Fibrous and MASC as the OmniMech, but a swap to 275 XL Engine allows it carry more equipment. It's primary weapon is a right arm-mounted Plasma Rifle in support of an ER Large Laser, twin Medium Lasers and paired MML 5s, the X4 carrying two tons of plasma rounds and two tons of missile reloads, normally one each of SRM and LRM.",
+    "manufacturer": "TharHes Industries",
+    "primaryFactory": "Tharkad",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerk GRF Endo",
+      "ENGINE": "Hermes 275 XL",
+      "ARMOR": "Kallon Light Ferro-Fibrous with CASE",
+      "COMMUNICATIONS": "TharHes Euterpe HM-14",
+      "TARGETING": "TharHes Ares-8a"
+    }
+  },
+  "mulId": 7454,
+  "role": "Sniper",
+  "source": "RG02"
+}

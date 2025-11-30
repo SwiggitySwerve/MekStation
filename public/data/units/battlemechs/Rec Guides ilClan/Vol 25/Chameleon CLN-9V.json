@@ -1,0 +1,196 @@
+{
+  "id": "chameleon-cln-9v",
+  "chassis": "Chameleon",
+  "model": "CLN-9V",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3120,
+  "tonnage": 50,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light PPC",
+      "Light PPC",
+      "ISERMediumLaser",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISSmallXPulseLaser",
+      "IS Machine Gun Ammo - Half",
+      "ISCASEII",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "ISSmallXPulseLaser",
+      "ISSmallXPulseLaser",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Machine Gun",
+      "Machine Gun"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_pilot",
+    "distracting"
+  ],
+  "fluff": {
+    "overview": "Since the Terran Hegemony introduced it in 2510, the Chameleon has been the premiere training BattleMech for light- and medium-BattleMech MechWarriors.",
+    "capabilities": "The Chameleon was designed to help a new MechWarrior master the skills of maneuvering and heat management, with a top speed of 97.2 km/h and a jumping distance of 180 meters. The 'Mech also had an almost all energy weapons loadout, but cooled only by 10 single heat sinks; this paucity of freezers forces MechWarriors to concentrate on the 'Mech's heat levels.",
+    "history": "In fact, with its role away from the battlefield, except in the most desperate of circumstances, the Chameleon has suffered relatively little attrition. Combined with its continuous production on Hesperus II, the Chameleon is one of the most common BattleMechs. Even in the 31st century, the Chameleon is widely used at academies and training cadres throughout the Inner Sphere. In some instances, the Chameleon had been forced into combat situations, notably during the Dragoon Civil War. Production of the Chameleon halted briefly in 3052 when Defiance Industries decided to switch its production to the Nightsky, but was quickly resumed when J.B. BattleMechs Incorporated purchased the rights to the design. J.B. BattleMechs also introduced two battleworthy variants of the Chameleon. The Chameleon is a training 'Mech, intended to simulate a variety of opponents by mounting a wide variety of weapon systems. While a medium 'Mech by design, it doesn't always look like one; it can be fitted out with extra plates to modify its appearance, and carries special electronics to falsify its signature. It is these special abilities that let it look and scan as something other than what it is, hence the machine's name.\nmanufacturer:Defiance Industries\nprimaryfactory:Hesperus II\nsystemmanufacturer:CHASSIS:Enran TXS2R Reinforced\nsystemmanufacturer:ENGINE:Edasich 300 Light\nsystemmanufacturer:ARMOR:StarSlab/4 Heavy Ferro-Fibrous with CASE II\nsystemmanufacturer:JUMPJET:McCloud Specials\nsystemmanufacturer:COMMUNICATIONS:JoLex Systems\nsystemmanufacturer:TARGETING:OptiSight-12",
+    "deployment": "No information on this variant"
+  },
+  "mulId": 9268,
+  "role": "Striker",
+  "source": "RG25"
+}

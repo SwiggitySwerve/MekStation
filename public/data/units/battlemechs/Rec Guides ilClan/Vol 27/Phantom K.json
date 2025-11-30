@@ -1,0 +1,167 @@
+{
+  "id": "phantom-k",
+  "chassis": "Phantom",
+  "model": "K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3141,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERLargeLaser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "WatchdogECMSuite (OMNIPOD)",
+      "WatchdogECMSuite (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLTargeting Computer (OMNIPOD)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_sensors"
+  ],
+  "fluff": {
+    "overview": "The Phantom was pushed into production by Khan Phelan Ward shortly before the Refusal War between Clan Wolf and Clan Jade Falcon, designed around Khan Ward's extensive experience with Inner Sphere tactics.",
+    "capabilities": "Intended to push a medium reconnaissance 'Mech to the most extreme limits, the Phantom is built on a lightweight Type-A Endo Steel chassis and is propelled to a top speed of 151.2 km/h by a Light Force 360 XL Engine. The Phantom also boasts strong protection for its size with six tons of Composite A-2 Ferro-Fibrous armor.",
+    "history": "After the Wars of Reaving, the Phantom replaced the Fire Moth Omnimech for the remaining Home Clans because of its similar role and heavier profile.\nmanufacturer:Earthwerks-FWL, Inc., Manufacturing Plant SFF-TS1\nprimaryfactory:Keystone,CSF Tsunami Mobile Production Facility\nsystemmanufacturer:CHASSIS:Type-A Endo Steel\nsystemmanufacturer:ENGINE:Light Force 360 (XL)\nsystemmanufacturer:ARMOR:Composite A-2 Ferro-Fibrous\nsystemmanufacturer:COMMUNICATIONS:Howler 79\nsystemmanufacturer:TARGETING:Model 92 âStalkerâ",
+    "deployment": "No information on this variant"
+  },
+  "mulId": 9349,
+  "role": "Sniper",
+  "source": "RG27"
+}

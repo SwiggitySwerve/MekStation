@@ -1,0 +1,190 @@
+{
+  "id": "baboon-2",
+  "chassis": "Baboon",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3063,
+  "tonnage": 20,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "atm-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "CLATM3",
+      "Clan Ammo ATM-3",
+      "Clan Ammo ATM-3"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "low_profile",
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "The Howler is a potent missile boat for its size. Meant to provide fire support to light garrison Stars.",
+    "capabilities": "It is relatively fast for a 'Mech its size, topping out at 119 km/h. Its good speed and armament is made possible by the use of an endo steel structure and three tons of ferro-fibrous armor.",
+    "history": "The Howler (or Baboon, as the Inner Sphere calls it) was first seen in Clan Jade Falcon's second-line Clusters. Once thought to be unique to that Clan, the design has now appeared among the Snow Ravens, Star Adders, and Steel Vipers.Â The Steel Vipers returned to the Clan homeworlds and restructured their touman after the Jade Falcons kicked them out of the Inner Sphere occupied zones. Aside from improvements in front-line troops, numerous second-line units gained new people and equipment. Steel Vipers addressed the needs of its heavy forces with designs like as the Matador, Scylla, the heavy laser form of the Phoenix Hawk IIC, and the upgraded version of the Viper. Lighter second-line BattleMech formations, on the other hand, lagged behind. The Viper Khans explored acceptable designs to correct this imbalance and eventually settled on the successful Baboon.",
+    "deployment": "The Howler was redesigned by Clan Steel Viper scientists to improve their light second-line units after the Clan was expelled from the Inner Sphere by Clan Jade Falcon. A smaller extralight engine provides the space for four ATM-3s along with two tons of ammunition. Though the 'Mech's running speed is reduced, it uses MASC to accelerate to 130 km/h in short bursts.",
+    "manufacturer": "Novy Minsky Armaments Plant",
+    "primaryFactory": "New Kent",
+    "systemManufacturer": {
+      "CHASSIS": "Type-A Endo Steel",
+      "ENGINE": "General Systems 120 XL",
+      "ARMOR": "Type 2 Ferro Fibrous w/CASE",
+      "COMMUNICATIONS": "Mercer 973",
+      "TARGETING": "GEG Pattern 490/1"
+    }
+  },
+  "mulId": 190,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

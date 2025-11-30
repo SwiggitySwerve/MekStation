@@ -1,0 +1,235 @@
+{
+  "id": "scarecrow-ucu-f4",
+  "chassis": "Scarecrow",
+  "model": "UCU-F4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3099,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-flamer",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-flamer",
+      "location": "HEAD"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun-array",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "b-pod",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "b-pod",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser",
+      "ISMediumPulseLaser",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLMGA",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLERMediumLaser",
+      "ISMediumPulseLaser",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLightMG",
+      "CLLMGA",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "Chameleon Light Polarization Shield"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "BloodhoundActiveProbe",
+      "BloodhoundActiveProbe",
+      "BloodhoundActiveProbe",
+      "IS Endo-Composite",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Clan Light Machine Gun Ammo - Half",
+      "ISCASEII",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "Chameleon Light Polarization Shield"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLERMediumLaser",
+      "ER Flamer",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ER Flamer",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISBPod",
+      "Chameleon Light Polarization Shield"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISBPod",
+      "Chameleon Light Polarization Shield"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is",
+    "difficult_maintain",
+    "no_arms"
+  ],
+  "mulId": 6336,
+  "role": "Brawler",
+  "source": "TR:3145:FS"
+}

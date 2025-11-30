@@ -1,0 +1,197 @@
+{
+  "id": "trebuchet-tbt-9k",
+  "chassis": "Trebuchet",
+  "model": "TBT-9K",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3059,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 17,
+      "RIGHT_LEG": 17
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismrm20",
+      "location": "LEFT_ARM,_AMMO:36"
+    },
+    {
+      "id": "1-ismrm20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isc3slaveunit",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISMRM20",
+      "ISMRM20",
+      "ISMRM20",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMRM20 Ammo",
+      "ISMRM20 Ammo",
+      "ISMRM20 Ammo",
+      "ISC3SlaveUnit",
+      "ISCASE",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "ISMRM20",
+      "ISMRM20",
+      "ISMRM20",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain"
+  ],
+  "fluff": {
+    "overview": "The Trebuchet (also jovially referred to as the Trenchbucket) is a mainline medium weight BattleMech considered to be a fine blend of long- and short-range fire support for a unit of its size.",
+    "capabilities": "Unlike many other pre-Clan 'Mechs, the Trebuchet was designed from the beginning to work as part of a lance instead of functioning as a standalone model.",
+    "history": "The Trebuchet first walked off assembly lines in 2780 for the SLDF in the final years of the Star League, between the liberation of Terra from Stefan Amaris and Aleksandr Kerensky's departure. With the onset of the Succession Wars the Trebuchet would become an almost exclusive staple of the Free Worlds League since its manufacturing site on Stewart fell within their territory. However the original TBT-3C models proved to be too difficult to repair and produce with the disappearance of advanced technology, and in 2799 Corean Enterprises went back to the drawing board to create the TBT-5N using older, mass-producible technology. The Free Worlds League Military often partnered the Trebuchet with the Archer, while lances consisting of an Archer, two Trebuchets and a Centurion became a common configuration used for siege operations and by the Regulan Hussars. However the design also found its way into the hands of the other Great Houses and served with distinction during the Succession Wars in nearly every major operation, with a number of variants created to fulfill various needs. The technological renaissance which swept through the Inner Sphere during the 3030s allowed first Kali Yama and then the Irian corporations to begin producing the Trebuchet as well, culminating in upgraded designs debuting several years prior to the Clan Invasion. As late as 3071 advanced Trebuchet variants would continue to be produced and found themselves used by new actors on the galactic stage, most notoriously the Word of Blake.",
+    "deployment": "The 9K variant of the Trebuchet is a field refit of the 7M with a distinctive Kurita feel to it. Built on an Endo Steel chassis and powered by an XL engine, the 9K replaced the LRMs for two MRM-20 launchers with three tons of ammo total. The medium lasers in the right arm are replaced with two Medium Pulse Lasers while the left arm-mounted medium laser is kept, and a C3 slave unit in the left torso allows it to share targeting telemetry with other units. The jump jets are also kept, giving it a jumping distance of one hundred and fifty meters.",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Field Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Corean-II Deluxe Endo Steel",
+      "ENGINE": "Magna 250 XL",
+      "ARMOR": "Starshield with CASE",
+      "JUMPJET": "Rawlings 50",
+      "COMMUNICATIONS": "Corean TransBand-J9",
+      "TARGETING": "Corean B-Tech"
+    }
+  },
+  "mulId": 3302,
+  "role": "Striker",
+  "source": "TR:3050"
+}

@@ -1,0 +1,180 @@
+{
+  "id": "behemoth-bhn-6h",
+  "chassis": "Behemoth",
+  "model": "BHN-6H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3004,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 200
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 14
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 14
+      },
+      "CENTER_TORSO": {
+        "front": 46,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 22
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 2
+  },
+  "equipment": [
+    {
+      "id": "ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ac-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ac-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10"
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Small Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "fluff": {
+    "overview": "The Stone Rhino was one of the most remarkable surprises sprung upon the Inner Sphere by the invading Clans. The Inner Sphere named the 'Mech Behemoth. It was apparently derived from the Matar, which was also known as \"Amaris' Folly\".",
+    "capabilities": "Though visually resembling the Matar, the Stone Rhino is ten tons lighter than \"Amaris' Folly\", marking it an assault-class 'Mech instead of a superheavy design. Despite the reduced weight it achieves a roughly similar damage output through superior Clan weaponry. Similar to its progenitor, the Stone Rhino is a fairly slow design with the addition of Jump Jets barely mitigating the mobility issues over short distances. Eighteen tons of armor provides reasonable protection until the 'Mech becomes a target of priority. Thus, despite bringing awesome firepower to the battlefield, these machines often cannot be used effectively by field commanders because they ultimately cannot afford to lose one.",
+    "history": "Developed during the Golden Century as somewhat of a passion project, the Scientist Caste of Clan Smoke Jaguar sought to prove the superiority of the Clans by turning the flawed Matar into a successful design to achieve what the Inner Sphere could not. The resulting 'Mech was christened the Stone Rhino in honor of the nearly indestructible beast native to Eden. Mainly seen in the Smoke Jaguars touman, scattered examples of the Stone Rhino do appear in other Clans even though it was produced in somewhat limited numbers. Because of these low production numbers, most Stone Rhinos in existence are ancient machines with long and storied histories of their combat actions and their quirks in the hangar. Following the fall of the Smoke Jaguars, Clan Goliath Scorpion's need for new machines to defend their captured Jaguar holdings led them to revisit the Matars original design specs. They rapidly developed a visually different and powerful \"new\" 'Mech that was immediately put into production on Tokasha while still using the Stone Rhino name. However, the Scorpions would soon need to scramble to establish new production elsewhere after Clan Hell's Horses captured their Tokasha holdings. This allowed the Horses to produce new variants, and the Horses ultimately established a production line for the 'Mech on Csesztreg following their ejection from the Clan Homeworlds.\nmanufacturer:Csesztreg Industriplex Alpha\nprimaryfactory:Csesztreg\nsystemmanufacturer:CHASSIS:Star League Monster (Standard)\nsystemmanufacturer:ENGINE:200 Standard\nsystemmanufacturer:ARMOR:Compound 12A1 Standard with CASE\nsystemmanufacturer:JUMPJET:Grandthrust Mk. 5\nsystemmanufacturer:COMMUNICATIONS:Garret L15\nsystemmanufacturer:TARGETING:RCA Instatrac Version 8a",
+    "deployment": "Assigned to Gordon Zed of the Zalman Bloodname, even downgraded with primitive Succession Wars era technology his Behemoth was a powerful 'Mech that caused mass panic and confusion whenever it took to the field with Wolf's Dragoons Alpha Regiment during the Third Succession War. Zed's Behemoth swapped the large pulse lasers for PPCs, the small pulse laser for standard model and the twin Gauss rifles for Autocannon/10s with four tons of reloads, the extra weight for this loadout and the heat sinks to make it viable is made possible by a reduction to 200-rated standard engine, greatly reducing its ground speed. Like many Dragoons, Zed and his Behemoth would fall during the brutal Battle of Misery, and though the Draconis Combine might have salvaged the 'Mech, they were never able to repair or reproduce it."
+  },
+  "mulId": 8301,
+  "role": "Juggernaut",
+  "source": "RG02"
+}

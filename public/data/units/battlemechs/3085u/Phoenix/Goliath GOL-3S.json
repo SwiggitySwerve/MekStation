@@ -1,0 +1,144 @@
+{
+  "id": "goliath-gol-3s",
+  "chassis": "Goliath",
+  "model": "GOL-3S",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 80,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 28,
+      "FRL": 28,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "RLL": 28,
+      "RRL": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-20-x-ac",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_LEFT_LEG"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "FRONT_RIGHT_LEG"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20",
+      "ISLBXAC20"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "LRM 10",
+      "LRM 10",
+      "ISArtemisIV",
+      "IS Ammo LRM-10 Artemis-capable",
+      "IS Ammo LRM-10 Artemis-capable",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLBXAC20",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Goliath is used as a general assault 'Mech and until recently was not usually seen in large numbers because of the bias against quad 'Mechs prior to the 3060s.",
+    "capabilities": "The Goliath is armed with what would be considered a paltry armament for a 'Mech of its size.",
+    "history": "The Goliath is the second 'Mech built in 2652 by Brigadier Corporation. The Goliath is based on lessons that were learned from the Scorpion. The first and most important difference is that the Goliath weighs in at 80 tons allowing it to carry a much heavier weapons payload and armor at the cost of mobility. In the late 3060s the Goliath saw renewed production and renewed popularity and has since become a powerful and respected assault 'Mech. In 3143, The Corean Enterprises - MacAdams-Suharno plant on Stewart was captured by Clan Wolf, and it's GOL-6M variant production line converted to produce a Clan version of the 'Mech.\nmanufacturer:Defiance Industries,TharHes Industries\nprimaryfactory:Hesperus II,Tharkad\nsystemmanufacturer:CHASSIS:Earthwerks GOL Quad-A\nsystemmanufacturer:ENGINE:Pitban 320 Light Fusion Engine\nsystemmanufacturer:ARMOR:Durallex Heavy with CASE\nsystemmanufacturer:COMMUNICATIONS:Angst Clear Channel 3G\nsystemmanufacturer:TARGETING:Angst Clear View Multitask",
+    "deployment": "One of the \"new generation\" of Goliaths, the 3S's engine has been upgraded to a Light Fusion Engine, and, as a result, it now carries thirteen and an half tons of armor. The entire arsenal has been stripped from the 'Mech and the 3S carries as its primary weapon an LB-X Autocannon/20. This is backed up by three ER Medium Lasers. For longer-range engagements, the Goliath carries an LRM-10 launcher with an Artemis IV fire control system as well as an ER Large Laser."
+  },
+  "mulId": 1233,
+  "role": "Missile Boat",
+  "source": "TR:3085S"
+}

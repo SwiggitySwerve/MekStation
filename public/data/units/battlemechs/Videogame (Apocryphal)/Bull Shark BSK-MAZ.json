@@ -1,0 +1,196 @@
+{
+  "id": "bull-shark-bsk-maz",
+  "chassis": "Bull Shark",
+  "model": "BSK-MAZ",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3012,
+  "tonnage": 95,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 31,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 31,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 13
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-10-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "thumper-cannon",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "Clan Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Clan Ultra AC/5 Ammo",
+      "Clan Ultra AC/5 Ammo",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannon",
+      "ISThumperCannonAmmo"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS LB 10-X AC Ammo",
+      "Clan Ultra AC/5 Ammo"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS LB 10-X Cluster Ammo",
+      "Clan Ultra AC/5 Ammo"
+    ]
+  },
+  "quirks": [
+    "distracting"
+  ],
+  "fluff": {
+    "overview": "\"I've never seen anything like this, Commander. This 'Mech oozes deadly grace and can obviously devastate anything in its path. It's... otherworldly, but clearly influenced by Star League 'tech. It has a mounted artillery piece to boot - I wonder where it came from.\" - Yang Virtanen",
+    "history": "The Bull Shark is a mysterious singular 'Mech of unknown origin and design discovered aboard an abandoned jumpship in the times of the Arano Restoration. Little clue was left as for who made it or why it was left behind, other than the ship's name - 'Dobrev' - and references to an old Terran mammal known as a wolverine. What is known is that it carries a powerful armament of ballistic weaponry and advanced 'tech that harkens back to the days of the Star League, even exceeding it somehow. Word of the discovery through black market communications and rumours brought the Black Widow Company's Natasha Kerensky to fight the legendary Bounty Hunter, the Baumann Group, and a small mercenary company in an attempt to destroy the ship and everything aboard.\nmanufacturer:Minnesota Tribe\nprimaryfactory:Dobrev",
+    "deployment": "The Bull Shark is a 95-ton Assault 'Mech described as a \"Heavy Brawler\", and is equipped to engage targets across a fairly wide range bracket with its somewhat unusual arsenal. Some of its long-range firepower comes from a Thumper Artillery Cannon that takes up most of the right torso. This is backed up by two extended range medium lasers in each torso, while each arm mounts an LB 10-X AC and an Ultra AC/5. The design features two tons of LB 10-X ammo and four tons of Ultra AC/5 ammo. Thirteen Double Heat Sinks (two in the left torso plus eleven in the engine) attempt to keep the very high heat generation of its ER medium lasers in check."
+  },
+  "source": "Videogame (Apocryphal)"
+}

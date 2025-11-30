@@ -1,0 +1,176 @@
+{
+  "id": "hammerhead-unknown",
+  "chassis": "Hammerhead",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3146,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "HARDENED",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakSRM6",
+      "CLStreakSRM6",
+      "Clan Streak SRM 6 Ammo",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAES",
+      "ISAES"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAES",
+      "ISAES"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra"
+  ],
+  "fluff": {
+    "overview": "The Hammerhead is a medium Clan BattleMech designed as a skirmisher by Clan Sea Fox.",
+    "capabilities": "Intended for close-in combat, the Hammerhead has 15 tons of hardened armor to help resist damage. Unlike most Clan Mechs, this one is intended to allow inexperienced pilots to survive their first engagements and learn from the experience. With the assistance of leg-mounted actuator enhancement systems, the 'Mech's heavy armor helps its pilot keep the 'Mech standing, further assisting newer MechWarriors.",
+    "history": "The design, which is roughly based on a hammerhead shark, is designed to be aggressive with its opponents while also being structured around the concept of never being knocked off its feet. Despite its meager weaponry, the Hammerhead has proven to be an effective shock trooper, plowing through enemy formations to combat with opponents twice its size at close range. The Hammerhead has quickly become a signature 'Mech for Clan Sea Fox and its touman, and it is also sold and exported to any interested Clan purchasers, with Clan Ghost Bear particularly fond of its strong and uncompromising attributes. In the lead-up to the ilClan era, the intensifying rivalry between Clans Jade Falcon and Wolf would result in heavy orders from both sides as they confronted the opposing Hammerhead in increasing numbers. The sole issue with the Hammerhead is that non-Sea Fox MechWarriors have reported occasional malfunctions in various systems in exported production versions. The Sea Foxes blame this to the diverging and conflicting software requirements of so many different buyers, and the issues are modest enough that they have not materially harmed Mech sales.\nmanufacturer: Manufacturing Plant SFF-IT1\nprimaryfactory: Itabaiana\nsystemmanufacturer:CHASSIS:SFAM Endo Steel\nsystemmanufacturer:ENGINE:Firebox 270 XL\nsystemmanufacturer:ARMOR:Double-Forged ZX20 Hardened\nsystemmanufacturer:COMMUNICATIONS:Comset 1\nsystemmanufacturer:TARGETING:Dtrac Suite 4",
+    "deployment": "Not heavily armed, the Mech's arsenal consists of medium and close range weapons. The main gun is a Series 44h large pulse laser, while a Series 2b ER medium laser and Type VI Streak SRM-6 allow the Mech to handle an opponent once the Hammerhead closes in to short range. The 'Mech is built on a SFAM endo steel skeleton and is powered by a Firebox 270 XL extralight engine, which gives the it enough power to support the weight of its hardened armor and still move at a top speed of 86.4 km/h."
+  },
+  "mulId": 7511,
+  "role": "Skirmisher",
+  "source": "RG05"
+}

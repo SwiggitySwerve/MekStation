@@ -1,0 +1,187 @@
+{
+  "id": "nexus-nxs1-c",
+  "chassis": "Nexus",
+  "model": "NXS1-C",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 25,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 175
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 5,
+      "RIGHT_ARM": 5,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 8,
+        "rear": 2
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "medium-re-engineered-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Re-engineered Laser",
+      "Medium Re-engineered Laser",
+      "Medium Laser",
+      "ISSmallXPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Medium Laser",
+      "ISSmallXPulseLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISAntiMissileSystem",
+      "ISAMS Ammo",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The 'Mech known as the Nexus was originally called the Jackrabbit and was built for the Star League Defense Force by Skobel MechWorks.",
+    "capabilities": "The Nexus has a top speed of 119 km/h and is powered by a Nissan 175 fusion engine which is both light and rugged. To save weight without the vulnerability of an extralight engine, the Nexus is built on a Skobel 100-ROB Endo Steel chassis. For protection, the 'Mech carries a light two tons of Krupp 200 Ferro-Fibrous armor, relying on its speed and maneuverability, which is enhanced with a jumping capability of up to one hundred and twenty meters. Finally, to handle the heat from the arsenal of energy weapons, the Nexus carries ten double heat sinks.",
+    "history": "Ironically, the Jackrabbit ended testing two weeks before Stefan Amaris seized power on Terra and was primarily used by units loyal to Amaris against the SLDF in General Kerensky's drive to liberate the Terran Hegemony. The design was later reworked on orders from Precentor Martial Anastasius Focht and renamed the Nexus.\nmanufacturer:Imperial BattleMechs\nprimaryfactory:Braunschweig\nsystemmanufacturer:CHASSIS:Imperial 1a Endo\nsystemmanufacturer:ENGINE:Antwerp 175\nsystemmanufacturer:ARMOR:Compound Rho Special Reflective\nsystemmanufacturer:COMMUNICATIONS:CGS-Comm-1a\nsystemmanufacturer:TARGETING:CGS-TTS-VIIa",
+    "deployment": "Unknown"
+  },
+  "mulId": 8412,
+  "role": "Striker",
+  "source": "RG23"
+}

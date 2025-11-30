@@ -1,0 +1,188 @@
+{
+  "id": "templar-iii-tlr2-o",
+  "chassis": "Templar III",
+  "model": "TLR2-O",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3100,
+  "tonnage": 85,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 28,
+      "RIGHT_ARM": 28,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 36,
+      "RIGHT_LEG": 36
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERPPC (OMNIPOD)",
+      "ISERMediumLaser (OMNIPOD)"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISTargeting Computer (OMNIPOD)",
+      "ISTargeting Computer (OMNIPOD)",
+      "ISTargeting Computer (OMNIPOD)",
+      "ISTargeting Computer (OMNIPOD)",
+      "ISTargeting Computer (OMNIPOD)",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "SRM 4 (OMNIPOD)",
+      "IS Ammo SRM-4 (OMNIPOD)",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser (OMNIPOD)",
+      "ISERSmallLaser (OMNIPOD)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "fluff": {
+    "overview": "The Templar III is a Dark Age era Assault Class OmniMech, first produced by General Motors for the Federated Suns. It was intended as a replacement for the original Templar, whose factory lines were destroyed during the Jihad. General Motors established a new production line on New Valencia for what was to become the next generation of the Templar with newer technologies.",
+    "capabilities": "Like its predecessor, the Templar III is typically utilized as a Command 'Mech by AFFS forces. With its alternate configurations the 'Mech is able to handle various combat situations thanks to access to Advanced equipment.",
+    "history": "Among the most noticeable differences when comparing the original Templar to the Templar III is its smaller Pod Capacity. The new 'Mech has a 29 ton Pod capacity in comparison to the old Templar's 40 tons. However, the 'Mech's heavier Light Engine provides improved durability while retaining the original design's maximum speed and armor protection.\nmanufacturer:General Motors\nprimaryfactory:New Valencia\nsystemmanufacturer:CHASSIS:Kallon Type XX Endo Steel\nsystemmanufacturer:ENGINE:GM 340 Light\nsystemmanufacturer:ARMOR:StarGuard CIV\nsystemmanufacturer:COMMUNICATIONS:Newberg Telescan 17\nsystemmanufacturer:TARGETING:Spar 3C MegaTrak",
+    "deployment": "The Prime Configuration of the Templar III is not unlike the older WHM-8D Warhammer's weapons load-out. The Configuration is armed with that older design's ER PPCs, Extended-Ranged Medium and Small Lasers, while having a single 4-Tubed Short-Range Missile Launcher instead of the 6-Tubed Launcher. All of its energy weapons are tied together with a Targeting Computer and cooled down by four additional Double Heat Sinks. The launcher ammunition is protected by the Templar III"
+  },
+  "mulId": 6353,
+  "role": "Brawler",
+  "source": "TR:3145:FS"
+}

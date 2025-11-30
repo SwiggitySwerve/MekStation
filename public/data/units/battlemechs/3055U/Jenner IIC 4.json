@@ -1,0 +1,185 @@
+{
+  "id": "jenner-iic-4",
+  "chassis": "Jenner IIC",
+  "model": "4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 35,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 13,
+        "rear": 7
+      },
+      "HEAD": 7,
+      "LEFT_LEG": 8,
+      "RIGHT_LEG": 8
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "atm-3",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "atm-3",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLATM3",
+      "CLATM3",
+      "Clan Ammo ATM-3",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLATM3",
+      "CLATM3",
+      "Clan Ammo ATM-3",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Clan Streak SRM 4 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLStreakSRM4"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "no_arms"
+  ],
+  "fluff": {
+    "overview": "This fast second-line striker BattleMech is still a fast light that is now capable of delivering plenty of short-range missiles.",
+    "capabilities": "To achieve this, it uses an XL Engine, Endo Steel structure, and mounts only three and a half tons of Ferro-Fibrous armor. It also carries enough jump jets to leap up to 210 meters at a time. This results in an expensive garrison 'Mech, but one that is still in production nonetheless. Unique among the IIC models, the Jenner IIC changes the leg mechanism found on the original design. While the original Jenner, despite otherwise sharing design characteristics common in Marauder-descended reverse articulated 'Mechs, had standard forward articulated legs, the IIC model has reverse articulated legs similar to those on the Stormcrow.",
+    "history": "The Jenner was first fielded in September 2784, the same year the Exodus fleet that would eventually become the Clans left the Inner Sphere in November. How exactly they acquired this design in that short timeframe is not known, but what is known is that the Clan version fields Clan weaponry, so it is known as the Jenner IIC.",
+    "deployment": "Clan Nova Cat, the primary users of the Jenner IIC, created this variant after they moved to the Inner Sphere. Though it changes the appearance of the 'Mech, the actual specifications of the design changed little. It retains the Streak SRM-4, but replaced the standard missile launchers with a pair of ATM 3s, each of which is accompanied by a ton of ammunition.",
+    "manufacturer": "Irece Alpha",
+    "primaryFactory": "Irece",
+    "systemManufacturer": {
+      "CHASSIS": "Type D-SA Modified Endo-Steel",
+      "ENGINE": "Series V Fusion 315 XL",
+      "ARMOR": "Epsilon Compound 31 Ferro-Fibrous",
+      "JUMPJET": "Clan Type 2 Light",
+      "COMMUNICATIONS": "NCO System 7",
+      "TARGETING": "Build 1 HLF TTS"
+    }
+  },
+  "mulId": 1701,
+  "role": "Striker",
+  "source": "TR:3055U"
+}

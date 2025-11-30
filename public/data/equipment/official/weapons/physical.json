@@ -1,0 +1,181 @@
+{
+  "$schema": "../_schema/physical-weapon-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.921Z",
+  "count": 9,
+  "items": [
+    {
+      "id": "hatchet",
+      "type": "Hatchet",
+      "name": "Hatchet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 15,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 5,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": true,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 2515
+    },
+    {
+      "id": "sword",
+      "type": "Sword",
+      "name": "Sword",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 15,
+      "damageFormula": "tonnage_divisor_plus",
+      "damageDivisor": 10,
+      "damageBonus": 1,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": true,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3058
+    },
+    {
+      "id": "claws",
+      "type": "Claws",
+      "name": "Claws",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 15,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 7,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": false,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3060
+    },
+    {
+      "id": "mace",
+      "type": "Mace",
+      "name": "Mace",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 10,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 4,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": true,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3061
+    },
+    {
+      "id": "lance",
+      "type": "Lance",
+      "name": "Lance",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 20,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 5,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": true,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3064
+    },
+    {
+      "id": "talons",
+      "type": "Talons",
+      "name": "Talons",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 15,
+      "damageFormula": "tonnage_divisor_plus",
+      "damageDivisor": 5,
+      "damageBonus": 0,
+      "criticalSlots": 0,
+      "requiresLowerArm": false,
+      "requiresHand": false,
+      "validLocations": [
+        "Left Leg",
+        "Right Leg"
+      ],
+      "introductionYear": 3072
+    },
+    {
+      "id": "retractable-blade",
+      "type": "Retractable Blade",
+      "name": "Retractable Blade",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 20,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 10,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": false,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3069
+    },
+    {
+      "id": "flail",
+      "type": "Flail",
+      "name": "Flail",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 10,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 4,
+      "criticalSlots": 0,
+      "requiresLowerArm": true,
+      "requiresHand": true,
+      "validLocations": [
+        "Left Arm",
+        "Right Arm"
+      ],
+      "introductionYear": 3064
+    },
+    {
+      "id": "wrecking-ball",
+      "type": "Wrecking Ball",
+      "name": "Wrecking Ball",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weightFormula": "tonnage_divisor",
+      "tonnageDivisor": 10,
+      "damageFormula": "tonnage_divisor",
+      "damageDivisor": 5,
+      "criticalSlots": 0,
+      "requiresLowerArm": false,
+      "requiresHand": false,
+      "validLocations": [
+        "Left Torso",
+        "Right Torso"
+      ],
+      "introductionYear": 3054
+    }
+  ]
+}

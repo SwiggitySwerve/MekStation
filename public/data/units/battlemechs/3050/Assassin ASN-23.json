@@ -1,0 +1,202 @@
+{
+  "id": "assassin-asn-23",
+  "chassis": "Assassin",
+  "model": "ASN-23",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 40,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumpulselaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_TORSO,_AMMO:24"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumPulseLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISLRM5",
+      "ISArtemisIV",
+      "ISLRM5 Ammo Artemis-capable",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "cramped_cockpit",
+    "non_standard",
+    "poor_life_support"
+  ],
+  "fluff": {
+    "overview": "Many military finance experts outside the Star League saw the Assassin as more of a political pork project than a powerful fighting machine, yet it turned out to be a strong 'Mech in combat against light lances.",
+    "capabilities": "The Assassin was able to destroy these lighter 'Mechs due to its good speed and maneuverability, good armor coverage (in comparison to the 'Mechs it was built to battle against), and strong weaponry.Â The weapons of the 'Mech is essentially comprised of three systems: the long-range missile rack, the short-range missile rack, and the arm-mounted Martell midrange laser. The design is limited in durability unless assigned supply units for support because it can only carry a total of seventy-four salvos for both launchers. The most significant disadvantage for most pilots is the incredibly tight cockpitâone of the most confined cockpit designs in the Inner Sphere.",
+    "history": "Maltex has changed the cockpit cooling system dozens of times over the Assassin's four hundred year service history in a bid to provide extra elbow room, but none of the attempts have been effective. As a result, most pilots experience a tight, painful ride that limits in-cockpit time to half that of most other conventional designs; many ex-Assassin pilots have established a history of back issues that will bother them for the rest of their lives. The ammo feed system for the short-range missile rack was the only other issue with the Assassin (mostly those made up to 2815). It commonly failed during high-heat settings due to chronic jamming and could only be repaired through total disassembly in a mechanical bay. Under significant corporate pressure, Holly ultimately introduced a new feed system in 2815 and even paid several years of recall repairs; nonetheless, there are still a huge number of individually owned Assassins that may still mount the problematic system. Maltex produced only a few hundred ASN-21s after their launch. Due to a lack of spare parts, those Assassins in service were utilized sparingly, however House Marik enthusiastically used the 'Mech late in the Third Succession War. When a rush of new BattleMech types entered the markets after 3058, the Assassin was nearly phased out of service. Those that have stayed in service are usually family heirlooms with some modifications.",
+    "deployment": "The -23 variant of the Assassin is an upgrade of the original model using lostech; originally seen as a standardized field modification, in 3067 new production began at Hellespont 'Mech Works. The SRM-2 has been removed to upgrade the medium laser to a medium pulse laser, typically the \"readily available\" Magna 400P, and an Artemis IV fire control system has been added for the LRM-5 launcher. Within the CCAF, TDF, and MAF it is largely used as a cheap way to rebuild shattered forces and sees service mostly in green and reserve formations. The Capellans in particular use the -23 as a fire-support unit for pursuit and strike lances, though shortages of Artemis munitions means many are forced to use mine-delivery missiles.",
+    "manufacturer": "Hellespont 'Mech Works",
+    "primaryFactory": "Sian",
+    "systemManufacturer": {
+      "CHASSIS": "Hellespont Type A 40 series",
+      "ENGINE": "VOX 280",
+      "ARMOR": "100 AFVTA",
+      "JUMPJET": "Lox Lift Series 1",
+      "COMMUNICATIONS": "Garret T15 B",
+      "TARGETING": "Garret 500S"
+    }
+  },
+  "mulId": 128,
+  "role": "Striker",
+  "source": "TR:3050"
+}

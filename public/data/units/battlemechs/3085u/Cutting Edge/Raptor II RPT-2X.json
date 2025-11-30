@@ -1,0 +1,170 @@
+{
+  "id": "raptor-ii-rpt-2x",
+  "chassis": "Raptor II",
+  "model": "RPT-2X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mech-taser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Mek Void Signature System",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Mek Taser",
+      "Mek Taser",
+      "Mek Taser",
+      "Taser Ammo",
+      "Taser Ammo",
+      "Mek Void Signature System",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumVariableSpeedLaser",
+      "ISMediumVariableSpeedLaser",
+      "ISMASC",
+      "ISMASC",
+      "Mek Void Signature System",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumVariableSpeedLaser",
+      "ISMediumVariableSpeedLaser",
+      "Mek Void Signature System",
+      "ISCASE",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Mek Void Signature System",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Void Signature System",
+      "Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Mek Void Signature System",
+      "Endo Steel"
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "no_eject"
+  ],
+  "mulId": 2657,
+  "role": "Scout",
+  "source": "TR:3085"
+}

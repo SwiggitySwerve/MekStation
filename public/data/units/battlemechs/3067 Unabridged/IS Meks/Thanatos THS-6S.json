@@ -1,0 +1,193 @@
+{
+  "id": "thanatos-tns-6s",
+  "chassis": "Thanatos",
+  "model": "TNS-6S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3081,
+  "tonnage": 75,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 13
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 29,
+      "RIGHT_LEG": 29
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "1-isc3slaveunit",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_ARM,_AMMO:48"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islrm5",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isheavyppc",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "ISHeavyPPC",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISLRM5",
+      "ISLRM5",
+      "ISLRM5",
+      "ISLRM5 Ammo",
+      "ISLRM5 Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISERMediumLaser",
+      "ISMediumLaser",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet",
+      "ISERMediumLaser",
+      "ISMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISImprovedJump Jet",
+      "ISImprovedJump Jet"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "mulId": 5701,
+  "role": "Skirmisher",
+  "source": "RS:3067u"
+}

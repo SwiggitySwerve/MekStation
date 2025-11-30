@@ -1,0 +1,199 @@
+{
+  "id": "jagermech-jm6-h",
+  "chassis": "JagerMech",
+  "model": "JM6-H",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3064,
+  "tonnage": 65,
+  "engine": {
+    "type": "FUSION",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islbxac2",
+      "location": "RIGHT_ARM,_AMMO:45"
+    },
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islbxac2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-islargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "3-isrocketlauncher15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "3-isrocketlauncher15",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLBXAC2",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISLBXAC2 CL Ammo",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "ISRocketLauncher15",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "anti_air"
+  ],
+  "mulId": 1669,
+  "role": "Brawler",
+  "source": "TR:3050"
+}

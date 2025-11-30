@@ -1,0 +1,186 @@
+{
+  "id": "grand-dragon-drg-5k-emory",
+  "chassis": "Grand Dragon",
+  "model": "DRG-5K (Emory)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "RENAISSANCE",
+  "year": 3039,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 15
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser-prototype",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERLargeLaserPrototype",
+      "ISERLargeLaserPrototype",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "IS Ammo LRM-15",
+      "IS Ammo LRM-15",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "ISDoubleHeatSinkPrototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Steel Prototype",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Steel Prototype",
+      "IS Endo-Steel Prototype"
+    ]
+  },
+  "quirks": [
+    "ext_twist",
+    "low_profile",
+    "stable"
+  ],
+  "fluff": {
+    "overview": "The Grand Dragon is the successful follow-up to the Dragon BattleMech.",
+    "capabilities": "Protected by ten tons of armor, the Grand Dragon uses thirteen double heat sinks for excellent heat management and uses a 16.5 ton Hermes 360 XL engine to achieve a moderate cruising speed of 64 km/h. Originally the Grand Dragon used the same Alshain Type 56-60H chassis as was found in the Dragon 'Mech it replaced. However, when the new Nykvarn plant was being set up an innovative engineering team came up with a way to increase the Grand Dragon's rotation from 250Â° to 300Â° by using an alternative assembly method for the hip and torso structure. This improvement was responsible for Nykvarn being awarded the honor of restarting Grand Dragon production, with all new Grand Dragons using this Nykvarn Type 58-66SH chassis",
+    "history": "The 'Mech was originally a simple variant of the Dragon with some modifications, chiefly replacing the autocannon with a particle projection cannon, introduced around the end of the Fourth Succession War. In 3040 this DRG-1G variant was turned into a production model, with several of the Dragon's production lines turned over to building Grand Dragons. As it reached Draconis Combine Mustered Soldiery units the Grand Dragon became well-liked for its all-around effectiveness in terms of speed, heat management and weaponry. Luthien Armor Works went ahead with phasing in the Grand Dragon, retooling their Dragon factories on Luthien, Saffel, Yorii and Dieron to build the new 'Mechs exclusively, by 3055 all Dragon production had ceased in favor of the Grand Dragon. Just like the Dragon, the Grand Dragon quickly became a favorite in the DCMS, with nearly every line unit fielding a company of either design. Production of the Grand Dragon continued unabated until the Jihad, when the Word of Blake devastated LAW's factories in 3068. It took two years for LAW to get new Grand Dragon factories up and running, the first on Nykvarn followed by Abiy Adi and Savinsville, and ensure the continued use of the 'Mech in years to come.",
+    "deployment": "Unknown",
+    "manufacturer": "Refit",
+    "primaryFactory": "Refit",
+    "systemManufacturer": {
+      "CHASSIS": "Nykvarn Type 58-66SH",
+      "ENGINE": "Hermes 360 XL",
+      "ARMOR": "Starshield with CASE",
+      "COMMUNICATIONS": "Sipher CommSys 3",
+      "TARGETING": "Eagle Eye SY10-10"
+    }
+  },
+  "mulId": 1259,
+  "role": "Skirmisher",
+  "source": "SB:S&D"
+}

@@ -1,0 +1,196 @@
+{
+  "id": "vulture-prime",
+  "chassis": "Vulture",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2963,
+  "tonnage": 60,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 23,
+      "RIGHT_LEG": 23
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLLargePulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "Clan Ammo LRM-20 (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "Clan Ammo LRM-20 (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_target_med"
+  ],
+  "fluff": {
+    "overview": "The Mad Dog is a heavy Clan OmniMech used for long-range indirect fire support. With hunched shoulders, a protruding head, and reverse-jointed legs, the Mad Dog resembles a vulture, so much so that it was codenamed Vulture and Hagetaka (\"Vulture\" in Japanese) by the Inner Sphere forces which first encountered it.",
+    "capabilities": "For its fire support purposes, the Mad Dog is armed with twin shoulder-mounted LRM-20 missile racks, which allow the 'Mech to inflict heavy damage on any opponent it may target. The Mad Dog is also more than capable of going on the offensive, mounting dual large and medium-sized pulse lasers, one of each on each arm. Mad Dog pilots have been known for showering missiles on opponents before swooping down with a finishing blow from the lasers, much like a vulture swooping down for carrion. In the case that the Mad Dog must retreat or face down heavier opponents, it can adequately do such as well, as the pulse lasers it mounts are much more accurate than standard lasers, allowing it to move and fire at the same time. This allows it to stall opponents and slowly back into a more defensible position, although overheating may become an issue.",
+    "history": "The Mad Dog was designed by Clan Smoke Jaguar as a second generation OmniMech based on the original heavy OmniMech Lupus of Clan Coyote. The Mad Dog also used some of the same moulds of the Clan Wolf Timber Wolf OmniMech. However, despite using some of the same moulds (which might be viewed as high praise), the Mad Dog was named as a slur to the Lupus and Timber Wolf, and to Clans Wolf and Coyote. Because of its widespread production, most Clans maintain a large number of Mad Dogs in their toumans.",
+    "deployment": "The name also fit the battlefield role of the Mad Dog; to act as a support 'Mech, and it often holds a hill maintaining constant watch over the entire battlefield, like a vulture waiting for its prey. With its ample firepower and decent speed of 86.4 km/h, it makes a highly mobile firing platform, and as such has spread to near ubiquity among the forces deployed by the Clans, although the design is favored more by Clan Ghost Bear MechWarriors. The Mad Dog carries eight and a half tons of Ferro-Fibrous armor for decent protection, although it will not be able to stand up to heavy fire.",
+    "manufacturer": "Various,Svarstaad Industriplex Beta",
+    "primaryFactory": "Various,Svarstaad",
+    "systemManufacturer": {
+      "CHASSIS": "Eden Mk 60-OM",
+      "ENGINE": "300 Type I XL",
+      "ARMOR": "Compound SJ6CW Ferro-Fibrous",
+      "COMMUNICATIONS": "Build OSJ-41",
+      "TARGETING": "Catâs Eye MD6"
+    }
+  },
+  "mulId": 3473,
+  "role": "Missile Boat",
+  "source": "TR:3050"
+}

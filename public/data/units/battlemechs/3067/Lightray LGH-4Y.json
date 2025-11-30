@@ -1,0 +1,189 @@
+{
+  "id": "lightray-lgh-4y",
+  "chassis": "Lightray",
+  "model": "LGH-4Y",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3064,
+  "tonnage": 55,
+  "engine": {
+    "type": "XL",
+    "rating": 385
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 18,
+      "RIGHT_ARM": 18,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-islargepulselaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "2-issrm2",
+      "location": "RIGHT_TORSO,_AMMO:50"
+    },
+    {
+      "id": "2-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isersmalllaser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargePulseLaser",
+      "ISLargePulseLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSRM2",
+      "ISSRM2",
+      "ISSRM2 Ammo",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERSmallLaser",
+      "Endo-Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "bad_rep_is",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Lightray was designed by Martinson Armaments to be a heavy scout 'Mech and was put into production in 3064.",
+    "capabilities": "The Lightray is built on a lightweight Geometric 33B Endo Steel chassis to help maximize the available weight for weapons and equipment and features a gigantic LTV 385 XL engine, the largest that can possibly be carried by a 'Mech its size. The engine allows the scout 'Mech to outpace most other medium designs with a top speed of 118 kilometers per hour, though it lacks the added maneuverability that could be provided by jump jets. The Lightray carries ten and a half tons of Strasbourg Armaments Type 4 Ferro-Fibrous armor, giving the 'Mech a great deal of protection.",
+    "deployment": "This design was actually the original Lightray produced in 3064, designed before the Word of Blake ROM stole the Targeting Computer technology from House Davion. Instead of the TC, it used two SRM-2 packs and had a ton of ammunition.",
+    "manufacturer": "Martinson Armaments",
+    "primaryFactory": "Australia, Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Geometric 33B Endo Steel",
+      "ENGINE": "LTV 385 XL",
+      "ARMOR": "Strasbourg Armaments Type 4 Ferro-Fibrous",
+      "COMMUNICATIONS": "Blow 107 Net (Improved)",
+      "TARGETING": "Scope 3580 with Targeting Computer"
+    }
+  },
+  "mulId": 4520,
+  "role": "Skirmisher",
+  "source": "TR:3067"
+}

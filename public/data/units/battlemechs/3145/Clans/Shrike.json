@@ -1,0 +1,195 @@
+{
+  "id": "shrike-unknown",
+  "chassis": "Shrike",
+  "model": "Unknown",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3113,
+  "tonnage": 95,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 380
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 44,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 39,
+      "RIGHT_LEG": 39
+    }
+  },
+  "heatSinks": {
+    "type": "LASER",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "ultra-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-10",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "CLUltraAC5",
+      "Clan Ultra AC/5 Ammo",
+      "Clan Ultra AC/5 Ammo",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "CLTargeting Computer",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERLargeLaser",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLPartialWing",
+      "CLPartialWing",
+      "CLPartialWing",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERLargeLaser",
+      "Clan Ammo LRM-10",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM10",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "distracting",
+    "reinforced_legs"
+  ],
+  "fluff": {
+    "overview": "The Shrike's humble origins derive from Red Devil Industries' Onager, which was clearly inspired by the aesthetics of Olivetti's Flamberge and Eyrie.",
+    "capabilities": "Despite being heavier than its spiritual forefather, the Shrike outperforms the Onager in every way. It can outmaneuver many heavy and assault 'Mechs, and jump jets combined with a partial wing allow the Shrike to reach regions where most 'Mechs in its weight class cannot. The Shrike's armaments and targeting computer let it to remain a safe distance from its opponents, perhaps keeping the pilot safe without sacrificing accuracy, and reinforced legs promote Death From Above strikes on those who get too close. The Shrike is a command 'Mech with heavy armor, a command station, and a terrifying falcon shape.",
+    "history": "At first appearance, one might mistake the ferocious Shrike for another falcon-themed BattleMech manufactured by Olivetti Weaponry. Eagle Craft Group adopted the Onager concept and retooled it to fit the Clan Council's rejuvenation mandates and design philosophy, following in the footsteps of the Eyrie. The heavier Shrike, which debuted shortly after Olivetti's similarly fashioned Gyrfalcon, drew praise from the warrior caste when it outperformed the Onager in every category. Many Falcon fighters issued Trials of Possession for Shrikes after observing them struggle against fast, heavy 'Mechs.Â Because of its agility, thick armor, range, precision, and terrifying battlefield presence, the Shrike has quickly become a favorite among Galaxy and Cluster commanders.Â Although a few salvaged chassis have appeared on Lyran blackÂ markets, the Shrike remains a Jade Falcon asset.",
+    "deployment": "The Shrike is outfitted with a powerful Targeting Computer that allows it to bring accurate firepower to bear on the battlefield. It has a hard-hitting armament that gives the 'Mech a powerful sting in combat at most ranges. A Type X \"Long Bow\" LRM-10-rack allows pilots to engage enemies at long range, and two Type 9 Ultra Autocannon/5s are effective against even other assault-class 'Mechs. Lastly, two Series 2b ER Large Lasers provide a fairly powerful punch should the other weapon systems deplete their ammunition.",
+    "manufacturer": "Eagle Craft Group",
+    "primaryFactory": "Erewhon",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 4",
+      "ENGINE": "Olivetti 380 XL",
+      "ARMOR": "Forging ZM15 Ferro-Fibrous",
+      "JUMPJET": "Grandthrust Mk 5 with Partial Wing",
+      "COMMUNICATIONS": "Raptor X-T Type iii",
+      "TARGETING": "Goshawk E-Series"
+    }
+  },
+  "mulId": 6292,
+  "role": "Sniper",
+  "source": "TR:3145:C"
+}

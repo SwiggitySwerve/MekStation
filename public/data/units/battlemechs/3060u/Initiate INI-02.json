@@ -1,0 +1,205 @@
+{
+  "id": "initiate-ini-02",
+  "chassis": "Initiate",
+  "model": "INI-02",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "tonnage": 40,
+  "engine": {
+    "type": "FUSION",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Medium Laser",
+      "Medium Laser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      "ISERSmallLaser",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "LRM 15",
+      "LRM 15",
+      "LRM 15",
+      "ISAntiMissileSystem",
+      "ISAMS Ammo",
+      "IS Ammo LRM-15",
+      "ISCASE",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "SRM 6",
+      "SRM 6",
+      "IS Ammo SRM-6"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Initiate is a reliable trooper 'Mech that is capable of filling a variety of roles on the modern battlefield.",
+    "capabilities": "It is built on a Geometric 1000 Endo Steel chassis to save weight and is powered by a LTV 160 fusion engine that gives it a top speed of 64.8 km/h. For protection from enemy fire, the Initiate carries eight and a half tons of armor that allows the 'Mech to stand up to fire from most other 'Mechs of the same weight class or lower, and enjoys increased durability because of its CASE system that protects against ammunition explosions.",
+    "history": "The Initiate started production after the Word of Blake retook Terra. This medium 'Mech has been produced in record numbers by the Word of Blake with no shortage of pilots.",
+    "deployment": "The Initiate has a diverse weapons mix that allows it to engage an enemy at a variety of ranges. For long-range combat, the Initiate has an Irian Weapons Works V7 LRM-15 launcher that gives the Initiate the ability to strike at an enemy at long ranges as well as giving an indirect fire capability to the 'Mech. For medium range combat, the Initiate has two Irian Weapons Works Super 6 Medium Lasers and an Irian Weapons Works 60mm SRM-6 launcher. For close ranges, the 'Mech has three Diverse Optics Type ER Small Lasers. Finally, to protect against missile attacks, the 'Mech has a McArthur Anti-Missile System.",
+    "manufacturer": "Martinson Armaments",
+    "primaryFactory": "Australia, Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Geometric 1000 Endo Steel",
+      "ENGINE": "LTV 160",
+      "ARMOR": "Strasbourg Armaments Type 3",
+      "COMMUNICATIONS": "Blow 55 Net",
+      "TARGETING": "Scope 2000"
+    }
+  },
+  "mulId": 1620,
+  "role": "Brawler",
+  "source": "TR:3060"
+}

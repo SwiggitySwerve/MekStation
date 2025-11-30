@@ -1,0 +1,182 @@
+{
+  "id": "malice-mal-yz",
+  "chassis": "Malice",
+  "model": "MAL-YZ",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3142,
+  "tonnage": 100,
+  "engine": {
+    "type": "XXL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 12
+      },
+      "CENTER_TORSO": {
+        "front": 42,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 41,
+      "RIGHT_LEG": 41
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "clan-tag",
+      "location": "HEAD"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-pulse-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "laser-ams",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "laser-ams",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLLaserAntiMissileSystem",
+      "CLModularArmor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLargePulseLaser",
+      "CLLargePulseLaser",
+      "CLLaserAntiMissileSystem",
+      "CLModularArmor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "CLERLargeLaser",
+      "RemoteSensorDispenser",
+      "Clan Coolant Pod",
+      "CLModularArmor",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "CLERLargeLaser",
+      "RemoteSensorDispenser",
+      "Clan Coolant Pod",
+      "CLModularArmor",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Gyro (armored)",
+      "Gyro (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "Fusion Engine (armored)",
+      "CLAngelECMSuite",
+      "CLAngelECMSuite",
+      "ISC3SlaveUnit",
+      "CLModularArmor"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLTAG",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip (armored)",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLModularArmor",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip (armored)",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLModularArmor",
+      null
+    ]
+  },
+  "mulId": 6727,
+  "role": "Sniper",
+  "source": "TR:3145:RotS"
+}

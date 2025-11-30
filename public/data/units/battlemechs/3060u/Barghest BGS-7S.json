@@ -1,0 +1,156 @@
+{
+  "id": "barghest-bgs-7s",
+  "chassis": "Barghest",
+  "model": "BGS-7S",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3074,
+  "tonnage": 70,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "FLL": 30,
+      "FRL": 30,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 32,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "RLL": 30,
+      "RRL": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-vsp",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-7",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "light-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-vsp",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-flamer",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISMML7",
+      "ISArtemisIV",
+      "ISMediumVariableSpeedLaser",
+      "ISMediumVariableSpeedLaser",
+      "Light PPC",
+      "Light PPC"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumVariableSpeedLaser",
+      "ISMediumVariableSpeedLaser",
+      "Light PPC",
+      "Light PPC",
+      "IS Ammo MML-7 LRM Artemis-capable",
+      "IS Ammo MML-7 SRM Artemis-capable",
+      "ISCASE",
+      "Light Ferro-Fibrous",
+      "Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser (R)",
+      "Light Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ER Flamer",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "directional_torso_mount"
+  ],
+  "fluff": {
+    "overview": "During her reign over the Lyran Alliance, Katherine Steiner-Davion decided she wanted a four-legged BattleMech that would frighten its adversaries in the same way that the classic Atlas and Banshee designs did.",
+    "capabilities": "The Earthwerk GRF Quad chassis accommodates a Magna 350 XL engine, which saves weight and lets the 'Mech to carry a hefty weapons payload. The Barghest is shielded by thirteen tons of Durallex Heavy armor, which shields it from all but the most powerful enemy fire. The Barghest features ten double heat sinks to handle the 'Mech's heat buildup from its weaponry.",
+    "history": "Katrina Steiner, Archon of the Lyran Alliance, created this novel and distinctive design. The Archon notified Tharkad's TharHes Industries that she desired to build a new design with a horrific appearance, similar to that of the Atlas or the Banshee. She also desired a four-legged design. TharHes executives tried unsuccessfully to persuade her to abandon the quad design, which has been heavily criticized for decades.Â TharHes Industries only realized the political and military consequences of a new quad design in the Lyran Alliance Armed Forces during the final testing of the new 'Mech, when new four-legged designs debuted in the Draconis Combine and Free Worlds League militaries. The Archon dubbed the finished 'Mech Barghest after the fierce, wolf-like monsters of folklore, after seeing its animalistic elegance and power.",
+    "deployment": "Developed during the Jihad, the 7S was improved over its predecessors with Advanced Technologies. This variant is geared to provide fire support to other lancemates rather the usual assault role of the design. In place of its original weaponry, the 'Mech now has a pair of Medium Variable Speed Pulse Lasers, a pair of Light PPCs, and a single Artemis IV enhanced 7-Tubed Multi-Missile Launcher with two tons of ammunition. For close up firepower, aside from the MML the 'Mech has an Extended Range Flamer mounted in the head and a rear-firing Medium Pulse Laser.",
+    "manufacturer": "Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerk BGS Quad",
+      "ENGINE": "Magna 350 XL",
+      "ARMOR": "Durallex Heavy",
+      "COMMUNICATIONS": "TharHes Euterpe HM-14",
+      "TARGETING": "TharHes Ares-8a"
+    }
+  },
+  "mulId": 255,
+  "role": "Missile Boat",
+  "source": "TR:3060"
+}

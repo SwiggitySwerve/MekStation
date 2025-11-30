@@ -1,0 +1,183 @@
+{
+  "id": "marauder-iic-4",
+  "chassis": "Marauder IIC",
+  "model": "4",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3070,
+  "tonnage": 85,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 340
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 25,
+      "RIGHT_ARM": 25,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 12
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 32,
+      "RIGHT_LEG": 32
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "hag-40",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "hag-40",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40",
+      "CLHAG40"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLHAG40",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "CLHAG40",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "HAG/40 Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "HAG/40 Ammo",
+      "HAG/40 Ammo"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "Given the Marauder's outstanding performance and sterling reputation, it was only natural for the Clans to commit resources to constructing a worthy successor.",
+    "capabilities": "While fundamentally comparable to the original Marauder in many aspects, even Golden Century ClanTech's sophisticated capabilities could not prevent the BattleMech's chassis from growing to accommodate all of its enhancements. As a result, the Marauder IIC received ten tons of overall bulk, similar to other classic 'Mechs modified by the Clans at the period. The IIC followed in both function and form the huge footsteps of its ancestor, emphasizing a perfect blend of long-range, high yield firepower, robust armor, and the mobility to keep up with its supporting troops. Although the Clans' dueling heritage prized individual warrior prowess and rapid encounters over drawn-out campaigns, their choice for high-power energy weapons over ballistics and missiles allows this 'Mech to stay lethal in the hands of an expert MechWarrior nearly indefinitely. When combined with its other characteristics, the Marauder IIC's battlefield durability cemented its position as a suitable command 'Mech, as well as its appeal among the glory-seeking warriors that comprise the majority of the Clan officer corps.",
+    "history": "The Marauder IIC had that designation prior to the introduction of Omni technology and the construction of the Timber Wolf. The Marauder IIC was built from the ground up in the image of its forefather, taking full advantage of the cutting-edge technology available at the time to improve on every aspect of the original.Â The end result was a bigger, stronger, more resilient, and durable Marauderâone that is still popular today, despite being classified as a \"second-line\" BattleMech. The Jade Falcons continue to build the Marauder IIC in its original architecture, joining the Rasalhague Dominion's \"Phoenix\" versions as the fearsome core of numerous Clan attack formations.",
+    "deployment": "Developed by Gorton, Kingsley & Thorpe Enterprises in 3070 to fill the Ghost Bear touman's appetite for the Marauder IIC after a shadow trade war with the Diamond Sharks cut off supply, this variant mounts two of the largest weapon now available to the Clans, the HAG 40, in its arms. Ten tons of ammunition supply these mammoth guns, while fifteen tons of armor protect the 'Mech. The inclusion of the HAGs only allowed for three jump jets to be added, meaning that the IIC 4 can leap up to 90 meters. Even with only 10 double heat sinks, the IIC 4 has no heat concerns.",
+    "manufacturer": "Gorton, Kingsley, & Thorpe Enterprises",
+    "primaryFactory": "Satalice",
+    "systemManufacturer": {
+      "CHASSIS": "Type GB-850 Light",
+      "ENGINE": "Consolidated Fusion 340",
+      "ARMOR": "Compound 12A1 Standard with CASE",
+      "COMMUNICATIONS": "Series D8 CC-25Xa",
+      "TARGETING": "âHermesâ CT-42 Mk. II",
+      "JUMPJET": "Unknown"
+    }
+  },
+  "mulId": 2068,
+  "role": "Sniper",
+  "source": "RS:3085u-PP"
+}

@@ -1,0 +1,185 @@
+{
+  "id": "grendel-i",
+  "chassis": "Grendel",
+  "model": "I",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3140,
+  "tonnage": 45,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "protomech-ac-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "CLProtoMechAC4 (omnipod)",
+      "Clan ProtoMech AC/4 Ammo (omnipod)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "CLERMediumLaser (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "ISPlasmaRifle (omnipod)",
+      "ISPlasmaRifle (omnipod)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "ISPlasmaRifleAmmo (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (omnipod)",
+      "Jump Jet (omnipod)"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet (omnipod)",
+      "Jump Jet (omnipod)"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Mongrel received its baptism of fire during the Battle of Tukayyid. There, it was commonly seen leading light Stars, especially on deep reconnaissance and raiding missions. Its ammo-efficient weapons allowed it to range far afield and helped simplify resupply, while its speed allowed it to dictate its range of engagement and outmaneuver all but the fastest of opponents.",
+    "capabilities": "Carrying a mixture of both Inner Sphere and Clan OmniPods, the Grendel I mounts a ProtoMech AC/4 along with ton of reloads in it's right arm in support of a right-torso mounted Plasma Rifle with a single ton ammo bay, supported by a single ER Medium Laser in the left torso.",
+    "history": "The 'Mech entered full production after a slight physical remodel the following year and was re-christened \"Grendel\" after the name given to it by Com Guard troops who faced it. One of the few successes of Clan Diamond Shark's defeat on Tukayyid, the other Invading Clans almost immediately staged Trials of Possession of the re-named 'Mech. Rather than waste Warrior Caste resources in fighting the numerous Trials, the Diamond Sharks instead chose to sell production runs or license the design to the other Clans, speeding their recovery and ensuring the Grendel was a common sight among many front-line Clusters. Though the Grendel remains in use among the other Inner Sphere Clans following the Wars of Reaving, most notably the Clan Hell's Horses, the majority of production during the Dark Age era resides in the Khanates of Clan Sea Fox.",
+    "deployment": "The Grendel features a powerful 315-rated engine, enabling it to move at a fleet 119 km/h, and enough jump jets fixed on the chassis to propel it up to 210 meters at a leap. The Sharks spared no expense in weight-saving materials, making use of an XL Engine, Endo Steel structure, and seven and a half tons of Ferro-Fibrous armor. The incredible speed of the Grendel is not terribly helpful in most zellbrigen duels, but it is effective in large-scale actions especially against Inner Sphere foes of similar weight hard pressed to counter its speed or firepower. The Grendel is also popular with technicians. While many OmniMechs are often \"hangar queens,\" the Grendel can go long periods without maintenance and still remain combat effective.",
+    "manufacturer": "Arcadia BattleMech Plant CM-T15, Manufacturing Plant SFF-AL2",
+    "primaryFactory": "Arcadia, Alnabog",
+    "systemManufacturer": {
+      "CHASSIS": "Process 12 Endo Steel",
+      "ENGINE": "315 Consolidated XL",
+      "ARMOR": "Arcadia Compound Delta VII Ferro-Fibrous",
+      "JUMPJET": "Clan Standard 14X Series",
+      "COMMUNICATIONS": "KP-3 âScreamerâ",
+      "TARGETING": "Version Gamma-V TTS"
+    }
+  },
+  "mulId": 7458,
+  "role": "Striker",
+  "source": "RG02"
+}

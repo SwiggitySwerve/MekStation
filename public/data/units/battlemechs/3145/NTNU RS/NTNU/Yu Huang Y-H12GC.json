@@ -1,0 +1,189 @@
+{
+  "id": "yu-huang-y-h12gc",
+  "chassis": "Yu Huang",
+  "model": "Y-H12GC",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3146,
+  "tonnage": 90,
+  "engine": {
+    "type": "XL",
+    "rating": 360
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 29,
+      "RIGHT_ARM": 29,
+      "LEFT_TORSO": {
+        "front": 28,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 28,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 43,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 37,
+      "RIGHT_LEG": 37
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "c3-boosted-system-master",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLERPPC",
+      "CLERPPC",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3MasterBoostedSystemUnit",
+      "ISC3MasterBoostedSystemUnit",
+      "ISC3MasterBoostedSystemUnit",
+      "ISC3MasterBoostedSystemUnit",
+      "ISC3MasterBoostedSystemUnit",
+      "ISC3MasterBoostedSystemUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "good_rep_1"
+  ],
+  "fluff": {
+    "overview": "The Yu Huang, a significant BattleMech from Shengli Arms, marks a blend of technological advancement and cultural symbolism in the Capellan Confederation. With Chancellor Sun-Tzu Liao's directive, this 'Mech not only exhibits a design inspired by ancient Chinese deities but also reflects the Confederation's commitment to self-reliance in military technology. Equipped with a potent LB-20X autocannon, the Yu Huang was conceived to be a commanding presence on the battlefield, a testament to the Chancellorâs vision for a renewed Capellan military force.",
+    "capabilities": "The Yu Huang stands out in the assault-class category with its combination of advanced weaponry and defensive systems. Notable for its high speed and agility for a ninety-ton 'Mech, it features a robust endo steel frame and an extra-light engine, allowing for substantial armor without compromising mobility. The Yu Huang is equipped with a diverse arsenal, typically including long-range weaponry like PPCs and LRM launchers, complemented by medium lasers for close-quarters engagements. Its signature autocannon, adaptable with different ammunition types, offers versatility in various combat scenarios. Enhanced by advanced jump jet capabilities, the Yu Huang is adept at rapid repositioning, making it a formidable presence on any battlefield.",
+    "history": "<p>The Yu Huang, a symbol of the Capellan Confederation's technological and cultural evolution, was developed by Shengli Arms. Its design, inspired by ancient Chinese mythology, was part of Chancellor Sun-Tzu Liaoâs vision of a revitalized Capellan force. The Mech, named after the Jade Emperor, debuted in the late 3050s, embodying a mix of advanced technology and cultural homage. Its production began in 3060, representing a significant milestone in the Confederationâs military development.</p><p>Despite early skepticism about its armament, the Yu Huang demonstrated the Confederationâs growing self-sufficiency in military technology, particularly with the in-house production of its LB-20X autocannon. The Mech's capabilities and design quickly made it a favored asset in the CCAF, and it was also selectively distributed to mercenary units, showcasing its strategic value.</p><p>The Yu Huangâs production, however, faced a setback in December 3068 when Olson's Rangers mercenary unit destroyed its production lines. This event marked a significant shift in the Confederation's military strategy during the Jihad. Rather than rebuilding the Yu Huang line, Shengli Arms shifted focus to new designs, leading to the creation of the Dola.</p><p>The legacy of the Yu Huang continued into the 3100s. Following the loss of Shengli, Ceres Metal Industries took over the production, adding distinct modifications to the design. The Yu Huang saw various iterations, adapting to the changing demands of warfare, and was notably used by Sang-shao Carson Rieves during the invasion of Liao in 3134. Throughout its history, the Yu Huang has remained a symbol of the Confederationâs resilience and adaptability in the face of evolving military challenges.</p>",
+    "deployment": "A Dark Age Era variant, the Y-H12GC is notable for its C3 boosted slave system, enhancing its role in coordinated attacks. Its main firepower comes from a Gauss rifle and a Clan-built ER PPC.",
+    "manufacturer": "Ceres Metals Industries",
+    "primaryFactory": "Capella",
+    "systemManufacturer": {
+      "CHASSIS": "Chariot Type II Endo Steel",
+      "ENGINE": "Hermes 360 XL",
+      "ARMOR": "Star Shell Standard(C)",
+      "JUMPJET": "Rodan-90s",
+      "COMMUNICATIONS": "Dian-bao Comms, Standard",
+      "TARGETING": "O/P 911 Targeting and Tracking System"
+    }
+  },
+  "mulId": 8010,
+  "source": "RS:3150"
+}

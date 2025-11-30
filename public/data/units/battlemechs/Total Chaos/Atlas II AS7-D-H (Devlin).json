@@ -1,0 +1,204 @@
+{
+  "id": "atlas-ii-as7-d-h-devlin",
+  "chassis": "Atlas II",
+  "model": "AS7-D-H (Devlin)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3075,
+  "tonnage": 100,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 47,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 41,
+      "RIGHT_LEG": 41
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 17
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-9",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lb-10-x-ac",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLERLargeLaser",
+      "CLERLargeLaser",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "ISLBXAC10",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "ISMediumPulseLaser",
+      "ISMediumPulseLaser",
+      "ISAntiMissileSystem",
+      "ISAMS Ammo",
+      "IS Ammo MML-9 LRM Artemis-capable",
+      "IS Ammo MML-9 LRM Artemis-capable",
+      "IS Ammo MML-9 SRM Artemis-capable",
+      "ISCASEII"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISMML9",
+      "ISArtemisIV",
+      "IS LB 10-X AC Ammo",
+      "IS LB 10-X Cluster Ammo",
+      "ISCASEII",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISAngelECMSuite",
+      "ISAngelECMSuite"
+    ],
+    "HEAD": [
+      "Life Support (ARMORED)",
+      "Sensors (ARMORED)",
+      "Cockpit (ARMORED)",
+      null,
+      "Sensors (ARMORED)",
+      "Life Support (ARMORED)"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "command_mech",
+    "distracting",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "The technologically-advanced Hegemony counterpart to the SLDF's regular army's AS7-D Atlas, the Atlas II was exclusively reserved for SLDF Royal Regiments.",
+    "capabilities": "The weapons payload gives the design more broad range attack ability versus the Atlas's brawling weaponry and its limited long range attack capacities.",
+    "history": "First fielded in 2765, the Atlas II was designed by the Hegemony Research and Development Department, Weapons Division of the original Star League to maintain the technological edge over the other Great Houses. It was exclusively for the SLDF's Royal Regiments. In 2785, when General Aleksandr Kerensky put out his call for loyal forces to join him in his Exodus, every Atlas II pilot responded and left with him. These 'Mechs are prized by the Clans when they were found. One such 'Mech was spotted in 3052 during the Battle of Tukayyid. In the early 3070s, the design was resurrected by the Word of Blake when they captured Hesperus II's factories. After the liberation of Defiance Industries, Devlin Stone's coalition forces kept the 'Mechs in production.",
+    "deployment": "Used by Devlin Stone, this Atlas variant used a combination of Clan and Inner Sphere technology to maximize survival. The ER Large Lasers, XL Engine, and heat sinks came from Clan sources. A Heavy Duty Gyro is also fitted to enhance survivability. The LRM and SRM launchers have been replaced by a single MML-9 with an Artemis IV system. CASE II protects each side torso from ammunition explosions, an Angel ECM suite foils Blakist communications gear, and for additional protection the left torso carries an Anti-Missile System. For additional protection the cockpit, sensors, and life support system in the head are all armored.",
+    "manufacturer": "Defiance Industries,Hegemony Research and Development Department, Weapons Division",
+    "primaryFactory": "Hesperus II,New Earth",
+    "systemManufacturer": {
+      "CHASSIS": "Foundation Type 10X",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "StarSlab/2 Ferro Fibrous with CASE",
+      "JUMPJET": "Army Comm Class 5",
+      "COMMUNICATIONS": "Army Corporation Type 29K"
+    }
+  },
+  "mulId": 7398,
+  "role": "Juggernaut",
+  "source": "Total Chaos"
+}

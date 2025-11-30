@@ -1,0 +1,108 @@
+{
+  "id": "scavenger-sc-v-salvagemech",
+  "chassis": "Scavenger",
+  "model": "SC-V SalvageMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2613,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "FLL": 13,
+      "FRL": 13,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "RLL": 13,
+      "RRL": 13
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 2
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Searchlight",
+      "MechSprayer",
+      "Light Fluid Suction System (Mech)",
+      "Liquid Storage (1 ton)",
+      "Liquid Storage (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 4987,
+  "source": "RS:VA"
+}

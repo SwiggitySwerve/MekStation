@@ -1,0 +1,109 @@
+{
+  "id": "vampyr-sc-v-1-salvagemech",
+  "chassis": "Vampyr",
+  "model": "SC-V-1 SalvageMech",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 80,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 13,
+      "FRL": 13,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 8,
+      "RLL": 13,
+      "RRL": 13
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 2
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Extended Fuel Tank (3 tons)",
+      "Extended Fuel Tank (3 tons)",
+      "Extended Fuel Tank (3 tons)",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Environmental Sealing"
+    ],
+    "RIGHT_TORSO": [
+      "MechSprayer",
+      "Light Fluid Suction System (Mech)",
+      "Liquid Storage (1 ton)",
+      "Liquid Storage (1 ton)",
+      "Cargo (1 ton)",
+      "Cargo (1 ton)",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Industrial TSM",
+      "Environmental Sealing"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Industrial TSM",
+      "Environmental Sealing"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Environmental Sealing",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "mulId": 5334,
+  "role": "None",
+  "source": "RS:VA"
+}

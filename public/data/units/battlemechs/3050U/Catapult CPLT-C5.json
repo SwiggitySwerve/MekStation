@@ -1,0 +1,174 @@
+{
+  "id": "catapult-cplt-c5",
+  "chassis": "Catapult",
+  "model": "CPLT-C5",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 65,
+  "engine": {
+    "type": "FUSION",
+    "rating": 260
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-isarrowivsystem",
+      "location": "RIGHT_ARM,_AMMO:20"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "2-isermediumlaser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERMediumLaser",
+      "ISArrowIV Ammo",
+      "ISArrowIV Homing Ammo",
+      "ISArrowIV Ammo",
+      "ISArrowIV Homing Ammo",
+      "ISCASE",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERMediumLaser",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)",
+      "ISArrowIVSystem (Split)"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "ISERMediumLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo-Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ]
+  },
+  "quirks": [
+    "no_arms",
+    "weak_head_1"
+  ],
+  "mulId": 483,
+  "role": "Missile Boat",
+  "source": "TR:3050"
+}

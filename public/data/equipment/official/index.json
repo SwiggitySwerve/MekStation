@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-11-30T06:12:13.957Z",
+  "files": {
+    "weapons": {
+      "energy": "weapons/energy.json",
+      "ballistic": "weapons/ballistic.json",
+      "missile": "weapons/missile.json",
+      "physical": "weapons/physical.json"
+    },
+    "ammunition": "ammunition.json",
+    "electronics": "electronics.json",
+    "miscellaneous": "miscellaneous.json"
+  },
+  "totalItems": {
+    "weapons": 111,
+    "ammunition": 42,
+    "electronics": 20,
+    "miscellaneous": 23
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "id": "starslayer-sty-3d",
+  "chassis": "Starslayer",
+  "model": "STY-3D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "tonnage": 50,
+  "engine": {
+    "type": "FUSION",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "Medium Laser",
+      "Medium Laser",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser (R)",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Starslayer was intended to replace the Crab as the Star League's standard medium 'Mech after Cosara Weaponries were unable to meet the SLDF's required production volumes.",
+    "capabilities": "The Starslayer is built on a lightweight Thor-4 Endo Steel chassis and reaches a top speed of 86.4 km/h with its Magna 250 fusion engine. The Starslayer also has five Odin's Own Model 34z jump jets which give it the ability to jump up to one hundred and fifty meters. Finally, the design carries nine and a half tons of Norse-34 ferro-fibrous with CASE. The CASE protects the BattleMech from complete destruction in the event of an ammunition explosion.",
+    "history": "Though Blue Shot's design won selection in 2765, the Starslayer would also be plagued with technical delays with its tracking system that would delay full production until 2772 and the Amaris Civil War. Despite the SLDF's desperate need for matÃ©riel, tensions between General Kerensky and Archon Robert Steiner II would result in Blue Shot delaying SLDF shipments until 2781 due to lack of \"up-to-date\" shipping information and as a result the Starslayer would be far more common in the LCAF service than the SLDF. By now a thoroughly Lyran Commonwealth design, production of the original 2C Starslayer would cease during the technological decline of the early Succession Wars, with Blue Shot Weaponry resuming with the superior and updated STY-3C model in wake of the Clan Invasion.",
+    "deployment": "The 3D variant of the Starslayer is intended to allow the 'Mech to better engage an enemy at long ranges. By removing the SRM-4, the 3D is able to upgrade the large laser to an ER PPC, upgrade the small laser to a medium laser, and add an extra double heat sink.",
+    "manufacturer": "Blue Shot Weapons",
+    "primaryFactory": "Loxley",
+    "systemManufacturer": {
+      "CHASSIS": "Thor-4 Endo Steel",
+      "ENGINE": "Magna 250",
+      "ARMOR": "Norse-34 Ferro-Fibrous with CASE",
+      "JUMPJET": "Odinâs Own Model 34z",
+      "COMMUNICATIONS": "Tek BattleCom",
+      "TARGETING": "FireScan with IndirecTrack"
+    }
+  },
+  "mulId": 3050,
+  "role": "Skirmisher",
+  "source": "TR:3058U"
+}

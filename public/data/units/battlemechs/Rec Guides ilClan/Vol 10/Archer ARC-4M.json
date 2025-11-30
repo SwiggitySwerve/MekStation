@@ -1,0 +1,200 @@
+{
+  "id": "archer-arc-4m",
+  "chassis": "Archer",
+  "model": "ARC-4M",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "RENAISSANCE",
+  "year": 3049,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 22,
+      "RIGHT_ARM": 22,
+      "LEFT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 24,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 33,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISArtemisIV",
+      "IS Ammo LRM-20 Artemis-capable",
+      "IS Ammo LRM-20 Artemis-capable",
+      "ISCASE",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "ISArtemisIV",
+      "IS Ammo LRM-20 Artemis-capable",
+      "IS Ammo LRM-20 Artemis-capable",
+      "ISCASE",
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser (R)",
+      "Medium Laser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "command_mech",
+    "stable",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "One of the most iconic BattleMechs is the Archer, with its low-slung torso, enormous fists, and missile-bay covers. The Archer was first manufactured in 2474 for heavy-hitting, long-range brawling, and fire-support.",
+    "capabilities": "Two enormous missile launchers with tons of ammo power the Archer. The missiles were formidable, but their short-range inaccuracy required four medium lasers, two rear-facing and one in each arm. Enlarged hand actuators allow the design to undertake severe physical attacks and transport captured supplies during raids. The cockpit of the Archer is situated beneath the center midsection, giving the pilot a unique battlefield view. The torso armor belt above the cockpit protects the gyro and engine from the superior armor. Many pilots initially entered battle with their missile bays locked to hide the 'Mech's real capabilities, leading some to believe it was a close-combat design. As the Archer became famous, this pretext became meaningless. Archer pilots rarely learn new skills, but this hasn't tarnished the 'Mech's reputation.",
+    "history": "The design was constructed at the request of Terran Hegemony's HAF for a new \"heavy fire support BattleMech\" and took nearly nine years to complete. This owed in part to the design team, which included former HAF MechWarriors, field technicians, and general officer advisors, and the company's engineer team, led by Supervising Engineer Linn Tommi, disagreeing over theoretical and practical concerns. The intricate engineering proposal presented to the HAF includes complicated, difficult-to-repair stabilizing technology and powerful, computer-slaved sensors designed to make the Archer the most accurate BattleMech in existence. However, the final prototype abandoned these criteria in favor of a sturdier, blockier, and more heavily armored frame that is still in use today. It was so effective that it remained the Hegemony standard for more than a decade and a half, until technological developments allowed Earthwerks to produce a more efficient variant. The Archer, which debuted in 2474, quickly became one of the most well-known and commonly deployed BattleMechs. The Archer was a contemporary of 'Mechs such as the Thunderbolt and the Banshee, and its primary job was fire support, though early in its combat career it was regarded an attack 'Mech capable of long-range brawling, and it was deployed in a variety of different duties. More than 100,000 Archers were built between its introduction and the outbreak of the First Succession War, with tens of thousands of variation types produced over the centuries. Though many were destroyed or deconstructed for spare components, they remained a common sight in the Great House troops, with six distinct manufacturers creating new Archers throughout the Succession Wars. The retrieval of the Helm Memory Core had a significant impact on the creation of the Archer. New variations were created that used rediscovered lostech, giving the venerable 'Mech a few new tricks to surprise its opponents. By the time of the Clan Invasion, most of the major manufacturers had switched over to building these new variants for the Free Worlds League, Federated Commonwealth, Free Rasalhague Republic, and Wolf's Dragoons; only Vandenberg Mechanized Industries continued to build original ARC-2R Archers for the Taurian Concordat. As technology advanced, newer, more advanced models of the Archer were produced.",
+    "deployment": "An upgrade using rediscovered Star League technology, the 4M was built on Calloway VI by Earthwerks in 3049 for the Free Worlds League. It used an Earthwerk Archer II Endo Steel chassis to free up weight for a number of improvements. It carried an additional half-ton of Maximillian 100 armor and utilized ten double heat sinks for added heat dissipation capabilities. The 'Mech also upgraded its twin Doombud LRM-20 launchers by adding Artemis IV fire control systems to the launchers and incorporated CASE to protect the four tons of missile ammo.",
+    "manufacturer": "Earthwerks-FWL, Inc.",
+    "primaryFactory": "Calloway VI",
+    "systemManufacturer": {
+      "CHASSIS": "Earthwerks Archer II",
+      "ENGINE": "VOX 280",
+      "ARMOR": "Maximillian 100 with CASE",
+      "COMMUNICATIONS": "Neil 9000",
+      "TARGETING": "RCA Instatrac Mark XII"
+    }
+  },
+  "mulId": 78,
+  "role": "Missile Boat",
+  "source": "RG10"
+}

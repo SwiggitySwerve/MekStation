@@ -1,0 +1,185 @@
+{
+  "id": "patron-ptn-2m-militiamech",
+  "chassis": "Patron",
+  "model": "PTN-2M MilitiaMech",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3083,
+  "tonnage": 15,
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 30
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 2,
+      "RIGHT_ARM": 2,
+      "LEFT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 4,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 5,
+        "rear": 4
+      },
+      "HEAD": 3,
+      "LEFT_LEG": 2,
+      "RIGHT_LEG": 2
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-machine-gun",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "IS Light Machine Gun Ammo - Half",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Light Machine Gun",
+      "Light Machine Gun",
+      "IS Light Machine Gun Ammo - Half",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "RL10",
+      "RL10",
+      "RL10",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "mulId": 4795,
+  "role": "Ambusher",
+  "source": "TR:Proto"
+}

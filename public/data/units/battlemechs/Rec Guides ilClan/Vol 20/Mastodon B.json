@@ -1,0 +1,206 @@
+{
+  "id": "mastodon-b",
+  "chassis": "Mastodon",
+  "model": "B",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3148,
+  "tonnage": 95,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 285
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "REINFORCED"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 50,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 40,
+      "RIGHT_LEG": 40
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 15
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lb-20-x-ac",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-lrm-20",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      "CLLBXAC20 (OMNIPOD)",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLStreakSRM4 (OMNIPOD)",
+      "CLStreakSRM4 (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "Clan LB 20-X AC Ammo (OMNIPOD)",
+      "Clan LB 20-X AC Ammo (OMNIPOD)",
+      "Clan LB 20-X Cluster Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLStreakLRM20 (OMNIPOD)",
+      "CLStreakLRM20 (OMNIPOD)",
+      "CLStreakLRM20 (OMNIPOD)",
+      "CLStreakLRM20 (OMNIPOD)",
+      "CLStreakLRM20 (OMNIPOD)",
+      "Clan Streak LRM 20 Ammo (OMNIPOD)",
+      "Clan Streak LRM 20 Ammo (OMNIPOD)",
+      "Clan Streak SRM 4 Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_target_long",
+    "rugged_1",
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Mastodon is an Assault OmniMech originally built by the Rasalhague Dominion and its Clan Ghost Bear brethren",
+    "capabilities": "A veritable juggernaut of a 'Mech, JÃ¶tunn BattleWorx made use of technologies unusual in a Clan design in order to protect the Mastodon. Namely, a reinforced skeleton is employed, making it highly durable though arduous to maintain. This protection is further bolstered by the use of fifteen and a half tons of Ferro-Fibrous Armour which also serves to save weight, allowing it a generous 45 tons of pod space for equipment. Propelling the design is an XL 285 fusion engine which affords it a pace of 54 km/h, sufficient for its role.",
+    "history": "Spurred by the Clan Hell's Horses invasion of 3147, this unusually ponderous design marks a shift in the Dominion's preferred combat doctrine, previously focused around swift, agile attackers. Equipped with ample weaponry and advanced protective technologies previously unfamiliar to the Clans, the result is a powerful, resilient OmniMech capable of filling both defensive and heavy assault roles, and able to weather whatever its enemy could possibly throw at it. In fact, the Mastodon's exceptional durability is often utilised by its pilots in order to fool foes into overcommitting, by pretending to have taken more damage than they actually have. Directly related to the company's earlier Rime Otter rework of Bergan Industries' Grizzly, JÃ¶tunn made use of reused and scaled-up components and technologies from these earlier programs throughout the development process, in order to reduce costs and streamline development.",
+    "deployment": "Carrying an LBX-20 in the left arm, close-range firepower is the name of the game. It is linked to 3 tons of CASE IIâprotected ammo in the left torso along with a pair of Streak SRM-4s in the right arm which combined only draw on a single ton of ammo. Recognising the need for softening up of a target while closing the distance, a Streak LRM-20 was added in the right torso with 2 tons of ammo. Finally, the 'Mech is rounded out and backed up by 4 medium pulse lasers in the right arm, and 4 additional double heat sinks to prevent heat issues.",
+    "manufacturer": "JÃ¶tunn BattleWorx",
+    "primaryFactory": "Goito",
+    "systemManufacturer": {
+      "CHASSIS": "Type 56-95C Modified Reinforced",
+      "ENGINE": "RUFM XL 285",
+      "ARMOR": "IceSheet Ferro-Fibrous",
+      "COMMUNICATIONS": "Garret T10B",
+      "TARGETING": "GC Hodr System Type 2"
+    }
+  },
+  "mulId": 8344,
+  "role": "Juggernaut",
+  "source": "RG20"
+}

@@ -1,0 +1,178 @@
+{
+  "id": "nyx-nx-100",
+  "chassis": "Nyx",
+  "model": "NX-100",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3095,
+  "tonnage": 30,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 10,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 10,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "mml-3",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 LRM",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML3",
+      "ISMML3",
+      "IS Ammo MML-3 SRM",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMML3",
+      "ISMML3"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Heavy Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Heavy Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "difficult_maintain"
+  ],
+  "mulId": 6937,
+  "role": "Scout",
+  "source": "RS:3145-NTNU"
+}

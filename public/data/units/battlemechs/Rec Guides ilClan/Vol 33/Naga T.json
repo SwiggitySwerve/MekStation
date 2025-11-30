@@ -1,0 +1,180 @@
+{
+  "id": "naga-t",
+  "chassis": "Naga",
+  "model": "T",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3142,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "arrow-iv",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "arrow-iv",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "light-tag",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLArrowIV"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLArrowIVAmmo (OMNIPOD)",
+      "CLArrowIVAmmo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLArrowIV",
+      "CLArrowIV",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLArrowIVAmmo (OMNIPOD)",
+      "CLArrowIVAmmo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLightTAG (OMNIPOD)",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "fluff": {
+    "overview": "The Naga BattleMech, named for its resemblance to a mythological cobra, stands as an unusual design in a culture that values personal glory and ritual combat. Originating from Clan Wolf, the Naga was developed from a modified Woodsman chassis, equipped to carry a pair of Arrow IV launchers. Despite initial skepticism due to its focus on indirect fire support rather than direct combat, the Naga quickly demonstrated its strategic value on the battlefield.",
+    "capabilities": "The primary role of the Naga is to provide sustained artillery support while maintaining a degree of mobility. Its standard configuration emphasizes this role, equipped with six tons of missile ammunition but minimal short-range defense.",
+    "history": "First deployed in the mid-2900s, the Naga's adoption across various Clans was gradual. Its effectiveness was convincingly demonstrated during the battle for Tukayyid, where Clan Wolf's Naga-equipped artillery Stars played a pivotal role. Notably, the Nagas were instrumental in Wolfâs victory at Brzo and Skupo, significantly weakening ComStarâs Tenth Army. This success led to its wider acceptance and deployment among several other Clans, including the Hellâs Horses, Snow Ravens, Star Adders, Cloud Cobras, and in limited numbers, the Jade Falcons.\nmanufacturer:Manufacturing Plant WA3\nprimaryfactory:Arcadia\nsystemmanufacturer:CHASSIS:Type BMH-7 Endo Steel\nsystemmanufacturer:ENGINE:Fusion 400 XL\nsystemmanufacturer:ARMOR:Forged Type 34 Standard\nsystemmanufacturer:COMMUNICATIONS:Type G3, Mk. XII\nsystemmanufacturer:TARGETING:ArTrack 2 TTS",
+    "deployment": "The Naga T is an 80-ton Clan OmniMech designed primarily for missile support, tailored for the era of 3130. It's powered by a 400 XL (Clan) Engine and constructed with Clan Endo Steel, ensuring both agility and durability for its size.</p> <p>This version of the Naga is armed with two Arrow IV missile launchers, one in each arm, providing potent long-range bombardment capabilities. For closer engagements, it's equipped with two Improved Heavy Medium Lasers, one in each torso, offering significant firepower at medium to short distances. Additionally, the Naga T features a Light TAG in the center torso, enhancing its targeting accuracy and making it more effective in coordinated attacks. The blend of heavy artillery and precision laser weaponry makes this variant particularly versatile in a range of combat scenarios, capable of delivering devastating strikes from afar and defending itself effectively in closer encounters.</p>"
+  },
+  "mulId": 9578,
+  "role": "Missile Boat",
+  "source": "RG33"
+}

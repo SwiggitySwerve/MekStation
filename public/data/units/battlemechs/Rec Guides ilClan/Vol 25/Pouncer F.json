@@ -1,0 +1,197 @@
+{
+  "id": "pouncer-f",
+  "chassis": "Pouncer",
+  "model": "F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 11,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 11,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 13,
+      "RIGHT_LEG": 13
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 12
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "heavy-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-cannon",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLHeavyFlamer (OMNIPOD)",
+      "CLHeavyFlamer (OMNIPOD)",
+      "CLERFlamer (OMNIPOD)",
+      "CLERFlamer (OMNIPOD)",
+      "CL Heavy Flamer Ammo (OMNIPOD)",
+      "CL Heavy Flamer Ammo (OMNIPOD)",
+      "CL Heavy Flamer Ammo (OMNIPOD)",
+      "Clan Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLPlasmaCannon (OMNIPOD)",
+      "CLPlasmaCannonAmmo (OMNIPOD)",
+      "CLPlasmaCannonAmmo (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "RemoteSensorDispenser (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "Jump Jet",
+      "Jump Jet",
+      "CLERMediumLaser (OMNIPOD)",
+      "CLActiveProbe (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "weak_head_2"
+  ],
+  "fluff": {
+    "overview": "The Pouncer was originally a testbed design that was upgraded to combat specifications on the orders of then ilKhan Ulric Kerensky, as it was realized that a more mobile 'Mech was needed when combating Inner Sphere forces.",
+    "capabilities": "Overall, the Pouncer is an excellent OmniMech with 15.5 tons of pod space, allowing it to carry a wide variety of weapons payloads.",
+    "history": "The Pouncer is built on a lightweight DSAM Endo 4 endo steel chassis and is powered by a 240-rated XL engine which gives it a maximum speed of 97.2 km/h. The 'Mech's mobility is enhanced with five Grandthrust Mk. Four jump jets that allow it to jump up to 150 meters. For protection from enemy fire, the Pouncer has a respectable six tons of Forging ZM15 ferro-fibrous armor. The last of the Nova factories on Tokasha were later retooled to create Pouncers after the Wars of Reaving.",
+    "deployment": "Introduced during the Word of Blake Jihad, the F configuration is built for anti-infantry and tank combat, mounting a plasma cannon supported by a pair of ER flamers and two heavy flamers. Mounting an ER medium laser as well, the Pouncer F also carries a remote sensor dispenser and an active probe.",
+    "manufacturer": "WC Primary Facility 5,Manufacturing Plant SFF-TW2",
+    "primaryFactory": "Tiber (Clan),CSF Titanic Mobile Production Facility",
+    "systemManufacturer": {
+      "CHASSIS": "DSAM Endo 4",
+      "ENGINE": "Fusion 240 XL",
+      "ARMOR": "Forging ZM15 Ferro-Fibrous",
+      "JUMPJET": "Grandthrust Mk. 4",
+      "COMMUNICATIONS": "Megaband System 21",
+      "TARGETING": "Dtrac Suite 4"
+    }
+  },
+  "mulId": 4850,
+  "role": "Scout",
+  "source": "RG25"
+}

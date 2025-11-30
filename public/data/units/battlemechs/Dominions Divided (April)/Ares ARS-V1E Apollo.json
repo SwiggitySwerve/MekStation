@@ -1,0 +1,223 @@
+{
+  "id": "ares-ars-v1e-apollo",
+  "chassis": "Ares",
+  "model": "ARS-V1E Apollo",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "ILCLAN",
+  "year": 3151,
+  "tonnage": 135,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 41,
+      "RIGHT_ARM": 41,
+      "LEFT_TORSO": {
+        "front": 40,
+        "rear": 16
+      },
+      "RIGHT_TORSO": {
+        "front": 40,
+        "rear": 16
+      },
+      "CENTER_TORSO": {
+        "front": 60,
+        "rear": 22
+      },
+      "HEAD": 12,
+      "LEFT_LEG": 56,
+      "RIGHT_LEG": 56,
+      "CL": 56
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 2,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "rotary-ac-5",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-gauss-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-5",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 (OMNIPOD)",
+      "CLRotaryAC5 Ammo|CLRotaryAC5 Ammo (OMNIPOD)",
+      "CLRotaryAC5 Ammo|CLRotaryAC5 Ammo (OMNIPOD)",
+      "ISCASEII (OMNIPOD)",
+      "IS Endo-Composite",
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISDoubleHeatSink (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISImprovedHeavyGaussRifle (OMNIPOD)",
+      "ISCASEII (OMNIPOD)",
+      "IS Endo-Composite"
+    ],
+    "LEFT_TORSO": [
+      "CLERMediumLaser",
+      "CLERSmallLaser",
+      "LRM 5",
+      "SRM 2",
+      "IS Ammo LRM-5",
+      "ISCASEII",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "CLERMediumLaser",
+      "CLERSmallLaser",
+      "LRM 5",
+      "SRM 2",
+      "IS Ammo SRM-2",
+      "ISImprovedHeavyGauss Ammo|ISImprovedHeavyGauss Ammo (OMNIPOD)",
+      "ISImprovedHeavyGauss Ammo|ISImprovedHeavyGauss Ammo (OMNIPOD)",
+      "ISCASEII",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "CLERSmallLaser",
+      "SRM 2",
+      "IS Endo-Composite",
+      null,
+      null,
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod",
+      "ISAntiPersonnelPod"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod",
+      "ISAntiPersonnelPod"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "distracting",
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "<p>The Ares BattleMech, a product of the Rhodes Project, represents a significant advancement in super-heavy Mech technology. Developed as a more versatile successor to the Poseidon, the Ares compensates for its heavier weight and slower speed with robust armor, a reconfigurable payload, and the capacity to transport friendly battle armor. Its OmniMech design allows for rapid servicing and a wide array of firepower options, including artillery support. Visually similar to its sister Mech, the Poseidon, the Ares adds an element of unpredictability on the battlefield, keeping enemy commanders guessing about its actual capabilities until it engages in combat.</p>",
+    "capabilities": "<p>The Ares, built on a unique tripedal humanoid chassis, closely resembles the Poseidon in appearance but is distinct in its operational capabilities. The intentional similarity in design serves not only as an engineering convenience but also as a strategic ploy to confuse observers and enemies. Equipped with a versatile array of weapons configurations, the Ares can adapt to various combat roles, from direct engagement to artillery support. Its various field configurations, each with specialized nomenclature, further contribute to the Mech's versatility and adaptability on the battlefield.</p>",
+    "history": "<p>The Ares BattleMech's story is a narrative of technological evolution and strategic foresight in the wake of the Jihad, as envisioned by the Republic of the Sphere's Rhodes Project. Developed alongside the Poseidon as a more versatile super-heavy Mech, the Ares was designed not just as a response to emerging threats but also as a symbol of a new era in Mech warfare. Its development aimed to push the limits of Mech capabilities, incorporating flexibility in armament and operations, a stark contrast to traditional Mech designs.<p>In the tumultuous period following the Blackout and the rise of the Fortress Republic, the Ares emerged as a critical asset. Prototypes were first deployed at the Serbian proving grounds on Terra in 3135, where they engaged rebel senatorial forces. This conflict marked the Ares's baptism by fire, proving its worth in actual combat conditions. The Mech's performance in this secretive but pivotal engagement informed subsequent refinements, leading to the production of the versatile PSD-V2 models.<p>The deployment of the Ares has been strategic and selective, with units primarily assigned to Stoneâs Brigade regiments, notably in the Lament and the Defenders on Terra. Additionally, a significant number of Ares Mechs are stationed at the Devilâs Rock factories, emphasizing their importance in safeguarding key Republic sites. As tensions rise near the Fortress Republic's boundaries, the Ares stands at the forefront of the Republic's defense strategy, particularly against potential Clan invasions.<p>As the Republic's military landscape continues to evolve, the Ares remains a critical component of its armed forces. Its diverse configurations, ranging from the Zeus to the Apollo, illustrate its adaptability and effectiveness in various combat roles. The Ares, with its unique tripedal design and modular weapon systems, represents the Republic's commitment to maintaining a formidable and flexible military presence in an uncertain future.</p>",
+    "deployment": "Tailored for long-range combat with a varied arsenal including an Improved Heavy Gauss Rifle, Rotary AC/5, ER Medium Lasers, LRM-5s, SRM-2s, and A-Pods.",
+    "manufacturer": "Rhodes Foundry",
+    "primaryFactory": "Devilâs Rock",
+    "systemManufacturer": {
+      "CHASSIS": "Rhodes-M Endo-Composite",
+      "ENGINE": "PlasmaStar 270",
+      "ARMOR": "Maximillian 320 with CASE II",
+      "COMMUNICATIONS": "Titanâs Shout Mk. IVA",
+      "TARGETING": "Titanâs Vantage Mk. II"
+    }
+  },
+  "mulId": 9500,
+  "role": "Juggernaut",
+  "source": "DD"
+}

@@ -1,0 +1,240 @@
+{
+  "id": "titan-ii-ti-2pa",
+  "chassis": "Titan II",
+  "model": "TI-2PA",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 100,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 33,
+      "RIGHT_ARM": 33,
+      "LEFT_TORSO": {
+        "front": 27,
+        "rear": 15
+      },
+      "RIGHT_TORSO": {
+        "front": 27,
+        "rear": 15
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 20
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 3
+  },
+  "equipment": [
+    {
+      "id": "plasma-rifle",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun-array",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun-array",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "Medium Laser",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "Medium Laser",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo"
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISStreakSRM6",
+      "ISStreakSRM6",
+      "Machine Gun",
+      "Machine Gun",
+      "Machine Gun",
+      "Machine Gun",
+      "ISMGA",
+      "IS Streak SRM 6 Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "Machine Gun",
+      "Machine Gun",
+      "Machine Gun",
+      "Machine Gun",
+      "ISMGA",
+      "IS Ammo MG - Full",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "ISCASE"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Medium Laser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Medium Laser",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      null
+    ]
+  },
+  "quirks": [
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "The Titan II is a BattleMech produced by Kressly WarWorks on Epsilon Eridani for the Word of Blake's Protectorate Militia.",
+    "capabilities": "Like the original, the Titan II has a top speed of 54 km/h and nineteen tons of standard armor. Since the 'Mech is produced for the Blakists' garrison forces, it makes no use of expensive, weight-saving technologies. It also lacks the advanced electronics that have become the hallmark of Word military forces.",
+    "history": "First identified by the Successor States in 3071, the Titan II owes its existence to the Titan, a prototype that dates to 2765. That design was unearthed by the Federated Suns in 3023 and led to the Grand Titan. That design deviated significantly from the original, while the Titan II is more of an upgrade using new weaponry.",
+    "deployment": "A newer weapon configuration, the 2PA is designed for work against domestic insurgents. It has a pair of Plasma Rifles, four Medium Lasers, retains the Streak SRM launcher, and mounts two Machine Gun Arrays, each with four Machine Guns. It can also utilize a Beagle Active Probe to find hidden units.",
+    "manufacturer": "Kressly WarWorks",
+    "primaryFactory": "Epsilon Eridani",
+    "systemManufacturer": {
+      "CHASSIS": "Kressly TIA-Infused",
+      "ENGINE": "Vlar 300",
+      "ARMOR": "Kressly Stoneskin 50",
+      "COMMUNICATIONS": "Kressly-Lantern Allet C500",
+      "TARGETING": "Kressly-Lantern Allet T101"
+    }
+  },
+  "mulId": 3259,
+  "role": "Juggernaut",
+  "source": "TR:3075"
+}

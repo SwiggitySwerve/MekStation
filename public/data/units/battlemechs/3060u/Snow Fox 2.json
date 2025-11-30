@@ -1,0 +1,118 @@
+{
+  "id": "snow-fox-2",
+  "chassis": "Snow Fox",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 3015,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 5,
+      "FRL": 5,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 6,
+        "rear": 1
+      },
+      "HEAD": 7,
+      "RLL": 5,
+      "RRL": 5
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-10",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Clan Ammo LRM-10",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLMASC",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLLRM10",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "hard_pilot"
+  ],
+  "mulId": 2980,
+  "role": "Missile Boat",
+  "source": "TR:3060"
+}

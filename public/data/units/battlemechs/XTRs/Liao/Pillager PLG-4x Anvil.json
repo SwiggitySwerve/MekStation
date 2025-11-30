@@ -1,0 +1,186 @@
+{
+  "id": "pillager-plg-4x-anvil",
+  "chassis": "Pillager",
+  "model": "PLG-4X 'Anvil'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3077,
+  "tonnage": 100,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 30,
+      "RIGHT_ARM": 30,
+      "LEFT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "RIGHT_TORSO": {
+        "front": 30,
+        "rear": 8
+      },
+      "CENTER_TORSO": {
+        "front": 41,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 38,
+      "RIGHT_LEG": 38
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "long-tom-cannon",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "long-tom-cannon",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "laser-ams",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannonAmmo"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannonAmmo"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon",
+      "ISLongTomCannon"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Coolant Pod",
+      "Coolant Pod"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISLaserAntiMissileSystem",
+      "ISLaserAntiMissileSystem"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISLongTomCannonAmmo",
+      "ISLongTomCannonAmmo"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISLongTomCannonAmmo",
+      "ISLongTomCannonAmmo"
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra"
+  ],
+  "fluff": {
+    "overview": "The largest BattleMech ever built by HildCo Interplanetary, the Pillager is built as a larger version of the Victor, and is intended for assaulting urban centers and hardened fortifications.",
+    "capabilities": "Based on a range of engine types, the Pillager has average mobility for its size, with a top speed of 54 km/h. Three HildCo Model 13 jump jets allow the 'Mech to jump up to ninety meters, increasing its mobility. The Pillager possesses outstanding armor protection and more than enough heat sinks to meet the Pillager's needs.",
+    "history": "The Pillager was the largest 'Mech ever built by HildCo during the Reunification War. The destruction of the manufacturing facilities that produced the Pillager's advanced technologies halted production during the Second Succession War, but the decoding of the Gray Death memory core allowed the Pillager to be reintroduced to the Inner Sphere. The Pillager has a long and colorful battle history. From the Reunification Battle through the Succession Wars, it has seen action in every war. Records show that during those fights, enemy forces tended to retreat at the sight of approaching Pillagers. The Pillager most recently demonstrated its amazing strength during the FedCom and the Capellan/St. Ives Civil Wars. When a Pillager-led unit attacked, many strongholds and defenses crumbled. Even now, in the struggle between Hasek's Capellan March and House Liao, the Pillager is making an impact on the battlefield, just as it did during the Amaris Civil War. The Pillager now serves in the majority of house militaries and mercenary troops. Because of the reintegration of St. Ives, the Capellan military has the most brawny 'Mechs.",
+    "deployment": "Created as a defensive artillery unit, the Pillager Anvil replaces all the standard weaponry, equipment, and torso with two Long Tom Artillery Cannons. A head mounted Laser AMS required the use of a Small Cockpit. A Light Engine allows the Pillager Anvil to retain the movement curve of the original, but the jump jets and two tons of armor were replaced by experimental Coolant Pods to keep the Pillager Anvil's heat under control.",
+    "manufacturer": "General Motors,HildCo Interplanetary",
+    "primaryFactory": "Kathil,St. Ives",
+    "systemManufacturer": {
+      "CHASSIS": "HildCo Heavy Type VIIQT",
+      "ENGINE": "Vlar 300 Light",
+      "ARMOR": "StarSlab/9.5 Mk II",
+      "JUMPJET": "HildCo Model 13",
+      "COMMUNICATIONS": "CeresCom Recon Model 12K",
+      "TARGETING": "C-Apple Churchill"
+    }
+  },
+  "mulId": 2526,
+  "role": "Missile Boat",
+  "source": "XTR:Liao"
+}

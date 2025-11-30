@@ -1,0 +1,186 @@
+{
+  "id": "crimson-langur-a",
+  "chassis": "Crimson Langur",
+  "model": "A",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3065,
+  "tonnage": 50,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 24,
+      "RIGHT_LEG": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      "CLLRM15 (omnipod)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLERLargeLaser (omnipod)",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "imp_com",
+    "pro_actuator"
+  ],
+  "fluff": {
+    "overview": "Khan Schmitt initiated many schemes to instill fresh energy in her Clan, one of which would result in new OmniMechs. The Crimson Langur, a fast medium mech designed for pilot safety, was born as a result of this.",
+    "capabilities": "The Crimson Langur is a remarkably fast 'Mech for its weight. In order to do this, it uses both an XL engine and an endo steel chassis to save weight. The design utilizes ten and a half tons of standard armor, the most the chassis can hold, though this weight only gives the Crimson Langur fifteen tons of pod space for modular equipment. To keep the warriors assigned to it in the fight longer, the Crimson Langur is equipped with a Full Head Ejection System.",
+    "history": "As the Blood Spirits planned to isolate themselves from the Clans following the Great Refusal, the Star Adders increased their raids on the Spirits until the Trials of Possession threatened the security of York and the morale of Clan Blood Spirit. Khan Schmitt initiated many schemes to instill fresh energy in her Clan, one of which would result in new OmniMechs. But, because the Spirits' finances have always been limited, they contacted Kindraa Mick-Kreese in the hopes of forging a better relationship. Kindraa, a staunch Crusader, was eager to assist, and a period of co-development and production started. When finished, the OmniMech was christened Crimson Langur to honor the new alliance between the two Clans.",
+    "deployment": "This long-range support configuration uses two of Clan Blood Spirit's favored weapons. The ER large laser from the Prime configuration is retained, while the other arm mounts a pair of LRM-15s with four tons of ammunition. To make room for this the jump jets have been removed.",
+    "manufacturer": "Kindraa Mick-Kreese Primary Production Facility,Unknown,York Y2 Facility",
+    "primaryFactory": "Atreus (Clan),Haven (Colleen),York",
+    "systemManufacturer": {
+      "CHASSIS": "York XT",
+      "ENGINE": "350 XL",
+      "ARMOR": "Beta J77",
+      "COMMUNICATIONS": "York Y2-Com",
+      "TARGETING": "York Y5- T&T5"
+    }
+  },
+  "mulId": 4016,
+  "role": "Missile Boat",
+  "source": "TR:3067"
+}

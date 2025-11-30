@@ -1,0 +1,196 @@
+{
+  "id": "ostsol-otl-4f",
+  "chassis": "Ostsol",
+  "model": "OTL-4F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "EARLY_SUCCESSION_WARS",
+  "year": 2871,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 22,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 22,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 6
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "imp_sensors",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "Ostmann Industries had built up a solid portfolio of BattleMechs by 2693, having drawn up and produced the successful Ostwar, Ostsol, and Ostscout designs. Their attempt at a new member of their line-up, a heavy cavalry BattleMech capable of independent operations, would lead to the development of the Ostsol. Their manufacturing lines, however, were already overloaded by demand for the popular Ostsol, leading Ostmann  to partner with Kong Interstellar to manufacture the design on Kong's lines on Connaught. The pact would be profitable for both companies, and the Ostsol became a popular staple in both House armies and SLDF forces.",
+    "capabilities": "The Ostsol was created to fulfill a contract for a rapid heavy BattleMech with a fully energy-based armament. In this, Ostmann Industries was successful. The Ostsol has offered sterling service as a heavy cavalry design since its inception, and the shattered supply lines of the Succession Wars did little to reduce the 'Mech's effectiveness. The TRSS.2L3 sensors, reused after their outstanding use on the Ostscout, give the Ostsol excellent data gathering capabilities for a 'Mech of its role. However, just as with the earlier Ostroc, the Ostsol suffers from fragile arms and often loses them in combat.",
+    "deployment": "The Ostsol has been a popular fixture of House armies since its introduction. The Succession Wars did little to change this, and the 'Mech remained a common sight throughout the Inner Sphere. House Davion would attempt to refit some of their Ostsols into the -4F. Twin PPCs replaced the entire armament in an attempt to give this variant a greater punch. Never more than a stopgap design, the -4F eventually fell into extinction after the battles of the Jihad.",
+    "systemManufacturer": {
+      "CHASSIS": "Kell",
+      "ENGINE": "Vlar",
+      "ARMOR": "Valiant",
+      "COMMUNICATIONS": "Barret",
+      "TARGETING": "TRSS"
+    }
+  },
+  "mulId": 2372,
+  "role": "Skirmisher",
+  "source": "TR:3039"
+}

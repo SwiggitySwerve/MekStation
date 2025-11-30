@@ -1,0 +1,189 @@
+{
+  "id": "mongoose-ii-mon-268",
+  "chassis": "Mongoose II",
+  "model": "MON-268",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 40,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 18,
+      "RIGHT_LEG": 18
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "c3-master-with-tag",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISERMediumLaser",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "BeagleActiveProbe",
+      "BeagleActiveProbe",
+      "ISMASC",
+      "ISMASC",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISTargeting Computer",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISERMediumLaser",
+      "Ferro-Fibrous"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "command_mech",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "Luthien Armor Works was working on an upgrade of the Mongoose for ComStar to be a faster and tougher scout 'Mech, when the chaos on Luthien during the early years of the Jihad forced them to look elsewhere.",
+    "capabilities": "The result is the Mongoose II, an effective hunter-killer that is able to find hidden enemies and provide long range fire support. Equipped with an impressive suite of electronics, the 'Mech carries a Beagle Active Probe, Guardian ECM Suite, C3i Computer, and MASC that enables it move up to 172 km/h in bursts. A respectable seven tons of armor protects the Mongoose II.",
+    "history": "ComStar financed a refit of a lost Rim Worlds Republic factory on Kwangjong-ni. New versions of the Zeus and Banshee were walking off the line for battlefield testing when Word of Blake conquered Hesperus II. Anxious to stay solvent, ComStar C-bills paid for the upgrade to the Kwangjong-ni facility. In exchange, Defiance sold them sixty-six percent of its production for its first two years.",
+    "deployment": "A command unit that was still undergoing tests in 3075, the 268 trades out the ECM and C3i for a C3 Master Computer. Ferro-Fibrous armor provides increased protection. In order to make room, the ER Large Laser had to be removed, so it is replaced with three Ramtech ER Medium Lasers guided by a Targeting Computer.",
+    "manufacturer": "Arc-Royal MechWorks, Defiance Manufacturing Annex",
+    "primaryFactory": "Arc-Royal,Kwangjong-ni",
+    "systemManufacturer": {
+      "CHASSIS": "Alshain Type 69-40S",
+      "ENGINE": "Pitban 320 XL",
+      "ARMOR": "Starshield Ferro-Fibrous",
+      "COMMUNICATIONS": "Nashan Comm-i U-284",
+      "TARGETING": "Nashan Trac V-102 with Active Probe"
+    }
+  },
+  "mulId": 2218,
+  "role": "Striker",
+  "source": "TR:3075"
+}

@@ -1,0 +1,180 @@
+{
+  "id": "spector-spr-6f",
+  "chassis": "Spector",
+  "model": "SPR-6F",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3119,
+  "tonnage": 35,
+  "engine": {
+    "type": "XL",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "REFLECTIVE",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 12,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 16,
+      "RIGHT_LEG": 16
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-vsp-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "CLImprovedMediumHeavyLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumVSPLaser",
+      "ISMediumVSPLaser",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "IS Endo Steel",
+      "IS Reflective",
+      "IS Reflective",
+      "IS Reflective",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISERSmallLaser",
+      "IS Endo Steel"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "rugged_1",
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "The Spector was originally designed by Norse Technologies to be a lighter version of the Exterminator BattleMech, made to hunt down light command 'Mechs.",
+    "capabilities": "The Spector was originally designed to use the advanced Null-Signature system, able to hide the 'Mech's radar and heat signatures, and Chameleon Light Polarization Shield, capable of obscuring the BattleMech's appearance. However, these technologies were lost during the Succession Wars and have not yet been replicated. The current incarnation of the Spector, SPR-5F, does not carry a Null Signature System nor the Chameleon LPS because of this.",
+    "history": "The first Spector rolled off the assembly line on June 6th, 2639, and following extensive testing the SLDF ordered 600 units, the first run of which were delivered in April of 2640. The Star League's enthusiasm for the Spector is due to the BattleMechs stealth capabilities, combining both Chameleon Light Polarization Shield and a Null-Signature system. All Spectors, and all reports on them, were believed lost with the fall of the Star League until 3048, when rumors spread that the mercenary units McCarron's Armored Cavalry and Storm's Metal Thunder were fielding Spectors, presumably recovered from an ancient cache, although neither admitted to fielding vintage Star League era 'Mechs.\nmanufacturer:Norse Technologies\nprimaryfactory:Loxley\nsystemmanufacturer:CHASSIS:Norse XT-Light Type AE (Endo)\nsystemmanufacturer:ENGINE:Magna 245 XL\nsystemmanufacturer:ARMOR:Starshield Light\nsystemmanufacturer:JUMPJET:HildCo Model 11c\nsystemmanufacturer:COMMUNICATIONS:AR-12 Sheathed Directional Beacon with Norse Guardian ECM Suite\nsystemmanufacturer:TARGETING:DLK Type Phased Array Sensor System",
+    "deployment": "No Information on this variant"
+  },
+  "mulId": 9375,
+  "role": "Striker",
+  "source": "RG28"
+}

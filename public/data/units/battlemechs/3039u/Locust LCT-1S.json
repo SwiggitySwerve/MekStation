@@ -1,0 +1,187 @@
+{
+  "id": "locust-lct-1s",
+  "chassis": "Locust",
+  "model": "LCT-1S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2567,
+  "tonnage": 20,
+  "engine": {
+    "type": "FUSION",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 3,
+      "RIGHT_ARM": 3,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 6,
+      "RIGHT_LEG": 6
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "srm-2",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "srm-2",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "SRM 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser",
+      "IS Ammo SRM-2"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": [
+    "compact_mech",
+    "low_profile",
+    "cramped_cockpit",
+    "no_arms",
+    "weak_legs",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "fluff": {
+    "overview": "The Locust is undoubtedly one of the most popular and prevalent light BattleMechs ever made. First produced in 2499, the almost dozen distinct factories manufacturing the design quickly spread it to every power in human space. Its combination of tough armor (for its size), exceptional speed, and most importantly, low cost have all contributed to the Locust's success. It remains the benchmark for many scouting designs, and its continual upgrades have ensured that it remains just as effective with every new conflict that appears.",
+    "capabilities": "As the Locust was first developed as a recon platform, speed is paramount to the design's philosophy. While many variants change the weaponry to fill specific tasks or purposes, Locusts are nearly always pressed into service in ways where they can best take advantage of their speed. When in line regiments, they can act as a deadly flankers or harassers, and are often used in reactionary roles to quickly plug holes in a fluid battle line. The structural form of Locusts themselves are their greatest weakness; with no hands, they are disadvantaged in physical combat and occasionally have difficulty righting themselves after a fall.",
+    "deployment": "One of the most common designs even produced, even the smallest mercenary or pirate outfits will often field one or more of the design. Production for the Locust has continued uninterrupted for centuries, and it plays an important role in the militaries of many smaller nations. The Lyran Commonwealth's LCT-1S is a more offensive design. With better range and firepower, some theorize that the variant was created to emulate the well liked and successful Commando BattleMech.",
+    "systemManufacturer": {
+      "CHASSIS": "Bergan",
+      "ENGINE": "LTV",
+      "ARMOR": "StarSlab",
+      "COMMUNICATIONS": "Garrett",
+      "TARGETING": "O/P"
+    }
+  },
+  "mulId": 1900,
+  "role": "Scout",
+  "source": "TR:3039"
+}

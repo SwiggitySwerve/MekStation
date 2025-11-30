@@ -1,0 +1,178 @@
+{
+  "id": "wasp-lam-mk-i-wsp-100b",
+  "chassis": "Wasp LAM Mk I",
+  "model": "WSP-100b",
+  "unitType": "BattleMech",
+  "configuration": "LAM",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2703,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 150
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 6,
+      "RIGHT_ARM": 6,
+      "LEFT_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "RIGHT_TORSO": {
+        "front": 9,
+        "rear": 3
+      },
+      "CENTER_TORSO": {
+        "front": 12,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 10,
+      "RIGHT_LEG": 10
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "streak-srm-2",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Landing Gear",
+      "Avionics",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISStreakSRM2",
+      "IS Streak SRM 2 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Landing Gear",
+      "Avionics",
+      "Heat Sink",
+      "ISMediumPulseLaser",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Landing Gear",
+      "Jump Jet"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Avionics",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "fluff": {
+    "overview": "Designed right after the Stinger LAM proved the Land-Air 'Mech concept, the aerodynamic Wasp chassis also seemed to promise a successful conversion. However, weapon accuracy was severely hampered on initial prototypes. Only after the Harvard Company hired Katherine Piscalla was a successful Wasp LAM actually produced.",
+    "capabilities": "The Wasp LAM is similar to the Stinger LAM, maintaining the same ground and air speed. The only real difference is in the armament.",
+    "history": "The Wasp LAM is able to convert from BattleMech to Aerospace Fighter faster than any other Land-Air 'Mech. The Wasp LAM also mounts no lostech (save the conversion equipment). The ease of use and ability to drop bombs from bomb bays made the Wasp LAM especially successful in air-to-ground strikes, no matter where that ground may be. During its first operation, Wasp LAMs were tasked with destroying a nuclear weapons facility orbiting in the Terran Oort Cloud in 2690. Generations of SLDF ground soldiers loved the Wasp LAM so much, they bestowed upon it the moniker \"angels on our shoulders\". The Wasp LAM was a highly sought-after prize, and a jealously guarded commodity when most of the Wasp LAM production facilities were destroyed shortly after the start of the First Succession War. By the thirty-first century, the Wasp LAM was an exceedingly rare sight within the Inner Sphere.",
+    "deployment": "This variant was designed for the SLDF's \"Blackhearts\" teams. Based on the standard WSP-100, it replaced the medium laser and bomb bay with an extra jump jet, Medium Pulse Laser, Streak SRM-2, and Guardian ECM Suite. The armor protection was also increased slightly.",
+    "manufacturer": "Harvard Company, Inc.",
+    "primaryFactory": "Epsilon Eridani",
+    "systemManufacturer": {
+      "CHASSIS": "Harvard 12K",
+      "ENGINE": "GM 150",
+      "ARMOR": "Durallex Light",
+      "JUMPJET": "GM ATO 100",
+      "COMMUNICATIONS": "Rand 1200",
+      "TARGETING": "Rand LAMTar 100"
+    }
+  },
+  "mulId": 5394,
+  "role": "Scout",
+  "source": "TR:3085"
+}

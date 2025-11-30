@@ -1,0 +1,117 @@
+{
+  "id": "celerity-clr-04-r",
+  "chassis": "Celerity",
+  "model": "CLR-04-R",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 15,
+  "engine": {
+    "type": "XXL",
+    "rating": 225
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 1,
+      "FRL": 1,
+      "LEFT_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "RIGHT_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "CENTER_TORSO": {
+        "front": 2,
+        "rear": 1
+      },
+      "HEAD": 3,
+      "RLL": 1,
+      "RRL": 1
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 15,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "tsemp-one-shot",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISDroneOperatingSystem",
+      "TSEMP One-Shot",
+      "TSEMP One-Shot",
+      "TSEMP One-Shot",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ]
+  },
+  "quirks": [
+    "exp_actuator"
+  ],
+  "mulId": 6709,
+  "role": "Scout",
+  "source": "TR:3145:RotS"
+}

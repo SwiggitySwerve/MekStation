@@ -1,0 +1,177 @@
+{
+  "id": "rifleman-rfl-3cr",
+  "chassis": "Rifleman",
+  "model": "RFL-3Cr",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3071,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 17,
+      "RIGHT_ARM": 17,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 22,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 17,
+      "RIGHT_LEG": 17
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "autocannon-10",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "autocannon-10",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Autocannon/10",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Medium Laser",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Medium Laser",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "IS Ammo AC/10",
+      "ISCASE",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "Heavy Ferro-Fibrous",
+      "Heavy Ferro-Fibrous"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "anti_air",
+    "imp_com",
+    "searchlight",
+    "ubiquitous_clan",
+    "ubiquitous_is"
+  ],
+  "mulId": 2696,
+  "role": "Brawler",
+  "source": "TR:3085S"
+}

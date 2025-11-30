@@ -1,0 +1,183 @@
+{
+  "id": "st-florian-fln-366-m-firemech-mod",
+  "chassis": "St. Florian",
+  "model": "FLN-366-M FireMech MOD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3133,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "INDUSTRIAL"
+  },
+  "armor": {
+    "type": "INDUSTRIAL",
+    "allocation": {
+      "LEFT_ARM": 15,
+      "RIGHT_ARM": 15,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 15
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 15
+      },
+      "CENTER_TORSO": {
+        "front": 24,
+        "rear": 15
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "heavy-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "heavy-flamer",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heavy Flamer",
+      "Heavy Flamer",
+      "IS Heavy Flamer Ammo",
+      "IS Heavy Flamer Ammo",
+      "Environmental Sealing",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heavy Flamer",
+      "Heavy Flamer",
+      "IS Heavy Flamer Ammo",
+      "IS Heavy Flamer Ammo",
+      "Environmental Sealing",
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "Coolant Pod",
+      "Searchlight",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISPlasmaRifle",
+      "ISPlasmaRifle",
+      "ISPlasmaRifleAmmo",
+      "ISPlasmaRifleAmmo",
+      "Coolant Pod",
+      "Searchlight",
+      "Environmental Sealing",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Coolant Pod",
+      "Environmental Sealing"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Environmental Sealing",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Environmental Sealing"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Environmental Sealing"
+    ]
+  },
+  "fluff": {
+    "overview": "The St. Florian MOD, recently seen with the Stormhammers on Towne, is an imposing sight, towering as large as an assault BattleMech while still fielding the firepower of a heavy one. The secret to its abilities lies in its pedigree, as many of the FireMechâs components have been adapted from one of the Inner Sphereâs most famous assault âMechs: the Highlander. Initially a byproduct to utilize surplus single heat sink-equipped standard fusion engines after the Highlander production line was upgraded to the HGN-734 in 3062, the St. Florian quickly gained fame as the most advanced IndustrialMech introduced since the fall of the Star League. It became a bestseller amongst those parties which could afford itâand more often than not are now scrambling to equip it with weaponry.",
+    "capabilities": "Cynical minds fear that Star Corps themselves may be behind a military modification of the St. Florian, but closer examination of this MOD suggests little evidence to support any such theories. While it carries advanced plasma rifles, there is no structural upgrade to the FireMech whatsoever. The environmental sealing and bank of heat sinks are core components of the standard St. Florian which allow it to wade into the thick of fires instead of combating them from the outside as slighter units like the Pompier are forced to. Turning a firefighter into an incendiary combatant makes a certain amount of sense, but a lack of additional heat sinks and reliance on volatile coolant pods definitely betrays this otherwise impressive MOD as a field modification in the truest sense.",
+    "deployment": "While the St. Florianâs capabilities mark it as a much-desired part of any communityâs public services apparatus, its cost is unfortunately prohibitive for most small to medium-sized towns. Even the Republic, with its prosperity driven by Devlin Stoneâs reforms, has had difficulty in procuring large quantities of this FireMech. As a consequence, the majority of the St. Florians in service are to be found in planetary capitals and major metropolises across the Inner Sphere, while smaller settlements must make do with the Pompier or even forego specialized fire-fighting âMechs. However, the long service record of the St. Florian has led to a significant secondary market where used or slightly damaged examples are perennial bestsellers. Though the current scramble to militarize common IndustrialMechs has not passed the St. Florian by, the crucial role it plays in protecting the homes and businesses of the cities where it has been deployed means that a comparatively smaller percentage of these âMechs have been modded for combat usage. Within the Republic, such conversions seem oddly common on those worlds that have recently come under control of one of the Clan-based splinter factions. The very idea of piloting converted Industrials into combat is anathema to most Clanners but the fact that several of these factions have begun accepting Spheroid applicants is perhaps all the explanation necessary.\nmanufacturer:StarCorps Industries\nprimaryfactory:Son Hoa\nsystemmanufacturer:CHASSIS:Industrial XT\nsystemmanufacturer:ENGINE:GM 270 Fusion\nsystemmanufacturer:ARMOR:Lang Heavy Industrial\nsystemmanufacturer:COMMUNICATIONS:Hector VII\nsystemmanufacturer:TARGETING:Starlight LX-1"
+  },
+  "mulId": 7826,
+  "role": "None",
+  "source": "TR:I"
+}

@@ -1,0 +1,198 @@
+{
+  "id": "doloire-dlr-od",
+  "chassis": "Doloire",
+  "model": "DLR-OD",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3121,
+  "tonnage": 80,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_COMPOSITE"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 24,
+      "RIGHT_ARM": 24,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 38,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 30,
+      "RIGHT_LEG": 30
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "er-micro-laser",
+      "location": "LEFT_LEG"
+    },
+    {
+      "id": "er-micro-laser",
+      "location": "RIGHT_LEG"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "streak-srm-4",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "tsemp-cannon",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "tsemp-cannon",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "ISLargeVibroblade (omnipod)",
+      "ISLargeVibroblade (omnipod)",
+      "ISLargeVibroblade (omnipod)",
+      "ISLargeVibroblade (omnipod)",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "ISAES"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLStreakSRM4 (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "CLStreakSRM4 (omnipod)",
+      "ISAES",
+      "ISAES",
+      "ISAES",
+      "ISAES"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "Supercharger (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite",
+      "IS Endo-Composite"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "TSEMP Cannon (omnipod)",
+      "Clan Streak SRM 4 Ammo (omnipod)",
+      "Clan Streak SRM 4 Ammo (omnipod)",
+      "ISCASEII (omnipod)",
+      "IS Endo-Composite",
+      "IS Endo-Composite"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLERMediumLaser",
+      "CLERMediumLaser"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo-Composite",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLERMicroLaser (omnipod)",
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLERMicroLaser (omnipod)",
+      null
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "command_mech"
+  ],
+  "mulId": 6682,
+  "role": "Skirmisher",
+  "source": "TR:3145:RotS"
+}

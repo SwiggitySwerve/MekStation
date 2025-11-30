@@ -1,0 +1,130 @@
+{
+  "id": "snow-fox-3",
+  "chassis": "Snow Fox",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 20,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 180
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "FLL": 5,
+      "FRL": 5,
+      "LEFT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 7,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 7,
+        "rear": 3
+      },
+      "HEAD": 9,
+      "RLL": 5,
+      "RRL": 5
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 9,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "ap-gauss-rifle",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ap-gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "atm-3",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLAPGaussRifle",
+      "Clan Ammo ATM-3",
+      "Clan Ammo ATM-3",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink",
+      "CLAPGaussRifle",
+      "CLAPGaussRifle Ammo",
+      "CLECMSuite",
+      "Endo Steel",
+      "Endo Steel",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLATM3",
+      "CLATM3"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "CLERMediumLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "low_profile",
+    "hard_pilot"
+  ],
+  "mulId": 2981,
+  "role": "Striker",
+  "source": "TR:3060"
+}

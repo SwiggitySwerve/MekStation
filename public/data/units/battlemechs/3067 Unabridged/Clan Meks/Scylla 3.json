@@ -1,0 +1,173 @@
+{
+  "id": "scylla-3",
+  "chassis": "Scylla",
+  "model": "3",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3082,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 400
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 32,
+      "RIGHT_ARM": 32,
+      "LEFT_TORSO": {
+        "front": 33,
+        "rear": 9
+      },
+      "RIGHT_TORSO": {
+        "front": 33,
+        "rear": 9
+      },
+      "CENTER_TORSO": {
+        "front": 45,
+        "rear": 11
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 42,
+      "RIGHT_LEG": 42
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 16
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-clerppc",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-clheavylargelaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-clhag30",
+      "location": "RIGHT_ARM,_AMMO:12"
+    },
+    {
+      "id": "1-cllbxac20",
+      "location": "LEFT_ARM,_AMMO:10"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20",
+      "CLLBXAC20"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30",
+      "CLHAG30 Ammo"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLHeavyLargeLaser",
+      "CLLBXAC20 Ammo",
+      "CLLBXAC20 CL Ammo",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "CLERPPC",
+      "CLERPPC",
+      "CLHAG30 Ammo",
+      "CLHAG30 Ammo",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "oversized"
+  ],
+  "mulId": 5724,
+  "role": "Brawler",
+  "source": "RS:3067u"
+}

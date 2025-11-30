@@ -1,0 +1,182 @@
+{
+  "id": "legacy-lgc-04-wvr",
+  "chassis": "Legacy",
+  "model": "LGC-04-WVR",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "JIHAD",
+  "year": 3072,
+  "tonnage": 80,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 26,
+      "RIGHT_ARM": 26,
+      "LEFT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 26,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 40,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 34,
+      "RIGHT_LEG": 34
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "snub-nose-ppc",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "snub-nose-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "ISClaw",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSNPPC",
+      "ISSNPPC",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSNPPC",
+      "ISSNPPC",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC",
+      "ISMASC"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Light Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "directional_torso_mount",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Legacy was produced as a testbed for new technologies, including the Ultra AC/10 and C3i Computer.",
+    "capabilities": "They upgraded its targeting system and included the C3i, which allows six units to coordinate fire. Its thick armor protection, standard fusion engine, and CASE give the Legacy remarkable staying power on the battlefield. One of the weaknesses of the 'Mech is its slow speed compared to other 'Mechs of similar size, but the inclusion of jump jets sought to counter that with superior maneuverability.",
+    "history": "At the request of Word of Blake Precentor Martial Cameron St. Jamais. The designers used a failed Star League 'Mech called the Rising Star as the base for the Legacy.",
+    "deployment": "This Legacy uses the same frame and engine as the 03 model but uses a Compact Gyro to provide enough room to add MASC. This means it can reach a speed of 86km/h. The weaponry has been replaced with a pair of Snub-Nose PPCs, and the hand actuators have been replaced by Claws. The standard armor is replaced by Light Ferro-Fibrous.",
+    "manufacturer": "Skobel MechWorks",
+    "primaryFactory": "Russia, Terra",
+    "systemManufacturer": {
+      "CHASSIS": "Skobel Template 8 Endo Steel",
+      "ENGINE": "Pitban 240",
+      "ARMOR": "Aldis Plate with CASE",
+      "JUMPJET": "CurtissJet 80",
+      "COMMUNICATIONS": "Skobel Wave VII Comm with C3i Computer",
+      "TARGETING": "Falcon 15 Watcher"
+    }
+  },
+  "mulId": 5702,
+  "role": "Brawler",
+  "source": "RS:3067u"
+}

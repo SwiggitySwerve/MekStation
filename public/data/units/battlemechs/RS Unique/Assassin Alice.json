@@ -1,0 +1,204 @@
+{
+  "id": "assassin-asn-30-alice",
+  "chassis": "Assassin",
+  "model": "ASN-30 (Alice)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3066,
+  "tonnage": 40,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 18,
+        "rear": 5
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-isbeagleactiveprobe",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isc3slaveunit",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-isguardianecm",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "LEFT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISERMediumLaser",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISBeagleActiveProbe",
+      "ISBeagleActiveProbe",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_TORSO": [
+      "Engine",
+      "Engine",
+      "ISERMediumLaser",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Jump Jet",
+      "ISTargeting Computer"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISC3SlaveUnit",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Ferro-Fibrous",
+      "Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "cramped_cockpit",
+    "non_standard",
+    "poor_life_support"
+  ],
+  "fluff": {
+    "overview": "Many military finance experts outside the Star League saw the Assassin as more of a political pork project than a powerful fighting machine, yet it turned out to be a strong 'Mech in combat against light lances.",
+    "capabilities": "The Assassin was able to destroy these lighter 'Mechs due to its good speed and maneuverability, good armor coverage (in comparison to the 'Mechs it was built to battle against), and strong weaponry.Â The weapons of the 'Mech is essentially comprised of three systems: the long-range missile rack, the short-range missile rack, and the arm-mounted Martell midrange laser. The design is limited in durability unless assigned supply units for support because it can only carry a total of seventy-four salvos for both launchers. The most significant disadvantage for most pilots is the incredibly tight cockpitâone of the most confined cockpit designs in the Inner Sphere.",
+    "history": "Maltex has changed the cockpit cooling system dozens of times over the Assassin's four hundred year service history in a bid to provide extra elbow room, but none of the attempts have been effective. As a result, most pilots experience a tight, painful ride that limits in-cockpit time to half that of most other conventional designs; many ex-Assassin pilots have established a history of back issues that will bother them for the rest of their lives. The ammo feed system for the short-range missile rack was the only other issue with the Assassin (mostly those made up to 2815). It commonly failed during high-heat settings due to chronic jamming and could only be repaired through total disassembly in a mechanical bay. Under significant corporate pressure, Holly ultimately introduced a new feed system in 2815 and even paid several years of recall repairs; nonetheless, there are still a huge number of individually owned Assassins that may still mount the problematic system. Maltex produced only a few hundred ASN-21s after their launch. Due to a lack of spare parts, those Assassins in service were utilized sparingly, however House Marik enthusiastically used the 'Mech late in the Third Succession War. When a rush of new BattleMech types entered the markets after 3058, the Assassin was nearly phased out of service. Those that have stayed in service are usually family heirlooms with some modifications.",
+    "deployment": "A customized Assassin created by Lyran MechWarrior Alice Humpterderby of the 24th Lyran Guards. This Assassin was rebuilt with Davion salvage during the FedCom Civil War, and was equipped with seven and a half tons of ferro-fibrous armor, four ER medium lasers split between the torsos and the right arm. The lasers have been connected to a salvaged targeting computer, and a C3 slave computer, a Beagle active probe, and 10 double heat sinks have also been mounted.",
+    "manufacturer": "Reft",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Maltex 40",
+      "ENGINE": "280 Edasich Light",
+      "ARMOR": "StarGuard Ferro-Fibrous",
+      "JUMPJET": "Lox Lift Series 1",
+      "COMMUNICATIONS": "Garret T15 B",
+      "TARGETING": "Garret 500S"
+    }
+  },
+  "mulId": 3738,
+  "role": "Striker",
+  "source": "RS:UM"
+}

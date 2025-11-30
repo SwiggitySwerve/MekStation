@@ -1,0 +1,179 @@
+{
+  "id": "ryoken-ii-2",
+  "chassis": "Ryoken II",
+  "model": "2",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3076,
+  "tonnage": 75,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 375
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 19,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 19,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 28,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 25,
+      "RIGHT_LEG": 25
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "ultra-ac-10",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLLRM15",
+      "CLLRM15",
+      "Clan Ammo LRM-15",
+      "Clan Ultra AC/10 Ammo",
+      "Clan Ultra AC/10 Ammo",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLUltraAC10",
+      "CLLRM15",
+      "CLLRM15",
+      "Clan Ammo LRM-15",
+      "Clan Ultra AC/10 Ammo",
+      "Clan Ultra AC/10 Ammo",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
+    ]
+  },
+  "quirks": [
+    "stable"
+  ],
+  "fluff": {
+    "overview": "After the success of the Mad Cat Mk II design, which increased the tonnage and weaponry of the Mad Cat, Clan Ghost Bear applied these same changes to the medium Ryoken.",
+    "capabilities": "The Ryoken II is slower than its antecedent, only capable of 87 km/h, though it has more weight available for equipment and weapons. It is built on an Endo Steel chassis and is protected by thirteen and a half tons of armor.",
+    "history": "The Ryoken II, first walked off the assembly line in 3075 during the Word of Blake Jihad. When the Ghost Bears later decided to sell some to the Republic of the Sphere, it caused a ruckus among some of the Clans, including a few Trials of Grievance from Clan Hell's Horses.\nmanufacturer:Bergan Industries\nprimaryfactory:Alshain\nsystemmanufacturer:CHASSIS:DSAM ENDO 5\nsystemmanufacturer:ENGINE:GM 375 Fusion Extralight\nsystemmanufacturer:ARMOR:Forging ZK20\nsystemmanufacturer:COMMUNICATIONS:Garret GBX-2 Amalgamated Targeting and Tracking\nsystemmanufacturer:TARGETING:Alshain B4 Series 2 T&T",
+    "deployment": "This variant is better suited to close range work and was introduced during the Jihad. It trades the autocannons for a pair of Ultra Autocannon/10s and four tons of ammunition for them. Though ammo stores are still limited, this variant is more likely to succeed in greatly damaging its opponent before the stores run out. This is also more imperative, as it mounts two tons less armor."
+  },
+  "mulId": 2759,
+  "role": "Sniper",
+  "source": "TR:3075"
+}

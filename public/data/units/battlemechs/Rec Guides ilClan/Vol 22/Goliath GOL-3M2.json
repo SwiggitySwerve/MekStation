@@ -1,0 +1,149 @@
+{
+  "id": "goliath-gol-3m2",
+  "chassis": "Goliath",
+  "model": "GOL-3M2",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "tonnage": 80,
+  "engine": {
+    "type": "XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 26,
+      "FRL": 26,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 13
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 13
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 19
+      },
+      "HEAD": 9,
+      "RLL": 31,
+      "RRL": 31
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 17
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-10",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "small-pulse-laser",
+      "location": "LEFT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 10",
+      "LRM 10",
+      "ISSmallPulseLaser",
+      "IS Gauss Ammo",
+      "IS Ammo LRM-10",
+      "IS Ammo LRM-10",
+      "ISCASE",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "LRM 10",
+      "LRM 10"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISSmallPulseLaser",
+      "IS Gauss Ammo"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Heat Sink",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "multi_trac",
+    "exp_actuator"
+  ],
+  "fluff": {
+    "overview": "The Goliath is used as a general assault 'Mech and until recently was not usually seen in large numbers because of the bias against quad 'Mechs prior to the 3060s.",
+    "capabilities": "The Goliath is armed with what would be considered a paltry armament for a 'Mech of its size.",
+    "history": "The Goliath is the second 'Mech built in 2652 by Brigadier Corporation. The Goliath is based on lessons that were learned from the Scorpion. The first and most important difference is that the Goliath weighs in at 80 tons allowing it to carry a much heavier weapons payload and armor at the cost of mobility. In the late 3060s the Goliath saw renewed production and renewed popularity and has since become a powerful and respected assault 'Mech. In 3143, The Corean Enterprises - MacAdams-Suharno plant on Stewart was captured by Clan Wolf, and it's GOL-6M variant production line converted to produce a Clan version of the 'Mech.",
+    "deployment": "Unknown",
+    "manufacturer": "here",
+    "primaryFactory": "there",
+    "systemManufacturer": {
+      "CHASSIS": "Corean VIII",
+      "ENGINE": "Hermes 320 XL",
+      "ARMOR": "Starshield with CASE",
+      "COMMUNICATIONS": "Corean TransBand-J9",
+      "TARGETING": "Corean B-Tech"
+    }
+  },
+  "mulId": 8405,
+  "role": "Sniper",
+  "source": "RG22"
+}

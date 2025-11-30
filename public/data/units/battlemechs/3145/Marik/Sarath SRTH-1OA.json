@@ -1,0 +1,140 @@
+{
+  "id": "sarath-srth-1oa",
+  "chassis": "Sarath",
+  "model": "SRTH-1OA",
+  "unitType": "BattleMech",
+  "configuration": "Quad",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3122,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 250
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "FLL": 24,
+      "FRL": 24,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 25,
+        "rear": 7
+      },
+      "HEAD": 8,
+      "RLL": 24,
+      "RRL": 24
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 5
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "mml-3",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Ammo LRM-15 (omnipod)",
+      "Clan Ammo LRM-15 (omnipod)",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM",
+      "TSM",
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "CLLRM15 (T) (omnipod)",
+      "CLLRM15 (T) (omnipod)",
+      "CLLRM15 (T) (omnipod)",
+      "CLLRM15 (T) (omnipod)",
+      "ISMML3 (T) (omnipod)",
+      "ISMML3 (T) (omnipod)",
+      "ISMML3 (T) (omnipod)",
+      "ISMML3 (T) (omnipod)",
+      "ISQuadTurret"
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (omnipod)",
+      "CLERSmallLaser (omnipod)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "ISERSmallLaser",
+      "Sensors",
+      "Life Support"
+    ]
+  },
+  "quirks": [
+    "distracting",
+    "compact_mech",
+    "low_profile",
+    "bad_rep_is"
+  ],
+  "mulId": 6507,
+  "role": "Missile Boat",
+  "source": "TR:3145:FWL"
+}

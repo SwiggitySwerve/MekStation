@@ -1,0 +1,185 @@
+{
+  "id": "quickdraw-qkd-8x",
+  "chassis": "Quickdraw",
+  "model": "QKD-8X",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "JIHAD",
+  "year": 3073,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 10
+      },
+      "HEAD": 8,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "movement": {
+    "walk": 5,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "1-isguardianecm",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isppc",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-istag",
+      "location": "HEAD"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_TORSO_(R)",
+      "isRearMounted": true
+    },
+    {
+      "id": "1-islifthoist",
+      "location": "LEFT_TORSO",
+      "isRearMounted": true
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Stealth Armor",
+      "Stealth Armor"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Stealth Armor",
+      "Stealth Armor"
+    ],
+    "LEFT_TORSO": [
+      "Life Support",
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Lift Hoist (R)",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Life Support",
+      "ISMediumLaser (R)",
+      "ISMediumLaser (R)",
+      "ISGuardianECM",
+      "ISGuardianECM",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Stealth Armor",
+      "Stealth Armor",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Cockpit",
+      "Sensors",
+      "ISHeadTurret",
+      null
+    ],
+    "HEAD": [
+      "Sensors",
+      "Sensors",
+      "ISPPC (T)",
+      "ISPPC (T)",
+      "ISPPC (T)",
+      "ISTAG"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth Armor",
+      "Stealth Armor"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth Armor",
+      "Stealth Armor"
+    ]
+  },
+  "quirks": [
+    "hyper_actuator",
+    "exp_actuator"
+  ],
+  "mulId": 2617,
+  "role": "Sniper",
+  "source": "XTR:Corps"
+}

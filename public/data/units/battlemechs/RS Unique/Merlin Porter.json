@@ -1,0 +1,190 @@
+{
+  "id": "merlin-mln-1b-porter",
+  "chassis": "Merlin",
+  "model": "MLN-1B (Porter)",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3064,
+  "tonnage": 60,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 30,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "1-ismediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-ismediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-islargelaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-issrm4",
+      "location": "LEFT_TORSO,_AMMO:25"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMediumLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISSRM4",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "Heat Sink",
+      "ISLargeLaser",
+      "ISLargeLaser",
+      "ISSRM4 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Engine",
+      "Engine",
+      "Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Engine",
+      "Engine",
+      "Engine",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "easy_maintain",
+    "rugged_1"
+  ],
+  "fluff": {
+    "overview": "The Merlin uses components that are all reliable and readily available, making the Merlin a durable and easy-to-repair 'Mech.",
+    "capabilities": "The 'Mech is powered by a Pitban 240 fusion engine that gives it a top speed of 64.8 km/h. The Merlin carries ten and a half tons of armor, which is a respectable amount of protection for its weight. Additionally, the Merlin carries eighteen heat sinks to handle its heavy heat load.",
+    "history": "The Merlin debuted in 3010 as a product of the rebuilt Mountain Wolf BattleMechs. The Merlin was hailed as a technological marvel at the time it was released, as it was the first completely new design to be developed in over 100 years.",
+    "deployment": "A uniquely customized Merlin introduced in 3064, which was created by a tech named Porter Romero on the world Armington. He salvaged the 'Mech from a pirate raid during the 3060s. Using a wrecked militia Bulldog for parts, he replaced the ruined PPC and LRM-5 with the tank's Large Laser and SRM 4 Launcher as well as adding additional armor.",
+    "manufacturer": "Mountain Wolf BattleMechs, Vandenberg Mechanized Industries",
+    "primaryFactory": "Alpheratz, New Vandenberg",
+    "systemManufacturer": {
+      "CHASSIS": "Heavy Star QAT-4",
+      "ENGINE": "Pitban 240",
+      "ARMOR": "Longanecker PlastiSteel with CASE",
+      "JUMPJET": "Pitban LFT 50",
+      "COMMUNICATIONS": "Magestrix Alpha",
+      "TARGETING": "Magestrix Gamma"
+    }
+  },
+  "mulId": 2179,
+  "role": "Skirmisher",
+  "source": "RS:UM"
+}

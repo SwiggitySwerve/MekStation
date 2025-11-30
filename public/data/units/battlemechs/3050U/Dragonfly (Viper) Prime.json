@@ -1,0 +1,187 @@
+{
+  "id": "dragonfly-prime",
+  "chassis": "Dragonfly",
+  "model": "Prime",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "LATE_SUCCESSION_WARS",
+  "year": 2940,
+  "tonnage": 40,
+  "engine": {
+    "type": "CLAN_XL",
+    "rating": 320
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL_CLAN"
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS_CLAN",
+    "allocation": {
+      "LEFT_ARM": 12,
+      "RIGHT_ARM": 12,
+      "LEFT_TORSO": {
+        "front": 13,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 13,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 16,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 19,
+      "RIGHT_LEG": 19
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE_CLAN",
+    "count": 10
+  },
+  "movement": {
+    "walk": 8,
+    "jump": 8
+  },
+  "equipment": [
+    {
+      "id": "srm-4",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLSRM4 (OMNIPOD)",
+      "Clan Ammo SRM-4 (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLAntiMissileSystem (OMNIPOD)",
+      "CLAMS Ammo (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "Clan Machine Gun Ammo - Half (OMNIPOD)",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Clan Ferro-Fibrous",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "imp_target_long",
+    "low_profile"
+  ],
+  "fluff": {
+    "overview": "The Viper is a fast, highly-maneuverable medium OmniMech originally designed by Clan Fire Mandrill on Shadow. Codenamed the Dragonfly by the Inner Sphere forces that first encountered this small but fierce OmniMech, the name stuck because of its ability to move swiftly over the battlefield. The Viper is fast and well-armored, but significantly under-gunned compared with other Clan OmniMechs massing 35-45 tons (including the Adder, Battle Cobra, Grendel, Shadow Cat, Pouncer, and Cougar).",
+    "capabilities": "In its primary weapons configuration, the Viper is configured to fill a variety of close combat roles. The Viper has an Anti-Missile System for added defense capabilities and has two Machine Guns for use against soft targets and anti-infantry work. The Viper's main guns are two Medium Pulse Lasers and an SRM-4 launcher that allow it to harass other 'Mechs and vehicles. The Viper is built on a lightweight Endo Steel chassis and powered by a weight saving 320 XL engine that propels the Viper to a top speed of 129.6 km/h. The Viper augments its impressive ground speed with eight jump jets that allow it to jump up to a distance of two hundred and forty meters. The Viper has seven tons of Ferro-Fibrous armor to absorb any damage from shots that are lucky enough to strike it and has eight and a half tons of pod space for its weapons payload.",
+    "history": "Clan Ghost Bear came into possession of the design in 3002 when they traded several production runs of Executioner OmniMechs for the design and production facilities on Shadow. Rather than trial for land rights to Shadow, and become embroiled in the internecine struggles of the Fire Mandrills, the Bears restructured the facility, making the lines modular, and relocated production to Strana Mechty - this modular technology proved very useful when the Ghost Bears migrated back to the Inner Sphere in the late 3050s. Surprisingly, the Bears left their first modular production facility on Strana Mechty. Production continued on Strana Mechty for Clan Ghost Bear until the mid-3060s when the Hell's Horses won the production rights and the facility (and then promptly lost the facility to Clan Ice Hellion in 3068). In addition to the manufacturing plant on Strana Mechty, at least one other planet in the Homeworlds was home to a manufacturing line producing Vipers; in 3071 Clan Goliath Scorpion captured a Viper factory from Clan Coyote on Delios, although it is unknown if the planet survived the Wars of Reaving, Goliath Scorpion Abjurement and the subsequent abandonment of the planet by the Coyotes and Cloud Cobras.\nmanufacturer:Upsilon Plant 2J, Dominion Facility Kappa-5\nprimaryfactory:Strana Mechty, Thule\nsystemmanufacturer:CHASSIS:Type W2 Endo-steel\nsystemmanufacturer:ENGINE:320 Light Force XL\nsystemmanufacturer:ARMOR:Compound H17 Ferro-Fibrous\nsystemmanufacturer:JUMPJET:Geotec 300\nsystemmanufacturer:COMMUNICATIONS:Series D8 CC-25X\nsystemmanufacturer:TARGETING:Sloane 220 Lockover System"
+  },
+  "mulId": 926,
+  "role": "Scout",
+  "source": "TR:3050"
+}

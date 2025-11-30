@@ -1,0 +1,213 @@
+{
+  "id": "atlas-as7-cm",
+  "chassis": "Atlas",
+  "model": "AS7-CM",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 100,
+  "engine": {
+    "type": "XL",
+    "rating": 300
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 34,
+      "RIGHT_ARM": 34,
+      "LEFT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "RIGHT_TORSO": {
+        "front": 32,
+        "rear": 10
+      },
+      "CENTER_TORSO": {
+        "front": 47,
+        "rear": 14
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 41,
+      "RIGHT_LEG": 41
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 20
+  },
+  "movement": {
+    "walk": 3,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "anti-missile-system",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "c3-computer-master",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-20",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "CENTER_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "ISAntiMissileSystem",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit",
+      "ISC3MasterUnit"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "IS Gauss Ammo",
+      "IS Gauss Ammo",
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "LRM 20",
+      "IS Ammo LRM-20",
+      "IS Ammo LRM-20",
+      "ISAMS Ammo",
+      "ISCASE"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISGaussRifle",
+      "ISCASE",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISMediumPulseLaser (R)",
+      "ISMediumPulseLaser (R)"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "quirks": [
+    "battle_fists_la",
+    "battle_fists_ra",
+    "command_mech",
+    "distracting",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "\"A 'Mech as powerful as possible, as impenetrable as possible, and as ugly and foreboding as conceivable, so that fear itself will be our ally.â-Aleksandr Kerensky",
+    "capabilities": "The Atlas is probably the best-known BattleMech to ever set foot on the modern battlefield. Designed with specifications from Aleksandr Kerensky himself in 2755 in the midst of the Cameron Edicts, the Atlas was originally intended to ensure SLDF superiority over the Star League member states. Carrying the largest LRM launcher, the largest autocannon, and the largest SRM launcher possible, the Atlas can deal frightening amounts of damage in short amounts of time. Often used as a command vehicle, the Atlas mounts an advanced antenna and communications array, allowing it to engage in surface-to-space communications in real time. The massive 19-ton hide of armor that protects the Atlas makes it a difficult foe to take down. Indeed, most MechWarriors choose to fall back rather than face one head-on, as its lumbering gait means it can rarely catch up to other 'Mechs that choose to flee it. A full year of development went into crafting the famous \"Death's Head\" of the 'Mech to achieve the perfect ratio of functionality and fear. The head is also quite roomy and allows a small satellite dish to be mounted for surface-to-space communications. During combat the pilot can easily fold up the dish and store it within a protective portion of the head.",
+    "history": "Though the inexorable arming of the Great Houses continued, the Atlas proved itself to be everything General Kerensky requested. With the largest amount of armor of nearly any 'Mech, crippling firepower, and the foreboding skull-shaped \"Death's Head\" cockpit/head assembly, the Atlas lived up to its reputation. The mere sight of an Atlas had been known to make even a veteran MechWarrior break out in a cold sweat, and theoretically a single Atlas can take on and wipe out an entire battalion of Stingers in exchange for minor armor loss. The Atlas' first combat trials came during the Amaris Civil War, where it served an instrumental role as a powerful command vehicle. Though General Kerensky is well-known for being the one who kicked down the palace doors of the Usurper in his Orion, it was his close friend Aaron DeChavilier who, in his Atlas, weathered the storm of enemy fire and breached the protective wall surrounding the complex. After this conflict it was therefore with little surprise that the General wished for all of these 'Mechs to accompany him on Operation Exodus, but ironically of those MechWarriors who refused his summons fully two-thirds were Atlas pilots. These units were spread among the Successor States and Atlas factories on Al Na'ir, Hesperus II and Quentin would continue production of the 'Mech through the Succession Wars.\nmanufacturer:Field Refit\nprimaryfactory:Field Refit\nsystemmanufacturer:CHASSIS:Foundation Type 10X\nsystemmanufacturer:ENGINE:Vlar 300 XL\nsystemmanufacturer:ARMOR:Durallex Special Heavy\nsystemmanufacturer:COMMUNICATIONS:Angst Discom\nsystemmanufacturer:TARGETING:Angst Accuracy",
+    "deployment": "Another modification of the K model of the Atlas introduced in 3050, the CM Atlas was designed to carry a C3 Master Computer into battle. In order to do this one of the ER Large Lasers was removed and in its place a C3 Master computer was installed, allowing it to coordinate a C3 lance."
+  },
+  "mulId": 139,
+  "role": "Sniper",
+  "source": "TR:3050"
+}

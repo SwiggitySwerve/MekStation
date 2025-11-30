@@ -1,0 +1,186 @@
+{
+  "id": "grigori-c-grg-ob-infernus",
+  "chassis": "Grigori",
+  "model": "C-GRG-OB Infernus",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "JIHAD",
+  "year": 3069,
+  "tonnage": 60,
+  "engine": {
+    "type": "LIGHT",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "LIGHT_FERRO_FIBROUS",
+    "allocation": {
+      "LEFT_ARM": 19,
+      "RIGHT_ARM": 19,
+      "LEFT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "RIGHT_TORSO": {
+        "front": 20,
+        "rear": 6
+      },
+      "CENTER_TORSO": {
+        "front": 26,
+        "rear": 9
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 26,
+      "RIGHT_LEG": 26
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "mml-7",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "mml-7",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-small-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "plasma-rifle",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "HEAD"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISArtemisIV (OMNIPOD)",
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISMML7 (OMNIPOD)",
+      "ISArtemisIV (OMNIPOD)",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous",
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "Jump Jet (OMNIPOD)",
+      "ISERSmallLaser (R) (OMNIPOD)",
+      "IS Ammo MML-7 LRM Artemis-capable (OMNIPOD)",
+      "IS Ammo MML-7 SRM Artemis-capable (OMNIPOD)",
+      "ISC3iUnit",
+      "ISC3iUnit",
+      "ISCASE (OMNIPOD)",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet (OMNIPOD)",
+      "Jump Jet (OMNIPOD)",
+      "ISPlasmaRifle (OMNIPOD)",
+      "ISPlasmaRifle (OMNIPOD)",
+      "ISPlasmaRifleAmmo (OMNIPOD)",
+      "ISPlasmaRifleAmmo (OMNIPOD)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      "ISMediumPulseLaser (OMNIPOD)",
+      null
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Light Ferro-Fibrous",
+      "IS Light Ferro-Fibrous"
+    ]
+  },
+  "quirks": [
+    "imp_com",
+    "imp_sensors",
+    "bad_rep_clan",
+    "bad_rep_is"
+  ],
+  "fluff": {
+    "overview": "The Grigori is one of the Word of Blake's new Celestial series OmniMechs designed by Doctor Devon Cortland.",
+    "capabilities": "It is constructed on a standard chassis, but makes use of eleven tons of Light Ferro-Fibrous armor, a light fusion engine, and an XL Gyro; as well as the small cockpit that is common to all of the Celestials. Like the other Celestials, the Grigori has a C3i Computer to help direct its fire.",
+    "history": "The Grigori (named after fallen angels from Christianity) was added to the Word of Blake Militia's arsenal in late 3069 as Doctor Cortland oversaw the final production personally.\nmanufacturer:Gibson Federated BattleMechs, Martinson Armaments\nprimaryfactory:Gibson (Gibson Federated), Terra (Martinson)\nsystemmanufacturer:CHASSIS:Celestial Series GG1\nsystemmanufacturer:ENGINE:GM 240 Light Fusion\nsystemmanufacturer:ARMOR:Divine Shield-B Light Ferro\nsystemmanufacturer:COMMUNICATIONS:Masterâs Voice Cel-Alpha\nsystemmanufacturer:TARGETING:Masterâs Sight 1-Omega",
+    "deployment": "Another missile-heavy variant, the Grigori B mounts an Artemis IV-guided MML 7 in each arm. A Plasma Rifle provides respectable firepower and forces conventional units to reconsider attacking the Infernus variant. A Medium Pulse Laser provides a more accurate weapon. A rear-mounted ER Small Laser makes small units think twice about attacking the 'Mech's rear. Like the Invictus, this configuration can also jump up to 120 meters."
+  },
+  "mulId": 1322,
+  "role": "Skirmisher",
+  "source": "TR:3075"
+}

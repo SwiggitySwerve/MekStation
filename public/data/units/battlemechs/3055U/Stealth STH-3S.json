@@ -1,0 +1,176 @@
+{
+  "id": "stealth-sth-3s",
+  "chassis": "Stealth",
+  "model": "STH-3S",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3067,
+  "tonnage": 45,
+  "engine": {
+    "type": "XL",
+    "rating": 315
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STEALTH",
+    "allocation": {
+      "LEFT_ARM": 14,
+      "RIGHT_ARM": 14,
+      "LEFT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 17,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 21,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 22,
+      "RIGHT_LEG": 22
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 11
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 7
+  },
+  "equipment": [
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Endo Steel",
+      "Stealth",
+      "Stealth"
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISMASC",
+      "ISMASC",
+      "ISGuardianECMSuite",
+      "ISGuardianECMSuite",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "ISERPPC",
+      "ISERPPC",
+      "ISERPPC",
+      "Stealth",
+      "Stealth",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Endo Steel"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Stealth",
+      "Stealth"
+    ]
+  },
+  "quirks": [
+    "imp_sensors"
+  ],
+  "fluff": {
+    "overview": "The Stealth is a heavy scout 'Mech that is in use by the Federated Suns and the Lyran Alliance.",
+    "capabilities": "The 'Mech has a GM 315 XL Engine that allows the Stealth to move at speeds of 118.8 kph and the MASC system on board can push the 'Mech to 151.2 kph in short bursts. This amazing mobility is augmented by jump jets which the Stealth can use to jump up to two hundred and ten meters. The Stealth is also outfitted with a Cyclops-Beagle Sensory Active Probe that the Stealth can use to find hidden enemy units.",
+    "deployment": "The 3S variant of the Stealth is built using reverse engineered Stealth Armor. The 'Mech is armed with a single ER PPC which has a very long range. The ER PPCs long range and the Stealth Armor combine to make the 3S an almost perfect sniper 'Mech.",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Kathil",
+    "systemManufacturer": {
+      "CHASSIS": "GM Stealth Endo Steel",
+      "ENGINE": "GM 315 XL",
+      "ARMOR": "Durallex Medium",
+      "JUMPJET": "100AFVTA",
+      "COMMUNICATIONS": "Dalban Micronics",
+      "TARGETING": "Dalban HiRez with Active Probe"
+    }
+  },
+  "mulId": 3057,
+  "role": "Scout",
+  "source": "TR:3055U"
+}

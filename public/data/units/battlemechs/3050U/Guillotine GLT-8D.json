@@ -1,0 +1,197 @@
+{
+  "id": "guillotine-glt-8d",
+  "chassis": "Guillotine",
+  "model": "GLT-8D",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3062,
+  "tonnage": 70,
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "ENDO_STEEL"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 20,
+      "RIGHT_ARM": 20,
+      "LEFT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 21,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 29,
+        "rear": 10
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 28,
+      "RIGHT_LEG": 28
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "2-isermediumlaser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "1-iserlargelaser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "1-isermediumlaser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "1-isstreaksrm6",
+      "location": "CENTER_TORSO,_AMMO:15"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "ISERMediumLaser",
+      "ISERMediumLaser",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel",
+      "Endo-Steel"
+    ],
+    "LEFT_TORSO": [
+      "Jump Jet",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERMediumLaser",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      "ISTargeting Computer",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISDouble Heat Sink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      "ISStreakSRM6 Ammo",
+      "ISCASE",
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "ISStreakSRM6",
+      "ISStreakSRM6"
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      "Jump Jet"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      "Jump Jet"
+    ]
+  },
+  "quirks": [
+    "searchlight"
+  ],
+  "fluff": {
+    "overview": "The Guillotine was originally designed in 2499 as a front-line BattleMech for the Terran Hegemony and was the Star League Defense Force's standard heavy 'Mech for generations.",
+    "capabilities": "While its weaponry was ample for its era, as time went by the march of technology allowed for the development of larger 'Mechs which were significantly better armed. However few of these new 'Mechs could match the Guillotine in maneuverability or staying power, and so the 'Mech simply transitioned from the front-line shock role to that of a heavy raider - a task it excels at thanks to its quick speed and use of jump jets. Its mobility also makes the 'Mech adept at fighting in difficult terrain such as jungle or mountainous regions. The only serious issue with the 'Mech ironically are its weapons, which have been plagued with various problems over the centuries.",
+    "history": "Newhart Industries built the Guillotine from their factory on New Earth, but this was destroyed during the Amaris Civil War in 2776 as part of a celebration put on by the 12th Republican Guard. At the same time Irian BattleMechs Unlimited was building Guillotines under contract from Newheart out of Irian and continued to do so for another half-century; Lycomb-Davion IntroTech had also been producing the Guillotine from their main manufacturing facility on Demeter, but this facility was destroyed by Capellan Confederation forces early in the First Succession War. The collapse of the Star League and exodus of the SLDF scattered Guillotines across all of the Great Houses, while ComStar succeeded in raiding New Earth in 2788 and acquiring a battalion's worth from former Newhart stockpiles. In the wake of the First Succession War a shortage of the advanced components necessary for the 'Mech forced IBMU to design a downgraded variant, the GLT-4L, which they continued to produce off and on for the next few centuries. The recovery of the Helm Memory Core inspired a number of old designs, the Guillotine included, to be upgraded with lostech. Using the refurbished Newhart factory Irian's new GLT-5M model not only restored the Guillotine to its former glory but improved upon it with better (and importantly more reliable) weaponry. Irian continued producing new Guillotines, which would go on to take part in the FedCom Civil War and the Jihad.",
+    "deployment": "Unknown",
+    "manufacturer": "Robinson Standard Battleworks (Refit)",
+    "primaryFactory": "Robinson",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-I Endo Steel",
+      "ENGINE": "VOX 280",
+      "ARMOR": "Ulston Prime with CASE",
+      "JUMPJET": "Anderson 398",
+      "COMMUNICATIONS": "StarLink 955G",
+      "TARGETING": "Pulsar Tri-X"
+    }
+  },
+  "mulId": 1344,
+  "role": "Skirmisher",
+  "source": "TR:3050"
+}
