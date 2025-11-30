@@ -115,6 +115,140 @@ docs/battletech/          # Supplementary guides
 
 ---
 
+## 📁 **Project Structure**
+
+### **Type System** (`src/types/`)
+```
+types/
+├── core/                    # Base interfaces (IEntity, ITechBaseEntity, etc.)
+│   ├── IEntity.ts           # Base entity with id, name, description
+│   ├── ITechBaseEntity.ts   # Adds techBase, rulesLevel
+│   ├── ITemporalEntity.ts   # Adds introductionYear, extinctionYear
+│   └── ComponentInterfaces.ts
+├── enums/                   # Core enumerations
+│   ├── TechBase.ts          # INNER_SPHERE, CLAN, BOTH
+│   ├── RulesLevel.ts        # INTRODUCTORY, STANDARD, ADVANCED, etc.
+│   ├── Era.ts               # AGE_OF_WAR through DARK_AGE
+│   └── WeightClass.ts       # LIGHT, MEDIUM, HEAVY, ASSAULT
+├── construction/            # Construction system types
+│   ├── EngineType.ts        # Engine definitions
+│   ├── GyroType.ts          # Gyro definitions
+│   ├── ArmorType.ts         # Armor types and allocation
+│   └── HeatSinkType.ts      # Heat sink definitions
+├── equipment/               # Equipment definitions
+│   ├── weapons/             # Weapon categories
+│   │   ├── EnergyWeapons.ts
+│   │   ├── BallisticWeapons.ts
+│   │   └── MissileWeapons.ts
+│   ├── AmmunitionTypes.ts
+│   ├── ElectronicsTypes.ts
+│   ├── MiscEquipmentTypes.ts
+│   ├── PhysicalWeaponTypes.ts
+│   └── VariableEquipment.ts # Variable property calculations
+└── unit/                    # Unit-level types
+    ├── BattleMechInterfaces.ts
+    └── DatabaseSchema.ts
+```
+
+### **Utilities** (`src/utils/`)
+```
+utils/
+├── construction/            # Construction calculations
+│   ├── engineCalculations.ts
+│   ├── gyroCalculations.ts
+│   ├── armorCalculations.ts
+│   ├── movementCalculations.ts
+│   └── heatSinkCalculations.ts
+├── equipment/               # Equipment calculations
+│   ├── EquipmentCalculator.ts     # Unified entry point
+│   └── variableEquipmentCalculations.ts
+├── physical/                # Physical property utils
+│   ├── weightUtils.ts       # ceilToHalfTon, etc.
+│   └── criticalSlotUtils.ts
+├── temporal/                # Era/availability utils
+│   └── availabilityUtils.ts
+└── validation/              # Validation utilities
+    └── rules/
+```
+
+### **Services** (`src/services/`)
+```
+services/
+├── catalog/                 # Unit catalog management
+├── equipment/               # Equipment data access
+└── integration/             # Service orchestration
+```
+
+---
+
+## 🔧 **Key Imports**
+
+### **Enums**
+```typescript
+import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { Era } from '@/types/enums/Era';
+import { WeightClass } from '@/types/enums/WeightClass';
+```
+
+### **Core Interfaces**
+```typescript
+import { IEntity, ITechBaseEntity, ITemporalEntity } from '@/types/core';
+```
+
+### **Equipment Types**
+```typescript
+import { IWeapon, ALL_STANDARD_WEAPONS } from '@/types/equipment/weapons';
+import { IAmmunition, ALL_AMMUNITION } from '@/types/equipment/AmmunitionTypes';
+import { IElectronics, ALL_ELECTRONICS } from '@/types/equipment/ElectronicsTypes';
+import { IMiscEquipment, MOVEMENT_EQUIPMENT } from '@/types/equipment/MiscEquipmentTypes';
+```
+
+### **Construction Types**
+```typescript
+import { IEngineType, ENGINE_TYPES } from '@/types/construction/EngineType';
+import { IGyroType, GYRO_TYPES } from '@/types/construction/GyroType';
+import { IArmorType, ARMOR_TYPES } from '@/types/construction/ArmorType';
+```
+
+### **Calculations**
+```typescript
+import { calculateEngineWeight, calculateEngineRating } from '@/utils/construction/engineCalculations';
+import { calculateWalkMP, calculateRunMP } from '@/utils/construction/movementCalculations';
+import { calculateEquipmentProperties } from '@/utils/equipment/EquipmentCalculator';
+```
+
+---
+
+## 📋 **OpenSpec Workflow**
+
+### **Before Any Task**
+1. Run `npx openspec list` to see active changes
+2. Run `npx openspec list --specs` to see all specs
+3. Check if a spec already exists for your capability
+
+### **Creating Changes**
+```bash
+# Create change proposal
+mkdir -p openspec/changes/<change-id>/specs/<capability>
+
+# Required files:
+# - proposal.md (why, what, impact)
+# - tasks.md (implementation checklist)
+# - specs/<capability>/spec.md (ADDED/MODIFIED/REMOVED requirements)
+
+# Validate before implementing
+npx openspec validate <change-id> --strict
+```
+
+### **After Implementation**
+```bash
+# Archive the change (applies deltas to main specs)
+npx openspec archive <change-id> --yes
+```
+
+---
+
 ## ⚠️ **Important Reminders**
 
 1. **BattleTech Rules are IMMUTABLE** - They come from the official TechManual
@@ -125,7 +259,7 @@ docs/battletech/          # Supplementary guides
 
 ---
 
-🔍 **Quick Lookup**
+## 🔍 **Quick Lookup**
 
 ### **Common Rules**
 - **Structure**: 10% of tonnage (standard), 5% (Endo Steel)
@@ -134,12 +268,26 @@ docs/battletech/          # Supplementary guides
 - **Engine Heat Sinks**: Rating / 25 (no minimum)
 - **Min Total Heat Sinks**: MAX(10, heat-generating weapons)
 
+### **Variable Equipment Formulas**
+| Equipment | Weight | Slots | Cost |
+|-----------|--------|-------|------|
+| Targeting Computer (IS) | ceil(weaponTons / 4) | = weight | weight × 10000 |
+| Targeting Computer (Clan) | ceil(weaponTons / 5) | = weight | weight × 10000 |
+| MASC (IS) | ceil(rating / 20) | = weight | tonnage × 1000 |
+| MASC (Clan) | ceil(rating / 25) | = weight | tonnage × 1000 |
+| Supercharger | ceil(engineWeight / 10) | 1 | engineWeight × 10000 |
+| Partial Wing | tonnage × 0.05 | 6 (3 per torso) | weight × 50000 |
+| TSM | 0 | 6 | tonnage × 16000 |
+
 ### **Key Files**
 - Specs: `openspec/specs/`
 - Constants: `constants/BattleTechConstructionRules.ts`
 - Validation: `services/ConstructionRulesValidator.ts`
+- Types: `src/types/`
+- Calculations: `src/utils/construction/`
+- Equipment Calculator: `src/utils/equipment/EquipmentCalculator.ts`
 
 ---
 
 **Last Updated**: 2025-11-30
-**Version**: 2.0
+**Version**: 3.0
