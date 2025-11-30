@@ -5,9 +5,11 @@
 import React from 'react';
 
 type InputAccent = 'amber' | 'cyan' | 'emerald' | 'violet';
+type InputVariant = 'default' | 'large';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   accent?: InputAccent;
+  variant?: InputVariant;
   label?: string;
   error?: string;
 }
@@ -19,8 +21,14 @@ const accentFocusClasses: Record<InputAccent, string> = {
   violet: 'focus:border-violet-500',
 };
 
+const variantClasses: Record<InputVariant, string> = {
+  default: 'px-4 py-2 rounded-lg',
+  large: 'px-5 py-3 rounded-xl',
+};
+
 export function Input({
   accent = 'amber',
+  variant = 'default',
   label,
   error,
   className = '',
@@ -28,7 +36,7 @@ export function Input({
   ...props
 }: InputProps) {
   const inputId = id || props.name;
-  const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none transition-colors';
+  const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 focus:outline-none transition-colors';
 
   return (
     <div className="w-full">
@@ -39,7 +47,7 @@ export function Input({
       )}
       <input
         id={inputId}
-        className={`${baseClasses} ${accentFocusClasses[accent]} ${error ? 'border-red-500' : ''} ${className}`}
+        className={`${baseClasses} ${variantClasses[variant]} ${accentFocusClasses[accent]} ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
       {error && (

@@ -4,7 +4,7 @@
  */
 import React from 'react';
 
-type CardVariant = 'default' | 'header' | 'interactive' | 'gradient';
+type CardVariant = 'default' | 'dark' | 'header' | 'interactive' | 'gradient';
 
 interface CardProps {
   children: React.ReactNode;
@@ -15,7 +15,8 @@ interface CardProps {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-slate-800/30 border border-slate-700 rounded-xl p-6',
+  default: 'bg-slate-800/50 border border-slate-700 rounded-xl p-6',
+  dark: 'bg-slate-800/30 border border-slate-700 rounded-xl p-6',
   header: 'bg-slate-800/50 border border-slate-700 rounded-xl p-6',
   interactive: 'bg-slate-800/30 border border-slate-700 rounded-xl p-4 hover:border-slate-600 hover:bg-slate-800/50 transition-all cursor-pointer',
   gradient: 'bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl p-6 transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/60 hover:shadow-xl hover:shadow-amber-900/10',
@@ -38,13 +39,15 @@ export function Card({
   );
 }
 
-// Card with section title
+// Card section title - can be used standalone or with children
 interface CardSectionProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title: string;
   titleColor?: 'white' | 'amber' | 'cyan' | 'rose' | 'emerald' | 'violet';
   icon?: React.ReactNode;
   className?: string;
+  /** If true, renders as a standalone card. Otherwise just renders title + children inline */
+  asCard?: boolean;
 }
 
 const titleColorClasses: Record<string, string> = {
@@ -62,16 +65,23 @@ export function CardSection({
   titleColor = 'white',
   icon,
   className = '',
+  asCard = false,
 }: CardSectionProps) {
-  return (
-    <Card className={className}>
-      <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${titleColorClasses[titleColor]}`}>
+  const content = (
+    <>
+      <h3 className={`text-lg font-semibold ${children ? 'mb-4' : ''} flex items-center gap-2 ${titleColorClasses[titleColor]}`}>
         {icon}
         {title}
       </h3>
       {children}
-    </Card>
+    </>
   );
+
+  if (asCard) {
+    return <Card className={className}>{content}</Card>;
+  }
+
+  return <div className={className}>{content}</div>;
 }
 
 export default Card;

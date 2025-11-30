@@ -4,7 +4,7 @@
  */
 import React from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'pagination' | 'danger';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'pagination' | 'danger' | 'success';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,6 +13,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  fullWidth?: boolean;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -21,6 +22,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   ghost: 'bg-transparent hover:bg-slate-700/50 text-slate-400 hover:text-white border-transparent',
   pagination: 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600',
   danger: 'bg-red-600 hover:bg-red-500 text-white border-transparent',
+  success: 'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -37,14 +39,16 @@ export function Button({
   leftIcon,
   rightIcon,
   disabled,
+  fullWidth = false,
   className = '',
   ...props
 }: ButtonProps) {
   const baseClasses = 'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const widthClass = fullWidth ? 'w-full' : '';
 
   return (
     <button
-      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${widthClass} ${className}`}
       disabled={disabled || isLoading}
       {...props}
     >

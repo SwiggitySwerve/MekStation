@@ -20,5 +20,5 @@ export { Input, Select, SearchInput } from './Input';
 export { PageLayout, PageLoading, PageError, EmptyState } from './PageLayout';
 
 // StatDisplay
-export { StatRow, StatList, StatCard, StatGrid } from './StatDisplay';
+export { StatRow, StatList, StatCard, StatGrid, SimpleStatCard } from './StatDisplay';
 

@@ -10,10 +10,12 @@ interface PageLayoutProps {
   title: string;
   subtitle?: string;
   maxWidth?: 'default' | 'narrow' | 'wide' | 'full';
-  backLink?: {
-    href: string;
-    label: string;
-  };
+  /** Back link - can be object for Link or string href */
+  backLink?: string | { href: string; label: string };
+  /** Label for back link when backLink is a string */
+  backLabel?: string;
+  /** Callback for custom back navigation (e.g., state change instead of route) */
+  onBack?: () => void;
   headerContent?: React.ReactNode;
   gradient?: boolean;
 }
@@ -31,6 +33,8 @@ export function PageLayout({
   subtitle,
   maxWidth = 'default',
   backLink,
+  backLabel = 'Back',
+  onBack,
   headerContent,
   gradient = false,
 }: PageLayoutProps) {
@@ -38,19 +42,39 @@ export function PageLayout({
     ? 'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
     : 'min-h-screen bg-slate-900';
 
+  // Normalize backLink
+  const normalizedBackLink = typeof backLink === 'string' 
+    ? { href: backLink, label: backLabel }
+    : backLink;
+
+  const BackIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+  );
+
   return (
     <div className={`${bgClasses} p-6`}>
       <div className={`${maxWidthClasses[maxWidth]} mx-auto`}>
-        {backLink && (
-          <Link
-            href={backLink.href}
-            className="inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            {backLink.label}
-          </Link>
+        {/* Back navigation - button if onBack provided, Link otherwise */}
+        {(normalizedBackLink || onBack) && (
+          onBack ? (
+            <button
+              onClick={onBack}
+              className="inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6"
+            >
+              <BackIcon />
+              {normalizedBackLink?.label || backLabel}
+            </button>
+          ) : normalizedBackLink && (
+            <Link
+              href={normalizedBackLink.href}
+              className="inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6"
+            >
+              <BackIcon />
+              {normalizedBackLink.label}
+            </Link>
+          )
         )}
 
         {/* Header */}
@@ -86,16 +110,15 @@ export function PageLoading({ message = 'Loading...' }: { message?: string }) {
 interface PageErrorProps {
   title?: string;
   message: string;
-  backLink?: {
-    href: string;
-    label: string;
-  };
+  backLink?: string;
+  backLabel?: string;
 }
 
 export function PageError({
   title = 'Error',
   message,
   backLink,
+  backLabel = 'Go Back',
 }: PageErrorProps) {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
@@ -104,10 +127,10 @@ export function PageError({
         <p className="text-slate-400 mb-6">{message}</p>
         {backLink && (
           <Link
-            href={backLink.href}
+            href={backLink}
             className="inline-block bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg transition-colors"
           >
-            {backLink.label}
+            {backLabel}
           </Link>
         )}
       </div>

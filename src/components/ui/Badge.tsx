@@ -5,6 +5,7 @@
 import React from 'react';
 
 type BadgeVariant = 
+  // Colors
   | 'blue' 
   | 'emerald' 
   | 'purple' 
@@ -14,7 +15,12 @@ type BadgeVariant =
   | 'cyan' 
   | 'violet' 
   | 'yellow' 
-  | 'slate';
+  | 'slate'
+  // Semantic aliases
+  | 'muted'
+  | 'warning'
+  | 'success'
+  | 'info';
 
 type BadgeSize = 'sm' | 'md' | 'lg';
 
@@ -27,6 +33,7 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
+  // Colors
   blue: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
   emerald: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
   purple: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
@@ -37,6 +44,11 @@ const variantClasses: Record<BadgeVariant, string> = {
   violet: 'bg-violet-600/20 text-violet-400 border-violet-600/30',
   yellow: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30',
   slate: 'bg-slate-600/20 text-slate-400 border-slate-600/30',
+  // Semantic aliases  
+  muted: 'bg-slate-600/50 text-slate-300 border-slate-500/30',
+  warning: 'bg-amber-600/20 text-amber-400 border-amber-600/30',
+  success: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
+  info: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
 };
 
 const sizeClasses: Record<BadgeSize, string> = {
