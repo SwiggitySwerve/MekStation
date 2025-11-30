@@ -1,0 +1,84 @@
+{
+  "id": "locust-lct-1v",
+  "name": "Locust LCT-1V",
+  "chassis": "Locust",
+  "variant": "LCT-1V",
+  "tonnage": 20,
+  "techBase": "INNER_SPHERE",
+  "era": "AGE_OF_WAR",
+  "rulesLevel": "INTRODUCTORY",
+  "weightClass": "LIGHT",
+  "engine": {
+    "type": "Standard Fusion",
+    "rating": 160
+  },
+  "gyro": {
+    "type": "Standard Gyro"
+  },
+  "structure": {
+    "type": "Standard",
+    "points": {
+      "head": 3,
+      "centerTorso": 6,
+      "leftTorso": 5,
+      "rightTorso": 5,
+      "leftArm": 3,
+      "rightArm": 3,
+      "leftLeg": 4,
+      "rightLeg": 4
+    }
+  },
+  "armor": {
+    "type": "Standard",
+    "points": {
+      "head": 4,
+      "centerTorso": 8,
+      "centerTorsoRear": 2,
+      "leftTorso": 6,
+      "leftTorsoRear": 2,
+      "rightTorso": 6,
+      "rightTorsoRear": 2,
+      "leftArm": 4,
+      "rightArm": 4,
+      "leftLeg": 4,
+      "rightLeg": 4
+    }
+  },
+  "heatSinks": {
+    "type": "Single",
+    "count": 10
+  },
+  "movement": {
+    "walkMP": 8,
+    "runMP": 12,
+    "jumpMP": 0
+  },
+  "weapons": [
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "CT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "LA"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "RA"
+    }
+  ],
+  "ammunition": [
+    {
+      "id": "mg-ammo-half",
+      "name": "Machine Gun Ammo (100)",
+      "location": "CT"
+    }
+  ],
+  "battleValue": 432,
+  "cost": 1574200,
+  "introductionYear": 2499
+}
+
