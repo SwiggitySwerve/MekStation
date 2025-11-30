@@ -8,6 +8,7 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { IVariableEquipmentConfig, VariableProperty } from './VariableEquipment';
 
 /**
  * Misc equipment category
@@ -36,6 +37,10 @@ export interface IMiscEquipment {
   readonly battleValue: number;
   readonly introductionYear: number;
   readonly special?: readonly string[];
+  /** True if this equipment has variable properties */
+  readonly isVariable?: boolean;
+  /** Configuration for variable property calculations */
+  readonly variableConfig?: IVariableEquipmentConfig;
 }
 
 // ============================================================================
@@ -202,12 +207,18 @@ export const JUMP_JETS: readonly IMiscEquipment[] = [
     category: MiscEquipmentCategory.JUMP_JET,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
-    weight: 0, // Variable: 5% of mech tonnage
+    weight: 0, // Variable: mechTonnage × 0.05 to 0.5t
     criticalSlots: 6, // 3 per side torso
-    costCBills: 0,
+    costCBills: 0, // Variable: weight × 50000
     battleValue: 0,
     introductionYear: 3067,
     special: ['+1 Jump MP', '+2 heat dissipation at altitude'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.COST],
+      calculationId: 'partial-wing',
+      inputRequirements: ['mechTonnage'],
+    },
   },
 ] as const;
 
@@ -222,12 +233,18 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     category: MiscEquipmentCategory.MOVEMENT,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
-    weight: 0, // Variable: 1 ton per 20 engine rating
-    criticalSlots: 0, // Variable: 1-2 slots per 20 engine rating
-    costCBills: 0, // 1000 × tonnage
+    weight: 0, // Variable: ceil(engineRating / 20)
+    criticalSlots: 0, // Variable: ceil(engineRating / 20)
+    costCBills: 0, // Variable: mechTonnage × 1000
     battleValue: 0,
     introductionYear: 2740,
     special: ['Double running speed for one turn', 'Risk of leg damage'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
+      calculationId: 'masc',
+      inputRequirements: ['engineRating', 'mechTonnage', 'techBase'],
+    },
   },
   {
     id: 'clan-masc',
@@ -235,12 +252,18 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     category: MiscEquipmentCategory.MOVEMENT,
     techBase: TechBase.CLAN,
     rulesLevel: RulesLevel.STANDARD,
-    weight: 0, // Variable: 1 ton per 25 engine rating
-    criticalSlots: 0, // Variable: 1 slot per 25 engine rating
-    costCBills: 0,
+    weight: 0, // Variable: ceil(engineRating / 25)
+    criticalSlots: 0, // Variable: ceil(engineRating / 25)
+    costCBills: 0, // Variable: mechTonnage × 1000
     battleValue: 0,
     introductionYear: 2827,
     special: ['Double running speed for one turn', 'Risk of leg damage'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
+      calculationId: 'masc',
+      inputRequirements: ['engineRating', 'mechTonnage', 'techBase'],
+    },
   },
   {
     id: 'supercharger',
@@ -248,12 +271,18 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     category: MiscEquipmentCategory.MOVEMENT,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
-    weight: 0, // Variable: engine weight / 10
+    weight: 0, // Variable: ceil(engineWeight / 10) to 0.5t
     criticalSlots: 1,
-    costCBills: 0, // 10000 × engine weight
+    costCBills: 0, // Variable: engineWeight × 10000
     battleValue: 0,
     introductionYear: 3068,
     special: ['+1 running MP', 'Risk of engine damage'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.COST],
+      calculationId: 'supercharger',
+      inputRequirements: ['engineWeight'],
+    },
   },
 ] as const;
 
@@ -268,12 +297,18 @@ export const MYOMER_SYSTEMS: readonly IMiscEquipment[] = [
     category: MiscEquipmentCategory.MYOMER,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
-    weight: 0, // No additional weight
-    criticalSlots: 6,
-    costCBills: 0, // 16000 × tonnage
+    weight: 0, // Replaces standard myomer
+    criticalSlots: 6, // Distributed across torso/legs
+    costCBills: 0, // Variable: mechTonnage × 16000
     battleValue: 0,
     introductionYear: 3050,
     special: ['+2 walking MP at 9+ heat', 'Double physical attack damage'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.COST],
+      calculationId: 'tsm',
+      inputRequirements: ['mechTonnage'],
+    },
   },
   {
     id: 'industrial-tsm',

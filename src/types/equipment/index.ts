@@ -27,6 +27,9 @@ export * from './MiscEquipmentTypes';
 // Equipment Placement
 export * from './EquipmentPlacement';
 
+// Variable Equipment Types
+export * from './VariableEquipment';
+
 // ============================================================================
 // UNIFIED EQUIPMENT ACCESS
 // ============================================================================

@@ -8,6 +8,7 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { IVariableEquipmentConfig, VariableProperty } from './VariableEquipment';
 
 /**
  * Electronics category
@@ -36,6 +37,10 @@ export interface IElectronics {
   readonly battleValue: number;
   readonly introductionYear: number;
   readonly special?: readonly string[];
+  /** True if this equipment has variable properties */
+  readonly isVariable?: boolean;
+  /** Configuration for variable property calculations */
+  readonly variableConfig?: IVariableEquipmentConfig;
 }
 
 // ============================================================================
@@ -49,12 +54,18 @@ export const TARGETING_COMPUTERS: readonly IElectronics[] = [
     category: ElectronicsCategory.TARGETING,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
-    weight: 0, // Variable: 1 ton per 4 tons of weapons
+    weight: 0, // Variable: ceil(weaponTonnage / 4)
     criticalSlots: 0, // Variable: 1 slot per ton
-    costCBills: 0, // 10000 per ton
+    costCBills: 0, // Variable: weight × 10000
     battleValue: 0, // Variable
     introductionYear: 3062,
-    special: ['-1 to-hit for direct fire weapons', 'Weight = weapon tonnage / 4'],
+    special: ['-1 to-hit for direct fire weapons'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
+      calculationId: 'targeting-computer',
+      inputRequirements: ['directFireWeaponTonnage', 'techBase'],
+    },
   },
   {
     id: 'clan-targeting-computer',
@@ -62,12 +73,18 @@ export const TARGETING_COMPUTERS: readonly IElectronics[] = [
     category: ElectronicsCategory.TARGETING,
     techBase: TechBase.CLAN,
     rulesLevel: RulesLevel.STANDARD,
-    weight: 0, // Variable: 1 ton per 5 tons of weapons
+    weight: 0, // Variable: ceil(weaponTonnage / 5)
     criticalSlots: 0, // Variable: 1 slot per ton
-    costCBills: 0, // 10000 per ton
+    costCBills: 0, // Variable: weight × 10000
     battleValue: 0, // Variable
     introductionYear: 2860,
-    special: ['-1 to-hit for direct fire weapons', 'Weight = weapon tonnage / 5'],
+    special: ['-1 to-hit for direct fire weapons'],
+    isVariable: true,
+    variableConfig: {
+      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
+      calculationId: 'targeting-computer',
+      inputRequirements: ['directFireWeaponTonnage', 'techBase'],
+    },
   },
 ] as const;
 
