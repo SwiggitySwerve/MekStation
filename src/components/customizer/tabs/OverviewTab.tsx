@@ -76,61 +76,64 @@ export function OverviewTab({
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
-      {/* Tech Base Configuration */}
-      <TechBaseConfiguration
-        mode={techBaseMode}
-        components={componentTechBases}
-        onModeChange={handleModeChange}
-        onComponentChange={handleComponentChange}
-        readOnly={readOnly}
-      />
+      {/* Top row: Tech Base (left) + Chassis/Protection (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Tech Base Configuration */}
+        <TechBaseConfiguration
+          mode={techBaseMode}
+          components={componentTechBases}
+          onModeChange={handleModeChange}
+          onComponentChange={handleComponentChange}
+          readOnly={readOnly}
+        />
 
-      {/* Configuration Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Chassis Configuration */}
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-          <h3 className="text-lg font-semibold text-white mb-4">Chassis Configuration</h3>
-          <dl className="space-y-2">
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Configuration</dt>
-              <dd className="text-white">Biped</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Engine</dt>
-              <dd className="text-white">Not Selected</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Gyro</dt>
-              <dd className="text-white">Standard</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Cockpit</dt>
-              <dd className="text-white">Standard</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Structure</dt>
-              <dd className="text-white">Standard</dd>
-            </div>
-          </dl>
-        </div>
+        {/* Right: Chassis + Protection stacked */}
+        <div className="space-y-4">
+          {/* Chassis Configuration */}
+          <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
+            <h3 className="text-lg font-semibold text-white mb-3">Chassis Configuration</h3>
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Configuration</dt>
+                <dd className="text-white">Biped</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Engine</dt>
+                <dd className="text-white">Not Selected</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Gyro</dt>
+                <dd className="text-white">Standard</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Cockpit</dt>
+                <dd className="text-white">Standard</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Structure</dt>
+                <dd className="text-white">Standard</dd>
+              </div>
+            </dl>
+          </div>
 
-        {/* Protection Summary */}
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-          <h3 className="text-lg font-semibold text-white mb-4">Protection</h3>
-          <dl className="space-y-2">
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Armor Type</dt>
-              <dd className="text-white">Standard</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Total Armor</dt>
-              <dd className="text-white">0 / {maxArmorPoints}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Heat Sinks</dt>
-              <dd className="text-white">10 Single</dd>
-            </div>
-          </dl>
+          {/* Protection Summary */}
+          <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
+            <h3 className="text-lg font-semibold text-white mb-3">Protection</h3>
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Armor Type</dt>
+                <dd className="text-white">Standard</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Total Armor</dt>
+                <dd className="text-white">0 / {maxArmorPoints}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-400">Heat Sinks</dt>
+                <dd className="text-white">10 Single</dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </div>
 
