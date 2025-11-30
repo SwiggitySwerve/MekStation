@@ -561,3 +561,165 @@ The system SHALL support optional damage calculation in variable equipment formu
 
 ---
 
+### Requirement: JSON Equipment Loading
+
+The system SHALL load equipment definitions from JSON files at runtime.
+
+**Rationale**: Data-driven equipment enables updates without code changes and supports user customization.
+
+**Priority**: Critical
+
+#### Scenario: Load official equipment
+- **GIVEN** the application is initializing
+- **WHEN** EquipmentLoaderService.loadOfficialEquipment() is called
+- **THEN** load all JSON files from `public/data/equipment/official/`
+- **AND** register each item in the EquipmentRegistry
+- **AND** return IEquipmentLoadResult with success status and item count
+
+#### Scenario: Load weapon categories
+- **GIVEN** official equipment is being loaded
+- **WHEN** processing weapon files
+- **THEN** load `weapons/energy.json`, `weapons/ballistic.json`, `weapons/missile.json`, `weapons/physical.json`
+- **AND** convert raw JSON to typed IWeapon objects
+
+#### Scenario: Load other equipment
+- **GIVEN** official equipment is being loaded
+- **WHEN** processing non-weapon files
+- **THEN** load `ammunition.json`, `electronics.json`, `miscellaneous.json`
+- **AND** convert to appropriate typed objects (IAmmunition, IElectronics, IMiscEquipment)
+
+#### Scenario: Equipment load failure
+- **GIVEN** a JSON file is malformed or missing
+- **WHEN** loading equipment
+- **THEN** log error with file path and details
+- **AND** continue loading remaining files
+- **AND** include error in IEquipmentLoadResult.errors array
+
+---
+
+### Requirement: Custom Equipment Loading
+
+The system SHALL load user-defined equipment from custom JSON files.
+
+**Rationale**: Users can extend the equipment database with custom or homebrew items.
+
+**Priority**: High
+
+#### Scenario: Load custom equipment from file
+- **GIVEN** a user provides a custom equipment JSON file
+- **WHEN** EquipmentLoaderService.loadCustomEquipment(file) is called
+- **THEN** parse and validate the JSON content
+- **AND** register valid items in the EquipmentRegistry
+- **AND** return IEquipmentLoadResult with details
+
+#### Scenario: Custom equipment validation
+- **GIVEN** custom equipment data is provided
+- **WHEN** validating the data
+- **THEN** check required fields (id, name, weight, criticalSlots, techBase)
+- **AND** validate enum values (TechBase, RulesLevel)
+- **AND** return validation errors for invalid data
+
+#### Scenario: Custom equipment ID conflicts
+- **GIVEN** custom equipment has same ID as official equipment
+- **WHEN** loading custom equipment
+- **THEN** custom equipment SHALL override official equipment
+- **AND** log a warning about the override
+
+---
+
+### Requirement: Equipment Registry
+
+The system SHALL maintain an in-memory registry of all loaded equipment.
+
+**Rationale**: Fast lookup by ID or name without repeated file access.
+
+**Priority**: Critical
+
+#### Scenario: Register equipment
+- **GIVEN** equipment data is loaded from JSON
+- **WHEN** EquipmentRegistry.register(item) is called
+- **THEN** store the item indexed by ID
+- **AND** create name-to-ID mapping for lookup
+
+#### Scenario: Get by ID
+- **GIVEN** equipment is registered
+- **WHEN** EquipmentRegistry.getById("medium-laser") is called
+- **THEN** return the equipment object
+- **AND** return null if ID not found
+
+#### Scenario: Get by name
+- **GIVEN** equipment is registered
+- **WHEN** EquipmentRegistry.getByName("Medium Laser") is called
+- **THEN** return the equipment object
+- **AND** support case-insensitive matching
+
+#### Scenario: Search equipment
+- **GIVEN** equipment is registered
+- **WHEN** EquipmentRegistry.search({ category: "Energy", techBase: "CLAN" }) is called
+- **THEN** return array of matching equipment
+- **AND** support filtering by category, techBase, rulesLevel, and name
+
+---
+
+### Requirement: Equipment Name Mapping
+
+The system SHALL map MTF equipment names to canonical IDs.
+
+**Rationale**: MegaMek files use various naming conventions that must resolve to canonical equipment.
+
+**Priority**: High
+
+#### Scenario: Load name mappings
+- **GIVEN** the application is initializing
+- **WHEN** EquipmentNameMapper is initialized
+- **THEN** load mappings from `public/data/equipment/name-mappings.json`
+
+#### Scenario: Resolve canonical ID
+- **GIVEN** an MTF equipment name "Medium Laser"
+- **WHEN** EquipmentNameMapper.getCanonicalId("Medium Laser") is called
+- **THEN** return "medium-laser"
+
+#### Scenario: Resolve legacy names
+- **GIVEN** an MTF uses legacy name "AC/20"
+- **WHEN** EquipmentNameMapper.getCanonicalId("AC/20") is called
+- **THEN** return "autocannon-20"
+
+#### Scenario: Unknown equipment name
+- **GIVEN** an unrecognized equipment name
+- **WHEN** EquipmentNameMapper.getCanonicalId("Unknown Weapon") is called
+- **THEN** return null
+- **AND** log a warning for later review
+
+#### Scenario: Add custom mapping
+- **GIVEN** a user wants to add a custom name mapping
+- **WHEN** EquipmentNameMapper.addMapping("Custom Laser", "custom-laser-id") is called
+- **THEN** store the mapping for future lookups
+
+---
+
+### Requirement: Equipment Schema Validation
+
+The system SHALL validate equipment data against JSON Schema definitions.
+
+**Rationale**: Schema validation ensures data integrity and catches errors early.
+
+**Priority**: Medium
+
+#### Scenario: Validate weapon data
+- **GIVEN** weapon JSON data is loaded
+- **WHEN** validation is performed
+- **THEN** check against `public/data/equipment/_schema/weapon-schema.json`
+- **AND** return validation errors if schema violations found
+
+#### Scenario: Validate ammunition data
+- **GIVEN** ammunition JSON data is loaded
+- **WHEN** validation is performed
+- **THEN** check against `public/data/equipment/_schema/ammunition-schema.json`
+
+#### Scenario: Validation result structure
+- **GIVEN** equipment data is validated
+- **WHEN** returning validation result
+- **THEN** return IEquipmentValidationResult with isValid boolean and errors array
+
+---
+
