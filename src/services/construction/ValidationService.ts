@@ -8,6 +8,11 @@
 
 import { IValidationResult, IValidationError, ValidationSeverity, validResult, invalidResult } from '../common/types';
 import { IEditableMech } from './MechBuilderService';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { EngineType } from '@/types/construction/EngineType';
+import { getStructurePoints } from '@/types/construction/InternalStructureType';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { TechBase } from '@/types/enums/TechBase';
 
 /**
  * Validation service interface
@@ -22,22 +27,17 @@ export interface IValidationService {
 }
 
 /**
- * Maximum armor per location based on structure points
- * (Simplified - actual values depend on tonnage)
+ * Calculate maximum armor for a location
+ * Per TechManual: max armor = 2 × structure points (head = 9 maximum)
  */
-const MAX_ARMOR: Record<string, number> = {
-  head: 9,
-  centerTorso: 99,      // Varies by tonnage
-  centerTorsoRear: 99,  // Varies by tonnage
-  leftTorso: 99,        // Varies by tonnage
-  leftTorsoRear: 99,    // Varies by tonnage
-  rightTorso: 99,       // Varies by tonnage
-  rightTorsoRear: 99,   // Varies by tonnage
-  leftArm: 99,          // Varies by tonnage
-  rightArm: 99,         // Varies by tonnage
-  leftLeg: 99,          // Varies by tonnage
-  rightLeg: 99,         // Varies by tonnage
-};
+function getMaxArmorForLocation(tonnage: number, location: string): number {
+  if (location === 'head') {
+    return 9; // Head always has max 9 armor regardless of structure
+  }
+  
+  const structurePoints = getStructurePoints(tonnage, location);
+  return structurePoints * 2;
+}
 
 /**
  * Validation Service implementation
@@ -72,7 +72,7 @@ export class ValidationService implements IValidationService {
     
     // Calculate total weight (simplified)
     const structureWeight = mech.tonnage * 0.1; // 10% for standard
-    const engineWeight = this.calculateEngineWeight(mech.engineRating, mech.engineType);
+    const engineWeight = this.getEngineWeight(mech.engineRating, mech.engineType);
     const gyroWeight = Math.ceil(mech.engineRating / 100);
     const cockpitWeight = 3;
     const armorWeight = this.calculateArmorWeight(mech.armorAllocation);
@@ -95,23 +95,51 @@ export class ValidationService implements IValidationService {
 
   /**
    * Validate armor limits
+   * Per TechManual: max armor = 2 × structure points (head = 9 maximum)
    */
   validateArmor(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
     const armor = mech.armorAllocation;
 
-    // Head armor max is always 9
-    if (armor.head > 9) {
-      errors.push({
-        code: 'ARMOR_EXCEEDS_MAX',
-        message: 'Head armor exceeds maximum of 9',
-        severity: ValidationSeverity.ERROR,
-        field: 'head',
-        details: { actual: armor.head, max: 9 },
-      });
-    }
+    // Check each location against its maximum
+    const locationChecks: { location: string; actual: number; rear?: number }[] = [
+      { location: 'head', actual: armor.head },
+      { location: 'centerTorso', actual: armor.centerTorso, rear: armor.centerTorsoRear },
+      { location: 'leftTorso', actual: armor.leftTorso, rear: armor.leftTorsoRear },
+      { location: 'rightTorso', actual: armor.rightTorso, rear: armor.rightTorsoRear },
+      { location: 'leftArm', actual: armor.leftArm },
+      { location: 'rightArm', actual: armor.rightArm },
+      { location: 'leftLeg', actual: armor.leftLeg },
+      { location: 'rightLeg', actual: armor.rightLeg },
+    ];
 
-    // TODO: Add per-location max based on internal structure
+    for (const check of locationChecks) {
+      const maxArmor = getMaxArmorForLocation(mech.tonnage, check.location);
+      
+      // For torso locations, front + rear must not exceed max
+      if (check.rear !== undefined) {
+        const totalTorsoArmor = check.actual + check.rear;
+        if (totalTorsoArmor > maxArmor) {
+          errors.push({
+            code: 'ARMOR_EXCEEDS_MAX',
+            message: `${check.location} total armor (${totalTorsoArmor}) exceeds maximum of ${maxArmor}`,
+            severity: ValidationSeverity.ERROR,
+            field: check.location,
+            details: { front: check.actual, rear: check.rear, total: totalTorsoArmor, max: maxArmor },
+          });
+        }
+      } else {
+        if (check.actual > maxArmor) {
+          errors.push({
+            code: 'ARMOR_EXCEEDS_MAX',
+            message: `${check.location} armor (${check.actual}) exceeds maximum of ${maxArmor}`,
+            severity: ValidationSeverity.ERROR,
+            field: check.location,
+            details: { actual: check.actual, max: maxArmor },
+          });
+        }
+      }
+    }
 
     return errors;
   }
@@ -158,10 +186,49 @@ export class ValidationService implements IValidationService {
 
   /**
    * Validate tech level compatibility
+   * Checks that all equipment is compatible with the mech's tech base
    */
   validateTechLevel(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
-    // TODO: Implement tech level validation
+    const registry = getEquipmentRegistry();
+    
+    for (const slot of mech.equipment) {
+      const result = registry.lookup(slot.equipmentId);
+      if (!result.found || !result.equipment) {
+        continue; // Skip unknown equipment
+      }
+      
+      const equipment = result.equipment;
+      if (!('techBase' in equipment)) {
+        continue; // Skip equipment without tech base info
+      }
+      
+      const eqTechBase = (equipment as { techBase: TechBase }).techBase;
+      
+      // Check compatibility
+      // MIXED tech base is always compatible
+      // INNER_SPHERE equipment is compatible with IS or MIXED mechs
+      // CLAN equipment is compatible with CLAN or MIXED mechs
+      const isCompatible = 
+        eqTechBase === TechBase.MIXED ||
+        mech.techBase === TechBase.MIXED ||
+        eqTechBase === mech.techBase;
+      
+      if (!isCompatible) {
+        errors.push({
+          code: 'TECH_BASE_INCOMPATIBLE',
+          message: `${slot.equipmentId} (${eqTechBase}) is not compatible with ${mech.techBase} tech base`,
+          severity: ValidationSeverity.ERROR,
+          field: 'equipment',
+          details: { 
+            equipment: slot.equipmentId, 
+            equipmentTechBase: eqTechBase, 
+            mechTechBase: mech.techBase 
+          },
+        });
+      }
+    }
+    
     return errors;
   }
 
@@ -235,21 +302,44 @@ export class ValidationService implements IValidationService {
   // HELPER CALCULATIONS
   // ============================================================================
 
-  private calculateEngineWeight(rating: number, type: string): number {
-    // Simplified engine weight table
-    const baseWeight = Math.ceil(rating * rating / 2000);
-    
-    switch (type) {
-      case 'XL':
-      case 'XL (Clan)':
-        return baseWeight * 0.5;
-      case 'Light':
-        return baseWeight * 0.75;
-      case 'Compact':
-        return baseWeight * 1.5;
-      default:
-        return baseWeight;
+  /**
+   * Map engine type string to EngineType enum
+   */
+  private mapEngineType(type: string): EngineType {
+    const typeUpper = type.toUpperCase();
+    if (typeUpper.includes('XL') && typeUpper.includes('CLAN')) {
+      return EngineType.XL_CLAN;
     }
+    if (typeUpper.includes('XL')) {
+      return EngineType.XL_IS;
+    }
+    if (typeUpper.includes('LIGHT')) {
+      return EngineType.LIGHT;
+    }
+    if (typeUpper.includes('XXL')) {
+      return EngineType.XXL;
+    }
+    if (typeUpper.includes('COMPACT')) {
+      return EngineType.COMPACT;
+    }
+    if (typeUpper.includes('ICE') || typeUpper.includes('COMBUSTION')) {
+      return EngineType.ICE;
+    }
+    if (typeUpper.includes('FUEL')) {
+      return EngineType.FUEL_CELL;
+    }
+    if (typeUpper.includes('FISSION')) {
+      return EngineType.FISSION;
+    }
+    return EngineType.STANDARD;
+  }
+
+  /**
+   * Calculate engine weight using proper TechManual formula
+   */
+  private getEngineWeight(rating: number, type: string): number {
+    const engineType = this.mapEngineType(type);
+    return calculateEngineWeight(rating, engineType);
   }
 
   private calculateArmorWeight(armor: IEditableMech['armorAllocation']): number {
