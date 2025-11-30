@@ -32,7 +32,11 @@ import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBro
 import { EquipmentTray, TrayEquipmentItem, WeightStats } from '@/components/customizer/equipment/EquipmentTray';
 import { CriticalSlotsDisplay, LocationData } from '@/components/customizer/critical-slots/CriticalSlotsDisplay';
 import { ColorLegend } from '@/components/customizer/shared/ColorLegend';
+import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import { ResetConfirmationDialog } from '@/components/customizer/dialogs/ResetConfirmationDialog';
+
+// Utils
+import { ValidationStatus } from '@/utils/colors/statusColors';
 
 // Types
 import { MechLocation } from '@/types/construction';
@@ -93,6 +97,32 @@ export default function CustomizerPage() {
     usedWeight: unitEquipment.reduce((sum, eq) => sum + eq.weight, 0),
     remainingWeight: (tab?.tonnage || 50) - unitEquipment.reduce((sum, eq) => sum + eq.weight, 0),
   }), [tab?.tonnage, unitEquipment]);
+
+  // Unit stats for the persistent banner
+  const unitStats = useMemo(() => {
+    if (!tab) return null;
+    const tonnage = tab.tonnage;
+    const maxArmorPoints = Math.floor(tonnage * 2 * 3.5);
+    const usedWeight = unitEquipment.reduce((sum, eq) => sum + eq.weight, 0);
+    
+    return {
+      name: tab.name,
+      tonnage: tab.tonnage,
+      techBase: tab.techBase,
+      walkMP: 4, // Placeholder - would come from engine/tonnage calculation
+      runMP: 6,
+      jumpMP: 0,
+      weightUsed: usedWeight,
+      weightRemaining: tonnage - usedWeight,
+      armorPoints: 0, // Placeholder - would come from armor allocation
+      maxArmorPoints,
+      heatGenerated: 0, // Placeholder - would come from weapons
+      heatDissipation: 10, // Placeholder - would come from heat sinks
+      validationStatus: 'warning' as ValidationStatus,
+      errorCount: 0,
+      warningCount: 1,
+    };
+  }, [tab, unitEquipment]);
 
   // Handlers
   const handleAddEquipment = useCallback((equipment: IEquipmentItem) => {
@@ -251,8 +281,14 @@ export default function CustomizerPage() {
       <div className="min-h-screen bg-slate-900 flex flex-col">
         {/* Multi-unit tabs at top */}
         <MultiUnitTabs>
-          {tab ? (
+          {tab && unitStats ? (
             <div className="flex flex-col h-full">
+              {/* Persistent unit stats banner */}
+              <UnitInfoBanner 
+                stats={unitStats}
+                onReset={() => setIsResetDialogOpen(true)}
+              />
+              
               {/* Customizer section tabs */}
               <CustomizerTabs
                 tabs={DEFAULT_CUSTOMIZER_TABS}

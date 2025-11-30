@@ -12,4 +12,5 @@ export { ValidationBadge } from './ValidationBadge';
 export { UnitInfoBanner } from './UnitInfoBanner';
 export { StatCell } from './StatCell';
 export { TechBaseBadge } from './TechBaseBadge';
+export { TechBaseConfiguration } from './TechBaseConfiguration';
 

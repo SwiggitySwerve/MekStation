@@ -2,14 +2,21 @@
  * Overview Tab Component
  * 
  * Summary view of the current unit configuration.
+ * Note: UnitInfoBanner is now rendered in the parent customizer page
+ * to be persistent across all tabs.
  * 
  * @spec openspec/changes/add-customizer-ui-components/specs/customizer-tabs/spec.md
  */
 
-import React from 'react';
-import { UnitInfoBanner } from '../shared/UnitInfoBanner';
+import React, { useState, useCallback } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
-import { ValidationStatus } from '@/utils/colors/statusColors';
+import { TechBaseConfiguration } from '../shared/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  TechBaseComponent,
+  IComponentTechBases,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
 
 interface OverviewTabProps {
   /** Unit name */
@@ -34,29 +41,51 @@ export function OverviewTab({
   readOnly = false,
   className = '',
 }: OverviewTabProps) {
-  // Placeholder stats - these would come from actual unit data
-  const stats = {
-    name: unitName,
-    tonnage,
-    techBase,
-    walkMP: 4,
-    runMP: 6,
-    jumpMP: 0,
-    weightUsed: 0,
-    weightRemaining: tonnage,
-    armorPoints: 0,
-    maxArmorPoints: Math.floor(tonnage * 2 * 3.5), // Rough estimate
-    heatGenerated: 0,
-    heatDissipation: 10,
-    validationStatus: 'warning' as ValidationStatus,
-    errorCount: 0,
-    warningCount: 1,
-  };
+  // Calculate max armor for display
+  const maxArmorPoints = Math.floor(tonnage * 2 * 3.5);
+
+  // Tech base configuration state
+  const [techBaseMode, setTechBaseMode] = useState<TechBaseMode>(() => {
+    // Initialize based on the unit's tech base
+    if (techBase === TechBase.CLAN) return 'clan';
+    if (techBase === TechBase.MIXED || 
+        techBase === TechBase.MIXED_IS_CHASSIS || 
+        techBase === TechBase.MIXED_CLAN_CHASSIS) return 'mixed';
+    return 'inner_sphere';
+  });
+  
+  const [componentTechBases, setComponentTechBases] = useState<IComponentTechBases>(() => 
+    createDefaultComponentTechBases(techBase === TechBase.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE)
+  );
+
+  // Handler for global mode change
+  const handleModeChange = useCallback((newMode: TechBaseMode) => {
+    setTechBaseMode(newMode);
+    // When switching to non-mixed mode, reset all components to match
+    if (newMode !== 'mixed') {
+      const newTechBase = newMode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+      setComponentTechBases(createDefaultComponentTechBases(newTechBase));
+    }
+  }, []);
+
+  // Handler for individual component change
+  const handleComponentChange = useCallback((component: TechBaseComponent, newTechBase: TechBase) => {
+    setComponentTechBases(prev => ({
+      ...prev,
+      [component]: newTechBase,
+    }));
+  }, []);
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
-      {/* Unit Stats Banner */}
-      <UnitInfoBanner stats={stats} />
+      {/* Tech Base Configuration */}
+      <TechBaseConfiguration
+        mode={techBaseMode}
+        components={componentTechBases}
+        onModeChange={handleModeChange}
+        onComponentChange={handleComponentChange}
+        readOnly={readOnly}
+      />
 
       {/* Configuration Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,7 +126,7 @@ export function OverviewTab({
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-400">Total Armor</dt>
-              <dd className="text-white">0 / {stats.maxArmorPoints}</dd>
+              <dd className="text-white">0 / {maxArmorPoints}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-400">Heat Sinks</dt>

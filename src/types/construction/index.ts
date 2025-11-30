@@ -13,4 +13,5 @@ export * from './CockpitType';
 export * from './ComponentInterfaces';
 export * from './CriticalSlotAllocation';
 export * from './MovementEnhancement';
+export * from './TechBaseConfiguration';
 
