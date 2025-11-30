@@ -1,15 +1,13 @@
 /**
- * Unit Services Exports
+ * Unit Services
  * 
- * @spec openspec/specs/unit-services/spec.md
+ * Central export for unit factory and management services.
+ * 
+ * @module services/units
  */
 
-export { CanonicalUnitService, canonicalUnitService } from './CanonicalUnitService';
-export type { ICanonicalUnitService, IFullUnit } from './CanonicalUnitService';
-
-export { CustomUnitService, customUnitService } from './CustomUnitService';
-export type { ICustomUnitService } from './CustomUnitService';
-
-export { UnitSearchService, unitSearchService } from './UnitSearchService';
-export type { IUnitSearchService } from './UnitSearchService';
-
+export {
+  UnitFactoryService,
+  getUnitFactory,
+  type IUnitFactoryResult,
+} from './UnitFactoryService';
