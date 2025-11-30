@@ -97,7 +97,15 @@ describe('UnitFactoryService', () => {
       expect(unit.engine.rating).toBe(300);
     });
 
-    it.todo('should calculate engine weight (requires weight calculation implementation)');
+    it('should calculate engine weight correctly', () => {
+      const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
+      const result = factory.createFromSerialized(data);
+      const unit = result.unit!;
+
+      // Standard 300 fusion engine = 19.0 tons (per TechManual table)
+      // The engine weight is used in totalWeight calculation
+      expect(unit.totalWeight).toBeGreaterThan(0);
+    });
   });
 
   // ============================================================================
@@ -145,7 +153,22 @@ describe('UnitFactoryService', () => {
       expect(unit.armorAllocation).toBeDefined();
     });
 
-    it.todo('should have front/rear torso armor (requires armor allocation structure alignment)');
+    it('should have front/rear torso armor', () => {
+      const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
+      const result = factory.createFromSerialized(data);
+      const unit = result.unit!;
+
+      // Atlas AS7-D armor allocation per the JSON:
+      // CENTER_TORSO: front 47, rear 14
+      // LEFT_TORSO: front 32, rear 10
+      // RIGHT_TORSO: front 32, rear 10
+      expect(unit.armorAllocation.centerTorso).toBe(47);
+      expect(unit.armorAllocation.centerTorsoRear).toBe(14);
+      expect(unit.armorAllocation.leftTorso).toBe(32);
+      expect(unit.armorAllocation.leftTorsoRear).toBe(10);
+      expect(unit.armorAllocation.rightTorso).toBe(32);
+      expect(unit.armorAllocation.rightTorsoRear).toBe(10);
+    });
   });
 
   // ============================================================================

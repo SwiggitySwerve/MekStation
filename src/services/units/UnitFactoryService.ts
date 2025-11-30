@@ -39,6 +39,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -532,21 +533,59 @@ export class UnitFactoryService {
   }
   
   /**
+   * Convert UPPER_SNAKE_CASE location key to camelCase
+   */
+  private locationToCamelCase(location: string): string {
+    // Map from serialized format to IArmorAllocation property names
+    const mapping: Record<string, string> = {
+      'HEAD': 'head',
+      'CENTER_TORSO': 'centerTorso',
+      'LEFT_TORSO': 'leftTorso',
+      'RIGHT_TORSO': 'rightTorso',
+      'LEFT_ARM': 'leftArm',
+      'RIGHT_ARM': 'rightArm',
+      'LEFT_LEG': 'leftLeg',
+      'RIGHT_LEG': 'rightLeg',
+    };
+    return mapping[location] || location.toLowerCase();
+  }
+
+  /**
    * Build armor allocation from serialized data
    */
   private buildArmorAllocation(allocation: Record<string, number | { front: number; rear: number }>): IArmorAllocation {
-    const result: Record<string, number> = {};
+    // Initialize with zeros to satisfy the interface
+    const result: IArmorAllocation = {
+      head: 0,
+      centerTorso: 0,
+      centerTorsoRear: 0,
+      leftTorso: 0,
+      leftTorsoRear: 0,
+      rightTorso: 0,
+      rightTorsoRear: 0,
+      leftArm: 0,
+      rightArm: 0,
+      leftLeg: 0,
+      rightLeg: 0,
+    };
+    
+    // Mutable copy for building
+    const mutableResult = { ...result } as Record<string, number>;
     
     for (const [location, value] of Object.entries(allocation)) {
+      const camelKey = this.locationToCamelCase(location);
+      
       if (typeof value === 'number') {
-        result[location] = value;
+        mutableResult[camelKey] = value;
       } else if (typeof value === 'object' && value !== null) {
-        result[location] = value.front;
-        result[`${location}_REAR`] = value.rear;
+        // Front armor
+        mutableResult[camelKey] = value.front;
+        // Rear armor (only for torso locations)
+        mutableResult[`${camelKey}Rear`] = value.rear;
       }
     }
     
-    return result as unknown as IArmorAllocation;
+    return mutableResult as IArmorAllocation;
   }
   
   /**
@@ -645,8 +684,8 @@ export class UnitFactoryService {
     // Structure (10% of tonnage for standard)
     weight += data.tonnage * 0.1;
     
-    // Engine weight (approximation)
-    const engineWeight = this.calculateEngineWeight(engine.rating, engine.type);
+    // Engine weight (using proper TechManual calculation)
+    const engineWeight = calculateEngineWeight(engine.rating, engine.type);
     weight += engineWeight;
     
     // Gyro
@@ -676,28 +715,6 @@ export class UnitFactoryService {
     }
     
     return Math.round(weight * 2) / 2; // Round to nearest half ton
-  }
-  
-  /**
-   * Calculate engine weight
-   */
-  private calculateEngineWeight(rating: number, type: EngineType): number {
-    // Engine weight table (simplified)
-    const baseWeight = rating / 25; // Rough approximation
-    
-    switch (type) {
-      case EngineType.XL_IS:
-      case EngineType.XL_CLAN:
-        return baseWeight * 0.5;
-      case EngineType.LIGHT:
-        return baseWeight * 0.75;
-      case EngineType.COMPACT:
-        return baseWeight * 1.5;
-      case EngineType.XXL:
-        return baseWeight * 0.33;
-      default:
-        return baseWeight;
-    }
   }
 }
 
