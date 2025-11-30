@@ -10,7 +10,9 @@
 export { ColorLegend } from './ColorLegend';
 export { ValidationBadge } from './ValidationBadge';
 export { UnitInfoBanner } from './UnitInfoBanner';
+export type { UnitStats } from './UnitInfoBanner';
 export { StatCell } from './StatCell';
 export { TechBaseBadge } from './TechBaseBadge';
-export { TechBaseConfiguration } from './TechBaseConfiguration';
+export { TechBaseConfiguration, DEFAULT_COMPONENT_VALUES } from './TechBaseConfiguration';
+export type { IComponentValues } from './TechBaseConfiguration';
 

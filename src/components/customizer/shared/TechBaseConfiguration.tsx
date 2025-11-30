@@ -1,7 +1,7 @@
 /**
  * Tech Base Configuration Component
  * 
- * Allows configuration of global and per-component tech base settings.
+ * Combined panel showing component selections and tech base toggles.
  * Supports Inner Sphere, Clan, and Mixed Tech modes.
  * 
  * @spec Based on BattleTech TechManual mixed tech rules
@@ -24,7 +24,7 @@ import {
 const styles = {
   // Base button styles
   button: {
-    base: 'px-3 py-1.5 text-sm font-medium transition-colors',
+    base: 'px-2 py-1 text-xs font-medium transition-colors',
     baseLarge: 'px-4 py-2 text-sm font-medium transition-colors',
     inactive: 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300',
     disabled: 'opacity-50 cursor-not-allowed',
@@ -43,17 +43,52 @@ const styles = {
   container: {
     panel: 'bg-slate-800 rounded-lg border border-slate-700 overflow-hidden',
     header: 'px-4 py-3 border-b border-slate-700 bg-slate-800',
-    buttonGroup: 'inline-flex rounded-lg overflow-hidden border border-slate-600',
+    buttonGroup: 'inline-flex rounded-md overflow-hidden border border-slate-600',
     rowEven: 'bg-slate-800',
     rowOdd: 'bg-slate-800/50',
   },
   
   // Text styles
   text: {
-    title: 'text-sm font-medium text-slate-400 text-center mb-2',
+    title: 'text-lg font-semibold text-white',
+    subtitle: 'text-xs text-slate-400 mt-0.5',
     label: 'text-sm font-medium text-slate-200',
+    value: 'text-sm text-white',
+    valueMuted: 'text-sm text-slate-400',
   },
 } as const;
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Current values for each component category
+ */
+export interface IComponentValues {
+  chassis: string;      // e.g., "Standard", "Endo Steel"
+  gyro: string;         // e.g., "Standard", "XL", "Compact"
+  engine: string;       // e.g., "Standard Fusion 200", "XL 300"
+  heatsink: string;     // e.g., "Single", "Double"
+  targeting: string;    // e.g., "None", "Standard", "C3"
+  myomer: string;       // e.g., "Standard", "TSM", "Industrial"
+  movement: string;     // e.g., "None", "Jump Jets", "MASC"
+  armor: string;        // e.g., "Standard", "Ferro-Fibrous"
+}
+
+/**
+ * Default placeholder values
+ */
+export const DEFAULT_COMPONENT_VALUES: IComponentValues = {
+  chassis: 'Standard',
+  gyro: 'Standard',
+  engine: 'Not Selected',
+  heatsink: 'Single',
+  targeting: 'None',
+  myomer: 'Standard',
+  movement: 'None',
+  armor: 'Standard',
+};
 
 // =============================================================================
 // Helper Functions
@@ -82,6 +117,7 @@ function getSegmentButtonClass(isActive: boolean, isDisabled: boolean): string {
 interface TechBaseConfigurationProps {
   mode: TechBaseMode;
   components: IComponentTechBases;
+  componentValues?: Partial<IComponentValues>;
   onModeChange: (mode: TechBaseMode) => void;
   onComponentChange: (component: TechBaseComponent, techBase: TechBase) => void;
   readOnly?: boolean;
@@ -92,11 +128,13 @@ interface SegmentedButtonProps {
   value: TechBase;
   onChange: (value: TechBase) => void;
   disabled?: boolean;
+  size?: 'small' | 'normal';
 }
 
 interface ComponentRowProps {
   component: TechBaseComponent;
   techBase: TechBase;
+  currentValue: string;
   onChange: (techBase: TechBase) => void;
   disabled: boolean;
   isOdd: boolean;
@@ -106,9 +144,10 @@ interface ComponentRowProps {
 // Sub-Components
 // =============================================================================
 
-function TechBaseSegmentedButton({ value, onChange, disabled = false }: SegmentedButtonProps) {
+function TechBaseSegmentedButton({ value, onChange, disabled = false, size = 'normal' }: SegmentedButtonProps) {
   const isIS = value === TechBase.INNER_SPHERE;
   const isClan = value === TechBase.CLAN;
+  const buttonClass = size === 'small' ? getSegmentButtonClass : getModeButtonClass;
 
   return (
     <div className={styles.container.buttonGroup}>
@@ -116,15 +155,15 @@ function TechBaseSegmentedButton({ value, onChange, disabled = false }: Segmente
         type="button"
         onClick={() => onChange(TechBase.INNER_SPHERE)}
         disabled={disabled}
-        className={`${getSegmentButtonClass(isIS, disabled)} ${isIS ? styles.techBase.innerSphere : ''}`}
+        className={`${buttonClass(isIS, disabled)} ${isIS ? styles.techBase.innerSphere : ''}`}
       >
-        Inner Sphere
+        IS
       </button>
       <button
         type="button"
         onClick={() => onChange(TechBase.CLAN)}
         disabled={disabled}
-        className={`${getSegmentButtonClass(isClan, disabled)} ${styles.button.borderLeft} ${isClan ? styles.techBase.clan : ''}`}
+        className={`${buttonClass(isClan, disabled)} ${styles.button.borderLeft} ${isClan ? styles.techBase.clan : ''}`}
       >
         Clan
       </button>
@@ -132,23 +171,37 @@ function TechBaseSegmentedButton({ value, onChange, disabled = false }: Segmente
   );
 }
 
-function ComponentRow({ component, techBase, onChange, disabled, isOdd }: ComponentRowProps) {
+function ComponentRow({ component, techBase, currentValue, onChange, disabled, isOdd }: ComponentRowProps) {
   const rowBg = isOdd ? styles.container.rowOdd : styles.container.rowEven;
   const opacity = disabled ? 'opacity-60' : '';
+  const valueClass = currentValue === 'None' || currentValue === 'Not Selected' 
+    ? styles.text.valueMuted 
+    : styles.text.value;
 
   return (
     <div
-      className={`flex items-center justify-between px-4 py-2.5 ${rowBg} ${opacity}`}
+      className={`flex items-center justify-between px-4 py-2 ${rowBg} ${opacity}`}
       title={TECH_BASE_COMPONENT_DESCRIPTIONS[component]}
     >
-      <div className={styles.text.label}>
+      {/* Component Label */}
+      <div className={`${styles.text.label} w-24 flex-shrink-0`}>
         {TECH_BASE_COMPONENT_LABELS[component]}
       </div>
-      <TechBaseSegmentedButton
-        value={techBase}
-        onChange={onChange}
-        disabled={disabled}
-      />
+      
+      {/* Current Value */}
+      <div className={`${valueClass} flex-1 text-center`}>
+        {currentValue}
+      </div>
+      
+      {/* Tech Base Toggle */}
+      <div className="flex-shrink-0">
+        <TechBaseSegmentedButton
+          value={techBase}
+          onChange={onChange}
+          disabled={disabled}
+          size="small"
+        />
+      </div>
     </div>
   );
 }
@@ -165,6 +218,7 @@ const COMPONENT_ORDER: TechBaseComponent[] = [
 export function TechBaseConfiguration({
   mode,
   components,
+  componentValues = {},
   onModeChange,
   onComponentChange,
   readOnly = false,
@@ -173,15 +227,21 @@ export function TechBaseConfiguration({
   const isMixed = mode === 'mixed';
   const isIS = mode === 'inner_sphere';
   const isClan = mode === 'clan';
+  
+  // Merge with defaults
+  const values: IComponentValues = { ...DEFAULT_COMPONENT_VALUES, ...componentValues };
 
   return (
     <div className={`${styles.container.panel} ${className}`}>
       {/* Header */}
       <div className={styles.container.header}>
-        <h3 className={styles.text.title}>Tech Base</h3>
-        
-        {/* Mode Selector */}
-        <div className="flex justify-center">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className={styles.text.title}>Configuration</h3>
+            <p className={styles.text.subtitle}>Component settings and tech base</p>
+          </div>
+          
+          {/* Mode Selector */}
           <div className={styles.container.buttonGroup}>
             <button
               type="button"
@@ -214,6 +274,13 @@ export function TechBaseConfiguration({
         </div>
       </div>
 
+      {/* Column Headers */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-700 text-xs font-medium text-slate-500 uppercase tracking-wider">
+        <div className="w-24 flex-shrink-0">Component</div>
+        <div className="flex-1 text-center">Selection</div>
+        <div className="w-[88px] text-center flex-shrink-0">Tech Base</div>
+      </div>
+
       {/* Component Rows */}
       <div className="divide-y divide-slate-700/50">
         {COMPONENT_ORDER.map((component, index) => (
@@ -221,6 +288,7 @@ export function TechBaseConfiguration({
             key={component}
             component={component}
             techBase={components[component]}
+            currentValue={values[component]}
             onChange={(techBase) => onComponentChange(component, techBase)}
             disabled={readOnly || !isMixed}
             isOdd={index % 2 === 1}

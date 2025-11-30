@@ -11,9 +11,9 @@
  * @spec openspec/changes/add-customizer-ui-components/specs/customizer-tabs/spec.md
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
-import { TechBaseConfiguration } from '../shared/TechBaseConfiguration';
+import { TechBaseConfiguration, IComponentValues, DEFAULT_COMPONENT_VALUES } from '../shared/TechBaseConfiguration';
 import { TechBaseMode, TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
 import { useMultiUnitStore } from '@/stores/useMultiUnitStore';
 
@@ -24,6 +24,10 @@ interface OverviewTabProps {
   unitName: string;
   /** Unit tonnage */
   tonnage: number;
+  /** Walk MP */
+  walkMP?: number;
+  /** Engine rating (tonnage × walkMP) */
+  engineRating?: number;
   /** Read-only mode */
   readOnly?: boolean;
   /** Additional CSS classes */
@@ -37,11 +41,14 @@ export function OverviewTab({
   tabId,
   unitName,
   tonnage,
+  walkMP = 4,
+  engineRating,
   readOnly = false,
   className = '',
 }: OverviewTabProps) {
-  // Calculate max armor for display
+  // Calculate derived values
   const maxArmorPoints = Math.floor(tonnage * 2 * 3.5);
+  const calculatedEngineRating = engineRating ?? tonnage * walkMP;
 
   // Get tech base configuration from store (persisted state)
   const tab = useMultiUnitStore((state) => 
@@ -62,6 +69,18 @@ export function OverviewTab({
     updateComponentTechBase(tabId, component, newTechBase);
   }, [tabId, updateComponentTechBase]);
 
+  // Build component values based on current selections
+  const componentValues: Partial<IComponentValues> = useMemo(() => ({
+    chassis: 'Standard',
+    gyro: 'Standard',
+    engine: `Standard Fusion ${calculatedEngineRating}`,
+    heatsink: '10 Single',
+    targeting: 'None',
+    myomer: 'Standard',
+    movement: 'None',
+    armor: 'Standard',
+  }), [calculatedEngineRating]);
+
   // If tab not found, show error state
   if (!tab) {
     return (
@@ -75,68 +94,71 @@ export function OverviewTab({
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
-      {/* Top row: Tech Base (left) + Chassis/Protection (right) */}
+      {/* Top row: Configuration (full width) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Tech Base Configuration */}
+        {/* Left: Combined Tech Base + Component Configuration */}
         <TechBaseConfiguration
           mode={tab.techBaseMode}
           components={tab.componentTechBases}
+          componentValues={componentValues}
           onModeChange={handleModeChange}
           onComponentChange={handleComponentChange}
           readOnly={readOnly}
         />
 
-        {/* Right: Chassis + Protection stacked */}
+        {/* Right: Protection + Quick Stats */}
         <div className="space-y-4">
-          {/* Chassis Configuration */}
+          {/* Protection Summary */}
           <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-lg font-semibold text-white mb-3">Chassis Configuration</h3>
-            <dl className="space-y-1.5 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Configuration</dt>
-                <dd className="text-white">Biped</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Engine</dt>
-                <dd className="text-white">Not Selected</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Gyro</dt>
+            <h3 className="text-lg font-semibold text-white mb-3">Protection</h3>
+            <dl className="space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Armor Type</dt>
                 <dd className="text-white">Standard</dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Cockpit</dt>
-                <dd className="text-white">Standard</dd>
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Total Armor</dt>
+                <dd className="text-white">
+                  <span className="text-slate-500">0</span>
+                  <span className="text-slate-600 mx-1">/</span>
+                  <span>{maxArmorPoints}</span>
+                </dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Structure</dt>
-                <dd className="text-white">Standard</dd>
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Heat Sinks</dt>
+                <dd className="text-white">10 Single</dd>
               </div>
             </dl>
           </div>
 
-          {/* Protection Summary */}
+          {/* Quick Info */}
           <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-lg font-semibold text-white mb-3">Protection</h3>
-            <dl className="space-y-1.5 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Armor Type</dt>
-                <dd className="text-white">Standard</dd>
+            <h3 className="text-lg font-semibold text-white mb-3">Quick Info</h3>
+            <dl className="space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Configuration</dt>
+                <dd className="text-white">Biped</dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Total Armor</dt>
-                <dd className="text-white">0 / {maxArmorPoints}</dd>
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Weight Class</dt>
+                <dd className="text-white">
+                  {tonnage <= 35 ? 'Light' : tonnage <= 55 ? 'Medium' : tonnage <= 75 ? 'Heavy' : 'Assault'}
+                </dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Heat Sinks</dt>
-                <dd className="text-white">10 Single</dd>
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Engine Rating</dt>
+                <dd className="text-white">{calculatedEngineRating}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-400">Walk / Run / Jump</dt>
+                <dd className="text-white">{walkMP} / {Math.ceil(walkMP * 1.5)} / 0</dd>
               </div>
             </dl>
           </div>
         </div>
       </div>
 
-      {/* Placeholder for equipment summary */}
+      {/* Equipment Summary */}
       <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
         <h3 className="text-lg font-semibold text-white mb-4">Equipment Summary</h3>
         <div className="text-center py-8 text-slate-400">
