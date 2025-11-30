@@ -32,6 +32,43 @@ interface ApiResponse {
   count?: number;
 }
 
+/**
+ * Type guard to validate EquipmentCategory enum value
+ */
+function isValidEquipmentCategory(value: string): value is EquipmentCategory {
+  return Object.values(EquipmentCategory).includes(value as EquipmentCategory);
+}
+
+/**
+ * Type guard to validate TechBase enum value
+ */
+function isValidTechBase(value: string): value is TechBase {
+  return Object.values(TechBase).includes(value as TechBase);
+}
+
+/**
+ * Type guard to validate RulesLevel enum value
+ */
+function isValidRulesLevel(value: string): value is RulesLevel {
+  return Object.values(RulesLevel).includes(value as RulesLevel);
+}
+
+/**
+ * Parse string to integer, returning undefined if invalid
+ */
+function parseIntOrUndefined(value: string): number | undefined {
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? undefined : parsed;
+}
+
+/**
+ * Parse string to float, returning undefined if invalid
+ */
+function parseFloatOrUndefined(value: string): number | undefined {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? undefined : parsed;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
@@ -72,49 +109,16 @@ export default async function handler(
       });
     }
 
-    // Build query criteria from query parameters
-    const criteria: IEquipmentQueryCriteria = {};
-
-    if (category && typeof category === 'string') {
-      // Validate category is a valid EquipmentCategory
-      const categoryValues = Object.values(EquipmentCategory);
-      if (categoryValues.includes(category as EquipmentCategory)) {
-        (criteria as { category: EquipmentCategory }).category = category as EquipmentCategory;
-      }
-    }
-
-    if (techBase && typeof techBase === 'string' && techBase in TechBase) {
-      (criteria as { techBase: TechBase }).techBase = techBase as TechBase;
-    }
-
-    if (year && typeof year === 'string') {
-      const parsed = parseInt(year, 10);
-      if (!isNaN(parsed)) {
-        (criteria as { year: number }).year = parsed;
-      }
-    }
-
-    if (search && typeof search === 'string') {
-      (criteria as { nameQuery: string }).nameQuery = search;
-    }
-
-    if (rulesLevel && typeof rulesLevel === 'string' && rulesLevel in RulesLevel) {
-      (criteria as { rulesLevel: RulesLevel }).rulesLevel = rulesLevel as RulesLevel;
-    }
-
-    if (maxWeight && typeof maxWeight === 'string') {
-      const parsed = parseFloat(maxWeight);
-      if (!isNaN(parsed)) {
-        (criteria as { maxWeight: number }).maxWeight = parsed;
-      }
-    }
-
-    if (maxSlots && typeof maxSlots === 'string') {
-      const parsed = parseInt(maxSlots, 10);
-      if (!isNaN(parsed)) {
-        (criteria as { maxSlots: number }).maxSlots = parsed;
-      }
-    }
+    // Build query criteria from query parameters using type-safe spread
+    const criteria: IEquipmentQueryCriteria = {
+      ...(typeof category === 'string' && isValidEquipmentCategory(category) && { category }),
+      ...(typeof techBase === 'string' && isValidTechBase(techBase) && { techBase }),
+      ...(typeof year === 'string' && { year: parseIntOrUndefined(year) }),
+      ...(typeof search === 'string' && { nameQuery: search }),
+      ...(typeof rulesLevel === 'string' && isValidRulesLevel(rulesLevel) && { rulesLevel }),
+      ...(typeof maxWeight === 'string' && { maxWeight: parseFloatOrUndefined(maxWeight) }),
+      ...(typeof maxSlots === 'string' && { maxSlots: parseIntOrUndefined(maxSlots) }),
+    };
 
     // Query equipment
     const equipment = equipmentLookupService.query(criteria);

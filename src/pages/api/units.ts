@@ -19,7 +19,7 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { IUnitQueryCriteria } from '@/services/common/types';
+import { IUnitQueryCriteria, UnitType } from '@/services/common/types';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -29,6 +29,47 @@ interface ApiResponse {
   data?: unknown;
   error?: string;
   count?: number;
+}
+
+/**
+ * Type guard to validate TechBase enum value
+ */
+function isValidTechBase(value: string): value is TechBase {
+  return Object.values(TechBase).includes(value as TechBase);
+}
+
+/**
+ * Type guard to validate Era enum value
+ */
+function isValidEra(value: string): value is Era {
+  return Object.values(Era).includes(value as Era);
+}
+
+/**
+ * Type guard to validate WeightClass enum value
+ */
+function isValidWeightClass(value: string): value is WeightClass {
+  return Object.values(WeightClass).includes(value as WeightClass);
+}
+
+/**
+ * Type guard to validate UnitType
+ */
+function isValidUnitType(value: string): value is UnitType {
+  const validTypes: UnitType[] = [
+    'BattleMech', 'Vehicle', 'Infantry', 'ProtoMech', 'BattleArmor',
+    'Aerospace', 'ConvFighter', 'Dropship', 'Jumpship', 'Warship',
+    'SpaceStation', 'SmallCraft'
+  ];
+  return validTypes.includes(value as UnitType);
+}
+
+/**
+ * Parse string to integer, returning undefined if invalid
+ */
+function parseIntOrUndefined(value: string): number | undefined {
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? undefined : parsed;
 }
 
 export default async function handler(
@@ -62,38 +103,15 @@ export default async function handler(
       });
     }
 
-    // Build query criteria from query parameters
-    const criteria: IUnitQueryCriteria = {};
-
-    if (techBase && typeof techBase === 'string' && techBase in TechBase) {
-      (criteria as { techBase: TechBase }).techBase = techBase as TechBase;
-    }
-
-    if (era && typeof era === 'string' && era in Era) {
-      (criteria as { era: Era }).era = era as Era;
-    }
-
-    if (weightClass && typeof weightClass === 'string' && weightClass in WeightClass) {
-      (criteria as { weightClass: WeightClass }).weightClass = weightClass as WeightClass;
-    }
-
-    if (unitType && typeof unitType === 'string') {
-      (criteria as { unitType: IUnitQueryCriteria['unitType'] }).unitType = unitType as NonNullable<IUnitQueryCriteria['unitType']>;
-    }
-
-    if (minTonnage && typeof minTonnage === 'string') {
-      const parsed = parseInt(minTonnage, 10);
-      if (!isNaN(parsed)) {
-        (criteria as { minTonnage: number }).minTonnage = parsed;
-      }
-    }
-
-    if (maxTonnage && typeof maxTonnage === 'string') {
-      const parsed = parseInt(maxTonnage, 10);
-      if (!isNaN(parsed)) {
-        (criteria as { maxTonnage: number }).maxTonnage = parsed;
-      }
-    }
+    // Build query criteria from query parameters using type-safe spread
+    const criteria: IUnitQueryCriteria = {
+      ...(typeof techBase === 'string' && isValidTechBase(techBase) && { techBase }),
+      ...(typeof era === 'string' && isValidEra(era) && { era }),
+      ...(typeof weightClass === 'string' && isValidWeightClass(weightClass) && { weightClass }),
+      ...(typeof unitType === 'string' && isValidUnitType(unitType) && { unitType }),
+      ...(typeof minTonnage === 'string' && { minTonnage: parseIntOrUndefined(minTonnage) }),
+      ...(typeof maxTonnage === 'string' && { maxTonnage: parseIntOrUndefined(maxTonnage) }),
+    };
 
     // Query units
     const units = await canonicalUnitService.query(criteria);

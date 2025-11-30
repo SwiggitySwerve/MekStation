@@ -19,6 +19,25 @@ interface ApiResponse {
   count?: number;
 }
 
+/**
+ * Interface for equipment items with name property
+ */
+interface INamedEquipment {
+  name: string;
+}
+
+/**
+ * Type guard to check if an item has a name property
+ */
+function hasNameProperty(item: unknown): item is INamedEquipment {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'name' in item &&
+    typeof (item as INamedEquipment).name === 'string'
+  );
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
@@ -48,8 +67,10 @@ export default async function handler(
     if (search && typeof search === 'string') {
       const searchLower = search.toLowerCase();
       data = data.filter((item: unknown) => {
-        const equipment = item as { name: string };
-        return equipment.name.toLowerCase().includes(searchLower);
+        if (hasNameProperty(item)) {
+          return item.name.toLowerCase().includes(searchLower);
+        }
+        return false;
       });
     }
 
