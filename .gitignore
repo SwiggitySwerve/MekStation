@@ -67,4 +67,11 @@ success*.txt
 /test-*.html
 
 # Disabled file backups
-**/*.disabledscripts/megameklab-conversion/__pycache__/
+**/*.disabled
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.pyc
