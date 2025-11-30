@@ -13,9 +13,18 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  TechBaseMode,
+  TechBaseComponent,
+  IComponentTechBases,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
 
 /**
  * Unit tab state
+ * 
+ * Contains all configuration state for a single unit, persisted across
+ * customizer tab navigation and browser sessions.
  */
 export interface UnitTab {
   /** Unique tab identifier */
@@ -26,7 +35,7 @@ export interface UnitTab {
   readonly unitType: UnitType;
   /** Tonnage */
   readonly tonnage: number;
-  /** Tech base */
+  /** Tech base (base value for the unit) */
   readonly techBase: TechBase;
   /** Mech configuration */
   readonly configuration: MechConfiguration;
@@ -36,6 +45,15 @@ export interface UnitTab {
   readonly createdAt: number;
   /** Last modified timestamp */
   lastModifiedAt: number;
+  
+  // ==========================================================================
+  // Unit Configuration State (persisted across tab navigation)
+  // ==========================================================================
+  
+  /** Tech base mode: inner_sphere, clan, or mixed */
+  techBaseMode: TechBaseMode;
+  /** Per-component tech base settings (used when techBaseMode is 'mixed') */
+  componentTechBases: IComponentTechBases;
 }
 
 /**
@@ -72,7 +90,7 @@ export interface MultiUnitState {
   isLoading: boolean;
   isNewTabModalOpen: boolean;
   
-  // Actions
+  // Tab management actions
   createTab: (template: UnitTemplate, name?: string) => string;
   duplicateTab: (tabId: string) => string | null;
   closeTab: (tabId: string) => void;
@@ -82,6 +100,11 @@ export interface MultiUnitState {
   openNewTabModal: () => void;
   closeNewTabModal: () => void;
   getActiveTab: () => UnitTab | null;
+  
+  // Unit configuration actions (persist across tab navigation)
+  updateTechBaseMode: (tabId: string, mode: TechBaseMode) => void;
+  updateComponentTechBase: (tabId: string, component: TechBaseComponent, techBase: TechBase) => void;
+  setAllComponentTechBases: (tabId: string, techBases: IComponentTechBases) => void;
   
   // Persistence helpers
   setLoading: (loading: boolean) => void;
@@ -112,6 +135,9 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         const now = Date.now();
         const name = customName || `New ${template.name}`;
         
+        // Determine initial tech base mode based on template
+        const initialMode: TechBaseMode = template.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+        
         const newTab: UnitTab = {
           id,
           name,
@@ -122,6 +148,9 @@ export const useMultiUnitStore = create<MultiUnitState>()(
           isModified: true,
           createdAt: now,
           lastModifiedAt: now,
+          // Initialize tech base configuration
+          techBaseMode: initialMode,
+          componentTechBases: createDefaultComponentTechBases(template.techBase),
         };
         
         set((state) => ({
@@ -141,6 +170,7 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         const id = generateTabId();
         const now = Date.now();
         
+        // Copy all configuration including tech base settings
         const newTab: UnitTab = {
           ...sourceTab,
           id,
@@ -148,6 +178,8 @@ export const useMultiUnitStore = create<MultiUnitState>()(
           isModified: true,
           createdAt: now,
           lastModifiedAt: now,
+          // Deep copy component tech bases to avoid shared reference
+          componentTechBases: { ...sourceTab.componentTechBases },
         };
         
         set((state) => ({
@@ -215,6 +247,59 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         return state.tabs.find(t => t.id === state.activeTabId) || null;
       },
       
+      // Unit configuration actions
+      updateTechBaseMode: (tabId, mode) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            
+            // When switching to non-mixed mode, reset all components to match
+            const newComponentTechBases = mode === 'mixed'
+              ? tab.componentTechBases
+              : createDefaultComponentTechBases(mode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE);
+            
+            return {
+              ...tab,
+              techBaseMode: mode,
+              componentTechBases: newComponentTechBases,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateComponentTechBase: (tabId, component, techBase) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentTechBases: {
+                ...tab.componentTechBases,
+                [component]: techBase,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      setAllComponentTechBases: (tabId, techBases) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentTechBases: techBases,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
       setLoading: (loading) => set({ isLoading: loading }),
     }),
     {
@@ -224,6 +309,30 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         tabs: state.tabs,
         activeTabId: state.activeTabId,
       }),
+      // Migrate existing tabs that don't have the new tech base configuration fields
+      merge: (persisted, current) => {
+        const persistedState = persisted as Partial<MultiUnitState>;
+        
+        // Migrate tabs to include tech base configuration if missing
+        const migratedTabs = (persistedState.tabs || []).map((tab) => {
+          // Check if tab needs migration (missing new fields)
+          if (!tab.techBaseMode || !tab.componentTechBases) {
+            const initialMode: TechBaseMode = tab.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+            return {
+              ...tab,
+              techBaseMode: tab.techBaseMode || initialMode,
+              componentTechBases: tab.componentTechBases || createDefaultComponentTechBases(tab.techBase),
+            };
+          }
+          return tab;
+        });
+        
+        return {
+          ...current,
+          tabs: migratedTabs,
+          activeTabId: persistedState.activeTabId ?? current.activeTabId,
+        };
+      },
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.setLoading(false);

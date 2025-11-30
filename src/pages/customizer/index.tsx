@@ -191,9 +191,9 @@ export default function CustomizerPage() {
       case 'overview':
         return (
           <OverviewTab
+            tabId={tab.id}
             unitName={tab.name}
             tonnage={tab.tonnage}
-            techBase={tab.techBase}
           />
         );
 

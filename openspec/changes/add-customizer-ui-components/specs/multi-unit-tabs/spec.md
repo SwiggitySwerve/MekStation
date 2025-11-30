@@ -115,7 +115,7 @@ Users SHALL access additional options via right-click context menu.
 - **AND** new tab name has Copy suffix
 
 ### Requirement: State Persistence
-Tab state SHALL be preserved across browser sessions.
+Tab state and unit configuration SHALL be preserved across browser sessions and tab navigation.
 
 #### Scenario: Session save
 - **WHEN** user makes changes
@@ -127,6 +127,23 @@ Tab state SHALL be preserved across browser sessions.
 - **THEN** previous tabs are restored
 - **AND** active tab is restored
 - **AND** modification flags are preserved
+
+#### Scenario: Unit configuration persistence
+- **WHEN** user modifies unit tech base, armor, or equipment
+- **THEN** changes are stored in the unit's tab state
+- **AND** changes persist when navigating to other customizer tabs (Overview, Structure, Armor, etc.)
+- **AND** changes persist across browser sessions via localStorage
+
+#### Scenario: Tech base configuration persistence
+- **WHEN** user sets tech base mode (Inner Sphere/Clan/Mixed)
+- **AND** user configures per-component tech bases
+- **THEN** all selections are preserved in the unit tab
+- **AND** selections restore when returning to Overview tab
+
+#### Scenario: Cross-tab state isolation
+- **WHEN** multiple unit tabs are open
+- **THEN** each tab maintains its own independent configuration state
+- **AND** changes to one tab do not affect other tabs
 
 ### Requirement: Loading State
 The system SHALL display loading indicator during initialization.
