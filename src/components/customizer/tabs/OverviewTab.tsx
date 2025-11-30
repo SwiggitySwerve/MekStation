@@ -13,9 +13,15 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
-import { TechBaseConfiguration, IComponentValues, DEFAULT_COMPONENT_VALUES } from '../shared/TechBaseConfiguration';
+import { TechBaseConfiguration, IComponentValues } from '../shared/TechBaseConfiguration';
 import { TechBaseMode, TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
 import { useMultiUnitStore } from '@/stores/useMultiUnitStore';
+import { getEngineDefinition } from '@/types/construction/EngineType';
+import { getGyroDefinition } from '@/types/construction/GyroType';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
 
 interface OverviewTabProps {
   /** Tab ID for accessing store state */
@@ -68,17 +74,40 @@ export function OverviewTab({
     updateComponentTechBase(tabId, component, newTechBase);
   }, [tabId, updateComponentTechBase]);
 
-  // Build component values based on current selections
-  const componentValues: Partial<IComponentValues> = useMemo(() => ({
-    chassis: 'Standard',
-    gyro: 'Standard',
-    engine: `Standard Fusion ${calculatedEngineRating}`,
-    heatsink: '10 Single',
-    targeting: 'None',
-    myomer: 'Standard',
-    movement: 'None',
-    armor: 'Standard',
-  }), [calculatedEngineRating]);
+  // Build component values based on actual store selections
+  const componentValues: IComponentValues = useMemo(() => {
+    const selections = tab?.componentSelections;
+    if (!selections) {
+      return {
+        chassis: 'Standard',
+        gyro: 'Standard',
+        engine: `Standard Fusion ${calculatedEngineRating}`,
+        heatsink: '10 Single',
+        targeting: 'None',
+        myomer: 'Standard',
+        movement: 'None',
+        armor: 'Standard',
+      };
+    }
+    
+    const engineDef = getEngineDefinition(selections.engineType);
+    const gyroDef = getGyroDefinition(selections.gyroType);
+    const structureDef = getInternalStructureDefinition(selections.internalStructureType);
+    const cockpitDef = getCockpitDefinition(selections.cockpitType);
+    const heatSinkDef = getHeatSinkDefinition(selections.heatSinkType);
+    const armorDef = getArmorDefinition(selections.armorType);
+    
+    return {
+      chassis: structureDef?.name ?? 'Standard',
+      gyro: gyroDef?.name ?? 'Standard',
+      engine: `${engineDef?.name ?? 'Standard Fusion'} ${selections.engineRating}`,
+      heatsink: `${selections.heatSinkCount} ${heatSinkDef?.name ?? 'Single'}`,
+      targeting: 'None', // Targeting computer not yet implemented
+      myomer: 'Standard', // Myomer not yet implemented
+      movement: 'None', // Movement equipment not yet implemented
+      armor: armorDef?.name ?? 'Standard',
+    };
+  }, [tab?.componentSelections, calculatedEngineRating]);
 
   // If tab not found, show error state
   if (!tab) {

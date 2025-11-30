@@ -3,10 +3,12 @@
  * 
  * Manages multiple unit tabs with:
  * - Tab creation, selection, closing
+ * - Component selections persistence
  * - Unsaved changes tracking
  * - localStorage persistence
  * 
  * @spec openspec/changes/add-customizer-ui-components/specs/multi-unit-tabs/spec.md
+ * @spec openspec/changes/add-customizer-ui-components/specs/component-configuration/spec.md
  */
 
 import { create } from 'zustand';
@@ -19,6 +21,67 @@ import {
   IComponentTechBases,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+
+// =============================================================================
+// Component Selections Interface
+// =============================================================================
+
+/**
+ * All component selections for a unit
+ */
+export interface IComponentSelections {
+  // Engine
+  engineType: EngineType;
+  engineRating: number;
+  
+  // Gyro
+  gyroType: GyroType;
+  
+  // Structure
+  internalStructureType: InternalStructureType;
+  
+  // Cockpit
+  cockpitType: CockpitType;
+  
+  // Heat Sinks
+  heatSinkType: HeatSinkType;
+  heatSinkCount: number;
+  
+  // Armor
+  armorType: ArmorTypeEnum;
+}
+
+/**
+ * Create default component selections for a unit
+ */
+export function createDefaultComponentSelections(
+  tonnage: number,
+  walkMP: number = 4,
+  techBase: TechBase = TechBase.INNER_SPHERE
+): IComponentSelections {
+  const engineRating = tonnage * walkMP;
+  
+  return {
+    engineType: EngineType.STANDARD,
+    engineRating,
+    gyroType: GyroType.STANDARD,
+    internalStructureType: InternalStructureType.STANDARD,
+    cockpitType: CockpitType.STANDARD,
+    heatSinkType: HeatSinkType.SINGLE,
+    heatSinkCount: 10,
+    armorType: ArmorTypeEnum.STANDARD,
+  };
+}
+
+// =============================================================================
+// Unit Tab Interface
+// =============================================================================
 
 /**
  * Unit tab state
@@ -47,13 +110,20 @@ export interface UnitTab {
   lastModifiedAt: number;
   
   // ==========================================================================
-  // Unit Configuration State (persisted across tab navigation)
+  // Tech Base Configuration (persisted across tab navigation)
   // ==========================================================================
   
   /** Tech base mode: inner_sphere, clan, or mixed */
   techBaseMode: TechBaseMode;
   /** Per-component tech base settings (used when techBaseMode is 'mixed') */
   componentTechBases: IComponentTechBases;
+  
+  // ==========================================================================
+  // Component Selections (persisted across tab navigation)
+  // ==========================================================================
+  
+  /** All component type selections */
+  componentSelections: IComponentSelections;
 }
 
 /**
@@ -78,6 +148,10 @@ export const UNIT_TEMPLATES: readonly UnitTemplate[] = [
   { id: 'assault', name: 'Assault Mech', tonnage: 100, techBase: TechBase.INNER_SPHERE, walkMP: 3, jumpMP: 0 },
 ];
 
+// =============================================================================
+// Store State Interface
+// =============================================================================
+
 /**
  * Multi-unit store state
  */
@@ -101,14 +175,29 @@ export interface MultiUnitState {
   closeNewTabModal: () => void;
   getActiveTab: () => UnitTab | null;
   
-  // Unit configuration actions (persist across tab navigation)
+  // Tech base configuration actions
   updateTechBaseMode: (tabId: string, mode: TechBaseMode) => void;
   updateComponentTechBase: (tabId: string, component: TechBaseComponent, techBase: TechBase) => void;
   setAllComponentTechBases: (tabId: string, techBases: IComponentTechBases) => void;
   
+  // Component selection actions
+  updateEngineType: (tabId: string, engineType: EngineType) => void;
+  updateEngineRating: (tabId: string, rating: number) => void;
+  updateGyroType: (tabId: string, gyroType: GyroType) => void;
+  updateStructureType: (tabId: string, structureType: InternalStructureType) => void;
+  updateCockpitType: (tabId: string, cockpitType: CockpitType) => void;
+  updateHeatSinkType: (tabId: string, heatSinkType: HeatSinkType) => void;
+  updateHeatSinkCount: (tabId: string, count: number) => void;
+  updateArmorType: (tabId: string, armorType: ArmorTypeEnum) => void;
+  updateComponentSelections: (tabId: string, selections: Partial<IComponentSelections>) => void;
+  
   // Persistence helpers
   setLoading: (loading: boolean) => void;
 }
+
+// =============================================================================
+// Store Implementation
+// =============================================================================
 
 /**
  * Generate unique tab ID
@@ -129,7 +218,10 @@ export const useMultiUnitStore = create<MultiUnitState>()(
       isLoading: true,
       isNewTabModalOpen: false,
       
-      // Actions
+      // =======================================================================
+      // Tab Management Actions
+      // =======================================================================
+      
       createTab: (template, customName) => {
         const id = generateTabId();
         const now = Date.now();
@@ -148,9 +240,15 @@ export const useMultiUnitStore = create<MultiUnitState>()(
           isModified: true,
           createdAt: now,
           lastModifiedAt: now,
-          // Initialize tech base configuration
+          // Tech base configuration
           techBaseMode: initialMode,
           componentTechBases: createDefaultComponentTechBases(template.techBase),
+          // Component selections
+          componentSelections: createDefaultComponentSelections(
+            template.tonnage,
+            template.walkMP,
+            template.techBase
+          ),
         };
         
         set((state) => ({
@@ -170,7 +268,7 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         const id = generateTabId();
         const now = Date.now();
         
-        // Copy all configuration including tech base settings
+        // Copy all configuration including tech base and component selections
         const newTab: UnitTab = {
           ...sourceTab,
           id,
@@ -178,8 +276,9 @@ export const useMultiUnitStore = create<MultiUnitState>()(
           isModified: true,
           createdAt: now,
           lastModifiedAt: now,
-          // Deep copy component tech bases to avoid shared reference
+          // Deep copy objects to avoid shared references
           componentTechBases: { ...sourceTab.componentTechBases },
+          componentSelections: { ...sourceTab.componentSelections },
         };
         
         set((state) => ({
@@ -247,16 +346,20 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         return state.tabs.find(t => t.id === state.activeTabId) || null;
       },
       
-      // Unit configuration actions
+      // =======================================================================
+      // Tech Base Configuration Actions
+      // =======================================================================
+      
       updateTechBaseMode: (tabId, mode) => {
         set((state) => ({
           tabs: state.tabs.map(tab => {
             if (tab.id !== tabId) return tab;
             
             // When switching to non-mixed mode, reset all components to match
+            const newTechBase = mode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
             const newComponentTechBases = mode === 'mixed'
               ? tab.componentTechBases
-              : createDefaultComponentTechBases(mode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE);
+              : createDefaultComponentTechBases(newTechBase);
             
             return {
               ...tab,
@@ -300,6 +403,167 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         }));
       },
       
+      // =======================================================================
+      // Component Selection Actions
+      // =======================================================================
+      
+      updateEngineType: (tabId, engineType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                engineType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateEngineRating: (tabId, rating) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                engineRating: rating,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateGyroType: (tabId, gyroType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                gyroType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateStructureType: (tabId, structureType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                internalStructureType: structureType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateCockpitType: (tabId, cockpitType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                cockpitType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateHeatSinkType: (tabId, heatSinkType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                heatSinkType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateHeatSinkCount: (tabId, count) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                heatSinkCount: count,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateArmorType: (tabId, armorType) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                armorType,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      updateComponentSelections: (tabId, selections) => {
+        set((state) => ({
+          tabs: state.tabs.map(tab => {
+            if (tab.id !== tabId) return tab;
+            return {
+              ...tab,
+              componentSelections: {
+                ...tab.componentSelections,
+                ...selections,
+              },
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          }),
+        }));
+      },
+      
+      // =======================================================================
+      // Persistence Helpers
+      // =======================================================================
+      
       setLoading: (loading) => set({ isLoading: loading }),
     }),
     {
@@ -309,22 +573,33 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         tabs: state.tabs,
         activeTabId: state.activeTabId,
       }),
-      // Migrate existing tabs that don't have the new tech base configuration fields
+      // Migrate existing tabs that don't have new fields
       merge: (persisted, current) => {
         const persistedState = persisted as Partial<MultiUnitState>;
         
-        // Migrate tabs to include tech base configuration if missing
+        // Migrate tabs to include all configuration fields
         const migratedTabs = (persistedState.tabs || []).map((tab) => {
-          // Check if tab needs migration (missing new fields)
-          if (!tab.techBaseMode || !tab.componentTechBases) {
-            const initialMode: TechBaseMode = tab.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
-            return {
-              ...tab,
-              techBaseMode: tab.techBaseMode || initialMode,
-              componentTechBases: tab.componentTechBases || createDefaultComponentTechBases(tab.techBase),
-            };
+          const needsTechBaseMigration = !tab.techBaseMode || !tab.componentTechBases;
+          const needsComponentMigration = !tab.componentSelections;
+          
+          if (!needsTechBaseMigration && !needsComponentMigration) {
+            return tab;
           }
-          return tab;
+          
+          const initialMode: TechBaseMode = tab.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+          
+          return {
+            ...tab,
+            // Tech base configuration
+            techBaseMode: tab.techBaseMode || initialMode,
+            componentTechBases: tab.componentTechBases || createDefaultComponentTechBases(tab.techBase),
+            // Component selections
+            componentSelections: tab.componentSelections || createDefaultComponentSelections(
+              tab.tonnage,
+              4, // Default walk MP
+              tab.techBase
+            ),
+          };
         });
         
         return {
@@ -341,4 +616,3 @@ export const useMultiUnitStore = create<MultiUnitState>()(
     }
   )
 );
-

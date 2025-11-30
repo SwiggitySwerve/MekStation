@@ -7,4 +7,6 @@
 export * from './useUnit';
 export * from './useEquipmentBrowser';
 export * from './useKeyboardNavigation';
+export * from './useTechBaseSync';
+export * from './useUnitCalculations';
 
