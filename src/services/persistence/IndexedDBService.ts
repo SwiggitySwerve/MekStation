@@ -9,7 +9,7 @@
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'battletech-editor';
-const DB_VERSION = 1;
+const DB_VERSION = 2;  // Bumped for custom-formulas store
 
 /**
  * Object store names
@@ -17,6 +17,7 @@ const DB_VERSION = 1;
 export const STORES = {
   CUSTOM_UNITS: 'custom-units',
   UNIT_METADATA: 'unit-metadata',
+  CUSTOM_FORMULAS: 'custom-formulas',
 } as const;
 
 type StoreName = typeof STORES[keyof typeof STORES];
@@ -84,6 +85,9 @@ export class IndexedDBService implements IIndexedDBService {
         }
         if (!db.objectStoreNames.contains(STORES.UNIT_METADATA)) {
           db.createObjectStore(STORES.UNIT_METADATA);
+        }
+        if (!db.objectStoreNames.contains(STORES.CUSTOM_FORMULAS)) {
+          db.createObjectStore(STORES.CUSTOM_FORMULAS);
         }
       };
     });

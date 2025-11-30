@@ -275,7 +275,7 @@ export function determineAttackDirection(
   
   // Convert to hex direction (0-5, where 0 is "north")
   // This is simplified - full hex geometry is more complex
-  let attackDirection = Math.round(Math.atan2(dy, dx) * 3 / Math.PI + 3) % 6;
+  const attackDirection = Math.round(Math.atan2(dy, dx) * 3 / Math.PI + 3) % 6;
   
   // Calculate relative direction from target's perspective
   const relativeDirection = (attackDirection - targetFacing + 6) % 6;

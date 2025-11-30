@@ -93,9 +93,14 @@ export function validateTonnage(tonnage: number): WeightClassValidationResult {
     errors.push('Tonnage must be in 5-ton increments');
   }
   
-  // Import the function to avoid circular dependency
-  const { getWeightClass } = require('../../types/enums/WeightClass');
-  const weightClass = getWeightClass(tonnage);
+  // Inline calculation to avoid circular dependency
+  const getWeightClassFromTonnage = (t: number): WeightClass => {
+    if (t <= 35) return WeightClass.LIGHT;
+    if (t <= 55) return WeightClass.MEDIUM;
+    if (t <= 75) return WeightClass.HEAVY;
+    return WeightClass.ASSAULT;
+  };
+  const weightClass = getWeightClassFromTonnage(tonnage);
   
   return {
     isValid: errors.length === 0,
