@@ -54,7 +54,7 @@ Certain BattleTech equipment has properties (weight, slots, cost) that vary base
 | Slots | `ceil(engineRating / 20)` | `ceil(engineRating / 25)` | TM p.230 |
 | Cost | `mechTonnage × 1,000 C-Bills` | `mechTonnage × 1,000 C-Bills` | TM p.230 |
 
-**Placement:** Leg locations only, requires functional actuators
+**Placement:** No special restrictions (any location with available slots)
 
 **Example (50-ton mech, 200 engine):**
 - IS: Weight = ceil(200 / 20) = 10 tons, 10 slots, 50,000 C-Bills

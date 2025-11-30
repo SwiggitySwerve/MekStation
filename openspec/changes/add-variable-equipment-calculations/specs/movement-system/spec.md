@@ -15,11 +15,6 @@ The system SHALL support MASC, TSM, Supercharger, and Partial Wing with accurate
 - **AND** criticalSlots = ceil(engineRating / 25)
 - **AND** cost = mechTonnage × 1000 C-Bills
 
-#### Scenario: MASC placement restrictions
-- **WHEN** placing MASC on mech
-- **THEN** MASC MUST be placed in leg locations only
-- **AND** MASC requires functional leg actuators
-
 #### Scenario: Supercharger weight calculation
 - **WHEN** calculating Supercharger weight
 - **THEN** weight = ceil(engineWeight / 10) rounded to 0.5 tons
