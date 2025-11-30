@@ -94,7 +94,7 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
 
     // Calculate slots and cost
     const criticalSlots = this.evaluator.evaluate(formulas.criticalSlots, contextWithWeight);
-    const cost = this.evaluator.evaluate(formulas.cost, contextWithWeight);
+    const costCBills = this.evaluator.evaluate(formulas.cost, contextWithWeight);
 
     // Calculate damage if formula exists (physical weapons)
     const damage = formulas.damage 
@@ -104,7 +104,7 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
     return {
       weight,
       criticalSlots,
-      cost,
+      costCBills,
       ...(damage !== undefined && { damage }),
     };
   }

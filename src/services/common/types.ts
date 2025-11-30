@@ -183,7 +183,7 @@ export interface IVariableEquipmentContext {
 export interface ICalculatedEquipmentProperties {
   readonly weight: number;
   readonly criticalSlots: number;
-  readonly cost: number;
+  readonly costCBills: number;
   /** Damage for physical weapons (optional) */
   readonly damage?: number;
 }

@@ -8,7 +8,6 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
-import { IVariableEquipmentConfig, VariableProperty } from './VariableEquipment';
 
 /**
  * Electronics category
@@ -37,10 +36,8 @@ export interface IElectronics {
   readonly battleValue: number;
   readonly introductionYear: number;
   readonly special?: readonly string[];
-  /** True if this equipment has variable properties */
-  readonly isVariable?: boolean;
-  /** Configuration for variable property calculations */
-  readonly variableConfig?: IVariableEquipmentConfig;
+  /** ID for variable equipment formula lookup in FormulaRegistry */
+  readonly variableEquipmentId?: string;
 }
 
 // ============================================================================
@@ -60,12 +57,7 @@ export const TARGETING_COMPUTERS: readonly IElectronics[] = [
     battleValue: 0, // Variable
     introductionYear: 3062,
     special: ['-1 to-hit for direct fire weapons'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
-      calculationId: 'targeting-computer',
-      inputRequirements: ['directFireWeaponTonnage', 'techBase'],
-    },
+    variableEquipmentId: 'targeting-computer-is',
   },
   {
     id: 'clan-targeting-computer',
@@ -79,12 +71,7 @@ export const TARGETING_COMPUTERS: readonly IElectronics[] = [
     battleValue: 0, // Variable
     introductionYear: 2860,
     special: ['-1 to-hit for direct fire weapons'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
-      calculationId: 'targeting-computer',
-      inputRequirements: ['directFireWeaponTonnage', 'techBase'],
-    },
+    variableEquipmentId: 'targeting-computer-clan',
   },
 ] as const;
 

@@ -8,7 +8,6 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
-import { IVariableEquipmentConfig, VariableProperty } from './VariableEquipment';
 
 /**
  * Misc equipment category
@@ -37,10 +36,8 @@ export interface IMiscEquipment {
   readonly battleValue: number;
   readonly introductionYear: number;
   readonly special?: readonly string[];
-  /** True if this equipment has variable properties */
-  readonly isVariable?: boolean;
-  /** Configuration for variable property calculations */
-  readonly variableConfig?: IVariableEquipmentConfig;
+  /** ID for variable equipment formula lookup in FormulaRegistry */
+  readonly variableEquipmentId?: string;
 }
 
 // ============================================================================
@@ -213,12 +210,7 @@ export const JUMP_JETS: readonly IMiscEquipment[] = [
     battleValue: 0,
     introductionYear: 3067,
     special: ['+1 Jump MP', '+2 heat dissipation at altitude'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.COST],
-      calculationId: 'partial-wing',
-      inputRequirements: ['mechTonnage'],
-    },
+    variableEquipmentId: 'partial-wing',
   },
 ] as const;
 
@@ -239,12 +231,7 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     battleValue: 0,
     introductionYear: 2740,
     special: ['Double running speed for one turn', 'Risk of leg damage'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
-      calculationId: 'masc',
-      inputRequirements: ['engineRating', 'mechTonnage', 'techBase'],
-    },
+    variableEquipmentId: 'masc-is',
   },
   {
     id: 'clan-masc',
@@ -258,12 +245,7 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     battleValue: 0,
     introductionYear: 2827,
     special: ['Double running speed for one turn', 'Risk of leg damage'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.SLOTS, VariableProperty.COST],
-      calculationId: 'masc',
-      inputRequirements: ['engineRating', 'mechTonnage', 'techBase'],
-    },
+    variableEquipmentId: 'masc-clan',
   },
   {
     id: 'supercharger',
@@ -277,12 +259,7 @@ export const MOVEMENT_EQUIPMENT: readonly IMiscEquipment[] = [
     battleValue: 0,
     introductionYear: 3068,
     special: ['+1 running MP', 'Risk of engine damage'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.WEIGHT, VariableProperty.COST],
-      calculationId: 'supercharger',
-      inputRequirements: ['engineWeight'],
-    },
+    variableEquipmentId: 'supercharger',
   },
 ] as const;
 
@@ -303,12 +280,7 @@ export const MYOMER_SYSTEMS: readonly IMiscEquipment[] = [
     battleValue: 0,
     introductionYear: 3050,
     special: ['+2 walking MP at 9+ heat', 'Double physical attack damage'],
-    isVariable: true,
-    variableConfig: {
-      variableProperties: [VariableProperty.COST],
-      calculationId: 'tsm',
-      inputRequirements: ['mechTonnage'],
-    },
+    variableEquipmentId: 'tsm',
   },
   {
     id: 'industrial-tsm',
