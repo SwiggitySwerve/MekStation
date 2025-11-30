@@ -128,7 +128,8 @@ export type FormulaType =
   | 'EQUALS_WEIGHT'   // = calculated weight (for slots that equal weight)
   | 'EQUALS_FIELD'    // = context field directly
   | 'MIN'             // minimum of sub-formulas
-  | 'MAX';            // maximum of sub-formulas
+  | 'MAX'             // maximum of sub-formulas
+  | 'PLUS';           // base formula + bonus (for physical weapon damage)
 
 /**
  * Formula definition
@@ -162,6 +163,12 @@ export interface IFormula {
   
   /** Sub-formulas for MIN/MAX combinators */
   readonly formulas?: readonly IFormula[];
+  
+  /** Base formula for PLUS combinator */
+  readonly base?: IFormula;
+  
+  /** Bonus value for PLUS combinator */
+  readonly bonus?: number;
 }
 
 /**
@@ -176,6 +183,9 @@ export interface IVariableFormulas {
   
   /** Formula to calculate C-Bill cost */
   readonly cost: IFormula;
+  
+  /** Optional formula to calculate damage (for physical weapons) */
+  readonly damage?: IFormula;
   
   /** Context fields required for calculation */
   readonly requiredContext: readonly string[];
@@ -258,6 +268,14 @@ export function max(...formulas: IFormula[]): IFormula {
   return { type: 'MAX', formulas };
 }
 
+/**
+ * Create a PLUS formula: base formula + bonus
+ * Useful for physical weapon damage: floor(tonnage/10) + 1
+ */
+export function plus(base: IFormula, bonus: number): IFormula {
+  return { type: 'PLUS', base, bonus };
+}
+
 // ============================================================================
 // VALIDATION
 // ============================================================================
@@ -328,6 +346,17 @@ export function validateFormula(formula: IFormula): string[] {
       }
       break;
 
+    case 'PLUS':
+      if (!formula.base) {
+        errors.push('PLUS formula requires base formula');
+      } else {
+        errors.push(...validateFormula(formula.base));
+      }
+      if (formula.bonus === undefined) {
+        errors.push('PLUS formula requires bonus value');
+      }
+      break;
+
     default:
       errors.push(`Unknown formula type: ${(formula as IFormula).type}`);
   }
@@ -344,6 +373,11 @@ export function validateVariableFormulas(formulas: IVariableFormulas): string[] 
   errors.push(...validateFormula(formulas.weight).map(e => `weight: ${e}`));
   errors.push(...validateFormula(formulas.criticalSlots).map(e => `criticalSlots: ${e}`));
   errors.push(...validateFormula(formulas.cost).map(e => `cost: ${e}`));
+  
+  // Damage formula is optional (only for physical weapons)
+  if (formulas.damage) {
+    errors.push(...validateFormula(formulas.damage).map(e => `damage: ${e}`));
+  }
 
   if (!formulas.requiredContext || !Array.isArray(formulas.requiredContext)) {
     errors.push('requiredContext must be an array');

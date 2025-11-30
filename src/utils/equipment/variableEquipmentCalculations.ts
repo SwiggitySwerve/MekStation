@@ -298,6 +298,9 @@ export function calculateJumpJetWeight(
 
 // ============================================================================
 // PHYSICAL WEAPONS
+// @deprecated Use EquipmentCalculatorService with FormulaRegistry instead
+// These functions are preserved for backwards compatibility but will be removed
+// in a future version. Migrate to the unified formula system.
 // ============================================================================
 
 /**
@@ -305,6 +308,8 @@ export function calculateJumpJetWeight(
  * Damage = floor(tonnage / 5)
  * Weight = ceil(tonnage / 15)
  * Slots = ceil(tonnage / 15)
+ * 
+ * @deprecated Use EquipmentCalculatorService.calculateProperties('hatchet', { tonnage })
  */
 export function calculateHatchet(
   mechTonnage: number
@@ -325,6 +330,8 @@ export function calculateHatchet(
  * Damage = floor(tonnage / 10) + 1
  * Weight = ceil(tonnage / 15)
  * Slots = ceil(tonnage / 15)
+ * 
+ * @deprecated Use EquipmentCalculatorService.calculateProperties('sword', { tonnage })
  */
 export function calculateSword(
   mechTonnage: number
@@ -345,6 +352,8 @@ export function calculateSword(
  * Damage = floor(tonnage / 4)
  * Weight = ceil(tonnage / 10)
  * Slots = ceil(tonnage / 10)
+ * 
+ * @deprecated Use EquipmentCalculatorService.calculateProperties('mace', { tonnage })
  */
 export function calculateMace(
   mechTonnage: number
@@ -365,6 +374,8 @@ export function calculateMace(
  * Damage = floor(tonnage / 5), doubled when charging
  * Weight = ceil(tonnage / 20)
  * Slots = ceil(tonnage / 20)
+ * 
+ * @deprecated Use EquipmentCalculatorService.calculateProperties('lance', { tonnage })
  */
 export function calculateLance(
   mechTonnage: number

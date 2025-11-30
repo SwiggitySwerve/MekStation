@@ -184,6 +184,8 @@ export interface ICalculatedEquipmentProperties {
   readonly weight: number;
   readonly criticalSlots: number;
   readonly cost: number;
+  /** Damage for physical weapons (optional) */
+  readonly damage?: number;
 }
 
 // ============================================================================

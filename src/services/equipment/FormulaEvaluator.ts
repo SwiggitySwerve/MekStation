@@ -61,6 +61,9 @@ export class FormulaEvaluator implements IFormulaEvaluator {
       case 'MAX':
         return this.evaluateMax(formula, context);
 
+      case 'PLUS':
+        return this.evaluatePlus(formula, context);
+
       default:
         throw new ValidationError(
           `Unknown formula type: ${(formula as IFormula).type}`,
@@ -109,6 +112,12 @@ export class FormulaEvaluator implements IFormulaEvaluator {
           for (const subFormula of formula.formulas) {
             fields.push(...this.getRequiredFields(subFormula));
           }
+        }
+        break;
+
+      case 'PLUS':
+        if (formula.base) {
+          fields.push(...this.getRequiredFields(formula.base));
         }
         break;
     }
@@ -196,6 +205,18 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     
     const values = formula.formulas.map(f => this.evaluate(f, context));
     return Math.max(...values);
+  }
+
+  private evaluatePlus(formula: IFormula, context: FormulaContext): number {
+    if (!formula.base) {
+      throw new ValidationError('PLUS formula missing base', ['base formula is required']);
+    }
+    if (formula.bonus === undefined) {
+      throw new ValidationError('PLUS formula missing bonus', ['bonus value is required']);
+    }
+    
+    const baseValue = this.evaluate(formula.base, context);
+    return baseValue + formula.bonus;
   }
 
   // ============================================================================

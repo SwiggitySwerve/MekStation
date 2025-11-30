@@ -96,10 +96,16 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
     const criticalSlots = this.evaluator.evaluate(formulas.criticalSlots, contextWithWeight);
     const cost = this.evaluator.evaluate(formulas.cost, contextWithWeight);
 
+    // Calculate damage if formula exists (physical weapons)
+    const damage = formulas.damage 
+      ? this.evaluator.evaluate(formulas.damage, contextWithWeight)
+      : undefined;
+
     return {
       weight,
       criticalSlots,
       cost,
+      ...(damage !== undefined && { damage }),
     };
   }
 
@@ -166,6 +172,7 @@ export const equipmentCalculatorService = new EquipmentCalculatorService();
  * Preserved for backwards compatibility
  */
 export const VARIABLE_EQUIPMENT = {
+  // Movement equipment
   TARGETING_COMPUTER_IS: 'targeting-computer-is',
   TARGETING_COMPUTER_CLAN: 'targeting-computer-clan',
   MASC_IS: 'masc-is',
@@ -173,4 +180,15 @@ export const VARIABLE_EQUIPMENT = {
   SUPERCHARGER: 'supercharger',
   PARTIAL_WING: 'partial-wing',
   TSM: 'tsm',
+  
+  // Physical weapons
+  HATCHET: 'hatchet',
+  SWORD: 'sword',
+  MACE: 'mace',
+  CLAWS: 'claws',
+  LANCE: 'lance',
+  TALONS: 'talons',
+  RETRACTABLE_BLADE: 'retractable-blade',
+  FLAIL: 'flail',
+  WRECKING_BALL: 'wrecking-ball',
 } as const;
