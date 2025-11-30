@@ -13,52 +13,110 @@ import {
   TechBaseMode,
   TechBaseComponent,
   IComponentTechBases,
-  TECH_BASE_MODE_LABELS,
   TECH_BASE_COMPONENT_LABELS,
   TECH_BASE_COMPONENT_DESCRIPTIONS,
 } from '@/types/construction/TechBaseConfiguration';
 
+// =============================================================================
+// Style Constants
+// =============================================================================
+
+const styles = {
+  // Base button styles
+  button: {
+    base: 'px-3 py-1.5 text-sm font-medium transition-colors',
+    baseLarge: 'px-4 py-2 text-sm font-medium transition-colors',
+    inactive: 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300',
+    disabled: 'opacity-50 cursor-not-allowed',
+    enabled: 'cursor-pointer',
+    borderLeft: 'border-l border-slate-600',
+  },
+  
+  // Tech base colors (active state)
+  techBase: {
+    innerSphere: 'bg-green-600 text-white',
+    clan: 'bg-red-600 text-white',
+    mixed: 'bg-purple-600 text-white',
+  },
+  
+  // Container styles
+  container: {
+    panel: 'bg-slate-800 rounded-lg border border-slate-700 overflow-hidden',
+    header: 'px-4 py-3 border-b border-slate-700 bg-slate-800',
+    buttonGroup: 'inline-flex rounded-lg overflow-hidden border border-slate-600',
+    rowEven: 'bg-slate-800',
+    rowOdd: 'bg-slate-800/50',
+  },
+  
+  // Text styles
+  text: {
+    title: 'text-sm font-medium text-slate-400 text-center mb-2',
+    label: 'text-sm font-medium text-slate-200',
+  },
+} as const;
+
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+function getModeButtonClass(isActive: boolean, isDisabled: boolean): string {
+  return [
+    styles.button.baseLarge,
+    isActive ? '' : styles.button.inactive,
+    isDisabled ? styles.button.disabled : styles.button.enabled,
+  ].filter(Boolean).join(' ');
+}
+
+function getSegmentButtonClass(isActive: boolean, isDisabled: boolean): string {
+  return [
+    styles.button.base,
+    isActive ? '' : styles.button.inactive,
+    isDisabled ? styles.button.disabled : styles.button.enabled,
+  ].filter(Boolean).join(' ');
+}
+
+// =============================================================================
+// Props Interfaces
+// =============================================================================
+
 interface TechBaseConfigurationProps {
-  /** Current global tech base mode */
   mode: TechBaseMode;
-  /** Per-component tech base settings */
   components: IComponentTechBases;
-  /** Called when the global mode changes */
   onModeChange: (mode: TechBaseMode) => void;
-  /** Called when a component tech base changes */
   onComponentChange: (component: TechBaseComponent, techBase: TechBase) => void;
-  /** Whether the configuration is read-only */
   readOnly?: boolean;
-  /** Additional CSS classes */
   className?: string;
 }
 
-/**
- * Segmented button for selecting between two options
- */
-function TechBaseSegmentedButton({
-  value,
-  onChange,
-  disabled = false,
-}: {
+interface SegmentedButtonProps {
   value: TechBase;
   onChange: (value: TechBase) => void;
   disabled?: boolean;
-}) {
+}
+
+interface ComponentRowProps {
+  component: TechBaseComponent;
+  techBase: TechBase;
+  onChange: (techBase: TechBase) => void;
+  disabled: boolean;
+  isOdd: boolean;
+}
+
+// =============================================================================
+// Sub-Components
+// =============================================================================
+
+function TechBaseSegmentedButton({ value, onChange, disabled = false }: SegmentedButtonProps) {
+  const isIS = value === TechBase.INNER_SPHERE;
+  const isClan = value === TechBase.CLAN;
+
   return (
-    <div className="flex rounded-lg overflow-hidden border border-slate-600">
+    <div className={styles.container.buttonGroup}>
       <button
         type="button"
         onClick={() => onChange(TechBase.INNER_SPHERE)}
         disabled={disabled}
-        className={`
-          px-3 py-1.5 text-sm font-medium transition-colors
-          ${value === TechBase.INNER_SPHERE
-            ? 'bg-blue-600 text-white'
-            : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300'
-          }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        `}
+        className={`${getSegmentButtonClass(isIS, disabled)} ${isIS ? styles.techBase.innerSphere : ''}`}
       >
         Inner Sphere
       </button>
@@ -66,14 +124,7 @@ function TechBaseSegmentedButton({
         type="button"
         onClick={() => onChange(TechBase.CLAN)}
         disabled={disabled}
-        className={`
-          px-3 py-1.5 text-sm font-medium transition-colors border-l border-slate-600
-          ${value === TechBase.CLAN
-            ? 'bg-green-600 text-white'
-            : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300'
-          }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        `}
+        className={`${getSegmentButtonClass(isClan, disabled)} ${styles.button.borderLeft} ${isClan ? styles.techBase.clan : ''}`}
       >
         Clan
       </button>
@@ -81,32 +132,16 @@ function TechBaseSegmentedButton({
   );
 }
 
-/**
- * Row for a single component's tech base setting
- */
-function ComponentRow({
-  component,
-  techBase,
-  onChange,
-  disabled,
-  isOdd,
-}: {
-  component: TechBaseComponent;
-  techBase: TechBase;
-  onChange: (techBase: TechBase) => void;
-  disabled: boolean;
-  isOdd: boolean;
-}) {
+function ComponentRow({ component, techBase, onChange, disabled, isOdd }: ComponentRowProps) {
+  const rowBg = isOdd ? styles.container.rowOdd : styles.container.rowEven;
+  const opacity = disabled ? 'opacity-60' : '';
+
   return (
     <div
-      className={`
-        flex items-center justify-between px-4 py-2.5
-        ${isOdd ? 'bg-slate-800/50' : 'bg-slate-800'}
-        ${disabled ? 'opacity-60' : ''}
-      `}
+      className={`flex items-center justify-between px-4 py-2.5 ${rowBg} ${opacity}`}
       title={TECH_BASE_COMPONENT_DESCRIPTIONS[component]}
     >
-      <div className="text-sm font-medium text-slate-200">
+      <div className={styles.text.label}>
         {TECH_BASE_COMPONENT_LABELS[component]}
       </div>
       <TechBaseSegmentedButton
@@ -118,9 +153,15 @@ function ComponentRow({
   );
 }
 
-/**
- * Tech base configuration panel
- */
+// =============================================================================
+// Main Component
+// =============================================================================
+
+const COMPONENT_ORDER: TechBaseComponent[] = [
+  'chassis', 'gyro', 'engine', 'heatsink',
+  'targeting', 'myomer', 'movement', 'armor',
+];
+
 export function TechBaseConfiguration({
   mode,
   components,
@@ -130,40 +171,24 @@ export function TechBaseConfiguration({
   className = '',
 }: TechBaseConfigurationProps) {
   const isMixed = mode === 'mixed';
-  
-  const componentOrder: TechBaseComponent[] = [
-    'chassis',
-    'gyro',
-    'engine',
-    'heatsink',
-    'targeting',
-    'myomer',
-    'movement',
-    'armor',
-  ];
+  const isIS = mode === 'inner_sphere';
+  const isClan = mode === 'clan';
 
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 overflow-hidden ${className}`}>
-      {/* Header with centered global mode selector */}
-      <div className="px-4 py-3 border-b border-slate-700 bg-slate-800">
-        <h3 className="text-sm font-medium text-slate-400 text-center mb-2">Tech Base</h3>
+    <div className={`${styles.container.panel} ${className}`}>
+      {/* Header */}
+      <div className={styles.container.header}>
+        <h3 className={styles.text.title}>Tech Base</h3>
         
-        {/* Centered segmented button for mode selection */}
+        {/* Mode Selector */}
         <div className="flex justify-center">
-          <div className="inline-flex rounded-lg overflow-hidden border border-slate-600">
+          <div className={styles.container.buttonGroup}>
             <button
               type="button"
               onClick={() => onModeChange('inner_sphere')}
               disabled={readOnly}
               title="All components use Inner Sphere technology"
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors
-                ${mode === 'inner_sphere'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300'
-                }
-                ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              `}
+              className={`${getModeButtonClass(isIS, readOnly)} ${isIS ? styles.techBase.innerSphere : ''}`}
             >
               Inner Sphere
             </button>
@@ -172,14 +197,7 @@ export function TechBaseConfiguration({
               onClick={() => onModeChange('clan')}
               disabled={readOnly}
               title="All components use Clan technology"
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors border-l border-slate-600
-                ${mode === 'clan'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300'
-                }
-                ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              `}
+              className={`${getModeButtonClass(isClan, readOnly)} ${styles.button.borderLeft} ${isClan ? styles.techBase.clan : ''}`}
             >
               Clan
             </button>
@@ -188,14 +206,7 @@ export function TechBaseConfiguration({
               onClick={() => onModeChange('mixed')}
               disabled={readOnly}
               title="Configure each component's tech base individually"
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors border-l border-slate-600
-                ${mode === 'mixed'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300'
-                }
-                ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              `}
+              className={`${getModeButtonClass(isMixed, readOnly)} ${styles.button.borderLeft} ${isMixed ? styles.techBase.mixed : ''}`}
             >
               Mixed
             </button>
@@ -203,9 +214,9 @@ export function TechBaseConfiguration({
         </div>
       </div>
 
-      {/* Component rows */}
+      {/* Component Rows */}
       <div className="divide-y divide-slate-700/50">
-        {componentOrder.map((component, index) => (
+        {COMPONENT_ORDER.map((component, index) => (
           <ComponentRow
             key={component}
             component={component}
@@ -219,4 +230,3 @@ export function TechBaseConfiguration({
     </div>
   );
 }
-
