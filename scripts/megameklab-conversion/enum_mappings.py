@@ -497,27 +497,49 @@ ERA_MAP: Dict[int, str] = {
 
 
 def map_year_to_era(year: int) -> str:
-    """Map introduction year to BattleTech era string."""
-    if year < 2571:
+    """Map introduction year to BattleTech era string (matches TypeScript Era enum)."""
+    if year < 2005:
+        return "EARLY_SPACEFLIGHT"
+    elif year < 2571:
         return "AGE_OF_WAR"
     elif year < 2781:
         return "STAR_LEAGUE"
-    elif year < 2901:
-        return "EARLY_SUCCESSION_WARS"
-    elif year < 3020:
-        return "LATE_SUCCESSION_WARS"
     elif year < 3050:
-        return "RENAISSANCE"
-    elif year < 3062:
-        return "CLAN_INVASION"
+        return "SUCCESSION_WARS"
     elif year < 3068:
+        return "CLAN_INVASION"
+    elif year < 3081:
         return "CIVIL_WAR"
-    elif year < 3086:
-        return "JIHAD"
-    elif year < 3151:
+    elif year < 3152:
         return "DARK_AGE"
     else:
         return "ILCLAN"
+
+
+def get_era_folder_name(era: str) -> str:
+    """Get a folder-safe name for an era with chronological prefix."""
+    era_folders = {
+        "EARLY_SPACEFLIGHT": "0-early-spaceflight",
+        "AGE_OF_WAR": "1-age-of-war",
+        "STAR_LEAGUE": "2-star-league",
+        "SUCCESSION_WARS": "3-succession-wars",
+        "CLAN_INVASION": "4-clan-invasion",
+        "CIVIL_WAR": "5-civil-war",
+        "DARK_AGE": "6-dark-age",
+        "ILCLAN": "7-ilclan",
+    }
+    return era_folders.get(era, "99-unknown")
+
+
+def get_rules_level_folder_name(rules_level: str) -> str:
+    """Get a folder-safe name for a rules level."""
+    rules_folders = {
+        "INTRODUCTORY": "introductory",
+        "STANDARD": "standard",
+        "ADVANCED": "advanced",
+        "EXPERIMENTAL": "experimental",
+    }
+    return rules_folders.get(rules_level, "standard")
 
 
 # =============================================================================

@@ -33,6 +33,8 @@ from enum_mappings import (
     map_unit_type,
     generate_id_from_name,
     normalize_equipment_id,
+    get_era_folder_name,
+    get_rules_level_folder_name,
 )
 
 
@@ -616,6 +618,10 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
     """
     Convert all MTF files in a directory.
     
+    Files are organized by Era -> Rules Level:
+    - succession-wars/standard/Atlas AS7-D.json
+    - clan-invasion/advanced/Mad Cat Prime.json
+    
     Returns tuple of (successful, failed) counts.
     """
     success_count = 0
@@ -623,26 +629,50 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
     
     source_path = Path(source_dir)
     output_path = Path(output_dir)
+    parser = MTFParser()
     
     for mtf_file in source_path.rglob('*.mtf'):
-        # Compute relative path
-        relative = mtf_file.relative_to(source_path)
-        
-        # Determine era folder from path
-        era_folder = relative.parts[0] if relative.parts else 'unknown'
-        
-        # Apply era filter if specified
-        if era_filter and era_filter.lower() not in era_folder.lower():
-            continue
-        
-        # Output path
-        json_file = output_path / relative.with_suffix('.json')
-        
-        if convert_mtf_file(str(mtf_file), str(json_file)):
+        try:
+            # Parse the file to get era and rules level
+            unit = parser.parse_file(str(mtf_file))
+            
+            if unit is None:
+                fail_count += 1
+                print(f"Failed to parse: {mtf_file}")
+                continue
+            
+            # Get era folder from unit's year
+            era_folder = get_era_folder_name(unit.era)
+            
+            # Get rules level folder
+            rules_folder = get_rules_level_folder_name(unit.rulesLevel)
+            
+            # Apply era filter if specified
+            if era_filter and era_filter.lower() not in era_folder.lower():
+                continue
+            
+            # Build output path: era/rules_level/filename.json
+            # Sanitize filename to replace invalid characters
+            safe_name = f"{unit.chassis} {unit.model}"
+            # Replace characters that are invalid in filenames
+            for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
+                safe_name = safe_name.replace(char, '-')
+            json_filename = f"{safe_name}.json"
+            json_file = output_path / era_folder / rules_folder / json_filename
+            
+            # Convert dataclasses to dicts
+            unit_dict = dataclass_to_dict(unit)
+            
+            # Write JSON
+            os.makedirs(json_file.parent, exist_ok=True)
+            with open(json_file, 'w', encoding='utf-8') as f:
+                json.dump(unit_dict, f, indent=2, ensure_ascii=False)
+            
             success_count += 1
-        else:
+            
+        except Exception as e:
             fail_count += 1
-            print(f"Failed: {mtf_file}")
+            print(f"Failed: {mtf_file} - {e}")
     
     return success_count, fail_count
 
