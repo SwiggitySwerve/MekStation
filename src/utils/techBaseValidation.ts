@@ -15,6 +15,7 @@ import { InternalStructureType, INTERNAL_STRUCTURE_DEFINITIONS } from '@/types/c
 import { CockpitType, COCKPIT_DEFINITIONS } from '@/types/construction/CockpitType';
 import { HeatSinkType, HEAT_SINK_DEFINITIONS } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum, ARMOR_DEFINITIONS } from '@/types/construction/ArmorType';
+import { ISelectionMemory } from '@/stores/unitState';
 
 // =============================================================================
 // Component Selections Interface
@@ -298,15 +299,208 @@ export function getValidatedSelectionUpdates(
 }
 
 /**
+ * Tech base key type for memory lookup
+ */
+export type TechBaseKey = 'IS' | 'CLAN';
+
+/**
+ * Get a selection value, trying memory first then falling back to default.
+ * 
+ * @param validator - The component validator
+ * @param currentValue - Current selection value
+ * @param techBase - Target tech base to validate against
+ * @param memoryValue - Optional remembered value from memory
+ * @returns The validated selection (memory if valid, else current if valid, else default)
+ */
+function getValueWithMemory<T>(
+  validator: ComponentValidator<T>,
+  currentValue: T,
+  techBase: TechBase,
+  memoryValue?: T
+): T {
+  // First, try to restore from memory if available and valid
+  if (memoryValue !== undefined && validator.isValid(memoryValue, techBase)) {
+    return memoryValue;
+  }
+  
+  // Otherwise, keep current if valid
+  if (validator.isValid(currentValue, techBase)) {
+    return currentValue;
+  }
+  
+  // Fall back to default
+  return validator.getDefault(techBase);
+}
+
+/**
+ * Get selection updates for a component tech base change, using memory for restoration.
+ * 
+ * @param component - The component whose tech base is changing
+ * @param newTechBase - The new tech base
+ * @param currentSelections - Current component selections
+ * @param memory - Selection memory for restoration
+ * @param techBaseKey - The memory key to look up ('IS' or 'CLAN')
+ */
+export function getSelectionWithMemory(
+  component: TechBaseComponent,
+  newTechBase: TechBase,
+  currentSelections: ComponentSelections,
+  memory: ISelectionMemory,
+  techBaseKey: TechBaseKey
+): Partial<ComponentSelections> {
+  const updates: Partial<ComponentSelections> = {};
+  const affectedSelections = COMPONENT_AFFECTED_SELECTIONS[component];
+  
+  if (!affectedSelections || affectedSelections.length === 0) {
+    return updates;
+  }
+  
+  for (const selectionKey of affectedSelections) {
+    switch (selectionKey) {
+      case 'engineType': {
+        const memoryValue = memory.engine[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.engine,
+          currentSelections.engineType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.engineType) {
+          updates.engineType = newValue;
+        }
+        break;
+      }
+      case 'gyroType': {
+        const memoryValue = memory.gyro[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.gyro,
+          currentSelections.gyroType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.gyroType) {
+          updates.gyroType = newValue;
+        }
+        break;
+      }
+      case 'internalStructureType': {
+        const memoryValue = memory.structure[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.structure,
+          currentSelections.internalStructureType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.internalStructureType) {
+          updates.internalStructureType = newValue;
+        }
+        break;
+      }
+      case 'cockpitType': {
+        const memoryValue = memory.cockpit[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.cockpit,
+          currentSelections.cockpitType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.cockpitType) {
+          updates.cockpitType = newValue;
+        }
+        break;
+      }
+      case 'heatSinkType': {
+        const memoryValue = memory.heatSink[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.heatSink,
+          currentSelections.heatSinkType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.heatSinkType) {
+          updates.heatSinkType = newValue;
+        }
+        break;
+      }
+      case 'armorType': {
+        const memoryValue = memory.armor[techBaseKey];
+        const newValue = getValueWithMemory(
+          COMPONENT_VALIDATORS.armor,
+          currentSelections.armorType,
+          newTechBase,
+          memoryValue
+        );
+        if (newValue !== currentSelections.armorType) {
+          updates.armorType = newValue;
+        }
+        break;
+      }
+    }
+  }
+  
+  return updates;
+}
+
+/**
  * Get all validated selections for a complete tech base configuration change.
  * Used when switching between IS/Clan modes.
+ * 
+ * @param componentTechBases - The new tech base configuration
+ * @param currentSelections - Current component selections
+ * @param memory - Optional selection memory for restoration
+ * @param techBaseKey - Optional memory key to look up ('IS' or 'CLAN')
  */
 export function getFullyValidatedSelections(
   componentTechBases: IComponentTechBases,
-  currentSelections: ComponentSelections
+  currentSelections: ComponentSelections,
+  memory?: ISelectionMemory,
+  techBaseKey?: TechBaseKey
 ): ComponentSelections {
   const { engine, gyro, structure, cockpit, heatSink, armor } = COMPONENT_VALIDATORS;
   
+  // If memory is provided, try to restore from it
+  if (memory && techBaseKey) {
+    return {
+      engineType: getValueWithMemory(
+        engine,
+        currentSelections.engineType,
+        componentTechBases.engine,
+        memory.engine[techBaseKey]
+      ),
+      gyroType: getValueWithMemory(
+        gyro,
+        currentSelections.gyroType,
+        componentTechBases.gyro,
+        memory.gyro[techBaseKey]
+      ),
+      internalStructureType: getValueWithMemory(
+        structure,
+        currentSelections.internalStructureType,
+        componentTechBases.chassis,
+        memory.structure[techBaseKey]
+      ),
+      cockpitType: getValueWithMemory(
+        cockpit,
+        currentSelections.cockpitType,
+        componentTechBases.chassis,
+        memory.cockpit[techBaseKey]
+      ),
+      heatSinkType: getValueWithMemory(
+        heatSink,
+        currentSelections.heatSinkType,
+        componentTechBases.heatsink,
+        memory.heatSink[techBaseKey]
+      ),
+      armorType: getValueWithMemory(
+        armor,
+        currentSelections.armorType,
+        componentTechBases.armor,
+        memory.armor[techBaseKey]
+      ),
+    };
+  }
+  
+  // No memory - just validate current selections
   return {
     engineType: engine.isValid(currentSelections.engineType, componentTechBases.engine)
       ? currentSelections.engineType

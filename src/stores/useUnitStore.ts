@@ -45,10 +45,15 @@ import {
   UnitStore,
   CreateUnitOptions,
   createDefaultUnitState,
+  ISelectionMemory,
+  ITechBaseMemory,
+  createEmptySelectionMemory,
 } from './unitState';
 import {
   getValidatedSelectionUpdates,
   getFullyValidatedSelections,
+  getSelectionWithMemory,
+  ComponentSelections,
 } from '@/utils/techBaseValidation';
 
 // Re-export UnitStore type for convenience
@@ -94,22 +99,45 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             ? state.componentTechBases
             : createDefaultComponentTechBases(newTechBase);
           
+          // Determine old tech base key for saving to memory
+          const oldTechBaseKey = state.techBaseMode === 'clan' ? 'CLAN' : 'IS';
+          const newTechBaseKey = mode === 'clan' ? 'CLAN' : (mode === 'inner_sphere' ? 'IS' : null);
+          
+          const currentSelections: ComponentSelections = {
+            engineType: state.engineType,
+            gyroType: state.gyroType,
+            internalStructureType: state.internalStructureType,
+            cockpitType: state.cockpitType,
+            heatSinkType: state.heatSinkType,
+            armorType: state.armorType,
+          };
+          
+          // Save current selections to memory for the OLD tech base (if not mixed)
+          let updatedMemory = { ...state.selectionMemory };
+          if (state.techBaseMode !== 'mixed') {
+            updatedMemory = {
+              engine: { ...updatedMemory.engine, [oldTechBaseKey]: state.engineType },
+              gyro: { ...updatedMemory.gyro, [oldTechBaseKey]: state.gyroType },
+              structure: { ...updatedMemory.structure, [oldTechBaseKey]: state.internalStructureType },
+              cockpit: { ...updatedMemory.cockpit, [oldTechBaseKey]: state.cockpitType },
+              heatSink: { ...updatedMemory.heatSink, [oldTechBaseKey]: state.heatSinkType },
+              armor: { ...updatedMemory.armor, [oldTechBaseKey]: state.armorType },
+            };
+          }
+          
           // Validate and update all component selections for the new tech bases
+          // Try to restore from memory if switching to a non-mixed mode
           const validatedSelections = getFullyValidatedSelections(
             newComponentTechBases,
-            {
-              engineType: state.engineType,
-              gyroType: state.gyroType,
-              internalStructureType: state.internalStructureType,
-              cockpitType: state.cockpitType,
-              heatSinkType: state.heatSinkType,
-              armorType: state.armorType,
-            }
+            currentSelections,
+            newTechBaseKey ? updatedMemory : undefined,
+            newTechBaseKey ?? undefined
           );
           
           return {
             techBaseMode: mode,
             componentTechBases: newComponentTechBases,
+            selectionMemory: updatedMemory,
             ...validatedSelections,
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -117,18 +145,45 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         }),
         
         setComponentTechBase: (component, techBase) => set((state) => {
-          // Get validated selection updates for the changing component
-          const selectionUpdates = getValidatedSelectionUpdates(
+          const oldTechBase = state.componentTechBases[component];
+          const techBaseKey = oldTechBase === TechBase.CLAN ? 'CLAN' : 'IS';
+          const newTechBaseKey = techBase === TechBase.CLAN ? 'CLAN' : 'IS';
+          
+          const currentSelections: ComponentSelections = {
+            engineType: state.engineType,
+            gyroType: state.gyroType,
+            internalStructureType: state.internalStructureType,
+            cockpitType: state.cockpitType,
+            heatSinkType: state.heatSinkType,
+            armorType: state.armorType,
+          };
+          
+          // Save current selections to memory for the OLD tech base
+          const updatedMemory: ISelectionMemory = {
+            ...state.selectionMemory,
+          };
+          
+          // Map component to memory key and save current value
+          if (component === 'engine') {
+            updatedMemory.engine = { ...updatedMemory.engine, [techBaseKey]: state.engineType };
+          } else if (component === 'gyro') {
+            updatedMemory.gyro = { ...updatedMemory.gyro, [techBaseKey]: state.gyroType };
+          } else if (component === 'chassis') {
+            updatedMemory.structure = { ...updatedMemory.structure, [techBaseKey]: state.internalStructureType };
+            updatedMemory.cockpit = { ...updatedMemory.cockpit, [techBaseKey]: state.cockpitType };
+          } else if (component === 'heatsink') {
+            updatedMemory.heatSink = { ...updatedMemory.heatSink, [techBaseKey]: state.heatSinkType };
+          } else if (component === 'armor') {
+            updatedMemory.armor = { ...updatedMemory.armor, [techBaseKey]: state.armorType };
+          }
+          
+          // Get validated selection updates, using memory if available
+          const selectionUpdates = getSelectionWithMemory(
             component as TechBaseComponent,
             techBase,
-            {
-              engineType: state.engineType,
-              gyroType: state.gyroType,
-              internalStructureType: state.internalStructureType,
-              cockpitType: state.cockpitType,
-              heatSinkType: state.heatSinkType,
-              armorType: state.armorType,
-            }
+            currentSelections,
+            updatedMemory,
+            newTechBaseKey
           );
           
           return {
@@ -136,6 +191,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
               ...state.componentTechBases,
               [component]: techBase,
             },
+            selectionMemory: updatedMemory,
             ...selectionUpdates,
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -223,6 +279,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           configuration: state.configuration,
           techBaseMode: state.techBaseMode,
           componentTechBases: state.componentTechBases,
+          selectionMemory: state.selectionMemory,
           engineType: state.engineType,
           engineRating: state.engineRating,
           gyroType: state.gyroType,

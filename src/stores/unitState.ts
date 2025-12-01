@@ -22,6 +22,48 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 
 // =============================================================================
+// Selection Memory Types
+// =============================================================================
+
+/**
+ * Memory entry for a single component's selections per tech base
+ * Stores the last selected value for each tech base
+ */
+export interface ITechBaseMemory<T> {
+  /** Last selection when using Inner Sphere tech base */
+  IS?: T;
+  /** Last selection when using Clan tech base */
+  CLAN?: T;
+}
+
+/**
+ * Memory of component selections per tech base
+ * Used to restore previous selections when switching tech bases
+ */
+export interface ISelectionMemory {
+  engine: ITechBaseMemory<EngineType>;
+  gyro: ITechBaseMemory<GyroType>;
+  structure: ITechBaseMemory<InternalStructureType>;
+  cockpit: ITechBaseMemory<CockpitType>;
+  heatSink: ITechBaseMemory<HeatSinkType>;
+  armor: ITechBaseMemory<ArmorTypeEnum>;
+}
+
+/**
+ * Create an empty selection memory object
+ */
+export function createEmptySelectionMemory(): ISelectionMemory {
+  return {
+    engine: {},
+    gyro: {},
+    structure: {},
+    cockpit: {},
+    heatSink: {},
+    armor: {},
+  };
+}
+
+// =============================================================================
 // Unit State Interface
 // =============================================================================
 
@@ -63,6 +105,9 @@ export interface UnitState {
   
   /** Per-component tech base settings (used when techBaseMode is 'mixed') */
   componentTechBases: IComponentTechBases;
+  
+  /** Memory of component selections per tech base for restoration */
+  selectionMemory: ISelectionMemory;
   
   // =========================================================================
   // Component Selections
@@ -185,6 +230,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     configuration: MechConfiguration.BIPED,
     techBaseMode,
     componentTechBases: createDefaultComponentTechBases(options.techBase),
+    selectionMemory: createEmptySelectionMemory(),
     
     // Components
     engineType: EngineType.STANDARD,
