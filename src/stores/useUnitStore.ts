@@ -35,6 +35,7 @@ const clientSafeStorage: StateStorage = {
 import { TechBase } from '@/types/enums/TechBase';
 import {
   TechBaseMode,
+  TechBaseComponent,
   IComponentTechBases,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
@@ -45,6 +46,10 @@ import {
   CreateUnitOptions,
   createDefaultUnitState,
 } from './unitState';
+import {
+  getValidatedSelectionUpdates,
+  getFullyValidatedSelections,
+} from '@/utils/techBaseValidation';
 
 // Re-export UnitStore type for convenience
 export type { UnitStore } from './unitState';
@@ -89,22 +94,53 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             ? state.componentTechBases
             : createDefaultComponentTechBases(newTechBase);
           
+          // Validate and update all component selections for the new tech bases
+          const validatedSelections = getFullyValidatedSelections(
+            newComponentTechBases,
+            {
+              engineType: state.engineType,
+              gyroType: state.gyroType,
+              internalStructureType: state.internalStructureType,
+              cockpitType: state.cockpitType,
+              heatSinkType: state.heatSinkType,
+              armorType: state.armorType,
+            }
+          );
+          
           return {
             techBaseMode: mode,
             componentTechBases: newComponentTechBases,
+            ...validatedSelections,
             isModified: true,
             lastModifiedAt: Date.now(),
           };
         }),
         
-        setComponentTechBase: (component, techBase) => set((state) => ({
-          componentTechBases: {
-            ...state.componentTechBases,
-            [component]: techBase,
-          },
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        })),
+        setComponentTechBase: (component, techBase) => set((state) => {
+          // Get validated selection updates for the changing component
+          const selectionUpdates = getValidatedSelectionUpdates(
+            component as TechBaseComponent,
+            techBase,
+            {
+              engineType: state.engineType,
+              gyroType: state.gyroType,
+              internalStructureType: state.internalStructureType,
+              cockpitType: state.cockpitType,
+              heatSinkType: state.heatSinkType,
+              armorType: state.armorType,
+            }
+          );
+          
+          return {
+            componentTechBases: {
+              ...state.componentTechBases,
+              [component]: techBase,
+            },
+            ...selectionUpdates,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
+        }),
         
         setAllComponentTechBases: (techBases) => set({
           componentTechBases: techBases,

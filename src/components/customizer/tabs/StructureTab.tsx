@@ -80,6 +80,7 @@ export function StructureTab({
   const setCockpitType = useUnitStore((s) => s.setCockpitType);
   
   // Get filtered options based on tech base
+  // Note: Component selection sync is handled in the store when tech base changes
   const { filteredOptions } = useTechBaseSync(componentTechBases);
   
   // Calculate weights and slots
