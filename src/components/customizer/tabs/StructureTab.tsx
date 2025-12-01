@@ -122,7 +122,6 @@ export function StructureTab({
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
-  const isOmni = useUnitStore((s) => s.isOmni);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
   const engineRating = useUnitStore((s) => s.engineRating);
@@ -137,7 +136,6 @@ export function StructureTab({
   // Get actions from context
   const setTonnage = useUnitStore((s) => s.setTonnage);
   const setConfiguration = useUnitStore((s) => s.setConfiguration);
-  const setIsOmni = useUnitStore((s) => s.setIsOmni);
   const setEngineType = useUnitStore((s) => s.setEngineType);
   const setEngineRating = useUnitStore((s) => s.setEngineRating);
   const setGyroType = useUnitStore((s) => s.setGyroType);
@@ -179,10 +177,6 @@ export function StructureTab({
   const handleConfigurationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setConfiguration(e.target.value as MechConfiguration);
   }, [setConfiguration]);
-  
-  const handleOmniChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsOmni(e.target.checked);
-  }, [setIsOmni]);
   
   // Handlers - Components
   const handleEngineTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -248,16 +242,16 @@ export function StructureTab({
         </div>
       </div>
 
-      {/* Three-column layout: Chassis | System Components | Movement */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Two-column layout: Chassis | Movement */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        {/* LEFT: Chassis */}
+        {/* LEFT: Chassis (combined with System Components) */}
         <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
           <h3 className="text-lg font-semibold text-white mb-4">Chassis</h3>
           
           <div className="space-y-3">
             {/* Tonnage */}
-            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+            <div className="space-y-1">
               <label className="text-sm text-slate-400">Tonnage</label>
               <div className="flex items-center gap-2">
                 <button
@@ -287,25 +281,11 @@ export function StructureTab({
               </div>
             </div>
             
-            {/* Omni Checkbox */}
-            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-              <label className="text-sm text-slate-400">Omni</label>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={isOmni}
-                  onChange={handleOmniChange}
-                  disabled={readOnly}
-                  className="w-4 h-4 bg-slate-700 border border-slate-600 rounded text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-800"
-                />
-              </div>
-            </div>
-            
-            {/* Configuration (Motive Type) */}
-            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+            {/* Motive Type */}
+            <div className="space-y-1">
               <label className="text-sm text-slate-400">Motive Type</label>
               <select 
-                className="px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm"
+                className="w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm"
                 disabled={readOnly}
                 value={configuration}
                 onChange={handleConfigurationChange}
@@ -318,46 +298,6 @@ export function StructureTab({
               </select>
             </div>
             
-            {/* Enhancement */}
-            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-              <label className="text-sm text-slate-400">Enhancement</label>
-              <select 
-                className="px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm"
-                disabled={readOnly}
-                value={enhancement ?? ''}
-                onChange={handleEnhancementChange}
-              >
-                {enhancementOptions.map((opt) => (
-                  <option 
-                    key={opt.value ?? 'none'} 
-                    value={opt.value ?? ''}
-                    disabled={opt.disabled}
-                  >
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            {/* Enhancement info */}
-            {enhancement && (
-              <div className="mt-2 p-2 bg-slate-900/50 rounded text-xs text-slate-400">
-                {enhancement === MovementEnhancementType.MASC && (
-                  <span>MASC: Double running speed, risk of leg damage</span>
-                )}
-                {enhancement === MovementEnhancementType.TSM && (
-                  <span>TSM: +2 Walk MP at 9+ heat, double physical damage</span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* MIDDLE: System Components */}
-        <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-          <h3 className="text-lg font-semibold text-white mb-4">System Components</h3>
-          
-          <div className="space-y-3">
             {/* Engine Type */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
@@ -436,6 +376,33 @@ export function StructureTab({
                   </option>
                 ))}
               </select>
+            </div>
+            
+            {/* Enhancement */}
+            <div className="space-y-1">
+              <label className="text-sm text-slate-400">Enhancement</label>
+              <select 
+                className="w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm"
+                disabled={readOnly}
+                value={enhancement ?? ''}
+                onChange={handleEnhancementChange}
+              >
+                {enhancementOptions.map((opt) => (
+                  <option 
+                    key={opt.value ?? 'none'} 
+                    value={opt.value ?? ''}
+                    disabled={opt.disabled}
+                  >
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              {enhancement && (
+                <p className="text-xs text-slate-500 mt-1">
+                  {enhancement === MovementEnhancementType.MASC && 'Double running speed, risk of leg damage'}
+                  {enhancement === MovementEnhancementType.TSM && '+2 Walk MP at 9+ heat, double physical damage'}
+                </p>
+              )}
             </div>
             
             {/* Engine Rating (derived info) */}
