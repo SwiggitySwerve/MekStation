@@ -94,14 +94,14 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         
         setTechBaseMode: (mode) => set((state) => {
           // When switching to non-mixed mode, reset all components to match
-          const newTechBase = mode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
-          const newComponentTechBases = mode === 'mixed'
+          const newTechBase = mode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
+          const newComponentTechBases = mode === TechBaseMode.MIXED
             ? state.componentTechBases
             : createDefaultComponentTechBases(newTechBase);
           
           // Determine old tech base for saving to memory
-          const oldTechBase = state.techBaseMode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
-          const memoryTechBase = mode === 'mixed' ? undefined : newTechBase;
+          const oldTechBase = state.techBaseMode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
+          const memoryTechBase = mode === TechBaseMode.MIXED ? undefined : newTechBase;
           
           const currentSelections: ComponentSelections = {
             engineType: state.engineType,
@@ -114,7 +114,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           
           // Save current selections to memory for the OLD tech base (if not mixed)
           let updatedMemory = { ...state.selectionMemory };
-          if (state.techBaseMode !== 'mixed') {
+          if (state.techBaseMode !== TechBaseMode.MIXED) {
             updatedMemory = {
               engine: { ...updatedMemory.engine, [oldTechBase]: state.engineType },
               gyro: { ...updatedMemory.gyro, [oldTechBase]: state.gyroType },
@@ -162,16 +162,16 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           };
           
           // Map component to memory key and save current value using TechBase enum
-          if (component === 'engine') {
+          if (component === TechBaseComponent.ENGINE) {
             updatedMemory.engine = { ...updatedMemory.engine, [oldTechBase]: state.engineType };
-          } else if (component === 'gyro') {
+          } else if (component === TechBaseComponent.GYRO) {
             updatedMemory.gyro = { ...updatedMemory.gyro, [oldTechBase]: state.gyroType };
-          } else if (component === 'chassis') {
+          } else if (component === TechBaseComponent.CHASSIS) {
             updatedMemory.structure = { ...updatedMemory.structure, [oldTechBase]: state.internalStructureType };
             updatedMemory.cockpit = { ...updatedMemory.cockpit, [oldTechBase]: state.cockpitType };
-          } else if (component === 'heatsink') {
+          } else if (component === TechBaseComponent.HEATSINK) {
             updatedMemory.heatSink = { ...updatedMemory.heatSink, [oldTechBase]: state.heatSinkType };
-          } else if (component === 'armor') {
+          } else if (component === TechBaseComponent.ARMOR) {
             updatedMemory.armor = { ...updatedMemory.armor, [oldTechBase]: state.armorType };
           }
           

@@ -214,7 +214,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
   const now = Date.now();
   const walkMP = options.walkMP ?? 4;
   const engineRating = options.tonnage * walkMP;
-  const techBaseMode: TechBaseMode = options.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+  const techBaseMode: TechBaseMode = options.techBase === TechBase.CLAN ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
   
   return {
     // Identity

@@ -3,6 +3,8 @@
  * Reusable badge/tag component for displaying status, categories, tech bases, etc.
  */
 import React from 'react';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
 
 type BadgeVariant = 
   // Colors
@@ -77,41 +79,41 @@ export function Badge({
 }
 
 // Convenience exports for common badge types
-export function TechBaseBadge({ techBase }: { techBase: string }) {
-  const getVariant = (): BadgeVariant => {
-    if (techBase.includes('CLAN')) return 'emerald';
-    if (techBase.includes('INNER') || techBase === 'Inner Sphere') return 'blue';
-    if (techBase.includes('MIXED') || techBase === 'Mixed') return 'purple';
-    return 'slate';
-  };
-
-  const getLabel = (): string => {
-    if (techBase === 'INNER_SPHERE' || techBase === 'Inner Sphere') return 'Inner Sphere';
-    if (techBase === 'CLAN' || techBase === 'Clan') return 'Clan';
-    return techBase.replace(/_/g, ' ');
-  };
+export function TechBaseBadge({ techBase }: { techBase: TechBase }) {
+  const variant: BadgeVariant = techBase === TechBase.CLAN ? 'emerald' : 'blue';
+  const label = techBase === TechBase.CLAN ? 'Clan' : 'Inner Sphere';
 
   return (
-    <Badge variant={getVariant()} size="sm">
-      {getLabel()}
+    <Badge variant={variant} size="sm">
+      {label}
     </Badge>
   );
 }
 
-export function WeightClassBadge({ weightClass }: { weightClass: string }) {
+export function WeightClassBadge({ weightClass }: { weightClass: WeightClass }) {
   const getVariant = (): BadgeVariant => {
     switch (weightClass) {
-      case 'LIGHT': return 'emerald';
-      case 'MEDIUM': return 'amber';
-      case 'HEAVY': return 'orange';
-      case 'ASSAULT': return 'red';
+      case WeightClass.LIGHT: return 'emerald';
+      case WeightClass.MEDIUM: return 'amber';
+      case WeightClass.HEAVY: return 'orange';
+      case WeightClass.ASSAULT: return 'red';
       default: return 'slate';
+    }
+  };
+
+  const getLabel = (): string => {
+    switch (weightClass) {
+      case WeightClass.LIGHT: return 'Light';
+      case WeightClass.MEDIUM: return 'Medium';
+      case WeightClass.HEAVY: return 'Heavy';
+      case WeightClass.ASSAULT: return 'Assault';
+      default: return String(weightClass);
     }
   };
 
   return (
     <Badge variant={getVariant()} size="md">
-      {weightClass}
+      {getLabel()}
     </Badge>
   );
 }

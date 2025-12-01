@@ -228,7 +228,7 @@ export const useMultiUnitStore = create<MultiUnitState>()(
         const name = customName || `New ${template.name}`;
         
         // Determine initial tech base mode based on template
-        const initialMode: TechBaseMode = template.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+        const initialMode: TechBaseMode = template.techBase === TechBase.CLAN ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
         
         const newTab: UnitTab = {
           id,
@@ -586,7 +586,7 @@ export const useMultiUnitStore = create<MultiUnitState>()(
             return tab;
           }
           
-          const initialMode: TechBaseMode = tab.techBase === TechBase.CLAN ? 'clan' : 'inner_sphere';
+          const initialMode: TechBaseMode = tab.techBase === TechBase.CLAN ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
           
           return {
             ...tab,

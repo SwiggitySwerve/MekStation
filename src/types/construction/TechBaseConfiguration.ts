@@ -12,70 +12,69 @@ import { TechBase } from '@/types/enums/TechBase';
 /**
  * Component categories that can have individual tech base settings
  */
-export type TechBaseComponent = 
-  | 'chassis'
-  | 'gyro'
-  | 'engine'
-  | 'heatsink'
-  | 'targeting'
-  | 'myomer'
-  | 'movement'
-  | 'armor';
+export enum TechBaseComponent {
+  CHASSIS = 'chassis',
+  GYRO = 'gyro',
+  ENGINE = 'engine',
+  HEATSINK = 'heatsink',
+  TARGETING = 'targeting',
+  MYOMER = 'myomer',
+  MOVEMENT = 'movement',
+  ARMOR = 'armor',
+}
 
 /**
  * Human-readable labels for each component
  */
 export const TECH_BASE_COMPONENT_LABELS: Record<TechBaseComponent, string> = {
-  chassis: 'Chassis',
-  gyro: 'Gyro',
-  engine: 'Engine',
-  heatsink: 'Heatsink',
-  targeting: 'Targeting',
-  myomer: 'Myomer',
-  movement: 'Movement',
-  armor: 'Armor',
+  [TechBaseComponent.CHASSIS]: 'Chassis',
+  [TechBaseComponent.GYRO]: 'Gyro',
+  [TechBaseComponent.ENGINE]: 'Engine',
+  [TechBaseComponent.HEATSINK]: 'Heatsink',
+  [TechBaseComponent.TARGETING]: 'Targeting',
+  [TechBaseComponent.MYOMER]: 'Myomer',
+  [TechBaseComponent.MOVEMENT]: 'Movement',
+  [TechBaseComponent.ARMOR]: 'Armor',
 };
 
 /**
  * Descriptions for each component category
  */
 export const TECH_BASE_COMPONENT_DESCRIPTIONS: Record<TechBaseComponent, string> = {
-  chassis: 'Internal structure type',
-  gyro: 'Gyro technology',
-  engine: 'Engine technology',
-  heatsink: 'Heat sink type',
-  targeting: 'Targeting computer',
-  myomer: 'Myomer type (Standard/TSM/etc.)',
-  movement: 'Jump jets, MASC, Supercharger, etc.',
-  armor: 'Armor technology',
+  [TechBaseComponent.CHASSIS]: 'Internal structure type',
+  [TechBaseComponent.GYRO]: 'Gyro technology',
+  [TechBaseComponent.ENGINE]: 'Engine technology',
+  [TechBaseComponent.HEATSINK]: 'Heat sink type',
+  [TechBaseComponent.TARGETING]: 'Targeting computer',
+  [TechBaseComponent.MYOMER]: 'Myomer type (Standard/TSM/etc.)',
+  [TechBaseComponent.MOVEMENT]: 'Jump jets, MASC, Supercharger, etc.',
+  [TechBaseComponent.ARMOR]: 'Armor technology',
 };
 
 /**
  * Per-component tech base settings
+ * Uses TechBaseComponent enum values as keys for type safety
  */
-export interface IComponentTechBases {
-  chassis: TechBase;
-  gyro: TechBase;
-  engine: TechBase;
-  heatsink: TechBase;
-  targeting: TechBase;
-  myomer: TechBase;
-  movement: TechBase;
-  armor: TechBase;
-}
+export type IComponentTechBases = {
+  [key in TechBaseComponent]: TechBase;
+};
 
 /**
- * Global tech base mode
+ * Global tech base mode for a unit
  */
-export type TechBaseMode = 'inner_sphere' | 'clan' | 'mixed';
+export enum TechBaseMode {
+  INNER_SPHERE = 'inner_sphere',
+  CLAN = 'clan',
+  MIXED = 'mixed',
+}
 
 /**
  * Human-readable labels for tech base modes
  */
 export const TECH_BASE_MODE_LABELS: Record<TechBaseMode, string> = {
-  inner_sphere: 'Inner Sphere',
-  clan: 'Clan',
-  mixed: 'Mixed Tech',
+  [TechBaseMode.INNER_SPHERE]: 'Inner Sphere',
+  [TechBaseMode.CLAN]: 'Clan',
+  [TechBaseMode.MIXED]: 'Mixed Tech',
 };
 
 /**
@@ -93,14 +92,14 @@ export interface ITechBaseConfiguration {
  */
 export function createDefaultComponentTechBases(techBase: TechBase): IComponentTechBases {
   return {
-    chassis: techBase,
-    gyro: techBase,
-    engine: techBase,
-    heatsink: techBase,
-    targeting: techBase,
-    myomer: techBase,
-    movement: techBase,
-    armor: techBase,
+    [TechBaseComponent.CHASSIS]: techBase,
+    [TechBaseComponent.GYRO]: techBase,
+    [TechBaseComponent.ENGINE]: techBase,
+    [TechBaseComponent.HEATSINK]: techBase,
+    [TechBaseComponent.TARGETING]: techBase,
+    [TechBaseComponent.MYOMER]: techBase,
+    [TechBaseComponent.MOVEMENT]: techBase,
+    [TechBaseComponent.ARMOR]: techBase,
   };
 }
 
@@ -108,9 +107,9 @@ export function createDefaultComponentTechBases(techBase: TechBase): IComponentT
  * Creates a default tech base configuration
  */
 export function createDefaultTechBaseConfiguration(
-  mode: TechBaseMode = 'inner_sphere'
+  mode: TechBaseMode = TechBaseMode.INNER_SPHERE
 ): ITechBaseConfiguration {
-  const baseTechBase = mode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+  const baseTechBase = mode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
   return {
     mode,
     components: createDefaultComponentTechBases(baseTechBase),

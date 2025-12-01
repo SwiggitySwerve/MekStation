@@ -49,12 +49,12 @@ export interface ComponentSetters {
  * Maps component types to their respective tech base category
  */
 const COMPONENT_TECH_BASE_MAP: Record<keyof ComponentSelections, TechBaseComponent> = {
-  engineType: 'engine',
-  gyroType: 'gyro',
-  internalStructureType: 'chassis',
-  cockpitType: 'chassis',
-  heatSinkType: 'heatsink',
-  armorType: 'armor',
+  engineType: TechBaseComponent.ENGINE,
+  gyroType: TechBaseComponent.GYRO,
+  internalStructureType: TechBaseComponent.CHASSIS,
+  cockpitType: TechBaseComponent.CHASSIS,
+  heatSinkType: TechBaseComponent.HEATSINK,
+  armorType: TechBaseComponent.ARMOR,
 };
 
 // =============================================================================

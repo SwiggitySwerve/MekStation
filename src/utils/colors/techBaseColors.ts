@@ -114,11 +114,11 @@ export function getTechBaseShortName(techBase: TechBase): string {
  */
 export function getTechBaseModeShortName(mode: TechBaseMode): string {
   switch (mode) {
-    case 'inner_sphere':
+    case TechBaseMode.INNER_SPHERE:
       return 'IS';
-    case 'clan':
+    case TechBaseMode.CLAN:
       return 'Clan';
-    case 'mixed':
+    case TechBaseMode.MIXED:
       return 'Mixed';
     default:
       return String(mode);

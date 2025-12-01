@@ -211,8 +211,8 @@ function ComponentRow({ component, techBase, currentValue, onChange, disabled, i
 // =============================================================================
 
 const COMPONENT_ORDER: TechBaseComponent[] = [
-  'chassis', 'gyro', 'engine', 'heatsink',
-  'targeting', 'myomer', 'movement', 'armor',
+  TechBaseComponent.CHASSIS, TechBaseComponent.GYRO, TechBaseComponent.ENGINE, TechBaseComponent.HEATSINK,
+  TechBaseComponent.TARGETING, TechBaseComponent.MYOMER, TechBaseComponent.MOVEMENT, TechBaseComponent.ARMOR,
 ];
 
 export function TechBaseConfiguration({
@@ -224,9 +224,9 @@ export function TechBaseConfiguration({
   readOnly = false,
   className = '',
 }: TechBaseConfigurationProps) {
-  const isMixed = mode === 'mixed';
-  const isIS = mode === 'inner_sphere';
-  const isClan = mode === 'clan';
+  const isMixed = mode === TechBaseMode.MIXED;
+  const isIS = mode === TechBaseMode.INNER_SPHERE;
+  const isClan = mode === TechBaseMode.CLAN;
   
   // Merge with defaults
   const values: IComponentValues = { ...DEFAULT_COMPONENT_VALUES, ...componentValues };
@@ -245,7 +245,7 @@ export function TechBaseConfiguration({
           <div className={styles.container.buttonGroup}>
             <button
               type="button"
-              onClick={() => onModeChange('inner_sphere')}
+              onClick={() => onModeChange(TechBaseMode.INNER_SPHERE)}
               disabled={readOnly}
               title="All components use Inner Sphere technology"
               className={`${getModeButtonClass(isIS, readOnly)} ${isIS ? styles.techBase.innerSphere : ''}`}
@@ -254,7 +254,7 @@ export function TechBaseConfiguration({
             </button>
             <button
               type="button"
-              onClick={() => onModeChange('clan')}
+              onClick={() => onModeChange(TechBaseMode.CLAN)}
               disabled={readOnly}
               title="All components use Clan technology"
               className={`${getModeButtonClass(isClan, readOnly)} ${styles.button.borderLeft} ${isClan ? styles.techBase.clan : ''}`}
@@ -263,7 +263,7 @@ export function TechBaseConfiguration({
             </button>
             <button
               type="button"
-              onClick={() => onModeChange('mixed')}
+              onClick={() => onModeChange(TechBaseMode.MIXED)}
               disabled={readOnly}
               title="Configure each component's tech base individually"
               className={`${getModeButtonClass(isMixed, readOnly)} ${styles.button.borderLeft} ${isMixed ? styles.techBase.mixed : ''}`}
