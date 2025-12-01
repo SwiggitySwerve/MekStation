@@ -21,6 +21,78 @@ import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+
+// =============================================================================
+// Armor Allocation Types
+// =============================================================================
+
+/**
+ * Per-location armor allocation
+ * Stores armor points assigned to each location (front and rear for torsos)
+ */
+export interface IArmorAllocation {
+  /** Head armor points */
+  [MechLocation.HEAD]: number;
+  /** Center Torso front armor points */
+  [MechLocation.CENTER_TORSO]: number;
+  /** Center Torso rear armor points */
+  centerTorsoRear: number;
+  /** Left Torso front armor points */
+  [MechLocation.LEFT_TORSO]: number;
+  /** Left Torso rear armor points */
+  leftTorsoRear: number;
+  /** Right Torso front armor points */
+  [MechLocation.RIGHT_TORSO]: number;
+  /** Right Torso rear armor points */
+  rightTorsoRear: number;
+  /** Left Arm armor points */
+  [MechLocation.LEFT_ARM]: number;
+  /** Right Arm armor points */
+  [MechLocation.RIGHT_ARM]: number;
+  /** Left Leg armor points */
+  [MechLocation.LEFT_LEG]: number;
+  /** Right Leg armor points */
+  [MechLocation.RIGHT_LEG]: number;
+}
+
+/**
+ * Create empty armor allocation (all zeros)
+ */
+export function createEmptyArmorAllocation(): IArmorAllocation {
+  return {
+    [MechLocation.HEAD]: 0,
+    [MechLocation.CENTER_TORSO]: 0,
+    centerTorsoRear: 0,
+    [MechLocation.LEFT_TORSO]: 0,
+    leftTorsoRear: 0,
+    [MechLocation.RIGHT_TORSO]: 0,
+    rightTorsoRear: 0,
+    [MechLocation.LEFT_ARM]: 0,
+    [MechLocation.RIGHT_ARM]: 0,
+    [MechLocation.LEFT_LEG]: 0,
+    [MechLocation.RIGHT_LEG]: 0,
+  };
+}
+
+/**
+ * Calculate total allocated armor points from allocation
+ */
+export function getTotalAllocatedArmor(allocation: IArmorAllocation): number {
+  return (
+    allocation[MechLocation.HEAD] +
+    allocation[MechLocation.CENTER_TORSO] +
+    allocation.centerTorsoRear +
+    allocation[MechLocation.LEFT_TORSO] +
+    allocation.leftTorsoRear +
+    allocation[MechLocation.RIGHT_TORSO] +
+    allocation.rightTorsoRear +
+    allocation[MechLocation.LEFT_ARM] +
+    allocation[MechLocation.RIGHT_ARM] +
+    allocation[MechLocation.LEFT_LEG] +
+    allocation[MechLocation.RIGHT_LEG]
+  );
+}
 
 // =============================================================================
 // Selection Memory Types
@@ -139,6 +211,12 @@ export interface UnitState {
   /** Armor type */
   armorType: ArmorTypeEnum;
   
+  /** Armor tonnage allocated (user-set) */
+  armorTonnage: number;
+  
+  /** Per-location armor allocation */
+  armorAllocation: IArmorAllocation;
+  
   /** Movement enhancement (MASC, TSM, etc.) or null for none */
   enhancement: MovementEnhancementType | null;
   
@@ -187,6 +265,13 @@ export interface UnitActions {
   setHeatSinkCount: (count: number) => void;
   setArmorType: (type: ArmorTypeEnum) => void;
   setEnhancement: (enhancement: MovementEnhancementType | null) => void;
+  
+  // Armor allocation
+  setArmorTonnage: (tonnage: number) => void;
+  setLocationArmor: (location: MechLocation, front: number, rear?: number) => void;
+  autoAllocateArmor: () => void;
+  maximizeArmor: () => void;
+  clearAllArmor: () => void;
   
   // Metadata
   markModified: (modified?: boolean) => void;
@@ -253,6 +338,8 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     heatSinkType: HeatSinkType.SINGLE,
     heatSinkCount: 10,
     armorType: ArmorTypeEnum.STANDARD,
+    armorTonnage: 0,
+    armorAllocation: createEmptyArmorAllocation(),
     enhancement: null,
     
     // Metadata

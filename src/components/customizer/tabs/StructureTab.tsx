@@ -17,7 +17,6 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { CockpitType } from '@/types/construction/CockpitType';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { 
   MovementEnhancementType, 
   getMovementEnhancementDefinition,
@@ -59,22 +58,6 @@ function getWalkMPRange(tonnage: number): { min: number; max: number } {
 function calculateRunMP(walkMP: number): number {
   return Math.ceil(walkMP * 1.5);
 }
-
-/**
- * Valid tonnage range for BattleMechs
- */
-const TONNAGE_RANGE = { min: 20, max: 100, step: 5 };
-
-/**
- * Configuration options
- */
-const CONFIGURATION_OPTIONS: { value: MechConfiguration; label: string }[] = [
-  { value: MechConfiguration.BIPED, label: 'Biped' },
-  { value: MechConfiguration.QUAD, label: 'Quad' },
-  { value: MechConfiguration.TRIPOD, label: 'Tripod' },
-  { value: MechConfiguration.LAM, label: 'LAM' },
-  { value: MechConfiguration.QUADVEE, label: 'QuadVee' },
-];
 
 /**
  * Get available enhancement options (MASC and TSM are mutually exclusive)
@@ -121,7 +104,6 @@ export function StructureTab({
 }: StructureTabProps) {
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
-  const configuration = useUnitStore((s) => s.configuration);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
   const engineRating = useUnitStore((s) => s.engineRating);
@@ -134,8 +116,6 @@ export function StructureTab({
   const enhancement = useUnitStore((s) => s.enhancement);
   
   // Get actions from context
-  const setTonnage = useUnitStore((s) => s.setTonnage);
-  const setConfiguration = useUnitStore((s) => s.setConfiguration);
   const setEngineType = useUnitStore((s) => s.setEngineType);
   const setEngineRating = useUnitStore((s) => s.setEngineRating);
   const setGyroType = useUnitStore((s) => s.setGyroType);
@@ -165,18 +145,6 @@ export function StructureTab({
   
   // Enhancement options
   const enhancementOptions = useMemo(() => getEnhancementOptions(enhancement), [enhancement]);
-  
-  // Handlers - Chassis
-  const handleTonnageChange = useCallback((newTonnage: number) => {
-    const clamped = Math.max(TONNAGE_RANGE.min, Math.min(TONNAGE_RANGE.max, newTonnage));
-    // Round to nearest step
-    const rounded = Math.round(clamped / TONNAGE_RANGE.step) * TONNAGE_RANGE.step;
-    setTonnage(rounded);
-  }, [setTonnage]);
-  
-  const handleConfigurationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setConfiguration(e.target.value as MechConfiguration);
-  }, [setConfiguration]);
   
   // Handlers - Components
   const handleEngineTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -245,59 +213,11 @@ export function StructureTab({
       {/* Two-column layout: Chassis | Movement */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        {/* LEFT: Chassis (combined with System Components) */}
+        {/* LEFT: Chassis */}
         <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
           <h3 className="text-lg font-semibold text-white mb-4">Chassis</h3>
           
           <div className="space-y-3">
-            {/* Tonnage */}
-            <div className="space-y-1">
-              <label className="text-sm text-slate-400">Tonnage</label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleTonnageChange(tonnage - TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage <= TONNAGE_RANGE.min}
-                  className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-sm"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={tonnage}
-                  onChange={(e) => handleTonnageChange(parseInt(e.target.value, 10) || TONNAGE_RANGE.min)}
-                  disabled={readOnly}
-                  min={TONNAGE_RANGE.min}
-                  max={TONNAGE_RANGE.max}
-                  step={TONNAGE_RANGE.step}
-                  className="w-16 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <button
-                  onClick={() => handleTonnageChange(tonnage + TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage >= TONNAGE_RANGE.max}
-                  className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-sm"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            
-            {/* Motive Type */}
-            <div className="space-y-1">
-              <label className="text-sm text-slate-400">Motive Type</label>
-              <select 
-                className="w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm"
-                disabled={readOnly}
-                value={configuration}
-                onChange={handleConfigurationChange}
-              >
-                {CONFIGURATION_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
             {/* Engine Type */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
