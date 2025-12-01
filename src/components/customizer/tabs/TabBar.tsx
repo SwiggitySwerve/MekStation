@@ -56,7 +56,7 @@ export function TabBar({
             key={tab.id}
             tab={tab}
             isActive={tab.id === activeTabId}
-            canClose={tabs.length > 1}
+            canClose={true}
             onSelect={() => onSelectTab(tab.id)}
             onClose={() => onCloseTab(tab.id)}
             onRename={(name) => onRenameTab(tab.id, name)}

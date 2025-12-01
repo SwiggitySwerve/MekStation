@@ -50,7 +50,7 @@ export function MultiUnitTabs({
   
   // Actions are stable references from the store
   const storeSelectTab = useTabManagerStore((s) => s.selectTab);
-  const closeTab = useTabManagerStore((s) => s.closeTab);
+  const storeCloseTab = useTabManagerStore((s) => s.closeTab);
   const renameTab = useTabManagerStore((s) => s.renameTab);
   const createTab = useTabManagerStore((s) => s.createTab);
   const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
@@ -62,6 +62,27 @@ export function MultiUnitTabs({
     // Navigate to the unit URL
     router.push(`/customizer/${tabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
   }, [storeSelectTab, router]);
+  
+  // Close tab with URL navigation
+  const closeTab = useCallback((tabId: string) => {
+    // Get current tabs before closing
+    const currentTabs = useTabManagerStore.getState().tabs;
+    const closingTabIndex = currentTabs.findIndex((t) => t.id === tabId);
+    
+    // Close the tab in the store
+    storeCloseTab(tabId);
+    
+    // Get updated state after closing
+    const newState = useTabManagerStore.getState();
+    
+    if (newState.tabs.length === 0) {
+      // All tabs closed - navigate to index (empty state)
+      router.push('/customizer', undefined, { shallow: true });
+    } else if (newState.activeTabId && newState.activeTabId !== tabId) {
+      // A different tab is now active - navigate to it
+      router.push(`/customizer/${newState.activeTabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
+    }
+  }, [storeCloseTab, router]);
   
   // Create unit from template with URL navigation
   const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {

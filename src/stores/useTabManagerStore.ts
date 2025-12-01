@@ -217,19 +217,20 @@ export const useTabManagerStore = create<TabManagerState>()(
           const tabIndex = state.tabs.findIndex((t) => t.id === tabId);
           if (tabIndex === -1) return state;
           
-          // Prevent closing last tab
-          if (state.tabs.length === 1) return state;
-          
           // Remove from registry (but keep localStorage for now)
           // deleteUnit(tabId); // Uncomment to also delete localStorage
           
           const newTabs = state.tabs.filter((t) => t.id !== tabId);
           
-          // Select adjacent tab if closing active tab
+          // Select adjacent tab if closing active tab, or null if no tabs left
           let newActiveId = state.activeTabId;
           if (state.activeTabId === tabId) {
-            const newIndex = Math.min(tabIndex, newTabs.length - 1);
-            newActiveId = newTabs[newIndex]?.id ?? null;
+            if (newTabs.length === 0) {
+              newActiveId = null;
+            } else {
+              const newIndex = Math.min(tabIndex, newTabs.length - 1);
+              newActiveId = newTabs[newIndex]?.id ?? null;
+            }
           }
           
           return {
