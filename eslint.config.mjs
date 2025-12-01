@@ -22,6 +22,7 @@ export default [
       '**/out/**',
       '**/dist/**',
       '**/coverage/**',
+      '**/.disabled/**',
       '**/*.config.js',
       '**/*.config.mjs',
       '**/jest.setup.js',
