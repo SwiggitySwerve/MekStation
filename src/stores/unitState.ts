@@ -22,6 +22,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Armor Allocation Types
@@ -298,10 +299,11 @@ export interface CreateUnitOptions {
 }
 
 /**
- * Generate a unique unit ID
+ * Generate a unique unit ID using UUID v4
+ * UUIDs enable multi-user support and shareable unit URLs
  */
 export function generateUnitId(): string {
-  return `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return generateUUID();
 }
 
 /**

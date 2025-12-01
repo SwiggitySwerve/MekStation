@@ -3,16 +3,19 @@
  * 
  * Browser-like tabs for editing multiple units.
  * Uses the new TabManagerStore for tab lifecycle management.
+ * Integrates with URL routing for shareable links.
  * 
  * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
 import React, { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { TabBar } from './TabBar';
 import { NewTabModal } from './NewTabModal';
 import { useTabManagerStore, UNIT_TEMPLATES, TabInfo } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
+import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 
 // =============================================================================
 // Types
@@ -36,6 +39,8 @@ export function MultiUnitTabs({
   children,
   className = '',
 }: MultiUnitTabsProps) {
+  const router = useRouter();
+  
   // Use individual selectors for primitives and stable references
   // This avoids creating new objects on each render
   const tabs = useTabManagerStore((s) => s.tabs);
@@ -44,19 +49,29 @@ export function MultiUnitTabs({
   const isNewTabModalOpen = useTabManagerStore((s) => s.isNewTabModalOpen);
   
   // Actions are stable references from the store
-  const selectTab = useTabManagerStore((s) => s.selectTab);
+  const storeSelectTab = useTabManagerStore((s) => s.selectTab);
   const closeTab = useTabManagerStore((s) => s.closeTab);
   const renameTab = useTabManagerStore((s) => s.renameTab);
   const createTab = useTabManagerStore((s) => s.createTab);
   const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
   const closeNewTabModal = useTabManagerStore((s) => s.closeNewTabModal);
   
-  // Create unit from template
+  // Select tab with URL navigation
+  const selectTab = useCallback((tabId: string) => {
+    storeSelectTab(tabId);
+    // Navigate to the unit URL
+    router.push(`/customizer/${tabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
+  }, [storeSelectTab, router]);
+  
+  // Create unit from template with URL navigation
   const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {
     const template = UNIT_TEMPLATES.find(t => t.tonnage === tonnage) || UNIT_TEMPLATES[1];
     const templateWithTechBase = { ...template, techBase };
-    return createTab(templateWithTechBase);
-  }, [createTab]);
+    const newTabId = createTab(templateWithTechBase);
+    // Navigate to the new unit URL
+    router.push(`/customizer/${newTabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
+    return newTabId;
+  }, [createTab, router]);
   
   // Transform tabs to format expected by TabBar
   const tabBarTabs = useMemo(() => 
