@@ -161,35 +161,6 @@ export function getRecommendedArmorDistribution(): Record<string, number> {
 }
 
 /**
- * Armor allocation weights (normalized to 8.0 total)
- * 
- * These weights match MegaMekLab's auto-allocate distribution:
- * - Head: 2.0 (25%) - highest priority for pilot protection
- * - CT: 1.0 (12.5%) - engine/gyro protection
- * - LT/RT: 1.25 each (15.625% each) - side protection
- * - LA/RA: 0.5 each (6.25% each) - arms are expendable
- * - LL/RL: 0.75 each (9.375% each) - mobility
- */
-export interface ArmorAllocationWeights {
-  readonly head: number;
-  readonly centerTorso: number;
-  readonly sideTorso: number;
-  readonly arms: number;
-  readonly legs: number;
-}
-
-export const DEFAULT_ARMOR_WEIGHTS: ArmorAllocationWeights = {
-  head: 2.0,        // 25% - pilot protection is critical
-  centerTorso: 1.0, // 12.5% - engine/gyro
-  sideTorso: 1.25,  // 15.625% each (LT/RT)
-  arms: 0.5,        // 6.25% each (LA/RA)
-  legs: 0.75,       // 9.375% each (LL/RL)
-};
-
-// Total weight = 2.0 + 1.0 + 1.25*2 + 0.5*2 + 0.75*2 = 8.0
-const TOTAL_WEIGHT = 8.0;
-
-/**
  * Complete armor allocation result
  */
 export interface ArmorAllocationResult {
@@ -211,252 +182,114 @@ export interface ArmorAllocationResult {
 /**
  * Calculate optimal armor allocation matching MegaMekLab's distribution
  * 
- * Algorithm:
- * 1. At low points: use percentage-based weights (head gets 25%)
- * 2. At high points (head maxed): distribute proportionally to max capacity
- * 3. Enforce symmetry for paired locations (LT=RT, LA=RA, LL=RL)
- * 4. Split torso armor: ~75% front, ~25% rear for CT; ~82/18 for sides at high points
- * 5. Distribute remainder to maintain symmetry
+ * Simplified 3-phase algorithm:
+ * 1. Initial spread: Head gets 25%, body proportional to max capacity
+ * 2. Symmetric remainder: Distribute to symmetric pairs first (torsos, legs, arms)
+ * 3. Apply splits: Front/rear for torsos
  * 
- * Target distributions:
- * - 32 pts: Head=8, CT=4, LT/RT=5, LA/RA=2, LL/RL=3
- * - 160 pts: Head=9, CT=31, LT/RT=23, LA/RA=15, LL/RL=22
+ * Target distributions (50-ton mech):
+ * - 32 pts: Head=8, CT=3+1, LT/RT=5, LA/RA=2, LL/RL=3
+ * - 152 pts: Head=9, CT=22+7, LT/RT=17+5, LA/RA=14, LL/RL=21
+ * - 169 pts: Head=9, CT=24+8, LT/RT=18+6, LA/RA=16, LL/RL=24
  * 
  * @param availablePoints - Total armor points to distribute
  * @param tonnage - Mech tonnage (determines max per location)
- * @param weights - Optional custom weights (defaults to MegaMekLab standard)
  * @returns Optimal armor allocation
  */
 export function calculateOptimalArmorAllocation(
   availablePoints: number,
-  tonnage: number,
-  weights: ArmorAllocationWeights = DEFAULT_ARMOR_WEIGHTS
+  tonnage: number
 ): ArmorAllocationResult {
   // Get max armor for each location
   const maxHead = MAX_HEAD_ARMOR;
   const maxCT = getMaxArmorForLocation(tonnage, 'centerTorso');
   const maxLT = getMaxArmorForLocation(tonnage, 'leftTorso');
-  const maxRT = getMaxArmorForLocation(tonnage, 'rightTorso');
   const maxLA = getMaxArmorForLocation(tonnage, 'leftArm');
-  const maxRA = getMaxArmorForLocation(tonnage, 'rightArm');
   const maxLL = getMaxArmorForLocation(tonnage, 'leftLeg');
-  const maxRL = getMaxArmorForLocation(tonnage, 'rightLeg');
   
-  // Total max body armor (excluding head)
-  const maxBodyArmor = maxCT + maxLT + maxRT + maxLA + maxRA + maxLL + maxRL;
+  const maxBodyArmor = maxCT + (maxLT * 2) + (maxLA * 2) + (maxLL * 2);
+  const maxTotalArmor = maxHead + maxBodyArmor;
   
-  // =========================================================================
-  // PHASE 1: Calculate initial allocation
-  // Use weights at low points, proportional to max at high points
-  // =========================================================================
+  // Cap at max
+  const points = Math.min(availablePoints, maxTotalArmor);
   
-  // Calculate head first using weights
-  let headArmor = Math.floor(availablePoints * weights.head / TOTAL_WEIGHT);
-  headArmor = Math.min(headArmor, maxHead);
+  // ===========================================================================
+  // PHASE 1: Initial proportional spread
+  // ===========================================================================
   
-  // Remaining points for body
-  const bodyPoints = availablePoints - headArmor;
+  // Head gets ~25% weight, capped at 9
+  let head = Math.min(Math.floor(points * 0.25), maxHead);
   
-  // Decide allocation strategy based on whether head is maxed
-  let ctTotal: number, sideTorsoEach: number, armEach: number, legEach: number;
+  // Body gets the rest, distributed proportionally to max capacity
+  const bodyPoints = points - head;
   
-  if (headArmor >= maxHead) {
-    // Head maxed: distribute body points proportionally to max capacity
-    // Use floor for all to avoid overallocation, remainder handled in phase 3
-    ctTotal = Math.floor(bodyPoints * maxCT / maxBodyArmor);
-    sideTorsoEach = Math.floor(bodyPoints * maxLT / maxBodyArmor);
-    armEach = Math.floor(bodyPoints * maxLA / maxBodyArmor);
-    legEach = Math.floor(bodyPoints * maxLL / maxBodyArmor);
-  } else {
-    // Low points: use percentage weights
-    ctTotal = Math.floor(availablePoints * weights.centerTorso / TOTAL_WEIGHT);
-    sideTorsoEach = Math.floor(availablePoints * weights.sideTorso / TOTAL_WEIGHT);
-    armEach = Math.floor(availablePoints * weights.arms / TOTAL_WEIGHT);
-    legEach = Math.floor(availablePoints * weights.legs / TOTAL_WEIGHT);
+  let ct = Math.floor(bodyPoints * maxCT / maxBodyArmor);
+  let lt = Math.floor(bodyPoints * maxLT / maxBodyArmor);
+  let rt = lt; // Symmetric
+  let la = Math.floor(bodyPoints * maxLA / maxBodyArmor);
+  let ra = la; // Symmetric
+  let ll = Math.floor(bodyPoints * maxLL / maxBodyArmor);
+  let rl = ll; // Symmetric
+  
+  // ===========================================================================
+  // PHASE 2: Symmetric remainder distribution
+  // ===========================================================================
+  
+  let allocated = head + ct + lt + rt + la + ra + ll + rl;
+  let remaining = points - allocated;
+  
+  // Simple priority loop - symmetric pairs first
+  while (remaining > 0) {
+    // Try symmetric pairs (need 2 points)
+    if (remaining >= 2 && lt < maxLT && rt < maxLT) {
+      lt++; rt++; remaining -= 2; continue;
+    }
+    if (remaining >= 2 && ll < maxLL && rl < maxLL) {
+      ll++; rl++; remaining -= 2; continue;
+    }
+    if (remaining >= 2 && la < maxLA && ra < maxLA) {
+      la++; ra++; remaining -= 2; continue;
+    }
+    
+    // Single locations for odd remainder
+    if (remaining >= 1 && ct < maxCT) {
+      ct++; remaining--; continue;
+    }
+    if (remaining >= 1 && head < maxHead) {
+      head++; remaining--; continue;
+    }
+    
+    // Safety: if nothing can be allocated, break
+    break;
   }
   
-  // Cap at maximums
-  ctTotal = Math.min(ctTotal, maxCT);
-  sideTorsoEach = Math.min(sideTorsoEach, maxLT); // LT and RT have same max
-  armEach = Math.min(armEach, maxLA); // LA and RA have same max
-  legEach = Math.min(legEach, maxLL); // LL and RL have same max
+  // ===========================================================================
+  // PHASE 3: Apply front/rear splits to torsos
+  // ===========================================================================
   
-  // =========================================================================
-  // PHASE 2: Split torso armor between front and rear
-  // CT: 75% front, 25% rear
-  // Side torsos: 100% front when limited, add rear when more points available
-  // =========================================================================
+  // CT: rear = ceil(total / 4.5)
+  const ctRear = Math.ceil(ct / 4.5);
+  const ctFront = ct - ctRear;
   
-  // CT split: rear is approximately ctTotal/4.5 rounded up
-  // This matches MegaMekLab: 29→7, 31→7, 4→1
-  let ctRear = Math.ceil(ctTotal / 4.5);
-  let ctFront = ctTotal - ctRear;
+  // Side torsos: 25% rear at MAX TOTAL ARMOR, 22% otherwise, 0% if < 40% capacity
+  const atMaxTotalArmor = points >= maxTotalArmor;
   
-  // Side torsos: all front at low point counts, start adding rear above ~40% capacity
-  let ltFront = sideTorsoEach;
-  let ltRear = 0;
-  let rtFront = sideTorsoEach;
-  let rtRear = 0;
+  let ltRear = 0, ltFront = lt;
+  let rtRear = 0, rtFront = rt;
   
-  // Add rear armor to side torsos if we have decent coverage (>40% of max)
-  if (sideTorsoEach > maxLT * 0.4) {
-    // At max capacity, use 25% rear; below max use ~22%
-    const atMaxCapacity = sideTorsoEach >= maxLT;
-    const rearRatio = atMaxCapacity ? 0.25 : 0.22;
-    const rearPoints = Math.round(sideTorsoEach * rearRatio);
-    ltRear = rearPoints;
-    rtRear = rearPoints;
-    ltFront = sideTorsoEach - rearPoints;
-    rtFront = sideTorsoEach - rearPoints;
+  if (lt > maxLT * 0.4) {
+    const rearRatio = atMaxTotalArmor ? 0.25 : 0.22;
+    ltRear = Math.round(lt * rearRatio);
+    ltFront = lt - ltRear;
+    rtRear = ltRear;
+    rtFront = rt - rtRear;
   }
   
-  // Arms and legs are simple (no front/rear split)
-  let laArmor = armEach;
-  let raArmor = armEach;
-  let llArmor = legEach;
-  let rlArmor = legEach;
-  
-  // =========================================================================
-  // PHASE 3: Calculate remainder and distribute
-  // Priority: Head > CT front > Side Torsos (symmetric) > Legs (symmetric) > Arms (symmetric) > CT rear
-  // MegaMekLab prioritizes torsos over limbs
-  // =========================================================================
-  
-  let allocated = headArmor + ctFront + ctRear + ltFront + ltRear + 
-                  rtFront + rtRear + laArmor + raArmor + llArmor + rlArmor;
-  let remaining = availablePoints - allocated;
-  
-  // Distribute remaining points to achieve target distribution
-  // Use round-robin with symmetry enforcement
-  let maxIterations = remaining + 10; // Safety limit
-  
-  while (remaining > 0 && maxIterations > 0) {
-    maxIterations--;
-    let distributed = false;
-    
-    // Priority 1: Head (if not maxed)
-    if (remaining >= 1 && headArmor < maxHead) {
-      headArmor++;
-      remaining--;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 2: Side torsos front (symmetric, need 2 points)
-    if (remaining >= 2 && ltFront < maxLT - ltRear && rtFront < maxRT - rtRear) {
-      ltFront++;
-      rtFront++;
-      remaining -= 2;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 3: Legs (symmetric, need 2 points)
-    if (remaining >= 2 && llArmor < maxLL && rlArmor < maxRL) {
-      llArmor++;
-      rlArmor++;
-      remaining -= 2;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 4: Arms (symmetric, need 2 points)
-    if (remaining >= 2 && laArmor < maxLA && raArmor < maxRA) {
-      laArmor++;
-      raArmor++;
-      remaining -= 2;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 5: Side torsos rear (symmetric, need 2 points)
-    if (remaining >= 2 && ltRear < maxLT - ltFront && rtRear < maxRT - rtFront) {
-      ltRear++;
-      rtRear++;
-      remaining -= 2;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 6: CT front (single location, takes odd points)
-    if (remaining >= 1 && ctFront < maxCT - ctRear) {
-      ctFront++;
-      remaining--;
-      distributed = true;
-      continue;
-    }
-    
-    // Priority 7: CT rear (single location)
-    if (remaining >= 1 && ctRear < maxCT - ctFront) {
-      ctRear++;
-      remaining--;
-      distributed = true;
-      continue;
-    }
-    
-    // If we have 1 point left and can't add to symmetric pairs
-    if (remaining === 1) {
-      // Try CT front, CT rear, head first (single locations)
-      if (ctFront < maxCT - ctRear) {
-        ctFront++;
-        remaining--;
-        distributed = true;
-      } else if (ctRear < maxCT - ctFront) {
-        ctRear++;
-        remaining--;
-        distributed = true;
-      } else if (headArmor < maxHead) {
-        headArmor++;
-        remaining--;
-        distributed = true;
-      } 
-      // As last resort, break symmetry and add to one side
-      else if (llArmor < maxLL) {
-        llArmor++;
-        remaining--;
-        distributed = true;
-      } else if (rlArmor < maxRL) {
-        rlArmor++;
-        remaining--;
-        distributed = true;
-      } else if (ltFront < maxLT - ltRear) {
-        ltFront++;
-        remaining--;
-        distributed = true;
-      } else if (rtFront < maxRT - rtRear) {
-        rtFront++;
-        remaining--;
-        distributed = true;
-      } else if (laArmor < maxLA) {
-        laArmor++;
-        remaining--;
-        distributed = true;
-      } else if (raArmor < maxRA) {
-        raArmor++;
-        remaining--;
-        distributed = true;
-      } else if (ltRear < maxLT - ltFront) {
-        ltRear++;
-        remaining--;
-        distributed = true;
-      } else if (rtRear < maxRT - rtFront) {
-        rtRear++;
-        remaining--;
-        distributed = true;
-      }
-    }
-    
-    // If nothing could be distributed, we're done
-    if (!distributed) break;
-  }
-  
-  // Final allocation calculation
-  allocated = headArmor + ctFront + ctRear + ltFront + ltRear + 
-              rtFront + rtRear + laArmor + raArmor + llArmor + rlArmor;
+  allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + la + ra + ll + rl;
   
   return createAllocationResult(
-    headArmor, ctFront, ctRear, ltFront, ltRear, rtFront, rtRear,
-    laArmor, raArmor, llArmor, rlArmor, allocated, availablePoints - allocated
+    head, ctFront, ctRear, ltFront, ltRear, rtFront, rtRear,
+    la, ra, ll, rl, allocated, availablePoints - allocated
   );
 }
 
