@@ -12,7 +12,7 @@
  */
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   createAndRegisterUnit,
@@ -21,6 +21,28 @@ import {
   duplicateUnit,
   hydrateOrCreateUnit,
 } from './unitStoreRegistry';
+
+// =============================================================================
+// Client-Safe Storage
+// =============================================================================
+
+/**
+ * Storage wrapper that safely handles SSR (no localStorage on server)
+ */
+const clientSafeStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(name, value);
+  },
+  removeItem: (name: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(name);
+  },
+};
 
 // =============================================================================
 // Types
@@ -269,6 +291,10 @@ export const useTabManagerStore = create<TabManagerState>()(
       
       getActiveTab: () => {
         const state = get();
+        // Defensive check for hydration race condition
+        if (!state.tabs || !Array.isArray(state.tabs)) {
+          return null;
+        }
         return state.tabs.find((t) => t.id === state.activeTabId) ?? null;
       },
       
@@ -276,21 +302,25 @@ export const useTabManagerStore = create<TabManagerState>()(
     }),
     {
       name: 'megamek-tab-manager',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => clientSafeStorage),
+      skipHydration: true, // Manually hydrate after client mount
       partialize: (state) => ({
         tabs: state.tabs,
         activeTabId: state.activeTabId,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          // Hydrate the active unit store if there is one
-          const activeTab = state.tabs.find((t) => t.id === state.activeTabId);
-          if (activeTab) {
-            hydrateOrCreateUnit(activeTab.id, {
-              name: activeTab.name,
-              tonnage: activeTab.tonnage,
-              techBase: activeTab.techBase,
-            });
+          // Defensive check for tabs array during hydration
+          if (state.tabs && Array.isArray(state.tabs)) {
+            // Hydrate the active unit store if there is one
+            const activeTab = state.tabs.find((t) => t.id === state.activeTabId);
+            if (activeTab) {
+              hydrateOrCreateUnit(activeTab.id, {
+                name: activeTab.name,
+                tonnage: activeTab.tonnage,
+                techBase: activeTab.techBase,
+              });
+            }
           }
           state.setLoading(false);
         }

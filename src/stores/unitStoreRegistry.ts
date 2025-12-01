@@ -10,7 +10,26 @@
 import { StoreApi } from 'zustand';
 import { UnitStore, UnitState, createDefaultUnitState, CreateUnitOptions } from './unitState';
 import { createUnitStore, createNewUnitStore } from './useUnitStore';
-import { TechBase } from '@/types/enums/TechBase';
+
+// =============================================================================
+// SSR-Safe Storage Helper
+// =============================================================================
+
+/**
+ * Safely get item from localStorage (returns null during SSR)
+ */
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(key);
+}
+
+/**
+ * Safely remove item from localStorage (no-op during SSR)
+ */
+function safeRemoveItem(key: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(key);
+}
 
 // =============================================================================
 // Registry
@@ -94,9 +113,9 @@ export function hydrateOrCreateUnit(
     return existing;
   }
   
-  // Try to load from localStorage
+  // Try to load from localStorage (SSR-safe)
   const storageKey = `megamek-unit-${unitId}`;
-  const savedState = localStorage.getItem(storageKey);
+  const savedState = safeGetItem(storageKey);
   
   if (savedState) {
     try {
@@ -144,7 +163,7 @@ export function deleteUnit(unitId: string): boolean {
   const removed = unitStores.delete(unitId);
   if (removed) {
     const storageKey = `megamek-unit-${unitId}`;
-    localStorage.removeItem(storageKey);
+    safeRemoveItem(storageKey);
   }
   return removed;
 }
@@ -157,7 +176,7 @@ export function clearAllStores(clearStorage = false): void {
   if (clearStorage) {
     Array.from(unitStores.keys()).forEach((unitId) => {
       const storageKey = `megamek-unit-${unitId}`;
-      localStorage.removeItem(storageKey);
+      safeRemoveItem(storageKey);
     });
   }
   unitStores.clear();
@@ -203,4 +222,3 @@ export function duplicateUnit(sourceUnitId: string, newName?: string): StoreApi<
   unitStores.set(mergedState.id, store);
   return store;
 }
-

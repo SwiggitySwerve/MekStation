@@ -7,22 +7,33 @@
  * @spec openspec/changes/add-customizer-ui-components/specs/unit-store-architecture/spec.md
  */
 
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StoreApi } from 'zustand';
 import { UnitStoreContext } from './useUnitStore';
-import { UnitStore } from './unitState';
-import { useTabManagerStore } from './useTabManagerStore';
-import { getUnitStore, hydrateOrCreateUnit } from './unitStoreRegistry';
+import type { UnitStore } from './useUnitStore';
+import { TechBase } from '@/types/enums/TechBase';
 
 // =============================================================================
-// Provider Props
+// Types
 // =============================================================================
+
+export interface ActiveTabInfo {
+  id: string;
+  name: string;
+  tonnage: number;
+  techBase: TechBase;
+}
 
 interface UnitStoreProviderProps {
   children: React.ReactNode;
+  /** The currently active tab - passed from parent to avoid hook ordering issues */
+  activeTab: ActiveTabInfo | null;
   /** Fallback UI when no unit is selected */
   fallback?: React.ReactNode;
 }
+
+// Type for the registry module
+type RegistryModule = typeof import('./unitStoreRegistry');
 
 // =============================================================================
 // Provider Component
@@ -31,68 +42,92 @@ interface UnitStoreProviderProps {
 /**
  * Provides the active unit's store to child components
  * 
- * Usage:
- * ```tsx
- * <UnitStoreProvider>
- *   <StructureTab />  // Can now use useUnitStore()
- * </UnitStoreProvider>
- * ```
+ * Key design decisions:
+ * - Receives activeTab as prop (not from hooks) to avoid hook ordering issues
+ * - Lazily imports unitStoreRegistry to avoid SSR module evaluation
+ * - Uses refs to prevent re-render loops during registry loading
  */
 export function UnitStoreProvider({
   children,
+  activeTab,
   fallback,
 }: UnitStoreProviderProps) {
-  // Get active tab info from TabManager
-  const activeTabId = useTabManagerStore((s) => s.activeTabId);
-  const activeTab = useTabManagerStore((s) => s.getActiveTab());
-  const isLoading = useTabManagerStore((s) => s.isLoading);
-  
   // Track the current store
   const [currentStore, setCurrentStore] = useState<StoreApi<UnitStore> | null>(null);
   
-  // Update store when active tab changes
+  // Track registry loading state
+  const [registryReady, setRegistryReady] = useState(false);
+  const registryRef = useRef<RegistryModule | null>(null);
+  const loadingRef = useRef(false);
+  
+  // Load the registry module once on mount
   useEffect(() => {
-    if (!activeTabId || !activeTab) {
+    // Prevent double-loading
+    if (loadingRef.current || registryReady) return;
+    loadingRef.current = true;
+    
+    import('./unitStoreRegistry')
+      .then((module) => {
+        registryRef.current = module;
+        setRegistryReady(true);
+      })
+      .catch((err) => {
+        console.error('Failed to load unit store registry:', err);
+        loadingRef.current = false;
+      });
+  }, [registryReady]);
+  
+  // Create/update store when activeTab changes
+  useEffect(() => {
+    // Wait for registry to be ready
+    if (!registryReady || !registryRef.current) {
+      return;
+    }
+    
+    // No active tab - clear the store
+    if (!activeTab) {
       setCurrentStore(null);
       return;
     }
     
-    // Get or hydrate the store for this tab
-    const store = hydrateOrCreateUnit(activeTabId, {
-      name: activeTab.name,
-      tonnage: activeTab.tonnage,
-      techBase: activeTab.techBase,
-    });
-    
-    setCurrentStore(store);
-  }, [activeTabId, activeTab]);
+    // Get or create the store for this tab
+    try {
+      const store = registryRef.current.hydrateOrCreateUnit(activeTab.id, {
+        name: activeTab.name,
+        tonnage: activeTab.tonnage,
+        techBase: activeTab.techBase,
+      });
+      setCurrentStore(store);
+    } catch (e) {
+      console.error('Error creating unit store:', e);
+      setCurrentStore(null);
+    }
+  }, [activeTab?.id, activeTab?.name, activeTab?.tonnage, activeTab?.techBase, registryReady]);
   
-  // Show loading state during hydration
-  if (isLoading) {
+  // Loading state - registry not yet loaded
+  if (!registryReady) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-slate-400">Loading...</div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-slate-400">Loading unit system...</div>
       </div>
     );
   }
   
-  // No active unit - show fallback or default message
+  // No active tab selected - show fallback
+  if (!activeTab) {
+    return <>{fallback}</>;
+  }
+  
+  // Active tab but store not yet created - brief loading
   if (!currentStore) {
     return (
-      <>
-        {fallback ?? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center text-slate-400">
-              <p>No unit selected</p>
-              <p className="text-sm mt-2">Create a new unit to get started</p>
-            </div>
-          </div>
-        )}
-      </>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-slate-400">Loading unit...</div>
+      </div>
     );
   }
   
-  // Provide the active unit's store to children
+  // Provide store to children
   return (
     <UnitStoreContext.Provider value={currentStore}>
       {children}
@@ -101,10 +136,9 @@ export function UnitStoreProvider({
 }
 
 /**
- * Hook to check if we're inside a UnitStoreProvider
+ * Hook to check if we're inside a UnitStoreProvider with a valid store
  */
 export function useHasUnitStore(): boolean {
   const store = React.useContext(UnitStoreContext);
   return store !== null;
 }
-

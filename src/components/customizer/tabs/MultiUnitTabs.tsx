@@ -8,11 +8,15 @@
  * @spec openspec/changes/add-customizer-ui-components/specs/unit-store-architecture/spec.md
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { TabBar } from './TabBar';
 import { NewTabModal } from './NewTabModal';
-import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
+import { useTabManagerStore, UNIT_TEMPLATES, TabInfo } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
+
+// =============================================================================
+// Types
+// =============================================================================
 
 interface MultiUnitTabsProps {
   /** Content to render for the active tab */
@@ -22,23 +26,79 @@ interface MultiUnitTabsProps {
 }
 
 /**
+ * Combined selector state for stable hook ordering
+ */
+interface TabManagerSnapshot {
+  tabs: TabInfo[];
+  activeTabId: string | null;
+  isLoading: boolean;
+  isNewTabModalOpen: boolean;
+}
+
+/**
+ * Combined actions for stable hook ordering
+ */
+interface TabManagerActions {
+  selectTab: (tabId: string) => void;
+  closeTab: (tabId: string) => void;
+  renameTab: (tabId: string, newName: string) => void;
+  createTab: (template: { id: string; name: string; tonnage: number; techBase: TechBase; walkMP: number }, customName?: string) => string;
+  openNewTabModal: () => void;
+  closeNewTabModal: () => void;
+}
+
+// =============================================================================
+// Single Selectors
+// =============================================================================
+
+/**
+ * Single combined selector for state - avoids hook ordering issues
+ */
+const selectState = (s: {
+  tabs?: TabInfo[];
+  activeTabId?: string | null;
+  isLoading?: boolean;
+  isNewTabModalOpen?: boolean;
+}): TabManagerSnapshot => ({
+  tabs: Array.isArray(s.tabs) ? s.tabs : [],
+  activeTabId: s.activeTabId ?? null,
+  isLoading: s.isLoading ?? true,
+  isNewTabModalOpen: s.isNewTabModalOpen ?? false,
+});
+
+/**
+ * Single combined selector for actions - avoids hook ordering issues
+ */
+const selectActions = (s: {
+  selectTab: (tabId: string) => void;
+  closeTab: (tabId: string) => void;
+  renameTab: (tabId: string, newName: string) => void;
+  createTab: (template: { id: string; name: string; tonnage: number; techBase: TechBase; walkMP: number }, customName?: string) => string;
+  openNewTabModal: () => void;
+  closeNewTabModal: () => void;
+}): TabManagerActions => ({
+  selectTab: s.selectTab,
+  closeTab: s.closeTab,
+  renameTab: s.renameTab,
+  createTab: s.createTab,
+  openNewTabModal: s.openNewTabModal,
+  closeNewTabModal: s.closeNewTabModal,
+});
+
+// =============================================================================
+// Component
+// =============================================================================
+
+/**
  * Multi-unit tab container with tab bar and content area
  */
 export function MultiUnitTabs({
   children,
   className = '',
 }: MultiUnitTabsProps) {
-  // Use the new TabManagerStore
-  const tabs = useTabManagerStore((s) => s.tabs);
-  const activeTabId = useTabManagerStore((s) => s.activeTabId);
-  const isLoading = useTabManagerStore((s) => s.isLoading);
-  const isNewTabModalOpen = useTabManagerStore((s) => s.isNewTabModalOpen);
-  const selectTab = useTabManagerStore((s) => s.selectTab);
-  const closeTab = useTabManagerStore((s) => s.closeTab);
-  const renameTab = useTabManagerStore((s) => s.renameTab);
-  const createTab = useTabManagerStore((s) => s.createTab);
-  const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
-  const closeNewTabModal = useTabManagerStore((s) => s.closeNewTabModal);
+  // Use combined selectors for stable hook ordering
+  const { tabs, activeTabId, isLoading, isNewTabModalOpen } = useTabManagerStore(selectState);
+  const { selectTab, closeTab, renameTab, createTab, openNewTabModal, closeNewTabModal } = useTabManagerStore(selectActions);
   
   // Create unit from template
   const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {
@@ -48,15 +108,16 @@ export function MultiUnitTabs({
   }, [createTab]);
   
   // Transform tabs to format expected by TabBar
-  const tabBarTabs = tabs.map((tab) => ({
-    id: tab.id,
-    name: tab.name,
-    tonnage: tab.tonnage,
-    techBase: tab.techBase,
-    isModified: false, // Would need to track this separately or get from unit store
-  }));
+  const tabBarTabs = useMemo(() => 
+    tabs.map((tab) => ({
+      id: tab.id,
+      name: tab.name,
+      isModified: false, // Would need to track this separately
+    })),
+    [tabs]
+  );
   
-  // Loading state
+  // Loading state - show while Zustand is hydrating
   if (isLoading) {
     return (
       <div className={`flex items-center justify-center h-full ${className}`}>

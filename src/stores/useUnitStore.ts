@@ -8,8 +8,30 @@
  */
 
 import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { createContext, useContext } from 'react';
+
+// =============================================================================
+// Client-Safe Storage
+// =============================================================================
+
+/**
+ * Storage wrapper that safely handles SSR (no localStorage on server)
+ */
+const clientSafeStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(name, value);
+  },
+  removeItem: (name: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(name);
+  },
+};
 import { TechBase } from '@/types/enums/TechBase';
 import {
   TechBaseMode,
@@ -23,6 +45,9 @@ import {
   CreateUnitOptions,
   createDefaultUnitState,
 } from './unitState';
+
+// Re-export UnitStore type for convenience
+export type { UnitStore } from './unitState';
 
 // =============================================================================
 // Store Factory
@@ -150,7 +175,8 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
       }),
       {
         name: `megamek-unit-${initialState.id}`,
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => clientSafeStorage),
+        skipHydration: true, // We manually hydrate after client mount
         // Only persist state, not actions
         partialize: (state) => ({
           id: state.id,
