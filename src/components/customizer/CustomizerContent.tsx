@@ -20,6 +20,9 @@ import { TechBase } from '@/types/enums/TechBase';
 
 // Tab components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
+import { CustomizerTabs, DEFAULT_CUSTOMIZER_TABS, useCustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
+import { StructureTab } from '@/components/customizer/tabs/StructureTab';
+import { OverviewTab } from '@/components/customizer/tabs/OverviewTab';
 
 // =============================================================================
 // Main Component
@@ -92,25 +95,62 @@ export default function CustomizerContent() {
 
 /**
  * Unit editor content - rendered when UnitStoreProvider has a valid store
+ * Shows tabbed interface with Structure, Armor, Weapons, etc.
  */
 function UnitEditorContent() {
-  // Access unit state from context
+  // Access unit state from context for header
   const unitName = useUnitStore((s) => s.name);
   const tonnage = useUnitStore((s) => s.tonnage);
   const techBase = useUnitStore((s) => s.techBase);
   
+  // Customizer section tabs (Overview, Structure, Armor, etc.)
+  const { tabs, activeTab, setActiveTab } = useCustomizerTabs('structure');
+  
   return (
-    <div className="flex-1 p-6">
-      <div className="bg-slate-800 rounded-lg p-6 max-w-2xl mx-auto">
-        <h2 className="text-xl font-bold text-white mb-4">Unit Editor</h2>
-        <div className="space-y-2 text-slate-300">
-          <p><span className="text-slate-500">Name:</span> {unitName}</p>
-          <p><span className="text-slate-500">Tonnage:</span> {tonnage} tons</p>
-          <p><span className="text-slate-500">Tech Base:</span> {techBase === TechBase.INNER_SPHERE ? 'Inner Sphere' : 'Clan'}</p>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Unit header with name and basic info */}
+      <div className="bg-slate-800 border-b border-slate-700 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-white">{unitName}</h2>
+            <p className="text-sm text-slate-400">
+              {tonnage}t {techBase === TechBase.INNER_SPHERE ? 'Inner Sphere' : 'Clan'} BattleMech
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-slate-500 mt-6">
-          UnitStoreProvider is active - unit data is accessible
-        </p>
+      </div>
+      
+      {/* Section tabs (Structure, Armor, Weapons, etc.) */}
+      <CustomizerTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+      
+      {/* Tab content */}
+      <div className="flex-1 overflow-auto">
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'structure' && <StructureTab />}
+        {activeTab === 'armor' && <PlaceholderTab name="Armor" />}
+        {activeTab === 'weapons' && <PlaceholderTab name="Weapons" />}
+        {activeTab === 'equipment' && <PlaceholderTab name="Equipment" />}
+        {activeTab === 'criticals' && <PlaceholderTab name="Critical Slots" />}
+        {activeTab === 'fluff' && <PlaceholderTab name="Fluff" />}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Placeholder Tab (for tabs not yet fully implemented)
+// =============================================================================
+
+function PlaceholderTab({ name }: { name: string }) {
+  return (
+    <div className="flex-1 flex items-center justify-center p-8">
+      <div className="text-center text-slate-400">
+        <h3 className="text-xl font-bold mb-2">{name}</h3>
+        <p className="text-sm">This section is under development</p>
       </div>
     </div>
   );
