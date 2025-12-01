@@ -6,6 +6,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Badge, TechBaseBadge, WeightClassBadge } from '@/components/ui/Badge';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
 
 describe('Badge', () => {
   describe('Base Badge', () => {
@@ -121,65 +123,41 @@ describe('Badge', () => {
 
   describe('TechBaseBadge', () => {
     it('should render Clan with emerald variant', () => {
-      render(<TechBaseBadge techBase="CLAN" />);
+      render(<TechBaseBadge techBase={TechBase.CLAN} />);
       const badge = screen.getByText('Clan');
       expect(badge).toHaveClass('bg-emerald-600/20');
     });
 
     it('should render Inner Sphere with blue variant', () => {
-      render(<TechBaseBadge techBase="INNER_SPHERE" />);
+      render(<TechBaseBadge techBase={TechBase.INNER_SPHERE} />);
       const badge = screen.getByText('Inner Sphere');
       expect(badge).toHaveClass('bg-blue-600/20');
-    });
-
-    it('should render Mixed with purple variant', () => {
-      render(<TechBaseBadge techBase="MIXED" />);
-      const badge = screen.getByText('MIXED');
-      expect(badge).toHaveClass('bg-purple-600/20');
-    });
-
-    it('should format label correctly', () => {
-      render(<TechBaseBadge techBase="Inner Sphere" />);
-      expect(screen.getByText('Inner Sphere')).toBeInTheDocument();
-    });
-
-    it('should handle unknown tech base', () => {
-      render(<TechBaseBadge techBase="UNKNOWN_BASE" />);
-      const badge = screen.getByText('UNKNOWN BASE');
-      expect(badge).toHaveClass('bg-slate-600/20');
     });
   });
 
   describe('WeightClassBadge', () => {
-    it('should render LIGHT with emerald variant', () => {
-      render(<WeightClassBadge weightClass="LIGHT" />);
-      const badge = screen.getByText('LIGHT');
+    it('should render Light with emerald variant', () => {
+      render(<WeightClassBadge weightClass={WeightClass.LIGHT} />);
+      const badge = screen.getByText('Light');
       expect(badge).toHaveClass('bg-emerald-600/20');
     });
 
-    it('should render MEDIUM with amber variant', () => {
-      render(<WeightClassBadge weightClass="MEDIUM" />);
-      const badge = screen.getByText('MEDIUM');
+    it('should render Medium with amber variant', () => {
+      render(<WeightClassBadge weightClass={WeightClass.MEDIUM} />);
+      const badge = screen.getByText('Medium');
       expect(badge).toHaveClass('bg-amber-600/20');
     });
 
-    it('should render HEAVY with orange variant', () => {
-      render(<WeightClassBadge weightClass="HEAVY" />);
-      const badge = screen.getByText('HEAVY');
+    it('should render Heavy with orange variant', () => {
+      render(<WeightClassBadge weightClass={WeightClass.HEAVY} />);
+      const badge = screen.getByText('Heavy');
       expect(badge).toHaveClass('bg-orange-600/20');
     });
 
-    it('should render ASSAULT with red variant', () => {
-      render(<WeightClassBadge weightClass="ASSAULT" />);
-      const badge = screen.getByText('ASSAULT');
+    it('should render Assault with red variant', () => {
+      render(<WeightClassBadge weightClass={WeightClass.ASSAULT} />);
+      const badge = screen.getByText('Assault');
       expect(badge).toHaveClass('bg-red-600/20');
-    });
-
-    it('should render unknown weight class with slate variant', () => {
-      render(<WeightClassBadge weightClass="UNKNOWN" />);
-      const badge = screen.getByText('UNKNOWN');
-      expect(badge).toHaveClass('bg-slate-600/20');
     });
   });
 });
-

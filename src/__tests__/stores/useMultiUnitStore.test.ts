@@ -14,6 +14,7 @@ import {
   createDefaultComponentSelections,
 } from '@/stores/useMultiUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -152,8 +153,8 @@ describe('useMultiUnitStore', () => {
       
       const { tabs } = useMultiUnitStore.getState();
       
-      expect(tabs[0].techBaseMode).toBe('inner_sphere');
-      expect(tabs[1].techBaseMode).toBe('clan');
+      expect(tabs[0].techBaseMode).toBe(TechBaseMode.INNER_SPHERE);
+      expect(tabs[1].techBaseMode).toBe(TechBaseMode.CLAN);
     });
     
     it('should initialize componentTechBases matching template tech base', () => {
@@ -203,7 +204,7 @@ describe('useMultiUnitStore', () => {
         
         // Modify the original tab
         useMultiUnitStore.getState().updateEngineType(tabId, EngineType.XL_IS);
-        useMultiUnitStore.getState().updateTechBaseMode(tabId, 'mixed');
+        useMultiUnitStore.getState().updateTechBaseMode(tabId, TechBaseMode.MIXED);
         
         // Duplicate
         useMultiUnitStore.getState().duplicateTab(tabId);
@@ -214,7 +215,7 @@ describe('useMultiUnitStore', () => {
       expect(tabs).toHaveLength(2);
       expect(tabs[1].name).toContain('(Copy)');
       expect(tabs[1].componentSelections.engineType).toBe(EngineType.XL_IS);
-      expect(tabs[1].techBaseMode).toBe('mixed');
+      expect(tabs[1].techBaseMode).toBe(TechBaseMode.MIXED);
       expect(activeTabId).toBe(tabs[1].id);
     });
     
@@ -389,10 +390,10 @@ describe('useMultiUnitStore', () => {
       const tabId = useMultiUnitStore.getState().tabs[0].id;
       
       act(() => {
-        useMultiUnitStore.getState().updateTechBaseMode(tabId, 'clan');
+        useMultiUnitStore.getState().updateTechBaseMode(tabId, TechBaseMode.CLAN);
       });
       
-      expect(useMultiUnitStore.getState().tabs[0].techBaseMode).toBe('clan');
+      expect(useMultiUnitStore.getState().tabs[0].techBaseMode).toBe(TechBaseMode.CLAN);
     });
     
     it('should reset componentTechBases when switching to Clan', () => {
@@ -403,7 +404,7 @@ describe('useMultiUnitStore', () => {
       const tabId = useMultiUnitStore.getState().tabs[0].id;
       
       act(() => {
-        useMultiUnitStore.getState().updateTechBaseMode(tabId, 'clan');
+        useMultiUnitStore.getState().updateTechBaseMode(tabId, TechBaseMode.CLAN);
       });
       
       expectAllComponentTechBases(
@@ -422,7 +423,7 @@ describe('useMultiUnitStore', () => {
       const tabId = useMultiUnitStore.getState().tabs[0].id;
       
       act(() => {
-        useMultiUnitStore.getState().updateTechBaseMode(tabId, 'inner_sphere');
+        useMultiUnitStore.getState().updateTechBaseMode(tabId, TechBaseMode.INNER_SPHERE);
       });
       
       expectAllComponentTechBases(
@@ -445,7 +446,7 @@ describe('useMultiUnitStore', () => {
       
       // Switch to mixed
       act(() => {
-        useMultiUnitStore.getState().updateTechBaseMode(tabId, 'mixed');
+        useMultiUnitStore.getState().updateTechBaseMode(tabId, TechBaseMode.MIXED);
       });
       
       // Engine should still be Clan

@@ -21,7 +21,7 @@ import {
   generateUnitId,
 } from '@/stores/unitState';
 import { createUnitStore, createNewUnitStore } from '@/stores/useUnitStore';
-import { IComponentTechBases, createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import { IComponentTechBases, TechBaseMode, createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
 import { IComponentSelections } from '@/stores/useMultiUnitStore';
 
 // =============================================================================
@@ -296,7 +296,7 @@ export function expectAllComponentTechBases(
  */
 export function expectTechBaseMode(
   store: StoreApi<UnitStore>,
-  expectedMode: 'inner_sphere' | 'clan' | 'mixed'
+  expectedMode: TechBaseMode
 ): void {
   expect(store.getState().techBaseMode).toBe(expectedMode);
 }

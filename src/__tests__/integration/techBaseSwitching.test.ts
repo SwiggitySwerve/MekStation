@@ -23,6 +23,7 @@ import {
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { TechBase } from '@/types/enums/TechBase';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -70,16 +71,16 @@ describe('Tech Base Switching Integration', () => {
       
       // Verify initial IS state
       expectAllComponentTechBases(store.getState().componentTechBases, TechBase.INNER_SPHERE);
-      expect(store.getState().techBaseMode).toBe('inner_sphere');
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.INNER_SPHERE);
       
       // Switch to Clan
       act(() => {
-        store.getState().setTechBaseMode('clan');
+        store.getState().setTechBaseMode(TechBaseMode.CLAN);
       });
       
       // Verify Clan state
       expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
-      expect(store.getState().techBaseMode).toBe('clan');
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.CLAN);
     });
     
     it('should invalidate IS-only engine selection when switching to Clan', () => {
@@ -98,7 +99,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Switch to Clan mode
       act(() => {
-        store.getState().setTechBaseMode('clan');
+        store.getState().setTechBaseMode(TechBaseMode.CLAN);
       });
       
       // Use tech base sync to validate
@@ -125,7 +126,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Switch to Clan mode
       act(() => {
-        store.getState().setTechBaseMode('clan');
+        store.getState().setTechBaseMode(TechBaseMode.CLAN);
       });
       
       const { result } = renderHook(() => 
@@ -157,7 +158,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Switch to IS mode
       act(() => {
-        store.getState().setTechBaseMode('inner_sphere');
+        store.getState().setTechBaseMode(TechBaseMode.INNER_SPHERE);
       });
       
       const { result } = renderHook(() => 
@@ -186,7 +187,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Switch to IS mode
       act(() => {
-        store.getState().setTechBaseMode('inner_sphere');
+        store.getState().setTechBaseMode(TechBaseMode.INNER_SPHERE);
       });
       
       const { result } = renderHook(() => 
@@ -227,7 +228,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Switch to mixed mode
       act(() => {
-        store.getState().setTechBaseMode('mixed');
+        store.getState().setTechBaseMode(TechBaseMode.MIXED);
       });
       
       // Set engine to Clan, armor to IS
@@ -238,7 +239,7 @@ describe('Tech Base Switching Integration', () => {
       
       expect(store.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       expect(store.getState().componentTechBases.armor).toBe(TechBase.INNER_SPHERE);
-      expect(store.getState().techBaseMode).toBe('mixed');
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.MIXED);
     });
     
     it('should filter engines based on engine tech base in mixed mode', () => {
@@ -249,7 +250,7 @@ describe('Tech Base Switching Integration', () => {
       });
       
       act(() => {
-        store.getState().setTechBaseMode('mixed');
+        store.getState().setTechBaseMode(TechBaseMode.MIXED);
         store.getState().setComponentTechBase('engine', TechBase.CLAN);
       });
       
@@ -270,7 +271,7 @@ describe('Tech Base Switching Integration', () => {
       });
       
       act(() => {
-        store.getState().setTechBaseMode('mixed');
+        store.getState().setTechBaseMode(TechBaseMode.MIXED);
         store.getState().setComponentTechBase('heatsink', TechBase.CLAN);
       });
       
@@ -297,7 +298,7 @@ describe('Tech Base Switching Integration', () => {
       });
       
       act(() => {
-        store.getState().setTechBaseMode('mixed');
+        store.getState().setTechBaseMode(TechBaseMode.MIXED);
       });
       
       // Settings should be preserved
@@ -363,7 +364,7 @@ describe('Tech Base Switching Integration', () => {
       const store1 = getUnitStore(tab1Id);
       act(() => {
         store1?.getState().setGyroType(GyroType.COMPACT);
-        store1?.getState().setTechBaseMode('mixed');
+        store1?.getState().setTechBaseMode(TechBaseMode.MIXED);
       });
       
       // Switch to tab2
@@ -379,7 +380,7 @@ describe('Tech Base Switching Integration', () => {
       // tab1 should have preserved state
       const rehydratedStore = getUnitStore(tab1Id);
       expect(rehydratedStore?.getState().gyroType).toBe(GyroType.COMPACT);
-      expect(rehydratedStore?.getState().techBaseMode).toBe('mixed');
+      expect(rehydratedStore?.getState().techBaseMode).toBe(TechBaseMode.MIXED);
     });
   });
   
@@ -396,7 +397,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Configure original
       act(() => {
-        original.getState().setTechBaseMode('mixed');
+        original.getState().setTechBaseMode(TechBaseMode.MIXED);
         original.getState().setComponentTechBase('armor', TechBase.INNER_SPHERE);
         original.getState().setEngineType(EngineType.XL_CLAN);
         original.getState().setHeatSinkType(HeatSinkType.DOUBLE_CLAN);
@@ -405,7 +406,7 @@ describe('Tech Base Switching Integration', () => {
       const duplicate = duplicateUnit(original.getState().id);
       
       expect(duplicate).not.toBeNull();
-      expect(duplicate!.getState().techBaseMode).toBe('mixed');
+      expect(duplicate!.getState().techBaseMode).toBe(TechBaseMode.MIXED);
       expect(duplicate!.getState().componentTechBases.armor).toBe(TechBase.INNER_SPHERE);
       expect(duplicate!.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       expect(duplicate!.getState().engineType).toBe(EngineType.XL_CLAN);
@@ -427,16 +428,16 @@ describe('Tech Base Switching Integration', () => {
       
       // Modify duplicate to Clan
       act(() => {
-        duplicate!.getState().setTechBaseMode('clan');
+        duplicate!.getState().setTechBaseMode(TechBaseMode.CLAN);
         duplicate!.getState().setEngineType(EngineType.XL_CLAN);
       });
       
       // Original should be unchanged
-      expect(original.getState().techBaseMode).toBe('inner_sphere');
+      expect(original.getState().techBaseMode).toBe(TechBaseMode.INNER_SPHERE);
       expect(original.getState().engineType).toBe(EngineType.XL_IS);
       
       // Duplicate should have changes
-      expect(duplicate!.getState().techBaseMode).toBe('clan');
+      expect(duplicate!.getState().techBaseMode).toBe(TechBaseMode.CLAN);
       expect(duplicate!.getState().engineType).toBe(EngineType.XL_CLAN);
     });
   });
@@ -602,12 +603,12 @@ describe('Tech Base Switching Integration', () => {
         store.getState().setInternalStructureType(InternalStructureType.ENDO_STEEL_IS);
       });
       
-      expect(store.getState().techBaseMode).toBe('inner_sphere');
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.INNER_SPHERE);
       expect(store.getState().engineType).toBe(EngineType.XL_IS);
       
       // Step 2: Switch to Clan - verify selections become invalid
       act(() => {
-        store.getState().setTechBaseMode('clan');
+        store.getState().setTechBaseMode(TechBaseMode.CLAN);
       });
       
       const { result: clanCheck } = renderHook(() => 
@@ -627,7 +628,7 @@ describe('Tech Base Switching Integration', () => {
       
       // Step 4: Switch to mixed mode
       act(() => {
-        store.getState().setTechBaseMode('mixed');
+        store.getState().setTechBaseMode(TechBaseMode.MIXED);
         store.getState().setComponentTechBase('heatsink', TechBase.INNER_SPHERE);
       });
       
@@ -641,7 +642,7 @@ describe('Tech Base Switching Integration', () => {
       expect(mixedCheck.current.isHeatSinkValid(HeatSinkType.DOUBLE_CLAN)).toBe(false);
       
       // Step 5: Verify final state
-      expect(store.getState().techBaseMode).toBe('mixed');
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.MIXED);
       expect(store.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       expect(store.getState().componentTechBases.heatsink).toBe(TechBase.INNER_SPHERE);
     });

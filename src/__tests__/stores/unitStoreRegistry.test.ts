@@ -24,6 +24,7 @@ import {
 import { createUnitStore, createNewUnitStore } from '@/stores/useUnitStore';
 import { createDefaultUnitState } from '@/stores/unitState';
 import { TechBase } from '@/types/enums/TechBase';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
@@ -375,7 +376,7 @@ describe('unitStoreRegistry', () => {
       original.getState().setGyroType(GyroType.XL);
       original.getState().setHeatSinkType(HeatSinkType.DOUBLE_CLAN);
       original.getState().setInternalStructureType(InternalStructureType.ENDO_STEEL_CLAN);
-      original.getState().setTechBaseMode('mixed');
+      original.getState().setTechBaseMode(TechBaseMode.MIXED);
       original.getState().setComponentTechBase('armor', TechBase.INNER_SPHERE);
       
       const duplicate = duplicateUnit(original.getState().id);
@@ -389,7 +390,7 @@ describe('unitStoreRegistry', () => {
       expect(dupState.gyroType).toBe(GyroType.XL);
       expect(dupState.heatSinkType).toBe(HeatSinkType.DOUBLE_CLAN);
       expect(dupState.internalStructureType).toBe(InternalStructureType.ENDO_STEEL_CLAN);
-      expect(dupState.techBaseMode).toBe('mixed');
+      expect(dupState.techBaseMode).toBe(TechBaseMode.MIXED);
       expect(dupState.componentTechBases.armor).toBe(TechBase.INNER_SPHERE);
     });
     
