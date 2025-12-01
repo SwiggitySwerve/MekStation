@@ -7,11 +7,11 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { UnitTab as UnitTabType } from '@/stores/useMultiUnitStore';
+import { TabDisplayInfo } from './TabBar';
 
 interface UnitTabProps {
   /** Tab data */
-  tab: UnitTabType;
+  tab: TabDisplayInfo;
   /** Is this the active tab */
   isActive: boolean;
   /** Can this tab be closed */

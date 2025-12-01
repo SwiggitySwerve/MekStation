@@ -8,11 +8,19 @@
 
 import React from 'react';
 import { UnitTab as UnitTabComponent } from './UnitTab';
-import { UnitTab } from '@/stores/useMultiUnitStore';
+
+/**
+ * Minimal tab info needed for display in tab bar
+ */
+export interface TabDisplayInfo {
+  readonly id: string;
+  readonly name: string;
+  readonly isModified?: boolean;
+}
 
 interface TabBarProps {
   /** Array of tabs */
-  tabs: readonly UnitTab[];
+  tabs: readonly TabDisplayInfo[];
   /** Currently active tab ID */
   activeTabId: string | null;
   /** Called when a tab is selected */
@@ -22,7 +30,7 @@ interface TabBarProps {
   /** Called when a tab is renamed */
   onRenameTab: (tabId: string, name: string) => void;
   /** Called when add button is clicked */
-  onAddTab: () => void;
+  onNewTab: () => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -36,7 +44,7 @@ export function TabBar({
   onSelectTab,
   onCloseTab,
   onRenameTab,
-  onAddTab,
+  onNewTab,
   className = '',
 }: TabBarProps) {
   return (
@@ -58,7 +66,7 @@ export function TabBar({
       
       {/* Add button */}
       <button
-        onClick={onAddTab}
+        onClick={onNewTab}
         className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors mx-1"
         title="New Unit"
       >
