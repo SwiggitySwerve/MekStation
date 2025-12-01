@@ -22,6 +22,7 @@ import {
   getMaxTotalArmor,
   getArmorCriticalSlots,
 } from '@/utils/construction/armorCalculations';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
 
 // =============================================================================
@@ -61,7 +62,6 @@ export function ArmorTab({
   const setLocationArmor = useUnitStore((s) => s.setLocationArmor);
   const autoAllocateArmor = useUnitStore((s) => s.autoAllocateArmor);
   const maximizeArmor = useUnitStore((s) => s.maximizeArmor);
-  const clearAllArmor = useUnitStore((s) => s.clearAllArmor);
   
   // Get filtered armor options based on tech base
   const { filteredOptions } = useTechBaseSync(componentTechBases);
@@ -80,9 +80,25 @@ export function ArmorTab({
     () => getTotalAllocatedArmor(armorAllocation),
     [armorAllocation]
   );
-  const unallocatedPoints = availablePoints - allocatedPoints;
   const maxTotalArmor = useMemo(() => getMaxTotalArmor(tonnage), [tonnage]);
   const armorSlots = useMemo(() => getArmorCriticalSlots(armorType), [armorType]);
+  
+  // Calculate max useful tonnage (ceiling to half-ton of max points / points per ton)
+  const maxUsefulTonnage = useMemo(
+    () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
+    [maxTotalArmor, pointsPerTon]
+  );
+  
+  // Calculate unallocated and wasted points
+  const unallocatedPoints = availablePoints - allocatedPoints;
+  const wastedPoints = Math.max(0, availablePoints - maxTotalArmor);
+  
+  // Points delta for Auto-Allocate button:
+  // - Negative when allocated > available (need to remove points)
+  // - Positive when can allocate more (capped at max armor remaining)
+  const pointsDelta = unallocatedPoints < 0
+    ? unallocatedPoints // Show negative as-is (over-allocated)
+    : Math.min(unallocatedPoints, maxTotalArmor - allocatedPoints); // Cap at max allocatable
   
   // Convert allocation to diagram format
   const armorData: LocationArmorData[] = useMemo(() => [
@@ -146,8 +162,9 @@ export function ArmorTab({
   }, [setArmorType]);
   
   const handleArmorTonnageChange = useCallback((newTonnage: number) => {
-    setArmorTonnage(Math.max(0, newTonnage));
-  }, [setArmorTonnage]);
+    // Clamp between 0 and max useful tonnage
+    setArmorTonnage(Math.max(0, Math.min(newTonnage, maxUsefulTonnage)));
+  }, [setArmorTonnage, maxUsefulTonnage]);
   
   const handleLocationClick = useCallback((location: MechLocation) => {
     setSelectedLocation(prev => prev === location ? null : location);
@@ -165,10 +182,6 @@ export function ArmorTab({
   const handleMaximize = useCallback(() => {
     maximizeArmor();
   }, [maximizeArmor]);
-  
-  const handleClear = useCallback(() => {
-    clearAllArmor();
-  }, [clearAllArmor]);
   
   return (
     <div className={`space-y-4 p-4 ${className}`}>
@@ -254,7 +267,7 @@ export function ArmorTab({
                 />
                 <button
                   onClick={() => handleArmorTonnageChange(armorTonnage + 0.5)}
-                  disabled={readOnly}
+                  disabled={readOnly || armorTonnage >= maxUsefulTonnage}
                   className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-sm"
                 >
                   +
@@ -266,39 +279,42 @@ export function ArmorTab({
             <div className="flex gap-2">
               <button
                 onClick={handleMaximize}
-                disabled={readOnly}
+                disabled={readOnly || armorTonnage >= maxUsefulTonnage}
                 className="flex-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white text-sm font-medium transition-colors"
               >
                 Maximize Tonnage
-              </button>
-              <button
-                onClick={handleClear}
-                disabled={readOnly}
-                className="px-3 py-1.5 bg-slate-600 hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white text-sm font-medium transition-colors"
-              >
-                Clear
               </button>
             </div>
             
             {/* Summary Stats */}
             <div className="pt-3 mt-1 border-t border-slate-700 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Available Points</span>
-                <span className="font-medium text-white">{availablePoints}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Allocated Points</span>
-                <span className="font-medium text-white">{allocatedPoints}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Unallocated Points</span>
+                <span className="text-slate-400">Unallocated Armor Points</span>
                 <span className={`font-medium ${unallocatedPoints < 0 ? 'text-red-400' : unallocatedPoints > 0 ? 'text-amber-400' : 'text-green-400'}`}>
                   {unallocatedPoints}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-600">
-                <span className="text-slate-400">Maximum Possible</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Allocated Armor Points</span>
+                <span className="font-medium text-white">{allocatedPoints}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Total Armor Points</span>
+                <span className="font-medium text-white">{availablePoints}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Maximum Possible Armor Points</span>
                 <span className="font-medium text-slate-300">{maxTotalArmor}</span>
+              </div>
+              {wastedPoints > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-400">Wasted Armor Points</span>
+                  <span className="font-medium text-amber-400">{wastedPoints}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-600">
+                <span className="text-slate-400">Points Per Ton</span>
+                <span className="font-medium text-slate-300">{pointsPerTon.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -310,7 +326,7 @@ export function ArmorTab({
           <ArmorDiagram
             armorData={armorData}
             selectedLocation={selectedLocation}
-            unallocatedPoints={unallocatedPoints}
+            unallocatedPoints={pointsDelta}
             onLocationClick={handleLocationClick}
             onAutoAllocate={handleAutoAllocate}
           />

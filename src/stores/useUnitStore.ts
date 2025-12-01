@@ -57,7 +57,7 @@ import {
   calculateArmorPoints,
   getMaxArmorForLocation,
   getMaxTotalArmor,
-  getRecommendedArmorDistribution,
+  calculateOptimalArmorAllocation,
 } from '@/utils/construction/armorCalculations';
 import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
@@ -347,57 +347,23 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         
         autoAllocateArmor: () => set((state) => {
           const availablePoints = calculateArmorPoints(state.armorTonnage, state.armorType);
-          const distribution = getRecommendedArmorDistribution();
           
-          // Get max armor for each location
-          const maxHead = getMaxArmorForLocation(state.tonnage, MechLocation.HEAD);
-          const maxCT = getMaxArmorForLocation(state.tonnage, MechLocation.CENTER_TORSO);
-          const maxLT = getMaxArmorForLocation(state.tonnage, MechLocation.LEFT_TORSO);
-          const maxRT = getMaxArmorForLocation(state.tonnage, MechLocation.RIGHT_TORSO);
-          const maxLA = getMaxArmorForLocation(state.tonnage, MechLocation.LEFT_ARM);
-          const maxRA = getMaxArmorForLocation(state.tonnage, MechLocation.RIGHT_ARM);
-          const maxLL = getMaxArmorForLocation(state.tonnage, MechLocation.LEFT_LEG);
-          const maxRL = getMaxArmorForLocation(state.tonnage, MechLocation.RIGHT_LEG);
-          
-          // Calculate initial allocations based on distribution percentages
-          let headArmor = Math.min(Math.floor(availablePoints * distribution.head), maxHead);
-          let ctFront = Math.floor(availablePoints * distribution.centerTorso);
-          let ctRear = Math.floor(availablePoints * distribution.centerTorsoRear);
-          let ltFront = Math.floor(availablePoints * distribution.leftTorso);
-          let ltRear = Math.floor(availablePoints * distribution.leftTorsoRear);
-          let rtFront = Math.floor(availablePoints * distribution.rightTorso);
-          let rtRear = Math.floor(availablePoints * distribution.rightTorsoRear);
-          let laArmor = Math.min(Math.floor(availablePoints * distribution.leftArm), maxLA);
-          let raArmor = Math.min(Math.floor(availablePoints * distribution.rightArm), maxRA);
-          let llArmor = Math.min(Math.floor(availablePoints * distribution.leftLeg), maxLL);
-          let rlArmor = Math.min(Math.floor(availablePoints * distribution.rightLeg), maxRL);
-          
-          // Enforce torso front+rear maximums
-          if (ctFront + ctRear > maxCT) {
-            const excess = ctFront + ctRear - maxCT;
-            ctRear = Math.max(0, ctRear - excess);
-          }
-          if (ltFront + ltRear > maxLT) {
-            const excess = ltFront + ltRear - maxLT;
-            ltRear = Math.max(0, ltRear - excess);
-          }
-          if (rtFront + rtRear > maxRT) {
-            const excess = rtFront + rtRear - maxRT;
-            rtRear = Math.max(0, rtRear - excess);
-          }
+          // Use the optimal allocation algorithm
+          // Priority: 1) Max head, 2) Weighted distribution, 3) Even remainder distribution
+          const allocation = calculateOptimalArmorAllocation(availablePoints, state.tonnage);
           
           const newAllocation: IArmorAllocation = {
-            [MechLocation.HEAD]: headArmor,
-            [MechLocation.CENTER_TORSO]: ctFront,
-            centerTorsoRear: ctRear,
-            [MechLocation.LEFT_TORSO]: ltFront,
-            leftTorsoRear: ltRear,
-            [MechLocation.RIGHT_TORSO]: rtFront,
-            rightTorsoRear: rtRear,
-            [MechLocation.LEFT_ARM]: laArmor,
-            [MechLocation.RIGHT_ARM]: raArmor,
-            [MechLocation.LEFT_LEG]: llArmor,
-            [MechLocation.RIGHT_LEG]: rlArmor,
+            [MechLocation.HEAD]: allocation.head,
+            [MechLocation.CENTER_TORSO]: allocation.centerTorsoFront,
+            centerTorsoRear: allocation.centerTorsoRear,
+            [MechLocation.LEFT_TORSO]: allocation.leftTorsoFront,
+            leftTorsoRear: allocation.leftTorsoRear,
+            [MechLocation.RIGHT_TORSO]: allocation.rightTorsoFront,
+            rightTorsoRear: allocation.rightTorsoRear,
+            [MechLocation.LEFT_ARM]: allocation.leftArm,
+            [MechLocation.RIGHT_ARM]: allocation.rightArm,
+            [MechLocation.LEFT_LEG]: allocation.leftLeg,
+            [MechLocation.RIGHT_LEG]: allocation.rightLeg,
           };
           
           return {
