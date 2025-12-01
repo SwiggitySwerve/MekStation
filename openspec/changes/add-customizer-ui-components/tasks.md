@@ -75,3 +75,12 @@
 - [x] 11.3 Add tooltips and accessibility labels
 - [x] 11.4 Performance optimization (memoization)
 
+## 12. Tech Base Validation & Selection Memory
+- [x] 12.1 Implement tech base filtering for component options
+- [x] 12.2 Create ComponentValidator registry pattern
+- [x] 12.3 Add auto-correction when tech base changes
+- [x] 12.4 Add selection memory interface (ISelectionMemory)
+- [x] 12.5 Implement save/restore selection from memory
+- [x] 12.6 Persist selection memory to localStorage
+- [x] 12.7 Test memory restoration across page refreshes
+

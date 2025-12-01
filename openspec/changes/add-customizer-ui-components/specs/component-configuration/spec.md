@@ -126,3 +126,33 @@ New units SHALL have sensible default component selections.
 - **WHEN** user creates a new unit with specified walk MP
 - **THEN** engine rating is calculated as tonnage × walkMP
 
+### Requirement: Selection Memory on Tech Base Switch
+The system SHALL remember component selections per tech base and restore them when switching back.
+
+#### Scenario: Save selection before tech base switch
+- **WHEN** user switches a component's tech base (e.g., engine from IS to Clan)
+- **THEN** current selection is saved to memory for the OLD tech base
+- **AND** memory is keyed by component type and tech base (e.g., `engine.IS`)
+
+#### Scenario: Restore selection from memory
+- **WHEN** user switches a component's tech base back to a previously used value
+- **AND** a selection exists in memory for that tech base
+- **AND** the remembered selection is still valid for that tech base
+- **THEN** the remembered selection is restored
+
+#### Scenario: Fall back to default if no memory
+- **WHEN** user switches a component's tech base
+- **AND** no selection exists in memory for the new tech base
+- **THEN** the system uses the default selection for that tech base
+
+#### Scenario: Memory persistence across sessions
+- **WHEN** user refreshes the page or reopens the application
+- **THEN** selection memory is restored from localStorage
+- **AND** previously remembered selections are available for restoration
+
+#### Scenario: Memory for global mode switch
+- **WHEN** user switches global tech base mode (e.g., IS to Clan)
+- **THEN** all component selections are saved to memory for the OLD mode
+- **AND** selections are restored from memory for the NEW mode (if available)
+- **AND** invalid selections fall back to defaults
+

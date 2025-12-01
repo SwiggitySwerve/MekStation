@@ -113,6 +113,7 @@ A complete interface SHALL define all unit configuration state.
   - `heatSinkType: HeatSinkType`
   - `heatSinkCount: number`
   - `armorType: ArmorTypeEnum`
+  - `selectionMemory: ISelectionMemory` - remembered selections per tech base
 
 #### Scenario: Unit metadata
 - **WHEN** unit state is defined
@@ -135,4 +136,27 @@ A registry SHALL manage all active unit store instances.
 #### Scenario: Store hydration
 - **WHEN** application loads with persisted tabs
 - **THEN** stores are lazily created from localStorage data as tabs are accessed
+
+### Requirement: Selection Memory Interface
+A typed interface SHALL define the structure for remembering selections per tech base.
+
+#### Scenario: Memory structure per component
+- **WHEN** selection memory is defined
+- **THEN** it includes entries for each component type:
+  - `engine: { IS?: EngineType; CLAN?: EngineType }`
+  - `gyro: { IS?: GyroType; CLAN?: GyroType }`
+  - `structure: { IS?: InternalStructureType; CLAN?: InternalStructureType }`
+  - `cockpit: { IS?: CockpitType; CLAN?: CockpitType }`
+  - `heatSink: { IS?: HeatSinkType; CLAN?: HeatSinkType }`
+  - `armor: { IS?: ArmorTypeEnum; CLAN?: ArmorTypeEnum }`
+
+#### Scenario: Memory initialization
+- **WHEN** a new unit is created
+- **THEN** selection memory is initialized as empty objects for each component
+- **AND** memory values are populated only when user switches tech bases
+
+#### Scenario: Memory persistence
+- **WHEN** selection memory is updated
+- **THEN** it is included in the persisted unit state via localStorage
+- **AND** memory is restored when the unit is loaded
 

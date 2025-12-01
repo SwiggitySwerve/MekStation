@@ -15,6 +15,9 @@ The BattleMech customizer requires a complete set of interactive UI components t
 - **equipment-tray**: Persistent sidebar for managing unit equipment
 - **multi-unit-tabs**: Browser-like tabs for editing multiple units
 - **unit-info-banner**: At-a-glance unit statistics display
+- **component-configuration**: Component selection persistence and tech base filtering
+- **unit-store-architecture**: Isolated Zustand stores with selection memory
+- **tech-base-integration**: Tech base validation, filtering, and auto-correction
 
 ### Dependencies on Existing Specs
 - armor-system (armor calculations)
