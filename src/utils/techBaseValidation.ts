@@ -299,10 +299,7 @@ export function getValidatedSelectionUpdates(
   return updates;
 }
 
-/**
- * Tech base key type for memory lookup
- */
-export type TechBaseKey = 'IS' | 'CLAN';
+// TechBase enum is used directly for memory keys - no separate type needed
 
 /**
  * Get a selection value, trying memory first then falling back to default.
@@ -337,17 +334,15 @@ function getValueWithMemory<T>(
  * Get selection updates for a component tech base change, using memory for restoration.
  * 
  * @param component - The component whose tech base is changing
- * @param newTechBase - The new tech base
+ * @param newTechBase - The new tech base to validate against and look up in memory
  * @param currentSelections - Current component selections
  * @param memory - Selection memory for restoration
- * @param techBaseKey - The memory key to look up ('IS' or 'CLAN')
  */
 export function getSelectionWithMemory(
   component: TechBaseComponent,
   newTechBase: TechBase,
   currentSelections: ComponentSelections,
-  memory: ISelectionMemory,
-  techBaseKey: TechBaseKey
+  memory: ISelectionMemory
 ): Partial<ComponentSelections> {
   const updates: Partial<ComponentSelections> = {};
   const affectedSelections = COMPONENT_AFFECTED_SELECTIONS[component];
@@ -359,7 +354,7 @@ export function getSelectionWithMemory(
   for (const selectionKey of affectedSelections) {
     switch (selectionKey) {
       case 'engineType': {
-        const memoryValue = memory.engine[techBaseKey];
+        const memoryValue = memory.engine[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.engine,
           currentSelections.engineType,
@@ -372,7 +367,7 @@ export function getSelectionWithMemory(
         break;
       }
       case 'gyroType': {
-        const memoryValue = memory.gyro[techBaseKey];
+        const memoryValue = memory.gyro[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.gyro,
           currentSelections.gyroType,
@@ -385,7 +380,7 @@ export function getSelectionWithMemory(
         break;
       }
       case 'internalStructureType': {
-        const memoryValue = memory.structure[techBaseKey];
+        const memoryValue = memory.structure[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.structure,
           currentSelections.internalStructureType,
@@ -398,7 +393,7 @@ export function getSelectionWithMemory(
         break;
       }
       case 'cockpitType': {
-        const memoryValue = memory.cockpit[techBaseKey];
+        const memoryValue = memory.cockpit[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.cockpit,
           currentSelections.cockpitType,
@@ -411,7 +406,7 @@ export function getSelectionWithMemory(
         break;
       }
       case 'heatSinkType': {
-        const memoryValue = memory.heatSink[techBaseKey];
+        const memoryValue = memory.heatSink[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.heatSink,
           currentSelections.heatSinkType,
@@ -424,7 +419,7 @@ export function getSelectionWithMemory(
         break;
       }
       case 'armorType': {
-        const memoryValue = memory.armor[techBaseKey];
+        const memoryValue = memory.armor[newTechBase];
         const newValue = getValueWithMemory(
           COMPONENT_VALIDATORS.armor,
           currentSelections.armorType,
@@ -449,54 +444,54 @@ export function getSelectionWithMemory(
  * @param componentTechBases - The new tech base configuration
  * @param currentSelections - Current component selections
  * @param memory - Optional selection memory for restoration
- * @param techBaseKey - Optional memory key to look up ('IS' or 'CLAN')
+ * @param memoryTechBase - Optional tech base to use for memory lookup
  */
 export function getFullyValidatedSelections(
   componentTechBases: IComponentTechBases,
   currentSelections: ComponentSelections,
   memory?: ISelectionMemory,
-  techBaseKey?: TechBaseKey
+  memoryTechBase?: TechBase
 ): ComponentSelections {
   const { engine, gyro, structure, cockpit, heatSink, armor } = COMPONENT_VALIDATORS;
   
   // If memory is provided, try to restore from it
-  if (memory && techBaseKey) {
+  if (memory && memoryTechBase) {
     return {
       engineType: getValueWithMemory(
         engine,
         currentSelections.engineType,
         componentTechBases.engine,
-        memory.engine[techBaseKey]
+        memory.engine[memoryTechBase]
       ),
       gyroType: getValueWithMemory(
         gyro,
         currentSelections.gyroType,
         componentTechBases.gyro,
-        memory.gyro[techBaseKey]
+        memory.gyro[memoryTechBase]
       ),
       internalStructureType: getValueWithMemory(
         structure,
         currentSelections.internalStructureType,
         componentTechBases.chassis,
-        memory.structure[techBaseKey]
+        memory.structure[memoryTechBase]
       ),
       cockpitType: getValueWithMemory(
         cockpit,
         currentSelections.cockpitType,
         componentTechBases.chassis,
-        memory.cockpit[techBaseKey]
+        memory.cockpit[memoryTechBase]
       ),
       heatSinkType: getValueWithMemory(
         heatSink,
         currentSelections.heatSinkType,
         componentTechBases.heatsink,
-        memory.heatSink[techBaseKey]
+        memory.heatSink[memoryTechBase]
       ),
       armorType: getValueWithMemory(
         armor,
         currentSelections.armorType,
         componentTechBases.armor,
-        memory.armor[techBaseKey]
+        memory.armor[memoryTechBase]
       ),
     };
   }

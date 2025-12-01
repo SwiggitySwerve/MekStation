@@ -28,13 +28,11 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 /**
  * Memory entry for a single component's selections per tech base
  * Stores the last selected value for each tech base
+ * Uses TechBase enum values as keys for type safety
  */
-export interface ITechBaseMemory<T> {
-  /** Last selection when using Inner Sphere tech base */
-  IS?: T;
-  /** Last selection when using Clan tech base */
-  CLAN?: T;
-}
+export type ITechBaseMemory<T> = {
+  [key in TechBase]?: T;
+};
 
 /**
  * Memory of component selections per tech base

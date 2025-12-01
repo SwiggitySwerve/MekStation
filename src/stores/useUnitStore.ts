@@ -99,9 +99,9 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             ? state.componentTechBases
             : createDefaultComponentTechBases(newTechBase);
           
-          // Determine old tech base key for saving to memory
-          const oldTechBaseKey = state.techBaseMode === 'clan' ? 'CLAN' : 'IS';
-          const newTechBaseKey = mode === 'clan' ? 'CLAN' : (mode === 'inner_sphere' ? 'IS' : null);
+          // Determine old tech base for saving to memory
+          const oldTechBase = state.techBaseMode === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+          const memoryTechBase = mode === 'mixed' ? undefined : newTechBase;
           
           const currentSelections: ComponentSelections = {
             engineType: state.engineType,
@@ -116,12 +116,12 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           let updatedMemory = { ...state.selectionMemory };
           if (state.techBaseMode !== 'mixed') {
             updatedMemory = {
-              engine: { ...updatedMemory.engine, [oldTechBaseKey]: state.engineType },
-              gyro: { ...updatedMemory.gyro, [oldTechBaseKey]: state.gyroType },
-              structure: { ...updatedMemory.structure, [oldTechBaseKey]: state.internalStructureType },
-              cockpit: { ...updatedMemory.cockpit, [oldTechBaseKey]: state.cockpitType },
-              heatSink: { ...updatedMemory.heatSink, [oldTechBaseKey]: state.heatSinkType },
-              armor: { ...updatedMemory.armor, [oldTechBaseKey]: state.armorType },
+              engine: { ...updatedMemory.engine, [oldTechBase]: state.engineType },
+              gyro: { ...updatedMemory.gyro, [oldTechBase]: state.gyroType },
+              structure: { ...updatedMemory.structure, [oldTechBase]: state.internalStructureType },
+              cockpit: { ...updatedMemory.cockpit, [oldTechBase]: state.cockpitType },
+              heatSink: { ...updatedMemory.heatSink, [oldTechBase]: state.heatSinkType },
+              armor: { ...updatedMemory.armor, [oldTechBase]: state.armorType },
             };
           }
           
@@ -130,8 +130,8 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           const validatedSelections = getFullyValidatedSelections(
             newComponentTechBases,
             currentSelections,
-            newTechBaseKey ? updatedMemory : undefined,
-            newTechBaseKey ?? undefined
+            memoryTechBase ? updatedMemory : undefined,
+            memoryTechBase
           );
           
           return {
@@ -146,8 +146,6 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         
         setComponentTechBase: (component, techBase) => set((state) => {
           const oldTechBase = state.componentTechBases[component];
-          const techBaseKey = oldTechBase === TechBase.CLAN ? 'CLAN' : 'IS';
-          const newTechBaseKey = techBase === TechBase.CLAN ? 'CLAN' : 'IS';
           
           const currentSelections: ComponentSelections = {
             engineType: state.engineType,
@@ -163,18 +161,18 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             ...state.selectionMemory,
           };
           
-          // Map component to memory key and save current value
+          // Map component to memory key and save current value using TechBase enum
           if (component === 'engine') {
-            updatedMemory.engine = { ...updatedMemory.engine, [techBaseKey]: state.engineType };
+            updatedMemory.engine = { ...updatedMemory.engine, [oldTechBase]: state.engineType };
           } else if (component === 'gyro') {
-            updatedMemory.gyro = { ...updatedMemory.gyro, [techBaseKey]: state.gyroType };
+            updatedMemory.gyro = { ...updatedMemory.gyro, [oldTechBase]: state.gyroType };
           } else if (component === 'chassis') {
-            updatedMemory.structure = { ...updatedMemory.structure, [techBaseKey]: state.internalStructureType };
-            updatedMemory.cockpit = { ...updatedMemory.cockpit, [techBaseKey]: state.cockpitType };
+            updatedMemory.structure = { ...updatedMemory.structure, [oldTechBase]: state.internalStructureType };
+            updatedMemory.cockpit = { ...updatedMemory.cockpit, [oldTechBase]: state.cockpitType };
           } else if (component === 'heatsink') {
-            updatedMemory.heatSink = { ...updatedMemory.heatSink, [techBaseKey]: state.heatSinkType };
+            updatedMemory.heatSink = { ...updatedMemory.heatSink, [oldTechBase]: state.heatSinkType };
           } else if (component === 'armor') {
-            updatedMemory.armor = { ...updatedMemory.armor, [techBaseKey]: state.armorType };
+            updatedMemory.armor = { ...updatedMemory.armor, [oldTechBase]: state.armorType };
           }
           
           // Get validated selection updates, using memory if available
@@ -182,8 +180,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             component as TechBaseComponent,
             techBase,
             currentSelections,
-            updatedMemory,
-            newTechBaseKey
+            updatedMemory
           );
           
           return {
