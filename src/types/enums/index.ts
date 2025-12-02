@@ -7,7 +7,6 @@
 
 export * from './TechBase';
 export * from './RulesLevel';
-export * from './TechLevel';
 export * from './Era';
 export * from './WeightClass';
 

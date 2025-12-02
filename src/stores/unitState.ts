@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   TechBaseMode,
@@ -147,14 +148,32 @@ export function createEmptySelectionMemory(): ISelectionMemory {
  */
 export interface UnitState {
   // =========================================================================
-  // Identity
+  // Identity (MegaMekLab format)
   // =========================================================================
   
   /** Unique unit identifier */
   readonly id: string;
   
-  /** Display name (user-editable) */
+  /** Display name (derived from chassis + model, kept for compatibility) */
   name: string;
+  
+  /** Base chassis name (e.g., "Atlas", "Timber Wolf") */
+  chassis: string;
+  
+  /** Clan name / alternate designation (optional, e.g., "Mad Cat" for Timber Wolf) */
+  clanName: string;
+  
+  /** Model/variant designation (e.g., "AS7-D", "Prime") */
+  model: string;
+  
+  /** Master Unit List ID (-1 for custom units) */
+  mulId: number;
+  
+  /** Introduction year */
+  year: number;
+  
+  /** Rules level for filtering available equipment */
+  rulesLevel: RulesLevel;
   
   /** Unit tonnage (editable) */
   tonnage: number;
@@ -243,8 +262,13 @@ export interface UnitState {
  * Actions available on a unit store
  */
 export interface UnitActions {
-  // Name
+  // Identity
   setName: (name: string) => void;
+  setChassis: (chassis: string) => void;
+  setClanName: (clanName: string) => void;
+  setModel: (model: string) => void;
+  setYear: (year: number) => void;
+  setRulesLevel: (rulesLevel: RulesLevel) => void;
   
   // Chassis
   setTonnage: (tonnage: number) => void;
@@ -316,10 +340,21 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
   const engineRating = options.tonnage * walkMP;
   const techBaseMode: TechBaseMode = options.techBase === TechBase.CLAN ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
   
+  // Parse name into chassis and model if possible
+  const nameParts = options.name.split(' ');
+  const defaultChassis = nameParts[0] || 'New Mech';
+  const defaultModel = nameParts.slice(1).join(' ') || '';
+  
   return {
-    // Identity
+    // Identity (MegaMekLab format)
     id,
     name: options.name,
+    chassis: defaultChassis,
+    clanName: '',
+    model: defaultModel,
+    mulId: -1, // -1 for custom units
+    year: 3145, // Default to Dark Age era
+    rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
     techBase: options.techBase,
     

@@ -91,11 +91,45 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         ...initialState,
         
         // =================================================================
-        // Name Actions
+        // Identity Actions
         // =================================================================
         
         setName: (name) => set({
           name,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        }),
+        
+        setChassis: (chassis) => set((state) => ({
+          chassis,
+          // Update derived name
+          name: `${chassis}${state.model ? ' ' + state.model : ''}`,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        })),
+        
+        setClanName: (clanName) => set({
+          clanName,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        }),
+        
+        setModel: (model) => set((state) => ({
+          model,
+          // Update derived name
+          name: `${state.chassis}${model ? ' ' + model : ''}`,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        })),
+        
+        setYear: (year) => set({
+          year,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        }),
+        
+        setRulesLevel: (rulesLevel) => set({
+          rulesLevel,
           isModified: true,
           lastModifiedAt: Date.now(),
         }),

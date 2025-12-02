@@ -9,13 +9,15 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { TabBar } from './TabBar';
 import { NewTabModal } from './NewTabModal';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
+import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { useTabManagerStore, UNIT_TEMPLATES, TabInfo } from '@/stores/useTabManagerStore';
+import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { customUnitService } from '@/services/units/CustomUnitService';
 import { TechBase } from '@/types/enums/TechBase';
@@ -74,6 +76,9 @@ export function MultiUnitTabs({
     variant: '',
     closeAfterSave: false,
   });
+  
+  // Load dialog state
+  const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
   
   // Use individual selectors for primitives and stable references
   // This avoids creating new objects on each render
@@ -244,10 +249,31 @@ export function MultiUnitTabs({
     }
   }, [saveDialog.tabId, saveDialog.closeAfterSave, renameTab, performCloseTab]);
   
-  // Navigate to unit library
-  const handleLoadFromLibrary = useCallback(() => {
-    router.push('/units');
-  }, [router]);
+  // Open load dialog
+  const openLoadDialog = useCallback(() => {
+    setIsLoadDialogOpen(true);
+  }, []);
+  
+  // Handle unit load from dialog
+  const handleLoadUnit = useCallback((unit: IUnitIndexEntry) => {
+    // Find matching template for tonnage or use defaults
+    const baseTemplate = UNIT_TEMPLATES.find(t => t.tonnage === unit.tonnage) || UNIT_TEMPLATES[1];
+    
+    // Create a template with the loaded unit's data
+    const template = {
+      ...baseTemplate,
+      name: `${unit.chassis} ${unit.variant}`,
+      tonnage: unit.tonnage,
+      techBase: unit.techBase,
+    };
+    const newTabId = createTab(template);
+    
+    // Navigate to the new unit
+    router.push(`/customizer/${newTabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
+    
+    // Close the dialog
+    setIsLoadDialogOpen(false);
+  }, [createTab, router]);
   
   // Create unit from template with URL navigation
   const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {
@@ -260,18 +286,39 @@ export function MultiUnitTabs({
   }, [createTab, router]);
   
   // Transform tabs to format expected by TabBar
-  // Check isModified from unit stores
+  // Read name and isModified directly from unit stores for live updates
   const tabBarTabs = useMemo(() => 
     tabs.map((tab) => {
       const unitStore = getUnitStore(tab.id);
+      const state = unitStore?.getState();
       return {
         id: tab.id,
-        name: tab.name,
-        isModified: unitStore?.getState().isModified ?? false,
+        // Use name from unit store for live updates when chassis/model changes
+        name: state?.name ?? tab.name,
+        isModified: state?.isModified ?? false,
       };
     }),
     [tabs]
   );
+  
+  // Keyboard shortcuts: Ctrl+N (new unit), Ctrl+O (load unit)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Ctrl (or Cmd on Mac) modifier
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'n' || e.key === 'N') {
+          e.preventDefault();
+          openNewTabModal();
+        } else if (e.key === 'o' || e.key === 'O') {
+          e.preventDefault();
+          openLoadDialog();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [openNewTabModal, openLoadDialog]);
   
   // Loading state - show while Zustand is hydrating
   if (isLoading) {
@@ -297,24 +344,26 @@ export function MultiUnitTabs({
           <h2 className="text-2xl font-bold text-white mb-2">No Units Open</h2>
           <p className="text-slate-400 mb-8">Create a new BattleMech from scratch or load an existing unit from the library.</p>
           
-          {/* Quick action buttons */}
+          {/* Quick action buttons - using same icons as toolbar */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={openNewTabModal}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg transition-colors"
             >
+              {/* Document icon - same as toolbar */}
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               New Unit
             </button>
             
             <button
-              onClick={handleLoadFromLibrary}
+              onClick={openLoadDialog}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
             >
+              {/* Folder icon - same as toolbar */}
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
               </svg>
               Load from Library
             </button>
@@ -325,6 +374,13 @@ export function MultiUnitTabs({
           isOpen={isNewTabModalOpen}
           onClose={closeNewTabModal}
           onCreateUnit={createNewUnit}
+        />
+        
+        {/* Load unit dialog - also available from empty state */}
+        <UnitLoadDialog
+          isOpen={isLoadDialogOpen}
+          onLoadUnit={handleLoadUnit}
+          onCancel={() => setIsLoadDialogOpen(false)}
         />
       </div>
     );
@@ -340,6 +396,7 @@ export function MultiUnitTabs({
         onCloseTab={closeTab}
         onRenameTab={renameTab}
         onNewTab={openNewTabModal}
+        onLoadUnit={openLoadDialog}
       />
       
       {/* Tab content */}
@@ -371,6 +428,13 @@ export function MultiUnitTabs({
         currentUnitId={saveDialog.tabId ?? undefined}
         onSave={handleSaveDialogSave}
         onCancel={handleSaveDialogCancel}
+      />
+      
+      {/* Load unit dialog */}
+      <UnitLoadDialog
+        isOpen={isLoadDialogOpen}
+        onLoadUnit={handleLoadUnit}
+        onCancel={() => setIsLoadDialogOpen(false)}
       />
     </div>
   );

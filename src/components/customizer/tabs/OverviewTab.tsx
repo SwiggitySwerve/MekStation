@@ -10,9 +10,11 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
 import { TechBaseConfiguration, IComponentValues } from '../shared/TechBaseConfiguration';
 import { TechBaseMode, TechBaseComponent, IComponentTechBases } from '@/types/construction/TechBaseConfiguration';
 import { useUnitStore } from '@/stores/useUnitStore';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { getGyroDefinition } from '@/types/construction/GyroType';
 import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
@@ -61,7 +63,13 @@ export function OverviewTab({
   className = '',
 }: OverviewTabProps) {
   // Get unit state from context (no tabId needed!)
-  const name = useUnitStore((s) => s.name);
+  const unitId = useUnitStore((s) => s.id);
+  const chassis = useUnitStore((s) => s.chassis);
+  const clanName = useUnitStore((s) => s.clanName);
+  const model = useUnitStore((s) => s.model);
+  const mulId = useUnitStore((s) => s.mulId);
+  const year = useUnitStore((s) => s.year);
+  const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
@@ -76,16 +84,52 @@ export function OverviewTab({
   const armorType = useUnitStore((s) => s.armorType);
   
   // Get actions from context
-  const setName = useUnitStore((s) => s.setName);
+  const setChassis = useUnitStore((s) => s.setChassis);
+  const setClanName = useUnitStore((s) => s.setClanName);
+  const setModel = useUnitStore((s) => s.setModel);
+  const setYear = useUnitStore((s) => s.setYear);
+  const setRulesLevel = useUnitStore((s) => s.setRulesLevel);
   const setTonnage = useUnitStore((s) => s.setTonnage);
   const setConfiguration = useUnitStore((s) => s.setConfiguration);
   const setTechBaseMode = useUnitStore((s) => s.setTechBaseMode);
   const setComponentTechBase = useUnitStore((s) => s.setComponentTechBase);
   
-  // Handlers - Basic info
-  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  }, [setName]);
+  // Get tab manager action
+  const renameTab = useTabManagerStore((s) => s.renameTab);
+  
+  // Helper to update tab name when chassis/model changes
+  const updateTabName = useCallback((newChassis: string, newModel: string) => {
+    const newName = `${newChassis}${newModel ? ' ' + newModel : ''}`;
+    renameTab(unitId, newName);
+  }, [unitId, renameTab]);
+  
+  // Handlers - Basic info (MegaMekLab format)
+  const handleChassisChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newChassis = e.target.value;
+    setChassis(newChassis);
+    updateTabName(newChassis, model);
+  }, [setChassis, model, updateTabName]);
+  
+  const handleClanNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setClanName(e.target.value);
+  }, [setClanName]);
+  
+  const handleModelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newModel = e.target.value;
+    setModel(newModel);
+    updateTabName(chassis, newModel);
+  }, [setModel, chassis, updateTabName]);
+  
+  const handleYearChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setYear(value);
+    }
+  }, [setYear]);
+  
+  const handleRulesLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRulesLevel(e.target.value as RulesLevel);
+  }, [setRulesLevel]);
   
   const handleTonnageChange = useCallback((newTonnage: number) => {
     const clamped = Math.max(TONNAGE_RANGE.min, Math.min(TONNAGE_RANGE.max, newTonnage));
@@ -130,24 +174,99 @@ export function OverviewTab({
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
-      {/* Basic Info Panel */}
+      {/* Basic Info Panel - MegaMekLab format */}
       <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Basic Info</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Basic Information</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Name */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Chassis */}
           <div className="space-y-1">
-            <label className="text-sm text-slate-400">Name</label>
+            <label className="text-sm text-slate-400">Chassis</label>
             <input
               type="text"
-              value={name}
-              onChange={handleNameChange}
+              value={chassis}
+              onChange={handleChassisChange}
               disabled={readOnly}
               className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-              placeholder="Unit name..."
+              placeholder="e.g., Atlas, Timber Wolf"
             />
           </div>
           
+          {/* Clan Name (optional) */}
+          <div className="space-y-1">
+            <label className="text-sm text-slate-400">Clan Name <span className="text-slate-500">(optional)</span></label>
+            <input
+              type="text"
+              value={clanName}
+              onChange={handleClanNameChange}
+              disabled={readOnly}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="e.g., Mad Cat for Timber Wolf"
+            />
+          </div>
+          
+          {/* Model */}
+          <div className="space-y-1">
+            <label className="text-sm text-slate-400">Model</label>
+            <input
+              type="text"
+              value={model}
+              onChange={handleModelChange}
+              disabled={readOnly}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="e.g., AS7-D, Prime"
+            />
+          </div>
+          
+          {/* MUL ID (-1 for custom units, read-only - references official Master Unit List) */}
+          <div className="space-y-1">
+            <label className="text-sm text-slate-400">MUL ID <span className="text-slate-500">(-1 = custom)</span></label>
+            <input
+              type="number"
+              value={mulId}
+              disabled
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-slate-400 text-sm cursor-not-allowed"
+            />
+          </div>
+          
+          {/* Year */}
+          <div className="space-y-1">
+            <label className="text-sm text-slate-400">Year</label>
+            <input
+              type="number"
+              value={year}
+              onChange={handleYearChange}
+              disabled={readOnly}
+              min={2000}
+              max={3200}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+          
+          {/* Tech Level (Rules Level) */}
+          <div className="space-y-1">
+            <label className="text-sm text-slate-400">Tech Level</label>
+            <select
+              value={rulesLevel}
+              onChange={handleRulesLevelChange}
+              disabled={readOnly}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >
+              {ALL_RULES_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      {/* Chassis Configuration Panel */}
+      <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
+        <h3 className="text-lg font-semibold text-white mb-4">Chassis</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Tonnage */}
           <div className="space-y-1">
             <label className="text-sm text-slate-400">Tonnage</label>
