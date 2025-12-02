@@ -370,14 +370,16 @@ export function CriticalSlotsTab({
     if (readOnly) return;
     const locData = getLocationData(location);
     const slot = locData.slots.find(s => s.index === slotIndex);
-    if (!slot || slot.type !== 'equipment' || !slot.equipmentId || !slot.isRemovable) return;
+    // Allow unassigning ALL equipment (isRemovable only controls deletion from unit)
+    if (!slot || slot.type !== 'equipment' || !slot.equipmentId) return;
     clearEquipmentLocation(slot.equipmentId);
   }, [readOnly, getLocationData, clearEquipmentLocation]);
   
   const handleReset = useCallback(() => {
     if (readOnly) return;
+    // Reset clears ALL equipment locations (isRemovable only controls deletion)
     for (const eq of equipment) {
-      if (eq.location !== undefined && eq.isRemovable) {
+      if (eq.location !== undefined) {
         clearEquipmentLocation(eq.instanceId);
       }
     }
