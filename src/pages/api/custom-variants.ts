@@ -1,28 +1,20 @@
 /**
- * Custom Variants API
+ * Custom Variants API (DEPRECATED)
  * 
- * Custom variants are stored in browser IndexedDB for privacy and offline support.
- * This endpoint provides information about the client-side storage system.
+ * @deprecated This endpoint is deprecated. Use /api/units/custom/* endpoints instead.
  * 
- * For actual CRUD operations, use the CustomUnitService directly in client code:
+ * The new API uses SQLite server-side storage for:
+ * - Electron desktop apps (single-user)
+ * - Self-hosted multi-user web apps
+ * - Version history with revert capability
  * 
- * ```typescript
- * import { customUnitService } from '@/services/units/CustomUnitService';
- * 
- * // List all custom variants
- * const variants = await customUnitService.list();
- * 
- * // Create new variant
- * const id = await customUnitService.create(unitData);
- * 
- * // Update variant
- * await customUnitService.update(id, updatedData);
- * 
- * // Delete variant
- * await customUnitService.delete(id);
- * ```
- * 
- * GET /api/custom-variants - Returns storage info and usage instructions
+ * New endpoints:
+ * - GET/POST /api/units/custom - List and create units
+ * - GET/PUT/DELETE /api/units/custom/[id] - Single unit operations
+ * - GET /api/units/custom/[id]/versions - Version history
+ * - POST /api/units/custom/[id]/revert/[version] - Revert to version
+ * - GET /api/units/custom/[id]/export - Export as JSON
+ * - POST /api/units/import - Import from JSON
  * 
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -30,46 +22,35 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 interface ApiResponse {
   success: boolean;
-  data?: {
-    storageType: string;
-    location: string;
-    service: string;
-    usage: {
-      list: string;
-      create: string;
-      update: string;
-      delete: string;
-      getById: string;
-    };
+  deprecated: boolean;
+  message: string;
+  newApi: {
+    baseUrl: string;
+    endpoints: Record<string, string>;
   };
-  message?: string;
-  error?: string;
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Custom variant operations should be performed client-side using CustomUnitService.',
-    });
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: 'Custom variants are stored in browser IndexedDB for privacy and offline support.',
-    data: {
-      storageType: 'IndexedDB',
-      location: 'Browser local storage',
-      service: '@/services/units/CustomUnitService',
-      usage: {
-        list: 'customUnitService.list()',
-        create: 'customUnitService.create(unit)',
-        update: 'customUnitService.update(id, unit)',
-        delete: 'customUnitService.delete(id)',
-        getById: 'customUnitService.getById(id)',
+  // Return deprecation notice for any method
+  return res.status(410).json({
+    success: false,
+    deprecated: true,
+    message: 'This endpoint is deprecated. Please use /api/units/custom/* endpoints instead.',
+    newApi: {
+      baseUrl: '/api/units/custom',
+      endpoints: {
+        list: 'GET /api/units/custom',
+        create: 'POST /api/units/custom',
+        get: 'GET /api/units/custom/[id]',
+        update: 'PUT /api/units/custom/[id]',
+        delete: 'DELETE /api/units/custom/[id]',
+        versions: 'GET /api/units/custom/[id]/versions',
+        revert: 'POST /api/units/custom/[id]/revert/[version]',
+        export: 'GET /api/units/custom/[id]/export',
+        import: 'POST /api/units/import',
       },
     },
   });

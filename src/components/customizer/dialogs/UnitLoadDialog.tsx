@@ -10,8 +10,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ModalOverlay } from './ModalOverlay';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { customUnitService } from '@/services/units/CustomUnitService';
-import { IUnitIndexEntry } from '@/services/common/types';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { IUnitIndexEntry, UnitType } from '@/services/common/types';
+import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
@@ -52,7 +53,7 @@ export function UnitLoadDialog({
   
   // Data state
   const [canonicalUnits, setCanonicalUnits] = useState<IUnitIndexEntry[]>([]);
-  const [customUnits, setCustomUnits] = useState<IUnitIndexEntry[]>([]);
+  const [customUnits, setCustomUnits] = useState<ICustomUnitIndexEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUnit, setSelectedUnit] = useState<UnitWithSource | null>(null);
   
@@ -66,7 +67,7 @@ export function UnitLoadDialog({
     
     Promise.all([
       canonicalUnitService.getIndex(),
-      customUnitService.list(),
+      customUnitApiService.list(),
     ]).then(([canonical, custom]) => {
       setCanonicalUnits([...canonical]);
       setCustomUnits([...custom]);
@@ -83,9 +84,18 @@ export function UnitLoadDialog({
     const allUnits: UnitWithSource[] = [
       ...(sourceFilter !== 'custom' ? canonicalUnits.map(u => ({ ...u, source: 'canonical' as const })) : []),
       ...(sourceFilter !== 'canonical' ? customUnits.map(u => ({ 
-        ...u, 
+        id: u.id,
+        chassis: u.chassis,
+        variant: u.variant,
+        tonnage: u.tonnage,
+        techBase: u.techBase,
+        era: u.era,
+        weightClass: u.weightClass,
+        unitType: u.unitType as UnitType, // Cast string to UnitType
+        name: `${u.chassis} ${u.variant}`,
+        filePath: '', // Custom units don't have file paths
         source: 'custom' as const,
-        currentVersion: (u as UnitWithSource).currentVersion,
+        currentVersion: u.currentVersion,
       })) : []),
     ];
     

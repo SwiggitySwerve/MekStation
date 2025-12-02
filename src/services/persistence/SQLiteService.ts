@@ -228,32 +228,24 @@ export class SQLiteService implements ISQLiteService {
 
     console.log(`Running migration ${migration.version}: ${migration.name}`);
 
-    // Run migration in a transaction
-    const runMigrationTransaction = this.db.transaction(() => {
-      // Execute migration SQL
-      this.db!.exec(migration.up);
+    // Execute migration SQL
+    this.db.exec(migration.up);
 
-      // Record migration (skip if it's the initial migration creating the table)
-      if (migration.version > 0) {
-        try {
-          this.db!.prepare(`
-            INSERT INTO migrations (version, name, applied_at)
-            VALUES (?, ?, ?)
-          `).run(migration.version, migration.name, new Date().toISOString());
-        } catch {
-          // Table might not exist yet for version 1
-        }
+    // Record migration after tables are created
+    try {
+      // Check if this migration is already recorded
+      const existing = this.db.prepare(`
+        SELECT 1 FROM migrations WHERE version = ?
+      `).get(migration.version);
+
+      if (!existing) {
+        this.db.prepare(`
+          INSERT INTO migrations (version, name, applied_at)
+          VALUES (?, ?, ?)
+        `).run(migration.version, migration.name, new Date().toISOString());
       }
-    });
-
-    runMigrationTransaction();
-
-    // Record version 1 after table is created
-    if (migration.version === 1) {
-      this.db.prepare(`
-        INSERT INTO migrations (version, name, applied_at)
-        VALUES (?, ?, ?)
-      `).run(migration.version, migration.name, new Date().toISOString());
+    } catch (err) {
+      console.warn(`Could not record migration ${migration.version}:`, err);
     }
 
     console.log(`Migration ${migration.version} complete`);

@@ -19,7 +19,7 @@ import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { useTabManagerStore, UNIT_TEMPLATES, TabInfo } from '@/stores/useTabManagerStore';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
-import { customUnitService } from '@/services/units/CustomUnitService';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { TechBase } from '@/types/enums/TechBase';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 
@@ -218,8 +218,21 @@ export function MultiUnitTabs({
         armorAllocation: state.armorAllocation,
       };
       
-      // Save the unit
-      await customUnitService.create(unitData, overwriteId);
+      // Save the unit using the API
+      let result;
+      if (overwriteId) {
+        // Update existing unit
+        result = await customUnitApiService.save(overwriteId, unitData as never);
+      } else {
+        // Create new unit
+        result = await customUnitApiService.create(unitData as never, chassis, variant);
+      }
+      
+      if (!result.success) {
+        console.error('Failed to save unit:', result.error);
+        // TODO: Show error toast/notification
+        return;
+      }
       
       // Mark as not modified
       state.markModified(false);

@@ -9,7 +9,7 @@
 import MiniSearch from 'minisearch';
 import { IUnitIndexEntry, ISearchOptions } from '../common/types';
 import { canonicalUnitService } from './CanonicalUnitService';
-import { customUnitService } from './CustomUnitService';
+import { customUnitApiService } from './CustomUnitApiService';
 
 /**
  * Unit search service interface
@@ -55,9 +55,22 @@ export class UnitSearchService implements IUnitSearchService {
       this.allUnits.set(unit.id, unit);
     }
 
-    // Load custom units
-    const customUnits = await customUnitService.list();
-    for (const unit of customUnits) {
+    // Load custom units from API
+    const customUnits = await customUnitApiService.list();
+    for (const customUnit of customUnits) {
+      // Transform custom unit to IUnitIndexEntry format
+      const unit: IUnitIndexEntry = {
+        id: customUnit.id,
+        name: `${customUnit.chassis} ${customUnit.variant}`,
+        chassis: customUnit.chassis,
+        variant: customUnit.variant,
+        tonnage: customUnit.tonnage,
+        techBase: customUnit.techBase,
+        era: customUnit.era,
+        weightClass: customUnit.weightClass,
+        unitType: customUnit.unitType as IUnitIndexEntry['unitType'],
+        filePath: '', // Custom units don't have file paths
+      };
       this.allUnits.set(unit.id, unit);
     }
 
