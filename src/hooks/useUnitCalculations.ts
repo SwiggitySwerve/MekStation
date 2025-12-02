@@ -15,7 +15,7 @@ import { getInternalStructureDefinition } from '@/types/construction/InternalStr
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
-import { calculateArmorWeight, getArmorCriticalSlots } from '@/utils/construction/armorCalculations';
+import { getArmorCriticalSlots } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 // =============================================================================
@@ -60,12 +60,12 @@ export interface UnitCalculations {
  * 
  * @param tonnage - Unit tonnage
  * @param selections - Current component selections
- * @param totalArmorPoints - Total armor points allocated
+ * @param armorTonnage - Armor tonnage set by user (weight is based on this, not allocated points)
  */
 export function useUnitCalculations(
   tonnage: number,
   selections: IComponentSelections,
-  totalArmorPoints: number = 0
+  armorTonnage: number = 0
 ): UnitCalculations {
   return useMemo(() => {
     // Get component definitions
@@ -99,8 +99,9 @@ export function useUnitCalculations(
       ? externalHeatSinks * heatSinkDef.weight
       : externalHeatSinks * 1.0;
     
-    // Armor weight
-    const armorWeight = calculateArmorWeight(totalArmorPoints, selections.armorType);
+    // Armor weight - use armorTonnage directly (not calculated from allocated points)
+    // The user sets armor tonnage in the Armor tab, and weight should reflect that setting
+    const armorWeight = armorTonnage;
     
     // Total structural weight (includes armor)
     const totalStructuralWeight = engineWeight + gyroWeight + structureWeight + cockpitWeight + heatSinkWeight + armorWeight;
@@ -179,6 +180,6 @@ export function useUnitCalculations(
       walkMP,
       runMP,
     };
-  }, [tonnage, selections, totalArmorPoints]);
+  }, [tonnage, selections, armorTonnage]);
 }
 

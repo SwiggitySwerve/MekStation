@@ -64,9 +64,10 @@ export function UnitEditorWithRouting({
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const armorType = useUnitStore((s) => s.armorType);
+  const armorTonnage = useUnitStore((s) => s.armorTonnage);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   
-  // Calculate armor stats first (needed for calculations hook)
+  // Calculate armor stats for display
   const allocatedArmorPoints = useMemo(
     () => getTotalAllocatedArmor(armorAllocation),
     [armorAllocation]
@@ -76,7 +77,7 @@ export function UnitEditorWithRouting({
     [tonnage]
   );
   
-  // Calculate unit stats (including armor weight)
+  // Calculate unit stats (weight is based on armorTonnage, not allocated points)
   const calculations = useUnitCalculations(
     tonnage,
     {
@@ -89,7 +90,7 @@ export function UnitEditorWithRouting({
       heatSinkCount,
       armorType,
     },
-    allocatedArmorPoints
+    armorTonnage
   );
   
   // Build stats object for UnitInfoBanner

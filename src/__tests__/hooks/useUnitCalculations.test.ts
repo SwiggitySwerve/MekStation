@@ -460,6 +460,101 @@ describe('useUnitCalculations', () => {
   });
   
   // ===========================================================================
+  // Armor Weight Calculations - Based on armorTonnage, NOT allocated points
+  // ===========================================================================
+  describe('Armor Weight Calculations', () => {
+    it('should use armorTonnage directly for armor weight', () => {
+      const armorTonnage = 10;
+      
+      const { result } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), armorTonnage)
+      );
+      
+      // Armor weight should equal the armorTonnage parameter directly
+      expect(result.current.armorWeight).toBe(armorTonnage);
+    });
+    
+    it('should return 0 armor weight when armorTonnage is 0', () => {
+      const { result } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), 0)
+      );
+      
+      expect(result.current.armorWeight).toBe(0);
+    });
+    
+    it('should use armorTonnage regardless of armor type', () => {
+      const armorTonnage = 8;
+      
+      // Standard armor
+      const { result: standardResult } = renderHook(() => 
+        useUnitCalculations(50, {
+          ...createISComponentSelections(50),
+          armorType: ArmorTypeEnum.STANDARD,
+        }, armorTonnage)
+      );
+      
+      // Ferro-Fibrous armor (different points per ton, but weight is still armorTonnage)
+      const { result: ferroResult } = renderHook(() => 
+        useUnitCalculations(50, {
+          ...createISComponentSelections(50),
+          armorType: ArmorTypeEnum.FERRO_FIBROUS_IS,
+        }, armorTonnage)
+      );
+      
+      // Both should have the same armor weight (armorTonnage)
+      expect(standardResult.current.armorWeight).toBe(armorTonnage);
+      expect(ferroResult.current.armorWeight).toBe(armorTonnage);
+      expect(standardResult.current.armorWeight).toBe(ferroResult.current.armorWeight);
+    });
+    
+    it('should handle fractional armor tonnage (0.5 ton increments)', () => {
+      const { result: halfTon } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), 5.5)
+      );
+      
+      const { result: wholeTon } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), 6)
+      );
+      
+      expect(halfTon.current.armorWeight).toBe(5.5);
+      expect(wholeTon.current.armorWeight).toBe(6);
+    });
+    
+    it('should include armor weight in total structural weight', () => {
+      const armorTonnage = 10;
+      
+      const { result } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), armorTonnage)
+      );
+      
+      const expectedTotal = 
+        result.current.engineWeight +
+        result.current.gyroWeight +
+        result.current.structureWeight +
+        result.current.cockpitWeight +
+        result.current.heatSinkWeight +
+        result.current.armorWeight;
+      
+      expect(result.current.totalStructuralWeight).toBe(expectedTotal);
+      // Also verify armor weight is included
+      expect(result.current.armorWeight).toBe(armorTonnage);
+    });
+    
+    it('should change total weight when armor tonnage changes', () => {
+      const { result: noArmor } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), 0)
+      );
+      
+      const { result: withArmor } = renderHook(() => 
+        useUnitCalculations(50, createISComponentSelections(50), 10)
+      );
+      
+      // Total weight should differ by exactly the armor tonnage difference
+      expect(withArmor.current.totalStructuralWeight - noArmor.current.totalStructuralWeight).toBe(10);
+    });
+  });
+  
+  // ===========================================================================
   // Movement Calculations
   // ===========================================================================
   describe('Movement Calculations', () => {
@@ -500,9 +595,11 @@ describe('useUnitCalculations', () => {
   // Total Weight Calculations
   // ===========================================================================
   describe('Total Weight Calculations', () => {
-    it('should calculate total structural weight', () => {
+    it('should calculate total structural weight (including armor)', () => {
+      const armorTonnage = 8;
+      
       const { result } = renderHook(() => 
-        useUnitCalculations(50, createISComponentSelections(50))
+        useUnitCalculations(50, createISComponentSelections(50), armorTonnage)
       );
       
       const expected = 
@@ -510,9 +607,12 @@ describe('useUnitCalculations', () => {
         result.current.gyroWeight +
         result.current.structureWeight +
         result.current.cockpitWeight +
-        result.current.heatSinkWeight;
+        result.current.heatSinkWeight +
+        result.current.armorWeight;
       
       expect(result.current.totalStructuralWeight).toBe(expected);
+      // Also verify armor weight is included correctly
+      expect(result.current.armorWeight).toBe(armorTonnage);
     });
     
     it('should show weight savings with Endo Steel vs Standard', () => {
