@@ -70,7 +70,10 @@ describe('VersionRepository', () => {
       variant: `Test-${Date.now()}`,
       data: { chassis: 'TestMech', tonnage: 50 },
     });
-    return result.id!;
+    if (!result.success || !result.id) {
+      throw new Error(`Failed to create test unit: ${result.error ?? 'Unknown error'}`);
+    }
+    return result.id;
   }
 
   // Helper to update a unit (creates new version)
