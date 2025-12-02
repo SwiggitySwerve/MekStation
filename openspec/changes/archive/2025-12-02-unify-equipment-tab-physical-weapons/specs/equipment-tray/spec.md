@@ -1,6 +1,6 @@
 # equipment-tray Spec Delta
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Global Loadout Tray
 The Equipment Loadout Tray SHALL render as an expandable sidebar on the RIGHT edge of the customizer, visible across ALL tabs.
@@ -99,8 +99,3 @@ The customizer SHALL display a persistent status bar showing capacity utilizatio
 - **AND** count includes Ferro-Fibrous slots (14 IS / 7 Clan)
 - **AND** count includes all mounted equipment slots
 
-## REMOVED Requirements
-
-### Requirement: Expandable Sidebar Layout
-**Reason**: Replaced with Global Loadout Tray that is available across all tabs, not just Equipment tab.
-**Migration**: Tray is now a global UI element at customizer level.

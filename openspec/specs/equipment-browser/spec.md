@@ -3,6 +3,21 @@
 ## Purpose
 Provides a searchable, filterable equipment catalog UI for adding equipment to BattleMech units.
 ## Requirements
+### Requirement: Equipment Categories
+The Equipment Browser SHALL include all equipment types from the equipment database, including physical/melee weapons.
+
+#### Scenario: Physical weapons in equipment list
+- **WHEN** equipment browser loads equipment data
+- **THEN** physical weapons (Hatchet, Sword, Claws, Mace, Lance, Talons, Retractable Blade, Flail, Wrecking Ball) are included
+- **AND** physical weapons are categorized as PHYSICAL_WEAPON
+- **AND** physical weapons appear when "Physical" category filter is active
+
+#### Scenario: Variable property display
+- **WHEN** physical weapon is displayed in equipment table
+- **THEN** weight shows as 0 (variable based on mech tonnage)
+- **AND** critical slots show as 0 (variable based on mech tonnage)
+- **AND** the equipment can be added to the unit loadout
+
 ### Requirement: Equipment Table Display
 The system SHALL display equipment in a sortable table format.
 

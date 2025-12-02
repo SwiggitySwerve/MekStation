@@ -222,6 +222,24 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
     });
   }
 
+  // Physical Weapons (melee weapons - for lookup/conversion)
+  for (const physicalWeapon of getAllPhysicalWeapons()) {
+    const id = physicalWeapon.type.toLowerCase().replace(/\s+/g, '-');
+    
+    items.push({
+      id,
+      name: physicalWeapon.name,
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+      techBase: physicalWeapon.techBase,
+      rulesLevel: physicalWeapon.rulesLevel,
+      weight: 0, // Variable: depends on mech tonnage
+      criticalSlots: 0, // Variable: depends on mech tonnage
+      costCBills: 0, // Variable
+      battleValue: 0, // Variable
+      introductionYear: physicalWeapon.introductionYear,
+    });
+  }
+
   return items;
 }
 
@@ -322,6 +340,26 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+    });
+  }
+
+  // Physical Weapons (melee weapons like Hatchet, Sword, Lance, etc.)
+  // Weight and slots are variable based on mech tonnage - set to 0 to indicate variable
+  for (const physicalWeapon of getAllPhysicalWeapons()) {
+    // Generate ID from weapon type (lowercase, hyphenated)
+    const id = physicalWeapon.type.toLowerCase().replace(/\s+/g, '-');
+    
+    items.push({
+      id,
+      name: physicalWeapon.name,
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+      techBase: physicalWeapon.techBase,
+      rulesLevel: physicalWeapon.rulesLevel,
+      weight: 0, // Variable: depends on mech tonnage
+      criticalSlots: 0, // Variable: depends on mech tonnage
+      costCBills: 0, // Variable: calculated based on weight
+      battleValue: 0, // Variable: calculated based on damage
+      introductionYear: physicalWeapon.introductionYear,
     });
   }
 
