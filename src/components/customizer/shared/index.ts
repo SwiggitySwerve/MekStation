@@ -15,4 +15,6 @@ export { StatCell } from './StatCell';
 export { TechBaseBadge } from './TechBaseBadge';
 export { TechBaseConfiguration, DEFAULT_COMPONENT_VALUES } from './TechBaseConfiguration';
 export type { IComponentValues } from './TechBaseConfiguration';
+export { GlobalStatusBar } from './GlobalStatusBar';
+export type { StatusBarStats } from './GlobalStatusBar';
 

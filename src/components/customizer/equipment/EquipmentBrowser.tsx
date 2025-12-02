@@ -1,14 +1,15 @@
 /**
  * Equipment Browser Component
  * 
- * Searchable, filterable equipment catalog.
+ * Searchable, filterable equipment catalog with toggle button filters.
  * 
  * @spec openspec/specs/equipment-browser/spec.md
+ * @spec openspec/changes/unify-equipment-tab/specs/equipment-browser/spec.md
  */
 
 import React from 'react';
 import { EquipmentRow } from './EquipmentRow';
-import { EquipmentFilters } from './EquipmentFilters';
+import { CategoryToggleBar, HideToggleBar } from './CategoryToggleBar';
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 import { SortColumn } from '@/stores/useEquipmentStore';
 import { IEquipmentItem } from '@/types/equipment';
@@ -22,7 +23,7 @@ interface EquipmentBrowserProps {
 }
 
 /**
- * Equipment browser with filtering and pagination
+ * Equipment browser with toggle button filtering and pagination
  */
 export function EquipmentBrowser({
   onAddEquipment,
@@ -36,13 +37,19 @@ export function EquipmentBrowser({
     totalPages,
     totalItems,
     search,
-    techBaseFilter,
-    categoryFilter,
+    activeCategories,
+    showAllCategories,
+    hidePrototype,
+    hideOneShot,
+    hideUnavailable,
     sortColumn,
     sortDirection,
     setSearch,
-    setTechBaseFilter,
-    setCategoryFilter,
+    toggleCategory,
+    showAll,
+    toggleHidePrototype,
+    toggleHideOneShot,
+    toggleHideUnavailable,
     clearFilters,
     setPage,
     setSort,
@@ -67,34 +74,74 @@ export function EquipmentBrowser({
   }
   
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 ${className}`}>
+    <div className={`bg-slate-800 rounded-lg border border-slate-700 flex flex-col ${className}`}>
       {/* Header */}
       <div className="px-4 py-3 border-b border-slate-700">
-        <h3 className="text-lg font-semibold text-white">Equipment Browser</h3>
+        <h3 className="text-lg font-semibold text-white">Equipment Database</h3>
       </div>
       
-      {/* Filters */}
-      <EquipmentFilters
-        search={search}
-        techBase={techBaseFilter}
-        category={categoryFilter}
-        onSearchChange={setSearch}
-        onTechBaseChange={setTechBaseFilter}
-        onCategoryChange={setCategoryFilter}
-        onClear={clearFilters}
-        className="border-b border-slate-700"
-      />
+      {/* Toggle Filters */}
+      <div className="px-4 py-2 space-y-2 border-b border-slate-700 bg-slate-800/50">
+        {/* Category toggles */}
+        <CategoryToggleBar
+          activeCategories={activeCategories}
+          onToggleCategory={toggleCategory}
+          onShowAll={showAll}
+          showAll={showAllCategories}
+        />
+        
+        {/* Hide toggles */}
+        <HideToggleBar
+          hidePrototype={hidePrototype}
+          hideOneShot={hideOneShot}
+          hideUnavailable={hideUnavailable}
+          onTogglePrototype={toggleHidePrototype}
+          onToggleOneShot={toggleHideOneShot}
+          onToggleUnavailable={toggleHideUnavailable}
+        />
+        
+        {/* Text filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-400">Filter:</span>
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search equipment..."
+              className="w-full px-3 py-1.5 text-sm bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {(search || !showAllCategories || hidePrototype || hideOneShot) && (
+            <button
+              onClick={clearFilters}
+              className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+      </div>
       
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-pulse text-slate-400">Loading equipment...</div>
           </div>
         ) : (
           <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs text-slate-400 uppercase">
+            <thead className="sticky top-0 bg-slate-800">
+              <tr className="text-left text-xs text-slate-400 uppercase border-b border-slate-700">
                 <SortableHeader
                   label="Name"
                   column="name"
@@ -102,20 +149,9 @@ export function EquipmentBrowser({
                   direction={sortDirection}
                   onSort={setSort}
                 />
-                <SortableHeader
-                  label="Category"
-                  column="category"
-                  currentColumn={sortColumn}
-                  direction={sortDirection}
-                  onSort={setSort}
-                />
-                <SortableHeader
-                  label="Tech"
-                  column="techBase"
-                  currentColumn={sortColumn}
-                  direction={sortDirection}
-                  onSort={setSort}
-                />
+                <th className="px-2 py-2">Dmg</th>
+                <th className="px-2 py-2">Heat</th>
+                <th className="px-2 py-2">Range</th>
                 <SortableHeader
                   label="Weight"
                   column="weight"
@@ -124,21 +160,19 @@ export function EquipmentBrowser({
                   onSort={setSort}
                 />
                 <SortableHeader
-                  label="Crits"
+                  label="Crit"
                   column="criticalSlots"
                   currentColumn={sortColumn}
                   direction={sortDirection}
                   onSort={setSort}
                 />
-                <th className="px-3 py-2">Damage</th>
-                <th className="px-3 py-2">Heat</th>
-                <th className="px-3 py-2 w-20">Action</th>
+                <th className="px-2 py-2 w-16">Action</th>
               </tr>
             </thead>
             <tbody>
               {paginatedEquipment.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-3 py-8 text-center text-slate-400">
                     No equipment found
                   </td>
                 </tr>
@@ -148,6 +182,7 @@ export function EquipmentBrowser({
                     key={equipment.id}
                     equipment={equipment}
                     onAdd={() => onAddEquipment(equipment)}
+                    compact
                   />
                 ))
               )}
@@ -157,9 +192,9 @@ export function EquipmentBrowser({
       </div>
       
       {/* Pagination */}
-      <div className="px-4 py-3 border-t border-slate-700 flex items-center justify-between">
-        <div className="text-sm text-slate-400">
-          Showing {paginatedEquipment.length} of {totalItems} items
+      <div className="px-4 py-2 border-t border-slate-700 flex items-center justify-between">
+        <div className="text-xs text-slate-400">
+          {paginatedEquipment.length} of {totalItems}
         </div>
         <PaginationButtons
           currentPage={currentPage}
@@ -193,14 +228,14 @@ function SortableHeader({
   
   return (
     <th
-      className="px-3 py-2 cursor-pointer hover:text-white transition-colors"
+      className="px-2 py-2 cursor-pointer hover:text-white transition-colors"
       onClick={() => onSort(column)}
     >
       <span className="flex items-center gap-1">
         {label}
         {isActive && (
-          <span className="text-amber-400">
-            {direction === 'asc' ? '↑' : '↓'}
+          <span className="text-amber-400 text-[10px]">
+            {direction === 'asc' ? '▲' : '▼'}
           </span>
         )}
       </span>
@@ -208,3 +243,4 @@ function SortableHeader({
   );
 }
 
+export default EquipmentBrowser;

@@ -33,6 +33,11 @@ export interface EquipmentBrowserState {
   readonly search: string;
   readonly techBaseFilter: TechBase | null;
   readonly categoryFilter: EquipmentCategory | null;
+  readonly activeCategories: Set<EquipmentCategory>;
+  readonly showAllCategories: boolean;
+  readonly hidePrototype: boolean;
+  readonly hideOneShot: boolean;
+  readonly hideUnavailable: boolean;
   
   // Sort
   readonly sortColumn: SortColumn;
@@ -42,6 +47,11 @@ export interface EquipmentBrowserState {
   readonly setSearch: (search: string) => void;
   readonly setTechBaseFilter: (techBase: TechBase | null) => void;
   readonly setCategoryFilter: (category: EquipmentCategory | null) => void;
+  readonly toggleCategory: (category: EquipmentCategory) => void;
+  readonly showAll: () => void;
+  readonly toggleHidePrototype: () => void;
+  readonly toggleHideOneShot: () => void;
+  readonly toggleHideUnavailable: () => void;
   readonly clearFilters: () => void;
   
   // Pagination actions
@@ -76,6 +86,11 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     setSearch,
     setTechBaseFilter,
     setCategoryFilter,
+    toggleCategory,
+    showAllCategories,
+    toggleHidePrototype,
+    toggleHideOneShot,
+    toggleHideUnavailable,
     clearFilters,
     setPage,
     setPageSize,
@@ -146,6 +161,11 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     search: filters.search,
     techBaseFilter: filters.techBase,
     categoryFilter: filters.category,
+    activeCategories: filters.activeCategories,
+    showAllCategories: filters.showAllCategories,
+    hidePrototype: filters.hidePrototype,
+    hideOneShot: filters.hideOneShot,
+    hideUnavailable: filters.hideUnavailable,
     
     // Sort
     sortColumn: sort.column,
@@ -155,6 +175,11 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     setSearch,
     setTechBaseFilter,
     setCategoryFilter,
+    toggleCategory,
+    showAll: showAllCategories,
+    toggleHidePrototype,
+    toggleHideOneShot,
+    toggleHideUnavailable,
     clearFilters,
     
     // Pagination actions

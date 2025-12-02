@@ -31,8 +31,18 @@ export interface EquipmentFilters {
   readonly search: string;
   /** Tech base filter (null = all) */
   readonly techBase: TechBase | null;
-  /** Category filter (null = all) */
+  /** Category filter (null = all) - legacy single category */
   readonly category: EquipmentCategory | null;
+  /** Active categories for toggle filter (empty = show all) */
+  readonly activeCategories: Set<EquipmentCategory>;
+  /** Show all categories (overrides activeCategories) */
+  readonly showAllCategories: boolean;
+  /** Hide prototype equipment */
+  readonly hidePrototype: boolean;
+  /** Hide one-shot equipment */
+  readonly hideOneShot: boolean;
+  /** Hide unavailable equipment */
+  readonly hideUnavailable: boolean;
   /** Maximum weight filter */
   readonly maxWeight: number | null;
   /** Maximum critical slots */
@@ -85,6 +95,11 @@ export interface EquipmentStoreState {
   setSearch: (search: string) => void;
   setTechBaseFilter: (techBase: TechBase | null) => void;
   setCategoryFilter: (category: EquipmentCategory | null) => void;
+  toggleCategory: (category: EquipmentCategory) => void;
+  showAllCategories: () => void;
+  toggleHidePrototype: () => void;
+  toggleHideOneShot: () => void;
+  toggleHideUnavailable: () => void;
   setMaxWeight: (weight: number | null) => void;
   setMaxCriticalSlots: (slots: number | null) => void;
   setMaxYear: (year: number | null) => void;
@@ -109,6 +124,11 @@ const DEFAULT_FILTERS: EquipmentFilters = {
   search: '',
   techBase: null,
   category: null,
+  activeCategories: new Set<EquipmentCategory>(),
+  showAllCategories: true,
+  hidePrototype: false,
+  hideOneShot: false,
+  hideUnavailable: true, // Default to hiding unavailable
   maxWeight: null,
   maxCriticalSlots: null,
   maxYear: null,
@@ -169,6 +189,47 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
     pagination: { ...state.pagination, currentPage: 1 },
   })),
   
+  toggleCategory: (category) => set((state) => {
+    const newCategories = new Set(state.filters.activeCategories);
+    if (newCategories.has(category)) {
+      newCategories.delete(category);
+    } else {
+      newCategories.add(category);
+    }
+    return {
+      filters: { 
+        ...state.filters, 
+        activeCategories: newCategories,
+        showAllCategories: false, // When toggling individual categories, disable show all
+      },
+      pagination: { ...state.pagination, currentPage: 1 },
+    };
+  }),
+  
+  showAllCategories: () => set((state) => ({
+    filters: { 
+      ...state.filters, 
+      activeCategories: new Set<EquipmentCategory>(),
+      showAllCategories: true,
+    },
+    pagination: { ...state.pagination, currentPage: 1 },
+  })),
+  
+  toggleHidePrototype: () => set((state) => ({
+    filters: { ...state.filters, hidePrototype: !state.filters.hidePrototype },
+    pagination: { ...state.pagination, currentPage: 1 },
+  })),
+  
+  toggleHideOneShot: () => set((state) => ({
+    filters: { ...state.filters, hideOneShot: !state.filters.hideOneShot },
+    pagination: { ...state.pagination, currentPage: 1 },
+  })),
+  
+  toggleHideUnavailable: () => set((state) => ({
+    filters: { ...state.filters, hideUnavailable: !state.filters.hideUnavailable },
+    pagination: { ...state.pagination, currentPage: 1 },
+  })),
+  
   setMaxWeight: (maxWeight) => set((state) => ({
     filters: { ...state.filters, maxWeight },
     pagination: { ...state.pagination, currentPage: 1 },
@@ -185,7 +246,10 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
   })),
   
   clearFilters: () => set({
-    filters: DEFAULT_FILTERS,
+    filters: {
+      ...DEFAULT_FILTERS,
+      activeCategories: new Set<EquipmentCategory>(),
+    },
     pagination: { ...get().pagination, currentPage: 1 },
   }),
   
@@ -229,9 +293,27 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
       filtered = filtered.filter(e => e.techBase === filters.techBase);
     }
     
-    // Category filter
+    // Category filter (legacy single category)
     if (filters.category) {
       filtered = filtered.filter(e => e.category === filters.category);
+    }
+    
+    // Toggle category filter (multi-select)
+    if (!filters.showAllCategories && filters.activeCategories.size > 0) {
+      filtered = filtered.filter(e => filters.activeCategories.has(e.category));
+    }
+    
+    // Hide prototype equipment (check for rulesLevel === 'Experimental' or name contains 'Prototype')
+    if (filters.hidePrototype) {
+      filtered = filtered.filter(e => 
+        e.rulesLevel !== 'Experimental' && 
+        !e.name.toLowerCase().includes('prototype')
+      );
+    }
+    
+    // Hide one-shot equipment
+    if (filters.hideOneShot) {
+      filtered = filtered.filter(e => !e.name.toLowerCase().includes('one-shot'));
     }
     
     // Weight filter

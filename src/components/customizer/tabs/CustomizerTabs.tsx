@@ -38,12 +38,14 @@ interface CustomizerTabsProps {
 
 /**
  * Default customizer tabs
+ * 
+ * @spec openspec/specs/customizer-tabs/spec.md
+ * Note: Weapons tab merged into Equipment tab per unify-equipment-tab change
  */
 export const DEFAULT_CUSTOMIZER_TABS: CustomizerTabConfig[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'structure', label: 'Structure' },
   { id: 'armor', label: 'Armor' },
-  { id: 'weapons', label: 'Weapons' },
   { id: 'equipment', label: 'Equipment' },
   { id: 'criticals', label: 'Critical Slots' },
   { id: 'fluff', label: 'Fluff' },
