@@ -7,7 +7,7 @@
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
-import React, { useState, memo } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { SlotContent } from './CriticalSlotsDisplay';
 import { 
   getSlotColors, 
@@ -17,6 +17,61 @@ import {
   classifyEquipment, 
   getEquipmentColors 
 } from '@/utils/colors/equipmentColors';
+
+// =============================================================================
+// Context Menu Component
+// =============================================================================
+
+interface SlotContextMenuProps {
+  x: number;
+  y: number;
+  slotName: string;
+  onUnassign: () => void;
+  onClose: () => void;
+}
+
+function SlotContextMenu({ x, y, slotName, onUnassign, onClose }: SlotContextMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+  
+  const adjustedX = Math.min(x, window.innerWidth - 180);
+  const adjustedY = Math.min(y, window.innerHeight - 100);
+  
+  return (
+    <div
+      ref={menuRef}
+      className="fixed z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-xl py-1 min-w-[140px]"
+      style={{ left: adjustedX, top: adjustedY }}
+    >
+      <div className="px-3 py-1 border-b border-slate-700 text-xs text-slate-400 truncate max-w-[200px]">
+        {slotName}
+      </div>
+      <button
+        onClick={() => { onUnassign(); onClose(); }}
+        className="w-full text-left px-3 py-1.5 text-sm text-amber-400 hover:bg-slate-700 transition-colors"
+      >
+        Unassign
+      </button>
+    </div>
+  );
+}
 
 interface SlotRowProps {
   /** Slot data */
@@ -72,8 +127,15 @@ export const SlotRow = memo(function SlotRow({
   onRemove,
 }: SlotRowProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   
   const contentClasses = getSlotContentClasses(slot);
+  
+  // Check if this slot has equipment that can be unassigned
+  // Equipment and system types can be unassigned (moved back to unallocated)
+  // Only truly fixed items (like cockpit, gyro) cannot be unassigned
+  const canUnassign = slot.type === 'equipment' || 
+    (slot.type === 'system' && slot.equipmentId); // System with equipment ID can be unassigned
   
   // Build dynamic classes
   let dynamicClasses = '';
@@ -108,9 +170,18 @@ export const SlotRow = memo(function SlotRow({
     }
   };
   
+  // Double-click to unassign any equipment
   const handleDoubleClick = () => {
-    if (slot.isRemovable) {
+    if (canUnassign) {
       onRemove();
+    }
+  };
+  
+  // Right-click to show context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (canUnassign) {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY });
     }
   };
   
@@ -126,37 +197,52 @@ export const SlotRow = memo(function SlotRow({
   }
   
   return (
-    <div
-      role="gridcell"
-      tabIndex={0}
-      aria-label={slot.name ? `Slot ${slot.index + 1}: ${slot.name}` : `Empty slot ${slot.index + 1}`}
-      aria-selected={isSelected}
-      className={`
-        flex items-center border-b border-slate-700 transition-all cursor-pointer
-        focus:outline-none focus:ring-1 focus:ring-amber-400 focus:ring-inset
-        ${contentClasses}
-        ${dynamicClasses}
-        ${compact ? 'px-2 py-0.5 text-xs' : 'px-2 py-1 text-sm'}
-        last:border-b-0
-      `}
-      onClick={onClick}
-      onDoubleClick={handleDoubleClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        } else if (e.key === 'Delete' || e.key === 'Backspace') {
-          if (slot.isRemovable) {
+    <>
+      <div
+        role="gridcell"
+        tabIndex={0}
+        aria-label={slot.name ? `Slot ${slot.index + 1}: ${slot.name}` : `Empty slot ${slot.index + 1}`}
+        aria-selected={isSelected}
+        className={`
+          flex items-center border-b border-slate-700 transition-all cursor-pointer
+          focus:outline-none focus:ring-1 focus:ring-amber-400 focus:ring-inset
+          ${contentClasses}
+          ${dynamicClasses}
+          ${compact ? 'px-2 py-0.5 text-xs' : 'px-2 py-1 text-sm'}
+          last:border-b-0
+        `}
+        onClick={onClick}
+        onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onRemove();
+            onClick();
+          } else if (e.key === 'Delete' || e.key === 'Backspace') {
+            if (canUnassign) {
+              e.preventDefault();
+              onRemove();
+            }
           }
-        }
-      }}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      <span className="truncate flex-1">{displayName}</span>
-    </div>
+        }}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        title={canUnassign ? 'Double-click or right-click to unassign' : undefined}
+      >
+        <span className="truncate flex-1">{displayName}</span>
+      </div>
+      
+      {/* Context Menu */}
+      {contextMenu && slot.name && (
+        <SlotContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          slotName={slot.name}
+          onUnassign={onRemove}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+    </>
   );
 });
