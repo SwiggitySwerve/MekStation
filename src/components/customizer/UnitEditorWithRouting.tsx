@@ -28,12 +28,15 @@ import { ArmorTab } from '@/components/customizer/tabs/ArmorTab';
 import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
-import { GlobalLoadoutTray, LoadoutEquipmentItem } from '@/components/customizer/equipment/GlobalLoadoutTray';
+import { GlobalLoadoutTray, LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
 import { GlobalStatusBar, StatusBarStats } from '@/components/customizer/shared/GlobalStatusBar';
 
 // Equipment
 import { EquipmentCategory } from '@/types/equipment';
 import { JUMP_JETS } from '@/types/equipment/MiscEquipmentTypes';
+
+// Types
+import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
 // Utils
 import { ValidationStatus } from '@/utils/colors/statusColors';
@@ -96,6 +99,8 @@ export function UnitEditorWithRouting({
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
   const removeEquipment = useUnitStore((s) => s.removeEquipment);
   const clearAllEquipment = useUnitStore((s) => s.clearAllEquipment);
+  const clearEquipmentLocation = useUnitStore((s) => s.clearEquipmentLocation);
+  const updateEquipmentLocation = useUnitStore((s) => s.updateEquipmentLocation);
   
   // Calculate equipment totals
   const equipmentCalcs = useEquipmentCalculations(equipment);
@@ -197,6 +202,101 @@ export function UnitEditorWithRouting({
     setSelectedEquipmentId(id);
   }, []);
   
+  // Handle unassign equipment (clear its slot location)
+  const handleUnassignEquipment = useCallback((instanceId: string) => {
+    clearEquipmentLocation(instanceId);
+  }, [clearEquipmentLocation]);
+  
+  // Calculate available locations for the selected equipment
+  const availableLocations: AvailableLocation[] = useMemo(() => {
+    if (!selectedEquipmentId) return [];
+    
+    const selectedItem = equipment.find(e => e.instanceId === selectedEquipmentId);
+    if (!selectedItem) return [];
+    
+    const slotsNeeded = selectedItem.criticalSlots;
+    const locations: AvailableLocation[] = [];
+    
+    // Location labels for display
+    const locationLabels: Record<MechLocation, string> = {
+      [MechLocation.HEAD]: 'Head',
+      [MechLocation.CENTER_TORSO]: 'Center Torso',
+      [MechLocation.LEFT_TORSO]: 'Left Torso',
+      [MechLocation.RIGHT_TORSO]: 'Right Torso',
+      [MechLocation.LEFT_ARM]: 'Left Arm',
+      [MechLocation.RIGHT_ARM]: 'Right Arm',
+      [MechLocation.LEFT_LEG]: 'Left Leg',
+      [MechLocation.RIGHT_LEG]: 'Right Leg',
+    };
+    
+    // Check each location
+    const allLocations = Object.values(MechLocation) as MechLocation[];
+    for (const loc of allLocations) {
+      const totalSlots = LOCATION_SLOT_COUNTS[loc] || 0;
+      
+      // Count equipment already in this location
+      const usedSlots = equipment
+        .filter(e => e.location === loc)
+        .reduce((sum, e) => sum + e.criticalSlots, 0);
+      
+      // Calculate available (this is simplified - doesn't account for fixed components)
+      // A more accurate calculation would check actual slot availability
+      const availableSlots = Math.max(0, totalSlots - usedSlots);
+      
+      locations.push({
+        location: loc,
+        label: locationLabels[loc],
+        availableSlots,
+        canFit: availableSlots >= slotsNeeded,
+      });
+    }
+    
+    return locations;
+  }, [selectedEquipmentId, equipment]);
+  
+  // Handle quick assign to a location
+  const handleQuickAssign = useCallback((instanceId: string, location: MechLocation) => {
+    const item = equipment.find(e => e.instanceId === instanceId);
+    if (!item) return;
+    
+    // Find first contiguous empty slot range in the location
+    const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
+    const slotsNeeded = item.criticalSlots;
+    
+    // Get slots already used in this location
+    const usedSlotIndices = new Set<number>();
+    for (const eq of equipment) {
+      if (eq.location === location && eq.slots) {
+        for (const slot of eq.slots) {
+          usedSlotIndices.add(slot);
+        }
+      }
+    }
+    
+    // Find first available contiguous range
+    for (let start = 0; start <= totalSlots - slotsNeeded; start++) {
+      let canFit = true;
+      for (let i = 0; i < slotsNeeded; i++) {
+        if (usedSlotIndices.has(start + i)) {
+          canFit = false;
+          break;
+        }
+      }
+      if (canFit) {
+        const slots: number[] = [];
+        for (let i = 0; i < slotsNeeded; i++) {
+          slots.push(start + i);
+        }
+        updateEquipmentLocation(instanceId, location, slots);
+        setSelectedEquipmentId(null);
+        return;
+      }
+    }
+    
+    // No contiguous slots found (shouldn't happen if canFit was true)
+    console.warn('No contiguous slots found for quick assign');
+  }, [equipment, updateEquipmentLocation]);
+  
   // Handle tab change - delegate to router
   const handleTabChange = (tabId: string) => {
     if (VALID_TAB_IDS.includes(tabId as CustomizerTabId)) {
@@ -249,6 +349,9 @@ export function UnitEditorWithRouting({
           onToggleExpand={handleToggleTray}
           selectedEquipmentId={selectedEquipmentId}
           onSelectEquipment={handleSelectEquipment}
+          onUnassignEquipment={handleUnassignEquipment}
+          onQuickAssign={handleQuickAssign}
+          availableLocations={availableLocations}
         />
       </div>
     </div>
