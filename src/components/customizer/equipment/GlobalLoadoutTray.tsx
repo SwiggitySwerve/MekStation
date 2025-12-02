@@ -1,13 +1,13 @@
 /**
  * Global Loadout Tray Component
  * 
- * Persistent sidebar on right edge showing unit's current equipment.
- * Available across all customizer tabs with categorized sections.
+ * Persistent sidebar showing unit's equipment in Allocated/Unallocated sections.
+ * Supports equipment selection for critical slot assignment workflow.
  * 
  * @spec openspec/changes/unify-equipment-tab/specs/equipment-tray/spec.md
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
 import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmentColors';
 
@@ -15,50 +15,33 @@ import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmen
 // Types
 // =============================================================================
 
-/**
- * Equipment item in the loadout tray
- */
 export interface LoadoutEquipmentItem {
-  /** Unique instance ID */
   instanceId: string;
-  /** Equipment name */
   name: string;
-  /** Equipment category */
   category: EquipmentCategory;
-  /** Weight in tons */
   weight: number;
-  /** Critical slots */
   criticalSlots: number;
-  /** Is allocated to critical slots */
   isAllocated: boolean;
-  /** Location if allocated */
   location?: string;
-  /** 
-   * Whether this equipment can be removed via the loadout tray.
-   * Configuration components are managed via their respective tabs.
-   */
   isRemovable: boolean;
 }
 
 interface GlobalLoadoutTrayProps {
-  /** Equipment items (user-added, excludes structural) */
   equipment: LoadoutEquipmentItem[];
-  /** Total equipment count for badge */
   equipmentCount: number;
-  /** Called when equipment is removed */
   onRemoveEquipment: (instanceId: string) => void;
-  /** Called when all equipment is removed */
   onRemoveAllEquipment: () => void;
-  /** Is tray expanded */
   isExpanded: boolean;
-  /** Toggle expand state */
   onToggleExpand: () => void;
-  /** Additional CSS classes */
+  /** Currently selected equipment for slot assignment */
+  selectedEquipmentId?: string | null;
+  /** Called when equipment is selected for slot assignment */
+  onSelectEquipment?: (instanceId: string | null) => void;
   className?: string;
 }
 
 // =============================================================================
-// Category Display Order & Labels
+// Category Configuration
 // =============================================================================
 
 const CATEGORY_ORDER: EquipmentCategory[] = [
@@ -75,149 +58,161 @@ const CATEGORY_ORDER: EquipmentCategory[] = [
 ];
 
 const CATEGORY_LABELS: Record<EquipmentCategory, string> = {
-  [EquipmentCategory.ENERGY_WEAPON]: 'Energy Weapons',
-  [EquipmentCategory.BALLISTIC_WEAPON]: 'Ballistic Weapons',
-  [EquipmentCategory.MISSILE_WEAPON]: 'Missile Weapons',
+  [EquipmentCategory.ENERGY_WEAPON]: 'Energy',
+  [EquipmentCategory.BALLISTIC_WEAPON]: 'Ballistic',
+  [EquipmentCategory.MISSILE_WEAPON]: 'Missile',
   [EquipmentCategory.ARTILLERY]: 'Artillery',
-  [EquipmentCategory.CAPITAL_WEAPON]: 'Capital Weapons',
-  [EquipmentCategory.AMMUNITION]: 'Ammunition',
+  [EquipmentCategory.CAPITAL_WEAPON]: 'Capital',
+  [EquipmentCategory.AMMUNITION]: 'Ammo',
   [EquipmentCategory.ELECTRONICS]: 'Electronics',
-  [EquipmentCategory.PHYSICAL_WEAPON]: 'Physical Weapons',
+  [EquipmentCategory.PHYSICAL_WEAPON]: 'Physical',
   [EquipmentCategory.MOVEMENT]: 'Movement',
   [EquipmentCategory.STRUCTURAL]: 'Structural',
-  [EquipmentCategory.MISC_EQUIPMENT]: 'Misc Equipment',
+  [EquipmentCategory.MISC_EQUIPMENT]: 'Misc',
 };
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
-function groupByCategory(
-  equipment: LoadoutEquipmentItem[]
-): Map<EquipmentCategory, LoadoutEquipmentItem[]> {
+function groupByCategory(equipment: LoadoutEquipmentItem[]): Map<EquipmentCategory, LoadoutEquipmentItem[]> {
   const groups = new Map<EquipmentCategory, LoadoutEquipmentItem[]>();
-  
   for (const item of equipment) {
     const existing = groups.get(item.category) || [];
     existing.push(item);
     groups.set(item.category, existing);
   }
-  
   return groups;
 }
 
 // =============================================================================
-// Sub-Components
+// Equipment Item Component
 // =============================================================================
 
-interface CategorySectionProps {
-  category: EquipmentCategory;
-  items: LoadoutEquipmentItem[];
-  isExpanded: boolean;
-  onToggle: () => void;
-  onRemove: (instanceId: string) => void;
-  selectedId?: string;
-  onSelect: (instanceId: string) => void;
+interface EquipmentItemProps {
+  item: LoadoutEquipmentItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
 }
 
-function CategorySection({
-  category,
-  items,
-  isExpanded,
-  onToggle,
-  onRemove,
-  selectedId,
-  onSelect,
-}: CategorySectionProps) {
-  const colorType = categoryToColorType(category);
+function EquipmentItem({ item, isSelected, onSelect, onRemove }: EquipmentItemProps) {
+  const colorType = categoryToColorType(item.category);
   const colors = getEquipmentColors(colorType);
-  const label = CATEGORY_LABELS[category] || category;
   
   return (
-    <div className="border-b border-slate-700/50 last:border-b-0">
-      {/* Category Header */}
+    <div
+      className={`
+        px-2 py-1 text-xs cursor-pointer transition-all group border-b border-slate-700/30
+        ${colors.bg}
+        ${isSelected
+          ? 'ring-2 ring-amber-400 ring-inset brightness-110'
+          : !item.isRemovable
+            ? 'opacity-60 saturate-50'
+            : 'hover:brightness-110'
+        }
+      `}
+      onClick={onSelect}
+      title={item.isRemovable ? 'Click to select for slot assignment' : 'Configuration component'}
+    >
+      <div className="flex items-center justify-between gap-1">
+        <span className="truncate flex-1 text-white font-medium drop-shadow-sm">
+          {item.name}
+        </span>
+        <div className="flex items-center gap-1">
+          {item.location && (
+            <span className="text-white/70 text-[10px]">{item.location}</span>
+          )}
+          {item.isRemovable ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="opacity-0 group-hover:opacity-100 text-white/80 hover:text-white transition-opacity"
+              title="Remove"
+            >
+              ✕
+            </button>
+          ) : (
+            <span className="text-white/50 text-[10px]" title="Fixed">🔒</span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 text-white/60 text-[10px] mt-0.5">
+        <span>{item.weight}t</span>
+        <span>{item.criticalSlots} crit{item.criticalSlots !== 1 ? 's' : ''}</span>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Allocation Section Component
+// =============================================================================
+
+interface AllocationSectionProps {
+  title: string;
+  count: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+  titleColor?: string;
+}
+
+function AllocationSection({ title, count, isExpanded, onToggle, children, titleColor = 'text-slate-300' }: AllocationSectionProps) {
+  return (
+    <div className="border-b border-slate-600">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-slate-700/50 transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2 hover:bg-slate-700/50 transition-colors bg-slate-700/30"
       >
+        <span className={`text-sm font-medium ${titleColor}`}>{title}</span>
         <span className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-sm ${colors.bg}`} />
-          <span className="text-xs font-medium text-slate-300">{label}</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs text-slate-500">({items.length})</span>
+          <span className="text-xs text-slate-400">({count})</span>
           <span className={`text-[10px] text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
             ▼
           </span>
         </span>
       </button>
-      
-      {/* Items */}
-      {isExpanded && (
-        <div className="pb-1 px-1">
-          {items.map((item) => {
-            const colorType = categoryToColorType(item.category);
-            const colors = getEquipmentColors(colorType);
-            const isSelected = selectedId === item.instanceId && item.isRemovable;
-            
-            return (
-              <div
-                key={item.instanceId}
-                className={`
-                  mx-1 mb-0.5 px-2 py-1 rounded text-xs cursor-pointer
-                  transition-all group
-                  ${colors.bg} ${colors.border} border
-                  ${isSelected
-                    ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-800 brightness-110'
-                    : !item.isRemovable
-                      ? 'opacity-50 saturate-50'
-                      : `${colors.hoverBg} hover:brightness-110`
-                  }
-                `}
-                onClick={() => item.isRemovable && onSelect(item.instanceId)}
-                title={item.isRemovable ? 'Click to select' : 'Configuration component - managed via Structure/Armor tabs'}
-              >
-                <div className="flex items-center justify-between gap-1">
-                  <span className="truncate flex-1 text-white font-medium drop-shadow-sm">
-                    {item.name}
-                  </span>
-                  {item.isRemovable ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove(item.instanceId);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-white/80 hover:text-white transition-opacity px-1"
-                      title="Remove"
-                    >
-                      ✕
-                    </button>
-                  ) : (
-                    <span 
-                      className="text-white/60 text-[10px] px-1"
-                      title="Managed via configuration tabs"
-                    >
-                      🔒
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-white/70 mt-0.5">
-                  <span>{item.weight}t</span>
-                  <span>{item.criticalSlots} slots</span>
-                  {item.location ? (
-                    <span className="text-white/90">@ {item.location}</span>
-                  ) : (
-                    <span className="text-amber-200 italic">Unallocated</span>
-                  )}
-                  {!item.isRemovable && (
-                    <span className="text-white/50 italic text-[10px]">Fixed</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {isExpanded && <div>{children}</div>}
+    </div>
+  );
+}
+
+// =============================================================================
+// Category Group Component (within allocation section)
+// =============================================================================
+
+interface CategoryGroupProps {
+  category: EquipmentCategory;
+  items: LoadoutEquipmentItem[];
+  selectedId?: string | null;
+  onSelect: (id: string | null) => void;
+  onRemove: (id: string) => void;
+}
+
+function CategoryGroup({ category, items, selectedId, onSelect, onRemove }: CategoryGroupProps) {
+  const colorType = categoryToColorType(category);
+  const colors = getEquipmentColors(colorType);
+  const label = CATEGORY_LABELS[category] || category;
+  
+  return (
+    <div>
+      <div className="px-3 py-1 bg-slate-800/50 flex items-center gap-2">
+        <span className={`w-2 h-2 rounded-sm ${colors.bg}`} />
+        <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">{label}</span>
+        <span className="text-[10px] text-slate-500">({items.length})</span>
+      </div>
+      {items.map(item => (
+        <EquipmentItem
+          key={item.instanceId}
+          item={item}
+          isSelected={selectedId === item.instanceId}
+          onSelect={() => onSelect(selectedId === item.instanceId ? null : item.instanceId)}
+          onRemove={() => onRemove(item.instanceId)}
+        />
+      ))}
     </div>
   );
 }
@@ -226,9 +221,6 @@ function CategorySection({
 // Main Component
 // =============================================================================
 
-/**
- * Global loadout tray - shows equipment across all tabs
- */
 export function GlobalLoadoutTray({
   equipment,
   equipmentCount,
@@ -236,60 +228,48 @@ export function GlobalLoadoutTray({
   onRemoveAllEquipment,
   isExpanded,
   onToggleExpand,
+  selectedEquipmentId,
+  onSelectEquipment,
   className = '',
 }: GlobalLoadoutTrayProps) {
-  // Track expanded categories
-  const [expandedCategories, setExpandedCategories] = useState<Set<EquipmentCategory>>(
-    new Set(CATEGORY_ORDER)
-  );
+  // Section expansion state
+  const [unallocatedExpanded, setUnallocatedExpanded] = useState(true);
+  const [allocatedExpanded, setAllocatedExpanded] = useState(true);
   
-  // Track selected item
-  const [selectedId, setSelectedId] = useState<string | undefined>();
-  
-  // Toggle category expansion
-  const toggleCategory = useCallback((category: EquipmentCategory) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
+  // Split equipment by allocation
+  const { unallocated, allocated } = useMemo(() => {
+    const unalloc: LoadoutEquipmentItem[] = [];
+    const alloc: LoadoutEquipmentItem[] = [];
+    for (const item of equipment) {
+      if (item.isAllocated) {
+        alloc.push(item);
       } else {
-        next.add(category);
+        unalloc.push(item);
       }
-      return next;
-    });
-  }, []);
-  
-  // Get only removable equipment
-  const removableEquipment = equipment.filter(item => item.isRemovable);
-  const removableCount = removableEquipment.length;
-  
-  // Check if selected item is removable
-  const selectedItem = selectedId ? equipment.find(e => e.instanceId === selectedId) : undefined;
-  const canRemoveSelected = selectedItem?.isRemovable ?? false;
-  
-  // Handle remove selected
-  const handleRemoveSelected = useCallback(() => {
-    if (selectedId && canRemoveSelected) {
-      onRemoveEquipment(selectedId);
-      setSelectedId(undefined);
     }
-  }, [selectedId, canRemoveSelected, onRemoveEquipment]);
+    return { unallocated: unalloc, allocated: alloc };
+  }, [equipment]);
   
-  // Handle remove all with confirmation (only removable items)
+  // Group by category
+  const unallocatedByCategory = useMemo(() => groupByCategory(unallocated), [unallocated]);
+  const allocatedByCategory = useMemo(() => groupByCategory(allocated), [allocated]);
+  
+  // Handle selection
+  const handleSelect = useCallback((id: string | null) => {
+    onSelectEquipment?.(id);
+  }, [onSelectEquipment]);
+  
+  // Handle remove all (only removable items)
+  const removableCount = equipment.filter(e => e.isRemovable).length;
   const handleRemoveAll = useCallback(() => {
     if (removableCount === 0) return;
-    
-    // Simple confirmation
     if (window.confirm(`Remove all ${removableCount} removable equipment items?`)) {
       onRemoveAllEquipment();
-      setSelectedId(undefined);
+      onSelectEquipment?.(null);
     }
-  }, [removableCount, onRemoveAllEquipment]);
+  }, [removableCount, onRemoveAllEquipment, onSelectEquipment]);
   
-  // Group equipment by category
-  const grouped = groupByCategory(equipment);
-  
-  // Collapsed state - just show toggle button
+  // Collapsed state
   if (!isExpanded) {
     return (
       <div className={`bg-slate-800 border-l border-slate-700 flex flex-col items-center py-2 ${className}`}
@@ -316,10 +296,9 @@ export function GlobalLoadoutTray({
   // Expanded state
   return (
     <div className={`bg-slate-800 border-l border-slate-700 flex flex-col ${className}`}
-         style={{ width: '280px' }}>
-      {/* Fixed Header - doesn't scroll */}
-      <div className="flex-shrink-0 border-b border-slate-700">
-        {/* Title row */}
+         style={{ width: '260px' }}>
+      {/* Header */}
+      <div className="flex-shrink-0 border-b border-slate-600">
         <div className="flex items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-white text-sm">Loadout</h3>
@@ -338,58 +317,97 @@ export function GlobalLoadoutTray({
           </button>
         </div>
         
-        {/* Action buttons */}
-        <div className="flex gap-2 px-3 pb-2">
-          <button
-            onClick={handleRemoveSelected}
-            disabled={!canRemoveSelected}
-            className="flex-1 px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-slate-300 transition-colors"
-            title={!selectedId ? 'Select an item to remove' : !canRemoveSelected ? 'Configuration items cannot be removed' : 'Remove selected item'}
-          >
-            Remove
-          </button>
-          <button
-            onClick={handleRemoveAll}
-            disabled={removableCount === 0}
-            className="flex-1 px-2 py-1 text-xs bg-red-900/50 hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed rounded text-red-300 transition-colors"
-            title={removableCount === 0 ? 'No removable equipment' : `Remove all ${removableCount} removable items`}
-          >
-            Remove All
-          </button>
-        </div>
+        {/* Quick actions */}
+        {removableCount > 0 && (
+          <div className="px-3 pb-2">
+            <button
+              onClick={handleRemoveAll}
+              className="w-full px-2 py-1 text-xs bg-red-900/40 hover:bg-red-900/60 rounded text-red-300 transition-colors"
+            >
+              Clear All ({removableCount})
+            </button>
+          </div>
+        )}
       </div>
       
-      {/* Scrollable Equipment List */}
+      {/* Equipment List */}
       <div className="flex-1 overflow-y-auto">
         {equipment.length === 0 ? (
           <div className="p-4 text-center text-slate-500 text-sm">
             <div className="text-2xl mb-2">⚙️</div>
-            <div>No equipment mounted</div>
-            <div className="text-xs mt-1">Add equipment from the Equipment tab</div>
+            <div>No equipment</div>
+            <div className="text-xs mt-1">Add from Equipment tab</div>
           </div>
         ) : (
-          CATEGORY_ORDER.map((category) => {
-            const items = grouped.get(category);
-            if (!items || items.length === 0) return null;
+          <>
+            {/* Unallocated Section */}
+            {unallocated.length > 0 && (
+              <AllocationSection
+                title="Unallocated"
+                count={unallocated.length}
+                isExpanded={unallocatedExpanded}
+                onToggle={() => setUnallocatedExpanded(!unallocatedExpanded)}
+                titleColor="text-amber-400"
+              >
+                {CATEGORY_ORDER.map(category => {
+                  const items = unallocatedByCategory.get(category);
+                  if (!items || items.length === 0) return null;
+                  return (
+                    <CategoryGroup
+                      key={category}
+                      category={category}
+                      items={items}
+                      selectedId={selectedEquipmentId}
+                      onSelect={handleSelect}
+                      onRemove={onRemoveEquipment}
+                    />
+                  );
+                })}
+              </AllocationSection>
+            )}
             
-            return (
-              <CategorySection
-                key={category}
-                category={category}
-                items={items}
-                isExpanded={expandedCategories.has(category)}
-                onToggle={() => toggleCategory(category)}
-                onRemove={onRemoveEquipment}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            );
-          })
+            {/* Allocated Section */}
+            {allocated.length > 0 && (
+              <AllocationSection
+                title="Allocated"
+                count={allocated.length}
+                isExpanded={allocatedExpanded}
+                onToggle={() => setAllocatedExpanded(!allocatedExpanded)}
+                titleColor="text-green-400"
+              >
+                {CATEGORY_ORDER.map(category => {
+                  const items = allocatedByCategory.get(category);
+                  if (!items || items.length === 0) return null;
+                  return (
+                    <CategoryGroup
+                      key={category}
+                      category={category}
+                      items={items}
+                      selectedId={selectedEquipmentId}
+                      onSelect={handleSelect}
+                      onRemove={onRemoveEquipment}
+                    />
+                  );
+                })}
+              </AllocationSection>
+            )}
+          </>
         )}
       </div>
+      
+      {/* Selection info footer */}
+      {selectedEquipmentId && (
+        <div className="flex-shrink-0 px-3 py-2 border-t border-slate-600 bg-slate-700/50">
+          <div className="text-xs text-slate-400">
+            Selected for placement
+          </div>
+          <div className="text-sm text-amber-400 font-medium truncate">
+            {equipment.find(e => e.instanceId === selectedEquipmentId)?.name}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default GlobalLoadoutTray;
-

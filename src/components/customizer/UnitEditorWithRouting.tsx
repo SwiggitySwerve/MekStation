@@ -74,6 +74,9 @@ export function UnitEditorWithRouting({
   // Loadout tray state
   const [isTrayExpanded, setIsTrayExpanded] = useState(true);
   
+  // Equipment selection state (for critical slot assignment)
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
+  
   // Access unit state from context
   const unitName = useUnitStore((s) => s.name);
   const tonnage = useUnitStore((s) => s.tonnage);
@@ -189,6 +192,11 @@ export function UnitEditorWithRouting({
     setIsTrayExpanded((prev) => !prev);
   }, []);
   
+  // Handle equipment selection for slot assignment
+  const handleSelectEquipment = useCallback((id: string | null) => {
+    setSelectedEquipmentId(id);
+  }, []);
+  
   // Handle tab change - delegate to router
   const handleTabChange = (tabId: string) => {
     if (VALID_TAB_IDS.includes(tabId as CustomizerTabId)) {
@@ -221,7 +229,12 @@ export function UnitEditorWithRouting({
             {activeTabId === 'armor' && <ArmorTab />}
             {activeTabId === 'weapons' && <PlaceholderTab name="Weapons" />}
             {activeTabId === 'equipment' && <EquipmentTab />}
-            {activeTabId === 'criticals' && <CriticalSlotsTab />}
+            {activeTabId === 'criticals' && (
+              <CriticalSlotsTab
+                selectedEquipmentId={selectedEquipmentId}
+                onSelectEquipment={handleSelectEquipment}
+              />
+            )}
             {activeTabId === 'fluff' && <PlaceholderTab name="Fluff" />}
           </div>
         </div>
@@ -234,6 +247,8 @@ export function UnitEditorWithRouting({
           onRemoveAllEquipment={handleRemoveAllEquipment}
           isExpanded={isTrayExpanded}
           onToggleExpand={handleToggleTray}
+          selectedEquipmentId={selectedEquipmentId}
+          onSelectEquipment={handleSelectEquipment}
         />
       </div>
     </div>

@@ -3,6 +3,7 @@
  * 
  * Displays the critical slots grid for assigning equipment to locations.
  * Layout matches MegaMekLab's diagram style with proper humanoid mech positioning.
+ * Equipment selection is managed via the global loadout tray.
  * 
  * @spec openspec/specs/critical-slots-display/spec.md
  * @spec openspec/specs/critical-slot-allocation/spec.md
@@ -14,7 +15,6 @@ import { useCustomizerStore } from '@/stores/useCustomizerStore';
 import { LocationData, SlotContent } from '../critical-slots';
 import { LocationGrid } from '../critical-slots/LocationGrid';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
-import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { SystemComponentType } from '@/utils/colors/slotColors';
 import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
@@ -27,6 +27,10 @@ import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 interface CriticalSlotsTabProps {
   /** Read-only mode */
   readOnly?: boolean;
+  /** Currently selected equipment ID (from loadout tray) */
+  selectedEquipmentId?: string | null;
+  /** Called when selection should change */
+  onSelectEquipment?: (id: string | null) => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -41,7 +45,6 @@ interface FixedComponent {
 // Constants
 // =============================================================================
 
-/** Arm actuators (fixed positions) */
 const ARM_ACTUATORS: FixedComponent[] = [
   { name: 'Shoulder', type: 'actuator', slots: 1 },
   { name: 'Upper Arm', type: 'actuator', slots: 1 },
@@ -49,7 +52,6 @@ const ARM_ACTUATORS: FixedComponent[] = [
   { name: 'Hand', type: 'actuator', slots: 1 },
 ];
 
-/** Leg actuators (fixed positions) */
 const LEG_ACTUATORS: FixedComponent[] = [
   { name: 'Hip', type: 'actuator', slots: 1 },
   { name: 'Upper Leg', type: 'actuator', slots: 1 },
@@ -113,20 +115,16 @@ function buildLocationSlots(
       
     case MechLocation.CENTER_TORSO:
       const engineSlots = getEngineSlots(engineType);
-      // First 3 engine slots
       for (let i = 0; i < Math.min(3, engineSlots); i++) {
         slots.push({ index: i, type: 'system', name: 'Engine' });
       }
-      // Gyro slots
       const gyroSlots = getGyroSlots(gyroType);
       for (let i = 0; i < gyroSlots; i++) {
         slots.push({ index: 3 + i, type: 'system', name: 'Standard Gyro' });
       }
-      // Remaining engine slots after gyro
       for (let i = 3; i < engineSlots; i++) {
         slots.push({ index: 3 + gyroSlots + (i - 3), type: 'system', name: 'Engine' });
       }
-      // Remaining slots for equipment
       const ctUsed = engineSlots + gyroSlots;
       for (let i = ctUsed; i < slotCount; i++) {
         if (filledSlots.has(i)) {
@@ -250,104 +248,27 @@ function CriticalSlotsToolbar({
   
   return (
     <div className="flex items-center gap-2 p-3 bg-slate-800 border-b border-slate-700">
-      {/* Auto toggles */}
-      <button 
-        onClick={onAutoFillToggle} 
-        disabled={readOnly}
-        className={toggleBtnClass(autoFillUnhittables)}
-      >
+      <button onClick={onAutoFillToggle} disabled={readOnly} className={toggleBtnClass(autoFillUnhittables)}>
         Auto Fill Unhittables
       </button>
-      <button 
-        onClick={onAutoCompactToggle} 
-        disabled={readOnly}
-        className={toggleBtnClass(autoCompact)}
-      >
+      <button onClick={onAutoCompactToggle} disabled={readOnly} className={toggleBtnClass(autoCompact)}>
         Auto Compact
       </button>
-      <button 
-        onClick={onAutoSortToggle} 
-        disabled={readOnly}
-        className={toggleBtnClass(autoSort)}
-      >
+      <button onClick={onAutoSortToggle} disabled={readOnly} className={toggleBtnClass(autoSort)}>
         Auto Sort
       </button>
       
       <div className="w-px h-6 bg-slate-600 mx-2" />
       
-      {/* Manual actions */}
-      <button onClick={onFill} disabled={readOnly} className={actionBtnClass}>
-        Fill
-      </button>
-      <button onClick={onCompact} disabled={readOnly} className={actionBtnClass}>
-        Compact
-      </button>
-      <button onClick={onSort} disabled={readOnly} className={actionBtnClass}>
-        Sort
-      </button>
+      <button onClick={onFill} disabled={readOnly} className={actionBtnClass}>Fill</button>
+      <button onClick={onCompact} disabled={readOnly} className={actionBtnClass}>Compact</button>
+      <button onClick={onSort} disabled={readOnly} className={actionBtnClass}>Sort</button>
       
       <div className="flex-1" />
       
-      <button 
-        onClick={onReset} 
-        disabled={readOnly}
-        className={`${actionBtnClass} bg-slate-700 hover:bg-red-600`}
-      >
+      <button onClick={onReset} disabled={readOnly} className={`${actionBtnClass} bg-slate-700 hover:bg-red-600`}>
         Reset
       </button>
-    </div>
-  );
-}
-
-// =============================================================================
-// Unallocated Equipment Table
-// =============================================================================
-
-interface UnallocatedTableProps {
-  equipment: readonly IMountedEquipmentInstance[];
-  selectedId: string | null;
-  onSelect: (instanceId: string) => void;
-}
-
-function UnallocatedEquipmentTable({ equipment, selectedId, onSelect }: UnallocatedTableProps) {
-  if (equipment.length === 0) {
-    return (
-      <div className="text-slate-500 text-sm text-center py-8">
-        All equipment assigned
-      </div>
-    );
-  }
-  
-  return (
-    <div className="overflow-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-700 sticky top-0">
-          <tr>
-            <th className="text-left px-3 py-2 text-slate-300 font-medium">Name</th>
-            <th className="text-right px-3 py-2 text-teal-400 font-medium w-16">Tons</th>
-            <th className="text-right px-3 py-2 text-slate-300 font-medium w-16">Crits</th>
-          </tr>
-        </thead>
-        <tbody>
-          {equipment.map(eq => (
-            <tr
-              key={eq.instanceId}
-              onClick={() => onSelect(eq.instanceId)}
-              className={`
-                cursor-pointer transition-colors border-b border-slate-700
-                ${selectedId === eq.instanceId 
-                  ? 'bg-amber-600/30' 
-                  : 'hover:bg-slate-700/50'
-                }
-              `}
-            >
-              <td className="px-3 py-1.5 text-slate-200">{eq.name}</td>
-              <td className="px-3 py-1.5 text-right text-teal-400">{eq.weight.toFixed(1)}</td>
-              <td className="px-3 py-1.5 text-right text-slate-300">{eq.criticalSlots}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
@@ -358,6 +279,8 @@ function UnallocatedEquipmentTable({ equipment, selectedId, onSelect }: Unalloca
 
 export function CriticalSlotsTab({
   readOnly = false,
+  selectedEquipmentId,
+  onSelectEquipment,
   className = '',
 }: CriticalSlotsTabProps) {
   // Unit state
@@ -371,15 +294,9 @@ export function CriticalSlotsTab({
   const autoModeSettings = useCustomizerStore((s) => s.autoModeSettings);
   const toggleAutoFillUnhittables = useCustomizerStore((s) => s.toggleAutoFillUnhittables);
   
-  // Local state
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
+  // Local state for auto-mode toggles
   const [autoCompact, setAutoCompact] = useState(false);
   const [autoSort, setAutoSort] = useState(false);
-  
-  // Get unallocated equipment
-  const unallocatedEquipment = useMemo(() => {
-    return equipment.filter(e => e.location === undefined);
-  }, [equipment]);
   
   // Get selected equipment item
   const selectedEquipment = useMemo(() => {
@@ -393,7 +310,7 @@ export function CriticalSlotsTab({
     slots: buildLocationSlots(location, engineType, gyroType, equipment),
   }), [equipment, engineType, gyroType]);
   
-  // Calculate assignable slots
+  // Calculate assignable slots for selected equipment
   const getAssignableSlots = useCallback((location: MechLocation): number[] => {
     if (!selectedEquipment || readOnly) return [];
     
@@ -434,8 +351,8 @@ export function CriticalSlotsTab({
     }
     
     updateEquipmentLocation(selectedEquipment.instanceId, location, slots);
-    setSelectedEquipmentId(null);
-  }, [readOnly, selectedEquipment, getAssignableSlots, updateEquipmentLocation]);
+    onSelectEquipment?.(null); // Clear selection after assignment
+  }, [readOnly, selectedEquipment, getAssignableSlots, updateEquipmentLocation, onSelectEquipment]);
   
   const handleEquipmentDrop = useCallback((location: MechLocation, slotIndex: number, equipmentId: string) => {
     if (readOnly) return;
@@ -497,74 +414,57 @@ export function CriticalSlotsTab({
         readOnly={readOnly}
       />
       
-      {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Mech diagram */}
-        <div className="flex-1 p-4 overflow-auto">
-          <div className="min-w-[800px]">
-            {/* Row 1: Left Torso | Head | Right Torso */}
-            <div className="grid grid-cols-5 gap-3 mb-3">
-              <div className="col-start-2">
-                {renderLocation(MechLocation.LEFT_TORSO)}
-              </div>
-              <div className="flex justify-center">
-                {renderLocation(MechLocation.HEAD)}
-              </div>
-              <div>
-                {renderLocation(MechLocation.RIGHT_TORSO)}
-              </div>
+      {/* Mech diagram - full width now */}
+      <div className="flex-1 p-4 overflow-auto">
+        <div className="min-w-[700px] max-w-[900px] mx-auto">
+          {/* Row 1: Left Torso | Head | Right Torso */}
+          <div className="grid grid-cols-5 gap-3 mb-3">
+            <div className="col-start-2">
+              {renderLocation(MechLocation.LEFT_TORSO)}
             </div>
-            
-            {/* Row 2: Left Arm | Center Torso | Right Arm */}
-            <div className="grid grid-cols-5 gap-3 mb-3">
-              <div>
-                {renderLocation(MechLocation.LEFT_ARM)}
-              </div>
-              <div className="col-span-3 flex justify-center">
-                {renderLocation(MechLocation.CENTER_TORSO)}
-              </div>
-              <div>
-                {renderLocation(MechLocation.RIGHT_ARM)}
-              </div>
+            <div className="flex justify-center">
+              {renderLocation(MechLocation.HEAD)}
             </div>
-            
-            {/* Row 3: Left Leg | Right Leg */}
-            <div className="grid grid-cols-5 gap-3">
-              <div className="col-start-2 flex justify-center">
-                {renderLocation(MechLocation.LEFT_LEG)}
-              </div>
-              <div />
-              <div className="flex justify-center">
-                {renderLocation(MechLocation.RIGHT_LEG)}
-              </div>
+            <div>
+              {renderLocation(MechLocation.RIGHT_TORSO)}
             </div>
           </div>
-        </div>
-        
-        {/* Unallocated Equipment Panel */}
-        <div className="w-80 flex-shrink-0 border-l border-slate-700 bg-slate-800 flex flex-col">
-          <div className="px-4 py-3 border-b border-slate-700 bg-slate-700">
-            <h3 className="font-medium text-white">Unallocated Equipment</h3>
-          </div>
-          <div className="flex-1 overflow-auto">
-            <UnallocatedEquipmentTable
-              equipment={unallocatedEquipment}
-              selectedId={selectedEquipmentId}
-              onSelect={setSelectedEquipmentId}
-            />
-          </div>
-          {selectedEquipment && (
-            <div className="px-4 py-3 border-t border-slate-700 bg-slate-700/50">
-              <div className="text-sm text-slate-300">
-                Selected: <span className="text-amber-400 font-medium">{selectedEquipment.name}</span>
-              </div>
-              <div className="text-xs text-slate-400 mt-1">
-                Click a highlighted slot to assign ({selectedEquipment.criticalSlots} slot{selectedEquipment.criticalSlots !== 1 ? 's' : ''})
-              </div>
+          
+          {/* Row 2: Left Arm | Center Torso | Right Arm */}
+          <div className="grid grid-cols-5 gap-3 mb-3">
+            <div>
+              {renderLocation(MechLocation.LEFT_ARM)}
             </div>
-          )}
+            <div className="col-span-3 flex justify-center">
+              {renderLocation(MechLocation.CENTER_TORSO)}
+            </div>
+            <div>
+              {renderLocation(MechLocation.RIGHT_ARM)}
+            </div>
+          </div>
+          
+          {/* Row 3: Left Leg | Right Leg */}
+          <div className="grid grid-cols-5 gap-3">
+            <div className="col-start-2 flex justify-center">
+              {renderLocation(MechLocation.LEFT_LEG)}
+            </div>
+            <div />
+            <div className="flex justify-center">
+              {renderLocation(MechLocation.RIGHT_LEG)}
+            </div>
+          </div>
         </div>
       </div>
+      
+      {/* Selection hint bar at bottom */}
+      {selectedEquipment && (
+        <div className="flex-shrink-0 px-4 py-2 bg-slate-800 border-t border-slate-700 text-center">
+          <span className="text-sm text-slate-300">
+            Select a slot for: <span className="text-amber-400 font-medium">{selectedEquipment.name}</span>
+            <span className="text-slate-500 ml-2">({selectedEquipment.criticalSlots} slot{selectedEquipment.criticalSlots !== 1 ? 's' : ''})</span>
+          </span>
+        </div>
+      )}
     </div>
   );
 }
