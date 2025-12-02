@@ -129,27 +129,31 @@ export const SlotRow = memo(function SlotRow({
   const [isDragOver, setIsDragOver] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   
-  const contentClasses = getSlotContentClasses(slot);
-  
   // Check if this slot has equipment that can be unassigned
   // Equipment and system types can be unassigned (moved back to unallocated)
   // Only truly fixed items (like cockpit, gyro) cannot be unassigned
   const canUnassign = slot.type === 'equipment' || 
     (slot.type === 'system' && slot.equipmentId); // System with equipment ID can be unassigned
   
-  // Build dynamic classes
-  let dynamicClasses = '';
-  if (isAssignable && slot.type === 'empty') {
-    dynamicClasses = 'bg-green-900/60 border-green-500 text-green-300';
-  }
-  if (isDragOver) {
-    dynamicClasses = slot.type === 'empty' 
-      ? 'bg-green-800 border-green-400 scale-[1.02]'
-      : 'bg-red-900/70 border-red-400';
-  }
-  if (isSelected) {
-    dynamicClasses += ' ring-2 ring-amber-400';
-  }
+  // Determine styling classes - assignable/drag states override content classes
+  // This is needed because Tailwind classes don't override by className order
+  const getStyleClasses = (): string => {
+    // Drag over state has highest priority
+    if (isDragOver) {
+      return slot.type === 'empty' 
+        ? 'bg-green-800 border-green-400 text-green-200 scale-[1.02]'
+        : 'bg-red-900/70 border-red-400 text-red-200';
+    }
+    // Assignable empty slots show green highlight
+    if (isAssignable && slot.type === 'empty') {
+      return 'bg-green-900/60 border-green-500 text-green-300';
+    }
+    // Default content classes
+    return getSlotContentClasses(slot);
+  };
+  
+  const styleClasses = getStyleClasses();
+  const selectionClasses = isSelected ? 'ring-2 ring-amber-400' : '';
   
   // Handle drag events
   const handleDragOver = (e: React.DragEvent) => {
@@ -206,8 +210,8 @@ export const SlotRow = memo(function SlotRow({
         className={`
           flex items-center border-b border-slate-700 transition-all cursor-pointer
           focus:outline-none focus:ring-1 focus:ring-amber-400 focus:ring-inset
-          ${contentClasses}
-          ${dynamicClasses}
+          ${styleClasses}
+          ${selectionClasses}
           ${compact ? 'px-2 py-0.5 text-xs' : 'px-2 py-1 text-sm'}
           last:border-b-0
         `}

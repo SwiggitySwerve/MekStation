@@ -313,7 +313,9 @@ export function CriticalSlotsTab({
   
   // Calculate assignable slots for selected equipment
   const getAssignableSlots = useCallback((location: MechLocation): number[] => {
-    if (!selectedEquipment || readOnly) return [];
+    if (!selectedEquipment || readOnly) {
+      return [];
+    }
     
     // Check location restrictions (e.g., jump jets can only go in torsos/legs)
     if (!isValidLocationForEquipment(selectedEquipment.equipmentId, location)) {
@@ -328,6 +330,7 @@ export function CriticalSlotsTab({
     const slotsNeeded = selectedEquipment.criticalSlots;
     const assignable: number[] = [];
     
+    // Find all valid starting positions for contiguous slots
     for (let i = 0; i <= emptySlots.length - slotsNeeded; i++) {
       let contiguous = true;
       for (let j = 1; j < slotsNeeded; j++) {
