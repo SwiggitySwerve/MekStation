@@ -19,6 +19,7 @@ import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { SystemComponentType } from '@/utils/colors/slotColors';
 import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { isValidLocationForEquipment } from '@/types/equipment/EquipmentPlacement';
 
 // =============================================================================
 // Types
@@ -313,6 +314,11 @@ export function CriticalSlotsTab({
   // Calculate assignable slots for selected equipment
   const getAssignableSlots = useCallback((location: MechLocation): number[] => {
     if (!selectedEquipment || readOnly) return [];
+    
+    // Check location restrictions (e.g., jump jets can only go in torsos/legs)
+    if (!isValidLocationForEquipment(selectedEquipment.equipmentId, location)) {
+      return [];
+    }
     
     const locData = getLocationData(location);
     const emptySlots = locData.slots
