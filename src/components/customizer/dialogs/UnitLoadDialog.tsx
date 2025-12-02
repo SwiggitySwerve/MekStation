@@ -15,6 +15,7 @@ import { IUnitIndexEntry, UnitType } from '@/services/common/types';
 import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Types
@@ -155,12 +156,9 @@ export function UnitLoadDialog({
       className="w-full max-w-3xl mx-4 max-h-[80vh] flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <h3 className="text-lg font-medium text-white">Load Unit from Library</h3>
-        <button
-          onClick={onCancel}
-          className="p-1 text-slate-400 hover:text-white transition-colors"
-        >
+      <div className={cs.dialog.header}>
+        <h3 className={cs.dialog.headerTitle}>Load Unit from Library</h3>
+        <button onClick={onCancel} className={cs.dialog.closeBtn}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -179,39 +177,36 @@ export function UnitLoadDialog({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by chassis or variant..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cs.dialog.inputSearch}
           />
         </div>
         
         {/* Filters */}
         <div className="flex gap-3 flex-wrap">
-          {/* Source filter */}
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value as UnitSource)}
-            className="px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cs.dialog.selectFilter}
           >
             <option value="all">All Sources</option>
             <option value="custom">Custom Only</option>
             <option value="canonical">Official Only</option>
           </select>
           
-          {/* Tech base filter */}
           <select
             value={techBaseFilter}
             onChange={(e) => setTechBaseFilter(e.target.value as TechBase | 'all')}
-            className="px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cs.dialog.selectFilter}
           >
             <option value="all">All Tech Bases</option>
             <option value={TechBase.INNER_SPHERE}>Inner Sphere</option>
             <option value={TechBase.CLAN}>Clan</option>
           </select>
           
-          {/* Weight class filter */}
           <select
             value={weightClassFilter}
             onChange={(e) => setWeightClassFilter(e.target.value as WeightClass | 'all')}
-            className="px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cs.dialog.selectFilter}
           >
             <option value="all">All Weight Classes</option>
             <option value={WeightClass.LIGHT}>Light (20-35t)</option>
@@ -225,7 +220,7 @@ export function UnitLoadDialog({
       {/* Unit table */}
       <div className="flex-1 overflow-auto min-h-0">
         {isLoading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">
+          <div className={cs.dialog.loading}>
             <svg className="w-6 h-6 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -233,9 +228,9 @@ export function UnitLoadDialog({
             Loading units...
           </div>
         ) : filteredUnits.length === 0 ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">
+          <div className={cs.dialog.empty}>
             <div className="text-center">
-              <svg className="w-12 h-12 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={cs.dialog.emptyIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p>No units found</p>
@@ -243,9 +238,8 @@ export function UnitLoadDialog({
             </div>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            {/* Table header */}
-            <thead className="sticky top-0 bg-slate-800 border-b border-slate-600 text-slate-400 text-left">
+          <table className={cs.dialog.table}>
+            <thead className={cs.dialog.tableHeader}>
               <tr>
                 <th className="px-3 py-2 font-medium">Chassis</th>
                 <th className="px-3 py-2 font-medium">Model</th>
@@ -256,16 +250,14 @@ export function UnitLoadDialog({
                 <th className="w-8"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/50">
+            <tbody className={cs.dialog.tableBody}>
               {filteredUnits.map((unit) => (
                 <tr
                   key={unit.id}
                   onClick={() => setSelectedUnit(unit)}
                   onDoubleClick={() => handleDoubleClick(unit)}
-                  className={`cursor-pointer transition-colors ${
-                    selectedUnit?.id === unit.id
-                      ? 'bg-blue-600/20'
-                      : 'hover:bg-slate-700/30'
+                  className={`${cs.dialog.tableRow} ${
+                    selectedUnit?.id === unit.id ? cs.dialog.tableRowSelected : ''
                   }`}
                 >
                   <td className="px-3 py-1.5 text-white">{unit.chassis}</td>
@@ -284,8 +276,8 @@ export function UnitLoadDialog({
                     {unit.year ?? '-'}
                   </td>
                   <td className="px-3 py-1.5 text-slate-400">
-                    {(unit.techBase === TechBase.INNER_SPHERE || unit.techBase === 'INNER_SPHERE') ? 'IS' 
-                      : (unit.techBase === TechBase.CLAN || unit.techBase === 'CLAN') ? 'Clan' 
+                    {unit.techBase === TechBase.INNER_SPHERE ? 'IS' 
+                      : unit.techBase === TechBase.CLAN ? 'Clan' 
                       : 'Mix'}
                   </td>
                   <td className="px-3 py-1.5">
@@ -310,25 +302,18 @@ export function UnitLoadDialog({
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-800/50">
+      <div className={cs.dialog.footerBetween}>
         <span className="text-sm text-slate-400">
           {filteredUnits.length} unit{filteredUnits.length !== 1 ? 's' : ''} found
         </span>
         <div className="flex items-center gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-          >
+          <button onClick={onCancel} className={cs.dialog.btnGhost}>
             Cancel
           </button>
           <button
             onClick={handleLoad}
             disabled={!selectedUnit}
-            className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
-              selectedUnit
-                ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                : 'bg-slate-600 text-slate-400 cursor-not-allowed'
-            }`}
+            className={cs.dialog.btnPrimary}
           >
             Load Unit
           </button>

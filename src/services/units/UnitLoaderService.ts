@@ -619,7 +619,7 @@ export class UnitLoaderService {
       chassis: serialized.chassis,
       clanName: '',
       model,
-      mulId: serialized.mulId ?? -1,
+      mulId: String(serialized.mulId ?? -1),
       year: serialized.year ?? 3025,
       rulesLevel,
       tonnage: serialized.tonnage,

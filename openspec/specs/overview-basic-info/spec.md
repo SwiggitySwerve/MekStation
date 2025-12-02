@@ -1,63 +1,8 @@
-# overview-basic-info Specification Delta
+# overview-basic-info Specification
 
-## ADDED Requirements
-
-### Requirement: Basic Information Panel
-The Overview tab SHALL display a two-column layout with Basic Information and Chassis panels.
-
-#### Scenario: Two-column layout
-- **WHEN** Overview tab renders on large screens
-- **THEN** Basic Information panel displays on left
-- **AND** Chassis panel displays on right
-- **AND** panels stack vertically on small screens
-
-#### Scenario: Basic Information panel contents
-- **WHEN** Basic Information panel renders
-- **THEN** Chassis, Clan Name, Model fields are stacked vertically at top
-- **AND** MUL ID, Year, Tech Level are in a 3-column row at bottom
-
-#### Scenario: Chassis field
-- **WHEN** Basic Information panel renders
-- **THEN** "Chassis" field appears first (full width)
-- **AND** field contains base chassis name (e.g., "Atlas", "Timber Wolf")
-- **AND** field is editable text input with placeholder "e.g., Atlas, Timber Wolf"
-
-#### Scenario: Clan Name field
-- **WHEN** Basic Information panel renders
-- **THEN** "Clan Name" field appears second (full width)
-- **AND** field is optional (can be empty)
-- **AND** label shows "(optional)" hint
-- **AND** used for alternate Clan designations (e.g., "Mad Cat" for Timber Wolf)
-
-#### Scenario: Model field
-- **WHEN** Basic Information panel renders
-- **THEN** "Model" field appears third (full width)
-- **AND** field contains variant designation (e.g., "AS7-D", "Prime")
-- **AND** field is editable text input with placeholder "e.g., AS7-D, Prime"
-
-#### Scenario: MUL ID field
-- **WHEN** Basic Information panel renders
-- **THEN** "MUL ID" field appears in bottom row (left column)
-- **AND** field is a text input that accepts numbers and hyphens
-- **AND** field defaults to "-1" for custom units
-- **AND** field is editable
-
-#### Scenario: Year field
-- **WHEN** Basic Information panel renders
-- **THEN** "Year" field appears in bottom row (center column)
-- **AND** field is editable numeric input
-- **AND** field defaults to 3145 (Dark Age era)
-
-#### Scenario: Chassis panel contents
-- **WHEN** Chassis panel renders
-- **THEN** Tonnage field with +/- buttons appears first
-- **AND** Motive Type dropdown appears second
-- **AND** fields are stacked vertically
-
----
-
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change enhance-customizer-toolbar. Update Purpose after archive.
+## Requirements
 ### Requirement: Tech Level Dropdown
 The Overview tab SHALL include a Tech Level dropdown for rules filtering.
 

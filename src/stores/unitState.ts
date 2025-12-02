@@ -262,8 +262,8 @@ export interface UnitState {
   /** Model/variant designation (e.g., "AS7-D", "Prime") */
   model: string;
   
-  /** Master Unit List ID (-1 for custom units) */
-  mulId: number;
+  /** Master Unit List ID (-1 for custom units, can include hyphens) */
+  mulId: string;
   
   /** Introduction year */
   year: number;
@@ -370,7 +370,7 @@ export interface UnitActions {
   setChassis: (chassis: string) => void;
   setClanName: (clanName: string) => void;
   setModel: (model: string) => void;
-  setMulId: (mulId: number) => void;
+setMulId: (mulId: string) => void;
   setYear: (year: number) => void;
   setRulesLevel: (rulesLevel: RulesLevel) => void;
   
@@ -465,7 +465,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     chassis: defaultChassis,
     clanName: '',
     model: defaultModel,
-    mulId: -1, // -1 for custom units
+    mulId: '-1', // -1 for custom units
     year: 3145, // Default to Dark Age era
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,

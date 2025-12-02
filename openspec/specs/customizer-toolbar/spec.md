@@ -1,32 +1,8 @@
-# customizer-toolbar Specification Delta
+# customizer-toolbar Specification
 
-## ADDED Requirements
-
-### Requirement: Toolbar Icon Actions
-The tab bar SHALL provide icon-based actions for creating and loading units.
-
-#### Scenario: Document icon for new unit
-- **WHEN** user hovers over the document icon in tab bar
-- **THEN** tooltip displays "Create New Unit" (Ctrl+N)
-- **WHEN** user clicks the document icon
-- **THEN** NewTabModal opens for unit creation
-
-#### Scenario: Folder icon for load unit
-- **WHEN** user hovers over the folder icon in tab bar
-- **THEN** tooltip displays "Load Unit from Library" (Ctrl+O)
-- **WHEN** user clicks the folder icon
-- **THEN** UnitLoadDialog opens for unit selection
-
-#### Scenario: Keyboard shortcuts
-- **WHEN** user presses Ctrl+N in customizer
-- **THEN** NewTabModal opens
-- **WHEN** user presses Ctrl+O in customizer
-- **THEN** UnitLoadDialog opens
-
----
-
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change enhance-customizer-toolbar. Update Purpose after archive.
+## Requirements
 ### Requirement: Unit Load Dialog
 The system SHALL provide a dialog for loading existing units into tabs.
 

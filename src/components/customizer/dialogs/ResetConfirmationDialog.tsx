@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { ModalOverlay } from './ModalOverlay';
+import { customizerStyles as cs } from '../styles';
 
 /**
  * Reset option configuration
@@ -131,13 +132,10 @@ export function ResetConfirmationDialog({
       className="w-full max-w-lg mx-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <h2 className="text-lg font-semibold text-white">Reset Configuration</h2>
+      <div className={cs.dialog.header}>
+        <h2 className={cs.dialog.headerTitle}>Reset Configuration</h2>
         {step !== 'progress' && (
-          <button
-            onClick={handleClose}
-            className="text-slate-400 hover:text-white transition-colors"
-          >
+          <button onClick={handleClose} className={cs.dialog.closeBtn}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -245,19 +243,13 @@ export function ResetConfirmationDialog({
       </div>
       
       {/* Footer */}
-      <div className="flex justify-end gap-2 px-4 py-3 border-t border-slate-700">
+      <div className={cs.dialog.footer}>
         {step === 'select' && (
           <>
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-            >
+            <button onClick={handleClose} className={cs.dialog.btnGhost}>
               Cancel
             </button>
-            <button
-              onClick={handleContinue}
-              className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
-            >
+            <button onClick={handleContinue} className={cs.dialog.btnDanger}>
               Continue with Reset
             </button>
           </>
@@ -265,26 +257,17 @@ export function ResetConfirmationDialog({
         
         {step === 'confirm' && (
           <>
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-            >
+            <button onClick={handleBack} className={cs.dialog.btnGhost}>
               Back
             </button>
-            <button
-              onClick={handleConfirm}
-              className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
-            >
+            <button onClick={handleConfirm} className={cs.dialog.btnDanger}>
               Confirm Reset
             </button>
           </>
         )}
         
         {step === 'result' && error && (
-          <button
-            onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-          >
+          <button onClick={handleClose} className={cs.dialog.btnGhost}>
             Close
           </button>
         )}

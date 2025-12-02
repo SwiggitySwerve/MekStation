@@ -10,6 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ModalOverlay } from './ModalOverlay';
 import { customUnitApiService, IVersionWithData } from '@/services/units/CustomUnitApiService';
 import { IVersionMetadata } from '@/types/persistence/UnitPersistence';
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Types
@@ -125,15 +126,12 @@ export function VersionHistoryDialog({
       className="w-full max-w-4xl mx-4 max-h-[80vh] flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+      <div className={cs.dialog.header}>
         <div>
-          <h3 className="text-lg font-medium text-white">Version History</h3>
-          <p className="text-sm text-slate-400">{unitName}</p>
+          <h3 className={cs.dialog.headerTitle}>Version History</h3>
+          <p className={cs.dialog.headerSubtitle}>{unitName}</p>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 text-slate-400 hover:text-white transition-colors"
-        >
+        <button onClick={onClose} className={cs.dialog.closeBtn}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -145,7 +143,7 @@ export function VersionHistoryDialog({
         {/* Version list */}
         <div className="w-1/3 border-r border-slate-700 overflow-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center h-48 text-slate-400">
+            <div className={cs.dialog.loading}>
               <svg className="w-6 h-6 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -169,13 +167,11 @@ export function VersionHistoryDialog({
                 <button
                   key={version.version}
                   onClick={() => setSelectedVersion(version.version)}
-                  className={`
-                    w-full p-3 text-left transition-colors
-                    ${selectedVersion === version.version
-                      ? 'bg-blue-600/20 border-l-2 border-blue-500'
-                      : 'hover:bg-slate-700/50 border-l-2 border-transparent'
-                    }
-                  `}
+                  className={`w-full p-3 text-left transition-colors border-l-2 ${
+                    selectedVersion === version.version
+                      ? 'bg-blue-600/20 border-blue-500'
+                      : 'hover:bg-slate-700/50 border-transparent'
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -209,16 +205,16 @@ export function VersionHistoryDialog({
         {/* Preview panel */}
         <div className="flex-1 overflow-auto p-4">
           {selectedVersion === null ? (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className={`${cs.dialog.empty} h-full`}>
               <div className="text-center">
-                <svg className="w-12 h-12 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={cs.dialog.emptyIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p>Select a version to preview</p>
               </div>
             </div>
           ) : isLoadingPreview ? (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className={`${cs.dialog.loading} h-full`}>
               <svg className="w-6 h-6 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -246,14 +242,14 @@ export function VersionHistoryDialog({
                   </div>
                   
                   {previewData.notes && (
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Notes:</div>
                       <div className="text-white">{previewData.notes}</div>
                     </div>
                   )}
                   
                   {previewData.revertSource && (
-                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <div className={cs.dialog.warningPanel}>
                       <div className="text-amber-400 text-sm">
                         This version was created by reverting from version {previewData.revertSource}
                       </div>
@@ -262,19 +258,19 @@ export function VersionHistoryDialog({
                   
                   {/* Unit summary */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Tonnage</div>
                       <div className="text-white">{tonnageStr}t</div>
                     </div>
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Tech Base</div>
                       <div className="text-white">{techBaseStr}</div>
                     </div>
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Era</div>
                       <div className="text-white">{eraStr}</div>
                     </div>
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Rules Level</div>
                       <div className="text-white">{rulesLevelStr}</div>
                     </div>
@@ -282,7 +278,7 @@ export function VersionHistoryDialog({
                   
                   {/* Equipment count if available */}
                   {equipmentArr && (
-                    <div className="p-3 bg-slate-700/50 rounded-lg">
+                    <div className={cs.dialog.infoPanel}>
                       <div className="text-xs text-slate-400 mb-1">Equipment</div>
                       <div className="text-white">
                         {equipmentCount} items
@@ -293,7 +289,7 @@ export function VersionHistoryDialog({
               );
             })()
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className={`${cs.dialog.empty} h-full`}>
               Failed to load preview
             </div>
           )}
@@ -301,27 +297,22 @@ export function VersionHistoryDialog({
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-800/50">
+      <div className={cs.dialog.footerBetween}>
         <span className="text-sm text-slate-400">
           {versions.length} version{versions.length !== 1 ? 's' : ''} available
         </span>
         <div className="flex items-center gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-          >
+          <button onClick={onClose} className={cs.dialog.btnGhost}>
             Close
           </button>
           <button
             onClick={handleRevert}
             disabled={!selectedVersion || selectedVersion === currentVersion || isReverting}
-            className={`
-              px-4 py-2 text-sm font-medium rounded transition-colors min-w-[120px]
-              ${selectedVersion && selectedVersion !== currentVersion && !isReverting
-                ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-slate-600 text-slate-400 cursor-not-allowed'
-              }
-            `}
+            className={`min-w-[120px] ${
+              selectedVersion && selectedVersion !== currentVersion && !isReverting
+                ? cs.dialog.btnWarning
+                : cs.dialog.btnPrimary
+            }`}
           >
             {isReverting ? (
               <span className="flex items-center gap-2">

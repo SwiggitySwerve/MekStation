@@ -41,9 +41,12 @@ Update the customizer tab bar to match MegaMekLab UI conventions with document/f
    - Loading units into new tabs
 
 5. **Overview Tab Basic Information**
-   - Chassis, Clan Name, Model fields (MegaMekLab format)
-   - MUL ID and Year fields
+   - Two-column layout: Basic Information (left), Chassis (right)
+   - Chassis, Clan Name, Model fields stacked vertically
+   - MUL ID (text field, supports numbers and hyphens, defaults to "-1")
+   - Year field (defaults to 3145 - Dark Age era)
    - Tech Level dropdown (Introductory, Standard, Advanced, Experimental)
+   - MUL ID, Year, Tech Level in compact 3-column row at bottom
 
 ### Out of Scope
 - Full implementation of Tech Level filtering (placeholder only)
@@ -56,11 +59,12 @@ Update the customizer tab bar to match MegaMekLab UI conventions with document/f
 ### Files Affected
 | File | Change Type | Description |
 |------|-------------|-------------|
-| `TabBar.tsx` | MODIFIED | Replace New button with icons, add Load icon |
-| `MultiUnitTabs.tsx` | MODIFIED | Add load dialog trigger |
-| `UnitLoadDialog.tsx` | ADDED | Unit search/browse popup |
-| `OverviewTab.tsx` | MODIFIED | Update Basic Info to MegaMekLab format |
-| `unitState.ts` | MODIFIED | Add chassis/model/variant/year fields |
+| `TabBar.tsx` | MODIFIED | Replace New button with document/folder icons, add tooltips with shortcuts |
+| `MultiUnitTabs.tsx` | MODIFIED | Add load dialog trigger, keyboard shortcuts (Ctrl+N, Ctrl+O) |
+| `UnitLoadDialog.tsx` | ADDED | Unit search/browse popup with filters |
+| `OverviewTab.tsx` | MODIFIED | Two-column layout with Basic Info (left) and Chassis (right), compact bottom row |
+| `unitState.ts` | MODIFIED | Add chassis, clanName, model, mulId (string), year (3145 default), rulesLevel fields |
+| `useUnitStore.ts` | MODIFIED | Add setter actions for new identity fields |
 
 ### Breaking Changes
 None - visual update only
@@ -88,8 +92,13 @@ None - visual update only
 | Load dialog complexity | Reuse existing unit browser patterns |
 
 ## Success Criteria
-- [ ] Document icon creates new unit via existing modal
-- [ ] Folder icon opens unit load dialog
-- [ ] All toolbar actions accessible via keyboard shortcuts
-- [ ] Unsaved changes protection works for all tab operations
+- [x] Document icon creates new unit via existing modal
+- [x] Folder icon opens unit load dialog
+- [x] All toolbar actions accessible via keyboard shortcuts (Ctrl+N, Ctrl+O)
+- [x] Unsaved changes protection works for all tab operations
+- [x] Overview tab shows two-column layout with Basic Info and Chassis panels
+- [x] Identity fields (Chassis, Clan Name, Model, MUL ID, Year, Tech Level) are editable
+- [x] Tab name updates when Chassis or Model changes
+- [x] MUL ID accepts text input (numbers and hyphens)
+- [x] Year defaults to 3145, Tech Level defaults to Standard
 

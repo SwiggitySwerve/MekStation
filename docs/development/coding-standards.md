@@ -136,6 +136,60 @@ const ExpensiveComponent = React.memo<Props>(({ data }) => {
 4. **Interface Segregation** - Small, focused interfaces
 5. **Dependency Inversion** - Depend on abstractions
 
+## Styling Guidelines
+
+### Use Shared Style Utilities
+
+For customizer components, import and use the shared style constants from `@/components/customizer/styles`:
+
+```typescript
+import { customizerStyles as cs } from '../styles';
+
+// ✅ Good - Use shared utilities
+<div className={cs.dialog.header}>
+  <h3 className={cs.dialog.headerTitle}>Dialog Title</h3>
+  <button className={cs.dialog.closeBtn}>×</button>
+</div>
+
+// ❌ Bad - Inline class strings
+<div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+  <h3 className="text-lg font-medium text-white">Dialog Title</h3>
+  <button className="p-1 text-slate-400 hover:text-white transition-colors">×</button>
+</div>
+```
+
+### Available Style Modules
+
+| Module | Purpose | Example |
+|--------|---------|---------|
+| `cs.panel` | Content panels | `cs.panel.main`, `cs.panel.summary` |
+| `cs.text` | Typography | `cs.text.sectionTitle`, `cs.text.label` |
+| `cs.input` | Input fields | `cs.input.full`, `cs.input.compact` |
+| `cs.select` | Select dropdowns | `cs.select.full`, `cs.select.inline` |
+| `cs.button` | Buttons | `cs.button.stepper`, `cs.button.action` |
+| `cs.layout` | Layout utilities | `cs.layout.twoColumn`, `cs.layout.field` |
+| `cs.dialog` | Dialog components | `cs.dialog.header`, `cs.dialog.btnPrimary` |
+| `cs.filter` | Filter bars | `cs.filter.bar`, `cs.filter.select` |
+
+### CSS Utilities in globals.css
+
+Global CSS utilities are defined in `src/styles/globals.css`. Use these for:
+- Page layouts: `.page-container`, `.card`, `.card-interactive`
+- Buttons: `.btn-primary`, `.btn-secondary`, `.btn-ghost`
+- Badges: `.badge-blue`, `.badge-amber`, `.badge-emerald`
+- Tables: `.table-dark`
+- Dialogs: `.dialog-header`, `.dialog-footer`, `.dialog-btn-primary`
+- Filters: `.filter-bar`, `.filter-select`
+
+### When to Create New Utilities
+
+Create new shared utilities when:
+1. A pattern repeats 3+ times across components
+2. The pattern is semantically meaningful (e.g., "dialog header")
+3. It aligns with the existing theme (slate colors, amber/blue accents)
+
+Add TypeScript utilities to `src/components/customizer/styles.ts` and CSS utilities to `src/styles/globals.css`.
+
 ## Pre-Commit Checklist
 
 - [ ] `npm run build` passes
@@ -143,4 +197,5 @@ const ExpensiveComponent = React.memo<Props>(({ data }) => {
 - [ ] No `as any` casts in new code
 - [ ] Types imported from `@/types/core` or `@/types/enums`
 - [ ] Constants used instead of magic strings
+- [ ] Shared style utilities used instead of inline class blobs
 

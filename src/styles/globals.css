@@ -703,3 +703,183 @@ button:disabled {
 .notice-emerald {
   @apply border rounded-xl p-6 bg-emerald-600/10 border-emerald-600/30;
 }
+
+/* ========================================
+   DIALOG UTILITY CLASSES
+   ======================================== */
+
+/*
+ * Reusable dialog component classes.
+ * Use these in modal/dialog components to reduce className verbosity.
+ */
+
+/* Dialog Structure */
+.dialog-header {
+  @apply flex items-center justify-between px-4 py-3 border-b border-slate-700;
+}
+
+.dialog-header-title {
+  @apply text-lg font-medium text-white;
+}
+
+.dialog-header-subtitle {
+  @apply text-sm text-slate-400;
+}
+
+.dialog-content {
+  @apply p-4 space-y-4;
+}
+
+.dialog-footer {
+  @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+}
+
+.dialog-footer-between {
+  @apply flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+}
+
+/* Dialog Close Button */
+.dialog-close-btn {
+  @apply p-1 text-slate-400 hover:text-white transition-colors;
+}
+
+/* Dialog Buttons */
+.dialog-btn-primary {
+  @apply px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors;
+}
+
+.dialog-btn-primary:disabled {
+  @apply bg-slate-600 text-slate-400 cursor-not-allowed;
+}
+
+.dialog-btn-secondary {
+  @apply px-4 py-2 text-sm font-medium bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors;
+}
+
+.dialog-btn-ghost {
+  @apply px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors;
+}
+
+.dialog-btn-warning {
+  @apply px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors;
+}
+
+.dialog-btn-danger {
+  @apply px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors;
+}
+
+/* Dialog Inputs */
+.dialog-input {
+  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
+         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.dialog-input-search {
+  @apply w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
+         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.dialog-select {
+  @apply px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm 
+         focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* Dialog Tables */
+.dialog-table {
+  @apply w-full text-sm;
+}
+
+.dialog-table-header {
+  @apply sticky top-0 bg-slate-800 border-b border-slate-600 text-slate-400 text-left;
+}
+
+.dialog-table-header th {
+  @apply px-3 py-2 font-medium;
+}
+
+.dialog-table-body {
+  @apply divide-y divide-slate-700/50;
+}
+
+.dialog-table-row {
+  @apply cursor-pointer transition-colors hover:bg-slate-700/30;
+}
+
+.dialog-table-row-selected {
+  @apply bg-blue-600/20;
+}
+
+/* Dialog Info Panels */
+.dialog-info-panel {
+  @apply p-3 bg-slate-700/50 rounded-lg;
+}
+
+.dialog-warning-panel {
+  @apply p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg;
+}
+
+.dialog-error-panel {
+  @apply p-3 bg-red-500/10 border border-red-500/30 rounded-lg;
+}
+
+.dialog-success-panel {
+  @apply p-3 bg-green-500/10 border border-green-500/30 rounded-lg;
+}
+
+/* Dialog States */
+.dialog-loading {
+  @apply flex items-center justify-center h-48 text-slate-400;
+}
+
+.dialog-empty {
+  @apply flex items-center justify-center h-48 text-slate-400;
+}
+
+.dialog-empty-icon {
+  @apply w-12 h-12 mx-auto mb-2 text-slate-600;
+}
+
+/* Dialog Drop Zone */
+.dialog-dropzone {
+  @apply relative p-8 border-2 border-dashed rounded-lg text-center transition-colors
+         border-slate-600 hover:border-slate-500;
+}
+
+.dialog-dropzone-active {
+  @apply border-blue-500 bg-blue-500/10;
+}
+
+/* Dialog Warning Icon Container */
+.dialog-warning-icon {
+  @apply flex-shrink-0 w-12 h-12 flex items-center justify-center bg-amber-500/20 rounded-full;
+}
+
+/* ========================================
+   FILTER/TOOLBAR UTILITY CLASSES
+   ======================================== */
+
+/*
+ * Reusable filter bar and toolbar classes.
+ */
+
+.filter-bar {
+  @apply px-4 py-3 flex flex-wrap gap-3;
+}
+
+.filter-input {
+  @apply flex-1 min-w-[200px];
+}
+
+.filter-input input {
+  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white 
+         placeholder-slate-400 text-sm focus:outline-none focus:border-amber-500;
+}
+
+.filter-select {
+  @apply px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm 
+         focus:outline-none focus:border-amber-500;
+}
+
+.filter-clear-btn {
+  @apply px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors;
+}

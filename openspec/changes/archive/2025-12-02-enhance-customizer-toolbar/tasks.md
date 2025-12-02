@@ -91,9 +91,9 @@
   - Updated overview-basic-info/spec.md with two-column layout details
   - Verify: `openspec validate enhance-customizer-toolbar --strict` passes ✓
 
-- [ ] **4.2** Archive change and update specs
+- [x] **4.2** Archive change and update specs
   - Run `openspec archive enhance-customizer-toolbar --yes`
-  - Verify: Main specs updated
+  - Verify: Main specs updated ✓
 
 ### Phase 5: Polish
 

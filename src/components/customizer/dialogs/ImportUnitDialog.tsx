@@ -11,6 +11,7 @@ import React, { useState, useCallback } from 'react';
 import { ModalOverlay } from './ModalOverlay';
 import { customUnitApiService, ISaveResult } from '@/services/units/CustomUnitApiService';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Types
@@ -200,12 +201,9 @@ export function ImportUnitDialog({
       className="w-full max-w-lg mx-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <h3 className="text-lg font-medium text-white">Import Unit</h3>
-        <button
-          onClick={onClose}
-          className="p-1 text-slate-400 hover:text-white transition-colors"
-        >
+      <div className={cs.dialog.header}>
+        <h3 className={cs.dialog.headerTitle}>Import Unit</h3>
+        <button onClick={onClose} className={cs.dialog.closeBtn}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -213,20 +211,14 @@ export function ImportUnitDialog({
       </div>
       
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className={cs.dialog.content}>
         {/* Drop zone */}
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`
-            relative p-8 border-2 border-dashed rounded-lg text-center transition-colors
-            ${dragActive
-              ? 'border-blue-500 bg-blue-500/10'
-              : 'border-slate-600 hover:border-slate-500'
-            }
-          `}
+          className={`${cs.dialog.dropzone} ${dragActive ? cs.dialog.dropzoneActive : ''}`}
         >
           <input
             type="file"
@@ -248,7 +240,7 @@ export function ImportUnitDialog({
         
         {/* Parsed unit info */}
         {parsedUnit && (
-          <div className="p-3 bg-slate-700/50 rounded-lg">
+          <div className={cs.dialog.infoPanel}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-white font-medium">
@@ -267,7 +259,7 @@ export function ImportUnitDialog({
         
         {/* Conflict resolution */}
         {state === 'conflict' && suggestedName && (
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg space-y-3">
+          <div className={`${cs.dialog.warningPanel} space-y-3`}>
             <div className="flex items-start gap-2">
               <svg className="w-5 h-5 text-amber-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -299,7 +291,7 @@ export function ImportUnitDialog({
                   value={alternateName}
                   onChange={(e) => setAlternateName(e.target.value)}
                   placeholder="New variant name"
-                  className="mt-2 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`mt-2 ${cs.dialog.input}`}
                 />
               )}
             </div>
@@ -308,7 +300,7 @@ export function ImportUnitDialog({
         
         {/* Error message */}
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className={cs.dialog.errorPanel}>
             <div className="flex items-center gap-2 text-red-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -331,23 +323,14 @@ export function ImportUnitDialog({
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-slate-700 bg-slate-800/50">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-        >
+      <div className={cs.dialog.footer}>
+        <button onClick={onClose} className={cs.dialog.btnGhost}>
           Cancel
         </button>
         <button
           onClick={handleImport}
           disabled={!parsedUnit || state === 'validating' || state === 'importing'}
-          className={`
-            px-4 py-2 text-sm font-medium rounded transition-colors min-w-[100px]
-            ${parsedUnit && state !== 'validating' && state !== 'importing'
-              ? 'bg-blue-600 hover:bg-blue-500 text-white'
-              : 'bg-slate-600 text-slate-400 cursor-not-allowed'
-            }
-          `}
+          className={`min-w-[100px] ${cs.dialog.btnPrimary}`}
         >
           Import
         </button>

@@ -16,6 +16,7 @@ import {
   unitNameValidator,
   INameValidationResult,
 } from '@/services/units/UnitNameValidator';
+import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Types
@@ -251,12 +252,9 @@ export function SaveUnitDialog({
       className="w-full max-w-lg mx-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-        <h3 className="text-lg font-medium text-white">Save Unit</h3>
-        <button
-          onClick={onCancel}
-          className="p-1 text-slate-400 hover:text-white transition-colors"
-        >
+      <div className={cs.dialog.header}>
+        <h3 className={cs.dialog.headerTitle}>Save Unit</h3>
+        <button onClick={onCancel} className={cs.dialog.closeBtn}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -264,7 +262,7 @@ export function SaveUnitDialog({
       </div>
       
       {/* Form */}
-      <div className="p-4 space-y-4">
+      <div className={cs.dialog.content}>
         {/* Chassis input */}
         <div>
           <label htmlFor="chassis" className="block text-sm font-medium text-slate-300 mb-1">
@@ -276,16 +274,13 @@ export function SaveUnitDialog({
             value={chassis}
             onChange={handleChassisChange}
             placeholder="e.g., Atlas, Timber Wolf"
-            className={`
-              w-full px-3 py-2 rounded-lg bg-slate-700 border text-white
-              placeholder-slate-500 focus:outline-none focus:ring-2
-              ${isBlocked 
+            className={`${cs.dialog.input} ${
+              isBlocked 
                 ? 'border-red-500 focus:ring-red-500' 
                 : status === 'custom-conflict'
                   ? 'border-amber-500 focus:ring-amber-500'
-                  : 'border-slate-600 focus:ring-blue-500'
-              }
-            `}
+                  : ''
+            }`}
           />
         </div>
         
@@ -301,21 +296,18 @@ export function SaveUnitDialog({
               value={variant}
               onChange={handleVariantChange}
               placeholder="e.g., AS7-D, Prime"
-              className={`
-                flex-1 px-3 py-2 rounded-lg bg-slate-700 border text-white
-                placeholder-slate-500 focus:outline-none focus:ring-2
-                ${isBlocked 
+              className={`flex-1 ${cs.dialog.input} ${
+                isBlocked 
                   ? 'border-red-500 focus:ring-red-500' 
                   : status === 'custom-conflict'
                     ? 'border-amber-500 focus:ring-amber-500'
-                    : 'border-slate-600 focus:ring-blue-500'
-                }
-              `}
+                    : ''
+              }`}
             />
             {hasConflict && (
               <button
                 onClick={handleAutoSuggest}
-                className="px-3 py-2 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors whitespace-nowrap"
+                className={cs.dialog.btnSecondary}
                 title="Suggest unique name"
               >
                 Suggest
@@ -331,7 +323,7 @@ export function SaveUnitDialog({
         
         {/* Preview */}
         {chassis.trim() && variant.trim() && (
-          <div className="p-3 bg-slate-700/50 rounded-lg">
+          <div className={cs.dialog.infoPanel}>
             <div className="text-xs text-slate-400 mb-1">Full Unit Name:</div>
             <div className="text-white font-medium">
               {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
@@ -341,19 +333,13 @@ export function SaveUnitDialog({
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-slate-700 bg-slate-800/50">
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-        >
+      <div className={cs.dialog.footer}>
+        <button onClick={onCancel} className={cs.dialog.btnGhost}>
           Cancel
         </button>
         
         {status === 'custom-conflict' && validationResult?.suggestedName && (
-          <button
-            onClick={handleSaveAsNew}
-            className="px-4 py-2 text-sm font-medium bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors"
-          >
+          <button onClick={handleSaveAsNew} className={cs.dialog.btnSecondary}>
             Save As New
           </button>
         )}
@@ -361,15 +347,13 @@ export function SaveUnitDialog({
         <button
           onClick={handleSave}
           disabled={!canSave}
-          className={`
-            px-4 py-2 text-sm font-medium rounded transition-colors min-w-[100px]
-            ${canSave
+          className={`min-w-[100px] ${
+            canSave
               ? status === 'custom-conflict'
-                ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-blue-600 hover:bg-blue-500 text-white'
-              : 'bg-slate-600 text-slate-400 cursor-not-allowed'
-            }
-          `}
+                ? cs.dialog.btnWarning
+                : cs.dialog.btnPrimary
+              : cs.dialog.btnPrimary
+          }`}
         >
           {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
         </button>

@@ -9,6 +9,7 @@
 import React from 'react';
 import { TechBase, ALL_TECH_BASES } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
+import { customizerStyles as cs } from '../styles';
 
 interface EquipmentFiltersProps {
   /** Current search query */
@@ -58,15 +59,14 @@ export function EquipmentFilters({
   const hasFilters = search || techBase || category;
   
   return (
-    <div className={`px-4 py-3 flex flex-wrap gap-3 ${className}`}>
+    <div className={`${cs.filter.bar} ${className}`}>
       {/* Search */}
-      <div className="flex-1 min-w-[200px]">
+      <div className={cs.filter.input}>
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search equipment..."
-          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 text-sm focus:outline-none focus:border-amber-500"
         />
       </div>
       
@@ -75,7 +75,7 @@ export function EquipmentFilters({
         <select
           value={techBase || ''}
           onChange={(e) => onTechBaseChange(e.target.value as TechBase || null)}
-          className="px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:border-amber-500"
+          className={cs.filter.select}
         >
           <option value="">All Tech</option>
           {ALL_TECH_BASES.map((tb) => (
@@ -91,7 +91,7 @@ export function EquipmentFilters({
         <select
           value={category || ''}
           onChange={(e) => onCategoryChange(e.target.value as EquipmentCategory || null)}
-          className="px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:border-amber-500"
+          className={cs.filter.select}
         >
           <option value="">All Categories</option>
           {FILTER_CATEGORIES.map(({ value, label }) => (
@@ -104,10 +104,7 @@ export function EquipmentFilters({
       
       {/* Clear */}
       {hasFilters && (
-        <button
-          onClick={onClear}
-          className="px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors"
-        >
+        <button onClick={onClear} className={cs.filter.clearBtn}>
           Clear
         </button>
       )}

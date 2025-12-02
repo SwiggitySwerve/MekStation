@@ -163,6 +163,120 @@ const layout = {
 } as const;
 
 // =============================================================================
+// Dialog Styles
+// =============================================================================
+
+const dialog = {
+  /** Dialog header row */
+  header: 'dialog-header',
+  
+  /** Dialog header title */
+  headerTitle: 'dialog-header-title',
+  
+  /** Dialog header subtitle */
+  headerSubtitle: 'dialog-header-subtitle',
+  
+  /** Dialog content area */
+  content: 'dialog-content',
+  
+  /** Dialog footer with right-aligned buttons */
+  footer: 'dialog-footer',
+  
+  /** Dialog footer with space-between */
+  footerBetween: 'dialog-footer-between',
+  
+  /** Close button (X) */
+  closeBtn: 'dialog-close-btn',
+  
+  /** Primary action button (blue) */
+  btnPrimary: 'dialog-btn-primary',
+  
+  /** Secondary action button (slate) */
+  btnSecondary: 'dialog-btn-secondary',
+  
+  /** Ghost/text button */
+  btnGhost: 'dialog-btn-ghost',
+  
+  /** Warning action button (amber) */
+  btnWarning: 'dialog-btn-warning',
+  
+  /** Danger action button (red) */
+  btnDanger: 'dialog-btn-danger',
+  
+  /** Standard text input */
+  input: 'dialog-input',
+  
+  /** Search input with left icon space */
+  inputSearch: 'dialog-input-search',
+  
+  /** Filter/dropdown select */
+  selectFilter: 'dialog-select',
+  
+  /** Table wrapper */
+  table: 'dialog-table',
+  
+  /** Table header row */
+  tableHeader: 'dialog-table-header',
+  
+  /** Table body */
+  tableBody: 'dialog-table-body',
+  
+  /** Table row (hoverable) */
+  tableRow: 'dialog-table-row',
+  
+  /** Table row selected state */
+  tableRowSelected: 'dialog-table-row-selected',
+  
+  /** Info panel (slate background) */
+  infoPanel: 'dialog-info-panel',
+  
+  /** Warning panel (amber tint) */
+  warningPanel: 'dialog-warning-panel',
+  
+  /** Error panel (red tint) */
+  errorPanel: 'dialog-error-panel',
+  
+  /** Success panel (green tint) */
+  successPanel: 'dialog-success-panel',
+  
+  /** Loading state container */
+  loading: 'dialog-loading',
+  
+  /** Empty state container */
+  empty: 'dialog-empty',
+  
+  /** Empty state icon */
+  emptyIcon: 'dialog-empty-icon',
+  
+  /** Drop zone for file uploads */
+  dropzone: 'dialog-dropzone',
+  
+  /** Drop zone active state */
+  dropzoneActive: 'dialog-dropzone-active',
+  
+  /** Warning icon container */
+  warningIcon: 'dialog-warning-icon',
+} as const;
+
+// =============================================================================
+// Filter/Toolbar Styles
+// =============================================================================
+
+const filter = {
+  /** Filter bar container */
+  bar: 'filter-bar',
+  
+  /** Filter input wrapper */
+  input: 'filter-input',
+  
+  /** Filter select dropdown */
+  select: 'filter-select',
+  
+  /** Clear filters button */
+  clearBtn: 'filter-clear-btn',
+} as const;
+
+// =============================================================================
 // Combined Export
 // =============================================================================
 
@@ -179,6 +293,12 @@ const layout = {
  *     <input className={cs.input.full} />
  *   </div>
  * </div>
+ * 
+ * // Dialog example:
+ * <div className={cs.dialog.header}>
+ *   <h3 className={cs.dialog.headerTitle}>Title</h3>
+ *   <button className={cs.dialog.closeBtn}>X</button>
+ * </div>
  */
 export const customizerStyles = {
   panel,
@@ -187,11 +307,13 @@ export const customizerStyles = {
   select,
   button,
   layout,
+  dialog,
+  filter,
 } as const;
 
 // Convenient alias
 export { customizerStyles as cs };
 
 // Individual exports for selective imports
-export { panel, text, input, select, button, layout };
+export { panel, text, input, select, button, layout, dialog, filter };
 
