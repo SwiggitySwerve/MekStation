@@ -126,6 +126,10 @@ export interface IUnitIndexEntry {
   readonly weightClass: WeightClass;
   readonly unitType: UnitType;
   readonly filePath: string;
+  /** Introduction year */
+  readonly year?: number;
+  /** Role (e.g., Juggernaut, Scout, Striker) */
+  readonly role?: string;
 }
 
 /**

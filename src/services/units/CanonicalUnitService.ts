@@ -9,6 +9,79 @@
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 import { NotFoundError } from '../common/errors';
+import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/enums/Era';
+import { WeightClass } from '@/types/enums/WeightClass';
+
+/**
+ * Raw unit index entry from index.json
+ */
+interface RawUnitIndexEntry {
+  id: string;
+  chassis: string;
+  model: string; // This is 'variant' in our system
+  tonnage: number;
+  techBase: string;
+  year: number;
+  role?: string;
+  path: string;
+}
+
+/**
+ * Map raw index data to IUnitIndexEntry format
+ */
+function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
+  // Map techBase string to TechBase enum
+  let techBase: TechBase = TechBase.INNER_SPHERE;
+  if (raw.techBase === 'CLAN') {
+    techBase = TechBase.CLAN;
+  } else if (raw.techBase === 'MIXED') {
+    techBase = TechBase.INNER_SPHERE; // Default mixed to IS
+  }
+  
+  // Determine weight class from tonnage
+  let weightClass: WeightClass;
+  if (raw.tonnage <= 35) {
+    weightClass = WeightClass.LIGHT;
+  } else if (raw.tonnage <= 55) {
+    weightClass = WeightClass.MEDIUM;
+  } else if (raw.tonnage <= 75) {
+    weightClass = WeightClass.HEAVY;
+  } else {
+    weightClass = WeightClass.ASSAULT;
+  }
+  
+  // Map era from file path (e.g., "2-star-league/standard/...")
+  let era: Era = Era.SUCCESSION_WARS;
+  if (raw.path.includes('1-age-of-war')) {
+    era = Era.AGE_OF_WAR;
+  } else if (raw.path.includes('2-star-league')) {
+    era = Era.STAR_LEAGUE;
+  } else if (raw.path.includes('3-succession-wars')) {
+    era = Era.SUCCESSION_WARS;
+  } else if (raw.path.includes('4-clan-invasion')) {
+    era = Era.CLAN_INVASION;
+  } else if (raw.path.includes('5-civil-war')) {
+    era = Era.CIVIL_WAR;
+  } else if (raw.path.includes('6-dark-age')) {
+    era = Era.DARK_AGE;
+  }
+  
+  return {
+    id: raw.id,
+    name: `${raw.chassis} ${raw.model}`,
+    chassis: raw.chassis,
+    variant: raw.model,
+    tonnage: raw.tonnage,
+    techBase,
+    era,
+    weightClass,
+    unitType: 'BattleMech',
+    filePath: `/data/units/battlemechs/${raw.path}`,
+    year: raw.year,
+    role: raw.role,
+  };
+}
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -44,7 +117,7 @@ export interface ICanonicalUnitService {
 export class CanonicalUnitService implements ICanonicalUnitService {
   private indexCache: IUnitIndexEntry[] | null = null;
   private unitCache: Map<string, IFullUnit> = new Map();
-  private indexPath = '/data/units/index.json';
+  private indexPath = '/data/units/battlemechs/index.json';
 
   /**
    * Load the lightweight unit index
@@ -62,8 +135,11 @@ export class CanonicalUnitService implements ICanonicalUnitService {
         return this.indexCache;
       }
       
-      this.indexCache = await response.json();
-      return this.indexCache || [];
+      const data = await response.json() as { units?: RawUnitIndexEntry[] };
+      
+      // Map raw index data to IUnitIndexEntry format
+      this.indexCache = (data.units || []).map(mapRawToIndexEntry);
+      return this.indexCache;
     } catch {
       // Index not available - return empty array
       this.indexCache = [];

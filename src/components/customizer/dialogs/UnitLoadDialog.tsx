@@ -39,6 +39,7 @@ type UnitSource = 'all' | 'canonical' | 'custom';
 interface UnitWithSource extends IUnitIndexEntry {
   source: 'canonical' | 'custom';
   currentVersion?: number;
+  year?: number;
 }
 
 // =============================================================================
@@ -221,7 +222,7 @@ export function UnitLoadDialog({
         </div>
       </div>
       
-      {/* Unit list */}
+      {/* Unit table */}
       <div className="flex-1 overflow-auto min-h-0">
         {isLoading ? (
           <div className="flex items-center justify-center h-48 text-slate-400">
@@ -242,39 +243,68 @@ export function UnitLoadDialog({
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-slate-700">
-            {filteredUnits.map((unit) => (
-              <button
-                key={unit.id}
-                onClick={() => setSelectedUnit(unit)}
-                onDoubleClick={() => handleDoubleClick(unit)}
-                className={`w-full px-4 py-3 text-left transition-colors ${
-                  selectedUnit?.id === unit.id
-                    ? 'bg-blue-600/20 border-l-2 border-blue-500'
-                    : 'hover:bg-slate-700/50 border-l-2 border-transparent'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">{unit.chassis} {unit.variant}</span>
+          <table className="w-full text-sm">
+            {/* Table header */}
+            <thead className="sticky top-0 bg-slate-800 border-b border-slate-600 text-slate-400 text-left">
+              <tr>
+                <th className="px-3 py-2 font-medium">Chassis</th>
+                <th className="px-3 py-2 font-medium">Model</th>
+                <th className="px-3 py-2 font-medium text-right">Weight</th>
+                <th className="px-3 py-2 font-medium text-right">Year</th>
+                <th className="px-3 py-2 font-medium">Tech</th>
+                <th className="w-8"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700/50">
+              {filteredUnits.map((unit) => (
+                <tr
+                  key={unit.id}
+                  onClick={() => setSelectedUnit(unit)}
+                  onDoubleClick={() => handleDoubleClick(unit)}
+                  className={`cursor-pointer transition-colors ${
+                    selectedUnit?.id === unit.id
+                      ? 'bg-blue-600/20'
+                      : 'hover:bg-slate-700/30'
+                  }`}
+                >
+                  <td className="px-3 py-1.5 text-white">
+                    <div className="flex items-center gap-1.5">
+                      {unit.chassis}
                       {unit.source === 'custom' && (
-                        <span className="px-1.5 py-0.5 text-xs bg-amber-500/20 text-amber-400 rounded">Custom</span>
+                        <span className="px-1 py-0.5 text-[10px] bg-amber-500/20 text-amber-400 rounded leading-none">C</span>
                       )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-1.5 text-slate-300">
+                    <div className="flex items-center gap-1.5">
+                      {unit.variant}
                       {unit.source === 'custom' && unit.currentVersion && unit.currentVersion > 1 && (
-                        <span className="px-1.5 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded">
+                        <span className="px-1 py-0.5 text-[10px] bg-blue-500/20 text-blue-400 rounded leading-none">
                           v{unit.currentVersion}
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-slate-400 mt-0.5">
-                      {unit.tonnage}t • {unit.techBase} • {unit.weightClass}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                  </td>
+                  <td className="px-3 py-1.5 text-slate-400 text-right tabular-nums">{unit.tonnage} t</td>
+                  <td className="px-3 py-1.5 text-slate-400 text-right tabular-nums">
+                    {unit.year ?? '-'}
+                  </td>
+                  <td className="px-3 py-1.5 text-slate-400">
+                    {(unit.techBase === TechBase.INNER_SPHERE || unit.techBase === 'INNER_SPHERE') ? 'IS' 
+                      : (unit.techBase === TechBase.CLAN || unit.techBase === 'CLAN') ? 'Clan' 
+                      : 'Mix'}
+                  </td>
+                  <td className="px-2 py-1.5 text-right">
+                    {selectedUnit?.id === unit.id && (
+                      <svg className="w-4 h-4 text-blue-400 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
       
