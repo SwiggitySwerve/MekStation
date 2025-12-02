@@ -83,19 +83,22 @@ export function UnitEditorWithRouting({
     [tonnage]
   );
   
+  // Memoize component selections to avoid breaking hook memoization
+  const componentSelections = useMemo(() => ({
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    cockpitType,
+    heatSinkType,
+    heatSinkCount,
+    armorType,
+  }), [engineType, engineRating, gyroType, internalStructureType, cockpitType, heatSinkType, heatSinkCount, armorType]);
+  
   // Calculate unit stats (weight is based on armorTonnage, not allocated points)
   const calculations = useUnitCalculations(
     tonnage,
-    {
-      engineType,
-      engineRating,
-      gyroType,
-      internalStructureType,
-      cockpitType,
-      heatSinkType,
-      heatSinkCount,
-      armorType,
-    },
+    componentSelections,
     armorTonnage
   );
   
