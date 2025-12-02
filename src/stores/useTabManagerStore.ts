@@ -14,6 +14,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { TechBase } from '@/types/enums/TechBase';
+import { isValidUUID, generateUUID } from '@/utils/uuid';
 import {
   createAndRegisterUnit,
   getUnitStore,
@@ -145,6 +146,90 @@ export interface TabManagerState {
   
   getActiveTab: () => TabInfo | null;
   setLoading: (loading: boolean) => void;
+}
+
+// =============================================================================
+// Tab ID Validation
+// =============================================================================
+
+/**
+ * Result of tab sanitization
+ */
+interface SanitizeResult {
+  tabs: TabInfo[];
+  activeTabId: string | null;
+  repaired: number;
+}
+
+/**
+ * Sanitize tabs on hydration to ensure all tabs have valid UUIDs.
+ * 
+ * This handles edge cases where:
+ * - Cached data has tabs with missing IDs
+ * - Cached data has tabs with invalid (non-UUID) IDs
+ * - Migration from older data formats
+ * 
+ * @param tabs - Array of tabs from localStorage
+ * @param activeTabId - Current active tab ID
+ * @returns Sanitized tabs and potentially updated activeTabId
+ */
+function sanitizeTabsOnHydration(
+  tabs: TabInfo[] | undefined,
+  activeTabId: string | null
+): SanitizeResult {
+  if (!tabs || !Array.isArray(tabs)) {
+    return { tabs: [], activeTabId: null, repaired: 0 };
+  }
+  
+  let repaired = 0;
+  const idMap = new Map<string, string>(); // oldId -> newId for active tab tracking
+  
+  const sanitizedTabs = tabs.map((tab): TabInfo => {
+    // Check if ID is missing or invalid
+    if (!tab.id || !isValidUUID(tab.id)) {
+      const oldId = tab.id || '(missing)';
+      const newId = generateUUID();
+      idMap.set(oldId, newId);
+      repaired++;
+      
+      console.warn(
+        `[TabManager] Repaired invalid tab ID: "${oldId}" -> "${newId}" for tab "${tab.name}"`
+      );
+      
+      return {
+        ...tab,
+        id: newId,
+      } as TabInfo;
+    }
+    
+    return tab;
+  });
+  
+  // Update activeTabId if it was repaired
+  let newActiveTabId = activeTabId;
+  
+  // Check if activeTabId needs to be updated
+  // Note: empty string is treated as a value that needs repair
+  if (activeTabId !== null && idMap.has(activeTabId)) {
+    // The activeTabId was in a tab that got repaired
+    newActiveTabId = idMap.get(activeTabId) ?? null;
+  } else if (activeTabId !== null && (activeTabId === '' || !isValidUUID(activeTabId))) {
+    // Active tab ID is invalid but wasn't in the tabs - reset to first tab
+    newActiveTabId = sanitizedTabs[0]?.id ?? null;
+    console.warn(
+      `[TabManager] Active tab ID "${activeTabId || '(empty)'}" is invalid, resetting to "${newActiveTabId}"`
+    );
+  }
+  
+  if (repaired > 0) {
+    console.warn(`[TabManager] Repaired ${repaired} tab(s) with invalid IDs`);
+  }
+  
+  return {
+    tabs: sanitizedTabs,
+    activeTabId: newActiveTabId,
+    repaired,
+  };
 }
 
 // =============================================================================
@@ -330,12 +415,32 @@ export const useTabManagerStore = create<TabManagerState>()(
         tabs: state.tabs,
         activeTabId: state.activeTabId,
       }),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error('[TabManager] Error during rehydration:', error);
+        }
+        
         if (state) {
-          // Defensive check for tabs array during hydration
-          if (state.tabs && Array.isArray(state.tabs)) {
-            // Hydrate the active unit store if there is one
-            const activeTab = state.tabs.find((t) => t.id === state.activeTabId);
+          // Sanitize tabs to ensure all have valid UUIDs
+          const { tabs: sanitizedTabs, activeTabId: sanitizedActiveId, repaired } = 
+            sanitizeTabsOnHydration(state.tabs, state.activeTabId);
+          
+          // If tabs were repaired, update the store state
+          if (repaired > 0) {
+            // Use internal setState to update without triggering persistence loop
+            useTabManagerStore.setState({
+              tabs: sanitizedTabs,
+              activeTabId: sanitizedActiveId,
+            });
+          }
+          
+          // Use sanitized values for hydration
+          const tabsToUse = repaired > 0 ? sanitizedTabs : state.tabs;
+          const activeIdToUse = repaired > 0 ? sanitizedActiveId : state.activeTabId;
+          
+          // Hydrate the active unit store if there is one
+          if (tabsToUse && Array.isArray(tabsToUse)) {
+            const activeTab = tabsToUse.find((t) => t.id === activeIdToUse);
             if (activeTab) {
               hydrateOrCreateUnit(activeTab.id, {
                 name: activeTab.name,
@@ -344,6 +449,7 @@ export const useTabManagerStore = create<TabManagerState>()(
               });
             }
           }
+          
           state.setLoading(false);
         }
       },

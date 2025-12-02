@@ -83,6 +83,18 @@ export interface CustomizerRouterActions {
  */
 export interface CustomizerRouterResult extends CustomizerRouteParams, CustomizerRouterActions {}
 
+/**
+ * Options for the customizer router hook
+ */
+export interface UseCustomizerRouterOptions {
+  /**
+   * Fallback unit ID to use when URL has no unit ID.
+   * Typically the active tab ID from the tab manager store.
+   * Enables tab navigation when on /customizer index page.
+   */
+  fallbackUnitId?: string | null;
+}
+
 // =============================================================================
 // Validation Helpers
 // =============================================================================
@@ -134,16 +146,23 @@ function parseUnitId(rawUnitId: string | string[] | undefined): string | null {
  * 
  * Usage:
  * ```tsx
+ * // Basic usage
  * const { unitId, tabId, navigateToUnit, navigateToTab } = useCustomizerRouter();
+ * 
+ * // With fallback for index page navigation
+ * const { navigateToTab } = useCustomizerRouter({ fallbackUnitId: activeTabId });
  * 
  * // Navigate to a specific unit
  * navigateToUnit('uuid-here', 'armor');
  * 
- * // Change tabs (stays on current unit)
+ * // Change tabs (stays on current unit, or uses fallback)
  * navigateToTab('weapons');
  * ```
  */
-export function useCustomizerRouter(): CustomizerRouterResult {
+export function useCustomizerRouter(
+  options: UseCustomizerRouterOptions = {}
+): CustomizerRouterResult {
+  const { fallbackUnitId } = options;
   const router = useRouter();
   const isNavigatingRef = useRef(false);
   
@@ -202,8 +221,11 @@ export function useCustomizerRouter(): CustomizerRouterResult {
   }, [router]);
   
   const navigateToTab = useCallback((tabId: CustomizerTabId) => {
-    if (!params.unitId) {
-      console.warn('navigateToTab: No current unit');
+    // Use URL unit ID first, then fallback to provided unit ID (e.g., active tab)
+    const effectiveUnitId = params.unitId || (fallbackUnitId && isValidUnitId(fallbackUnitId) ? fallbackUnitId : null);
+    
+    if (!effectiveUnitId) {
+      console.warn('navigateToTab: No current unit and no valid fallback');
       return;
     }
     
@@ -213,8 +235,8 @@ export function useCustomizerRouter(): CustomizerRouterResult {
     }
     
     isNavigatingRef.current = true;
-    router.push(`/customizer/${params.unitId}/${tabId}`, undefined, { shallow: true });
-  }, [router, params.unitId]);
+    router.push(`/customizer/${effectiveUnitId}/${tabId}`, undefined, { shallow: true });
+  }, [router, params.unitId, fallbackUnitId]);
   
   const navigateToIndex = useCallback(() => {
     isNavigatingRef.current = true;

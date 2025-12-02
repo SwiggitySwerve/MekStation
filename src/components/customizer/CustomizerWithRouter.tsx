@@ -41,14 +41,15 @@ import { UnitEditorWithRouting } from './UnitEditorWithRouting';
 export default function CustomizerWithRouter() {
   const [isHydrated, setIsHydrated] = useState(false);
   
-  // URL router
-  const router = useCustomizerRouter();
-  
   // Tab manager store (for multi-unit tabs)
   const tabs = useTabManagerStore((s) => s.tabs);
   const activeTabId = useTabManagerStore((s) => s.activeTabId);
   const isLoading = useTabManagerStore((s) => s.isLoading);
   const selectTab = useTabManagerStore((s) => s.selectTab);
+  
+  // URL router - pass activeTabId as fallback for index page navigation
+  // This enables tab switching even when on /customizer without unit ID in URL
+  const router = useCustomizerRouter({ fallbackUnitId: activeTabId });
   
   // Prevent sync loops
   const isSyncingRef = useRef(false);

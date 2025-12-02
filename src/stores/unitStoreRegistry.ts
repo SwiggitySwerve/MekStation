@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 import { UnitStore, UnitState, createDefaultUnitState, CreateUnitOptions } from './unitState';
 import { createUnitStore, createNewUnitStore } from './useUnitStore';
+import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // SSR-Safe Storage Helper
@@ -96,6 +97,25 @@ export function registerStore(store: StoreApi<UnitStore>): void {
 }
 
 /**
+ * Validate and potentially repair a unit ID
+ * 
+ * @param unitId - The unit ID to validate
+ * @param context - Context string for logging
+ * @returns A valid UUID (original if valid, or newly generated)
+ */
+function ensureValidUnitId(unitId: string | undefined | null, context: string): string {
+  if (unitId && isValidUUID(unitId)) {
+    return unitId;
+  }
+  
+  const newId = generateUUID();
+  console.warn(
+    `[UnitStoreRegistry] ${context}: Invalid unit ID "${unitId || '(missing)'}" replaced with "${newId}"`
+  );
+  return newId;
+}
+
+/**
  * Hydrate a unit store from localStorage
  * If the unit was previously saved, this restores it
  * 
@@ -107,14 +127,17 @@ export function hydrateOrCreateUnit(
   unitId: string,
   fallbackOptions: CreateUnitOptions
 ): StoreApi<UnitStore> {
+  // Validate the requested unit ID
+  const validUnitId = ensureValidUnitId(unitId, 'hydrateOrCreateUnit');
+  
   // Check if already in registry
-  const existing = unitStores.get(unitId);
+  const existing = unitStores.get(validUnitId);
   if (existing) {
     return existing;
   }
   
   // Try to load from localStorage (SSR-safe)
-  const storageKey = `megamek-unit-${unitId}`;
+  const storageKey = `megamek-unit-${validUnitId}`;
   const savedState = safeGetItem(storageKey);
   
   if (savedState) {
@@ -122,25 +145,28 @@ export function hydrateOrCreateUnit(
       const parsed = JSON.parse(savedState);
       const state = parsed.state as Partial<UnitState>;
       
+      // Validate the ID from localStorage as well
+      const stateId = ensureValidUnitId(state.id, 'localStorage state');
+      
       // Create store with saved state merged with defaults
-      const defaultState = createDefaultUnitState({ ...fallbackOptions, id: unitId });
+      const defaultState = createDefaultUnitState({ ...fallbackOptions, id: validUnitId });
       const mergedState: UnitState = {
         ...defaultState,
         ...state,
-        id: unitId, // Ensure ID matches
+        id: validUnitId, // Always use the validated ID we were called with
       };
       
       const store = createUnitStore(mergedState);
-      unitStores.set(unitId, store);
+      unitStores.set(validUnitId, store);
       return store;
     } catch (e) {
-      console.warn(`Failed to hydrate unit ${unitId}, creating new:`, e);
+      console.warn(`Failed to hydrate unit ${validUnitId}, creating new:`, e);
     }
   }
   
   // Create new unit with fallback options
-  const store = createNewUnitStore({ ...fallbackOptions, id: unitId });
-  unitStores.set(unitId, store);
+  const store = createNewUnitStore({ ...fallbackOptions, id: validUnitId });
+  unitStores.set(validUnitId, store);
   return store;
 }
 
@@ -237,15 +263,23 @@ export function duplicateUnit(sourceUnitId: string, newName?: string): StoreApi<
  * @returns The created store
  */
 export function createUnitFromFullState(state: UnitState): StoreApi<UnitStore> {
+  // Validate the ID
+  const validId = ensureValidUnitId(state.id, 'createUnitFromFullState');
+  
   // Check if already exists (shouldn't happen since IDs are unique UUIDs)
-  const existing = unitStores.get(state.id);
+  const existing = unitStores.get(validId);
   if (existing) {
-    console.warn(`Unit store ${state.id} already exists, returning existing`);
+    console.warn(`Unit store ${validId} already exists, returning existing`);
     return existing;
   }
   
-  // Create the store with the full state
-  const store = createUnitStore(state);
-  unitStores.set(state.id, store);
+  // Create the store with the full state, ensuring valid ID
+  const validatedState: UnitState = {
+    ...state,
+    id: validId,
+  };
+  
+  const store = createUnitStore(validatedState);
+  unitStores.set(validId, store);
   return store;
 }

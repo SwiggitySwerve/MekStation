@@ -21,6 +21,7 @@ import {
 } from '@/stores/unitStoreRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { EngineType } from '@/types/construction/EngineType';
+import { isValidUUID } from '@/utils/uuid';
 import {
   setupMockLocalStorage,
 } from '../helpers/storeTestHelpers';
@@ -238,7 +239,7 @@ describe('useTabManagerStore', () => {
       expect(useTabManagerStore.getState().tabs).toHaveLength(1);
     });
     
-    it('should not close last tab', () => {
+    it('should close last tab and set activeTabId to null', () => {
       act(() => {
         useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0]);
       });
@@ -249,7 +250,9 @@ describe('useTabManagerStore', () => {
         useTabManagerStore.getState().closeTab(tabId);
       });
       
-      expect(useTabManagerStore.getState().tabs).toHaveLength(1);
+      // Per spec: users CAN close the last tab
+      expect(useTabManagerStore.getState().tabs).toHaveLength(0);
+      expect(useTabManagerStore.getState().activeTabId).toBeNull();
     });
     
     it('should select adjacent tab when closing active tab', () => {
@@ -555,6 +558,166 @@ describe('useTabManagerStore', () => {
   // behavior may vary. These tests verify the store's state management
   // rather than localStorage integration.
   // ===========================================================================
+  // ===========================================================================
+  // Tab ID Validation on Hydration
+  // ===========================================================================
+  describe('Tab ID Validation', () => {
+    it('should repair tabs with missing IDs on hydration', () => {
+      // Simulate corrupted localStorage with missing ID
+      const corruptedState = {
+        state: {
+          tabs: [
+            { id: '', name: 'Missing ID Tab', tonnage: 50, techBase: TechBase.INNER_SPHERE },
+          ],
+          activeTabId: '',
+        },
+        version: 0,
+      };
+      
+      mockStorage.mockStorage.setItem('megamek-tab-manager', JSON.stringify(corruptedState));
+      
+      // Trigger rehydration
+      act(() => {
+        useTabManagerStore.persist.rehydrate();
+      });
+      
+      const { tabs, activeTabId } = useTabManagerStore.getState();
+      
+      // Tab should have a valid UUID now
+      expect(tabs).toHaveLength(1);
+      expect(tabs[0].id).not.toBe('');
+      expect(isValidUUID(tabs[0].id)).toBe(true);
+      expect(tabs[0].name).toBe('Missing ID Tab');
+      
+      // Active tab should be updated to the new ID
+      expect(activeTabId).toBe(tabs[0].id);
+    });
+    
+    it('should repair tabs with invalid (non-UUID) IDs on hydration', () => {
+      // Simulate corrupted localStorage with invalid ID
+      const corruptedState = {
+        state: {
+          tabs: [
+            { id: 'invalid-not-a-uuid', name: 'Invalid ID Tab', tonnage: 75, techBase: TechBase.CLAN },
+          ],
+          activeTabId: 'invalid-not-a-uuid',
+        },
+        version: 0,
+      };
+      
+      mockStorage.mockStorage.setItem('megamek-tab-manager', JSON.stringify(corruptedState));
+      
+      // Trigger rehydration
+      act(() => {
+        useTabManagerStore.persist.rehydrate();
+      });
+      
+      const { tabs, activeTabId } = useTabManagerStore.getState();
+      
+      // Tab should have a valid UUID now
+      expect(tabs).toHaveLength(1);
+      expect(tabs[0].id).not.toBe('invalid-not-a-uuid');
+      expect(isValidUUID(tabs[0].id)).toBe(true);
+      
+      // Active tab should be updated to the new ID
+      expect(activeTabId).toBe(tabs[0].id);
+    });
+    
+    it('should repair multiple tabs with invalid IDs', () => {
+      const corruptedState = {
+        state: {
+          tabs: [
+            { id: 'bad-id-1', name: 'Tab 1', tonnage: 25, techBase: TechBase.INNER_SPHERE },
+            { id: '', name: 'Tab 2', tonnage: 50, techBase: TechBase.INNER_SPHERE },
+            { id: 'bad-id-3', name: 'Tab 3', tonnage: 100, techBase: TechBase.CLAN },
+          ],
+          activeTabId: 'bad-id-1',
+        },
+        version: 0,
+      };
+      
+      mockStorage.mockStorage.setItem('megamek-tab-manager', JSON.stringify(corruptedState));
+      
+      act(() => {
+        useTabManagerStore.persist.rehydrate();
+      });
+      
+      const { tabs, activeTabId } = useTabManagerStore.getState();
+      
+      // All tabs should have valid UUIDs
+      expect(tabs).toHaveLength(3);
+      tabs.forEach((tab, index) => {
+        expect(isValidUUID(tab.id)).toBe(true);
+        expect(tab.name).toBe(`Tab ${index + 1}`);
+      });
+      
+      // All IDs should be unique
+      const ids = tabs.map(t => t.id);
+      expect(new Set(ids).size).toBe(3);
+      
+      // Active tab ID should be updated
+      expect(isValidUUID(activeTabId!)).toBe(true);
+      expect(activeTabId).toBe(tabs[0].id);
+    });
+    
+    it('should preserve valid UUIDs during hydration', () => {
+      const validId = '550e8400-e29b-41d4-a716-446655440000';
+      const validState = {
+        state: {
+          tabs: [
+            { id: validId, name: 'Valid Tab', tonnage: 50, techBase: TechBase.INNER_SPHERE },
+          ],
+          activeTabId: validId,
+        },
+        version: 0,
+      };
+      
+      mockStorage.mockStorage.setItem('megamek-tab-manager', JSON.stringify(validState));
+      
+      act(() => {
+        useTabManagerStore.persist.rehydrate();
+      });
+      
+      const { tabs, activeTabId } = useTabManagerStore.getState();
+      
+      // Valid UUID should be preserved
+      expect(tabs[0].id).toBe(validId);
+      expect(activeTabId).toBe(validId);
+    });
+    
+    it('should handle mixed valid and invalid IDs', () => {
+      const validId = '550e8400-e29b-41d4-a716-446655440000';
+      const mixedState = {
+        state: {
+          tabs: [
+            { id: validId, name: 'Valid Tab', tonnage: 50, techBase: TechBase.INNER_SPHERE },
+            { id: 'invalid', name: 'Invalid Tab', tonnage: 75, techBase: TechBase.CLAN },
+          ],
+          activeTabId: 'invalid',
+        },
+        version: 0,
+      };
+      
+      mockStorage.mockStorage.setItem('megamek-tab-manager', JSON.stringify(mixedState));
+      
+      act(() => {
+        useTabManagerStore.persist.rehydrate();
+      });
+      
+      const { tabs, activeTabId } = useTabManagerStore.getState();
+      
+      // Valid ID should be preserved
+      expect(tabs[0].id).toBe(validId);
+      
+      // Invalid ID should be replaced
+      expect(tabs[1].id).not.toBe('invalid');
+      expect(isValidUUID(tabs[1].id)).toBe(true);
+      
+      // Active tab should point to the repaired tab
+      expect(activeTabId).toBe(tabs[1].id);
+    });
+  });
+  
   describe('Persistence Configuration', () => {
     it('should only include tabs and activeTabId in partialize', () => {
       // The store is configured to only persist tabs and activeTabId

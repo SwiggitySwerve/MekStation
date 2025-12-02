@@ -20,6 +20,7 @@ import {
   deleteUnit,
   clearAllStores,
   duplicateUnit,
+  createUnitFromFullState,
 } from '@/stores/unitStoreRegistry';
 import { createUnitStore, createNewUnitStore } from '@/stores/useUnitStore';
 import { createDefaultUnitState } from '@/stores/unitState';
@@ -29,6 +30,7 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { isValidUUID } from '@/utils/uuid';
 import {
   setupMockLocalStorage,
   createTestUnitOptions,
@@ -173,7 +175,8 @@ describe('unitStoreRegistry', () => {
     });
     
     it('should create new store with fallback options if no saved state', () => {
-      const unitId = 'new-unit-id';
+      // Use a valid UUID
+      const unitId = '550e8400-e29b-41d4-a716-446655440001';
       
       const hydrated = hydrateOrCreateUnit(unitId, {
         name: 'New Unit',
@@ -188,7 +191,8 @@ describe('unitStoreRegistry', () => {
     });
     
     it('should restore from localStorage if available', () => {
-      const unitId = 'saved-unit-id';
+      // Use a valid UUID
+      const unitId = '550e8400-e29b-41d4-a716-446655440002';
       const savedState = {
         state: {
           id: unitId,
@@ -211,7 +215,8 @@ describe('unitStoreRegistry', () => {
     });
     
     it('should use fallback options if localStorage is corrupted', () => {
-      const unitId = 'corrupted-unit-id';
+      // Use a valid UUID
+      const unitId = '550e8400-e29b-41d4-a716-446655440003';
       
       mockStorage.mockStorage.setItem(`megamek-unit-${unitId}`, 'not valid json');
       
@@ -226,7 +231,8 @@ describe('unitStoreRegistry', () => {
     });
     
     it('should register hydrated store in registry', () => {
-      const unitId = 'hydrated-unit-id';
+      // Use a valid UUID
+      const unitId = '550e8400-e29b-41d4-a716-446655440004';
       
       hydrateOrCreateUnit(unitId, createTestUnitOptions());
       
@@ -443,6 +449,119 @@ describe('unitStoreRegistry', () => {
       // Duplicate should have changes
       expect(duplicate!.getState().componentTechBases.engine).toBe(TechBase.INNER_SPHERE);
       expect(duplicate!.getState().engineType).toBe(EngineType.LIGHT);
+    });
+  });
+  
+  // ===========================================================================
+  // ID Validation
+  // ===========================================================================
+  describe('ID Validation', () => {
+    describe('hydrateOrCreateUnit() with invalid IDs', () => {
+      it('should generate valid UUID when called with empty string ID', () => {
+        const store = hydrateOrCreateUnit('', {
+          name: 'Test Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        const state = store.getState();
+        expect(state.id).not.toBe('');
+        expect(isValidUUID(state.id)).toBe(true);
+      });
+      
+      it('should generate valid UUID when called with invalid ID', () => {
+        const store = hydrateOrCreateUnit('not-a-valid-uuid', {
+          name: 'Test Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        const state = store.getState();
+        expect(state.id).not.toBe('not-a-valid-uuid');
+        expect(isValidUUID(state.id)).toBe(true);
+      });
+      
+      it('should preserve valid UUID when called with valid ID', () => {
+        const validId = '550e8400-e29b-41d4-a716-446655440000';
+        
+        const store = hydrateOrCreateUnit(validId, {
+          name: 'Test Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        expect(store.getState().id).toBe(validId);
+      });
+      
+      it('should repair invalid ID in localStorage state', () => {
+        const requestedId = '550e8400-e29b-41d4-a716-446655440000';
+        const savedState = {
+          state: {
+            id: 'corrupted-id-in-storage',
+            name: 'Saved Unit',
+            tonnage: 80,
+            techBase: TechBase.CLAN,
+          },
+          version: 0,
+        };
+        
+        mockStorage.mockStorage.setItem(`megamek-unit-${requestedId}`, JSON.stringify(savedState));
+        
+        const store = hydrateOrCreateUnit(requestedId, createTestUnitOptions());
+        
+        // Should use the requested ID, not the corrupted one from storage
+        expect(store.getState().id).toBe(requestedId);
+        expect(store.getState().name).toBe('Saved Unit');
+      });
+    });
+    
+    describe('createUnitFromFullState() with invalid IDs', () => {
+      it('should generate valid UUID when state has empty ID', () => {
+        const state = createDefaultUnitState({
+          name: 'Full State Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        // Force empty ID
+        const stateWithEmptyId = { ...state, id: '' };
+        
+        const store = createUnitFromFullState(stateWithEmptyId);
+        
+        expect(store.getState().id).not.toBe('');
+        expect(isValidUUID(store.getState().id)).toBe(true);
+      });
+      
+      it('should generate valid UUID when state has invalid ID', () => {
+        const state = createDefaultUnitState({
+          name: 'Full State Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        // Force invalid ID
+        const stateWithInvalidId = { ...state, id: 'invalid-id' };
+        
+        const store = createUnitFromFullState(stateWithInvalidId);
+        
+        expect(store.getState().id).not.toBe('invalid-id');
+        expect(isValidUUID(store.getState().id)).toBe(true);
+      });
+      
+      it('should preserve valid UUID in state', () => {
+        const validId = '550e8400-e29b-41d4-a716-446655440000';
+        const state = createDefaultUnitState({
+          name: 'Full State Unit',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        });
+        
+        const stateWithValidId = { ...state, id: validId };
+        
+        const store = createUnitFromFullState(stateWithValidId);
+        
+        expect(store.getState().id).toBe(validId);
+      });
     });
   });
   
