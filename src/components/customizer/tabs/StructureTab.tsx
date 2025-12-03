@@ -354,18 +354,17 @@ export function StructureTab({
             
             {/* Heat Sinks Subsection */}
             <div className={`${cs.layout.divider} mt-2`}>
-              <h4 className="text-sm font-semibold text-slate-300 mb-3">Heat Sinks</h4>
+              <div className={cs.layout.rowBetween}>
+                <h4 className="text-sm font-semibold text-slate-300">Heat Sinks</h4>
+                <span className={cs.text.secondary}>
+                  {calculations.heatSinkWeight}t / {calculations.heatSinkSlots} slots
+                </span>
+              </div>
               
-              {/* Heat Sink Type */}
-              <div className={cs.layout.field}>
-                <div className={cs.layout.rowBetween}>
-                  <label className={cs.text.label}>Type</label>
-                  <span className={cs.text.secondary}>
-                    {heatSinkType === HeatSinkType.SINGLE ? '1 heat/sink' : '2 heat/sink'}
-                  </span>
-                </div>
+              {/* Type + Count on same line */}
+              <div className="flex items-center gap-3 mt-2">
                 <select 
-                  className={cs.select.compact}
+                  className={`${cs.select.compact} flex-1`}
                   disabled={readOnly}
                   value={heatSinkType}
                   onChange={handleHeatSinkTypeChange}
@@ -376,42 +375,29 @@ export function StructureTab({
                     </option>
                   ))}
                 </select>
-              </div>
-              
-              {/* Heat Sink Count */}
-              <div className={`${cs.layout.field} mt-3`}>
-                <div className={cs.layout.rowBetween}>
-                  <label className={cs.text.label}>Number</label>
-                  <span className={cs.text.secondary}>
-                    {calculations.heatSinkWeight}t / {calculations.heatSinkSlots} slots
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
-                      disabled={readOnly || heatSinkCount <= 10}
-                      className={cs.button.stepperLeft}
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      value={heatSinkCount}
-                      onChange={(e) => handleHeatSinkCountChange(parseInt(e.target.value, 10) || 10)}
-                      disabled={readOnly}
-                      min={10}
-                      className={`w-14 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-                    />
-                    <button
-                      onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
-                      disabled={readOnly}
-                      className={cs.button.stepperRight}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className={cs.text.secondary}>(min: 10)</span>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
+                    disabled={readOnly || heatSinkCount <= 10}
+                    className={cs.button.stepperLeft}
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    value={heatSinkCount}
+                    onChange={(e) => handleHeatSinkCountChange(parseInt(e.target.value, 10) || 10)}
+                    disabled={readOnly}
+                    min={10}
+                    className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
+                  />
+                  <button
+                    onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
+                    disabled={readOnly}
+                    className={cs.button.stepperRight}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
               
