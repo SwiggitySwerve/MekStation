@@ -8,10 +8,12 @@
 
 import { UnitSearchService } from '@/services/units/UnitSearchService';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { customUnitService } from '@/services/units/CustomUnitService';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { IUnitIndexEntry } from '@/services/common/types';
+import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { WeightClass } from '@/types/enums/WeightClass';
 
 // Mock the unit services
@@ -21,8 +23,8 @@ jest.mock('@/services/units/CanonicalUnitService', () => ({
   },
 }));
 
-jest.mock('@/services/units/CustomUnitService', () => ({
-  customUnitService: {
+jest.mock('@/services/units/CustomUnitApiService', () => ({
+  customUnitApiService: {
     list: jest.fn(),
   },
 }));
@@ -30,7 +32,7 @@ jest.mock('@/services/units/CustomUnitService', () => ({
 describe('UnitSearchService', () => {
   let service: UnitSearchService;
   const mockCanonical = canonicalUnitService as jest.Mocked<typeof canonicalUnitService>;
-  const mockCustom = customUnitService as jest.Mocked<typeof customUnitService>;
+  const mockCustomApi = customUnitApiService as jest.Mocked<typeof customUnitApiService>;
 
   beforeEach(() => {
     service = new UnitSearchService();
@@ -56,31 +58,52 @@ describe('UnitSearchService', () => {
     };
   }
 
+  /**
+   * Create a mock custom unit index entry (from API)
+   */
+  function createMockCustomEntry(overrides: Partial<ICustomUnitIndexEntry> = {}): ICustomUnitIndexEntry {
+    return {
+      id: 'custom-test-unit',
+      chassis: 'Custom',
+      variant: 'TEST-1',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+      era: Era.LATE_SUCCESSION_WARS,
+      rulesLevel: RulesLevel.STANDARD,
+      weightClass: WeightClass.MEDIUM,
+      unitType: 'BattleMech',
+      currentVersion: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...overrides,
+    };
+  }
+
   // ============================================================================
   // initialize()
   // ============================================================================
   describe('initialize()', () => {
     it('should load canonical units', async () => {
       mockCanonical.getIndex.mockResolvedValueOnce([]);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       
       await service.initialize();
       
       expect(mockCanonical.getIndex).toHaveBeenCalled();
     });
 
-    it('should load custom units', async () => {
+    it('should load custom units from API', async () => {
       mockCanonical.getIndex.mockResolvedValueOnce([]);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       
       await service.initialize();
       
-      expect(mockCustom.list).toHaveBeenCalled();
+      expect(mockCustomApi.list).toHaveBeenCalled();
     });
 
     it('should only initialize once', async () => {
       mockCanonical.getIndex.mockResolvedValue([]);
-      mockCustom.list.mockResolvedValue([]);
+      mockCustomApi.list.mockResolvedValue([]);
       
       await service.initialize();
       await service.initialize();
@@ -90,10 +113,10 @@ describe('UnitSearchService', () => {
 
     it('should combine canonical and custom units', async () => {
       const canonical = [createMockEntry({ id: 'canonical-1', name: 'Atlas AS7-D' })];
-      const custom = [createMockEntry({ id: 'custom-1', name: 'Custom Mech' })];
+      const custom = [createMockCustomEntry({ id: 'custom-1', chassis: 'Custom', variant: 'Mech' })];
       
       mockCanonical.getIndex.mockResolvedValueOnce(canonical);
-      mockCustom.list.mockResolvedValueOnce(custom);
+      mockCustomApi.list.mockResolvedValueOnce(custom);
       
       await service.initialize();
       
@@ -119,7 +142,7 @@ describe('UnitSearchService', () => {
       ];
       
       mockCanonical.getIndex.mockResolvedValueOnce(units);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       
       await service.initialize();
     });
@@ -186,7 +209,7 @@ describe('UnitSearchService', () => {
   describe('addToIndex()', () => {
     beforeEach(async () => {
       mockCanonical.getIndex.mockResolvedValueOnce([]);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       await service.initialize();
     });
 
@@ -232,7 +255,7 @@ describe('UnitSearchService', () => {
       ];
       
       mockCanonical.getIndex.mockResolvedValueOnce(units);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       await service.initialize();
     });
 
@@ -269,7 +292,7 @@ describe('UnitSearchService', () => {
   describe('rebuildIndex()', () => {
     it('should reset initialized state', async () => {
       mockCanonical.getIndex.mockResolvedValue([]);
-      mockCustom.list.mockResolvedValue([]);
+      mockCustomApi.list.mockResolvedValue([]);
       
       await service.initialize();
       await service.rebuildIndex();
@@ -281,7 +304,7 @@ describe('UnitSearchService', () => {
     it('should pick up new units', async () => {
       // First init - no units
       mockCanonical.getIndex.mockResolvedValueOnce([]);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       await service.initialize();
       
       expect(service.search('Atlas')).toHaveLength(0);
@@ -289,7 +312,7 @@ describe('UnitSearchService', () => {
       // Rebuild with new units
       const newUnits = [createMockEntry({ id: '1', name: 'Atlas AS7-D', chassis: 'Atlas' })];
       mockCanonical.getIndex.mockResolvedValueOnce(newUnits);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       
       await service.rebuildIndex();
       
@@ -301,14 +324,14 @@ describe('UnitSearchService', () => {
       // First init - has unit
       const units = [createMockEntry({ id: '1', name: 'Atlas AS7-D', chassis: 'Atlas' })];
       mockCanonical.getIndex.mockResolvedValueOnce(units);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       await service.initialize();
       
       expect(service.search('Atlas').length).toBeGreaterThan(0);
       
       // Rebuild with no units
       mockCanonical.getIndex.mockResolvedValueOnce([]);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       
       await service.rebuildIndex();
       
@@ -327,7 +350,7 @@ describe('UnitSearchService', () => {
       ];
       
       mockCanonical.getIndex.mockResolvedValueOnce(units);
-      mockCustom.list.mockResolvedValueOnce([]);
+      mockCustomApi.list.mockResolvedValueOnce([]);
       await service.initialize();
     });
 
@@ -348,4 +371,3 @@ describe('UnitSearchService', () => {
     });
   });
 });
-

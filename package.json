@@ -12,6 +12,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "coverage:analyze": "npm run test:coverage && node scripts/analysis/coverage-analysis.js",
     "analyze": "npm run build:analyze && npx webpack-bundle-analyzer .next/static/chunks/*.js",
     "build:profile": "next build --profile",
     "build:debug": "next build --debug",

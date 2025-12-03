@@ -22,6 +22,44 @@ const customJestConfig = {
     'src/components/**/*.{js,ts,jsx,tsx}',
     '!**/*.d.ts',
   ],
+  // Coverage thresholds - will fail if coverage drops below these levels
+  // Set based on coverage analysis from 2025-12-03
+  coverageThreshold: {
+    global: {
+      statements: 45,
+      branches: 35,
+      functions: 40,
+      lines: 45
+    },
+    // Critical areas with higher thresholds
+    './src/utils/construction/': {
+      statements: 85,
+      branches: 65,
+      functions: 95
+    },
+    './src/utils/validation/': {
+      statements: 90,
+      branches: 80,
+      functions: 100
+    },
+    './src/services/conversion/': {
+      statements: 85,
+      branches: 65,
+      functions: 100
+    },
+    './src/utils/serialization/': {
+      statements: 90,
+      branches: 85,
+      functions: 100
+    },
+    './src/utils/temporal/': {
+      statements: 95,
+      branches: 100,
+      functions: 100
+    }
+  },
+  // Report formats: text, lcov (for CI), html (for browsing)
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
   testMatch: [
     '**/__tests__/**/*.(test|spec).(js|ts|tsx)',
     '**/*.(test|spec).(js|ts|tsx)',

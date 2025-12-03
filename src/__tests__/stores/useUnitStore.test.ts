@@ -55,10 +55,11 @@ describe('Unit Store', () => {
       expect(id1).not.toBe(id2);
     });
     
-    it('should generate IDs with expected format', () => {
+    it('should generate IDs with expected UUID format', () => {
       const id = generateUnitId();
       
-      expect(id).toMatch(/^unit-\d+-[a-z0-9]+$/);
+      // UUIDs are 36 characters: 8-4-4-4-12 format
+      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
   });
   
@@ -104,7 +105,8 @@ describe('Unit Store', () => {
       
       const state = createDefaultUnitState(options);
       
-      expect(state.id).toMatch(/^unit-\d+-[a-z0-9]+$/);
+      // UUIDs are 36 characters: 8-4-4-4-12 format (UUID v4)
+      expect(state.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
     
     it('should set techBaseMode to inner_sphere for IS units', () => {
@@ -253,7 +255,8 @@ describe('Unit Store', () => {
       
       expect(state.name).toBe('New Unit');
       expect(state.tonnage).toBe(50);
-      expect(state.id).toMatch(/^unit-\d+-[a-z0-9]+$/);
+      // UUIDs are 36 characters: 8-4-4-4-12 format (UUID v4)
+      expect(state.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
   });
   
