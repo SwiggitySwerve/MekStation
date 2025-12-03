@@ -117,7 +117,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.LEFT_TORSO}
             x={35}
-            y={65}
+            y={105}
             width={65}
             height={100}
             data={getArmorData(MechLocation.LEFT_TORSO)}
@@ -133,7 +133,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.RIGHT_TORSO}
             x={200}
-            y={65}
+            y={105}
             width={65}
             height={100}
             data={getArmorData(MechLocation.RIGHT_TORSO)}
@@ -149,7 +149,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.LEFT_ARM}
             x={5}
-            y={75}
+            y={115}
             width={25}
             height={120}
             data={getArmorData(MechLocation.LEFT_ARM)}
@@ -164,7 +164,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.RIGHT_ARM}
             x={270}
-            y={75}
+            y={115}
             width={25}
             height={120}
             data={getArmorData(MechLocation.RIGHT_ARM)}
@@ -179,7 +179,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.LEFT_LEG}
             x={55}
-            y={170}
+            y={210}
             width={45}
             height={130}
             data={getArmorData(MechLocation.LEFT_LEG)}
@@ -194,7 +194,7 @@ export function ArmorDiagram({
           <ArmorLocation
             location={MechLocation.RIGHT_LEG}
             x={200}
-            y={170}
+            y={210}
             width={45}
             height={130}
             data={getArmorData(MechLocation.RIGHT_LEG)}

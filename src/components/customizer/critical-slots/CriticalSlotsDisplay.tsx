@@ -108,7 +108,7 @@ export function CriticalSlotsDisplay({
       <div className="p-4">
         <div className="flex gap-2 items-start">
           {/* Column 1: Left Arm */}
-          <div className="flex flex-col">
+          <div className="flex flex-col" style={{ marginTop: '40px' }}>
             <LocationGrid
               location={MechLocation.LEFT_ARM}
               data={getLocationData(MechLocation.LEFT_ARM)}
@@ -121,7 +121,7 @@ export function CriticalSlotsDisplay({
           </div>
           
           {/* Column 2: Left Torso + Left Leg stacked */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2" style={{ marginTop: '40px' }}>
             <LocationGrid
               location={MechLocation.LEFT_TORSO}
               data={getLocationData(MechLocation.LEFT_TORSO)}
@@ -165,7 +165,7 @@ export function CriticalSlotsDisplay({
           </div>
           
           {/* Column 4: Right Torso + Right Leg stacked */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2" style={{ marginTop: '40px' }}>
             <LocationGrid
               location={MechLocation.RIGHT_TORSO}
               data={getLocationData(MechLocation.RIGHT_TORSO)}
@@ -187,7 +187,7 @@ export function CriticalSlotsDisplay({
           </div>
           
           {/* Column 5: Right Arm */}
-          <div className="flex flex-col">
+          <div className="flex flex-col" style={{ marginTop: '40px' }}>
             <LocationGrid
               location={MechLocation.RIGHT_ARM}
               data={getLocationData(MechLocation.RIGHT_ARM)}

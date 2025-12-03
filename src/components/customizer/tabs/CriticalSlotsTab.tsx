@@ -606,12 +606,12 @@ export function CriticalSlotsTab({
       <div className="flex-1 p-4 overflow-auto">
         <div className="flex gap-3 items-start justify-center">
           {/* Column 1: Left Arm (offset down to align with torso body) */}
-          <div className="flex flex-col mt-24">
+          <div className="flex flex-col" style={{ marginTop: '136px' }}>
             {renderLocation(MechLocation.LEFT_ARM)}
           </div>
           
           {/* Column 2: Left Torso + Left Leg stacked */}
-          <div className="flex flex-col">
+          <div className="flex flex-col" style={{ marginTop: '40px' }}>
             {renderLocation(MechLocation.LEFT_TORSO)}
             <div className="mt-16">
               {renderLocation(MechLocation.LEFT_LEG)}
@@ -625,7 +625,7 @@ export function CriticalSlotsTab({
           </div>
           
           {/* Column 4: Right Torso + Right Leg stacked */}
-          <div className="flex flex-col">
+          <div className="flex flex-col" style={{ marginTop: '40px' }}>
             {renderLocation(MechLocation.RIGHT_TORSO)}
             <div className="mt-16">
               {renderLocation(MechLocation.RIGHT_LEG)}
@@ -633,7 +633,7 @@ export function CriticalSlotsTab({
           </div>
           
           {/* Column 5: Right Arm (offset down to align with torso body) */}
-          <div className="flex flex-col mt-24">
+          <div className="flex flex-col" style={{ marginTop: '136px' }}>
             {renderLocation(MechLocation.RIGHT_ARM)}
           </div>
         </div>
