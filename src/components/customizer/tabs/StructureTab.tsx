@@ -465,7 +465,20 @@ export function StructureTab({
               <div className="flex items-center justify-center gap-1">
                 <span className={`text-sm ${cs.text.value}`}>{runMP}</span>
                 {maxRunMP && (
-                  <span className="text-sm font-bold text-white">[{maxRunMP}]</span>
+                  <span 
+                    className="text-sm font-bold text-white cursor-help"
+                    title={
+                      enhancement === MovementEnhancementType.MASC 
+                        ? `MASC Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
+                        : enhancement === MovementEnhancementType.TSM
+                        ? `TSM at 9+ heat: Walk ${walkMP} + 2 - 1 (heat) = ${walkMP + 1}, Run = ⌈${walkMP + 1} × 1.5⌉ = ${maxRunMP}`
+                        : enhancement === MovementEnhancementType.SUPERCHARGER
+                        ? `Supercharger Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
+                        : `Enhanced max: ${maxRunMP}`
+                    }
+                  >
+                    [{maxRunMP}]
+                  </span>
                 )}
               </div>
             </div>
@@ -564,8 +577,14 @@ export function StructureTab({
               </div>
               {enhancement && (
                 <p className={`${cs.text.secondary} mt-2`}>
-                  {enhancement === MovementEnhancementType.MASC && 'Double running speed, risk of leg damage'}
-                  {enhancement === MovementEnhancementType.TSM && '+2 Walk MP at 9+ heat, double physical damage'}
+                  {enhancement === MovementEnhancementType.MASC && 'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
+                  {enhancement === MovementEnhancementType.TSM && (
+                    <>
+                      Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty = net +1 MP.
+                      <br />
+                      <span className="text-amber-400">Doubles physical attack damage.</span>
+                    </>
+                  )}
                 </p>
               )}
             </div>
