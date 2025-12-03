@@ -74,8 +74,9 @@ import {
 import { JumpJetType, getMaxJumpMP, getJumpJetDefinition } from '@/utils/construction/movementCalculations';
 import { JUMP_JETS, HEAT_SINKS, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { HeatSinkType, getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
-import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
+import { calculateIntegralHeatSinks, calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { EquipmentCategory } from '@/types/equipment';
+import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
 import {
   getEquipmentDisplacedByEngineChange,
   getEquipmentDisplacedByGyroChange,
@@ -430,44 +431,67 @@ function getEnhancementEquipment(
 
 /**
  * Calculate enhancement weight based on type and mech parameters
- * MASC (IS): ceil(tonnage / 20)
- * MASC (Clan): ceil(tonnage / 25)
- * TSM: 0
- * Supercharger: ceil(engineWeight / 10), round to 0.5t
+ * Uses EquipmentCalculatorService with correct formulas:
+ * - MASC (IS): ceil(engineRating / 20)
+ * - MASC (Clan): ceil(engineRating / 25)
+ * - Supercharger: ceil(engineWeight / 10) rounded to 0.5t
+ * - TSM: 0
  */
 function calculateEnhancementWeight(
   enhancementType: MovementEnhancementType,
   tonnage: number,
-  techBase: TechBase
+  techBase: TechBase,
+  engineRating: number,
+  engineWeight: number
 ): number {
+  // Use EquipmentCalculatorService for MASC and Supercharger (variable equipment)
+  if (enhancementType === MovementEnhancementType.MASC) {
+    const equipId = techBase === TechBase.CLAN ? VARIABLE_EQUIPMENT.MASC_CLAN : VARIABLE_EQUIPMENT.MASC_IS;
+    const result = equipmentCalculatorService.calculateProperties(equipId, { engineRating, tonnage });
+    return result.weight;
+  }
+  
+  if (enhancementType === MovementEnhancementType.SUPERCHARGER) {
+    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.SUPERCHARGER, { engineWeight });
+    return result.weight;
+  }
+  
+  // TSM and others use the definition
   const def = getMovementEnhancementDefinition(enhancementType);
   if (!def) return 0;
-  
   return def.getWeight(tonnage);
 }
 
 /**
  * Calculate enhancement critical slots based on type and mech parameters
- * MASC: ceil(tonnage / 20) for IS, ceil(tonnage / 25) for Clan
- * TSM: 6 (distributed)
- * Supercharger: 1
+ * Uses EquipmentCalculatorService with correct formulas:
+ * - MASC (IS): ceil(engineRating / 20) - same as weight
+ * - MASC (Clan): ceil(engineRating / 25) - same as weight
+ * - Supercharger: 1 (fixed)
+ * - TSM: 6 (distributed)
  */
 function calculateEnhancementSlots(
   enhancementType: MovementEnhancementType,
   tonnage: number,
-  techBase: TechBase
+  techBase: TechBase,
+  engineRating: number,
+  engineWeight: number
 ): number {
-  const def = getMovementEnhancementDefinition(enhancementType);
-  if (!def) return 0;
-  
-  // MASC slots calculation differs from MovementEnhancement definition
-  // According to rules: slots = ceil(tonnage / 20) for IS, ceil(tonnage / 25) for Clan
+  // Use EquipmentCalculatorService for MASC (variable slots based on engine rating)
   if (enhancementType === MovementEnhancementType.MASC) {
-    return techBase === TechBase.CLAN
-      ? Math.ceil(tonnage / 25)
-      : Math.ceil(tonnage / 20);
+    const equipId = techBase === TechBase.CLAN ? VARIABLE_EQUIPMENT.MASC_CLAN : VARIABLE_EQUIPMENT.MASC_IS;
+    const result = equipmentCalculatorService.calculateProperties(equipId, { engineRating, tonnage });
+    return result.criticalSlots;
   }
   
+  // Supercharger has fixed 1 slot (not variable)
+  if (enhancementType === MovementEnhancementType.SUPERCHARGER) {
+    return 1;
+  }
+  
+  // TSM and others use the definition
+  const def = getMovementEnhancementDefinition(enhancementType);
+  if (!def) return 0;
   return def.getCriticalSlots(tonnage);
 }
 
@@ -475,19 +499,27 @@ function calculateEnhancementSlots(
  * Create enhancement equipment instances for the equipment array
  * Creates a single item for MASC or TSM with calculated weight/slots.
  * These are configuration-based components and NOT removable via the loadout tray.
+ * 
+ * @param enhancementType - The type of enhancement (MASC, Supercharger, TSM)
+ * @param tonnage - Mech tonnage (used for TSM and cost calculations)
+ * @param techBase - Tech base (IS or Clan, affects MASC formula)
+ * @param engineRating - Engine rating (required for MASC weight/slots)
+ * @param engineWeight - Engine weight in tons (required for Supercharger weight)
  */
 function createEnhancementEquipmentList(
   enhancementType: MovementEnhancementType | null,
   tonnage: number,
-  techBase: TechBase
+  techBase: TechBase,
+  engineRating: number,
+  engineWeight: number
 ): IMountedEquipmentInstance[] {
   if (!enhancementType) return [];
   
   const equip = getEnhancementEquipment(enhancementType, techBase);
   if (!equip) return [];
   
-  const weight = calculateEnhancementWeight(enhancementType, tonnage, techBase);
-  const slots = calculateEnhancementSlots(enhancementType, tonnage, techBase);
+  const weight = calculateEnhancementWeight(enhancementType, tonnage, techBase, engineRating, engineWeight);
+  const slots = calculateEnhancementSlots(enhancementType, tonnage, techBase, engineRating, engineWeight);
   
   // Map category to EquipmentCategory
   const category = equip.category === MiscEquipmentCategory.MYOMER
@@ -784,6 +816,18 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           const heatSinkEquipment = createHeatSinkEquipmentList(state.heatSinkType, externalHeatSinks);
           updatedEquipment = [...nonHeatSinkEquipment, ...heatSinkEquipment];
           
+          // Re-sync enhancement equipment since Supercharger depends on engine weight
+          const engineWeight = calculateEngineWeight(state.engineRating, type);
+          const nonEnhancementEquipment = filterOutEnhancementEquipment(updatedEquipment);
+          const enhancementEquipment = createEnhancementEquipmentList(
+            state.enhancement,
+            state.tonnage,
+            state.techBase,
+            state.engineRating,
+            engineWeight
+          );
+          updatedEquipment = [...nonEnhancementEquipment, ...enhancementEquipment];
+          
           return {
             engineType: type,
             equipment: updatedEquipment,
@@ -799,9 +843,20 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           const nonHeatSinkEquipment = filterOutHeatSinks(state.equipment);
           const heatSinkEquipment = createHeatSinkEquipmentList(state.heatSinkType, externalHeatSinks);
           
+          // Re-sync enhancement equipment since MASC/Supercharger depend on engine
+          const engineWeight = calculateEngineWeight(rating, state.engineType);
+          const nonEnhancementEquipment = filterOutEnhancementEquipment([...nonHeatSinkEquipment, ...heatSinkEquipment]);
+          const enhancementEquipment = createEnhancementEquipmentList(
+            state.enhancement,
+            state.tonnage,
+            state.techBase,
+            rating,
+            engineWeight
+          );
+          
           return {
             engineRating: rating,
-            equipment: [...nonHeatSinkEquipment, ...heatSinkEquipment],
+            equipment: [...nonEnhancementEquipment, ...enhancementEquipment],
             isModified: true,
             lastModifiedAt: Date.now(),
           };
@@ -899,10 +954,13 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         setEnhancement: (enhancement) => set((state) => {
           // Sync equipment - remove old enhancement equipment, add new ones
           const nonEnhancementEquipment = filterOutEnhancementEquipment(state.equipment);
+          const engineWeight = calculateEngineWeight(state.engineRating, state.engineType);
           const enhancementEquipment = createEnhancementEquipmentList(
             enhancement,
             state.tonnage,
-            state.techBase
+            state.techBase,
+            state.engineRating,
+            engineWeight
           );
           
           return {
