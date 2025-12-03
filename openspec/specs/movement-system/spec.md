@@ -30,16 +30,17 @@ The system SHALL support MASC, TSM, Supercharger, and Partial Wing with accurate
 
 #### Scenario: MASC weight calculation (IS)
 - **WHEN** calculating Inner Sphere MASC weight
-- **THEN** weight = ceil(engineRating / 20)
-- **AND** criticalSlots = ceil(engineRating / 20)
-- **AND** cost = mechTonnage × 1000 C-Bills
+- **THEN** weight = round(tonnage / 20) to nearest whole ton
+- **AND** criticalSlots = weight
+- **AND** cost = tonnage × 1000 C-Bills
+- **AND** example: 85t mech = 4 tons (4.25 rounds to 4), 90t mech = 5 tons (4.5 rounds to 5)
 - **AND** calculation SHALL use `EquipmentCalculatorService.calculateProperties('masc-is', context)`
 
 #### Scenario: MASC weight calculation (Clan)
 - **WHEN** calculating Clan MASC weight
-- **THEN** weight = ceil(engineRating / 25)
-- **AND** criticalSlots = ceil(engineRating / 25)
-- **AND** cost = mechTonnage × 1000 C-Bills
+- **THEN** weight = round(tonnage / 25) to nearest whole ton
+- **AND** criticalSlots = weight
+- **AND** cost = tonnage × 1000 C-Bills
 - **AND** calculation SHALL use `EquipmentCalculatorService.calculateProperties('masc-clan', context)`
 
 #### Scenario: Supercharger weight calculation

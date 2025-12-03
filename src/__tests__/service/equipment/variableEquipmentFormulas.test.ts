@@ -57,7 +57,7 @@ describe('Variable Equipment Formulas', () => {
 
     it('should have correct required context for MASC', () => {
       const formula = VARIABLE_EQUIPMENT_FORMULAS['masc-is'];
-      // MASC now uses tonnage-based formula (5% for IS, 4% for Clan)
+      // MASC uses tonnage-based formula: tonnage / 20 (IS), tonnage / 25 (Clan)
       expect(formula.requiredContext).toContain('tonnage');
       expect(formula.requiredContext).not.toContain('engineRating');
     });

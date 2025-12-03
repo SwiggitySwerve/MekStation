@@ -142,14 +142,16 @@ describe('EquipmentCalculatorService', () => {
   // ============================================================================
   describe('calculateProperties - MASC', () => {
     describe('IS MASC', () => {
-      // Weight = tonnage × 5% rounded up to nearest whole ton
+      // Weight = tonnage / 20, rounded to nearest whole ton
       // Slots = weight
 
       it.each([
-        [20, 1],    // 20 × 0.05 = 1 ton
-        [50, 3],    // 50 × 0.05 = 2.5 → 3 tons (rounded up)
-        [75, 4],    // 75 × 0.05 = 3.75 → 4 tons (rounded up)
-        [100, 5],   // 100 × 0.05 = 5 tons
+        [20, 1],    // 20 / 20 = 1.0 → 1 ton
+        [50, 3],    // 50 / 20 = 2.5 → 3 tons (rounds up at .5)
+        [75, 4],    // 75 / 20 = 3.75 → 4 tons
+        [85, 4],    // 85 / 20 = 4.25 → 4 tons (rounds down)
+        [90, 5],    // 90 / 20 = 4.5 → 5 tons (rounds up at .5)
+        [100, 5],   // 100 / 20 = 5.0 → 5 tons
       ])('%d ton mech: %d ton MASC', 
         (tonnage, expectedWeight) => {
           const result = service.calculateProperties('masc-is', {
@@ -162,12 +164,12 @@ describe('EquipmentCalculatorService', () => {
     });
 
     describe('Clan MASC', () => {
-      // Weight = tonnage × 4% rounded up to nearest whole ton
+      // Weight = tonnage / 25, rounded to nearest whole ton
       it.each([
-        [25, 1],   // 25 × 0.04 = 1 ton
-        [50, 2],   // 50 × 0.04 = 2 tons
-        [75, 3],   // 75 × 0.04 = 3 tons
-        [100, 4],  // 100 × 0.04 = 4 tons
+        [25, 1],   // 25 / 25 = 1.0 → 1 ton
+        [50, 2],   // 50 / 25 = 2.0 → 2 tons
+        [75, 3],   // 75 / 25 = 3.0 → 3 tons
+        [100, 4],  // 100 / 25 = 4.0 → 4 tons
       ])('%d ton mech: %d ton Clan MASC',
         (tonnage, expectedWeight) => {
           const result = service.calculateProperties('masc-clan', {

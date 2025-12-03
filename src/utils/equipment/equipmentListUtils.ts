@@ -361,8 +361,8 @@ export function getEnhancementEquipment(
 /**
  * Calculate enhancement weight based on type and mech parameters
  * Uses EquipmentCalculatorService with correct formulas:
- * - MASC (IS): tonnage × 5% rounded up to nearest whole ton
- * - MASC (Clan): tonnage × 4% rounded up to nearest whole ton
+ * - MASC (IS): tonnage / 20, rounded to nearest whole ton (e.g., 85t → 4t, 90t → 5t)
+ * - MASC (Clan): tonnage / 25, rounded to nearest whole ton
  * - Supercharger: engineWeight × 10%, rounded up to 0.5t
  * - TSM: 0
  */
@@ -399,8 +399,8 @@ export function calculateEnhancementWeight(
 /**
  * Calculate enhancement critical slots based on type and mech parameters
  * Uses EquipmentCalculatorService with correct formulas:
- * - MASC (IS): tonnage × 5% rounded up (same as weight)
- * - MASC (Clan): tonnage × 4% rounded up (same as weight)
+ * - MASC (IS): tonnage / 20, rounded to nearest (same as weight)
+ * - MASC (Clan): tonnage / 25, rounded to nearest (same as weight)
  * - Supercharger: 1 (fixed)
  * - TSM: 6 (distributed)
  */

@@ -15,6 +15,7 @@ import {
   fixed,
   ceilDivide,
   floorDivide,
+  roundDivide,
   multiply,
   multiplyRound,
   equalsWeight,
@@ -365,16 +366,17 @@ describe('FormulaEvaluator', () => {
     });
 
     describe('MASC IS', () => {
-      // Weight = ceil(engineRating / 20)
-      // (simplified - actual formula is more complex)
-      const weightFormula = ceilDivide('engineRating', 20);
+      // Weight = round(tonnage / 20) - rounds to nearest, not up
+      const weightFormula = roundDivide('tonnage', 20);
 
       it.each([
-        [200, 10],  // ceil(200/20) = 10
-        [300, 15],  // ceil(300/20) = 15
-        [325, 17],  // ceil(325/20) = 17
-      ])('engine rating %d = %d tons MASC', (rating, expected) => {
-        expect(evaluator.evaluate(weightFormula, { engineRating: rating })).toBe(expected);
+        [20, 1],    // round(20/20) = 1
+        [50, 3],    // round(50/20) = round(2.5) = 3 (rounds up at .5)
+        [85, 4],    // round(85/20) = round(4.25) = 4 (rounds down)
+        [90, 5],    // round(90/20) = round(4.5) = 5 (rounds up at .5)
+        [100, 5],   // round(100/20) = 5
+      ])('tonnage %d = %d tons MASC', (tonnage, expected) => {
+        expect(evaluator.evaluate(weightFormula, { tonnage })).toBe(expected);
       });
     });
 

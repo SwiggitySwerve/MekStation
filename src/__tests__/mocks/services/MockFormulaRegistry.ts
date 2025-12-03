@@ -36,15 +36,16 @@ const TEST_FORMULAS: Map<string, IVariableFormulas> = new Map([
     requiredContext: ['directFireWeaponTonnage'],
   }],
   ['masc-is', {
-    // MASC (IS): tonnage × 5% rounded up to nearest whole ton
-    weight: multiplyRound('tonnage', 0.05, 1),
+    // MASC (IS): tonnage / 20, rounded to nearest whole ton
+    // Examples: 85t → 4 tons, 90t → 5 tons
+    weight: roundDivide('tonnage', 20),
     criticalSlots: equalsWeight(),
     cost: multiply('tonnage', 1000),
     requiredContext: ['tonnage'],
   }],
   ['masc-clan', {
-    // MASC (Clan): tonnage × 4% rounded up to nearest whole ton
-    weight: multiplyRound('tonnage', 0.04, 1),
+    // MASC (Clan): tonnage / 25, rounded to nearest whole ton
+    weight: roundDivide('tonnage', 25),
     criticalSlots: equalsWeight(),
     cost: multiply('tonnage', 1000),
     requiredContext: ['tonnage'],

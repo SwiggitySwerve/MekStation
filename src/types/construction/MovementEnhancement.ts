@@ -24,8 +24,9 @@ export enum MovementEnhancementType {
  * Movement enhancement definition (static metadata only)
  * 
  * For weight/slot calculations, use EquipmentCalculatorService with:
- * - 'masc-is': IS MASC (tonnage × 5%, rounded to whole ton)
- * - 'masc-clan': Clan MASC (tonnage × 4%, rounded to whole ton)
+ * - 'masc-is': IS MASC (tonnage / 20, rounded to nearest whole ton)
+ *   Examples: 85t → 4 tons, 90t → 5 tons
+ * - 'masc-clan': Clan MASC (tonnage / 25, rounded to nearest whole ton)
  * - 'supercharger': Supercharger (engineWeight × 10%, rounded to 0.5t)
  * - 'tsm': TSM (0 weight, 6 slots)
  * - 'partial-wing': Partial Wing (tonnage × 5%, rounded to 0.5t, 6 slots)

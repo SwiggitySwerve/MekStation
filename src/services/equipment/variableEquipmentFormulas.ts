@@ -62,12 +62,14 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
   
   /**
    * MASC (Inner Sphere)
-   * Weight: tonnage × 5% rounded up to nearest whole ton
+   * Weight: tonnage / 20, rounded to nearest whole ton
    * Slots: = weight
    * Cost: tonnage × 1,000
+   * 
+   * Examples: 85t → 4 tons (4.25 rounds to 4), 90t → 5 tons (4.5 rounds to 5)
    */
   'masc-is': {
-    weight: multiplyRound('tonnage', 0.05, 1),
+    weight: roundDivide('tonnage', 20),
     criticalSlots: equalsWeight(),
     cost: multiply('tonnage', 1000),
     requiredContext: ['tonnage'],
@@ -75,12 +77,14 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
 
   /**
    * MASC (Clan)
-   * Weight: tonnage × 4% rounded up to nearest whole ton
+   * Weight: tonnage / 25, rounded to nearest whole ton
    * Slots: = weight
    * Cost: tonnage × 1,000
+   * 
+   * Examples: 75t → 3 tons, 100t → 4 tons
    */
   'masc-clan': {
-    weight: multiplyRound('tonnage', 0.04, 1),
+    weight: roundDivide('tonnage', 25),
     criticalSlots: equalsWeight(),
     cost: multiply('tonnage', 1000),
     requiredContext: ['tonnage'],

@@ -429,16 +429,18 @@ The system SHALL define data-driven formulas for all standard variable equipment
 
 #### Scenario: MASC IS formula
 - **GIVEN** builtin formulas include "masc-is"
-- **THEN** weight formula = CEIL_DIVIDE(engineRating, 20)
+- **THEN** weight formula = ROUND_DIVIDE(tonnage, 20)
 - **AND** slots formula = EQUALS_WEIGHT
 - **AND** cost formula = MULTIPLY(tonnage, 1000)
-- **AND** requiredContext = ["engineRating", "tonnage"]
+- **AND** requiredContext = ["tonnage"]
+- **AND** example: 85t → 4 tons, 90t → 5 tons (rounds to nearest)
 
 #### Scenario: MASC Clan formula
 - **GIVEN** builtin formulas include "masc-clan"
-- **THEN** weight formula = CEIL_DIVIDE(engineRating, 25)
+- **THEN** weight formula = ROUND_DIVIDE(tonnage, 25)
 - **AND** slots formula = EQUALS_WEIGHT
 - **AND** cost formula = MULTIPLY(tonnage, 1000)
+- **AND** requiredContext = ["tonnage"]
 
 #### Scenario: Supercharger formula
 - **GIVEN** builtin formulas include "supercharger"
