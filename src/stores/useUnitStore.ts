@@ -194,7 +194,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           const walkMP = Math.floor(state.engineRating / state.tonnage);
           const newEngineRating = tonnage * walkMP;
           // Clamp engine rating to valid range
-          const clampedRating = Math.max(10, Math.min(500, newEngineRating));
+          const clampedRating = Math.max(10, Math.min(400, newEngineRating));
           
           // Re-sync enhancement equipment since MASC depends on tonnage, Supercharger on engine
           const engineWeight = calculateEngineWeight(clampedRating, state.engineType);

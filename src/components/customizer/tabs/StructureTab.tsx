@@ -41,16 +41,17 @@ interface StructureTabProps {
 // Helper Functions
 // =============================================================================
 
+/** Maximum engine rating per BattleTech TechManual */
+const MAX_ENGINE_RATING = 400;
+const MIN_ENGINE_RATING = 10;
+
 /**
  * Get valid Walk MP range for a given tonnage
- * Engine rating = tonnage × walkMP, must be 10-500
+ * Engine rating = tonnage × walkMP, must be 10-400
  */
 function getWalkMPRange(tonnage: number): { min: number; max: number } {
-  const minRating = 10;
-  const maxRating = 500;
-  
-  const minWalk = Math.max(1, Math.ceil(minRating / tonnage));
-  const maxWalk = Math.min(12, Math.floor(maxRating / tonnage));
+  const minWalk = Math.max(1, Math.ceil(MIN_ENGINE_RATING / tonnage));
+  const maxWalk = Math.min(12, Math.floor(MAX_ENGINE_RATING / tonnage));
   
   return { min: minWalk, max: maxWalk };
 }
@@ -145,6 +146,10 @@ export function StructureTab({
   const walkMP = useMemo(() => Math.floor(engineRating / tonnage), [engineRating, tonnage]);
   const runMP = useMemo(() => calculateRunMP(walkMP), [walkMP]);
   const walkMPRange = useMemo(() => getWalkMPRange(tonnage), [tonnage]);
+  
+  // Engine rating limit warnings
+  const isAtMaxEngineRating = engineRating >= MAX_ENGINE_RATING;
+  const isNearMaxEngineRating = engineRating >= MAX_ENGINE_RATING - tonnage; // Would exceed on +1 Walk MP
   
   // Calculate max run MP with enhancement active
   const maxRunMP = useMemo(() => {
@@ -341,8 +346,15 @@ export function StructureTab({
             <div className={cs.layout.divider}>
               <div className={cs.layout.rowBetween}>
                 <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
-                <span className={`text-sm ${cs.text.valueHighlight}`}>{engineRating}</span>
+                <span className={`text-sm ${isAtMaxEngineRating ? 'text-amber-400 font-bold' : cs.text.valueHighlight}`}>
+                  {engineRating}{isAtMaxEngineRating && ' (MAX)'}
+                </span>
               </div>
+              {isAtMaxEngineRating && (
+                <p className="text-xs text-amber-400 mt-1">
+                  ⚠️ Maximum engine rating of {MAX_ENGINE_RATING} reached. Cannot increase Walk MP further.
+                </p>
+              )}
             </div>
             
             {/* Heat Sinks Subsection */}
@@ -547,7 +559,9 @@ export function StructureTab({
             
             {/* Movement summary info */}
             <div className={`${cs.layout.divider} mt-3`}>
-              <p className={cs.text.secondary}>Walk MP range: {walkMPRange.min}–{walkMPRange.max} (for {tonnage}t mech)</p>
+              <p className={cs.text.secondary}>
+                Walk MP range: {walkMPRange.min}–{walkMPRange.max} (for {tonnage}t mech, max engine {MAX_ENGINE_RATING})
+              </p>
               <p className={cs.text.secondary}>Max Jump MP: {maxJumpMP} ({jumpJetType === JumpJetType.IMPROVED ? 'run speed' : 'walk speed'})</p>
               {jumpMP > 0 && (
                 <p className={cs.text.secondary}>Jump Jets: {calculations.jumpJetWeight}t / {calculations.jumpJetSlots} slots</p>

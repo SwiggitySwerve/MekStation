@@ -72,14 +72,14 @@ describe('Engine Calculations', () => {
     });
 
     describe('custom matchers', () => {
-      it.each([10, 100, 250, 300, 500])(
+      it.each([10, 100, 250, 300, 400])(
         '%d should be a valid engine rating',
         (rating) => {
           expect(rating).toBeValidEngineRating();
         }
       );
 
-      it.each([5, 502, 103, 100.5])(
+      it.each([5, 405, 500, 103, 100.5])(
         '%d should not be a valid engine rating',
         (rating) => {
           expect(rating).not.toBeValidEngineRating();

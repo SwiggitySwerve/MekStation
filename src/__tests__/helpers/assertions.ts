@@ -128,13 +128,13 @@ function toBeValidEngineRating(
   const isValid = 
     Number.isInteger(received) &&
     received >= 10 &&
-    received <= 500 &&
+    received <= 400 &&
     received % 5 === 0;
   
   const issues: string[] = [];
   if (!Number.isInteger(received)) issues.push('not an integer');
   if (received < 10) issues.push('below minimum 10');
-  if (received > 500) issues.push('above maximum 500');
+  if (received > 400) issues.push('above maximum 400');
   if (received % 5 !== 0) issues.push('not a multiple of 5');
   
   return {
