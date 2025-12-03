@@ -144,11 +144,15 @@ export const SlotRow = memo(function SlotRow({
   const getStyleClasses = (): string => {
     // Drag over state has highest priority
     if (isDragOver) {
-      return slot.type === 'empty' 
-        ? 'bg-green-800 border-green-400 text-green-200 scale-[1.02]'
-        : 'bg-red-900/70 border-red-400 text-red-200';
+      // Empty AND assignable = valid drop target (green)
+      // Empty but NOT assignable = invalid drop target (red) - not enough space
+      // Not empty = invalid drop target (red) - slot occupied
+      if (slot.type === 'empty' && isAssignable) {
+        return 'bg-green-800 border-green-400 text-green-200 scale-[1.02]';
+      }
+      return 'bg-red-900/70 border-red-400 text-red-200';
     }
-    // Assignable empty slots show green highlight
+    // Assignable empty slots show green highlight (when equipment is selected)
     if (isAssignable && slot.type === 'empty') {
       return 'bg-green-900/60 border-green-500 text-green-300';
     }
@@ -188,6 +192,9 @@ export const SlotRow = memo(function SlotRow({
     e.preventDefault();
     setIsDragOver(false);
     const equipmentId = e.dataTransfer.getData('text/equipment-id');
+    // Allow drop on empty slots - parent handler will validate if there's enough space
+    // isAssignable check is for visual feedback, but we let parent do final validation
+    // This handles both: drag from tray (selection highlights work) and drag between slots
     if (equipmentId && slot.type === 'empty') {
       onDrop(equipmentId);
     }

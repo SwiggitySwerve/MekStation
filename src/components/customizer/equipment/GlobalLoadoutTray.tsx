@@ -225,6 +225,8 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
     e.dataTransfer.setData('text/equipment-id', item.instanceId);
     e.dataTransfer.effectAllowed = 'move';
     setIsDragging(true);
+    // Select the item when drag starts so assignable slots are highlighted
+    onSelect();
   };
   
   const handleDragEnd = () => {

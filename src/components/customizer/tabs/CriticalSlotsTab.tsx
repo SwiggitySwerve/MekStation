@@ -368,12 +368,29 @@ export function CriticalSlotsTab({
     const eq = equipment.find(e => e.instanceId === equipmentId);
     if (!eq) return;
     
+    // Validate location restrictions (e.g., jump jets can only go in torsos/legs)
+    if (!isValidLocationForEquipment(eq.equipmentId, location)) {
+      return;
+    }
+    
+    // Validate there are enough contiguous empty slots starting at slotIndex
+    const locData = getLocationData(location);
+    const slotsNeeded = eq.criticalSlots;
+    
+    // Check if all required slots are empty
+    for (let i = 0; i < slotsNeeded; i++) {
+      const targetSlot = locData.slots.find(s => s.index === slotIndex + i);
+      if (!targetSlot || targetSlot.type !== 'empty') {
+        return; // Not enough contiguous empty slots
+      }
+    }
+    
     const slots: number[] = [];
-    for (let i = 0; i < eq.criticalSlots; i++) {
+    for (let i = 0; i < slotsNeeded; i++) {
       slots.push(slotIndex + i);
     }
     updateEquipmentLocation(equipmentId, location, slots);
-  }, [readOnly, equipment, updateEquipmentLocation]);
+  }, [readOnly, equipment, getLocationData, updateEquipmentLocation]);
   
   const handleEquipmentRemove = useCallback((location: MechLocation, slotIndex: number) => {
     if (readOnly) return;
