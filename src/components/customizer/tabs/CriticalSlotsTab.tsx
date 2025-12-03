@@ -80,6 +80,11 @@ function getGyroSlots(gyroType: GyroType): number {
   return def?.criticalSlots ?? 4;
 }
 
+function getEngineSideTorsoSlots(engineType: EngineType): number {
+  const def = getEngineDefinition(engineType);
+  return def?.sideTorsoSlots ?? 0;
+}
+
 function buildLocationSlots(
   location: MechLocation,
   engineType: EngineType,
@@ -143,8 +148,17 @@ function buildLocationSlots(
       break;
       
     case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO:
-      for (let i = 0; i < slotCount; i++) {
+    case MechLocation.RIGHT_TORSO: {
+      // XL/Light/XXL engines require side torso slots
+      const sideTorsoSlots = getEngineSideTorsoSlots(engineType);
+      
+      // Engine slots first
+      for (let i = 0; i < sideTorsoSlots; i++) {
+        slots.push({ index: i, type: 'system', name: 'Engine' });
+      }
+      
+      // Remaining slots (equipment or empty)
+      for (let i = sideTorsoSlots; i < slotCount; i++) {
         if (filledSlots.has(i)) {
           slots.push(createEquipmentSlot(i, filledSlots.get(i)!));
         } else {
@@ -152,6 +166,7 @@ function buildLocationSlots(
         }
       }
       break;
+    }
       
     case MechLocation.LEFT_ARM:
     case MechLocation.RIGHT_ARM:

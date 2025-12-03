@@ -144,9 +144,17 @@ export function useUnitCalculations(
     // Armor slots (Ferro-Fibrous requires slots)
     const armorSlots = getArmorCriticalSlots(selections.armorType);
     
-    // Total system slots (not including actuators, which are fixed at ~16)
-    const actuatorSlots = 16; // 4 per arm, 4 per leg (hip, upper, lower, foot/hand)
-    const totalSystemSlots = engineSlots + gyroSlots + structureSlots + cockpitSlots + heatSinkSlots + armorSlots + jumpJetSlots + actuatorSlots;
+    // Total system slots 
+    // Note: structureSlots, armorSlots, and jumpJetSlots are NOT included here
+    // because they are tracked in the equipment array and counted in equipmentCalcs.totalSlots.
+    // Only include fixed system components not in equipment array:
+    // - Engine (CT + side torso)
+    // - Gyro
+    // - Cockpit (life support, sensors, cockpit itself)
+    // - External heat sinks
+    // - Actuators (fixed at 16: 4 per arm, 4 per leg)
+    const actuatorSlots = 16; // Shoulder, upper arm, lower arm, hand × 2; Hip, upper leg, lower leg, foot × 2
+    const totalSystemSlots = engineSlots + gyroSlots + cockpitSlots + heatSinkSlots + actuatorSlots;
     
     // =========================================================================
     // Heat Calculations

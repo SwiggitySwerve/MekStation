@@ -74,6 +74,11 @@ import {
 import { JumpJetType, getMaxJumpMP, getJumpJetDefinition } from '@/utils/construction/movementCalculations';
 import { JUMP_JETS, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { EquipmentCategory } from '@/types/equipment';
+import {
+  getEquipmentDisplacedByEngineChange,
+  getEquipmentDisplacedByGyroChange,
+  applyDisplacement,
+} from '@/utils/construction/displacementUtils';
 
 // Re-export UnitStore type for convenience
 export type { UnitStore } from './unitState';
@@ -503,10 +508,27 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         // Component Actions
         // =================================================================
         
-        setEngineType: (type) => set({
-          engineType: type,
-          isModified: true,
-          lastModifiedAt: Date.now(),
+        setEngineType: (type) => set((state) => {
+          // Find equipment displaced by new engine's slot requirements
+          const displaced = getEquipmentDisplacedByEngineChange(
+            state.equipment,
+            state.engineType,
+            type,
+            state.gyroType
+          );
+          
+          // Unallocate displaced equipment
+          const updatedEquipment = applyDisplacement(
+            state.equipment,
+            displaced.displacedEquipmentIds
+          );
+          
+          return {
+            engineType: type,
+            equipment: updatedEquipment,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
         }),
         
         setEngineRating: (rating) => set({
@@ -515,10 +537,27 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           lastModifiedAt: Date.now(),
         }),
         
-        setGyroType: (type) => set({
-          gyroType: type,
-          isModified: true,
-          lastModifiedAt: Date.now(),
+        setGyroType: (type) => set((state) => {
+          // Find equipment displaced by new gyro's slot requirements
+          const displaced = getEquipmentDisplacedByGyroChange(
+            state.equipment,
+            state.engineType,
+            state.gyroType,
+            type
+          );
+          
+          // Unallocate displaced equipment
+          const updatedEquipment = applyDisplacement(
+            state.equipment,
+            displaced.displacedEquipmentIds
+          );
+          
+          return {
+            gyroType: type,
+            equipment: updatedEquipment,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
         }),
         
         setInternalStructureType: (type) => set((state) => {

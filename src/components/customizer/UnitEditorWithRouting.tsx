@@ -111,9 +111,15 @@ function getFixedSlotIndices(
       break;
       
     case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO:
-      // Side torsos have no fixed slots (XL engine slots go in side torsos but aren't "fixed")
+    case MechLocation.RIGHT_TORSO: {
+      // XL/Light/XXL engines require side torso slots
+      const sideTorsoEngineDef = getEngineDefinition(engineType);
+      const sideTorsoSlots = sideTorsoEngineDef?.sideTorsoSlots ?? 0;
+      for (let i = 0; i < sideTorsoSlots; i++) {
+        fixed.add(i);
+      }
       break;
+    }
   }
   
   return fixed;

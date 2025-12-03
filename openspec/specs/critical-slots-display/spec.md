@@ -12,6 +12,20 @@ The system SHALL display critical slots organized by mech location in a responsi
 - **AND** each location shows its correct number of slots
 - **AND** grid adapts to screen size
 
+#### Scenario: Side torso engine slot display
+- **WHEN** engine type requires side torso slots (XL, Light, XXL)
+- **THEN** Left Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
+- **AND** Right Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
+- **AND** engine slots SHALL be displayed with "Engine" label
+- **AND** engine slots SHALL use orange color coding
+- **AND** remaining slots SHALL show as empty or equipment
+
+#### Scenario: Side torso display without engine slots
+- **WHEN** engine type does not require side torso slots (Standard, Compact)
+- **THEN** Left Torso SHALL show all 12 slots as available for equipment
+- **AND** Right Torso SHALL show all 12 slots as available for equipment
+- **AND** no engine slots SHALL be displayed in side torsos
+
 ### Requirement: Slot Color Coding
 The system SHALL use consistent color coding to distinguish slot contents and equipment types.
 
