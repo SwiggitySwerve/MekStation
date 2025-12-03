@@ -478,7 +478,7 @@ export function StructureTab({
               <div className="flex items-center justify-center gap-1">
                 <span className={`text-sm ${cs.text.value}`}>{runMP}</span>
                 {maxRunMP && (
-                  <span className="text-sm font-bold text-cyan-400">[{maxRunMP}]</span>
+                  <span className="text-sm font-bold text-white">[{maxRunMP}]</span>
                 )}
               </div>
             </div>
