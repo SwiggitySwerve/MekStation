@@ -463,7 +463,7 @@ export function StructureTab({
               <label className={cs.text.label}>Run MP</label>
               <div className="flex items-center">
                 {/* Empty space matching stepper button width for alignment */}
-                <div className="w-8"></div>
+                <div className="w-9"></div>
                 <div className="w-12 text-center">
                   <span className={`text-sm ${cs.text.value}`}>{runMP}</span>
                 </div>
