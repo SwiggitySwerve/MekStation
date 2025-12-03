@@ -504,7 +504,7 @@ export function StructureTab({
             </div>
             
             {/* Jump Type */}
-            <div className="grid grid-cols-[140px_160px] gap-2 items-center">
+            <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Jump Type</label>
               <select 
                 className={cs.select.inline}
@@ -521,17 +521,14 @@ export function StructureTab({
             </div>
             
             {/* Mech. J. Booster MP (placeholder) */}
-            <div className="grid grid-cols-[140px_80px_80px] gap-2 items-center">
+            <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Mech. J. Booster MP</label>
-              <div className="flex items-center justify-center">
-                <input
-                  type="number"
-                  value={0}
-                  disabled={true}
-                  className={`w-16 ${cs.input.compact} text-center opacity-50 ${cs.input.noSpinners}`}
-                />
-              </div>
-              <span></span>
+              <input
+                type="number"
+                value={0}
+                disabled={true}
+                className={`w-16 ${cs.input.compact} text-center opacity-50 ${cs.input.noSpinners}`}
+              />
             </div>
             
             {/* Movement summary info */}
@@ -546,9 +543,10 @@ export function StructureTab({
             {/* Enhancement Subsection */}
             <div className={`${cs.layout.divider} mt-2`}>
               <h4 className="text-sm font-semibold text-slate-300 mb-3">Enhancement</h4>
-              <div className={cs.layout.field}>
+              <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
+                <label className={cs.text.label}>Type</label>
                 <select 
-                  className={cs.select.compact}
+                  className={cs.select.inline}
                   disabled={readOnly}
                   value={enhancement ?? ''}
                   onChange={handleEnhancementChange}
@@ -563,13 +561,13 @@ export function StructureTab({
                     </option>
                   ))}
                 </select>
-                {enhancement && (
-                  <p className={`${cs.text.secondary} mt-1`}>
-                    {enhancement === MovementEnhancementType.MASC && 'Double running speed, risk of leg damage'}
-                    {enhancement === MovementEnhancementType.TSM && '+2 Walk MP at 9+ heat, double physical damage'}
-                  </p>
-                )}
               </div>
+              {enhancement && (
+                <p className={`${cs.text.secondary} mt-2`}>
+                  {enhancement === MovementEnhancementType.MASC && 'Double running speed, risk of leg damage'}
+                  {enhancement === MovementEnhancementType.TSM && '+2 Walk MP at 9+ heat, double physical damage'}
+                </p>
+              )}
             </div>
           </div>
         </div>
