@@ -191,6 +191,36 @@ describe('EquipmentCalculatorService', () => {
   });
 
   // ============================================================================
+  // calculateProperties - Supercharger
+  // ============================================================================
+  describe('calculateProperties - Supercharger', () => {
+    // Weight = engineWeight × 10%, rounded up to nearest 0.5 ton
+    // Slots = 1 (fixed)
+
+    it.each([
+      [3, 0.5],     // 3 ton engine: 0.3 → ceil to 0.5
+      [5, 0.5],     // 5 ton engine: 0.5 → 0.5
+      [8, 1],       // 8 ton engine: 0.8 → ceil to 1
+      [10, 1],      // 10 ton engine: 1.0 → 1
+      [12, 1.5],    // 12 ton engine: 1.2 → ceil to 1.5
+      [15, 1.5],    // 15 ton engine: 1.5 → 1.5
+      [19, 2],      // 19 ton engine: 1.9 → ceil to 2
+      [25, 2.5],    // 25 ton engine: 2.5 → 2.5
+      [35, 3.5],    // 35 ton engine: 3.5 → 3.5
+      [45, 4.5],    // 45 ton engine: 4.5 → 4.5
+      [52, 5.5],    // 52 ton engine: 5.2 → ceil to 5.5
+    ])('%d ton engine: %s ton Supercharger', 
+      (engineWeight, expectedWeight) => {
+        const result = service.calculateProperties('supercharger', {
+          engineWeight,
+        });
+        expect(result.weight).toBe(expectedWeight);
+        expect(result.criticalSlots).toBe(1); // Always 1 slot
+      }
+    );
+  });
+
+  // ============================================================================
   // calculateProperties - Physical Weapons
   // ============================================================================
   describe('calculateProperties - Physical Weapons', () => {

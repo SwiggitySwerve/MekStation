@@ -43,6 +43,9 @@ export class FormulaEvaluator implements IFormulaEvaluator {
       case 'FLOOR_DIVIDE':
         return this.evaluateFloorDivide(formula, context);
 
+      case 'ROUND_DIVIDE':
+        return this.evaluateRoundDivide(formula, context);
+
       case 'MULTIPLY':
         return this.evaluateMultiply(formula, context);
 
@@ -94,6 +97,7 @@ export class FormulaEvaluator implements IFormulaEvaluator {
 
       case 'CEIL_DIVIDE':
       case 'FLOOR_DIVIDE':
+      case 'ROUND_DIVIDE':
       case 'MULTIPLY':
       case 'MULTIPLY_ROUND':
       case 'EQUALS_FIELD':
@@ -151,6 +155,14 @@ export class FormulaEvaluator implements IFormulaEvaluator {
       throw new ValidationError('FLOOR_DIVIDE formula missing or zero divisor', ['divisor is required']);
     }
     return Math.floor(fieldValue / formula.divisor);
+  }
+
+  private evaluateRoundDivide(formula: IFormula, context: FormulaContext): number {
+    const fieldValue = this.getFieldValue(formula.field!, context);
+    if (formula.divisor === undefined || formula.divisor === 0) {
+      throw new ValidationError('ROUND_DIVIDE formula missing or zero divisor', ['divisor is required']);
+    }
+    return Math.round(fieldValue / formula.divisor);
   }
 
   private evaluateMultiply(formula: IFormula, context: FormulaContext): number {

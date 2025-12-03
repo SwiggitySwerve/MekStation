@@ -16,6 +16,7 @@ export type FormulaType =
   | 'FIXED'           // Constant value
   | 'CEIL_DIVIDE'     // ceil(field / divisor)
   | 'FLOOR_DIVIDE'    // floor(field / divisor)
+  | 'ROUND_DIVIDE'    // round(field / divisor) - nearest integer
   | 'MULTIPLY'        // field × multiplier
   | 'MULTIPLY_ROUND'  // field × multiplier, rounded to precision
   | 'EQUALS_WEIGHT'   // = calculated weight (for slots that equal weight)
@@ -120,6 +121,13 @@ export function floorDivide(field: string, divisor: number): IFormula {
 }
 
 /**
+ * Create a ROUND_DIVIDE formula: round(field / divisor) - nearest integer
+ */
+export function roundDivide(field: string, divisor: number): IFormula {
+  return { type: 'ROUND_DIVIDE', field, divisor };
+}
+
+/**
  * Create a MULTIPLY formula: field × multiplier
  */
 export function multiply(field: string, multiplier: number): IFormula {
@@ -188,6 +196,7 @@ export function validateFormula(formula: IFormula): string[] {
 
     case 'CEIL_DIVIDE':
     case 'FLOOR_DIVIDE':
+    case 'ROUND_DIVIDE':
       if (!formula.field) {
         errors.push(`${formula.type} formula requires field`);
       }

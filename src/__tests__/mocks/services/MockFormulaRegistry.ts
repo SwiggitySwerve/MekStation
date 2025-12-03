@@ -9,11 +9,13 @@ import {
   IVariableFormulas, 
   ceilDivide, 
   floorDivide,
+  roundDivide,
   equalsWeight, 
   multiply, 
   fixed,
   plus,
   multiplyRound,
+  max,
 } from '@/types/equipment/VariableEquipment';
 
 /**
@@ -48,6 +50,7 @@ const TEST_FORMULAS: Map<string, IVariableFormulas> = new Map([
     requiredContext: ['tonnage'],
   }],
   ['supercharger', {
+    // Weight = engineWeight × 10%, rounded up to nearest 0.5 ton
     weight: multiplyRound('engineWeight', 0.1, 0.5),
     criticalSlots: fixed(1),
     cost: multiply('engineWeight', 10000),

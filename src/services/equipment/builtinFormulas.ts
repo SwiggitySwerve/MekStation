@@ -12,10 +12,12 @@ import {
   fixed, 
   ceilDivide, 
   floorDivide,
+  roundDivide,
   multiply, 
   multiplyRound, 
   equalsWeight,
   plus,
+  max,
 } from '@/types/equipment/VariableEquipment';
 
 /**
@@ -90,7 +92,8 @@ export const BUILTIN_FORMULAS: Readonly<Record<string, IVariableFormulas>> = {
   
   /**
    * Supercharger
-   * Weight: ceil(engineWeight / 10) rounded to 0.5 tons
+   * Weight: engineWeight × 10%, rounded up to nearest 0.5 ton
+   * Values: 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, etc.
    * Slots: 1
    * Cost: engineWeight × 10,000
    */
