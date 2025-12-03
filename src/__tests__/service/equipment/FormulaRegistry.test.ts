@@ -8,7 +8,7 @@
 
 import { FormulaRegistry } from '@/services/equipment/FormulaRegistry';
 import { IVariableFormulas, fixed, ceilDivide, equalsWeight, multiply } from '@/types/equipment/VariableEquipment';
-import { BUILTIN_FORMULAS } from '@/services/equipment/builtinFormulas';
+import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 
 // Mock the IndexedDB service
 jest.mock('@/services/persistence/IndexedDBService', () => ({
@@ -58,7 +58,7 @@ describe('FormulaRegistry', () => {
 
     it('should return builtin formulas', () => {
       // Get a known builtin equipment ID
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       if (builtinIds.length > 0) {
         const formulas = registry.getFormulas(builtinIds[0]);
         expect(formulas).toBeDefined();
@@ -78,7 +78,7 @@ describe('FormulaRegistry', () => {
       };
 
       // Register custom formulas for a builtin ID
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       if (builtinIds.length > 0) {
         const id = builtinIds[0];
         await registry.registerCustomFormulas(id, customFormulas);
@@ -98,7 +98,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('should return true for builtin variable equipment', () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       if (builtinIds.length > 0) {
         expect(registry.isVariable(builtinIds[0])).toBe(true);
       }
@@ -132,7 +132,7 @@ describe('FormulaRegistry', () => {
 
     it('should return required context for known equipment', () => {
       // Most variable equipment requires tonnage or engineRating
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       for (const id of builtinIds) {
         const context = registry.getRequiredContext(id);
         expect(Array.isArray(context)).toBe(true);
@@ -154,7 +154,7 @@ describe('FormulaRegistry', () => {
 
     it('should return all builtin equipment IDs', () => {
       const ids = registry.getAllVariableEquipmentIds();
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       
       for (const builtinId of builtinIds) {
         expect(ids).toContain(builtinId);
@@ -258,7 +258,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('should not affect builtin formulas', async () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       if (builtinIds.length > 0) {
         await registry.unregisterCustomFormulas(builtinIds[0]);
         // Builtin should still be available
@@ -298,7 +298,7 @@ describe('FormulaRegistry', () => {
 
     it('should not include builtin IDs', () => {
       const customIds = registry.getCustomFormulaIds();
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
 
       for (const builtinId of builtinIds) {
         expect(customIds).not.toContain(builtinId);
@@ -315,7 +315,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('all builtin formulas should have weight formula', () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       for (const id of builtinIds) {
         const formulas = registry.getFormulas(id);
         expect(formulas?.weight).toBeDefined();
@@ -323,7 +323,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('all builtin formulas should have criticalSlots formula', () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       for (const id of builtinIds) {
         const formulas = registry.getFormulas(id);
         expect(formulas?.criticalSlots).toBeDefined();
@@ -331,7 +331,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('all builtin formulas should have cost formula', () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       for (const id of builtinIds) {
         const formulas = registry.getFormulas(id);
         expect(formulas?.cost).toBeDefined();
@@ -339,7 +339,7 @@ describe('FormulaRegistry', () => {
     });
 
     it('all builtin formulas should have requiredContext', () => {
-      const builtinIds = Object.keys(BUILTIN_FORMULAS);
+      const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       for (const id of builtinIds) {
         const formulas = registry.getFormulas(id);
         expect(Array.isArray(formulas?.requiredContext)).toBe(true);

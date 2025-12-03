@@ -47,7 +47,7 @@ export interface MovementEnhancementDefinition {
  * Movement enhancement definitions (static metadata)
  * 
  * Weight and slot calculations are handled by EquipmentCalculatorService
- * using the formula registry in builtinFormulas.ts
+ * using the formula registry in variableEquipmentFormulas.ts
  */
 export const MOVEMENT_ENHANCEMENT_DEFINITIONS: readonly MovementEnhancementDefinition[] = [
   {

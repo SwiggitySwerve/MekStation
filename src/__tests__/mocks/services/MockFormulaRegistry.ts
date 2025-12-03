@@ -20,7 +20,7 @@ import {
 
 /**
  * Built-in test formulas for common equipment
- * Uses proper IFormula structure matching builtinFormulas.ts
+ * Uses proper IFormula structure matching variableEquipmentFormulas.ts
  */
 const TEST_FORMULAS: Map<string, IVariableFormulas> = new Map([
   ['targeting-computer-is', {

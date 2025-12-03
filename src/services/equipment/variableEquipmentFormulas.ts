@@ -1,8 +1,8 @@
 /**
- * Builtin Variable Equipment Formulas
+ * Variable Equipment Formulas
  * 
- * Data-driven formula definitions for standard BattleTech variable equipment.
- * These replace the hardcoded calculation methods.
+ * Data-driven formula definitions for BattleTech equipment with variable
+ * weight, slots, cost, or damage based on mech properties.
  * 
  * @spec openspec/specs/equipment-services/spec.md
  */
@@ -21,10 +21,10 @@ import {
 } from '@/types/equipment/VariableEquipment';
 
 /**
- * Builtin variable equipment formulas
+ * Variable equipment formulas
  * Maps equipment ID to formula definitions
  */
-export const BUILTIN_FORMULAS: Readonly<Record<string, IVariableFormulas>> = {
+export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormulas>> = {
   
   // ============================================================================
   // TARGETING COMPUTERS
@@ -280,23 +280,23 @@ export const BUILTIN_FORMULAS: Readonly<Record<string, IVariableFormulas>> = {
 } as const;
 
 /**
- * Get all builtin equipment IDs
+ * Get all variable equipment IDs
  */
-export function getBuiltinEquipmentIds(): string[] {
-  return Object.keys(BUILTIN_FORMULAS);
+export function getVariableEquipmentIds(): string[] {
+  return Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
 }
 
 /**
- * Check if an equipment ID has builtin formulas
+ * Check if an equipment ID has variable formulas
  */
-export function hasBuiltinFormulas(equipmentId: string): boolean {
-  return equipmentId in BUILTIN_FORMULAS;
+export function hasVariableEquipmentFormulas(equipmentId: string): boolean {
+  return equipmentId in VARIABLE_EQUIPMENT_FORMULAS;
 }
 
 /**
- * Get builtin formulas for an equipment ID
+ * Get variable formulas for an equipment ID
  */
-export function getBuiltinFormulas(equipmentId: string): IVariableFormulas | undefined {
-  return BUILTIN_FORMULAS[equipmentId];
+export function getVariableEquipmentFormulas(equipmentId: string): IVariableFormulas | undefined {
+  return VARIABLE_EQUIPMENT_FORMULAS[equipmentId];
 }
 

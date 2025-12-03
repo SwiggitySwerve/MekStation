@@ -1,49 +1,49 @@
 /**
- * Tests for Builtin Variable Equipment Formulas
+ * Tests for Variable Equipment Formulas
  */
 
 import {
-  BUILTIN_FORMULAS,
-  getBuiltinEquipmentIds,
-  hasBuiltinFormulas,
-  getBuiltinFormulas,
-} from '@/services/equipment/builtinFormulas';
+  VARIABLE_EQUIPMENT_FORMULAS,
+  getVariableEquipmentIds,
+  hasVariableEquipmentFormulas,
+  getVariableEquipmentFormulas,
+} from '@/services/equipment/variableEquipmentFormulas';
 
-describe('Builtin Formulas', () => {
+describe('Variable Equipment Formulas', () => {
   // ============================================================================
-  // BUILTIN_FORMULAS
+  // VARIABLE_EQUIPMENT_FORMULAS
   // ============================================================================
-  describe('BUILTIN_FORMULAS', () => {
+  describe('VARIABLE_EQUIPMENT_FORMULAS', () => {
     it('should contain targeting computer formulas', () => {
-      expect(BUILTIN_FORMULAS['targeting-computer-is']).toBeDefined();
-      expect(BUILTIN_FORMULAS['targeting-computer-clan']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-is']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-clan']).toBeDefined();
     });
 
     it('should contain MASC formulas', () => {
-      expect(BUILTIN_FORMULAS['masc-is']).toBeDefined();
-      expect(BUILTIN_FORMULAS['masc-clan']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['masc-is']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['masc-clan']).toBeDefined();
     });
 
     it('should contain supercharger formula', () => {
-      expect(BUILTIN_FORMULAS['supercharger']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['supercharger']).toBeDefined();
     });
 
     it('should contain partial wing formula', () => {
-      expect(BUILTIN_FORMULAS['partial-wing']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['partial-wing']).toBeDefined();
     });
 
     it('should contain TSM formula', () => {
-      expect(BUILTIN_FORMULAS['tsm']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['tsm']).toBeDefined();
     });
 
     it('should contain physical weapon formulas', () => {
-      expect(BUILTIN_FORMULAS['hatchet']).toBeDefined();
-      expect(BUILTIN_FORMULAS['sword']).toBeDefined();
-      expect(BUILTIN_FORMULAS['mace']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['hatchet']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['sword']).toBeDefined();
+      expect(VARIABLE_EQUIPMENT_FORMULAS['mace']).toBeDefined();
     });
 
     it('should have required formula properties', () => {
-      const formula = BUILTIN_FORMULAS['targeting-computer-is'];
+      const formula = VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-is'];
       expect(formula.weight).toBeDefined();
       expect(formula.criticalSlots).toBeDefined();
       expect(formula.cost).toBeDefined();
@@ -51,12 +51,12 @@ describe('Builtin Formulas', () => {
     });
 
     it('should have correct required context for targeting computer', () => {
-      const formula = BUILTIN_FORMULAS['targeting-computer-is'];
+      const formula = VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-is'];
       expect(formula.requiredContext).toContain('directFireWeaponTonnage');
     });
 
     it('should have correct required context for MASC', () => {
-      const formula = BUILTIN_FORMULAS['masc-is'];
+      const formula = VARIABLE_EQUIPMENT_FORMULAS['masc-is'];
       // MASC now uses tonnage-based formula (5% for IS, 4% for Clan)
       expect(formula.requiredContext).toContain('tonnage');
       expect(formula.requiredContext).not.toContain('engineRating');
@@ -64,64 +64,64 @@ describe('Builtin Formulas', () => {
   });
 
   // ============================================================================
-  // getBuiltinEquipmentIds
+  // getVariableEquipmentIds
   // ============================================================================
-  describe('getBuiltinEquipmentIds', () => {
+  describe('getVariableEquipmentIds', () => {
     it('should return array of equipment IDs', () => {
-      const ids = getBuiltinEquipmentIds();
+      const ids = getVariableEquipmentIds();
       expect(Array.isArray(ids)).toBe(true);
       expect(ids.length).toBeGreaterThan(0);
     });
 
     it('should include known equipment IDs', () => {
-      const ids = getBuiltinEquipmentIds();
+      const ids = getVariableEquipmentIds();
       expect(ids).toContain('targeting-computer-is');
       expect(ids).toContain('masc-is');
       expect(ids).toContain('tsm');
     });
 
-    it('should match keys of BUILTIN_FORMULAS', () => {
-      const ids = getBuiltinEquipmentIds();
-      const keys = Object.keys(BUILTIN_FORMULAS);
+    it('should match keys of VARIABLE_EQUIPMENT_FORMULAS', () => {
+      const ids = getVariableEquipmentIds();
+      const keys = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
       expect(ids).toEqual(keys);
     });
   });
 
   // ============================================================================
-  // hasBuiltinFormulas
+  // hasVariableEquipmentFormulas
   // ============================================================================
-  describe('hasBuiltinFormulas', () => {
+  describe('hasVariableEquipmentFormulas', () => {
     it('should return true for known equipment', () => {
-      expect(hasBuiltinFormulas('targeting-computer-is')).toBe(true);
-      expect(hasBuiltinFormulas('masc-clan')).toBe(true);
-      expect(hasBuiltinFormulas('hatchet')).toBe(true);
+      expect(hasVariableEquipmentFormulas('targeting-computer-is')).toBe(true);
+      expect(hasVariableEquipmentFormulas('masc-clan')).toBe(true);
+      expect(hasVariableEquipmentFormulas('hatchet')).toBe(true);
     });
 
     it('should return false for unknown equipment', () => {
-      expect(hasBuiltinFormulas('unknown-equipment')).toBe(false);
-      expect(hasBuiltinFormulas('medium-laser')).toBe(false);
-      expect(hasBuiltinFormulas('')).toBe(false);
+      expect(hasVariableEquipmentFormulas('unknown-equipment')).toBe(false);
+      expect(hasVariableEquipmentFormulas('medium-laser')).toBe(false);
+      expect(hasVariableEquipmentFormulas('')).toBe(false);
     });
   });
 
   // ============================================================================
-  // getBuiltinFormulas
+  // getVariableEquipmentFormulas
   // ============================================================================
-  describe('getBuiltinFormulas', () => {
+  describe('getVariableEquipmentFormulas', () => {
     it('should return formula for known equipment', () => {
-      const formula = getBuiltinFormulas('tsm');
+      const formula = getVariableEquipmentFormulas('tsm');
       expect(formula).toBeDefined();
       expect(formula?.weight).toBeDefined();
       expect(formula?.criticalSlots).toBeDefined();
     });
 
     it('should return undefined for unknown equipment', () => {
-      expect(getBuiltinFormulas('unknown')).toBeUndefined();
+      expect(getVariableEquipmentFormulas('unknown')).toBeUndefined();
     });
 
-    it('should return formula matching BUILTIN_FORMULAS', () => {
-      const formula = getBuiltinFormulas('supercharger');
-      expect(formula).toBe(BUILTIN_FORMULAS['supercharger']);
+    it('should return formula matching VARIABLE_EQUIPMENT_FORMULAS', () => {
+      const formula = getVariableEquipmentFormulas('supercharger');
+      expect(formula).toBe(VARIABLE_EQUIPMENT_FORMULAS['supercharger']);
     });
   });
 
@@ -130,13 +130,13 @@ describe('Builtin Formulas', () => {
   // ============================================================================
   describe('Formula structures', () => {
     it('should have fixed slots for supercharger', () => {
-      const formula = BUILTIN_FORMULAS['supercharger'];
+      const formula = VARIABLE_EQUIPMENT_FORMULAS['supercharger'];
       // Fixed(1) creates an object with value 1
       expect(formula.criticalSlots).toBeDefined();
     });
 
     it('should have damage formula for physical weapons', () => {
-      const hatchet = BUILTIN_FORMULAS['hatchet'];
+      const hatchet = VARIABLE_EQUIPMENT_FORMULAS['hatchet'];
       expect(hatchet.damage).toBeDefined();
     });
 
@@ -154,13 +154,13 @@ describe('Builtin Formulas', () => {
       ];
       
       for (const weapon of physicalWeapons) {
-        expect(BUILTIN_FORMULAS[weapon]).toBeDefined();
-        expect(BUILTIN_FORMULAS[weapon].damage).toBeDefined();
+        expect(VARIABLE_EQUIPMENT_FORMULAS[weapon]).toBeDefined();
+        expect(VARIABLE_EQUIPMENT_FORMULAS[weapon].damage).toBeDefined();
       }
     });
 
     it('should have required context for all formulas', () => {
-      for (const [id, formula] of Object.entries(BUILTIN_FORMULAS)) {
+      for (const [id, formula] of Object.entries(VARIABLE_EQUIPMENT_FORMULAS)) {
         expect(formula.requiredContext).toBeDefined();
         expect(Array.isArray(formula.requiredContext)).toBe(true);
       }

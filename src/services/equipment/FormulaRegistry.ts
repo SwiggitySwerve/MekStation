@@ -2,15 +2,15 @@
  * Formula Registry
  * 
  * Layered registry for variable equipment formulas.
- * Layer 1: Builtin formulas (code, read-only)
- * Layer 2: Custom formulas (IndexedDB, read-write, overrides builtin)
+ * Layer 1: Standard formulas (variableEquipmentFormulas.ts, read-only)
+ * Layer 2: Custom formulas (IndexedDB, read-write, overrides standard)
  * 
  * @spec openspec/specs/equipment-services/spec.md
  */
 
 import { IVariableFormulas, IStoredFormula, validateVariableFormulas } from '@/types/equipment/VariableEquipment';
 import { ValidationError, StorageError } from '../common/errors';
-import { BUILTIN_FORMULAS } from './builtinFormulas';
+import { VARIABLE_EQUIPMENT_FORMULAS } from './variableEquipmentFormulas';
 import { indexedDBService, STORES } from '../persistence/IndexedDBService';
 
 
@@ -50,7 +50,7 @@ export class FormulaRegistry implements IFormulaRegistry {
       await this.loadCustomFormulas();
       this.initialized = true;
     } catch (error) {
-      // If storage fails, continue with builtin formulas only
+      // If storage fails, continue with standard formulas only
       console.warn('Failed to load custom formulas:', error);
       this.initialized = true;
     }
@@ -67,8 +67,8 @@ export class FormulaRegistry implements IFormulaRegistry {
       return custom;
     }
 
-    // Fall back to builtin
-    return BUILTIN_FORMULAS[equipmentId];
+    // Fall back to standard variable equipment formulas
+    return VARIABLE_EQUIPMENT_FORMULAS[equipmentId];
   }
 
   /**
@@ -87,14 +87,14 @@ export class FormulaRegistry implements IFormulaRegistry {
   }
 
   /**
-   * Get all variable equipment IDs (builtin + custom)
+   * Get all variable equipment IDs (standard + custom)
    */
   getAllVariableEquipmentIds(): string[] {
-    const builtinIds = Object.keys(BUILTIN_FORMULAS);
+    const standardIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
     const customIds = Array.from(this.customFormulas.keys());
     
     // Combine and deduplicate
-    return Array.from(new Set(builtinIds.concat(customIds)));
+    return Array.from(new Set(standardIds.concat(customIds)));
   }
 
   /**
