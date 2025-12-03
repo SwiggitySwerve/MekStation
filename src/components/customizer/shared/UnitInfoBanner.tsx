@@ -233,7 +233,7 @@ export function UnitInfoBanner({
           <SimpleStat 
             label="ENGINE"
             value={stats.engineRating}
-            status={stats.engineRating >= 400 ? 'warning' : 'normal'}
+            status="warning"
           />
           <CapacityStat
             label="WEIGHT"
