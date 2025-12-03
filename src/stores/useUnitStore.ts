@@ -198,7 +198,12 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           
           // Re-sync enhancement equipment since MASC depends on tonnage, Supercharger on engine
           const engineWeight = calculateEngineWeight(clampedRating, state.engineType);
-          const nonEnhancementEquipment = filterOutEnhancementEquipment(state.equipment);
+          
+          // Filter out equipment that needs to be recalculated based on tonnage
+          let updatedEquipment = filterOutEnhancementEquipment(state.equipment);
+          updatedEquipment = filterOutJumpJets(updatedEquipment);
+          
+          // Recreate enhancement equipment with new tonnage
           const enhancementEquipment = createEnhancementEquipmentList(
             state.enhancement,
             tonnage,
@@ -206,10 +211,17 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             engineWeight
           );
           
+          // Recreate jump jet equipment with new tonnage (weight varies by tonnage class)
+          const jumpJetEquipment = createJumpJetEquipmentList(
+            tonnage,
+            state.jumpMP,
+            state.jumpJetType
+          );
+          
           return {
             tonnage,
             engineRating: clampedRating,
-            equipment: [...nonEnhancementEquipment, ...enhancementEquipment],
+            equipment: [...updatedEquipment, ...enhancementEquipment, ...jumpJetEquipment],
             isModified: true,
             lastModifiedAt: Date.now(),
           };
