@@ -25,7 +25,7 @@ export default function ComparePage() {
     async function fetchCatalog() {
       try {
         const response = await fetch('/api/catalog');
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; data?: IUnitEntry[] };
         if (data.success) {
           setCatalog(data.data || []);
         }
@@ -57,10 +57,11 @@ export default function ComparePage() {
 
     try {
       const response = await fetch(`/api/units?id=${encodeURIComponent(entry.id)}`);
-      const data = await response.json();
+      const data = await response.json() as { success: boolean; data?: IUnitDetails };
       
-      if (data.success) {
-        setSelectedUnits(prev => [...prev, data.data]);
+      if (data.success && data.data) {
+        const unitData = data.data;
+        setSelectedUnits(prev => [...prev, unitData]);
       }
     } catch (err) {
       console.error('Failed to load unit:', err);

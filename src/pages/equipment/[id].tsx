@@ -81,9 +81,9 @@ export default function EquipmentDetailPage() {
     async function fetchEquipment() {
       try {
         const response = await fetch(`/api/equipment?id=${encodeURIComponent(id as string)}`);
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; data?: EquipmentData; error?: string };
         
-        if (data.success) {
+        if (data.success && data.data) {
           setEquipment(data.data);
         } else {
           setError(data.error || 'Equipment not found');

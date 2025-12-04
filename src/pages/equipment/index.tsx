@@ -93,7 +93,7 @@ export default function EquipmentListPage() {
     async function fetchEquipment() {
       try {
         const response = await fetch('/api/equipment/catalog');
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; data?: EquipmentEntry[]; error?: string };
         
         if (data.success) {
           setEquipment(data.data || []);

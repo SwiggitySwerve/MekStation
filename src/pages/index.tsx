@@ -95,8 +95,8 @@ export default function HomePage() {
           fetch('/api/equipment/catalog'),
         ]);
 
-        const unitsData = await unitsRes.json();
-        const equipmentData = await equipmentRes.json();
+        const unitsData = await unitsRes.json() as { count?: number };
+        const equipmentData = await equipmentRes.json() as { count?: number };
 
         setStats({
           unitCount: unitsData.count || 0,

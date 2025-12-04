@@ -19,7 +19,7 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ selectedCategor
         if (!response.ok) {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data = await response.json() as string[];
         setCategories(data);
       } catch (err) {
         console.error(err);

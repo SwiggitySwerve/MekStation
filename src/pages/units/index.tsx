@@ -115,7 +115,7 @@ export default function UnitsListPage() {
     async function fetchUnits() {
       try {
         const response = await fetch('/api/catalog');
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; data?: IUnitEntry[]; error?: string };
         
         if (data.success) {
           setUnits(data.data || []);
