@@ -182,7 +182,7 @@ describe('UnitNameValidator', () => {
               chassis: 'Atlas',
               variant: callCount === 1 ? 'AS7-D' : 'AS7-D (2)',
               name: `Atlas AS7-D${callCount === 2 ? ' (2)' : ''}`,
-            } as any,
+            } as { id: string; chassis: string; variant: string; name: string },
           ]);
         }
         return Promise.resolve([]);
@@ -197,7 +197,7 @@ describe('UnitNameValidator', () => {
               chassis: 'Atlas',
               variant: callCount === 1 ? 'AS7-D' : 'AS7-D (2)',
               name: `Atlas AS7-D${callCount === 2 ? ' (2)' : ''}`,
-            } as any,
+            } as { id: string; chassis: string; variant: string; name: string },
           ]);
         }
         return Promise.resolve([]);
@@ -212,10 +212,10 @@ describe('UnitNameValidator', () => {
     it('should use timestamp fallback if many conflicts', async () => {
       // Mock to always return conflicts
       mockCanonicalUnitService.getIndex.mockResolvedValue([
-        { id: 'canon-1', chassis: 'Atlas', variant: 'AS7-D', name: 'Atlas AS7-D' } as any,
+        { id: 'canon-1', chassis: 'Atlas', variant: 'AS7-D', name: 'Atlas AS7-D' } as { id: string; chassis: string; variant: string; name: string },
       ]);
       mockCustomUnitService.list.mockResolvedValue([
-        { id: 'custom-1', chassis: 'Atlas', variant: 'AS7-D (2)', name: 'Atlas AS7-D (2)' } as any,
+        { id: 'custom-1', chassis: 'Atlas', variant: 'AS7-D (2)', name: 'Atlas AS7-D (2)' } as { id: string; chassis: string; variant: string; name: string },
       ]);
       
       // Mock validateUnitName to always return conflicts for first 100 attempts

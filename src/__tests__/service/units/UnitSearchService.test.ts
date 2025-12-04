@@ -34,9 +34,14 @@ jest.mock('@/services/units/CustomUnitApiService', () => ({
 
 import MiniSearch from 'minisearch';
 
+interface MockSearchIndex {
+  addAll: jest.Mock;
+  search: jest.Mock;
+}
+
 describe('UnitSearchService', () => {
   let service: UnitSearchService;
-  let mockSearchIndex: any;
+  let mockSearchIndex: MockSearchIndex;
 
   const mockCanonicalUnit = {
     id: 'atlas-as7-d',

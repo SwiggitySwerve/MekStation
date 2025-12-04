@@ -87,7 +87,7 @@ describe('UnitLoaderService', () => {
         updatedAt: '2024-01-02',
       };
 
-      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as any);
+      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as IFullUnit);
 
       const result = await service.loadCustomUnit('custom-1');
 
@@ -142,7 +142,7 @@ describe('UnitLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
 
-      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as any);
+      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as IFullUnit);
 
       const result = await service.loadUnit('custom-1', 'custom');
 
@@ -293,7 +293,7 @@ describe('UnitLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
 
-      mockEquipmentLookupService.getById.mockReturnValue(mockEquipment as any);
+      mockEquipmentLookupService.getById.mockReturnValue(mockEquipment as ReturnType<typeof mockEquipmentLookupService.getById>);
 
       const serialized = createMockSerializedUnit({
         equipment: [

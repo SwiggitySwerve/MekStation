@@ -28,23 +28,28 @@ import { EquipmentCategory } from '@/types/equipment';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 // Mock EquipmentCalculatorService
+interface MockEquipmentParams {
+  tonnage?: number;
+  engineWeight?: number;
+}
+
 jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
   equipmentCalculatorService: {
-    calculateProperties: jest.fn((id: string, params: any) => {
+    calculateProperties: jest.fn((id: string, params: MockEquipmentParams) => {
       if (id === 'masc-is') {
-        return { weight: Math.ceil(params.tonnage / 20), criticalSlots: Math.ceil(params.tonnage / 20) };
+        return { weight: Math.ceil((params.tonnage ?? 0) / 20), criticalSlots: Math.ceil((params.tonnage ?? 0) / 20) };
       }
       if (id === 'masc-clan') {
-        return { weight: Math.ceil(params.tonnage / 25), criticalSlots: Math.ceil(params.tonnage / 25) };
+        return { weight: Math.ceil((params.tonnage ?? 0) / 25), criticalSlots: Math.ceil((params.tonnage ?? 0) / 25) };
       }
       if (id === 'supercharger') {
-        return { weight: Math.ceil(params.engineWeight / 10) * 0.5, criticalSlots: 1 };
+        return { weight: Math.ceil((params.engineWeight ?? 0) / 10) * 0.5, criticalSlots: 1 };
       }
       if (id === 'tsm') {
         return { weight: 0, criticalSlots: 6 };
       }
       if (id === 'partial-wing') {
-        return { weight: params.tonnage * 0.05, criticalSlots: 6 };
+        return { weight: (params.tonnage ?? 0) * 0.05, criticalSlots: 6 };
       }
       return { weight: 0, criticalSlots: 0 };
     }),
