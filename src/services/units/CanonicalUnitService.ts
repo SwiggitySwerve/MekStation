@@ -3,6 +3,7 @@
  * 
  * Provides read-only access to bundled canonical unit data.
  * Uses lazy loading for full unit data.
+ * Supports both server-side (Node.js) and client-side (browser) loading.
  * 
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -114,12 +115,62 @@ export interface ICanonicalUnitService {
 }
 
 /**
+ * Check if running on server side (Node.js)
+ */
+function isServerSide(): boolean {
+  return typeof window === 'undefined';
+}
+
+/**
+ * Load JSON data from file system (server-side only)
+ */
+function loadJsonFromFs<T>(relativePath: string): T | null {
+  try {
+    // Dynamic require to avoid bundling fs/path in browser
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path');
+    
+    const filePath = path.join(process.cwd(), 'public', relativePath);
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(content) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Canonical Unit Service implementation
  */
 export class CanonicalUnitService implements ICanonicalUnitService {
   private indexCache: IUnitIndexEntry[] | null = null;
   private unitCache: Map<string, IFullUnit> = new Map();
   private indexPath = '/data/units/battlemechs/index.json';
+
+  /**
+   * Load JSON data - works on both server and client side
+   */
+  private async loadJson<T>(relativePath: string): Promise<T | null> {
+    if (isServerSide()) {
+      // Server-side: use Node.js fs module via dynamic require
+      return loadJsonFromFs<T>(relativePath);
+    } else {
+      // Client-side: use fetch
+      try {
+        const response = await fetch(relativePath);
+        if (!response.ok) {
+          return null;
+        }
+        return await response.json() as T;
+      } catch {
+        return null;
+      }
+    }
+  }
 
   /**
    * Load the lightweight unit index
@@ -130,14 +181,12 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     }
 
     try {
-      const response = await fetch(this.indexPath);
-      if (!response.ok) {
-        // Index doesn't exist yet - return empty array
+      const data = await this.loadJson<{ units?: RawUnitIndexEntry[] }>(this.indexPath);
+      
+      if (!data) {
         this.indexCache = [];
         return this.indexCache;
       }
-      
-      const data = await response.json() as { units?: RawUnitIndexEntry[] };
       
       // Map raw index data to IUnitIndexEntry format
       this.indexCache = (data.units || []).map(mapRawToIndexEntry);
@@ -167,12 +216,10 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     }
 
     try {
-      const response = await fetch(entry.filePath);
-      if (!response.ok) {
+      const unit = await this.loadJson<IFullUnit>(entry.filePath);
+      if (!unit) {
         return null;
       }
-      
-      const unit: IFullUnit = await response.json();
       this.unitCache.set(id, unit);
       return unit;
     } catch {
