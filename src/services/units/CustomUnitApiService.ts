@@ -332,14 +332,20 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       throw new Error(`Failed to get version: ${response.statusText}`);
     }
     
-    const data = await response.json();
+    const data = await response.json() as {
+      version: number;
+      savedAt: string;
+      notes: string | null;
+      revertSource: number | null;
+      parsedData: IFullUnit;
+    };
     
     return {
       version: data.version,
       savedAt: data.savedAt,
       notes: data.notes,
       revertSource: data.revertSource,
-      data: data.parsedData as IFullUnit,
+      data: data.parsedData,
     };
   }
 

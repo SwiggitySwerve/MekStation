@@ -547,7 +547,7 @@ export class EquipmentLoaderService {
       try {
         const response = await fetch(`${basePath}/miscellaneous.json`);
         if (response.ok) {
-          const data: IEquipmentFile<IRawMiscEquipmentData> = await response.json();
+          const data = await response.json() as IEquipmentFile<IRawMiscEquipmentData>;
           data.items.forEach(item => {
             const equipment = convertMiscEquipment(item);
             this.miscEquipment.set(equipment.id, equipment);

@@ -563,7 +563,7 @@ export class UnitFormatConverter {
   /**
    * Generate an equipment ID for unrecognized equipment
    */
-  private generateEquipmentId(itemType: string, itemName: string): string {
+  private generateEquipmentId(itemType: string, _itemName: string): string {
     return `unknown-${itemType.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   }
   
