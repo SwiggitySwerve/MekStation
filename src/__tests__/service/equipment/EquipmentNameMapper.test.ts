@@ -42,7 +42,7 @@ describe('EquipmentNameMapper', () => {
 
   it('should handle unknown equipment names', async () => {
     const mapper = EquipmentNameMapper.getInstance();
-    const mockRegistry = EquipmentRegistry.getInstance() as any;
+    const mockRegistry = EquipmentRegistry.getInstance() as unknown as { lookupByName: jest.Mock };
     mockRegistry.lookupByName = jest.fn().mockReturnValue({
       found: false,
       equipment: null,

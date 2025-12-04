@@ -33,15 +33,15 @@ describe('CriticalSlotsTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: unknown) => {
+    (useUnitStore as jest.Mock).mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
-        return selector(mockStoreValues);
+        return (selector as (state: typeof mockStoreValues) => unknown)(mockStoreValues);
       }
       return undefined;
     });
-    (useCustomizerStore as jest.Mock).mockImplementation((selector: unknown) => {
+    (useCustomizerStore as jest.Mock).mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
-        return selector(mockCustomizerStore);
+        return (selector as (state: typeof mockCustomizerStore) => unknown)(mockCustomizerStore);
       }
       return undefined;
     });

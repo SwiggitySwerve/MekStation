@@ -55,9 +55,10 @@ describe('EquipmentLoaderService', () => {
 
   describe('clear()', () => {
     it('should clear all equipment', () => {
-      // Manually add some items to test clear
-      (service as any).weapons.set('test-weapon', { id: 'test-weapon', name: 'Test' });
-      (service as any).isLoaded = true;
+      // Manually add some items to test clear (accessing private properties for testing)
+      const serviceInternal = service as unknown as { weapons: Map<string, unknown>; isLoaded: boolean };
+      serviceInternal.weapons.set('test-weapon', { id: 'test-weapon', name: 'Test' });
+      serviceInternal.isLoaded = true;
       
       service.clear();
       

@@ -11,7 +11,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 describe('UnitSerializer', () => {
-  const createMockUnit = (overrides?: any) => ({
+  const createMockUnit = (overrides?: Record<string, unknown>) => ({
     id: 'test-unit',
     unitType: 'BattleMech',
     configuration: MechConfiguration.BIPED,

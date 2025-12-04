@@ -15,8 +15,8 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
 
 describe('EquipmentRegistry', () => {
   beforeEach(() => {
-    // Reset singleton instance
-    (EquipmentRegistry as any).instance = null;
+    // Reset singleton instance using type assertion for private property access
+    (EquipmentRegistry as unknown as { instance: null }).instance = null;
   });
 
   it('should return singleton instance', () => {

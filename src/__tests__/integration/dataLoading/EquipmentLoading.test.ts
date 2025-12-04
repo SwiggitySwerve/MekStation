@@ -62,7 +62,7 @@ describe('Equipment Data Loading', () => {
       it(`${file} should be valid JSON`, () => {
         const filePath = path.join(OFFICIAL_PATH, file);
         const content = fs.readFileSync(filePath, 'utf-8');
-        expect(() => JSON.parse(content)).not.toThrow();
+        expect(() => JSON.parse(content) as unknown).not.toThrow();
       });
     });
   });
@@ -89,7 +89,7 @@ describe('Equipment Data Loading', () => {
       it(`${schema} should be valid JSON Schema`, () => {
         const schemaPath = path.join(SCHEMA_PATH, schema);
         const content = fs.readFileSync(schemaPath, 'utf-8');
-        const parsed = JSON.parse(content);
+        const parsed = JSON.parse(content) as { $schema?: string; type?: string };
         
         // Basic JSON Schema requirements
         expect(parsed).toHaveProperty('$schema');
@@ -112,7 +112,7 @@ describe('Equipment Data Loading', () => {
         beforeAll(() => {
           const filePath = path.join(OFFICIAL_PATH, 'weapons', file);
           const content = fs.readFileSync(filePath, 'utf-8');
-          fileData = JSON.parse(content);
+          fileData = JSON.parse(content) as { items: unknown[]; count: number };
           weapons = fileData.items;
         });
 
@@ -176,7 +176,7 @@ describe('Equipment Data Loading', () => {
     beforeAll(() => {
       const filePath = path.join(OFFICIAL_PATH, 'ammunition.json');
       const content = fs.readFileSync(filePath, 'utf-8');
-      fileData = JSON.parse(content);
+      fileData = JSON.parse(content) as { items: unknown[]; count: number };
       ammunition = fileData.items;
     });
 
@@ -220,7 +220,7 @@ describe('Equipment Data Loading', () => {
     beforeAll(() => {
       const filePath = path.join(OFFICIAL_PATH, 'electronics.json');
       const content = fs.readFileSync(filePath, 'utf-8');
-      fileData = JSON.parse(content);
+      fileData = JSON.parse(content) as { items: unknown[]; count: number };
       electronics = fileData.items;
     });
 
@@ -257,7 +257,7 @@ describe('Equipment Data Loading', () => {
     beforeAll(() => {
       const filePath = path.join(OFFICIAL_PATH, 'index.json');
       const content = fs.readFileSync(filePath, 'utf-8');
-      index = JSON.parse(content);
+      index = JSON.parse(content) as Record<string, unknown>;
     });
 
     it('should have version field', () => {

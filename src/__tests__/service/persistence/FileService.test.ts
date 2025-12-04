@@ -61,7 +61,7 @@ describe('FileService', () => {
 
       service.exportUnit(unit, customFilename);
 
-      const anchor = mockCreateElement.mock.results[0].value;
+      const anchor = mockCreateElement.mock.results[0].value as { download: string };
       expect(anchor.download).toBe(customFilename);
     });
 
@@ -74,7 +74,7 @@ describe('FileService', () => {
 
       service.exportUnit(unit);
 
-      const anchor = mockCreateElement.mock.results[0].value;
+      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
       expect(anchor.download).toMatch(/^atlas-as7-d-variant\.json$/);
     });
 
@@ -83,7 +83,7 @@ describe('FileService', () => {
 
       service.exportUnit(unit);
 
-      const anchor = mockCreateElement.mock.results[0].value;
+      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
       expect(anchor.download).toMatch(/^unknown-variant\.json$/);
     });
   });
@@ -106,7 +106,7 @@ describe('FileService', () => {
 
       await service.exportBatch(units);
 
-      const anchor = mockCreateElement.mock.results[0].value;
+      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
       expect(anchor.download).toBe('units-export.json');
     });
 
@@ -116,7 +116,7 @@ describe('FileService', () => {
 
       await service.exportBatch(units, customFilename);
 
-      const anchor = mockCreateElement.mock.results[0].value;
+      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
       expect(anchor.download).toBe(customFilename);
     });
   });

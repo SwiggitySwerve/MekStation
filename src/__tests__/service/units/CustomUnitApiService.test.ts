@@ -249,7 +249,7 @@ describe('CustomUnitApiService', () => {
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
-        } as any,
+        } as { id: string; chassis: string; variant: string },
       ]);
 
       const result = await service.isCanonical('Atlas', 'AS7-D');
@@ -287,7 +287,7 @@ describe('CustomUnitApiService', () => {
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
-        } as any,
+        } as { id: string; chassis: string; variant: string },
       ]);
 
       mockFetch.mockResolvedValueOnce({

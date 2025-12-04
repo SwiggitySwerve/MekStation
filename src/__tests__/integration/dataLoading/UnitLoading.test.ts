@@ -91,7 +91,7 @@ describe('Unit Data Loading', () => {
     beforeAll(() => {
       const indexPath = path.join(UNITS_PATH, 'index.json');
       const content = fs.readFileSync(indexPath, 'utf-8');
-      index = JSON.parse(content);
+      index = JSON.parse(content) as typeof index;
     });
 
     it('should exist', () => {
@@ -167,7 +167,7 @@ describe('Unit Data Loading', () => {
 
       beforeAll(() => {
         const content = fs.readFileSync(sampleUnitPath, 'utf-8');
-        unit = JSON.parse(content);
+        unit = JSON.parse(content) as Record<string, unknown>;
       });
 
       it('should have identity fields', () => {
@@ -247,7 +247,7 @@ describe('Unit Data Loading', () => {
     beforeAll(() => {
       const samplePath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
       const content = fs.readFileSync(samplePath, 'utf-8');
-      unit = JSON.parse(content);
+      unit = JSON.parse(content) as Record<string, unknown>;
     });
 
     it('should have correct slot counts per location', () => {

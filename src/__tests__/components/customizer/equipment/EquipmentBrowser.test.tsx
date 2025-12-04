@@ -16,7 +16,7 @@ jest.mock('@/components/customizer/equipment/CategoryToggleBar', () => ({
   CategoryToggleBar: ({ activeCategories, onSelectCategory }: CategoryToggleBarProps) => (
     <div data-testid="category-toggle-bar">
       {Array.from(activeCategories).map((cat: EquipmentCategory) => (
-        <button key={cat} onClick={() => onSelectCategory(cat, false)}>
+        <button key={cat} onClick={(): void => { onSelectCategory(cat, false); }}>
           {cat}
         </button>
       ))}
@@ -24,7 +24,7 @@ jest.mock('@/components/customizer/equipment/CategoryToggleBar', () => ({
   ),
   HideToggleBar: ({ hidePrototype, onTogglePrototype }: HideToggleBarProps) => (
     <div data-testid="hide-toggle-bar">
-      <button onClick={onTogglePrototype}>
+      <button onClick={(): void => { onTogglePrototype(); }}>
         {hidePrototype ? 'Show Prototype' : 'Hide Prototype'}
       </button>
     </div>

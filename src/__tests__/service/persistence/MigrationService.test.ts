@@ -31,12 +31,12 @@ describe('MigrationService', () => {
     
     mockSQLiteService.mockReturnValue({
       initialize: jest.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof mockSQLiteService>);
     
     mockUnitRepository.mockReturnValue({
       findByName: jest.fn(),
       create: jest.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof mockUnitRepository>);
   });
 
   describe('hasIndexedDBData', () => {
@@ -99,7 +99,7 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null), // Unit doesn't exist
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       const result = await service.migrateToSQLite(mockProgressCallback);
       
@@ -128,7 +128,7 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue({ id: 'existing' }), // Unit exists
         create: jest.fn(),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       const result = await service.migrateToSQLite();
       
@@ -152,7 +152,7 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       const result = await service.migrateToSQLite();
       
@@ -181,7 +181,7 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: false, error: 'Creation failed' }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       const result = await service.migrateToSQLite();
       
@@ -210,7 +210,7 @@ describe('MigrationService', () => {
         }),
         create: jest.fn(),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       const result = await service.migrateToSQLite();
       
@@ -253,7 +253,7 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as any);
+      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
       
       await service.migrateToSQLite(mockProgressCallback);
       

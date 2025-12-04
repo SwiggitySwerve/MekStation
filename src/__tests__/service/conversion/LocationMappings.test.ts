@@ -242,13 +242,13 @@ describe('LocationMappings', () => {
     it('should parse properly separated location entries', () => {
       const entries: SourceCriticalEntry[] = [
         { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'null', 'Sensors', 'Life Support'] },
-        { location: 'Left Arm', slots: Array(12).fill('-Empty-') },
-        { location: 'Right Arm', slots: Array(12).fill('-Empty-') },
-        { location: 'Left Torso', slots: Array(12).fill('-Empty-') },
-        { location: 'Right Torso', slots: Array(12).fill('-Empty-') },
-        { location: 'Center Torso', slots: Array(12).fill('-Empty-') },
-        { location: 'Left Leg', slots: Array(6).fill('-Empty-') },
-        { location: 'Right Leg', slots: Array(6).fill('-Empty-') },
+        { location: 'Left Arm', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Right Arm', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Left Torso', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Right Torso', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Center Torso', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Left Leg', slots: Array<string>(6).fill('-Empty-') },
+        { location: 'Right Leg', slots: Array<string>(6).fill('-Empty-') },
       ];
 
       const result = parseCriticalSlots(entries);

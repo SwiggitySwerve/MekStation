@@ -112,7 +112,7 @@ class MockRequest {
 }
 
 class MockDatabase {
-  private stores: Map<string, any> = new Map();
+  private stores: Map<string, Map<string, unknown>> = new Map();
   readonly name: string;
   readonly version: number;
 
@@ -127,7 +127,7 @@ class MockDatabase {
     }
   }
 
-  getStore(name: string): any {
+  getStore(name: string): Map<string, unknown> | undefined {
     return this.stores.get(name);
   }
 
