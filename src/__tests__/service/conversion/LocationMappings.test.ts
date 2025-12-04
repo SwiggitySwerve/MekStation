@@ -260,26 +260,26 @@ describe('LocationMappings', () => {
     it('should handle combined format (all slots in one entry)', () => {
       // MegaMekLab converter sometimes outputs all slots in a single concatenated array
       // Order: Head(12), LeftLeg(12), RightLeg(12), LeftArm(12), RightArm(12), LeftTorso(12), RightTorso(12), CenterTorso(12)
-      const combinedSlots = [
+      const combinedSlots: string[] = [
         // Head (6 real + 6 padding)
-        ...Array(6).fill('Head Slot'),
-        ...Array(6).fill('-Empty-'),
+        ...(Array(6).fill('Head Slot') as string[]),
+        ...(Array(6).fill('-Empty-') as string[]),
         // Left Leg (6 real + 6 padding)
-        ...Array(6).fill('LL Slot'),
-        ...Array(6).fill('-Empty-'),
+        ...(Array(6).fill('LL Slot') as string[]),
+        ...(Array(6).fill('-Empty-') as string[]),
         // Right Leg (6 real + 6 padding)
-        ...Array(6).fill('RL Slot'),
-        ...Array(6).fill('-Empty-'),
+        ...(Array(6).fill('RL Slot') as string[]),
+        ...(Array(6).fill('-Empty-') as string[]),
         // Left Arm (12)
-        ...Array(12).fill('LA Slot'),
+        ...(Array(12).fill('LA Slot') as string[]),
         // Right Arm (12)
-        ...Array(12).fill('RA Slot'),
+        ...(Array(12).fill('RA Slot') as string[]),
         // Left Torso (12)
-        ...Array(12).fill('LT Slot'),
+        ...(Array(12).fill('LT Slot') as string[]),
         // Right Torso (12)
-        ...Array(12).fill('RT Slot'),
+        ...(Array(12).fill('RT Slot') as string[]),
         // Center Torso (12)
-        ...Array(12).fill('CT Slot'),
+        ...(Array(12).fill('CT Slot') as string[]),
       ];
 
       const entries: SourceCriticalEntry[] = [

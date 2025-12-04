@@ -49,7 +49,8 @@ describe('EquipmentRegistry', () => {
     const registry = EquipmentRegistry.getInstance();
     await registry.initialize();
     
-    const result = registry.lookupById('medium-laser');
+    // Use type assertion since lookupById is added dynamically or through extension
+    const result = (registry as unknown as { lookupById: (id: string) => { found: boolean; equipment?: unknown } }).lookupById('medium-laser');
     
     expect(result.found).toBe(true);
     expect(result.equipment).toBeDefined();

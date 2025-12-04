@@ -19,7 +19,7 @@ jest.mock('@/hooks/useTechBaseSync', () => ({
 jest.mock('@/components/customizer/armor/ArmorDiagram', () => ({
   ArmorDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="armor-diagram">
-      <button onClick={(): void => { onLocationClick('HEAD'); }}>Head</button>
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('HEAD'); }}>Head</button>
     </div>
   ),
 }));

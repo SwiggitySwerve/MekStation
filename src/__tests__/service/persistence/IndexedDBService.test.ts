@@ -30,7 +30,7 @@ class MockObjectStore {
     setTimeout(() => {
       const store = this.db.getStore(this.storeName);
       if (store) {
-        store.put(key, value);
+        store.set(key, value);
         request.result = undefined;
         request.onsuccess?.(new Event('success'));
       } else {
@@ -77,7 +77,7 @@ class MockObjectStore {
     setTimeout(() => {
       const store = this.db.getStore(this.storeName);
       if (store) {
-        request.result = store.getAll();
+        request.result = Array.from(store.values());
         request.onsuccess?.(new Event('success'));
       } else {
         request.error = new Error('Store not found');

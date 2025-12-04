@@ -81,7 +81,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data);
+        const envelope = JSON.parse(result.data) as { formatVersion: string };
         expect(envelope.formatVersion).toBe(CURRENT_FORMAT_VERSION);
       }
     });

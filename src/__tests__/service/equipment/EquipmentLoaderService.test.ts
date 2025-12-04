@@ -137,14 +137,14 @@ describe('EquipmentLoaderService', () => {
       const mockWeapon = {
         id: 'medium-laser',
         name: 'Medium Laser',
-        category: 'Energy' as any,
+        category: 'Energy' as const,
         weight: 1,
         criticalSlots: 1,
         heat: 3,
         techBase: TechBase.INNER_SPHERE,
       };
       
-      (service as any).weapons.set('medium-laser', mockWeapon);
+      (service as unknown as { weapons: Map<string, typeof mockWeapon> }).weapons.set('medium-laser', mockWeapon);
       
       const weapon = service.getWeaponById('medium-laser');
       expect(weapon).toEqual(mockWeapon);

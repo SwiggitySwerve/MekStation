@@ -106,9 +106,9 @@ describe('equipmentListUtils', () => {
 
     it('should filter out jump jets', () => {
       const equipment = [
-        { equipmentId: 'jump-jet-light', name: 'Jump Jet' } as any,
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as any,
-        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' } as any,
+        { equipmentId: 'jump-jet-light', name: 'Jump Jet' } as { equipmentId: string; name: string },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' } as { equipmentId: string; name: string },
       ];
       
       const filtered = filterOutJumpJets(equipment);

@@ -9,7 +9,7 @@ import { EquipmentBrowserProps } from '@/components/customizer/equipment/Equipme
 jest.mock('@/components/customizer/equipment/EquipmentBrowser', () => ({
   EquipmentBrowser: ({ onAddEquipment }: Pick<EquipmentBrowserProps, 'onAddEquipment'>) => (
     <div data-testid="equipment-browser">
-      <button onClick={(): void => { onAddEquipment({ id: 'test-equipment', name: 'Test Equipment' }); }}>
+      <button onClick={(): void => { (onAddEquipment as (item: { id: string; name: string }) => void)({ id: 'test-equipment', name: 'Test Equipment' }); }}>
         Add Equipment
       </button>
     </div>

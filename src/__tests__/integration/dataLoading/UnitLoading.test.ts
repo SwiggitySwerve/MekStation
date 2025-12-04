@@ -289,7 +289,7 @@ describe('Unit Data Loading', () => {
     beforeAll(() => {
       const samplePath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
       const content = fs.readFileSync(samplePath, 'utf-8');
-      const unit = JSON.parse(content);
+      const unit = JSON.parse(content) as { armor: typeof armor };
       armor = unit.armor;
     });
 

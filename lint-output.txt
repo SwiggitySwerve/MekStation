@@ -126,61 +126,31 @@ E:\Projects\megamek-web\src\components\customizer\tabs\OverviewTab.tsx
 
 E:\Projects\megamek-web\src\hooks\useKeyboardNavigation.ts
   130:6  warning  React Hook useCallback has an unnecessary dependency: 'getKey'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
-  222:8  warning  Missing return type on function                                                                                   @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\services\conversion\MTFImportService.ts
-  242:17  warning  'location' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  325:13  warning  Unsafe assignment of an `any` value            @typescript-eslint/no-unsafe-assignment
-
-E:\Projects\megamek-web\src\services\conversion\UnitFormatConverter.ts
-   14:18  warning  '_IBattleMech' is defined but never used                                    @typescript-eslint/no-unused-vars
-  363:23  warning  'source' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
-  568:49  warning  'itemName' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
 
 E:\Projects\megamek-web\src\services\equipment\EquipmentLoaderService.ts
-  516:17  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
-  533:17  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
-  550:17  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
-  600:9   warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
-  603:9   warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+  600:9  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+  603:9  warning  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
 
 E:\Projects\megamek-web\src\services\units\CustomUnitApiService.ts
-  275:5   warning  Unsafe return of a value of type `Promise<any>`        @typescript-eslint/no-unsafe-return
-  315:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  316:17  warning  Unsafe member access .versions on an `any` value       @typescript-eslint/no-unsafe-member-access
-  335:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  338:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  338:21  warning  Unsafe member access .version on an `any` value        @typescript-eslint/no-unsafe-member-access
-  339:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  339:21  warning  Unsafe member access .savedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
-  340:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  340:19  warning  Unsafe member access .notes on an `any` value          @typescript-eslint/no-unsafe-member-access
-  341:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  341:26  warning  Unsafe member access .revertSource on an `any` value   @typescript-eslint/no-unsafe-member-access
-  342:18  warning  Unsafe member access .parsedData on an `any` value     @typescript-eslint/no-unsafe-member-access
-  359:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  363:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  363:18  warning  Unsafe member access .id on an `any` value             @typescript-eslint/no-unsafe-member-access
-  364:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  364:23  warning  Unsafe member access .version on an `any` value        @typescript-eslint/no-unsafe-member-access
-  365:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  365:21  warning  Unsafe member access .error on an `any` value          @typescript-eslint/no-unsafe-member-access
-  385:5   warning  Unsafe return of a value of type `Promise<any>`        @typescript-eslint/no-unsafe-return
-  398:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  403:9   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  403:23  warning  Unsafe member access .error on an `any` value          @typescript-eslint/no-unsafe-member-access
-  405:31  warning  Unsafe member access .suggestedName on an `any` value  @typescript-eslint/no-unsafe-member-access
-  408:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  408:36  warning  Unsafe member access .suggestedName on an `any` value  @typescript-eslint/no-unsafe-member-access
-  415:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
-  415:18  warning  Unsafe member access .unitId on an `any` value         @typescript-eslint/no-unsafe-member-access
+  365:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  369:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  369:18  warning  Unsafe member access .id on an `any` value             @typescript-eslint/no-unsafe-member-access
+  370:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  370:23  warning  Unsafe member access .version on an `any` value        @typescript-eslint/no-unsafe-member-access
+  371:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  371:21  warning  Unsafe member access .error on an `any` value          @typescript-eslint/no-unsafe-member-access
+  391:5   warning  Unsafe return of a value of type `Promise<any>`        @typescript-eslint/no-unsafe-return
+  404:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  409:9   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  409:23  warning  Unsafe member access .error on an `any` value          @typescript-eslint/no-unsafe-member-access
+  411:31  warning  Unsafe member access .suggestedName on an `any` value  @typescript-eslint/no-unsafe-member-access
+  414:11  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  414:36  warning  Unsafe member access .suggestedName on an `any` value  @typescript-eslint/no-unsafe-member-access
+  421:7   warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
+  421:18  warning  Unsafe member access .unitId on an `any` value         @typescript-eslint/no-unsafe-member-access
 
 E:\Projects\megamek-web\src\stores\UnitStoreProvider.tsx
   78:6  warning  React Hook useMemo has a missing dependency: 'activeTab'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-E:\Projects\megamek-web\src\stores\unitStoreRegistry.ts
-  145:13  warning  Unsafe assignment of an `any` value            @typescript-eslint/no-unsafe-assignment
-  146:28  warning  Unsafe member access .state on an `any` value  @typescript-eslint/no-unsafe-member-access
-
-✖ 141 problems (0 errors, 141 warnings)
+✖ 117 problems (0 errors, 117 warnings)
 
