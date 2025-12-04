@@ -462,7 +462,7 @@ export class EquipmentLoaderService {
       try {
         const response = await fetch(`${basePath}/weapons/energy.json`);
         if (response.ok) {
-          const data: IEquipmentFile<IRawWeaponData> = await response.json();
+          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
           data.items.forEach(item => {
             const weapon = convertWeapon(item);
             this.weapons.set(weapon.id, weapon);
@@ -479,7 +479,7 @@ export class EquipmentLoaderService {
       try {
         const response = await fetch(`${basePath}/weapons/ballistic.json`);
         if (response.ok) {
-          const data: IEquipmentFile<IRawWeaponData> = await response.json();
+          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
           data.items.forEach(item => {
             const weapon = convertWeapon(item);
             this.weapons.set(weapon.id, weapon);
@@ -496,7 +496,7 @@ export class EquipmentLoaderService {
       try {
         const response = await fetch(`${basePath}/weapons/missile.json`);
         if (response.ok) {
-          const data: IEquipmentFile<IRawWeaponData> = await response.json();
+          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
           data.items.forEach(item => {
             const weapon = convertWeapon(item);
             this.weapons.set(weapon.id, weapon);

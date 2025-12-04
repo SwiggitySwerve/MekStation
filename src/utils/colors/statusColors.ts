@@ -128,7 +128,7 @@ export function getAllocationColors(status: AllocationStatus): { bg: string; tex
 /**
  * Get interactive state colors
  */
-export function getInteractiveColors(state: InteractiveState) {
+export function getInteractiveColors(state: InteractiveState): { bg: string; border: string; ring?: string; cursor: string } {
   return INTERACTIVE_COLORS[state];
 }
 

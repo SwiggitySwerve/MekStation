@@ -73,7 +73,7 @@ export class MTFImportService implements IMTFImporter {
   /**
    * Import unit from MTF content (not implemented - use importFromJSON)
    */
-  import(mtfContent: string): IDeserializationResult {
+  import(_mtfContent: string): IDeserializationResult {
     // This interface method is for raw MTF text parsing
     // For JSON import, use importFromJSON
     return {
@@ -87,7 +87,7 @@ export class MTFImportService implements IMTFImporter {
   /**
    * Validate MTF content (not implemented - use validateJSON)
    */
-  validate(mtfContent: string): { isValid: boolean; errors: string[] } {
+  validate(_mtfContent: string): { isValid: boolean; errors: string[] } {
     return {
       isValid: false,
       errors: ['Direct MTF validation not implemented. Use validateJSON for JSON data.'],

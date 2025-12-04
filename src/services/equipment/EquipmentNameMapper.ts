@@ -356,7 +356,7 @@ export class EquipmentNameMapper {
         throw new Error(`Failed to fetch: ${response.status}`);
       }
       
-      const mappings: Record<string, string> = await response.json();
+      const mappings = await response.json() as Record<string, string>;
       let count = 0;
       
       Object.entries(mappings).forEach(([name, id]) => {

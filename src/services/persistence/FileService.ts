@@ -174,7 +174,7 @@ export class FileService implements IFileService {
 
   private parseJSON(text: string, filename: string): { success: true; data: unknown } | { success: false; error: string } {
     try {
-      const data = JSON.parse(text);
+      const data: unknown = JSON.parse(text) as unknown;
       return { success: true, data };
     } catch {
       return { success: false, error: `Invalid JSON in ${filename}` };

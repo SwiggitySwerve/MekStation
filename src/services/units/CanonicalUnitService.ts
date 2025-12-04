@@ -133,9 +133,9 @@ function loadJsonFromFs<T>(relativePath: string): T | null {
   try {
     // Dynamic require to avoid bundling fs/path in browser
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs');
+    const fs = require('fs') as typeof import('fs');
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const path = require('path');
+    const path = require('path') as typeof import('path');
     
     const filePath = path.join(process.cwd(), 'public', relativePath);
     if (!fs.existsSync(filePath)) {

@@ -10,8 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { TechBase } from '@/types/enums/TechBase';
 import { GyroType } from '@/types/construction/GyroType';
 import { CockpitType } from '@/types/construction/CockpitType';
-import {
-  IBattleMech,
+import type {
+  IBattleMech as _IBattleMech,
 } from '@/types/unit/BattleMechInterfaces';
 import {
   ISerializedUnit,
@@ -27,7 +27,6 @@ import {
   mapStructureType,
   mapHeatSinkType,
   mapArmorType,
-  mapGyroType,
   mapMechConfiguration,
   isOmniMechConfig,
 } from './ValueMappings';

@@ -117,64 +117,16 @@ E:\Projects\megamek-web\src\__tests__\unit\utils\serialization\UnitSerializer.te
   135:13  warning  Unsafe assignment of an `any` value                    @typescript-eslint/no-unsafe-assignment
   135:35  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
 
-E:\Projects\megamek-web\src\components\common\ControlledInput.tsx
-  358:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  360:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  362:10  warning  Missing return type on function           @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\components\common\ErrorBoundary.tsx
-  122:13  warning  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
-  123:7   warning  Unsafe call of a(n) `any` typed value           @typescript-eslint/no-unsafe-call
-  123:17  warning  Unsafe member access .push on an `any` value    @typescript-eslint/no-unsafe-member-access
-  126:21  warning  Unsafe member access .length on an `any` value  @typescript-eslint/no-unsafe-member-access
-  127:9   warning  Unsafe call of a(n) `any` typed value           @typescript-eslint/no-unsafe-call
-  127:19  warning  Unsafe member access .splice on an `any` value  @typescript-eslint/no-unsafe-member-access
-  127:39  warning  Unsafe member access .length on an `any` value  @typescript-eslint/no-unsafe-member-access
-  276:10  warning  Missing return type on function                 @typescript-eslint/explicit-module-boundary-types
-  289:8   warning  Missing return type on function                 @typescript-eslint/explicit-module-boundary-types
-
 E:\Projects\megamek-web\src\components\customizer\armor\LocationArmorEditor.tsx
    97:6  warning  React Hook useCallback has a missing dependency: 'data'. Either include it or remove the dependency array. Mutable values like 'data.current' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
   112:6  warning  React Hook useCallback has a missing dependency: 'data'. Either include it or remove the dependency array. Mutable values like 'data.current' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
 
-E:\Projects\megamek-web\src\components\customizer\dialogs\ImportUnitDialog.tsx
-  270:32  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
-  270:76  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
-
 E:\Projects\megamek-web\src\components\customizer\tabs\OverviewTab.tsx
   168:6  warning  React Hook useMemo has an unnecessary dependency: 'cockpitType'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
 
-E:\Projects\megamek-web\src\components\ui\PageLayout.tsx
-  149:8  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\components\ui\StatDisplay.tsx
-  129:8  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
 E:\Projects\megamek-web\src\hooks\useKeyboardNavigation.ts
   130:6  warning  React Hook useCallback has an unnecessary dependency: 'getKey'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
-  181:8  warning  Missing return type on function                                                                                   @typescript-eslint/explicit-module-boundary-types
   222:8  warning  Missing return type on function                                                                                   @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\categories.ts
-  26:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\equipment_categories.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\equipment_eras.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\equipment_tech_bases.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\unit_eras.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\unit_tech_bases.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
-
-E:\Projects\megamek-web\src\pages\api\meta\unit_weight_classes.ts
-  4:16  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
 
 E:\Projects\megamek-web\src\services\conversion\MTFImportService.ts
    76:10  warning  'mtfContent' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
@@ -262,5 +214,5 @@ E:\Projects\megamek-web\src\stores\unitStoreRegistry.ts
 E:\Projects\megamek-web\src\utils\colors\statusColors.ts
   131:8  warning  Missing return type on function  @typescript-eslint/explicit-module-boundary-types
 
-✖ 189 problems (0 errors, 189 warnings)
+✖ 165 problems (0 errors, 165 warnings)
 

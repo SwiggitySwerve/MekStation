@@ -232,7 +232,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       method: 'DELETE',
     });
     
-    const result = await response.json();
+    const result = await response.json() as { id?: string; error?: string };
     
     return {
       success: response.ok,
