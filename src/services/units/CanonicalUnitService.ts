@@ -25,6 +25,9 @@ interface RawUnitIndexEntry {
   techBase: string;
   year: number;
   role?: string;
+  rulesLevel?: string;
+  cost?: number;
+  bv?: number;
   path: string;
 }
 
@@ -83,6 +86,9 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
     filePath: `/data/units/battlemechs/${raw.path}`,
     year: raw.year,
     role: raw.role,
+    rulesLevel: raw.rulesLevel,
+    cost: raw.cost,
+    bv: raw.bv,
   };
 }
 

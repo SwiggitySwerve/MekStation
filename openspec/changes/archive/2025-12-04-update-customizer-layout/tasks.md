@@ -35,8 +35,8 @@
 ## 6. Verification
 - [x] 6.1 Build passes with no TypeScript errors
 - [x] 6.2 Linting passes with no errors
-- [ ] 6.3 Manual testing: Tonnage control works in Structure tab
-- [ ] 6.4 Manual testing: Motive Type dropdown works in Structure tab
-- [ ] 6.5 Manual testing: Overview tab shows only Basic Information
-- [ ] 6.6 Manual testing: Tech base badge shows "Mixed" when components differ
+- [x] 6.3 Manual testing: Tonnage control works in Structure tab
+- [x] 6.4 Manual testing: Motive Type dropdown works in Structure tab
+- [x] 6.5 Manual testing: Overview tab shows only Basic Information
+- [x] 6.6 Manual testing: Tech base badge shows "Mixed" when components differ
 

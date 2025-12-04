@@ -27,7 +27,7 @@ interface FilterState {
   era: string;
 }
 
-type SortColumn = 'chassis' | 'variant' | 'tonnage' | 'year' | 'weightClass' | 'techBase' | 'unitType';
+type SortColumn = 'chassis' | 'variant' | 'tonnage' | 'year' | 'weightClass' | 'techBase' | 'unitType' | 'rulesLevel' | 'cost' | 'bv';
 type SortDirection = 'asc' | 'desc';
 
 interface SortState {
@@ -45,6 +45,24 @@ const WEIGHT_CLASS_ORDER: Record<string, number> = {
   [WeightClass.HEAVY]: 3,
   [WeightClass.ASSAULT]: 4,
   [WeightClass.SUPERHEAVY]: 5,
+};
+
+// Rules level sort order (ascending complexity)
+const RULES_LEVEL_ORDER: Record<string, number> = {
+  'INTRODUCTORY': 0,
+  'STANDARD': 1,
+  'ADVANCED': 2,
+  'EXPERIMENTAL': 3,
+  'UNOFFICIAL': 4,
+};
+
+// Rules level display labels
+const RULES_LEVEL_LABELS: Record<string, string> = {
+  'INTRODUCTORY': 'Intro',
+  'STANDARD': 'Std',
+  'ADVANCED': 'Adv',
+  'EXPERIMENTAL': 'Exp',
+  'UNOFFICIAL': 'Unoff',
 };
 
 const TECH_BASE_OPTIONS = [
@@ -168,6 +186,18 @@ export default function UnitsListPage() {
         case 'unitType':
           aVal = a.unitType;
           bVal = b.unitType;
+          break;
+        case 'rulesLevel':
+          aVal = RULES_LEVEL_ORDER[a.rulesLevel ?? ''] ?? 99;
+          bVal = RULES_LEVEL_ORDER[b.rulesLevel ?? ''] ?? 99;
+          break;
+        case 'cost':
+          aVal = a.cost ?? 0;
+          bVal = b.cost ?? 0;
+          break;
+        case 'bv':
+          aVal = a.bv ?? 0;
+          bVal = b.bv ?? 0;
           break;
         default:
           return 0;
@@ -318,12 +348,36 @@ export default function UnitsListPage() {
                   onSort={handleSort}
                   className="w-28"
                 />
+                <SortableHeader
+                  label="Level"
+                  column="rulesLevel"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-16"
+                />
+                <SortableHeader
+                  label="Price"
+                  column="cost"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-24 text-right"
+                />
+                <SortableHeader
+                  label="BV"
+                  column="bv"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-16 text-right"
+                />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
               {displayedUnits.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-400">
+                  <td colSpan={10} className="px-3 py-8 text-center text-slate-400">
                     No units found matching your filters
                   </td>
                 </tr>
@@ -356,7 +410,16 @@ export default function UnitsListPage() {
                       <TechBaseBadge techBase={unit.techBase} />
                     </td>
                     <td className="px-3 py-2 text-slate-400 text-sm whitespace-nowrap">
-                      {unit.unitType}
+                      {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
+                    </td>
+                    <td className="px-3 py-2 text-slate-400 text-xs font-mono whitespace-nowrap">
+                      {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ?? unit.rulesLevel ?? '—'}
+                    </td>
+                    <td className="px-3 py-2 text-slate-300 text-xs font-mono text-right whitespace-nowrap">
+                      {unit.cost ? `${(unit.cost / 1000000).toPrecision(3)}M` : '—'}
+                    </td>
+                    <td className="px-3 py-2 text-amber-400 text-xs font-mono text-right whitespace-nowrap font-medium">
+                      {unit.bv?.toLocaleString() ?? '—'}
                     </td>
                   </tr>
                 ))

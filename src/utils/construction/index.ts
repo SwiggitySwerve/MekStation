@@ -12,4 +12,6 @@ export * from './movementCalculations';
 export * from './constructionRules';
 export * from './formulaRegistry';
 export * from './techBaseValidation';
+export * from './costCalculations';
+export * from './battleValueCalculations';
 

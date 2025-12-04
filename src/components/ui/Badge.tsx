@@ -81,7 +81,7 @@ export function Badge({
 // Convenience exports for common badge types
 export function TechBaseBadge({ techBase }: { techBase: TechBase }) {
   const variant: BadgeVariant = techBase === TechBase.CLAN ? 'emerald' : 'blue';
-  const label = techBase === TechBase.CLAN ? 'Clan' : 'Inner Sphere';
+  const label = techBase === TechBase.CLAN ? 'Clan' : 'IS';
 
   return (
     <Badge variant={variant} size="sm">

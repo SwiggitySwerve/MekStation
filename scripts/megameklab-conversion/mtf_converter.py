@@ -700,6 +700,7 @@ def generate_index(output_dir: str) -> Dict[str, Any]:
                 'techBase': unit_data.get('techBase', ''),
                 'year': unit_data.get('year', 0),
                 'role': unit_data.get('role', ''),
+                'rulesLevel': unit_data.get('rulesLevel', ''),
                 'path': str(relative_path).replace('\\', '/')
             })
         except Exception as e:
