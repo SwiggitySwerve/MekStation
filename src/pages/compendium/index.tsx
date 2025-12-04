@@ -215,7 +215,7 @@ const ruleSections: RuleSection[] = [
   },
 ];
 
-export default function CompendiumPage() {
+export default function CompendiumPage(): React.ReactElement {
   return (
     <PageLayout
       title="Rules Compendium"

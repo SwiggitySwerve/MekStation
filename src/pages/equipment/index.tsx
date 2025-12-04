@@ -59,7 +59,7 @@ const categoryConfig: Record<EquipmentCategory, { label: string; variant: 'red' 
   [EquipmentCategory.MISC_EQUIPMENT]: { label: 'Misc Equipment', variant: 'violet' },
 };
 
-export default function EquipmentListPage() {
+export default function EquipmentListPage(): React.ReactElement {
   const [equipment, setEquipment] = useState<EquipmentEntry[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<EquipmentEntry[]>([]);
   const [loading, setLoading] = useState(true);

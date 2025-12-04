@@ -33,7 +33,7 @@ const CustomizerWithRouter = dynamic(
  * Dynamic customizer page
  * Handles all customizer routes via catch-all pattern
  */
-export default function CustomizerDynamicPage() {
+export default function CustomizerDynamicPage(): React.ReactElement {
   return <CustomizerWithRouter />;
 }
 

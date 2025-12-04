@@ -67,7 +67,7 @@ const categoryLabels: Record<string, string> = {
   MISC_EQUIPMENT: 'Misc Equipment',
 };
 
-export default function EquipmentDetailPage() {
+export default function EquipmentDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
   

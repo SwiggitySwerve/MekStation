@@ -18,7 +18,7 @@ import {
   StatGrid,
 } from '@/components/ui';
 
-export default function UnitDetailPage() {
+export default function UnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
   

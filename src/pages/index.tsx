@@ -79,7 +79,7 @@ const navigationCards: NavigationCard[] = [
   },
 ];
 
-export default function HomePage() {
+export default function HomePage(): React.ReactElement {
   const [stats, setStats] = useState<SystemStats>({
     unitCount: 0,
     equipmentCount: 0,

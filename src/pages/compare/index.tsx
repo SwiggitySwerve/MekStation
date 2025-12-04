@@ -13,7 +13,7 @@ import {
 
 const MAX_COMPARE = 4;
 
-export default function ComparePage() {
+export default function ComparePage(): React.ReactElement {
   const [catalog, setCatalog] = useState<IUnitEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUnits, setSelectedUnits] = useState<IUnitDetails[]>([]);

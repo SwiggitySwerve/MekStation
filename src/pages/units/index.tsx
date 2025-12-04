@@ -86,7 +86,7 @@ const RULES_LEVEL_OPTIONS = [
   ...ALL_RULES_LEVELS.map(rl => ({ value: rl, label: rl })),
 ];
 
-export default function UnitsListPage() {
+export default function UnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<IUnitEntry[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<IUnitEntry[]>([]);
   const [loading, setLoading] = useState(true);

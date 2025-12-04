@@ -153,7 +153,7 @@ export function useSelection(): SelectionContext {
 /**
  * Combined hook for unit and selection context
  */
-export function useUnitEditor() {
+export function useUnitEditor(): UnitContext & { selection: SelectionContext } {
   const unit = useUnit();
   const selection = useSelection();
   

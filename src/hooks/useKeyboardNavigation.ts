@@ -50,7 +50,11 @@ export function useKeyboardNavigation<T>({
   horizontal = false,
   columns,
   enabled = true,
-}: KeyboardNavOptions<T>) {
+}: KeyboardNavOptions<T>): {
+  navigate: (direction: NavDirection) => void;
+  handleKeyDown: (e: KeyboardEvent) => void;
+  currentIndex: number;
+} {
   // Find current index
   const currentIndex = selectedItem 
     ? items.findIndex(item => getKey(item) === getKey(selectedItem))
