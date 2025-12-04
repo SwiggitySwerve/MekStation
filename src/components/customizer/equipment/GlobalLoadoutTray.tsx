@@ -328,9 +328,9 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
           {/* Remove/Lock icon */}
           <span
             onClick={item.isRemovable ? (e) => { e.stopPropagation(); onRemove(); } : undefined}
-            className={`inline-block w-3 ml-0.5 text-center align-middle ${
+            className={`inline-block w-3 ml-0.5 text-center align-middle font-bold ${
               item.isRemovable 
-                ? `${trayStyles.text.tertiary} text-red-400/60 hover:text-red-300 cursor-pointer transition-colors` 
+                ? `${trayStyles.text.secondary} text-black hover:text-red-400 cursor-pointer transition-colors` 
                 : `${trayStyles.text.tertiary} text-white/30`
             }`}
             title={item.isRemovable ? "Remove from unit" : "Managed by configuration"}
