@@ -273,7 +273,7 @@ export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
 ) {
-  return function WithErrorBoundary(props: P) {
+  return function WithErrorBoundary(props: P): React.ReactElement {
     return (
       <ErrorBoundary
         componentName={Component.displayName || Component.name}
@@ -286,7 +286,12 @@ export function withErrorBoundary<P extends object>(
 }
 
 // CRITICAL: Hook for error boundary context
-export function useErrorBoundary() {
+export function useErrorBoundary(): {
+  error: Error | null;
+  handleError: (error: Error, errorInfo: ErrorInfo) => void;
+  clearError: () => void;
+  hasError: boolean;
+} {
   const [error, setError] = React.useState<Error | null>(null)
   
   const handleError = React.useCallback((error: Error, errorInfo: ErrorInfo) => {

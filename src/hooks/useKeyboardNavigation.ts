@@ -182,7 +182,7 @@ export function useTabKeyboardNavigation(
   tabs: readonly { id: string }[],
   activeTabId: string,
   onTabChange: (tabId: string) => void
-) {
+): (e: React.KeyboardEvent) => void {
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     const currentIndex = tabs.findIndex(t => t.id === activeTabId);
     if (currentIndex === -1) return;

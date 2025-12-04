@@ -359,7 +359,7 @@ export function withControlledInput<P extends { value?: string | number }>(
   Component: React.ComponentType<P>,
   validation?: (value: string | number) => ValidationResult
 ) {
-  return function WithControlledInput(props: P) {
+  return function WithControlledInput(props: P): React.ReactElement {
     const controlledProps = useControlledInput(props.value || '', validation)
     
     return (
