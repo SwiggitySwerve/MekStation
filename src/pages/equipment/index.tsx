@@ -175,6 +175,7 @@ export default function EquipmentListPage() {
     <PageLayout
       title="Equipment Catalog"
       subtitle={`Browse ${equipment.length.toLocaleString()} items across all categories`}
+      maxWidth="full"
     >
       {/* Filters */}
       <Card variant="header" className="mb-6">

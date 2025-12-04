@@ -327,6 +327,7 @@ export default function UnitsListPage() {
     <PageLayout
       title="Unit Database"
       subtitle={`Browse ${units.length.toLocaleString()} canonical units from all eras`}
+      maxWidth="full"
     >
       {/* Filters */}
       <Card className="mb-6">
@@ -494,7 +495,7 @@ export default function UnitsListPage() {
       {/* Units Table - Compact */}
       <Card variant="dark" className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[1000px]">
             <thead className="bg-slate-800">
               <tr className="text-left text-slate-400 text-xs uppercase tracking-wide">
                 <SortableHeader
