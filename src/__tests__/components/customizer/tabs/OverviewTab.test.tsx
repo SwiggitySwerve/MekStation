@@ -54,13 +54,13 @@ describe('OverviewTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: any) => {
+    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockStoreValues);
       }
       return undefined;
     });
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: any) => {
+    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockTabManager);
       }

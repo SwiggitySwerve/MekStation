@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EquipmentRow } from '@/components/customizer/equipment/EquipmentRow';
-import { EquipmentCategory } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { TechBase } from '@/types/enums/TechBase';
 
 describe('EquipmentRow', () => {
-  const createEquipment = (overrides?: any) => ({
+  const createEquipment = (overrides?: Partial<IEquipmentItem>): IEquipmentItem => ({
     id: 'medium-laser',
     name: 'Medium Laser',
     category: EquipmentCategory.ENERGY_WEAPON,

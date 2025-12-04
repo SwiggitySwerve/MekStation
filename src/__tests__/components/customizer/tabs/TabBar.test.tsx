@@ -5,7 +5,7 @@ import { TabBar, TabDisplayInfo } from '@/components/customizer/tabs/TabBar';
 
 // Mock UnitTab component
 jest.mock('@/components/customizer/tabs/UnitTab', () => ({
-  UnitTab: ({ tab, isActive, onSelect, onClose, onRename }: any) => (
+  UnitTab: ({ tab, isActive, onSelect, onClose, onRename }: { tab: { id: string; name: string }; isActive: boolean; onSelect: () => void; onClose: () => void; onRename: (name: string) => void }) => (
     <div data-testid={`tab-${tab.id}`} data-active={isActive}>
       <button onClick={onSelect}>{tab.name}</button>
       <button onClick={onClose}>×</button>

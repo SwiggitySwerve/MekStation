@@ -57,7 +57,7 @@ describe('MultiUnitTabs', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: any) => {
+    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockTabManager);
       }
@@ -78,7 +78,7 @@ describe('MultiUnitTabs', () => {
   });
 
   it('should render new tab modal when open', () => {
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: any) => {
+    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager & { isNewTabModalOpen: boolean }) => unknown) => {
       if (typeof selector === 'function') {
         return selector({ ...mockTabManager, isNewTabModalOpen: true });
       }

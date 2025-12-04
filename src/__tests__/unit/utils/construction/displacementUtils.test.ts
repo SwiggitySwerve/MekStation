@@ -8,8 +8,15 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { MechLocation } from '@/types/construction';
 
+interface MockEquipment {
+  instanceId: string;
+  equipmentId: string;
+  location: MechLocation;
+  slots: number[];
+}
+
 describe('displacementUtils', () => {
-  const createEquipment = (overrides?: any) => ({
+  const createEquipment = (overrides?: Partial<MockEquipment>): MockEquipment => ({
     instanceId: 'equip-1',
     equipmentId: 'medium-laser',
     location: MechLocation.CENTER_TORSO,

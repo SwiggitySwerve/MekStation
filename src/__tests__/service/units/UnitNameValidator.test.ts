@@ -64,7 +64,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       mockCustomUnitService.list.mockResolvedValue([]);
       
@@ -85,7 +85,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Custom Atlas',
           variant: 'AS7-X',
           name: 'Custom Atlas AS7-X',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       
       const result = await unitNameValidator.validateUnitName('Custom Atlas', 'AS7-X');
@@ -105,7 +105,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Custom Atlas',
           variant: 'AS7-X',
           name: 'Custom Atlas AS7-X',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       
       const result = await unitNameValidator.validateUnitName('Custom Atlas', 'AS7-X', 'custom-1');
@@ -132,7 +132,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       mockCustomUnitService.list.mockResolvedValue([]);
       
@@ -160,7 +160,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       mockCustomUnitService.list.mockResolvedValue([
         {
@@ -168,7 +168,7 @@ describe('UnitNameValidator', () => {
           chassis: 'Atlas',
           variant: 'AS7-D (2)',
           name: 'Atlas AS7-D (2)',
-        } as any,
+        } as { id: string; chassis: string; variant: string; name: string },
       ]);
       
       // First two names are taken, third should be available

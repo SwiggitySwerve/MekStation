@@ -26,7 +26,7 @@ describe('EquipmentTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: any) => {
+    (useUnitStore as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) => {
       if (selector.toString().includes('addEquipment')) {
         return mockAddEquipment;
       }

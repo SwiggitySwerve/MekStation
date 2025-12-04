@@ -33,7 +33,7 @@ jest.mock('@/components/customizer/equipment/CategoryToggleBar', () => ({
 
 // Mock EquipmentRow
 jest.mock('@/components/customizer/equipment/EquipmentRow', () => ({
-  EquipmentRow: ({ equipment, onAdd }: any) => (
+  EquipmentRow: ({ equipment, onAdd }: { equipment: { name: string }; onAdd: () => void }) => (
     <tr>
       <td>{equipment.name}</td>
       <td>
@@ -45,7 +45,7 @@ jest.mock('@/components/customizer/equipment/EquipmentRow', () => ({
 
 // Mock PaginationButtons
 jest.mock('@/components/ui/Button', () => ({
-  PaginationButtons: ({ currentPage, totalPages, onPageChange }: any) => (
+  PaginationButtons: ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => (
     <div data-testid="pagination">
       <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
         Prev

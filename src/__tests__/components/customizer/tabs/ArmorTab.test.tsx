@@ -25,7 +25,7 @@ jest.mock('@/components/customizer/armor/ArmorDiagram', () => ({
 }));
 
 jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
-  LocationArmorEditor: ({ onClose }: any) => (
+  LocationArmorEditor: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="location-armor-editor">
       <button onClick={onClose}>Close</button>
     </div>
@@ -60,7 +60,7 @@ describe('ArmorTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: any) => {
+    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockStoreValues);
       }

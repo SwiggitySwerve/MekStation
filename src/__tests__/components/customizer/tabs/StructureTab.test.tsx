@@ -58,7 +58,7 @@ describe('StructureTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: any) => {
+    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockStoreValues);
       }
