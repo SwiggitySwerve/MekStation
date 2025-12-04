@@ -21,6 +21,7 @@ import { getInternalStructureDefinition } from '@/types/construction/InternalStr
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { getMovementEnhancementDefinition, MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -66,6 +67,7 @@ export function OverviewTab({
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const armorType = useUnitStore((s) => s.armorType);
+  const enhancement = useUnitStore((s) => s.enhancement);
   
   // Get actions from context
   const setChassis = useUnitStore((s) => s.setChassis);
@@ -139,17 +141,33 @@ export function OverviewTab({
     const heatSinkDef = getHeatSinkDefinition(heatSinkType);
     const armorDef = getArmorDefinition(armorType);
     
+    // Get myomer display name based on enhancement
+    let myomerName = 'Standard';
+    if (enhancement === MovementEnhancementType.TSM) {
+      myomerName = 'Triple-Strength Myomer';
+    } else if (enhancement) {
+      // For MASC/Supercharger, myomer is still standard but movement enhancement is active
+      myomerName = 'Standard';
+    }
+    
+    // Get movement enhancement display (MASC, Supercharger, Partial Wing)
+    let movementName = 'None';
+    if (enhancement && enhancement !== MovementEnhancementType.TSM) {
+      const enhancementDef = getMovementEnhancementDefinition(enhancement);
+      movementName = enhancementDef?.name ?? enhancement;
+    }
+    
     return {
       chassis: structureDef?.name ?? 'Standard',
       gyro: gyroDef?.name ?? 'Standard',
       engine: `${engineDef?.name ?? 'Standard Fusion'} ${engineRating}`,
       heatsink: `${heatSinkCount} ${heatSinkDef?.name ?? 'Single'}`,
       targeting: 'None',
-      myomer: 'Standard',
-      movement: 'None',
+      myomer: myomerName,
+      movement: movementName,
       armor: armorDef?.name ?? 'Standard',
     };
-  }, [engineType, engineRating, gyroType, internalStructureType, cockpitType, heatSinkType, heatSinkCount, armorType]);
+  }, [engineType, engineRating, gyroType, internalStructureType, cockpitType, heatSinkType, heatSinkCount, armorType, enhancement]);
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>

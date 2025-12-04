@@ -349,6 +349,31 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             updatedMemory
           );
           
+          // Sync equipment if heat sink type changed
+          let updatedEquipment = state.equipment;
+          if (selectionUpdates.heatSinkType && selectionUpdates.heatSinkType !== state.heatSinkType) {
+            const integralHeatSinks = calculateIntegralHeatSinks(state.engineRating, state.engineType);
+            const externalHeatSinks = Math.max(0, state.heatSinkCount - integralHeatSinks);
+            const nonHeatSinkEquipment = filterOutHeatSinks(updatedEquipment);
+            const heatSinkEquipment = createHeatSinkEquipmentList(selectionUpdates.heatSinkType, externalHeatSinks);
+            updatedEquipment = [...nonHeatSinkEquipment, ...heatSinkEquipment];
+          }
+          
+          // Sync enhancement equipment if MYOMER or MOVEMENT tech base changed
+          // This ensures MASC uses correct IS/Clan variant based on tech base
+          if ((component === TechBaseComponent.MYOMER || component === TechBaseComponent.MOVEMENT) && 
+              state.enhancement && oldTechBase !== techBase) {
+            const engineWeight = calculateEngineWeight(state.engineRating, state.engineType);
+            const nonEnhancementEquipment = filterOutEnhancementEquipment(updatedEquipment);
+            const enhancementEquipment = createEnhancementEquipmentList(
+              state.enhancement,
+              state.tonnage,
+              techBase,
+              engineWeight
+            );
+            updatedEquipment = [...nonEnhancementEquipment, ...enhancementEquipment];
+          }
+          
           return {
             componentTechBases: {
               ...state.componentTechBases,
@@ -356,6 +381,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             },
             selectionMemory: updatedMemory,
             ...selectionUpdates,
+            equipment: updatedEquipment,
             isModified: true,
             lastModifiedAt: Date.now(),
           };

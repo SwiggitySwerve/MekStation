@@ -297,7 +297,7 @@ export function createHeatSinkEquipmentList(
       equipmentId: hsEquip.id,
       name: hsEquip.name,
       category: EquipmentCategory.MISC_EQUIPMENT,
-      weight: 0,
+      weight: hsEquip.weight,
       criticalSlots: hsEquip.criticalSlots,
       heat: 0,
       techBase: hsEquip.techBase,
