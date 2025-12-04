@@ -424,6 +424,7 @@ export default function UnitsListPage() {
                     className="text-center text-sm"
                     min={10}
                     max={200}
+                    step={5}
                   />
                   <span className="text-slate-500">–</span>
                   <Input
@@ -434,6 +435,7 @@ export default function UnitsListPage() {
                     className="text-center text-sm"
                     min={10}
                     max={200}
+                    step={5}
                   />
                 </div>
               </div>
@@ -452,6 +454,7 @@ export default function UnitsListPage() {
                     className="text-center text-sm"
                     min={0}
                     max={5000}
+                    step={50}
                   />
                   <span className="text-slate-500">–</span>
                   <Input
@@ -462,6 +465,7 @@ export default function UnitsListPage() {
                     className="text-center text-sm"
                     min={0}
                     max={5000}
+                    step={50}
                   />
                 </div>
               </div>
