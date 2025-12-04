@@ -24,7 +24,22 @@ import {
 } from '@/types/construction/MovementEnhancement';
 import { JumpJetType, getMaxJumpMP, JUMP_JET_DEFINITIONS, calculateEnhancedMaxRunMP } from '@/utils/construction/movementCalculations';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { customizerStyles as cs } from '../styles';
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+const TONNAGE_RANGE = { min: 20, max: 100, step: 5 };
+
+const CONFIGURATION_OPTIONS: { value: MechConfiguration; label: string }[] = [
+  { value: MechConfiguration.BIPED, label: 'Biped' },
+  { value: MechConfiguration.QUAD, label: 'Quad' },
+  { value: MechConfiguration.TRIPOD, label: 'Tripod' },
+  { value: MechConfiguration.LAM, label: 'LAM' },
+  { value: MechConfiguration.QUADVEE, label: 'QuadVee' },
+];
 
 // =============================================================================
 // Types
@@ -95,6 +110,7 @@ export function StructureTab({
 }: StructureTabProps) {
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
+  const configuration = useUnitStore((s) => s.configuration);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
   const engineRating = useUnitStore((s) => s.engineRating);
@@ -110,6 +126,8 @@ export function StructureTab({
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
   
   // Get actions from context
+  const setTonnage = useUnitStore((s) => s.setTonnage);
+  const setConfiguration = useUnitStore((s) => s.setConfiguration);
   const setEngineType = useUnitStore((s) => s.setEngineType);
   const setEngineRating = useUnitStore((s) => s.setEngineRating);
   const setGyroType = useUnitStore((s) => s.setGyroType);
@@ -162,6 +180,17 @@ export function StructureTab({
   
   // Enhancement options
   const enhancementOptions = useMemo(() => getEnhancementOptions(), []);
+  
+  // Handlers - Tonnage and Configuration
+  const handleTonnageChange = useCallback((newTonnage: number) => {
+    const clamped = Math.max(TONNAGE_RANGE.min, Math.min(TONNAGE_RANGE.max, newTonnage));
+    const rounded = Math.round(clamped / TONNAGE_RANGE.step) * TONNAGE_RANGE.step;
+    setTonnage(rounded);
+  }, [setTonnage]);
+  
+  const handleConfigurationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setConfiguration(e.target.value as MechConfiguration);
+  }, [setConfiguration]);
   
   // Handlers - Components
   const handleEngineTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -262,6 +291,37 @@ export function StructureTab({
           <h3 className={cs.text.sectionTitle}>Chassis</h3>
           
           <div className={cs.layout.formStack}>
+            {/* Tonnage */}
+            <div className={cs.layout.field}>
+              <label className={cs.text.label}>Tonnage</label>
+              <div className={cs.layout.rowGap}>
+                <button
+                  onClick={() => handleTonnageChange(tonnage - TONNAGE_RANGE.step)}
+                  disabled={readOnly || tonnage <= TONNAGE_RANGE.min}
+                  className={cs.button.stepperMd}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  value={tonnage}
+                  onChange={(e) => handleTonnageChange(parseInt(e.target.value, 10) || TONNAGE_RANGE.min)}
+                  disabled={readOnly}
+                  min={TONNAGE_RANGE.min}
+                  max={TONNAGE_RANGE.max}
+                  step={TONNAGE_RANGE.step}
+                  className={`w-20 ${cs.input.base} text-center ${cs.input.noSpinners}`}
+                />
+                <button
+                  onClick={() => handleTonnageChange(tonnage + TONNAGE_RANGE.step)}
+                  disabled={readOnly || tonnage >= TONNAGE_RANGE.max}
+                  className={cs.button.stepperMd}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            
             {/* Engine Type */}
             <div className={cs.layout.field}>
               <div className={cs.layout.rowBetween}>
@@ -601,6 +661,25 @@ export function StructureTab({
                   )}
                 </p>
               )}
+            </div>
+            
+            {/* Motive Type (Configuration) */}
+            <div className={`${cs.layout.divider} mt-2`}>
+              <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
+                <label className={cs.text.label}>Motive Type</label>
+                <select 
+                  className={cs.select.inline}
+                  disabled={readOnly}
+                  value={configuration}
+                  onChange={handleConfigurationChange}
+                >
+                  {CONFIGURATION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>

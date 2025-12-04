@@ -21,22 +21,7 @@ import { getInternalStructureDefinition } from '@/types/construction/InternalStr
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { customizerStyles as cs } from '../styles';
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-const TONNAGE_RANGE = { min: 20, max: 100, step: 5 };
-
-const CONFIGURATION_OPTIONS: { value: MechConfiguration; label: string }[] = [
-  { value: MechConfiguration.BIPED, label: 'Biped' },
-  { value: MechConfiguration.QUAD, label: 'Quad' },
-  { value: MechConfiguration.TRIPOD, label: 'Tripod' },
-  { value: MechConfiguration.LAM, label: 'LAM' },
-  { value: MechConfiguration.QUADVEE, label: 'QuadVee' },
-];
 
 // =============================================================================
 // Types
@@ -71,8 +56,6 @@ export function OverviewTab({
   const mulId = useUnitStore((s) => s.mulId);
   const year = useUnitStore((s) => s.year);
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
-  const tonnage = useUnitStore((s) => s.tonnage);
-  const configuration = useUnitStore((s) => s.configuration);
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
@@ -91,8 +74,6 @@ export function OverviewTab({
   const setMulId = useUnitStore((s) => s.setMulId);
   const setYear = useUnitStore((s) => s.setYear);
   const setRulesLevel = useUnitStore((s) => s.setRulesLevel);
-  const setTonnage = useUnitStore((s) => s.setTonnage);
-  const setConfiguration = useUnitStore((s) => s.setConfiguration);
   const setTechBaseMode = useUnitStore((s) => s.setTechBaseMode);
   const setComponentTechBase = useUnitStore((s) => s.setComponentTechBase);
   
@@ -138,16 +119,6 @@ export function OverviewTab({
   const handleRulesLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRulesLevel(e.target.value as RulesLevel);
   }, [setRulesLevel]);
-  
-  const handleTonnageChange = useCallback((newTonnage: number) => {
-    const clamped = Math.max(TONNAGE_RANGE.min, Math.min(TONNAGE_RANGE.max, newTonnage));
-    const rounded = Math.round(clamped / TONNAGE_RANGE.step) * TONNAGE_RANGE.step;
-    setTonnage(rounded);
-  }, [setTonnage]);
-  
-  const handleConfigurationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setConfiguration(e.target.value as MechConfiguration);
-  }, [setConfiguration]);
 
   // Handler for global mode change
   const handleModeChange = useCallback((newMode: TechBaseMode) => {
@@ -182,149 +153,91 @@ export function OverviewTab({
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
-      {/* Top row: Basic Information (left) + Chassis (right) */}
-      <div className={cs.layout.twoColumnWide}>
-        {/* Basic Info Panel - Left side, vertical layout */}
-        <div className={cs.panel.main}>
-          <h3 className={cs.text.sectionTitle}>Basic Information</h3>
-          
-          <div className={cs.layout.formStack}>
-            {/* Chassis */}
-            <div className={cs.layout.field}>
-              <label className={cs.text.label}>Chassis</label>
-              <input
-                type="text"
-                value={chassis}
-                onChange={handleChassisChange}
-                disabled={readOnly}
-                className={cs.input.full}
-                placeholder="e.g., Atlas, Timber Wolf"
-              />
-            </div>
-            
-            {/* Clan Name (optional) */}
-            <div className={cs.layout.field}>
-              <label className={cs.text.label}>Clan Name <span className={cs.text.secondary}>(optional)</span></label>
-              <input
-                type="text"
-                value={clanName}
-                onChange={handleClanNameChange}
-                disabled={readOnly}
-                className={cs.input.full}
-                placeholder="e.g., Mad Cat for Timber Wolf"
-              />
-            </div>
-            
-            {/* Model */}
-            <div className={cs.layout.field}>
-              <label className={cs.text.label}>Model</label>
-              <input
-                type="text"
-                value={model}
-                onChange={handleModelChange}
-                disabled={readOnly}
-                className={cs.input.full}
-                placeholder="e.g., AS7-D, Prime"
-              />
-            </div>
-            
-            {/* MUL ID, Year, Tech Level - split row */}
-            <div className={cs.layout.threeColumn}>
-              {/* MUL ID */}
-              <div className={cs.layout.field}>
-                <label className={cs.text.label}>MUL ID</label>
-                <input
-                  type="text"
-                  value={mulId}
-                  onChange={handleMulIdChange}
-                  disabled={readOnly}
-                  className={cs.input.full}
-                  placeholder="-1"
-                />
-              </div>
-              
-              {/* Year */}
-              <div className={cs.layout.field}>
-                <label className={cs.text.label}>Year</label>
-                <input
-                  type="number"
-                  value={year}
-                  onChange={handleYearChange}
-                  disabled={readOnly}
-                  min={2000}
-                  max={3200}
-                  className={`${cs.input.full} ${cs.input.noSpinners}`}
-                />
-              </div>
-              
-              {/* Tech Level */}
-              <div className={cs.layout.field}>
-                <label className={cs.text.label}>Tech Level</label>
-                <select
-                  value={rulesLevel}
-                  onChange={handleRulesLevelChange}
-                  disabled={readOnly}
-                  className={cs.select.full}
-                >
-                  {ALL_RULES_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Basic Info Panel */}
+      <div className={cs.panel.main}>
+        <h3 className={cs.text.sectionTitle}>Basic Information</h3>
         
-        {/* Chassis Configuration Panel - Right side, vertical layout */}
-        <div className={cs.panel.main}>
-          <h3 className={cs.text.sectionTitle}>Chassis</h3>
+        <div className={cs.layout.formStack}>
+          {/* Chassis */}
+          <div className={cs.layout.field}>
+            <label className={cs.text.label}>Chassis</label>
+            <input
+              type="text"
+              value={chassis}
+              onChange={handleChassisChange}
+              disabled={readOnly}
+              className={cs.input.full}
+              placeholder="e.g., Atlas, Timber Wolf"
+            />
+          </div>
           
-          <div className={cs.layout.formStack}>
-            {/* Tonnage */}
+          {/* Clan Name (optional) */}
+          <div className={cs.layout.field}>
+            <label className={cs.text.label}>Clan Name <span className={cs.text.secondary}>(optional)</span></label>
+            <input
+              type="text"
+              value={clanName}
+              onChange={handleClanNameChange}
+              disabled={readOnly}
+              className={cs.input.full}
+              placeholder="e.g., Mad Cat for Timber Wolf"
+            />
+          </div>
+          
+          {/* Model */}
+          <div className={cs.layout.field}>
+            <label className={cs.text.label}>Model</label>
+            <input
+              type="text"
+              value={model}
+              onChange={handleModelChange}
+              disabled={readOnly}
+              className={cs.input.full}
+              placeholder="e.g., AS7-D, Prime"
+            />
+          </div>
+          
+          {/* MUL ID, Year, Tech Level - split row */}
+          <div className={cs.layout.threeColumn}>
+            {/* MUL ID */}
             <div className={cs.layout.field}>
-              <label className={cs.text.label}>Tonnage</label>
-              <div className={cs.layout.rowGap}>
-                <button
-                  onClick={() => handleTonnageChange(tonnage - TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage <= TONNAGE_RANGE.min}
-                  className={cs.button.stepperMd}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={tonnage}
-                  onChange={(e) => handleTonnageChange(parseInt(e.target.value, 10) || TONNAGE_RANGE.min)}
-                  disabled={readOnly}
-                  min={TONNAGE_RANGE.min}
-                  max={TONNAGE_RANGE.max}
-                  step={TONNAGE_RANGE.step}
-                  className={`w-20 ${cs.input.base} text-center ${cs.input.noSpinners}`}
-                />
-                <button
-                  onClick={() => handleTonnageChange(tonnage + TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage >= TONNAGE_RANGE.max}
-                  className={cs.button.stepperMd}
-                >
-                  +
-                </button>
-              </div>
+              <label className={cs.text.label}>MUL ID</label>
+              <input
+                type="text"
+                value={mulId}
+                onChange={handleMulIdChange}
+                disabled={readOnly}
+                className={cs.input.full}
+                placeholder="-1"
+              />
             </div>
             
-            {/* Motive Type */}
+            {/* Year */}
             <div className={cs.layout.field}>
-              <label className={cs.text.label}>Motive Type</label>
-              <select 
-                className={cs.select.full}
+              <label className={cs.text.label}>Year</label>
+              <input
+                type="number"
+                value={year}
+                onChange={handleYearChange}
                 disabled={readOnly}
-                value={configuration}
-                onChange={handleConfigurationChange}
+                min={2000}
+                max={3200}
+                className={`${cs.input.full} ${cs.input.noSpinners}`}
+              />
+            </div>
+            
+            {/* Tech Level */}
+            <div className={cs.layout.field}>
+              <label className={cs.text.label}>Tech Level</label>
+              <select
+                value={rulesLevel}
+                onChange={handleRulesLevelChange}
+                disabled={readOnly}
+                className={cs.select.full}
               >
-                {CONFIGURATION_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                {ALL_RULES_LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
                   </option>
                 ))}
               </select>

@@ -8,8 +8,6 @@
  */
 
 export { EquipmentBrowser } from './EquipmentBrowser';
-export { EquipmentTray } from './EquipmentTray';
-export type { TrayEquipmentItem, WeightStats } from './EquipmentTray';
 export { GlobalLoadoutTray } from './GlobalLoadoutTray';
 export type { LoadoutEquipmentItem } from './GlobalLoadoutTray';
 export { EquipmentRow } from './EquipmentRow';

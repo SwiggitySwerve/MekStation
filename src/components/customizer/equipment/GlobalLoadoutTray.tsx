@@ -105,17 +105,20 @@ function groupByCategory(equipment: LoadoutEquipmentItem[]): Map<EquipmentCatego
 // Common Styles
 // =============================================================================
 
-/** Shared styles for consistent row heights and text sizes */
+/** 
+ * Shared styles for consistent row heights, text sizes, padding, and gaps.
+ * All row types use h-7 (28px) height with px-2 padding (except main header which uses px-3).
+ */
 const trayStyles = {
-  /** Standard row height for all items */
-  row: 'h-7 flex items-center',
-  /** Equipment item row */
-  equipmentRow: 'px-2 h-7 flex items-center transition-all group border-b border-slate-700/30',
-  /** Category header row */
-  categoryRow: 'px-2 h-7 bg-slate-800/50 flex items-center gap-1.5',
-  /** Section header row */
-  sectionRow: 'w-full h-7 flex items-center justify-between px-2 hover:bg-slate-700/50 transition-colors bg-slate-700/30',
-  /** Text sizes */
+  // Padding - single source of truth
+  padding: {
+    /** All content rows (equipment, category, section headers) */
+    row: 'px-2',
+    /** Main tray header only */
+    header: 'px-3',
+  },
+  
+  // Text sizes - single source of truth
   text: {
     /** Primary text (equipment names, section titles) */
     primary: 'text-xs',
@@ -124,10 +127,24 @@ const trayStyles = {
     /** Tertiary text (icons, small labels) */
     tertiary: 'text-[9px]',
   },
+  
+  // Standard gap for row content
+  gap: 'gap-1.5',
+  
+  // Composed row styles - all use h-7 height
+  /** Standard row height for all items */
+  row: 'h-7 flex items-center',
+  /** Equipment item row */
+  equipmentRow: 'px-2 h-7 flex items-center gap-1.5 transition-all group border-b border-slate-700/30',
+  /** Category header row */
+  categoryRow: 'px-2 h-7 bg-slate-800/50 flex items-center gap-1.5',
+  /** Section header row */
+  sectionRow: 'w-full h-7 flex items-center justify-between px-2 gap-1.5 hover:bg-slate-700/50 transition-colors bg-slate-700/30',
+  
   /** Category dot indicator */
   categoryDot: 'w-2 h-2 rounded-sm',
   /** Action button base */
-  actionButton: 'opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-0.5',
+  actionButton: 'opacity-0 group-hover:opacity-100 transition-opacity px-0.5',
 } as const;
 
 /** Convert location names to shorthand (e.g., "Right Torso" -> "RT") */
@@ -194,8 +211,8 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
       style={{ left: adjustedX, top: adjustedY }}
     >
       {/* Header */}
-      <div className="px-3 py-1.5 border-b border-slate-700 text-xs text-slate-400">
-        {item.name} ({item.criticalSlots} slot{item.criticalSlots !== 1 ? 's' : ''})
+      <div className={`${trayStyles.padding.header} py-1.5 border-b border-slate-700 ${trayStyles.text.primary} text-slate-400`}>
+        {item.name} ({item.criticalSlots} slot {item.criticalSlots !== 1 ? 's' : ''})
       </div>
       
       {/* Unassign option for all allocated items */}
@@ -203,7 +220,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
         <>
           <button
             onClick={() => { onUnassign(); onClose(); }}
-            className="w-full text-left px-3 py-1.5 text-sm text-amber-400 hover:bg-slate-700 transition-colors"
+            className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-amber-400 hover:bg-slate-700 transition-colors`}
           >
             Unassign from {item.location}
           </button>
@@ -214,17 +231,17 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
       {/* Quick assign options */}
       {!item.isAllocated && validLocations.length > 0 && (
         <>
-          <div className="px-3 py-1 text-[10px] text-slate-500 uppercase tracking-wider">
+          <div className={`${trayStyles.padding.header} py-1 ${trayStyles.text.secondary} text-slate-500 uppercase tracking-wider`}>
             Quick Assign
           </div>
           {validLocations.map(loc => (
             <button
               key={loc.location}
               onClick={() => { onQuickAssign(loc.location); onClose(); }}
-              className="w-full text-left px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-700 transition-colors flex justify-between"
+              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-slate-700 transition-colors flex justify-between`}
             >
               <span>Add to {loc.label}</span>
-              <span className="text-slate-500 text-xs">{loc.availableSlots} free</span>
+              <span className={`text-slate-500 ${trayStyles.text.secondary}`}>{loc.availableSlots} free</span>
             </button>
           ))}
         </>
@@ -232,7 +249,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
       
       {/* No valid locations message */}
       {!item.isAllocated && validLocations.length === 0 && (
-        <div className="px-3 py-2 text-xs text-slate-500 italic">
+        <div className={`${trayStyles.padding.header} py-2 ${trayStyles.text.primary} text-slate-500 italic`}>
           No locations with {item.criticalSlots} contiguous slots
         </div>
       )}
@@ -297,49 +314,30 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
       onContextMenu={onContextMenu}
       title={canDrag ? 'Drag to critical slot or click to select' : 'Right-click to unassign'}
     >
-      <div className="flex items-center gap-1 w-full">
+      <div className={`flex items-center ${trayStyles.gap} w-full`}>
         {/* Name */}
         <span className={`truncate flex-1 text-white ${trayStyles.text.primary} drop-shadow-sm`}>
           {item.name}
         </span>
-        {/* Info: weight, crits, and location (if allocated) */}
+        {/* Info + action inline */}
         <span className={`text-white/50 ${trayStyles.text.secondary} whitespace-nowrap`}>
-          {item.weight}t {item.criticalSlots}c
+          {item.weight}t | {item.criticalSlots} slot{item.criticalSlots !== 1 ? 's' : ''}
           {item.isAllocated && item.location && (
-            <span className="text-white/80 ml-1">{getLocationShorthand(item.location)}</span>
+            <span className="text-white/80"> | {getLocationShorthand(item.location)}</span>
           )}
+          {/* Remove/Lock icon */}
+          <span
+            onClick={item.isRemovable ? (e) => { e.stopPropagation(); onRemove(); } : undefined}
+            className={`inline-block w-3 ml-0.5 text-center align-middle ${
+              item.isRemovable 
+                ? `${trayStyles.text.tertiary} text-red-400/60 hover:text-red-300 cursor-pointer transition-colors` 
+                : `${trayStyles.text.tertiary} text-white/30`
+            }`}
+            title={item.isRemovable ? "Remove from unit" : "Managed by configuration"}
+          >
+            {item.isRemovable ? '✕' : '🔒'}
+          </span>
         </span>
-        {/* Action buttons */}
-        <div className="flex items-center">
-          {/* Unassign button - only for allocated items */}
-          {item.isAllocated && onUnassign && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onUnassign();
-              }}
-              className={`${trayStyles.actionButton} text-amber-300 hover:text-amber-200`}
-              title="Unassign from slot"
-            >
-              ↩
-            </button>
-          )}
-          {/* Delete button - only for removable items */}
-          {item.isRemovable ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove();
-              }}
-              className={`${trayStyles.actionButton} text-red-400 hover:text-red-300`}
-              title="Remove from unit"
-            >
-              ✕
-            </button>
-          ) : (
-            <span className={`text-white/40 ${trayStyles.text.tertiary}`} title="Configuration component">⚙</span>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -409,7 +407,7 @@ function AllocationSection({
         className={trayStyles.sectionRow}
       >
         <span className={`${trayStyles.text.primary} font-medium ${titleColor}`}>{title}</span>
-        <span className="flex items-center gap-1">
+        <span className={`flex items-center ${trayStyles.gap}`}>
           <span className={`${trayStyles.text.secondary} text-slate-400`}>({count})</span>
           <span className={`${trayStyles.text.tertiary} text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
             ▼
@@ -585,10 +583,10 @@ export function GlobalLoadoutTray({
            style={{ width: '260px' }}>
         {/* Header */}
         <div className="flex-shrink-0 border-b border-slate-600">
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-white text-sm">Loadout</h3>
-              <span className="bg-slate-700 text-slate-300 text-xs rounded-full px-1.5 py-0.5">
+          <div className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}>
+            <div className={`flex items-center ${trayStyles.gap}`}>
+              <h3 className={`font-semibold text-white ${trayStyles.text.primary}`}>Loadout</h3>
+              <span className={`bg-slate-700 text-slate-300 ${trayStyles.text.secondary} rounded-full px-1.5 py-0.5`}>
                 {equipmentCount}
               </span>
             </div>
@@ -605,10 +603,10 @@ export function GlobalLoadoutTray({
           
           {/* Quick actions */}
           {removableCount > 0 && (
-            <div className="px-3 pb-2">
+            <div className={`${trayStyles.padding.header} pb-2`}>
               <button
                 onClick={handleRemoveAll}
-                className="w-full px-2 py-1 text-xs bg-red-900/40 hover:bg-red-900/60 rounded text-red-300 transition-colors"
+                className={`w-full px-2 py-1 ${trayStyles.text.primary} bg-red-900/40 hover:bg-red-900/60 rounded text-red-300 transition-colors`}
               >
                 Clear All ({removableCount})
               </button>
@@ -619,10 +617,10 @@ export function GlobalLoadoutTray({
         {/* Equipment List */}
         <div className="flex-1 overflow-y-auto">
           {equipment.length === 0 ? (
-            <div className="p-4 text-center text-slate-500 text-sm">
+            <div className="p-4 text-center text-slate-500">
               <div className="text-2xl mb-2">⚙️</div>
-              <div>No equipment</div>
-              <div className="text-xs mt-1">Add from Equipment tab</div>
+              <div className={trayStyles.text.primary}>No equipment</div>
+              <div className={`${trayStyles.text.secondary} mt-1`}>Add from Equipment tab</div>
             </div>
           ) : (
             <>
@@ -637,7 +635,7 @@ export function GlobalLoadoutTray({
                 onDrop={handleDropToUnallocated}
               >
                 {unallocated.length === 0 ? (
-                  <div className="px-2 py-1 text-center text-slate-500 text-[9px]">
+                  <div className={`${trayStyles.padding.row} py-1 text-center text-slate-500 ${trayStyles.text.tertiary}`}>
                     Drag here to unassign
                   </div>
                 ) : (
@@ -692,11 +690,11 @@ export function GlobalLoadoutTray({
         
         {/* Selection info footer */}
         {selectedEquipmentId && (
-          <div className="flex-shrink-0 px-3 py-2 border-t border-slate-600 bg-slate-700/50">
-            <div className="text-xs text-slate-400">
+          <div className={`flex-shrink-0 ${trayStyles.padding.header} py-2 border-t border-slate-600 bg-slate-700/50`}>
+            <div className={`${trayStyles.text.secondary} text-slate-400`}>
               Selected for placement
             </div>
-            <div className="text-sm text-amber-400 font-medium truncate">
+            <div className={`${trayStyles.text.primary} text-amber-400 font-medium truncate`}>
               {equipment.find(e => e.instanceId === selectedEquipmentId)?.name}
             </div>
           </div>

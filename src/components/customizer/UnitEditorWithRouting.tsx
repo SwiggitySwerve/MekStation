@@ -40,6 +40,7 @@ import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 import { isValidLocationForEquipment, getPlacementRule } from '@/types/equipment/EquipmentPlacement';
 import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { TechBaseMode, isEffectivelyMixed } from '@/types/construction/TechBaseConfiguration';
 import { calculateEnhancedMaxRunMP } from '@/utils/construction/movementCalculations';
 
 // Utils
@@ -160,7 +161,8 @@ export function UnitEditorWithRouting({
   // Access unit state from context
   const unitName = useUnitStore((s) => s.name);
   const tonnage = useUnitStore((s) => s.tonnage);
-  const techBase = useUnitStore((s) => s.techBase);
+  const techBaseMode = useUnitStore((s) => s.techBaseMode);
+  const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
   const engineRating = useUnitStore((s) => s.engineRating);
   const gyroType = useUnitStore((s) => s.gyroType);
@@ -224,10 +226,24 @@ export function UnitEditorWithRouting({
     return calculateEnhancedMaxRunMP(calculations.walkMP, enhancement);
   }, [enhancement, calculations.walkMP]);
 
+  // Compute effective tech base mode (detect mixed even if not in mixed mode)
+  const effectiveTechBaseMode = useMemo(() => {
+    // If mode is explicitly MIXED, use it
+    if (techBaseMode === TechBaseMode.MIXED) {
+      return TechBaseMode.MIXED;
+    }
+    // Check if components actually have different tech bases
+    if (isEffectivelyMixed(componentTechBases)) {
+      return TechBaseMode.MIXED;
+    }
+    // Use the declared mode
+    return techBaseMode;
+  }, [techBaseMode, componentTechBases]);
+
   const unitStats: UnitStats = useMemo(() => ({
     name: unitName,
     tonnage,
-    techBase,
+    techBaseMode: effectiveTechBaseMode,
     engineRating,
     walkMP: calculations.walkMP,
     runMP: calculations.runMP,
@@ -244,7 +260,7 @@ export function UnitEditorWithRouting({
     validationStatus: 'valid' as ValidationStatus, // TODO: Get from validation
     errorCount: 0,
     warningCount: 0,
-  }), [unitName, tonnage, techBase, engineRating, calculations, equipmentCalcs, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP]);
+  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, equipmentCalcs, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP]);
   
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)

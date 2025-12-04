@@ -10,7 +10,7 @@
 import React from 'react';
 import { TechBaseBadge } from './TechBaseBadge';
 import { ValidationBadge } from './ValidationBadge';
-import { TechBase } from '@/types/enums/TechBase';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { ValidationStatus } from '@/utils/colors/statusColors';
 
 // =============================================================================
@@ -22,8 +22,8 @@ export interface UnitStats {
   name: string;
   /** Tonnage (max weight) */
   tonnage: number;
-  /** Tech base */
-  techBase: TechBase;
+  /** Tech base mode (IS/Clan/Mixed) */
+  techBaseMode: TechBaseMode;
   /** Engine rating */
   engineRating: number;
   /** Walk MP */
@@ -208,7 +208,7 @@ export function UnitInfoBanner({
               <h2 className="text-lg font-bold text-white whitespace-nowrap">{stats.name}</h2>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-sm text-slate-400">{stats.tonnage} tons</span>
-                <TechBaseBadge techBase={stats.techBase} />
+                <TechBaseBadge techBaseMode={stats.techBaseMode} />
                 <ValidationBadge 
                   status={stats.validationStatus}
                   label={stats.validationStatus === 'valid' ? 'Valid' : 
