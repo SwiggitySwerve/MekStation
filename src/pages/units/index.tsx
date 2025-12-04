@@ -1,9 +1,9 @@
 /**
  * Units Browser Page
- * Browse and search the canonical unit database with filtering.
+ * Browse and search the canonical unit database with filtering and sorting.
  */
 import Link from 'next/link';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IUnitEntry } from '@/types/pages';
@@ -27,7 +27,25 @@ interface FilterState {
   era: string;
 }
 
+type SortColumn = 'name' | 'tonnage' | 'weightClass' | 'techBase' | 'unitType';
+type SortDirection = 'asc' | 'desc';
+
+interface SortState {
+  column: SortColumn;
+  direction: SortDirection;
+}
+
 const ITEMS_PER_PAGE = 50;
+
+// Weight class sort order
+const WEIGHT_CLASS_ORDER: Record<string, number> = {
+  [WeightClass.ULTRALIGHT]: 0,
+  [WeightClass.LIGHT]: 1,
+  [WeightClass.MEDIUM]: 2,
+  [WeightClass.HEAVY]: 3,
+  [WeightClass.ASSAULT]: 4,
+  [WeightClass.SUPER_HEAVY]: 5,
+};
 
 const TECH_BASE_OPTIONS = [
   { value: '', label: 'All Tech Bases' },
@@ -50,6 +68,10 @@ export default function UnitsListPage() {
     techBase: '',
     weightClass: '',
     era: '',
+  });
+  const [sort, setSort] = useState<SortState>({
+    column: 'name',
+    direction: 'asc',
   });
 
   // Fetch units on mount
@@ -108,10 +130,62 @@ export default function UnitsListPage() {
     applyFilters();
   }, [applyFilters]);
 
+  // Sort filtered units
+  const sortedUnits = useMemo(() => {
+    const sorted = [...filteredUnits];
+    const { column, direction } = sort;
+    const multiplier = direction === 'asc' ? 1 : -1;
+
+    sorted.sort((a, b) => {
+      let aVal: string | number;
+      let bVal: string | number;
+
+      switch (column) {
+        case 'name':
+          aVal = a.name.toLowerCase();
+          bVal = b.name.toLowerCase();
+          break;
+        case 'tonnage':
+          aVal = a.tonnage;
+          bVal = b.tonnage;
+          break;
+        case 'weightClass':
+          aVal = WEIGHT_CLASS_ORDER[a.weightClass] ?? 99;
+          bVal = WEIGHT_CLASS_ORDER[b.weightClass] ?? 99;
+          break;
+        case 'techBase':
+          aVal = a.techBase;
+          bVal = b.techBase;
+          break;
+        case 'unitType':
+          aVal = a.unitType;
+          bVal = b.unitType;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return -1 * multiplier;
+      if (aVal > bVal) return 1 * multiplier;
+      return 0;
+    });
+
+    return sorted;
+  }, [filteredUnits, sort]);
+
+  // Handle sort column click
+  const handleSort = (column: SortColumn) => {
+    setSort(prev => ({
+      column,
+      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+    setCurrentPage(1);
+  };
+
   // Pagination
-  const totalPages = Math.ceil(filteredUnits.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(sortedUnits.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedUnits = filteredUnits.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const displayedUnits = sortedUnits.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -182,11 +256,45 @@ export default function UnitsListPage() {
           <table className="w-full">
             <thead className="bg-slate-800">
               <tr className="text-left text-slate-400 text-xs uppercase tracking-wide">
-                <th className="px-3 py-2 font-medium">Unit</th>
-                <th className="px-3 py-2 font-medium w-20">Tons</th>
-                <th className="px-3 py-2 font-medium w-24">Class</th>
-                <th className="px-3 py-2 font-medium w-28">Tech</th>
-                <th className="px-3 py-2 font-medium w-28">Type</th>
+                <SortableHeader
+                  label="Unit"
+                  column="name"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Tons"
+                  column="tonnage"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-20"
+                />
+                <SortableHeader
+                  label="Class"
+                  column="weightClass"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-24"
+                />
+                <SortableHeader
+                  label="Tech"
+                  column="techBase"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-28"
+                />
+                <SortableHeader
+                  label="Type"
+                  column="unitType"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-28"
+                />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
@@ -240,5 +348,42 @@ export default function UnitsListPage() {
         </div>
       )}
     </PageLayout>
+  );
+}
+
+// Sortable table header component
+interface SortableHeaderProps {
+  label: string;
+  column: SortColumn;
+  currentColumn: SortColumn;
+  direction: SortDirection;
+  onSort: (column: SortColumn) => void;
+  className?: string;
+}
+
+function SortableHeader({
+  label,
+  column,
+  currentColumn,
+  direction,
+  onSort,
+  className = '',
+}: SortableHeaderProps) {
+  const isActive = column === currentColumn;
+
+  return (
+    <th
+      className={`px-3 py-2 font-medium cursor-pointer hover:text-white transition-colors select-none ${className}`}
+      onClick={() => onSort(column)}
+    >
+      <span className="flex items-center gap-1">
+        {label}
+        {isActive && (
+          <span className="text-amber-400 text-[10px]">
+            {direction === 'asc' ? '▲' : '▼'}
+          </span>
+        )}
+      </span>
+    </th>
   );
 }
