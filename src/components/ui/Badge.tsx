@@ -66,7 +66,7 @@ export function Badge({
   pill = false,
   className = '',
 }: BadgeProps) {
-  const baseClasses = 'font-medium border inline-flex items-center';
+  const baseClasses = 'font-medium border inline-flex items-center whitespace-nowrap';
   const shapeClasses = pill ? 'rounded-full' : 'rounded';
 
   return (

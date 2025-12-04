@@ -27,7 +27,7 @@ interface FilterState {
   era: string;
 }
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 50;
 
 const TECH_BASE_OPTIONS = [
   { value: '', label: 'All Tech Bases' },
@@ -176,23 +176,23 @@ export default function UnitsListPage() {
         </div>
       </Card>
 
-      {/* Units Table */}
+      {/* Units Table - Compact */}
       <Card variant="dark" className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-800">
-              <tr className="text-left text-slate-400 text-sm uppercase tracking-wide">
-                <th className="px-6 py-4 font-medium">Unit</th>
-                <th className="px-6 py-4 font-medium">Tonnage</th>
-                <th className="px-6 py-4 font-medium">Class</th>
-                <th className="px-6 py-4 font-medium">Tech Base</th>
-                <th className="px-6 py-4 font-medium">Type</th>
+              <tr className="text-left text-slate-400 text-xs uppercase tracking-wide">
+                <th className="px-3 py-2 font-medium">Unit</th>
+                <th className="px-3 py-2 font-medium w-20">Tons</th>
+                <th className="px-3 py-2 font-medium w-24">Class</th>
+                <th className="px-3 py-2 font-medium w-28">Tech</th>
+                <th className="px-3 py-2 font-medium w-28">Type</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
               {displayedUnits.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={5} className="px-3 py-8 text-center text-slate-400">
                     No units found matching your filters
                   </td>
                 </tr>
@@ -202,26 +202,26 @@ export default function UnitsListPage() {
                     key={unit.id}
                     className="hover:bg-slate-700/30 transition-colors"
                   >
-                    <td className="px-6 py-4">
-                      <Link href={`/units/${unit.id}`} className="group">
-                        <div className="font-medium text-white group-hover:text-amber-400 transition-colors">
+                    <td className="px-3 py-2">
+                      <Link href={`/units/${unit.id}`} className="group flex items-baseline gap-2">
+                        <span className="font-medium text-sm text-white group-hover:text-amber-400 transition-colors whitespace-nowrap">
                           {unit.name}
-                        </div>
-                        <div className="text-sm text-slate-500">
+                        </span>
+                        <span className="text-xs text-slate-500 whitespace-nowrap">
                           {unit.chassis} {unit.variant}
-                        </div>
+                        </span>
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-slate-300 font-mono">
+                    <td className="px-3 py-2 text-slate-300 font-mono text-sm">
                       {unit.tonnage}t
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <WeightClassBadge weightClass={unit.weightClass} />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <TechBaseBadge techBase={unit.techBase} />
                     </td>
-                    <td className="px-6 py-4 text-slate-400">
+                    <td className="px-3 py-2 text-slate-400 text-sm">
                       {unit.unitType}
                     </td>
                   </tr>
