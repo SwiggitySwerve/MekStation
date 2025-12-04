@@ -37,7 +37,7 @@ describe('/api/meta/equipment_eras', () => {
 
     await handler(req, res);
 
-    const data = res._getJSONData();
+    const data = res._getJSONData() as string[];
     expect(Array.isArray(data)).toBe(true);
     expect(data.length).toBeGreaterThan(0);
   });
@@ -62,4 +62,3 @@ describe('/api/meta/equipment_eras', () => {
     expect(res._getStatusCode()).toBe(405);
   });
 });
-

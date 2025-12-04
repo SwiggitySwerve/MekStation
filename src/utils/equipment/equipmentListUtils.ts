@@ -11,7 +11,6 @@
 
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
-import { IEquipment } from '@/types/core/EquipmentInterfaces';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { generateUnitId } from '@/utils/uuid';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -22,7 +21,7 @@ import {
 } from '@/types/construction/InternalStructureType';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { JUMP_JETS, HEAT_SINKS, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { JUMP_JETS, HEAT_SINKS, MiscEquipmentCategory, IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
 import { MOVEMENT_EQUIPMENT, MYOMER_SYSTEMS } from '@/types/equipment/MiscEquipmentTypes';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
@@ -78,7 +77,7 @@ export function getJumpJetEquipmentId(tonnage: number, jumpJetType: JumpJetType)
 /**
  * Get the jump jet equipment item for a given tonnage and type
  */
-export function getJumpJetEquipment(tonnage: number, jumpJetType: JumpJetType): IEquipment | undefined {
+export function getJumpJetEquipment(tonnage: number, jumpJetType: JumpJetType): IMiscEquipment | undefined {
   const id = getJumpJetEquipmentId(tonnage, jumpJetType);
   return JUMP_JETS.find(jj => jj.id === id);
 }
@@ -272,7 +271,7 @@ export function getHeatSinkEquipmentId(heatSinkType: HeatSinkType): string {
 /**
  * Get the heat sink equipment item for a given HeatSinkType
  */
-export function getHeatSinkEquipment(heatSinkType: HeatSinkType): IEquipment | undefined {
+export function getHeatSinkEquipment(heatSinkType: HeatSinkType): IMiscEquipment | undefined {
   const id = getHeatSinkEquipmentId(heatSinkType);
   return HEAT_SINKS.find(hs => hs.id === id);
 }
@@ -348,7 +347,7 @@ export function getEnhancementEquipmentId(
 export function getEnhancementEquipment(
   enhancementType: MovementEnhancementType,
   techBase: TechBase
-): IEquipment | undefined {
+): IMiscEquipment | undefined {
   const id = getEnhancementEquipmentId(enhancementType, techBase);
   
   // Check MOVEMENT_EQUIPMENT first (MASC, Supercharger)

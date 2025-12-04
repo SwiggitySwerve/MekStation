@@ -12,7 +12,7 @@
 
 import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
-import { UnitStoreContext } from '@/stores/useUnitStore';
+import { UnitStoreContext, type UnitStore } from '@/stores/useUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, getAllEquipmentItems, IEquipmentItem } from '@/types/equipment';
 
@@ -100,7 +100,7 @@ function useUnitContextValues(): { year: number | null; techBase: TechBase | nul
     setValues({ year: state.year, techBase: state.techBase });
     
     // Subscribe to changes
-    const unsubscribe = unitStore.subscribe((state) => {
+    const unsubscribe = unitStore.subscribe((state: UnitStore) => {
       setValues({ year: state.year, techBase: state.techBase });
     });
     

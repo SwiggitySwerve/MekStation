@@ -40,7 +40,6 @@ import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Factory result

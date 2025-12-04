@@ -33,7 +33,7 @@ interface ApiResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
-) {
+): Promise<void> {
   // Return deprecation notice for any method
   return res.status(410).json({
     success: false,

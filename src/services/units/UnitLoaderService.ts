@@ -8,8 +8,8 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { canonicalUnitService, IFullUnit } from './CanonicalUnitService';
-import { customUnitApiService, IUnitWithVersion } from './CustomUnitApiService';
+import { canonicalUnitService } from './CanonicalUnitService';
+import { customUnitApiService } from './CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -26,13 +26,11 @@ import {
   UnitState,
   IArmorAllocation,
   IMountedEquipmentInstance,
-  ISelectionMemory,
   createEmptyArmorAllocation,
   createEmptySelectionMemory,
 } from '@/stores/unitState';
 import {
   TechBaseMode,
-  IComponentTechBases,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
@@ -559,7 +557,7 @@ export class UnitLoaderService {
   /**
    * Map serialized unit JSON to UnitState
    */
-  mapToUnitState(serialized: ISerializedUnit, isCanonical: boolean): UnitState {
+  mapToUnitState(serialized: ISerializedUnit, _isCanonical: boolean): UnitState {
     // Determine tech base first as it affects other mappings
     const techBase = mapTechBase(serialized.techBase);
     

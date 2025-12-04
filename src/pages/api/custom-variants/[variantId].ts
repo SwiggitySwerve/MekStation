@@ -17,7 +17,7 @@ interface ApiResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
-) {
+): Promise<void> {
   const { variantId } = req.query;
   const id = typeof variantId === 'string' ? variantId : '';
 

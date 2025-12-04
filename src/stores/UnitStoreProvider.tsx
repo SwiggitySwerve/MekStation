@@ -7,7 +7,7 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { StoreApi } from 'zustand';
 import { UnitStoreContext } from './useUnitStore';
 import type { UnitStore } from './useUnitStore';

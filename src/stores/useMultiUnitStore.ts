@@ -68,7 +68,7 @@ export interface IComponentSelections {
 export function createDefaultComponentSelections(
   tonnage: number,
   walkMP: number = 4,
-  techBase: TechBase = TechBase.INNER_SPHERE
+  _techBase: TechBase = TechBase.INNER_SPHERE
 ): IComponentSelections {
   const engineRating = tonnage * walkMP;
   

@@ -6,6 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom/[id]';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
+import { parseErrorResponse, parseApiResponse, parseUnitResponse } from '../../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
@@ -13,6 +14,24 @@ jest.mock('@/services/units/UnitRepository');
 
 const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
 const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof getUnitRepository>;
+
+/**
+ * Update response type
+ */
+interface UpdateResponse {
+  success: boolean;
+  version?: number;
+  error?: string;
+}
+
+/**
+ * Delete response type
+ */
+interface DeleteResponse {
+  success: boolean;
+  id?: string;
+  error?: string;
+}
 
 describe('/api/units/custom/[id]', () => {
   let mockUnitRepository: {
@@ -32,9 +51,9 @@ describe('/api/units/custom/[id]', () => {
     
     mockSQLiteService.mockReturnValue({
       initialize: jest.fn(),
-    } as any);
+    } as ReturnType<typeof getSQLiteService>);
     
-    mockGetUnitRepository.mockReturnValue(mockUnitRepository as any);
+    mockGetUnitRepository.mockReturnValue(mockUnitRepository as unknown as ReturnType<typeof getUnitRepository>);
   });
 
   describe('ID validation', () => {
@@ -47,7 +66,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Missing unit ID');
     });
 
@@ -85,7 +104,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseUnitResponse(res);
       expect(data.id).toBe('custom-1');
       expect(data.chassis).toBe('Atlas');
       expect(data.parsedData).toEqual({ id: 'custom-1', chassis: 'Atlas', variant: 'AS7-X', tonnage: 100 });
@@ -102,7 +121,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(404);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toContain('not found');
     });
 
@@ -125,7 +144,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBeDefined();
     });
   });
@@ -157,7 +176,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<UpdateResponse>(res);
       expect(data.success).toBe(true);
       expect(data.version).toBe(2);
       expect(mockUnitRepository.update).toHaveBeenCalledWith('custom-1', requestBody);
@@ -175,7 +194,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toContain('Missing required field: data');
     });
 
@@ -215,7 +234,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Database error');
     });
   });
@@ -235,7 +254,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<DeleteResponse>(res);
       expect(data.success).toBe(true);
       expect(data.id).toBe('custom-1');
       expect(mockUnitRepository.delete).toHaveBeenCalledWith('custom-1');
@@ -255,7 +274,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<DeleteResponse>(res);
       expect(data.success).toBe(false);
     });
 
@@ -272,7 +291,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Database error');
     });
   });
@@ -287,7 +306,7 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toContain('Not Allowed');
     });
   });
@@ -298,7 +317,7 @@ describe('/api/units/custom/[id]', () => {
         initialize: jest.fn(() => {
           throw new Error('Database init failed');
         }),
-      } as any);
+      } as ReturnType<typeof getSQLiteService>);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'GET',
@@ -308,9 +327,8 @@ describe('/api/units/custom/[id]', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Database init failed');
     });
   });
 });
-

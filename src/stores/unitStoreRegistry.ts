@@ -145,8 +145,8 @@ export function hydrateOrCreateUnit(
       const parsed = JSON.parse(savedState);
       const state = parsed.state as Partial<UnitState>;
       
-      // Validate the ID from localStorage as well
-      const stateId = ensureValidUnitId(state.id, 'localStorage state');
+      // Validate the ID from localStorage as well (the function logs a warning if invalid)
+      ensureValidUnitId(state.id, 'localStorage state');
       
       // Create store with saved state merged with defaults
       const defaultState = createDefaultUnitState({ ...fallbackOptions, id: validUnitId });

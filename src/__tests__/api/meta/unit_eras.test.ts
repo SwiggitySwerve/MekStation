@@ -5,6 +5,14 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/meta/unit_eras';
 import { ALL_ERAS, Era } from '@/types/enums/Era';
+import { parseApiResponse } from '../../helpers';
+
+/**
+ * Message response type
+ */
+interface MessageResponse {
+  message: string;
+}
 
 describe('/api/meta/unit_eras', () => {
   describe('GET method validation', () => {
@@ -16,7 +24,7 @@ describe('/api/meta/unit_eras', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<MessageResponse>(res);
       expect(data.message).toBe('Method not allowed');
     });
 
@@ -40,7 +48,7 @@ describe('/api/meta/unit_eras', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(Array.isArray(data)).toBe(true);
     });
 
@@ -51,7 +59,7 @@ describe('/api/meta/unit_eras', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toEqual(ALL_ERAS);
     });
 
@@ -62,7 +70,7 @@ describe('/api/meta/unit_eras', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       Object.values(Era).forEach((era) => {
         expect(data).toContain(era);
       });
@@ -75,9 +83,8 @@ describe('/api/meta/unit_eras', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data.length).toBe(Object.values(Era).length);
     });
   });
 });
-

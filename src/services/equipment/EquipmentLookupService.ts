@@ -8,7 +8,6 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import {
   EquipmentCategory,
   IEquipmentItem,

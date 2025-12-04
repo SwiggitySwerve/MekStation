@@ -46,7 +46,6 @@ import {
   ISelectionMemory,
   IArmorAllocation,
   createEmptyArmorAllocation,
-  IMountedEquipmentInstance,
   createMountedEquipment,
 } from './unitState';
 import { IEquipmentItem } from '@/types/equipment';
@@ -58,42 +57,32 @@ import {
   getMaxTotalArmor,
   calculateOptimalArmorAllocation,
 } from '@/utils/construction/armorCalculations';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import {
-  getValidatedSelectionUpdates,
   getFullyValidatedSelections,
   getSelectionWithMemory,
   ComponentSelections,
 } from '@/utils/techBaseValidation';
-import { JumpJetType, getMaxJumpMP, getJumpJetDefinition } from '@/utils/construction/movementCalculations';
-import { HeatSinkType, getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
+import { getMaxJumpMP } from '@/utils/construction/movementCalculations';
 import { calculateIntegralHeatSinks, calculateEngineWeight } from '@/utils/construction/engineCalculations';
-import { EquipmentCategory } from '@/types/equipment';
-import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
+import { equipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import {
   getEquipmentDisplacedByEngineChange,
   getEquipmentDisplacedByGyroChange,
   applyDisplacement,
 } from '@/utils/construction/displacementUtils';
-import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import {
   createJumpJetEquipmentList,
   filterOutJumpJets,
   createInternalStructureEquipmentList,
   filterOutInternalStructure,
-  INTERNAL_STRUCTURE_EQUIPMENT_ID,
   createArmorEquipmentList,
   filterOutArmorSlots,
-  ARMOR_SLOTS_EQUIPMENT_ID,
   createHeatSinkEquipmentList,
   filterOutHeatSinks,
-  HEAT_SINK_EQUIPMENT_IDS,
   createEnhancementEquipmentList,
   filterOutEnhancementEquipment,
-  calculateEnhancementWeight,
-  calculateEnhancementSlots,
-  ENHANCEMENT_EQUIPMENT_IDS,
 } from '@/utils/equipment/equipmentListUtils';
 
 // Re-export UnitStore type for convenience

@@ -13,7 +13,7 @@ import { indexedDBService, STORES } from '../persistence/IndexedDBService';
 import { IFullUnit } from './CanonicalUnitService';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
-import { WeightClass, getWeightClass } from '@/types/enums/WeightClass';
+import { getWeightClass } from '@/types/enums/WeightClass';
 
 /**
  * Unit name entry for quick lookups

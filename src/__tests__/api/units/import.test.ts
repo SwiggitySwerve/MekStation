@@ -6,6 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/import';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
+import { parseErrorResponse, parseImportResponse, parseApiResponse } from '../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
@@ -13,6 +14,15 @@ jest.mock('@/services/units/UnitRepository');
 
 const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
 const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof getUnitRepository>;
+
+/**
+ * Extended import response with suggested name
+ */
+interface ImportConflictResponse {
+  success: boolean;
+  error?: string;
+  suggestedName?: string;
+}
 
 describe('/api/units/import', () => {
   let mockUnitRepository: {
@@ -32,9 +42,9 @@ describe('/api/units/import', () => {
     
     mockSQLiteService.mockReturnValue({
       initialize: jest.fn(),
-    } as any);
+    } as ReturnType<typeof getSQLiteService>);
     
-    mockGetUnitRepository.mockReturnValue(mockUnitRepository as any);
+    mockGetUnitRepository.mockReturnValue(mockUnitRepository as unknown as ReturnType<typeof getUnitRepository>);
   });
 
   describe('Method validation', () => {
@@ -46,7 +56,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toContain('Not Allowed');
     });
   });
@@ -57,13 +67,13 @@ describe('/api/units/import', () => {
         method: 'POST',
       });
       // Explicitly set body to null
-      delete (req as any).body;
-      req.body = null as any;
+      delete (req as unknown as { body: unknown }).body;
+      req.body = null;
 
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Missing request body');
     });
 
@@ -78,7 +88,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.success).toBe(false);
       expect(data.validationErrors).toContain('Missing or invalid field: chassis');
     });
@@ -94,7 +104,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.validationErrors).toContain('Missing field: variant or model');
     });
 
@@ -117,7 +127,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(201);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.success).toBe(true);
     });
 
@@ -189,7 +199,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toContain('Unsupported format version');
     });
@@ -215,7 +225,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(409);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<ImportConflictResponse>(res);
       expect(data.success).toBe(false);
       expect(data.error).toContain('already exists');
       expect(data.suggestedName).toBeDefined();
@@ -243,7 +253,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(201);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.success).toBe(true);
       expect(data.unitId).toBe('custom-1');
       expect(mockUnitRepository.create).toHaveBeenCalledWith(
@@ -274,7 +284,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
+      const data = parseImportResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toBe('Database error');
     });
@@ -286,7 +296,7 @@ describe('/api/units/import', () => {
         initialize: jest.fn(() => {
           throw new Error('Database init failed');
         }),
-      } as any);
+      } as ReturnType<typeof getSQLiteService>);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
@@ -299,7 +309,7 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Database init failed');
     });
 
@@ -320,9 +330,8 @@ describe('/api/units/import', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.error).toBe('Unexpected error');
     });
   });
 });
-

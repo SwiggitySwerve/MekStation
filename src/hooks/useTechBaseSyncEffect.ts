@@ -42,22 +42,6 @@ export interface ComponentSetters {
 }
 
 // =============================================================================
-// Component to TechBase Mapping
-// =============================================================================
-
-/**
- * Maps component types to their respective tech base category
- */
-const COMPONENT_TECH_BASE_MAP: Record<keyof ComponentSelections, TechBaseComponent> = {
-  engineType: TechBaseComponent.ENGINE,
-  gyroType: TechBaseComponent.GYRO,
-  internalStructureType: TechBaseComponent.CHASSIS,
-  cockpitType: TechBaseComponent.CHASSIS,
-  heatSinkType: TechBaseComponent.HEATSINK,
-  armorType: TechBaseComponent.ARMOR,
-};
-
-// =============================================================================
 // Hook Implementation
 // =============================================================================
 

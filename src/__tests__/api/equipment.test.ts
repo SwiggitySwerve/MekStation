@@ -8,6 +8,7 @@ import { equipmentLookupService } from '@/services/equipment/EquipmentLookupServ
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
+import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
 // Mock the equipment lookup service
 jest.mock('@/services/equipment/EquipmentLookupService', () => ({
@@ -34,7 +35,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toContain('Method not allowed');
     });
@@ -77,7 +78,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseSuccessResponse(res);
       expect(data.success).toBe(true);
       expect(data.data).toEqual(mockEquipment);
     });
@@ -93,7 +94,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(404);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toContain('Equipment not found');
     });
@@ -115,7 +116,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseSuccessResponse(res);
       expect(data.success).toBe(true);
       expect(data.data).toEqual(mockEquipment);
       expect(data.count).toBe(2);
@@ -342,7 +343,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toBe('Database connection failed');
     });
@@ -360,7 +361,7 @@ describe('/api/equipment', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toBe('Internal server error');
     });

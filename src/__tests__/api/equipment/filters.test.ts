@@ -7,6 +7,16 @@ import handler from '@/pages/api/equipment/filters';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
+import { parseSuccessResponse, parseErrorResponse, type FilterItem } from '../../helpers';
+
+/**
+ * Filters response data type
+ */
+interface FiltersData {
+  categories: FilterItem[];
+  techBases: FilterItem[];
+  rulesLevels: FilterItem[];
+}
 
 describe('/api/equipment/filters', () => {
   describe('GET method validation', () => {
@@ -18,7 +28,7 @@ describe('/api/equipment/filters', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseErrorResponse(res);
       expect(data.success).toBe(false);
       expect(data.error).toContain('Method not allowed');
     });
@@ -43,12 +53,12 @@ describe('/api/equipment/filters', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
-      expect(data.success).toBe(true);
-      expect(data.data).toBeDefined();
-      expect(data.data.categories).toBeDefined();
-      expect(data.data.techBases).toBeDefined();
-      expect(data.data.rulesLevels).toBeDefined();
+      const response = parseSuccessResponse<FiltersData>(res);
+      expect(response.success).toBe(true);
+      expect(response.data).toBeDefined();
+      expect(response.data?.categories).toBeDefined();
+      expect(response.data?.techBases).toBeDefined();
+      expect(response.data?.rulesLevels).toBeDefined();
     });
 
     it('should include all equipment categories', async () => {
@@ -58,15 +68,15 @@ describe('/api/equipment/filters', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
-      const categories = data.data.categories;
+      const response = parseSuccessResponse<FiltersData>(res);
+      const categories = response.data?.categories ?? [];
 
       // Verify structure
       expect(categories).toBeInstanceOf(Array);
       expect(categories.length).toBeGreaterThan(0);
 
       // Each category should have value and label
-      categories.forEach((cat: { value: string; label: string }) => {
+      categories.forEach((cat) => {
         expect(cat).toHaveProperty('value');
         expect(cat).toHaveProperty('label');
         expect(typeof cat.value).toBe('string');
@@ -74,7 +84,7 @@ describe('/api/equipment/filters', () => {
       });
 
       // Verify all enum values are included
-      const categoryValues = categories.map((c: { value: string }) => c.value);
+      const categoryValues = categories.map((c) => c.value);
       Object.values(EquipmentCategory).forEach((category) => {
         expect(categoryValues).toContain(category);
       });
@@ -87,21 +97,21 @@ describe('/api/equipment/filters', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
-      const techBases = data.data.techBases;
+      const response = parseSuccessResponse<FiltersData>(res);
+      const techBases = response.data?.techBases ?? [];
 
       // Verify structure
       expect(techBases).toBeInstanceOf(Array);
       expect(techBases.length).toBeGreaterThan(0);
 
       // Each tech base should have value and label
-      techBases.forEach((tb: { value: string; label: string }) => {
+      techBases.forEach((tb) => {
         expect(tb).toHaveProperty('value');
         expect(tb).toHaveProperty('label');
       });
 
       // Verify all enum values are included
-      const techBaseValues = techBases.map((t: { value: string }) => t.value);
+      const techBaseValues = techBases.map((t) => t.value);
       Object.values(TechBase).forEach((techBase) => {
         expect(techBaseValues).toContain(techBase);
       });
@@ -114,21 +124,21 @@ describe('/api/equipment/filters', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
-      const rulesLevels = data.data.rulesLevels;
+      const response = parseSuccessResponse<FiltersData>(res);
+      const rulesLevels = response.data?.rulesLevels ?? [];
 
       // Verify structure
       expect(rulesLevels).toBeInstanceOf(Array);
       expect(rulesLevels.length).toBeGreaterThan(0);
 
       // Each rules level should have value and label
-      rulesLevels.forEach((rl: { value: string; label: string }) => {
+      rulesLevels.forEach((rl) => {
         expect(rl).toHaveProperty('value');
         expect(rl).toHaveProperty('label');
       });
 
       // Verify all enum values are included
-      const rulesLevelValues = rulesLevels.map((r: { value: string }) => r.value);
+      const rulesLevelValues = rulesLevels.map((r) => r.value);
       Object.values(RulesLevel).forEach((rulesLevel) => {
         expect(rulesLevelValues).toContain(rulesLevel);
       });
@@ -141,24 +151,23 @@ describe('/api/equipment/filters', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
-      const techBases = data.data.techBases;
+      const response = parseSuccessResponse<FiltersData>(res);
+      const techBases = response.data?.techBases ?? [];
 
       // Find INNER_SPHERE and check label formatting
       // Note: TechBase.INNER_SPHERE = 'Inner Sphere', formatLabel converts to 'Inner sphere'
       const innerSphere = techBases.find(
-        (t: { value: string }) => t.value === TechBase.INNER_SPHERE
+        (t) => t.value === TechBase.INNER_SPHERE
       );
       expect(innerSphere).toBeDefined();
-      expect(innerSphere.label).toBe('Inner sphere');
+      expect(innerSphere?.label).toBe('Inner sphere');
 
       // Find CLAN and check label formatting
       const clan = techBases.find(
-        (t: { value: string }) => t.value === TechBase.CLAN
+        (t) => t.value === TechBase.CLAN
       );
       expect(clan).toBeDefined();
-      expect(clan.label).toBe('Clan');
+      expect(clan?.label).toBe('Clan');
     });
   });
 });
-

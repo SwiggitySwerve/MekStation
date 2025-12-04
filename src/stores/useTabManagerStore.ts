@@ -18,7 +18,6 @@ import { isValidUUID, generateUUID } from '@/utils/uuid';
 import {
   createAndRegisterUnit,
   getUnitStore,
-  deleteUnit,
   duplicateUnit,
   hydrateOrCreateUnit,
 } from './unitStoreRegistry';

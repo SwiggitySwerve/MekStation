@@ -8,7 +8,6 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';

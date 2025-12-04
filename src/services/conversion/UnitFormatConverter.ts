@@ -8,7 +8,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import { Era } from '@/types/enums/Era';
 import { WeightClass, getWeightClass } from '@/types/enums/WeightClass';
 import { EngineType } from '@/types/construction/EngineType';

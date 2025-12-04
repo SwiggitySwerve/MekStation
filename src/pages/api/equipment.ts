@@ -72,7 +72,7 @@ function parseFloatOrUndefined(value: string): number | undefined {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
-) {
+): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({
       success: false,

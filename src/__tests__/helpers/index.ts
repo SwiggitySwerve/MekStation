@@ -21,3 +21,27 @@ export {
 // Custom assertions (auto-registers matchers on import)
 export { registerBattleTechMatchers } from './assertions';
 
+// API test helpers
+export {
+  parseApiResponse,
+  parseSuccessResponse,
+  parseErrorResponse,
+  parseDeprecatedResponse,
+  parseUnitListResponse,
+  parseUnitResponse,
+  parseImportResponse,
+  parseFilterResponse,
+  parseCategoryResponse,
+  isApiError,
+  isApiSuccess,
+  type ApiResponse,
+  type ApiSuccessResponse,
+  type ApiErrorResponse,
+  type DeprecatedApiResponse,
+  type UnitListResponse,
+  type UnitResponse,
+  type ImportResponse,
+  type FilterItem,
+  type FilterResponse,
+  type CategoryResponse,
+} from './apiTestHelpers';

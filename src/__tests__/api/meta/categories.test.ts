@@ -4,6 +4,14 @@
 import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/meta/categories';
+import { parseApiResponse } from '../../helpers';
+
+/**
+ * Message response type
+ */
+interface MessageResponse {
+  message: string;
+}
 
 describe('/api/meta/categories', () => {
   describe('GET method validation', () => {
@@ -15,7 +23,7 @@ describe('/api/meta/categories', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<MessageResponse>(res);
       expect(data.message).toBe('Method not allowed');
     });
 
@@ -39,7 +47,7 @@ describe('/api/meta/categories', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(Array.isArray(data)).toBe(true);
     });
 
@@ -50,7 +58,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain('meks');
     });
 
@@ -61,7 +69,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain('vehicles');
     });
 
@@ -72,7 +80,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain('infantry');
     });
 
@@ -83,7 +91,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain('battlearmor');
     });
 
@@ -94,7 +102,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain('fighters');
       expect(data).toContain('dropships');
       expect(data).toContain('warship');
@@ -108,7 +116,7 @@ describe('/api/meta/categories', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       const expectedCategories = [
         'meks',
         'vehicles',
@@ -131,4 +139,3 @@ describe('/api/meta/categories', () => {
     });
   });
 });
-

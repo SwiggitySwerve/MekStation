@@ -34,7 +34,7 @@ type ErrorResponse = {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<GetResponse | UpdateResponse | DeleteResponse | ErrorResponse>
-) {
+): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();

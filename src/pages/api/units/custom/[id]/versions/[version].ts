@@ -23,7 +23,7 @@ type ErrorResponse = {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<VersionResponse | ErrorResponse>
-) {
+): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();

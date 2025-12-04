@@ -7,6 +7,17 @@
 import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/custom-variants/[variantId]';
+import { parseDeprecatedResponse, parseApiResponse } from '../../helpers';
+
+/**
+ * Type for redirect response
+ */
+interface RedirectResponse {
+  success: boolean;
+  deprecated: boolean;
+  message?: string;
+  redirect?: string;
+}
 
 describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
   describe('Deprecation Response', () => {
@@ -19,7 +30,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(410);
-      const data = JSON.parse(res._getData());
+      const data = parseDeprecatedResponse(res);
       expect(data.success).toBe(false);
       expect(data.deprecated).toBe(true);
       expect(data.message).toContain('deprecated');
@@ -35,7 +46,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(410);
-      const data = JSON.parse(res._getData());
+      const data = parseDeprecatedResponse(res);
       expect(data.deprecated).toBe(true);
     });
 
@@ -70,7 +81,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(410);
-      const data = JSON.parse(res._getData());
+      const data = parseDeprecatedResponse(res);
       expect(data.deprecated).toBe(true);
     });
 
@@ -83,7 +94,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(410);
-      const data = JSON.parse(res._getData());
+      const data = parseDeprecatedResponse(res);
       expect(data.deprecated).toBe(true);
     });
   });
@@ -98,7 +109,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<RedirectResponse>(res);
       expect(data.redirect).toBe(`/api/units/custom/${variantId}`);
     });
 
@@ -110,7 +121,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<RedirectResponse>(res);
       expect(data.redirect).toBe('/api/units/custom/');
     });
 
@@ -124,7 +135,7 @@ describe('/api/custom-variants/[variantId] (DEPRECATED)', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(410);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<RedirectResponse>(res);
       expect(data.redirect).toBe(`/api/units/custom/${variantId}`);
     });
   });

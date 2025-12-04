@@ -5,6 +5,14 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/meta/unit_weight_classes';
 import { STANDARD_WEIGHT_CLASSES, WeightClass } from '@/types/enums/WeightClass';
+import { parseApiResponse } from '../../helpers';
+
+/**
+ * Message response type
+ */
+interface MessageResponse {
+  message: string;
+}
 
 describe('/api/meta/unit_weight_classes', () => {
   describe('GET method validation', () => {
@@ -16,7 +24,7 @@ describe('/api/meta/unit_weight_classes', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<MessageResponse>(res);
       expect(data.message).toBe('Method not allowed');
     });
 
@@ -40,7 +48,7 @@ describe('/api/meta/unit_weight_classes', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(Array.isArray(data)).toBe(true);
     });
 
@@ -51,7 +59,7 @@ describe('/api/meta/unit_weight_classes', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toEqual(STANDARD_WEIGHT_CLASSES);
     });
 
@@ -62,7 +70,7 @@ describe('/api/meta/unit_weight_classes', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data).toContain(WeightClass.LIGHT);
       expect(data).toContain(WeightClass.MEDIUM);
       expect(data).toContain(WeightClass.HEAVY);
@@ -76,9 +84,8 @@ describe('/api/meta/unit_weight_classes', () => {
 
       await handler(req, res);
 
-      const data = JSON.parse(res._getData());
+      const data = parseApiResponse<string[]>(res);
       expect(data.length).toBe(4);
     });
   });
 });
-
