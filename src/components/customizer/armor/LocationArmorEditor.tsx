@@ -1,8 +1,9 @@
 /**
  * Location Armor Editor Component
  * 
- * Panel for editing armor values on a selected location.
- * Supports front and rear armor for torso locations.
+ * Compact panel for editing armor values on a selected location.
+ * Full control over total, front, and rear armor values.
+ * Visual split slider shows front (orange) vs rear (blue).
  * 
  * @spec openspec/specs/armor-diagram/spec.md
  */
@@ -50,7 +51,7 @@ function hasRearArmor(location: MechLocation): boolean {
  * Get display name for location
  */
 function getLocationName(location: MechLocation): string {
-  return location; // MechLocation values are already display-friendly
+  return location;
 }
 
 // =============================================================================
@@ -58,7 +59,7 @@ function getLocationName(location: MechLocation): string {
 // =============================================================================
 
 /**
- * Editor panel for a single armor location
+ * Compact editor panel for a single armor location
  */
 export function LocationArmorEditor({
   location,
@@ -74,132 +75,147 @@ export function LocationArmorEditor({
     [tonnage, location]
   );
   
-  // For torsos, front + rear cannot exceed max
-  const maxFront = showRear && data.rear !== undefined
-    ? maxArmor - (data.rear ?? 0)
-    : maxArmor;
-  const maxRear = showRear
-    ? maxArmor - data.current
-    : 0;
+  // Total armor pool for this location
+  const totalPool = data.current + (data.rear ?? 0);
   
-  const totalForLocation = data.current + (data.rear ?? 0);
+  // Calculate percentages for the split slider
+  const frontPercent = totalPool > 0 ? (data.current / totalPool) * 100 : 75;
+  const rearPercent = totalPool > 0 ? ((data.rear ?? 0) / totalPool) * 100 : 25;
   
   // Handlers
+  const handleTotalChange = useCallback((value: number) => {
+    const newTotal = Math.max(0, Math.min(value, maxArmor));
+    if (showRear) {
+      // Maintain front/rear ratio when changing total
+      const currentRatio = totalPool > 0 ? data.current / totalPool : 0.75;
+      const newFront = Math.round(newTotal * currentRatio);
+      const newRear = newTotal - newFront;
+      onChange(newFront, newRear);
+    } else {
+      onChange(newTotal);
+    }
+  }, [maxArmor, onChange, showRear, totalPool, data.current]);
+  
   const handleFrontChange = useCallback((value: number) => {
-    const clamped = Math.max(0, Math.min(value, maxArmor));
-    onChange(clamped, showRear ? data.rear : undefined);
+    const rear = data.rear ?? 0;
+    // Front can go from 0 to maxArmor - rear
+    const maxFront = maxArmor - rear;
+    const newFront = Math.max(0, Math.min(value, maxFront));
+    onChange(newFront, showRear ? rear : undefined);
   }, [maxArmor, onChange, showRear, data.rear]);
   
   const handleRearChange = useCallback((value: number) => {
-    const clamped = Math.max(0, Math.min(value, maxRear));
-    onChange(data.current, clamped);
-  }, [maxRear, onChange, data.current]);
-  
-  const handleMaxFront = useCallback(() => {
-    // Set front to max, keeping rear as-is (or 0 if no rear)
-    const newFront = showRear ? maxArmor - (data.rear ?? 0) : maxArmor;
-    onChange(newFront, showRear ? data.rear : undefined);
-  }, [maxArmor, onChange, showRear, data.rear]);
-  
-  const handleMaxRear = useCallback(() => {
-    // Set rear to max, keeping front as-is
-    if (!showRear) return;
-    const newRear = maxArmor - data.current;
+    // Rear can go from 0 to maxArmor - front
+    const maxRear = maxArmor - data.current;
+    const newRear = Math.max(0, Math.min(value, maxRear));
     onChange(data.current, newRear);
-  }, [maxArmor, onChange, showRear, data.current]);
+  }, [maxArmor, onChange, data.current]);
   
-  const handleMaxAll = useCallback(() => {
-    // Maximize location (default 2:1 front:rear ratio for torsos)
-    if (showRear) {
-      const frontPortion = Math.floor(maxArmor * 0.67);
-      const rearPortion = maxArmor - frontPortion;
-      onChange(frontPortion, rearPortion);
-    } else {
-      onChange(maxArmor);
-    }
-  }, [maxArmor, onChange, showRear]);
+  // Handle split slider - adjusts front within current total pool
+  const handleSplitChange = useCallback((value: number) => {
+    if (totalPool === 0) return;
+    const newFront = Math.max(0, Math.min(value, totalPool));
+    const newRear = totalPool - newFront;
+    onChange(newFront, newRear);
+  }, [totalPool, onChange]);
   
-  const handleClear = useCallback(() => {
-    onChange(0, showRear ? 0 : undefined);
-  }, [onChange, showRear]);
-  
-  const handleBalance = useCallback(() => {
-    // Balance front and rear evenly for torsos
-    if (!showRear) return;
-    const half = Math.floor(totalForLocation / 2);
-    const remainder = totalForLocation - half * 2;
-    onChange(half + remainder, half); // Give extra point to front
-  }, [showRear, totalForLocation, onChange]);
-  
+  // Common styles
+  const inputClass = "w-12 px-1 py-0.5 bg-slate-700 border border-slate-600 rounded text-white text-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+  const labelClass = "text-[10px] font-medium uppercase w-10";
+  const sliderClass = "flex-1 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer";
+
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-md font-semibold text-white">{getLocationName(location)}</h4>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-400">
-            {totalForLocation} / {maxArmor}
-          </span>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-slate-700 rounded transition-colors"
-            aria-label="Close editor"
-          >
-            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <div className="bg-slate-800 rounded-lg border border-slate-700 p-3">
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-sm font-semibold text-white">{getLocationName(location)}</h4>
+        <button
+          onClick={onClose}
+          className="p-0.5 hover:bg-slate-700 rounded transition-colors"
+          aria-label="Close editor"
+        >
+          <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       
-      <div className="space-y-3">
-        {/* Front Armor */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <label className="text-sm text-slate-400">
-              {showRear ? 'Front Armor' : 'Armor'}
-            </label>
-            <span className="text-xs text-slate-500">Max: {maxFront}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="range"
-              min={0}
-              max={maxArmor}
-              value={data.current}
-              onChange={(e) => handleFrontChange(parseInt(e.target.value, 10))}
-              disabled={readOnly}
-              className="flex-1 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-amber-500"
-            />
-            <input
-              type="number"
-              value={data.current}
-              onChange={(e) => handleFrontChange(parseInt(e.target.value, 10) || 0)}
-              disabled={readOnly}
-              min={0}
-              max={maxArmor}
-              className="w-14 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-          </div>
-        </div>
-        
-        {/* Rear Armor (torsos only) */}
-        {showRear && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <label className="text-sm text-slate-400">Rear Armor</label>
-              <span className="text-xs text-slate-500">Max: {maxRear}</span>
-            </div>
+      {/* Total row with slider */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`${labelClass} text-slate-300`}>Total</span>
+        <input
+          type="range"
+          min={0}
+          max={maxArmor}
+          value={totalPool}
+          onChange={(e) => handleTotalChange(parseInt(e.target.value, 10))}
+          disabled={readOnly}
+          className={`${sliderClass} accent-slate-400`}
+        />
+        <input
+          type="number"
+          value={totalPool}
+          onChange={(e) => handleTotalChange(parseInt(e.target.value, 10) || 0)}
+          disabled={readOnly}
+          min={0}
+          max={maxArmor}
+          className={inputClass}
+        />
+        <span className="text-[10px] text-slate-500">/{maxArmor}</span>
+      </div>
+      
+      {showRear && (
+        <>
+          {/* Split slider with visual front/rear display */}
+          <div className="mb-2">
             <div className="flex items-center gap-2">
+              <span className={`${labelClass} text-slate-300`}>Split</span>
+              {/* Custom visual split bar */}
+              <div className="flex-1 relative">
+                {/* Background bar showing front (orange) and rear (blue) */}
+                <div className="h-3 rounded overflow-hidden flex">
+                  <div 
+                    className="bg-amber-500 transition-all"
+                    style={{ width: `${frontPercent}%` }}
+                  />
+                  <div 
+                    className="bg-sky-500 transition-all"
+                    style={{ width: `${rearPercent}%` }}
+                  />
+                </div>
+                {/* Invisible range input for interaction */}
+                <input
+                  type="range"
+                  min={0}
+                  max={totalPool}
+                  value={data.current}
+                  onChange={(e) => handleSplitChange(parseInt(e.target.value, 10))}
+                  disabled={readOnly || totalPool === 0}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Front/Rear number inputs */}
+          <div className="flex items-center gap-3">
+            {/* Front */}
+            <div className="flex items-center gap-1.5">
+              <span className={`${labelClass} text-amber-400`}>Front</span>
               <input
-                type="range"
-                min={0}
-                max={maxArmor - data.current}
-                value={data.rear ?? 0}
-                onChange={(e) => handleRearChange(parseInt(e.target.value, 10))}
+                type="number"
+                value={data.current}
+                onChange={(e) => handleFrontChange(parseInt(e.target.value, 10) || 0)}
                 disabled={readOnly}
-                className="flex-1 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                min={0}
+                max={maxArmor - (data.rear ?? 0)}
+                className={inputClass}
               />
+            </div>
+            
+            {/* Rear */}
+            <div className="flex items-center gap-1.5">
+              <span className={`${labelClass} text-sky-400`}>Rear</span>
               <input
                 type="number"
                 value={data.rear ?? 0}
@@ -207,55 +223,12 @@ export function LocationArmorEditor({
                 disabled={readOnly}
                 min={0}
                 max={maxArmor - data.current}
-                className="w-14 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className={inputClass}
               />
             </div>
           </div>
-        )}
-        
-        {/* Quick Actions */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-700">
-          <button
-            onClick={handleMaxAll}
-            disabled={readOnly}
-            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-xs transition-colors"
-          >
-            Max
-          </button>
-          {showRear && (
-            <>
-              <button
-                onClick={handleMaxFront}
-                disabled={readOnly}
-                className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-xs transition-colors"
-              >
-                Max Front
-              </button>
-              <button
-                onClick={handleMaxRear}
-                disabled={readOnly}
-                className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-xs transition-colors"
-              >
-                Max Rear
-              </button>
-              <button
-                onClick={handleBalance}
-                disabled={readOnly}
-                className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-xs transition-colors"
-              >
-                Balance
-              </button>
-            </>
-          )}
-          <button
-            onClick={handleClear}
-            disabled={readOnly}
-            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-xs transition-colors"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
