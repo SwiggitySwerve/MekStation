@@ -94,6 +94,7 @@ export function LocationArmorEditor({
     } else {
       onChange(newTotal);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- data is a prop, not a ref; using data.current directly is intentional
   }, [maxArmor, onChange, showRear, totalPool, data.current]);
   
   const handleFrontChange = useCallback((value: number) => {
@@ -109,6 +110,7 @@ export function LocationArmorEditor({
     const maxRear = maxArmor - data.current;
     const newRear = Math.max(0, Math.min(value, maxRear));
     onChange(data.current, newRear);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- data is a prop, not a ref; using data.current directly is intentional
   }, [maxArmor, onChange, data.current]);
   
   // Handle split slider - adjusts front within current total pool

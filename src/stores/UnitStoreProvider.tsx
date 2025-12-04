@@ -75,6 +75,7 @@ export function UnitStoreProvider({
       console.error('Error creating unit store:', e);
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- only recreate store when specific tab properties change, not on every activeTab reference change
   }, [activeTab?.id, activeTab?.name, activeTab?.tonnage, activeTab?.techBase]);
   
   // No active tab selected - show fallback
