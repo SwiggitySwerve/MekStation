@@ -114,14 +114,14 @@ export const INTERACTIVE_COLORS: Record<InteractiveState, { bg: string; border: 
 /**
  * Get validation status colors
  */
-export function getValidationColors(status: ValidationStatus) {
+export function getValidationColors(status: ValidationStatus): { bg: string; text: string; border: string; icon: string } {
   return VALIDATION_COLORS[status];
 }
 
 /**
  * Get allocation status colors
  */
-export function getAllocationColors(status: AllocationStatus) {
+export function getAllocationColors(status: AllocationStatus): { bg: string; text: string; badge: string } {
   return ALLOCATION_COLORS[status];
 }
 

@@ -95,7 +95,7 @@ export function PageLayout({
 }
 
 // Loading state component
-export function PageLoading({ message = 'Loading...' }: { message?: string }) {
+export function PageLoading({ message = 'Loading...' }: { message?: string }): React.ReactElement {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
       <div className="text-center">
@@ -119,7 +119,7 @@ export function PageError({
   message,
   backLink,
   backLabel = 'Go Back',
-}: PageErrorProps) {
+}: PageErrorProps): React.ReactElement {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
       <div className="bg-red-900/20 border border-red-600/30 rounded-xl p-8 max-w-md text-center">

@@ -105,7 +105,12 @@ export function CustomizerTabs({
 export function useCustomizerTabs(
   initialTab: string = 'overview',
   tabs: CustomizerTabConfig[] = DEFAULT_CUSTOMIZER_TABS
-) {
+): {
+  tabs: CustomizerTabConfig[];
+  activeTab: string;
+  currentTab: CustomizerTabConfig;
+  setActiveTab: (tabId: string) => void;
+} {
   const [activeTab, setActiveTab] = useState(initialTab);
   
   const currentTab = tabs.find((t) => t.id === activeTab) || tabs[0];

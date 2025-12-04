@@ -167,7 +167,7 @@ export function HideToggleBar({
   onToggleOneShot,
   onToggleUnavailable,
   className = '',
-}: HideToggleBarProps) {
+}: HideToggleBarProps): React.ReactElement {
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
       <span className="text-xs text-slate-400 mr-1">Hide:</span>

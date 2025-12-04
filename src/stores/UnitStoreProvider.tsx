@@ -50,7 +50,7 @@ export function UnitStoreProvider({
   children,
   activeTab,
   fallback,
-}: UnitStoreProviderProps) {
+}: UnitStoreProviderProps): React.ReactElement {
   // Create/get store based on activeTab
   // useMemo ensures we don't recreate on every render
   const currentStore = useMemo<StoreApi<UnitStore> | null>(() => {

@@ -78,7 +78,7 @@ export function StatCard({
   variant = 'amber',
   children,
   className = '',
-}: StatCardProps) {
+}: StatCardProps): React.ReactElement {
   return (
     <div className={`bg-slate-800/30 border border-slate-700 rounded-xl p-6 ${className}`}>
       <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${titleVariantColors[variant]}`}>
@@ -97,7 +97,7 @@ interface StatGridProps {
   className?: string;
 }
 
-export function StatGrid({ children, cols = 2, className = '' }: StatGridProps) {
+export function StatGrid({ children, cols = 2, className = '' }: StatGridProps): React.ReactElement {
   const colClasses: Record<number, string> = {
     2: 'grid-cols-1 md:grid-cols-2',
     3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
