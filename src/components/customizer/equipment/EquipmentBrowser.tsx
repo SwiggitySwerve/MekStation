@@ -33,6 +33,8 @@ export function EquipmentBrowser({
     paginatedEquipment,
     isLoading,
     error,
+    unitYear,
+    unitTechBase,
     currentPage,
     totalPages,
     totalItems,
@@ -99,6 +101,19 @@ export function EquipmentBrowser({
           onToggleOneShot={toggleHideOneShot}
           onToggleUnavailable={toggleHideUnavailable}
         />
+        
+        {/* Unit context info - shows when filtering by availability */}
+        {hideUnavailable && (unitYear || unitTechBase) && (
+          <div className="flex items-center gap-2 text-xs text-slate-400 px-1">
+            <span className="text-slate-500">Filtering:</span>
+            {unitYear && (
+              <span className="bg-slate-700 px-2 py-0.5 rounded">Year ≤ {unitYear}</span>
+            )}
+            {unitTechBase && (
+              <span className="bg-slate-700 px-2 py-0.5 rounded">{unitTechBase}</span>
+            )}
+          </div>
+        )}
         
         {/* Text filter */}
         <div className="flex items-center gap-2">

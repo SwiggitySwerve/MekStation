@@ -4,11 +4,15 @@
  * Provides equipment browsing functionality with filtering,
  * sorting, and pagination.
  * 
+ * Automatically syncs with the active unit's year and tech base
+ * for availability filtering.
+ * 
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
+import { UnitStoreContext } from '@/stores/useUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, getAllEquipmentItems, IEquipmentItem } from '@/types/equipment';
 
@@ -22,6 +26,10 @@ export interface EquipmentBrowserState {
   readonly paginatedEquipment: readonly IEquipmentItem[];
   readonly isLoading: boolean;
   readonly error: string | null;
+  
+  // Unit context
+  readonly unitYear: number | null;
+  readonly unitTechBase: TechBase | null;
   
   // Pagination
   readonly currentPage: number;
@@ -71,6 +79,38 @@ export interface EquipmentBrowserState {
 }
 
 /**
+ * Hook to safely get unit store values if within a unit context
+ * Uses subscription pattern to avoid conditional hook calls
+ */
+function useUnitContextValues(): { year: number | null; techBase: TechBase | null } {
+  const unitStore = useContext(UnitStoreContext);
+  const [values, setValues] = useState<{ year: number | null; techBase: TechBase | null }>({
+    year: null,
+    techBase: null,
+  });
+  
+  useEffect(() => {
+    if (!unitStore) {
+      setValues({ year: null, techBase: null });
+      return;
+    }
+    
+    // Get initial values
+    const state = unitStore.getState();
+    setValues({ year: state.year, techBase: state.techBase });
+    
+    // Subscribe to changes
+    const unsubscribe = unitStore.subscribe((state) => {
+      setValues({ year: state.year, techBase: state.techBase });
+    });
+    
+    return unsubscribe;
+  }, [unitStore]);
+  
+  return values;
+}
+
+/**
  * Hook for equipment browser functionality
  */
 export function useEquipmentBrowser(): EquipmentBrowserState {
@@ -84,6 +124,7 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     setEquipment,
     setLoading,
     setError,
+    setUnitContext,
     setSearch,
     setTechBaseFilter,
     setCategoryFilter,
@@ -99,6 +140,14 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     getFilteredEquipment,
     getPaginatedEquipment,
   } = useEquipmentStore();
+  
+  // Get unit year and tech base from unit store context (if available)
+  const { year: unitYear, techBase: unitTechBase } = useUnitContextValues();
+  
+  // Sync unit context with equipment store when unit changes
+  useEffect(() => {
+    setUnitContext(unitYear, unitTechBase);
+  }, [unitYear, unitTechBase, setUnitContext]);
   
   // Load equipment on mount
   useEffect(() => {
@@ -140,6 +189,9 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
       filters.hideUnavailable,
       sort.column,
       sort.direction,
+      // Unit context affects filtering when hideUnavailable is true
+      unitYear,
+      unitTechBase,
     ]
   );
   const paginatedEquipment = useMemo(
@@ -173,6 +225,10 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
     paginatedEquipment,
     isLoading,
     error,
+    
+    // Unit context
+    unitYear,
+    unitTechBase,
     
     // Pagination
     currentPage: pagination.currentPage,

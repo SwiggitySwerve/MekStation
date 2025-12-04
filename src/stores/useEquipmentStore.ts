@@ -33,6 +33,17 @@ export type SortDirection = 'asc' | 'desc';
 export type SortColumn = 'name' | 'category' | 'techBase' | 'weight' | 'criticalSlots' | 'damage' | 'heat';
 
 /**
+ * Unit context for equipment filtering
+ * These values come from the active unit and are used for availability filtering
+ */
+export interface UnitContext {
+  /** The unit's year (used for availability filtering) */
+  readonly unitYear: number | null;
+  /** The unit's tech base (used for compatibility filtering) */
+  readonly unitTechBase: TechBase | null;
+}
+
+/**
  * Equipment filter state
  */
 export interface EquipmentFilters {
@@ -50,7 +61,7 @@ export interface EquipmentFilters {
   readonly hidePrototype: boolean;
   /** Hide one-shot equipment */
   readonly hideOneShot: boolean;
-  /** Hide unavailable equipment */
+  /** Hide unavailable equipment (filters by unit year and tech base) */
   readonly hideUnavailable: boolean;
   /** Maximum weight filter */
   readonly maxWeight: number | null;
@@ -86,6 +97,9 @@ export interface EquipmentStoreState {
   isLoading: boolean;
   error: string | null;
   
+  // Unit context (from active unit)
+  unitContext: UnitContext;
+  
   // Filters
   filters: EquipmentFilters;
   
@@ -99,6 +113,9 @@ export interface EquipmentStoreState {
   setEquipment: (equipment: IEquipmentItem[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  
+  // Unit context actions
+  setUnitContext: (year: number | null, techBase: TechBase | null) => void;
   
   // Filter actions
   setSearch: (search: string) => void;
@@ -128,6 +145,14 @@ export interface EquipmentStoreState {
   getFilteredEquipment: () => IEquipmentItem[];
   getPaginatedEquipment: () => IEquipmentItem[];
 }
+
+/**
+ * Default unit context
+ */
+const DEFAULT_UNIT_CONTEXT: UnitContext = {
+  unitYear: null,
+  unitTechBase: null,
+};
 
 /**
  * Default filter state
@@ -171,6 +196,7 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
   equipment: [],
   isLoading: false,
   error: null,
+  unitContext: DEFAULT_UNIT_CONTEXT,
   filters: DEFAULT_FILTERS,
   pagination: DEFAULT_PAGINATION,
   sort: DEFAULT_SORT,
@@ -184,6 +210,12 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   
   setError: (error) => set({ error }),
+  
+  // Unit context actions
+  setUnitContext: (year, techBase) => set((state) => ({
+    unitContext: { unitYear: year, unitTechBase: techBase },
+    pagination: { ...state.pagination, currentPage: 1 },
+  })),
   
   // Filter actions
   setSearch: (search) => set((state) => ({
@@ -322,7 +354,7 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
   
   // Computed - get filtered equipment
   getFilteredEquipment: () => {
-    const { equipment, filters, sort } = get();
+    const { equipment, filters, sort, unitContext } = get();
     
     let filtered = [...equipment];
     
@@ -334,7 +366,7 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
       );
     }
     
-    // Tech base filter
+    // Tech base filter (user override)
     if (filters.techBase) {
       filtered = filtered.filter(e => e.techBase === filters.techBase);
     }
@@ -373,6 +405,20 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
       filtered = filtered.filter(e => !e.name.toLowerCase().includes('one-shot'));
     }
     
+    // Hide unavailable equipment - filter by unit's year and tech base
+    if (filters.hideUnavailable) {
+      // Filter by introduction year if unit year is known
+      if (unitContext.unitYear !== null) {
+        filtered = filtered.filter(e => e.introductionYear <= unitContext.unitYear!);
+      }
+      
+      // Filter by tech base if unit tech base is known
+      // Note: When hideUnavailable is true, we only show equipment compatible with the unit's tech base
+      if (unitContext.unitTechBase !== null) {
+        filtered = filtered.filter(e => e.techBase === unitContext.unitTechBase);
+      }
+    }
+    
     // Weight filter
     if (filters.maxWeight !== null) {
       filtered = filtered.filter(e => e.weight <= filters.maxWeight!);
@@ -383,7 +429,7 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
       filtered = filtered.filter(e => e.criticalSlots <= filters.maxCriticalSlots!);
     }
     
-    // Year filter
+    // Year filter (user override - in addition to hideUnavailable)
     if (filters.maxYear !== null) {
       filtered = filtered.filter(e => e.introductionYear <= filters.maxYear!);
     }
