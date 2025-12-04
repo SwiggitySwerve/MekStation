@@ -203,12 +203,9 @@ export default function UnitsListPage() {
                     className="hover:bg-slate-700/30 transition-colors"
                   >
                     <td className="px-3 py-2">
-                      <Link href={`/units/${unit.id}`} className="group flex items-baseline gap-2">
+                      <Link href={`/units/${unit.id}`} className="group">
                         <span className="font-medium text-sm text-white group-hover:text-amber-400 transition-colors whitespace-nowrap">
                           {unit.name}
-                        </span>
-                        <span className="text-xs text-slate-500 whitespace-nowrap">
-                          {unit.chassis} {unit.variant}
                         </span>
                       </Link>
                     </td>
