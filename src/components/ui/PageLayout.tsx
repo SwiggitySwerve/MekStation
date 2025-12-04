@@ -37,7 +37,7 @@ export function PageLayout({
   onBack,
   headerContent,
   gradient = false,
-}: PageLayoutProps) {
+}: PageLayoutProps): React.ReactElement {
   const bgClasses = gradient
     ? 'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
     : 'min-h-screen bg-slate-900';

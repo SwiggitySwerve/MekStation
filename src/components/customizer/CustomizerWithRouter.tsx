@@ -31,7 +31,7 @@ import { UnitEditorWithRouting } from './UnitEditorWithRouting';
  * Customizer with URL routing support
  * Runs only on client side (dynamically imported with SSR disabled)
  */
-export default function CustomizerWithRouter() {
+export default function CustomizerWithRouter(): React.ReactElement {
   const [isHydrated, setIsHydrated] = useState(false);
   
   // Tab manager store (for multi-unit tabs)

@@ -28,7 +28,7 @@ export function StatRow({
   highlight = false,
   mono = true,
   valueColor = 'white',
-}: StatRowProps) {
+}: StatRowProps): React.ReactElement {
   const valueClasses = highlight
     ? `${valueColorClasses[valueColor === 'white' ? 'emerald' : valueColor]} ${mono ? 'font-mono' : ''}`
     : `${valueColorClasses[valueColor]} ${mono ? 'font-mono' : ''}`;
@@ -47,7 +47,7 @@ interface StatListProps {
   className?: string;
 }
 
-export function StatList({ children, className = '' }: StatListProps) {
+export function StatList({ children, className = '' }: StatListProps): React.ReactElement {
   return (
     <div className={`space-y-2 ${className}`}>
       {children}

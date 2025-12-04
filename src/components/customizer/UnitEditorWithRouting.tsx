@@ -150,7 +150,7 @@ interface UnitEditorWithRoutingProps {
 export function UnitEditorWithRouting({
   activeTabId,
   onTabChange,
-}: UnitEditorWithRoutingProps) {
+}: UnitEditorWithRoutingProps): React.ReactElement {
   // Loadout tray state
   const [isTrayExpanded, setIsTrayExpanded] = useState(true);
   
