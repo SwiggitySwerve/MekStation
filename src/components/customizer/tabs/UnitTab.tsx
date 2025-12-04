@@ -121,7 +121,7 @@ export function UnitTab({
       {canClose && !isEditing && (
         <button
           onClick={handleCloseClick}
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-slate-400 text-slate-900 hover:bg-red-500 hover:text-white transition-colors text-sm font-bold leading-none"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-slate-400 text-slate-900 hover:bg-red-500 hover:text-white transition-colors text-base font-black leading-none"
           title="Close (Ctrl+W)"
         >
           ✕
