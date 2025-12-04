@@ -34,7 +34,7 @@ export function UnitTab({
   onSelect,
   onClose,
   onRename,
-}: UnitTabProps) {
+}: UnitTabProps): React.ReactElement {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(tab.name);
   const inputRef = useRef<HTMLInputElement>(null);

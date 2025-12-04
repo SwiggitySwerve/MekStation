@@ -27,7 +27,7 @@ export function FluffTab({
   model = '',
   readOnly = false,
   className = '',
-}: FluffTabProps) {
+}: FluffTabProps): React.ReactElement {
   return (
     <div className={`space-y-6 p-4 ${className}`}>
       {/* Unit Identity */}

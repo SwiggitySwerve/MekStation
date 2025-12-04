@@ -37,7 +37,7 @@ export function StatCell({
   unit,
   variant = 'default',
   className = '',
-}: StatCellProps) {
+}: StatCellProps): React.ReactElement {
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <span className="text-xs text-slate-400 uppercase tracking-wide">

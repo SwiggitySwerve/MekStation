@@ -37,7 +37,7 @@ interface EquipmentTabProps {
 export function EquipmentTab({
   readOnly = false,
   className = '',
-}: EquipmentTabProps) {
+}: EquipmentTabProps): React.ReactElement {
   // Get unit state from context
   const addEquipment = useUnitStore((s) => s.addEquipment);
   

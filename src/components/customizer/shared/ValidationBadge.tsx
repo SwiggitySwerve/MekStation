@@ -28,7 +28,7 @@ export function ValidationBadge({
   label,
   showIcon = true,
   className = '',
-}: ValidationBadgeProps) {
+}: ValidationBadgeProps): React.ReactElement {
   const colors = getValidationColors(status);
   
   return (

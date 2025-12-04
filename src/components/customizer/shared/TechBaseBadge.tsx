@@ -27,7 +27,7 @@ export function TechBaseBadge({
   techBaseMode,
   short = true,
   className = '',
-}: TechBaseBadgeProps) {
+}: TechBaseBadgeProps): React.ReactElement {
   const colors = getTechBaseModeColors(techBaseMode);
   const badgeClass = `${colors.badge} px-2 py-0.5 rounded text-xs font-medium`;
   const displayText = short ? getTechBaseModeShortName(techBaseMode) : TECH_BASE_MODE_LABELS[techBaseMode];

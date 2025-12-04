@@ -47,7 +47,7 @@ interface OverviewTabProps {
 export function OverviewTab({
   readOnly = false,
   className = '',
-}: OverviewTabProps) {
+}: OverviewTabProps): React.ReactElement {
   // Get unit state from context (no tabId needed!)
   const unitId = useUnitStore((s) => s.id);
   const chassis = useUnitStore((s) => s.chassis);

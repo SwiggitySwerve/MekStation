@@ -304,7 +304,7 @@ export function CriticalSlotsTab({
   selectedEquipmentId,
   onSelectEquipment,
   className = '',
-}: CriticalSlotsTabProps) {
+}: CriticalSlotsTabProps): React.ReactElement {
   // Unit state
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);

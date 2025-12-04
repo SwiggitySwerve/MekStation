@@ -184,7 +184,7 @@ export function UnitInfoBanner({
   onReset,
   onDebug,
   className = '',
-}: UnitInfoBannerProps) {
+}: UnitInfoBannerProps): React.ReactElement {
   // Calculate status colors
   const weightStatus: 'normal' | 'warning' | 'error' = 
     stats.weightUsed > stats.tonnage ? 'error' :

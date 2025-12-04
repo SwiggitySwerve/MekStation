@@ -49,7 +49,7 @@ interface ArmorTabProps {
 export function ArmorTab({
   readOnly = false,
   className = '',
-}: ArmorTabProps) {
+}: ArmorTabProps): React.ReactElement {
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);

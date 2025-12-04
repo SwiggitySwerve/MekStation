@@ -59,7 +59,7 @@ interface SaveDialogState {
 export function MultiUnitTabs({
   children,
   className = '',
-}: MultiUnitTabsProps) {
+}: MultiUnitTabsProps): React.ReactElement {
   const router = useRouter();
   
   // Close dialog state

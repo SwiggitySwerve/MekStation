@@ -60,7 +60,7 @@ export function CustomizerTabs({
   onTabChange,
   readOnly = false,
   className = '',
-}: CustomizerTabsProps) {
+}: CustomizerTabsProps): React.ReactElement {
   const handleKeyDown = useTabKeyboardNavigation(tabs, activeTab, onTabChange);
   
   return (

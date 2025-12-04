@@ -39,7 +39,7 @@ function ColorSwatch({ bgClass, label }: ColorSwatchProps) {
 export function ColorLegend({
   defaultExpanded = false,
   className = '',
-}: ColorLegendProps) {
+}: ColorLegendProps): React.ReactElement {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   
   const systemComponents: { type: SystemComponentType; label: string }[] = [

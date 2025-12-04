@@ -223,7 +223,7 @@ export function TechBaseConfiguration({
   onComponentChange,
   readOnly = false,
   className = '',
-}: TechBaseConfigurationProps) {
+}: TechBaseConfigurationProps): React.ReactElement {
   const isMixed = mode === TechBaseMode.MIXED;
   const isIS = mode === TechBaseMode.INNER_SPHERE;
   const isClan = mode === TechBaseMode.CLAN;

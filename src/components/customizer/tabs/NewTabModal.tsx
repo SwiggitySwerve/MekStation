@@ -28,7 +28,7 @@ export function NewTabModal({
   isOpen,
   onClose,
   onCreateUnit,
-}: NewTabModalProps) {
+}: NewTabModalProps): React.ReactElement | null {
   const [mode, setMode] = useState<CreationMode>('new');
   const [selectedTemplate, setSelectedTemplate] = useState<UnitTemplate>(UNIT_TEMPLATES[1]); // Medium
   const [techBase, setTechBase] = useState<TechBase>(TechBase.INNER_SPHERE);

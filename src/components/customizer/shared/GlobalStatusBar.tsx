@@ -44,7 +44,7 @@ interface GlobalStatusBarProps {
 /**
  * Global status bar showing weight, slots, and heat capacity
  */
-export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps) {
+export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps): React.ReactElement {
   const isOverWeight = stats.weightRemaining < 0;
   const isOverSlots = stats.slotsUsed > stats.slotsTotal;
   const isOverHeat = stats.heatGenerated > stats.heatDissipation;

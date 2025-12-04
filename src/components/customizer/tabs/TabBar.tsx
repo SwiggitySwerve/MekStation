@@ -49,7 +49,7 @@ export function TabBar({
   onNewTab,
   onLoadUnit,
   className = '',
-}: TabBarProps) {
+}: TabBarProps): React.ReactElement {
   return (
     <div className={`flex items-center bg-slate-800 border-b border-slate-700 ${className}`}>
       {/* Tab list */}

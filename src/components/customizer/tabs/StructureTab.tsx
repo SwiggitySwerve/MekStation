@@ -105,7 +105,7 @@ function getEnhancementOptions(): {
 export function StructureTab({
   readOnly = false,
   className = '',
-}: StructureTabProps) {
+}: StructureTabProps): React.ReactElement {
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
