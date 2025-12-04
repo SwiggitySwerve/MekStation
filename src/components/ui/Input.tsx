@@ -34,7 +34,7 @@ export function Input({
   className = '',
   id,
   ...props
-}: InputProps) {
+}: InputProps): React.ReactElement {
   const inputId = id || props.name;
   const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 focus:outline-none transition-colors';
 
@@ -73,7 +73,7 @@ export function Select({
   className = '',
   id,
   ...props
-}: SelectProps) {
+}: SelectProps): React.ReactElement {
   const selectId = id || props.name;
   const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none transition-colors';
 
@@ -109,7 +109,7 @@ export function SearchInput({
   onClear,
   value,
   ...props
-}: SearchInputProps) {
+}: SearchInputProps): React.ReactElement {
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -42,7 +42,7 @@ export function Button({
   fullWidth = false,
   className = '',
   ...props
-}: ButtonProps) {
+}: ButtonProps): React.ReactElement {
   const baseClasses = 'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
   const widthClass = fullWidth ? 'w-full' : '';
 
@@ -71,7 +71,7 @@ interface PaginationButtonsProps {
   onPageChange: (page: number) => void;
 }
 
-export function PaginationButtons({ currentPage, totalPages, onPageChange }: PaginationButtonsProps) {
+export function PaginationButtons({ currentPage, totalPages, onPageChange }: PaginationButtonsProps): React.ReactElement | null {
   if (totalPages <= 1) return null;
 
   return (

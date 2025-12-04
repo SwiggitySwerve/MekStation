@@ -28,7 +28,7 @@ export function Card({
   className = '',
   onClick,
   as: Component = 'div',
-}: CardProps) {
+}: CardProps): React.ReactElement {
   return (
     <Component
       className={`${variantClasses[variant]} ${className}`}
@@ -66,7 +66,7 @@ export function CardSection({
   icon,
   className = '',
   asCard = false,
-}: CardSectionProps) {
+}: CardSectionProps): React.ReactElement {
   const content = (
     <>
       <h3 className={`text-lg font-semibold ${children ? 'mb-4' : ''} flex items-center gap-2 ${titleColorClasses[titleColor]}`}>
