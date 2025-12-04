@@ -477,7 +477,7 @@ export function GlobalLoadoutTray({
   onQuickAssign,
   availableLocations = [],
   className = '',
-}: GlobalLoadoutTrayProps) {
+}: GlobalLoadoutTrayProps): React.ReactElement {
   // Section expansion state
   const [unallocatedExpanded, setUnallocatedExpanded] = useState(true);
   const [allocatedExpanded, setAllocatedExpanded] = useState(true);

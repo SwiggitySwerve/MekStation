@@ -55,7 +55,7 @@ export function EquipmentFilters({
   onCategoryChange,
   onClear,
   className = '',
-}: EquipmentFiltersProps) {
+}: EquipmentFiltersProps): React.ReactElement {
   const hasFilters = search || techBase || category;
   
   return (

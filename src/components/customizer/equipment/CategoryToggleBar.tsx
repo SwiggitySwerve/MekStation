@@ -90,7 +90,7 @@ export function CategoryToggleBar({
   onShowAll,
   showAll,
   className = '',
-}: CategoryToggleBarProps) {
+}: CategoryToggleBarProps): React.ReactElement {
   /**
    * Handle category button click
    * Regular click = exclusive select (only this category)

@@ -28,7 +28,7 @@ interface EquipmentBrowserProps {
 export function EquipmentBrowser({
   onAddEquipment,
   className = '',
-}: EquipmentBrowserProps) {
+}: EquipmentBrowserProps): React.ReactElement {
   const {
     paginatedEquipment,
     isLoading,
