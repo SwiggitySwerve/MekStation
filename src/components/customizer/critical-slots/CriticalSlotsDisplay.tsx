@@ -84,7 +84,7 @@ export function CriticalSlotsDisplay({
   onPreviewToggle,
   onToolbarAction,
   className = '',
-}: CriticalSlotsDisplayProps) {
+}: CriticalSlotsDisplayProps): React.ReactElement {
   // Organize locations into rows for the grid
   const getLocationData = (loc: MechLocation) => 
     locations.find((l) => l.location === loc);

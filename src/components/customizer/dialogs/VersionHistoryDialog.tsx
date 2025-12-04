@@ -42,7 +42,7 @@ export function VersionHistoryDialog({
   currentVersion,
   onRevert,
   onClose,
-}: VersionHistoryDialogProps) {
+}: VersionHistoryDialogProps): React.ReactElement {
   // State
   const [versions, setVersions] = useState<readonly IVersionMetadata[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null);

@@ -41,7 +41,7 @@ export function OverwriteConfirmDialog({
   onOverwrite,
   onSaveAsNew,
   onCancel,
-}: OverwriteConfirmDialogProps) {
+}: OverwriteConfirmDialogProps): React.ReactElement {
   return (
     <ModalOverlay
       isOpen={isOpen}

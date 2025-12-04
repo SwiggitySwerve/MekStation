@@ -16,7 +16,7 @@ interface ArmorLegendProps {
 /**
  * Legend for armor diagram colors
  */
-export function ArmorLegend({ className = '' }: ArmorLegendProps) {
+export function ArmorLegend({ className = '' }: ArmorLegendProps): React.ReactElement {
   const items = [
     { color: 'bg-green-600', label: 'Head' },
     { color: 'bg-amber-600', label: 'Torso/Limbs' },

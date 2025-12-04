@@ -33,7 +33,7 @@ export function CriticalSlotToolbar({
   onPreviewToggle,
   onAction,
   className = '',
-}: CriticalSlotToolbarProps) {
+}: CriticalSlotToolbarProps): React.ReactElement {
   return (
     <div className={`flex items-center justify-between px-3 py-2 ${className}`}>
       {/* Auto-mode toggles */}

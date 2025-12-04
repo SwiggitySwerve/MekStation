@@ -50,7 +50,7 @@ export function SaveUnitDialog({
   currentUnitId,
   onSave,
   onCancel,
-}: SaveUnitDialogProps) {
+}: SaveUnitDialogProps): React.ReactElement {
   // Form state
   const [chassis, setChassis] = useState(initialChassis);
   const [variant, setVariant] = useState(initialVariant);

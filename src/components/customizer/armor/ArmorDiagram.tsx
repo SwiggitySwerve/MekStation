@@ -47,7 +47,7 @@ export function ArmorDiagram({
   onLocationClick,
   onAutoAllocate,
   className = '',
-}: ArmorDiagramProps) {
+}: ArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
   
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {

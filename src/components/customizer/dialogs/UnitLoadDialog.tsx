@@ -51,7 +51,7 @@ export function UnitLoadDialog({
   isOpen,
   onLoadUnit,
   onCancel,
-}: UnitLoadDialogProps) {
+}: UnitLoadDialogProps): React.ReactElement {
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [techBaseFilter, setTechBaseFilter] = useState<TechBase | 'all'>('all');

@@ -42,7 +42,7 @@ export function ImportUnitDialog({
   isOpen,
   onImportSuccess,
   onClose,
-}: ImportUnitDialogProps) {
+}: ImportUnitDialogProps): React.ReactElement {
   // State
   const [state, setState] = useState<ImportState>('idle');
   const [parsedUnit, setParsedUnit] = useState<ParsedUnit | null>(null);

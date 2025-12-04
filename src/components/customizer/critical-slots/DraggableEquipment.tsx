@@ -37,7 +37,7 @@ export function DraggableEquipment({
   isSelected = false,
   onClick,
   className = '',
-}: DraggableEquipmentProps) {
+}: DraggableEquipmentProps): React.ReactElement {
   const colorType = classifyEquipment(name);
   const colors = getEquipmentColors(colorType);
   

@@ -91,7 +91,7 @@ export function ArmorLocation({
   onHover,
   locationType,
   showRear = false,
-}: ArmorLocationProps) {
+}: ArmorLocationProps): React.ReactElement {
   const label = getLocationLabel(location);
   const mainFill = getLocationFill(locationType, isSelected, isHovered);
   const rearFill = getLocationFill('rear', isSelected, isHovered);

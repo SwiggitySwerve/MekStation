@@ -66,7 +66,7 @@ export function LocationGrid({
   onEquipmentDragStart,
   compact = false,
   className = '',
-}: LocationGridProps) {
+}: LocationGridProps): React.ReactElement {
   const slotCount = LOCATION_SLOT_COUNTS[location];
   const label = getLocationLabel(location);
   

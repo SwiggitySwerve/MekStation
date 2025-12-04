@@ -30,7 +30,7 @@ export function ModalOverlay({
   preventClose = false,
   children,
   className = '',
-}: ModalOverlayProps) {
+}: ModalOverlayProps): React.ReactElement | null {
   const modalRef = useRef<HTMLDivElement>(null);
   
   // Handle escape key

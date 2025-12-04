@@ -38,7 +38,7 @@ export function UnsavedChangesDialog({
   onClose,
   onDiscard,
   onSave,
-}: UnsavedChangesDialogProps) {
+}: UnsavedChangesDialogProps): React.ReactElement {
   return (
     <ModalOverlay
       isOpen={isOpen}

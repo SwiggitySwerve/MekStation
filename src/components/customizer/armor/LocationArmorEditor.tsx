@@ -68,7 +68,7 @@ export function LocationArmorEditor({
   readOnly = false,
   onChange,
   onClose,
-}: LocationArmorEditorProps) {
+}: LocationArmorEditorProps): React.ReactElement {
   const showRear = hasRearArmor(location);
   const maxArmor = useMemo(
     () => getMaxArmorForLocation(tonnage, location),

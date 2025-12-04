@@ -74,7 +74,7 @@ export function ResetConfirmationDialog({
   onClose,
   onConfirm,
   options = DEFAULT_RESET_OPTIONS,
-}: ResetConfirmationDialogProps) {
+}: ResetConfirmationDialogProps): React.ReactElement {
   const [step, setStep] = useState<DialogStep>('select');
   const [selectedOption, setSelectedOption] = useState<ResetOption>(options[0]);
   const [progress, setProgress] = useState(0);

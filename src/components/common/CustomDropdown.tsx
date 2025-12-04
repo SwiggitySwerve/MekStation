@@ -16,7 +16,7 @@ export default function CustomDropdown({
   disabled = false,
   className = '',
   placeholder = 'Select...'
-}: CustomDropdownProps) {
+}: CustomDropdownProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
