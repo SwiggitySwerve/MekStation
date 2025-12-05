@@ -7,6 +7,8 @@
  * Automatically syncs with the active unit's year and tech base
  * for availability filtering.
  * 
+ * Uses JSON-based equipment loading with fallback to hardcoded constants.
+ * 
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
@@ -14,7 +16,8 @@ import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
 import { UnitStoreContext, type UnitStore } from '@/stores/useUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory, getAllEquipmentItems, IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 /**
  * Equipment browser state and actions
@@ -157,12 +160,14 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  const loadEquipment = useCallback(() => {
+  const loadEquipment = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const items = getAllEquipmentItems();
+      // Initialize the equipment service (loads from JSON with fallback)
+      await equipmentLookupService.initialize();
+      const items = equipmentLookupService.getAllEquipment();
       setEquipment(items);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load equipment');

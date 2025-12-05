@@ -4,6 +4,8 @@
  * Provides runtime loading of equipment data from JSON files.
  * Supports both official equipment and custom user-defined equipment.
  * 
+ * Handles both server-side (Node.js) and client-side (browser) environments.
+ * 
  * @module services/equipment/EquipmentLoaderService
  */
 
@@ -13,6 +15,48 @@ import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory, AmmoVariant } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+
+/**
+ * Detect if we're running in a server (Node.js) environment
+ */
+const isServer = typeof window === 'undefined';
+
+/**
+ * Read a JSON file - handles both server-side (fs) and client-side (fetch) environments
+ */
+async function readJsonFile<T>(filePath: string, basePath: string): Promise<T | null> {
+  if (isServer) {
+    // Server-side: use fs to read from public directory
+    try {
+      // Dynamic imports to avoid bundling in browser
+      const fs = await import('fs').then(m => m.promises);
+      const path = await import('path');
+      
+      // Resolve path relative to public directory
+      const publicDir = path.join(process.cwd(), 'public');
+      const fullPath = path.join(publicDir, basePath, filePath);
+      
+      const content = await fs.readFile(fullPath, 'utf-8');
+      return JSON.parse(content) as T;
+    } catch (error) {
+      console.warn(`[EquipmentLoaderService] Server-side read failed for ${filePath}:`, error);
+      return null;
+    }
+  } else {
+    // Client-side: use fetch
+    try {
+      const response = await fetch(`${basePath}/${filePath}`);
+      if (response.ok) {
+        return await response.json() as T;
+      }
+      console.warn(`[EquipmentLoaderService] Fetch failed for ${filePath}: ${response.status}`);
+      return null;
+    } catch (error) {
+      console.warn(`[EquipmentLoaderService] Fetch error for ${filePath}:`, error);
+      return null;
+    }
+  }
+}
 
 /**
  * Equipment loading result
@@ -451,6 +495,7 @@ export class EquipmentLoaderService {
   
   /**
    * Load all official equipment from JSON files
+   * Works in both server-side (Node.js) and client-side (browser) environments
    */
   async loadOfficialEquipment(basePath = '/data/equipment/official'): Promise<IEquipmentLoadResult> {
     const errors: string[] = [];
@@ -459,105 +504,75 @@ export class EquipmentLoaderService {
     
     try {
       // Load energy weapons
-      try {
-        const response = await fetch(`${basePath}/weapons/energy.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
-          data.items.forEach(item => {
-            const weapon = convertWeapon(item);
-            this.weapons.set(weapon.id, weapon);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load energy weapons: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading energy weapons: ${e}`);
+      const energyData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/energy.json', basePath);
+      if (energyData) {
+        energyData.items.forEach(item => {
+          const weapon = convertWeapon(item);
+          this.weapons.set(weapon.id, weapon);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load energy weapons');
       }
       
       // Load ballistic weapons
-      try {
-        const response = await fetch(`${basePath}/weapons/ballistic.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
-          data.items.forEach(item => {
-            const weapon = convertWeapon(item);
-            this.weapons.set(weapon.id, weapon);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load ballistic weapons: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading ballistic weapons: ${e}`);
+      const ballisticData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/ballistic.json', basePath);
+      if (ballisticData) {
+        ballisticData.items.forEach(item => {
+          const weapon = convertWeapon(item);
+          this.weapons.set(weapon.id, weapon);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load ballistic weapons');
       }
       
       // Load missile weapons
-      try {
-        const response = await fetch(`${basePath}/weapons/missile.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawWeaponData>;
-          data.items.forEach(item => {
-            const weapon = convertWeapon(item);
-            this.weapons.set(weapon.id, weapon);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load missile weapons: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading missile weapons: ${e}`);
+      const missileData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/missile.json', basePath);
+      if (missileData) {
+        missileData.items.forEach(item => {
+          const weapon = convertWeapon(item);
+          this.weapons.set(weapon.id, weapon);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load missile weapons');
       }
       
       // Load ammunition
-      try {
-        const response = await fetch(`${basePath}/ammunition.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawAmmunitionData>;
-          data.items.forEach(item => {
-            const ammo = convertAmmunition(item);
-            this.ammunition.set(ammo.id, ammo);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load ammunition: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading ammunition: ${e}`);
+      const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>('ammunition.json', basePath);
+      if (ammoData) {
+        ammoData.items.forEach(item => {
+          const ammo = convertAmmunition(item);
+          this.ammunition.set(ammo.id, ammo);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load ammunition');
       }
       
       // Load electronics
-      try {
-        const response = await fetch(`${basePath}/electronics.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawElectronicsData>;
-          data.items.forEach(item => {
-            const electronics = convertElectronics(item);
-            this.electronics.set(electronics.id, electronics);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load electronics: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading electronics: ${e}`);
+      const electronicsData = await readJsonFile<IEquipmentFile<IRawElectronicsData>>('electronics.json', basePath);
+      if (electronicsData) {
+        electronicsData.items.forEach(item => {
+          const electronics = convertElectronics(item);
+          this.electronics.set(electronics.id, electronics);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load electronics');
       }
       
       // Load misc equipment
-      try {
-        const response = await fetch(`${basePath}/miscellaneous.json`);
-        if (response.ok) {
-          const data = await response.json() as IEquipmentFile<IRawMiscEquipmentData>;
-          data.items.forEach(item => {
-            const equipment = convertMiscEquipment(item);
-            this.miscEquipment.set(equipment.id, equipment);
-            itemsLoaded++;
-          });
-        } else {
-          warnings.push(`Failed to load miscellaneous equipment: ${response.status}`);
-        }
-      } catch (e) {
-        warnings.push(`Error loading miscellaneous equipment: ${e}`);
+      const miscData = await readJsonFile<IEquipmentFile<IRawMiscEquipmentData>>('miscellaneous.json', basePath);
+      if (miscData) {
+        miscData.items.forEach(item => {
+          const equipment = convertMiscEquipment(item);
+          this.miscEquipment.set(equipment.id, equipment);
+          itemsLoaded++;
+        });
+      } else {
+        warnings.push('Failed to load miscellaneous equipment');
       }
       
       this.isLoaded = true;

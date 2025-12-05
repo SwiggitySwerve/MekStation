@@ -7,6 +7,9 @@
  * GET /api/equipment/catalog?type=weapons - Get only weapons
  * GET /api/equipment/catalog?type=ammunition - Get only ammunition
  * 
+ * Response includes metadata about the data source:
+ * - dataSource: 'json' | 'fallback' - indicates whether JSON files or hardcoded constants were used
+ * 
  * @spec openspec/specs/equipment-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -17,6 +20,8 @@ interface ApiResponse {
   data?: unknown;
   error?: string;
   count?: number;
+  /** Data source used: 'json' for runtime-loaded JSON, 'fallback' for hardcoded constants */
+  dataSource?: 'json' | 'fallback';
 }
 
 /**
@@ -50,6 +55,10 @@ export default async function handler(
   }
 
   try {
+    // Initialize equipment loader (loads from JSON with fallback to hardcoded)
+    // This is idempotent - subsequent calls return immediately
+    await equipmentLookupService.initialize();
+
     const { type, search } = req.query;
 
     let data: unknown[];
@@ -78,6 +87,7 @@ export default async function handler(
       success: true,
       data,
       count: data.length,
+      dataSource: equipmentLookupService.getDataSource(),
     });
 
   } catch (error) {

@@ -29,7 +29,8 @@ import {
 import { SVGRecordSheetRenderer } from './SVGRecordSheetRenderer';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
-import { getAllWeapons, IWeapon, WeaponCategory } from '@/types/equipment';
+import { IWeapon, WeaponCategory } from '@/types/equipment';
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 // SVG template paths (using original MegaMek templates)
 const SVG_TEMPLATES = {
@@ -442,7 +443,8 @@ export class RecordSheetService {
    */
   private extractEquipment(unit: IUnitConfig): readonly IRecordSheetEquipment[] {
     // Get all weapons from the database for lookups
-    const allWeapons = getAllWeapons();
+    // Uses equipmentLookupService which provides fallback to hardcoded data if JSON not loaded
+    const allWeapons = equipmentLookupService.getAllWeapons();
     
     // Combat-relevant equipment that should appear in inventory (with [E] damage code)
     const COMBAT_EQUIPMENT = [
