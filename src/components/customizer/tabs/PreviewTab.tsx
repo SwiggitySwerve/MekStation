@@ -180,13 +180,13 @@ export function PreviewTab({
   }, [equipment]);
 
   /**
-   * Handle PDF export
+   * Handle PDF export using SVG template rendering
    */
   const handleExportPDF = useCallback(async () => {
     const unitConfig = buildUnitConfig();
     const data = recordSheetService.extractData(unitConfig);
     
-    await recordSheetService.exportPDF(data, {
+    await recordSheetService.exportSVGPDF(data, {
       paperSize,
       includePilotData: false,
     });

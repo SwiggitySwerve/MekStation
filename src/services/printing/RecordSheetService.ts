@@ -273,8 +273,9 @@ export class RecordSheetService {
 
     // Add high-res canvas image to PDF, scaled down to paper dimensions
     // jsPDF will use the full resolution image but fit it to the specified dimensions
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+    // Using JPEG for better compatibility with jsPDF
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
 
     // Generate filename
     const pdfFilename = filename || `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
@@ -330,9 +331,10 @@ export class RecordSheetService {
       format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
     });
 
-    // Add high-res canvas image to PDF
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+    // Add high-res canvas image to PDF using JPEG format for better compatibility
+    // JPEG avoids issues with PNG alpha channel handling in jsPDF
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
 
     // Generate filename
     const pdfFilename = filename || `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
