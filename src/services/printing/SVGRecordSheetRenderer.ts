@@ -256,8 +256,8 @@ export class SVGRecordSheetRenderer {
       footerElement.setAttribute('font-family', 'Eurostile, "Century Gothic", "Trebuchet MS", Arial, sans-serif');
       footerElement.setAttribute('font-size', '5.7px');
       footerElement.setAttribute('font-weight', 'bold');
-      // Move up to create more space at bottom (was 756.0, now 746.0)
-      footerElement.setAttribute('transform', 'translate(288.0 746.0)');
+      // Position near bottom with margin space (content area ends at 756, margin adds 18 more)
+      footerElement.setAttribute('transform', 'translate(288.0 762.0)');
     }
     
     const copyrightElement = this.svgDoc.getElementById('tspanCopyright');
