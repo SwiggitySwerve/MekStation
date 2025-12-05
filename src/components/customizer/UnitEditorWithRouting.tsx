@@ -20,6 +20,10 @@ import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { CustomizerTabId, VALID_TAB_IDS } from '@/hooks/useCustomizerRouter';
 
+// Services
+import { calculationService } from '@/services/construction/CalculationService';
+import { IEditableMech, IArmorAllocation as IEditableArmorAllocation } from '@/services/construction/MechBuilderService';
+
 // Components
 import { CustomizerTabs, DEFAULT_CUSTOMIZER_TABS } from '@/components/customizer/tabs/CustomizerTabs';
 import { StructureTab } from '@/components/customizer/tabs/StructureTab';
@@ -41,6 +45,7 @@ import { isValidLocationForEquipment } from '@/types/equipment/EquipmentPlacemen
 import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { TechBaseMode, isEffectivelyMixed } from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 import { calculateEnhancedMaxRunMP } from '@/utils/construction/movementCalculations';
 
 // Utils
@@ -160,7 +165,10 @@ export function UnitEditorWithRouting({
   
   // Access unit state from context
   const unitName = useUnitStore((s) => s.name);
+  const chassis = useUnitStore((s) => s.chassis);
+  const model = useUnitStore((s) => s.model);
   const tonnage = useUnitStore((s) => s.tonnage);
+  const techBase = useUnitStore((s) => s.techBase);
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const engineType = useUnitStore((s) => s.engineType);
@@ -216,6 +224,66 @@ export function UnitEditorWithRouting({
     armorTonnage
   );
   
+  // Calculate Battle Value
+  const battleValue = useMemo(() => {
+    try {
+      // Convert armor allocation to the format expected by CalculationService
+      const armorAllocationForCalc: IEditableArmorAllocation = {
+        head: armorAllocation[MechLocation.HEAD],
+        centerTorso: armorAllocation[MechLocation.CENTER_TORSO],
+        centerTorsoRear: armorAllocation.centerTorsoRear,
+        leftTorso: armorAllocation[MechLocation.LEFT_TORSO],
+        leftTorsoRear: armorAllocation.leftTorsoRear,
+        rightTorso: armorAllocation[MechLocation.RIGHT_TORSO],
+        rightTorsoRear: armorAllocation.rightTorsoRear,
+        leftArm: armorAllocation[MechLocation.LEFT_ARM],
+        rightArm: armorAllocation[MechLocation.RIGHT_ARM],
+        leftLeg: armorAllocation[MechLocation.LEFT_LEG],
+        rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
+      };
+
+      // Convert equipment to IEquipmentSlot format
+      const equipmentSlots = equipment
+        .filter(eq => eq.location && eq.slots && eq.slots.length > 0)
+        .flatMap(eq => 
+          eq.slots!.map((slotIndex) => ({
+            equipmentId: eq.equipmentId,
+            location: eq.location as string,
+            slotIndex: slotIndex,
+          }))
+        );
+
+      const editableMech: IEditableMech = {
+        id: 'banner',
+        chassis: chassis || unitName.split(' ')[0] || 'Unknown',
+        variant: model || unitName.split(' ').slice(1).join(' ') || 'Custom',
+        tonnage,
+        techBase: techBase as TechBase,
+        engineType,
+        engineRating,
+        walkMP: calculations.walkMP,
+        structureType: internalStructureType,
+        gyroType,
+        cockpitType,
+        armorType,
+        armorAllocation: armorAllocationForCalc,
+        heatSinkType,
+        heatSinkCount,
+        equipment: equipmentSlots,
+        isDirty: false,
+      };
+
+      return calculationService.calculateBattleValue(editableMech);
+    } catch (error) {
+      console.warn('Failed to calculate BV:', error);
+      return 0;
+    }
+  }, [
+    unitName, chassis, model, tonnage, techBase, engineType, engineRating,
+    calculations.walkMP, internalStructureType, gyroType, cockpitType,
+    armorType, armorAllocation, heatSinkType, heatSinkCount, equipment,
+  ]);
+
   // Build stats object for UnitInfoBanner
   const totalWeight = calculations.totalStructuralWeight + equipmentCalcs.totalWeight;
   const totalSlotsUsed = calculations.totalSystemSlots + equipmentCalcs.totalSlots;
@@ -257,10 +325,11 @@ export function UnitEditorWithRouting({
     criticalSlotsTotal: 78,
     heatGenerated: equipmentCalcs.totalHeat,
     heatDissipation: calculations.totalHeatDissipation,
+    battleValue,
     validationStatus: 'valid' as ValidationStatus, // TODO: Get from validation
     errorCount: 0,
     warningCount: 0,
-  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, equipmentCalcs, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP]);
+  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, equipmentCalcs, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
   
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)

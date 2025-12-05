@@ -7,12 +7,15 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { recordSheetService } from '@/services/printing/RecordSheetService';
+import { calculationService } from '@/services/construction/CalculationService';
+import { IEditableMech, IArmorAllocation as IEditableArmorAllocation } from '@/services/construction/MechBuilderService';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EquipmentCategory } from '@/types/equipment';
+import { TechBase } from '@/types/enums/TechBase';
 
 // =============================================================================
 // Types
@@ -77,6 +80,8 @@ export function RecordSheetPreview({
   
   // Get unit state from store
   const name = useUnitStore((s) => s.name);
+  const chassis = useUnitStore((s) => s.chassis);
+  const model = useUnitStore((s) => s.model);
   const tonnage = useUnitStore((s) => s.tonnage);
   const techBase = useUnitStore((s) => s.techBase);
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
@@ -88,6 +93,7 @@ export function RecordSheetPreview({
   const engineRating = useUnitStore((s) => s.engineRating);
   const gyroType = useUnitStore((s) => s.gyroType);
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
+  const cockpitType = useUnitStore((s) => s.cockpitType);
   const armorType = useUnitStore((s) => s.armorType);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
@@ -99,6 +105,71 @@ export function RecordSheetPreview({
   // Calculate movement
   const walkMP = engineRating > 0 ? Math.floor(engineRating / tonnage) : 0;
   const runMP = Math.ceil(walkMP * 1.5);
+
+  /**
+   * Calculate Battle Value and Cost using the calculation service
+   */
+  const { battleValue, cost } = useMemo(() => {
+    try {
+      // Convert armor allocation to the format expected by CalculationService
+      const armorAllocationForCalc: IEditableArmorAllocation = {
+        head: armorAllocation[MechLocation.HEAD],
+        centerTorso: armorAllocation[MechLocation.CENTER_TORSO],
+        centerTorsoRear: armorAllocation.centerTorsoRear,
+        leftTorso: armorAllocation[MechLocation.LEFT_TORSO],
+        leftTorsoRear: armorAllocation.leftTorsoRear,
+        rightTorso: armorAllocation[MechLocation.RIGHT_TORSO],
+        rightTorsoRear: armorAllocation.rightTorsoRear,
+        leftArm: armorAllocation[MechLocation.LEFT_ARM],
+        rightArm: armorAllocation[MechLocation.RIGHT_ARM],
+        leftLeg: armorAllocation[MechLocation.LEFT_LEG],
+        rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
+      };
+
+      // Convert equipment to IEquipmentSlot format
+      const equipmentSlots = equipment
+        .filter(eq => eq.location && eq.slots && eq.slots.length > 0)
+        .flatMap(eq => 
+          eq.slots!.map((slotIndex) => ({
+            equipmentId: eq.equipmentId,
+            location: eq.location as string,
+            slotIndex: slotIndex,
+          }))
+        );
+
+      const editableMech: IEditableMech = {
+        id: 'preview',
+        chassis: chassis || name.split(' ')[0] || 'Unknown',
+        variant: model || name.split(' ').slice(1).join(' ') || 'Custom',
+        tonnage,
+        techBase: techBase as TechBase,
+        engineType,
+        engineRating,
+        walkMP,
+        structureType: internalStructureType,
+        gyroType,
+        cockpitType,
+        armorType,
+        armorAllocation: armorAllocationForCalc,
+        heatSinkType,
+        heatSinkCount,
+        equipment: equipmentSlots,
+        isDirty: false,
+      };
+
+      return {
+        battleValue: calculationService.calculateBattleValue(editableMech),
+        cost: calculationService.calculateCost(editableMech),
+      };
+    } catch (error) {
+      console.warn('Failed to calculate BV/cost:', error);
+      return { battleValue: 0, cost: 0 };
+    }
+  }, [
+    name, chassis, model, tonnage, techBase, engineType, engineRating, walkMP,
+    internalStructureType, gyroType, cockpitType, armorType, armorAllocation,
+    heatSinkType, heatSinkCount, equipment,
+  ]);
 
   /**
    * Convert equipment to record sheet format
@@ -173,8 +244,8 @@ export function RecordSheetPreview({
     const unitConfig = {
       id: 'preview',
       name: name,
-      chassis: name.split(' ')[0] || 'Unknown',
-      model: name.split(' ').slice(1).join(' ') || 'Custom',
+      chassis: chassis || name.split(' ')[0] || 'Unknown',
+      model: model || name.split(' ').slice(1).join(' ') || 'Custom',
       tonnage,
       techBase: techBase,
       rulesLevel: rulesLevel,
@@ -218,6 +289,8 @@ export function RecordSheetPreview({
       equipment: convertEquipment(),
       criticalSlots: buildCriticalSlots(),
       enhancements: enhancement ? [enhancement] : [],
+      battleValue,
+      cost,
     };
 
     try {
@@ -244,11 +317,11 @@ export function RecordSheetPreview({
       }
     }
   }, [
-    name, tonnage, techBase, rulesLevel, year, configuration,
+    name, chassis, model, tonnage, techBase, rulesLevel, year, configuration,
     engineType, engineRating, gyroType, internalStructureType,
     armorType, armorAllocation, heatSinkType, heatSinkCount,
     enhancement, walkMP, runMP, jumpMP,
-    convertEquipment, buildCriticalSlots, paperSize
+    convertEquipment, buildCriticalSlots, paperSize, battleValue, cost,
   ]);
 
   // Render preview when dependencies change

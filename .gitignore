@@ -76,3 +76,17 @@ __pycache__/
 .Python
 *.pyc
 data/
+
+# Electron / Desktop build artifacts
+desktop/dist/
+desktop/build/
+desktop/release/
+.electron-cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker
+docker-compose.override.yml

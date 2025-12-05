@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="3.2" fill="#1a1a2e"/>
+  <text x="16" y="22.4" 
+        font-family="Arial, sans-serif" font-weight="bold" 
+        font-size="19.2" fill="#4ade80" 
+        text-anchor="middle">BT</text>
+</svg>

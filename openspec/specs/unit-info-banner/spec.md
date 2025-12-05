@@ -37,6 +37,12 @@ The banner SHALL display key unit statistics in a horizontal grid using "current
 - **AND** Jump MP shows as single value (e.g., "0")
 - **AND** each has its own labeled cell
 
+#### Scenario: BV and Engine stats display
+- **WHEN** single-value stats render
+- **THEN** BV appears first with cyan color
+- **AND** ENGINE appears second with orange color
+- **AND** both use SimpleStat component
+
 #### Scenario: Weight stat with capacity format
 - **WHEN** weight stat renders
 - **THEN** label shows "WEIGHT"
@@ -64,6 +70,10 @@ The banner SHALL display key unit statistics in a horizontal grid using "current
 - **AND** value shows "generated / dissipation" format (e.g., "15 / 10")
 - **AND** value text is red if generated exceeds dissipation (overheating)
 - **AND** value text is green if dissipation meets or exceeds generation
+
+#### Scenario: Grid minimum width
+- **WHEN** statistics grid renders
+- **THEN** minimum width is 380px to accommodate all stats including BV
 
 ### Requirement: Stat Cell Styling
 Each statistic cell SHALL use consistent vertical layout with clear labeling.
@@ -129,4 +139,24 @@ The Unit Info Banner SHALL be rendered as part of the unit editor content in Cus
 - **THEN** name, tonnage, techBase come from useUnitStore
 - **AND** walkMP, runMP, totalStructuralWeight, totalHeatDissipation, totalSystemSlots come from useUnitCalculations
 - **AND** placeholder values (0) are used for jumpMP, armorPoints, heatGenerated until those systems are implemented
+
+### Requirement: Battle Value Display
+The banner SHALL display Battle Value (BV) in the statistics grid.
+
+#### Scenario: BV stat rendering
+- **WHEN** statistics grid renders
+- **THEN** BV appears as first stat (before ENGINE) in Section 3
+- **AND** label shows "BV"
+- **AND** value shows formatted number with locale separators (e.g., "1,234")
+- **AND** value shows "-" if battleValue is undefined or 0
+
+#### Scenario: BV color styling
+- **WHEN** BV stat renders
+- **THEN** value text uses cyan color (text-cyan-400)
+- **AND** color is distinct from other stats for quick identification
+
+#### Scenario: BV reactive updates
+- **WHEN** unit configuration changes (armor, equipment, movement, etc.)
+- **THEN** BV value updates automatically
+- **AND** recalculation uses CalculationService.calculateBattleValue()
 

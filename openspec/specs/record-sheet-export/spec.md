@@ -87,13 +87,17 @@ The system SHALL generate PDF record sheets client-side using jsPDF.
   - Critical hit tables for each location
   - Pilot data section (blank for tabletop)
 
+#### Scenario: PDF BV calculation
+- **WHEN** PDF export is initiated
+- **THEN** BV is calculated using CalculationService.calculateBattleValue()
+- **AND** BV is included in unitConfig passed to RecordSheetService
+- **AND** BV appears in the header section of the exported PDF
+
 #### Scenario: PDF quality
 - **WHEN** PDF is generated
 - **THEN** use 20x DPI multiplier for print quality
 - **AND** use JPEG format for canvas-to-PDF embedding
 - **AND** ensure sharp text and lines at print resolution
-
----
 
 ### Requirement: Preview Rendering
 
@@ -116,7 +120,11 @@ The system SHALL render a live preview of the record sheet in the browser.
 - **THEN** use 20x DPI multiplier for crisp text at all zoom levels
 - **AND** support zoom range from 20% to 300%
 
----
+#### Scenario: Preview BV calculation
+- **WHEN** record sheet preview renders
+- **THEN** BV is calculated using CalculationService.calculateBattleValue()
+- **AND** BV is passed to unitConfig for template population
+- **AND** BV updates reactively when unit configuration changes
 
 ### Requirement: Zoom Controls
 

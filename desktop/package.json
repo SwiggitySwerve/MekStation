@@ -2,137 +2,56 @@
   "name": "battletech-editor-desktop",
   "version": "1.0.0",
   "description": "BattleTech Editor - Desktop Application",
-  "main": "dist/main.js",
-  "author": "BattleTech Editor Team",
+  "main": "dist/electron/main.js",
+  "author": {
+    "name": "SwerveLabs",
+    "email": "swervelabs@proton.me"
+  },
   "license": "Apache-2.0",
-  "homepage": "https://github.com/battletech-editor/battletech-editor",
+  "homepage": "https://github.com/swervelabs/battletech-editor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/battletech-editor/battletech-editor.git"
+    "url": "https://github.com/swervelabs/battletech-editor.git"
   },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "electron dist/main.js",
-    "dev": "concurrently \"npm run build:watch\" \"wait-on dist/main.js && electron dist/main.js\"",
+    "start": "electron dist/electron/main.js",
+    "dev": "concurrently \"npm run build:watch\" \"wait-on dist/electron/main.js && cross-env NODE_ENV=development electron dist/electron/main.js\"",
+    "dev:full": "concurrently \"npm --prefix .. run dev\" \"wait-on http://localhost:3000 && npm run dev\"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win",
-    "dist:mac": "electron-builder --mac", 
+    "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
     "dist:all": "electron-builder --mac --win --linux",
-    "clean": "rimraf dist build",
+    "clean": "rimraf dist build release",
     "postinstall": "electron-builder install-app-deps",
     "test": "jest",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint . --ext .ts",
     "prepare": "npm run build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "icons:generate": "node scripts/generate-icons.js"
   },
   "devDependencies": {
-    "@types/node": "^18.15.13",
-    "@types/electron": "^1.6.10",
-    "@typescript-eslint/eslint-plugin": "^5.57.1",
-    "@typescript-eslint/parser": "^5.57.1",
-    "concurrently": "^8.0.1",
-    "electron": "^24.1.2",
-    "electron-builder": "^24.0.0",
-    "eslint": "^8.38.0",
-    "jest": "^29.5.0",
-    "rimraf": "^5.0.0",
-    "typescript": "^5.0.2",
-    "wait-on": "^7.0.1"
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.15.0",
+    "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "wait-on": "^8.0.1"
   },
   "dependencies": {
-    "electron-updater": "^5.3.0"
+    "electron-updater": "^6.6.2"
   },
   "build": {
-    "appId": "com.battletecheditor.desktop",
-    "productName": "BattleTech Editor",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "assets/**/*",
-      "node_modules/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "assets",
-        "to": "assets"
-      }
-    ],
-    "mac": {
-      "category": "public.app-category.games",
-      "icon": "assets/icons/icon.icns",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "zip",
-          "arch": ["x64", "arm64"]
-        }
-      ],
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "assets/entitlements.mac.plist",
-      "entitlementsInherit": "assets/entitlements.mac.plist"
-    },
-    "win": {
-      "icon": "assets/icons/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64", "ia32"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64", "ia32"]
-        }
-      ],
-      "publisherName": "BattleTech Editor",
-      "verifyUpdateCodeSignature": false
-    },
-    "linux": {
-      "icon": "assets/icons/icon.png",
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        },
-        {
-          "target": "rpm",
-          "arch": ["x64"]
-        }
-      ],
-      "category": "Game"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "installerIcon": "assets/icons/icon.ico",
-      "uninstallerIcon": "assets/icons/icon.ico",
-      "installerHeaderIcon": "assets/icons/icon.ico",
-      "deleteAppDataOnUninstall": false,
-      "runAfterFinish": true,
-      "shortcutName": "BattleTech Editor"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "battletech-editor",
-      "repo": "battletech-editor",
-      "private": false
-    }
+    "extends": "../electron-builder.yml"
   },
   "keywords": [
     "battletech",
@@ -140,6 +59,7 @@
     "editor",
     "game",
     "desktop",
-    "electron"
+    "electron",
+    "megamek"
   ]
 }

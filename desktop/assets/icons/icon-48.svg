@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mechGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="48" height="48" rx="7.199999999999999" fill="url(#bgGradient)"/>
+  
+  <!-- Border -->
+  <rect x="0.96" y="0.96" 
+        width="46.08" height="46.08" 
+        rx="6.24" 
+        fill="none" stroke="#4ade80" stroke-width="0.96"/>
+  
+  <!-- Simplified Mech silhouette -->
+  <g transform="translate(7.199999999999999, 4.800000000000001)">
+    <!-- Head -->
+    <rect x="12" y="0" 
+          width="9.600000000000001" height="5.76" 
+          rx="0.96" fill="url(#mechGradient)"/>
+    
+    <!-- Torso -->
+    <rect x="7.199999999999999" y="6.24" 
+          width="19.200000000000003" height="16.799999999999997" 
+          rx="1.44" fill="url(#mechGradient)"/>
+    
+    <!-- Left Arm -->
+    <rect x="0" y="7.199999999999999" 
+          width="5.76" height="16.799999999999997" 
+          rx="0.96" fill="url(#mechGradient)"/>
+    
+    <!-- Right Arm -->
+    <rect x="27.839999999999996" y="7.199999999999999" 
+          width="5.76" height="16.799999999999997" 
+          rx="0.96" fill="url(#mechGradient)"/>
+    
+    <!-- Left Leg -->
+    <rect x="8.64" y="24" 
+          width="6.720000000000001" height="14.399999999999999" 
+          rx="0.96" fill="url(#mechGradient)"/>
+    
+    <!-- Right Leg -->
+    <rect x="18.240000000000002" y="24" 
+          width="6.720000000000001" height="14.399999999999999" 
+          rx="0.96" fill="url(#mechGradient)"/>
+  </g>
+  
+  <!-- "BT" Text -->
+  <text x="24" y="45.599999999999994" 
+        font-family="Arial, sans-serif" font-weight="bold" 
+        font-size="5.76" fill="#4ade80" 
+        text-anchor="middle">BT</text>
+</svg>

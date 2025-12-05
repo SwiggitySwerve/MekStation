@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
   // Turbopack config (empty to silence Next.js 16 warning)
   turbopack: {},
   
+  // Enable standalone output for Docker and Electron deployment
+  // This creates a self-contained build with all dependencies
+  output: 'standalone',
+  
   // Optimize for production builds
   experimental: {
     // Enable modern output for better tree-shaking

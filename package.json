@@ -1,6 +1,11 @@
 {
   "name": "battletech-editor-app",
   "version": "0.1.0",
+  "description": "BattleTech unit construction and customization tool",
+  "author": {
+    "name": "SwerveLabs",
+    "email": "swervelabs@proton.me"
+  },
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "scripts": {
@@ -35,7 +40,26 @@
     "terminology:validate:strict": "npx ts-node openspec/scripts/terminology-tool.ts validate --strict",
     "terminology:fix": "npx ts-node openspec/scripts/terminology-tool.ts fix",
     "terminology:fix:dry-run": "npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run",
-    "terminology:check": "node openspec/scripts/validate-terminology.js"
+    "terminology:check": "node openspec/scripts/validate-terminology.js",
+    "docker:build": "docker build -t battletech-editor .",
+    "docker:run": "docker run -p 3000:3000 -v battletech-data:/app/data battletech-editor",
+    "docker:dev": "docker-compose up dev",
+    "docker:prod": "docker-compose up app -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --rmi local",
+    "electron:install": "cd desktop && npm install",
+    "electron:dev": "cd desktop && npm run dev:full",
+    "electron:build": "npm run build && cd desktop && npm run build",
+    "electron:pack": "npm run electron:build && cd desktop && npm run pack",
+    "electron:dist": "npm run electron:build && cd desktop && npm run dist",
+    "electron:dist:win": "npm run electron:build && cd desktop && npm run dist:win",
+    "electron:dist:mac": "npm run electron:build && cd desktop && npm run dist:mac",
+    "electron:dist:linux": "npm run electron:build && cd desktop && npm run dist:linux",
+    "electron:dist:all": "npm run electron:build && cd desktop && npm run dist:all",
+    "electron:icons": "cd desktop && node scripts/generate-icons.js",
+    "package:docker": "npm run docker:build",
+    "package:desktop": "npm run electron:dist:all"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",

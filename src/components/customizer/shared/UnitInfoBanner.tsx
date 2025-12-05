@@ -83,6 +83,7 @@ const styles = {
     error: 'text-red-400',
     success: 'text-green-400',
     engine: 'text-orange-500', // Matches engine color from slotColors
+    bv: 'text-cyan-400', // Battle Value - distinctive cyan
   },
   muted: 'text-slate-500',
 } as const;
@@ -124,7 +125,7 @@ function CapacityStat({ label, current, max, unit = '', status = 'normal' }: Cap
 interface SimpleStatProps {
   label: string;
   value: number | string;
-  status?: 'normal' | 'warning' | 'error' | 'success' | 'engine';
+  status?: 'normal' | 'warning' | 'error' | 'success' | 'engine' | 'bv';
 }
 
 /**
@@ -230,7 +231,12 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 3: Capacity Stats - grows to fill available space */}
-        <div className="flex-1 px-4 py-2 flex items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-[340px]">
+        <div className="flex-1 px-4 py-2 flex items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-[380px]">
+          <SimpleStat 
+            label="BV"
+            value={stats.battleValue?.toLocaleString() ?? '-'}
+            status="bv"
+          />
           <SimpleStat 
             label="ENGINE"
             value={stats.engineRating}

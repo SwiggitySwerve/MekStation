@@ -207,7 +207,7 @@ class BattleTechEditorApp {
     autoUpdater.checkForUpdatesAndNotify();
     autoUpdater.setFeedURL({
       provider: 'github',
-      owner: 'battletech-editor',
+      owner: 'swervelabs',
       repo: 'battletech-editor',
       private: false
     });
@@ -314,7 +314,31 @@ class BattleTechEditorApp {
       await this.mainWindow.loadURL('http://localhost:3000');
       this.mainWindow.webContents.openDevTools();
     } else {
-      await this.mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+      // In production, start the Next.js standalone server and load it
+      const { spawn } = require('child_process');
+      const serverPath = path.join(__dirname, '../../.next/standalone/server.js');
+      
+      // Start the Next.js server
+      const server = spawn('node', [serverPath], {
+        env: {
+          ...process.env,
+          PORT: '3001', // Use different port to avoid conflicts
+          HOSTNAME: '127.0.0.1',
+        },
+        cwd: path.join(__dirname, '../../.next/standalone'),
+      });
+      
+      server.stdout?.on('data', (data: Buffer) => {
+        console.log(`Server: ${data.toString()}`);
+      });
+      
+      server.stderr?.on('data', (data: Buffer) => {
+        console.error(`Server Error: ${data.toString()}`);
+      });
+      
+      // Wait for server to start and then load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await this.mainWindow.loadURL('http://127.0.0.1:3001');
     }
 
     // Show window when ready

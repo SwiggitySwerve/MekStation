@@ -1,0 +1,170 @@
+# BattleTech Editor - Electron Builder Configuration
+# https://www.electron.build/configuration
+
+appId: com.battletecheditor.desktop
+productName: BattleTech Editor
+copyright: Copyright © 2025 SwerveLabs
+
+# Directories
+directories:
+  output: desktop/release
+  buildResources: desktop/assets
+
+# Files to include in the application
+files:
+  - "desktop/dist/**/*"
+  - "desktop/assets/**/*"
+  - "!desktop/node_modules/**/*"
+  # Include the Next.js standalone build
+  - ".next/standalone/**/*"
+  - ".next/static/**/*"
+  - "public/**/*"
+
+# Extra resources to include (outside of app.asar)
+extraResources:
+  - from: "desktop/assets"
+    to: "assets"
+  - from: "public/data"
+    to: "data"
+  - from: "public/record-sheets"
+    to: "record-sheets"
+
+# ASAR archive configuration
+asar: true
+asarUnpack:
+  - "**/*.node"
+  - "**/better-sqlite3/**/*"
+
+# =============================================================================
+# macOS Configuration
+# =============================================================================
+mac:
+  category: public.app-category.games
+  icon: desktop/assets/icons/icon.icns
+  darkModeSupport: true
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: desktop/assets/entitlements.mac.plist
+  entitlementsInherit: desktop/assets/entitlements.mac.plist
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+
+dmg:
+  sign: false
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+  window:
+    width: 540
+    height: 380
+
+# =============================================================================
+# Windows Configuration
+# =============================================================================
+win:
+  icon: desktop/assets/icons/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+    - target: portable
+      arch:
+        - x64
+  publisherName: SwerveLabs
+  verifyUpdateCodeSignature: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  installerIcon: desktop/assets/icons/icon.ico
+  uninstallerIcon: desktop/assets/icons/icon.ico
+  installerHeaderIcon: desktop/assets/icons/icon.ico
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+  shortcutName: BattleTech Editor
+  license: LICENSE
+
+portable:
+  artifactName: "${productName}-${version}-portable.exe"
+
+# =============================================================================
+# Linux Configuration
+# =============================================================================
+linux:
+  icon: desktop/assets/icons
+  category: Game
+  synopsis: BattleTech unit construction and customization tool
+  description: >
+    A modern web application for constructing and customizing BattleTech combat units.
+    Features complete unit customization, record sheet generation, and PDF export.
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+    - target: rpm
+      arch:
+        - x64
+    - target: tar.gz
+      arch:
+        - x64
+
+deb:
+  depends:
+    - gconf2
+    - gconf-service
+    - libnotify4
+    - libappindicator1
+    - libxtst6
+    - libnss3
+  afterInstall: desktop/scripts/linux/after-install.sh
+  afterRemove: desktop/scripts/linux/after-remove.sh
+
+rpm:
+  depends:
+    - libnotify
+    - libXtst
+    - nss
+
+appImage:
+  artifactName: "${productName}-${version}.AppImage"
+
+# =============================================================================
+# Auto-Update Configuration
+# =============================================================================
+publish:
+  provider: github
+  owner: swervelabs
+  repo: battletech-editor
+  private: false
+  releaseType: release
+
+# =============================================================================
+# Build Settings
+# =============================================================================
+electronDownload:
+  cache: .electron-cache
+
+# Compression settings
+compression: maximum
+
+# Build metadata
+buildVersion: "1"

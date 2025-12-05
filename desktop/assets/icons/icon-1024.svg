@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mechGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="153.6" fill="url(#bgGradient)"/>
+  
+  <!-- Border -->
+  <rect x="20.48" y="20.48" 
+        width="983.04" height="983.04" 
+        rx="133.12" 
+        fill="none" stroke="#4ade80" stroke-width="20.48"/>
+  
+  <!-- Simplified Mech silhouette -->
+  <g transform="translate(153.6, 102.4)">
+    <!-- Head -->
+    <rect x="256" y="0" 
+          width="204.8" height="122.88" 
+          rx="20.48" fill="url(#mechGradient)"/>
+    
+    <!-- Torso -->
+    <rect x="153.6" y="133.12" 
+          width="409.6" height="358.4" 
+          rx="30.72" fill="url(#mechGradient)"/>
+    
+    <!-- Left Arm -->
+    <rect x="0" y="153.6" 
+          width="122.88" height="358.4" 
+          rx="20.48" fill="url(#mechGradient)"/>
+    
+    <!-- Right Arm -->
+    <rect x="593.92" y="153.6" 
+          width="122.88" height="358.4" 
+          rx="20.48" fill="url(#mechGradient)"/>
+    
+    <!-- Left Leg -->
+    <rect x="184.32" y="512" 
+          width="143.36" height="307.2" 
+          rx="20.48" fill="url(#mechGradient)"/>
+    
+    <!-- Right Leg -->
+    <rect x="389.12" y="512" 
+          width="143.36" height="307.2" 
+          rx="20.48" fill="url(#mechGradient)"/>
+  </g>
+  
+  <!-- "BT" Text -->
+  <text x="512" y="972.8" 
+        font-family="Arial, sans-serif" font-weight="bold" 
+        font-size="122.88" fill="#4ade80" 
+        text-anchor="middle">BT</text>
+</svg>

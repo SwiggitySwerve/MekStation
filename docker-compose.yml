@@ -1,0 +1,101 @@
+# BattleTech Editor - Docker Compose Configuration
+# 
+# Usage:
+#   Development:  docker-compose up dev
+#   Production:   docker-compose up app
+#   Build:        docker-compose build
+#
+# Environment variables can be set in .env file
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # Production Application
+  # ==========================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: battletech-editor
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/battletech.db
+    volumes:
+      # Persist SQLite database and user data
+      - battletech-data:/app/data
+      # Optional: Mount custom unit files
+      # - ./custom-units:/app/public/data/units/custom:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.battletech.rule=Host(`battletech.localhost`)"
+      - "traefik.http.services.battletech.loadbalancer.server.port=3000"
+
+  # ==========================================================================
+  # Development Server with Hot Reload
+  # ==========================================================================
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: battletech-editor-dev
+    ports:
+      - "${DEV_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      # Persist dev database
+      - battletech-data-dev:/app/data
+    command: npm run dev
+
+  # ==========================================================================
+  # Database Backup Service (optional)
+  # ==========================================================================
+  backup:
+    image: alpine:latest
+    container_name: battletech-backup
+    volumes:
+      - battletech-data:/data:ro
+      - ./backups:/backups
+    command: |
+      sh -c 'while true; do
+        TIMESTAMP=$$(date +%Y%m%d_%H%M%S);
+        cp -r /data /backups/backup_$$TIMESTAMP;
+        find /backups -maxdepth 1 -type d -mtime +7 -exec rm -rf {} \;
+        sleep 86400;
+      done'
+    profiles:
+      - backup
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  battletech-data:
+    driver: local
+    name: battletech-editor-data
+  battletech-data-dev:
+    driver: local
+    name: battletech-editor-data-dev
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  default:
+    name: battletech-network
