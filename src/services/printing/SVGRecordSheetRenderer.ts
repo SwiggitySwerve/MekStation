@@ -988,6 +988,8 @@ export class SVGRecordSheetRenderer {
   /**
    * Draw a bracket indicating multi-slot equipment (MegaMekLab style)
    * Draws an "L" shaped bracket: horizontal top, vertical bar, horizontal bottom
+   * When equipment spans across the gap between slots 6 and 7, draws a single
+   * continuous bracket that bridges across the gap.
    */
   private drawMultiSlotBar(
     group: Element,
@@ -1024,19 +1026,9 @@ export class SVGRecordSheetRenderer {
     
     const bracketX = x + barWidth;
     
-    // If bar spans the gap (from <= 5 to >= 6), we need to draw two brackets
-    if (slotCount > 6 && startSlot < 6 && endSlot >= 6) {
-      // Draw first bracket (slots 0-5)
-      const firstBarEndY = y + 6 * slotHeight - 1;
-      this.drawBracketPath(group, bracketX, barStartY, bracketWidth, firstBarEndY - barStartY, strokeWidth);
-      
-      // Draw second bracket (slots 6+)
-      const secondBarStartY = y + 6 * slotHeight + gapHeight + 3;
-      this.drawBracketPath(group, bracketX, secondBarStartY, bracketWidth, barEndY - secondBarStartY, strokeWidth);
-    } else {
-      // Single continuous bracket
-      this.drawBracketPath(group, bracketX, barStartY, bracketWidth, barEndY - barStartY, strokeWidth);
-    }
+    // Single continuous bracket - even when spanning the gap
+    // The bracket height already accounts for the gap via barEndY calculation
+    this.drawBracketPath(group, bracketX, barStartY, bracketWidth, barEndY - barStartY, strokeWidth);
   }
   
   /**
