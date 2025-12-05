@@ -13,8 +13,8 @@ jest.mock('@/stores/useCustomizerStore', () => ({
   useCustomizerStore: jest.fn(),
 }));
 
-jest.mock('@/components/customizer/critical-slots/CriticalSlotsDisplay', () => ({
-  CriticalSlotsDisplay: () => <div data-testid="critical-slots-display" />,
+jest.mock('@/components/customizer/critical-slots/LocationGrid', () => ({
+  LocationGrid: () => <div data-testid="location-grid" />,
 }));
 
 describe('CriticalSlotsTab', () => {
@@ -58,7 +58,8 @@ describe('CriticalSlotsTab', () => {
   it('should render critical slots tab', () => {
     render(<CriticalSlotsTab />);
     
-    expect(screen.getByTestId('critical-slots-display')).toBeInTheDocument();
+    // The tab renders LocationGrid components for each location
+    expect(screen.getAllByTestId('location-grid').length).toBeGreaterThan(0);
   });
 
   it('should apply custom className', () => {

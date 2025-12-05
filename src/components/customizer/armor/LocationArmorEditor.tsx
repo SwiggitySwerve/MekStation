@@ -127,7 +127,7 @@ export function LocationArmorEditor({
   const sliderClass = "flex-1 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer";
 
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700 p-3">
+    <div className="bg-slate-800 rounded-lg border border-slate-700 p-3" data-testid="location-armor-editor">
       {/* Header Row */}
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-sm font-semibold text-white">{getLocationName(location)}</h4>

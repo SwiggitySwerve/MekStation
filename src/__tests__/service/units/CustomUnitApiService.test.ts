@@ -62,7 +62,7 @@ describe('CustomUnitApiService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockUnit,
+        json: async () => ({ success: true, data: mockUnit }),
       } as Response);
 
       const result = await service.getById('custom-1');

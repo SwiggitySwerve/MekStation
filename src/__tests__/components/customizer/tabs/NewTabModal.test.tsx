@@ -38,7 +38,7 @@ describe('NewTabModal', () => {
     const user = userEvent.setup();
     render(<NewTabModal {...defaultProps} />);
     
-    const createButton = screen.getByText(/Create/i);
+    const createButton = screen.getByRole('button', { name: /Create Unit/i });
     await user.click(createButton);
     
     expect(defaultProps.onCreateUnit).toHaveBeenCalled();

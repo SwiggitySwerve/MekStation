@@ -91,9 +91,10 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { application: { name: string } };
+        const envelope = JSON.parse(result.data) as { application: string; applicationVersion: string };
         expect(envelope.application).toBeDefined();
-        expect(envelope.application.name).toBe('BattleTech Editor');
+        expect(envelope.application).toBe('BattleTech Editor');
+        expect(envelope.applicationVersion).toBeDefined();
       }
     });
 

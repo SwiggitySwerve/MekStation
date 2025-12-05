@@ -93,7 +93,7 @@ describe('useTabManagerStore', () => {
       expect(hasUnitStore(tabId)).toBe(true);
     });
     
-    it('should set tab name from template', () => {
+    it('should set default tab name when no custom name provided', () => {
       const template = UNIT_TEMPLATES[0]; // Light
       
       act(() => {
@@ -101,7 +101,8 @@ describe('useTabManagerStore', () => {
       });
       
       const { tabs } = useTabManagerStore.getState();
-      expect(tabs[0].name).toBe(`New ${template.name}`);
+      // Default name is 'Mek' when no custom name is provided
+      expect(tabs[0].name).toBe('Mek');
     });
     
     it('should use custom name if provided', () => {

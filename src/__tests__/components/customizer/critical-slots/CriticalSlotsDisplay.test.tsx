@@ -51,7 +51,8 @@ describe('CriticalSlotsDisplay', () => {
   it('should render location grids', () => {
     render(<CriticalSlotsDisplay {...defaultProps} />);
     
-    expect(screen.getByTestId('location-grid-HEAD')).toBeInTheDocument();
+    // MechLocation.HEAD = 'Head', so testid is location-grid-Head
+    expect(screen.getByTestId(`location-grid-${MechLocation.HEAD}`)).toBeInTheDocument();
   });
 
   it('should render toolbar', () => {
@@ -63,7 +64,7 @@ describe('CriticalSlotsDisplay', () => {
   it('should render location grids with slots', () => {
     render(<CriticalSlotsDisplay {...defaultProps} />);
     
-    expect(screen.getByTestId('location-grid-HEAD')).toBeInTheDocument();
+    expect(screen.getByTestId(`location-grid-${MechLocation.HEAD}`)).toBeInTheDocument();
   });
 
   it('should call onAutoFillToggle when toggle is clicked', async () => {

@@ -118,7 +118,7 @@ describe('useMultiUnitStore', () => {
       expect(activeTabId).toBe(tabs[0].id);
     });
     
-    it('should set tab name from template', () => {
+    it('should set default tab name when no custom name provided', () => {
       const template = UNIT_TEMPLATES[0]; // Light
       
       act(() => {
@@ -127,7 +127,8 @@ describe('useMultiUnitStore', () => {
       
       const { tabs } = useMultiUnitStore.getState();
       
-      expect(tabs[0].name).toBe(`New ${template.name}`);
+      // Default name is 'Mek' when no custom name is provided
+      expect(tabs[0].name).toBe('Mek');
     });
     
     it('should use custom name if provided', () => {

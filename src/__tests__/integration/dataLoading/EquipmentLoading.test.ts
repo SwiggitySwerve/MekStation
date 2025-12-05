@@ -151,7 +151,7 @@ describe('Equipment Data Loading', () => {
         });
 
         it('each weapon should have valid rulesLevel', () => {
-          const validRulesLevels = ['INTRODUCTORY', 'STANDARD', 'ADVANCED', 'EXPERIMENTAL'];
+          const validRulesLevels = ['INTRODUCTORY', 'STANDARD', 'ADVANCED', 'EXPERIMENTAL', 'UNOFFICIAL'];
           for (const weapon of weapons as Record<string, unknown>[]) {
             expect(validRulesLevels).toContain(weapon.rulesLevel);
           }

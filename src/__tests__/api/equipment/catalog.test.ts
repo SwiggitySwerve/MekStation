@@ -4,17 +4,22 @@
 import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/equipment/catalog';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { parseSuccessResponse, parseErrorResponse } from '../../helpers';
 
 // Mock the equipment lookup service
 jest.mock('@/services/equipment/EquipmentLookupService', () => ({
   equipmentLookupService: {
+    initialize: jest.fn().mockResolvedValue(undefined),
     getAllEquipment: jest.fn(),
     getAllWeapons: jest.fn(),
     getAllAmmunition: jest.fn(),
+    getDataSource: jest.fn().mockReturnValue('json'),
   },
 }));
+
+// Import after mocking to get mock references
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { equipmentLookupService } = require('@/services/equipment/EquipmentLookupService');
 
 const mockGetAllEquipment = equipmentLookupService.getAllEquipment as jest.Mock;
 const mockGetAllWeapons = equipmentLookupService.getAllWeapons as jest.Mock;
@@ -23,6 +28,8 @@ const mockGetAllAmmunition = equipmentLookupService.getAllAmmunition as jest.Moc
 describe('/api/equipment/catalog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Re-setup initialize mock after clearing
+    (equipmentLookupService.initialize as jest.Mock).mockResolvedValue(undefined);
   });
 
   describe('GET method validation', () => {
