@@ -2,7 +2,7 @@
 
 ## Context
 
-BattleTech tabletop gameplay requires printed record sheets showing unit stats, armor diagrams, weapons, and critical hit locations. MegaMekLab uses SVG templates with Apache Batik for PDF generation. For the web application, we need a client-side solution that works offline and can eventually be used in an Electron desktop app.
+BattleTech tabletop gameplay requires printed record sheets showing unit stats, armor diagrams, weapons, and critical hit locations. MegaMekLab uses SVG templates with Apache Batik for PDF generation. For the web application, we use a client-side SVG-based solution that works offline and can eventually be used in an Electron desktop app.
 
 ## Goals / Non-Goals
 
@@ -11,6 +11,7 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 - Provide live preview in the customizer as users edit units
 - Support PDF download and browser print
 - Architecture extensible for other unit types (vehicles, aerospace, etc.)
+- Use authentic MegaMek SVG templates for visual consistency
 
 **Non-Goals:**
 - Perfect pixel-for-pixel match with MegaMekLab output
@@ -20,109 +21,138 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 
 ## Decisions
 
+### Decision: Use SVG Templates Only (Final Architecture)
+
+**Rationale:** Using MegaMek's original SVG templates provides:
+- Authentic MegaMekLab-style record sheets
+- Pre-positioned elements requiring minimal calculation
+- Consistent visual output across all platforms
+- Easy maintenance - template updates from MegaMek apply automatically
+
+**Architecture Evolution:**
+- Initial: Canvas-based rendering with multiple renderer classes
+- Final: Single SVG template renderer using MegaMek templates
+
+**Removed Components:**
+- ~~MechRecordSheetRenderer.ts~~ - Canvas renderer
+- ~~ArmorDiagramRenderer.ts~~ - Canvas armor pips
+- ~~EquipmentTableRenderer.ts~~ - Canvas equipment table
+- ~~RecordSheetLayout.ts~~ - Layout constants
+
 ### Decision: Use jsPDF for PDF Generation
 
-**Rationale:** jsPDF is a mature, well-maintained library with good browser support. It works entirely client-side, supports custom fonts, and can embed images. Alternatives like pdfmake have similar capabilities but jsPDF has simpler API for programmatic drawing.
+**Rationale:** jsPDF is a mature, well-maintained library with good browser support. It works entirely client-side, supports custom fonts, and can embed images. The SVG is rendered to a high-DPI canvas, then embedded as JPEG in the PDF.
 
-**Alternatives Considered:**
-- **pdfmake**: Declarative document definition, but less control over exact positioning
-- **Puppeteer/Headless Chrome**: Requires server, not suitable for client-side
-- **html2pdf.js**: Uses html2canvas, quality issues with complex layouts
+### Decision: High-DPI Rendering
 
-### Decision: Canvas-based Preview with SVG Fallback
+**Rationale:** Different DPI multipliers for different use cases:
+- **Preview**: 20x multiplier for crisp display at any zoom level
+- **PDF Export**: 20x multiplier for print-quality output
 
-**Rationale:** Canvas provides fast rendering for the preview and can be converted to image data for PDF embedding. SVG could be used as fallback for better print quality but adds complexity.
-
-### Decision: Modular Renderer Architecture
-
-**Rationale:** Separating renderers (ArmorDiagramRenderer, EquipmentTableRenderer, etc.) allows:
-- Independent testing of each component
-- Easy extension for other unit types
-- Reuse of common elements (heat scale, pilot data)
-
-## Architecture
+## Final Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    PreviewTab                           │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────────────┐  ┌──────────────────────────┐  │
-│  │   PreviewToolbar    │  │  RecordSheetPreview      │  │
-│  │  [Download] [Print] │  │  (Canvas rendering)      │  │
-│  └─────────────────────┘  └──────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                 RecordSheetService                       │
-│  - generatePreview(unit) → Canvas                        │
-│  - exportPDF(unit) → Blob                               │
-│  - print(unit) → window.print()                         │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│              MechRecordSheetRenderer                     │
-├─────────────────────────────────────────────────────────┤
-│  ┌────────────────┐  ┌────────────────┐                 │
-│  │ ArmorDiagram   │  │ EquipmentTable │                 │
-│  │ Renderer       │  │ Renderer       │                 │
-│  └────────────────┘  └────────────────┘                 │
-│  ┌────────────────┐  ┌────────────────┐                 │
-│  │ CriticalSlots  │  │ HeatScale      │                 │
-│  │ Renderer       │  │ Renderer       │                 │
-│  └────────────────┘  └────────────────┘                 │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      PreviewTab                              │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────┐  ┌────────────────────────────────┐│
+│  │   PreviewToolbar    │  │    RecordSheetPreview          ││
+│  │  [Download] [Print] │  │    (SVG→Canvas rendering)      ││
+│  └─────────────────────┘  │                                ││
+│                           │  ┌──────────────────────────┐  ││
+│                           │  │  Floating Zoom Controls  │  ││
+│                           │  │  [+] 85% [-]             │  ││
+│                           │  │  [↔ Width] [↕ Height]    │  ││
+│                           │  └──────────────────────────┘  ││
+│                           └────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   RecordSheetService                         │
+│  - extractData(unit) → IRecordSheetData                     │
+│  - renderPreview(canvas, data) → Promise<void>              │
+│  - exportPDF(data, options) → Promise<void>                 │
+│  - getSVGString(data) → Promise<string>                     │
+│  - print(canvas) → void                                     │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 SVGRecordSheetRenderer                       │
+├─────────────────────────────────────────────────────────────┤
+│  - loadTemplate(path) → Promise<void>                       │
+│  - fillTemplate(data) → void                                │
+│  - fillArmorPips(armor) → Promise<void>                     │
+│  - fillStructurePips(structure, tonnage) → Promise<void>    │
+│  - renderToCanvas(canvas) → Promise<void>                   │
+│  - renderToCanvasHighDPI(canvas, dpi) → Promise<void>       │
+│  - getSVGString() → string                                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   SVG Templates & Assets                     │
+├─────────────────────────────────────────────────────────────┤
+│  public/record-sheets/templates/                             │
+│    └── mek_biped_default.svg                                │
+│  public/record-sheets/biped_pips/                           │
+│    ├── Armor_CT_1_Humanoid.svg ... Armor_*_*_Humanoid.svg   │
+│    └── BipedIS20_CT.svg ... BipedIS100_*.svg                │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Record Sheet Layout (Letter/A4)
+## SVG Template Element IDs
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  BATTLEMECH RECORD SHEET                                     │
-├──────────────────────────────────────────────────────────────┤
-│  Name: ________________  Tonnage: ___  Tech: ___  BV: ___    │
-├────────────────────────────┬─────────────────────────────────┤
-│                            │  WEAPONS & EQUIPMENT            │
-│      ARMOR DIAGRAM         │  ┌───┬────┬───┬───┬───┬───┬───┐ │
-│                            │  │Qty│Type│Loc│Ht │Dmg│Rng│   │ │
-│    [Head Armor]            │  ├───┼────┼───┼───┼───┼───┼───┤ │
-│         ___                │  │ 1 │ML  │RA │ 3 │ 5 │S/M│   │ │
-│        /   \               │  │...│... │...│...│...│...│   │ │
-│   LA  | CT  | RA           │  └───┴────┴───┴───┴───┴───┴───┘ │
-│       |_____|              │                                 │
-│       |     |              │  HEAT SCALE                     │
-│   LL  |     | RL           │  [0][1][2]...[30]               │
-│       |_____|              │                                 │
-│                            │  Heat Sinks: __ (__)            │
-├────────────────────────────┴─────────────────────────────────┤
-│  CRITICAL HIT TABLE                                          │
-│  ┌────────┬────────┬────────┬────────┬────────┬────────┐     │
-│  │  HEAD  │   CT   │   LT   │   RT   │   LA   │   RA   │     │
-│  ├────────┼────────┼────────┼────────┼────────┼────────┤     │
-│  │1._____ │1._____ │1._____ │1._____ │1._____ │1._____ │     │
-│  │2._____ │2._____ │2._____ │2._____ │2._____ │2._____ │     │
-│  │...     │...     │...     │...     │...     │...     │     │
-│  └────────┴────────┴────────┴────────┴────────┴────────┘     │
-├──────────────────────────────────────────────────────────────┤
-│  PILOT: ____________  Gunnery: __  Piloting: __              │
-└──────────────────────────────────────────────────────────────┘
-```
+The SVG template contains pre-defined elements for data injection:
+
+| Element ID | Content |
+|------------|---------|
+| `type` | Unit name (Chassis Model) |
+| `tonnage` | Tonnage value |
+| `techBase` | Tech base (Inner Sphere/Clan) |
+| `rulesLevel` | Rules level |
+| `mpWalk` | Walking MP |
+| `mpRun` | Running MP |
+| `mpJump` | Jumping MP |
+| `bv` | Battle Value |
+| `armorType` | Armor type name |
+| `structureType` | Structure type name |
+| `hsType` | Heat sink type |
+| `hsCount` | Heat sink count |
+| `textArmor_*` | Armor point values per location |
+| `textIS_*` | Internal structure values per location |
+| `crits_*` | Critical slot areas per location |
+| `canonArmorPips` | Container for armor pip SVGs |
+| `canonStructurePips` | Container for structure pip SVGs |
+| `inventory` | Equipment table area |
+
+## Zoom Controls
+
+The preview includes floating controls positioned bottom-right:
+
+| Button | Action |
+|--------|--------|
+| `+` | Zoom in 15% |
+| `-` | Zoom out 15% |
+| `↔` | Fit to container width |
+| `↕` | Fit to container height |
+
+Zoom range: 20% to 300%
 
 ## Risks / Trade-offs
 
-- **Risk:** Canvas rendering may have slight differences across browsers
-  - **Mitigation:** Test on major browsers, use standard fonts
+- **Risk:** SVG template changes in MegaMek may require updates
+  - **Mitigation:** Element IDs are stable; monitor MegaMek releases
 
 - **Risk:** Large equipment lists may not fit in allocated space
-  - **Mitigation:** Auto-scale font size or paginate
+  - **Mitigation:** Truncate names; future: auto-scale font size
 
-- **Trade-off:** Simplified armor diagram vs MegaMekLab's detailed pip layout
-  - Chose simpler approach for initial implementation; can enhance later
+- **Trade-off:** JPEG format in PDF vs PNG
+  - Chose JPEG for better jsPDF compatibility; slight quality tradeoff acceptable
 
-## Open Questions
+## Resolved Questions
 
-- Should we support custom fonts (Eurostile like MegaMekLab)?
-- Multi-page support for units with many weapons?
-- Include reference charts on record sheet?
-
+- **Custom fonts:** Using Eurostile with web-safe fallbacks (Century Gothic, Trebuchet MS, Arial)
+- **Multi-page support:** Deferred to future enhancement
+- **Reference charts:** Deferred to future enhancement

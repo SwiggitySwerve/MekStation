@@ -8,6 +8,8 @@ The system SHALL define data structures for record sheet generation.
 
 **Priority**: Critical
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Record sheet data extraction
 - **GIVEN** a valid IBattleMech unit configuration
 - **WHEN** RecordSheetService.extractData(unit) is called
@@ -22,6 +24,37 @@ The system SHALL define data structures for record sheet generation.
 
 ---
 
+### Requirement: SVG Template Rendering
+
+The system SHALL use SVG templates from MegaMek/MegaMekLab for record sheet generation.
+
+**Rationale**: SVG templates provide authentic MegaMekLab-style record sheets and leverage existing official assets.
+
+**Priority**: Critical
+
+**Status**: IMPLEMENTED ✓
+
+#### Scenario: SVG template loading
+- **WHEN** record sheet renders
+- **THEN** load base SVG template from `/public/record-sheets/` directory
+- **AND** parse SVG DOM for element manipulation
+- **AND** locate elements by ID for data injection (e.g., type, tonnage, mpWalk)
+
+#### Scenario: SVG data injection
+- **WHEN** template is loaded with unit data
+- **THEN** populate text elements via setTextContent() helper
+- **AND** populate armor/structure pips via SVG element cloning
+- **AND** render critical slots dynamically into designated areas
+- **AND** render equipment table into inventory area
+
+#### Scenario: SVG to canvas conversion
+- **WHEN** preview or PDF export is requested
+- **THEN** serialize modified SVG to string
+- **AND** convert to Blob URL for Image loading
+- **AND** render Image to canvas with appropriate DPI scaling
+
+---
+
 ### Requirement: PDF Generation
 
 The system SHALL generate PDF record sheets client-side using jsPDF.
@@ -30,24 +63,32 @@ The system SHALL generate PDF record sheets client-side using jsPDF.
 
 **Priority**: Critical
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Export PDF
 - **WHEN** user clicks Download PDF button
-- **THEN** generate PDF document matching record sheet layout
+- **THEN** generate PDF document from SVG template
 - **AND** trigger browser download with filename "{chassis}-{model}.pdf"
-- **AND** PDF is A4/Letter size, print-ready
+- **AND** PDF is Letter/A4 size, print-ready
 
 #### Scenario: PDF content
 - **GIVEN** a valid unit configuration
 - **WHEN** PDF is generated
-- **THEN** PDF contains:
+- **THEN** PDF contains rendered SVG with:
   - Unit header with name, tonnage, tech base, BV
   - Movement block with Walk/Run/Jump MP
-  - Armor diagram with values per location
+  - Armor diagram with pip visualization
   - Internal structure values per location
-  - Weapons and equipment table with columns: Qty, Type, Loc, Heat, Damage, Min, Short, Med, Long
-  - Heat scale from 0 to 30 with movement penalties
+  - Weapons and equipment table
+  - Heat sink count and type
   - Critical hit tables for each location
-  - Pilot data section (blank or filled)
+  - Pilot data section (blank for tabletop)
+
+#### Scenario: PDF quality
+- **WHEN** PDF is generated
+- **THEN** use 20x DPI multiplier for print quality
+- **AND** use JPEG format for canvas-to-PDF embedding
+- **AND** ensure sharp text and lines at print resolution
 
 ---
 
@@ -59,29 +100,55 @@ The system SHALL render a live preview of the record sheet in the browser.
 
 **Priority**: High
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Preview display
 - **WHEN** PreviewTab is active
-- **THEN** RecordSheetPreview component renders current unit as canvas
+- **THEN** RecordSheetPreview component renders current unit via SVG template
 - **AND** preview updates when unit configuration changes
 - **AND** preview maintains aspect ratio of paper size
 
-#### Scenario: Preview scaling
-- **GIVEN** PreviewTab is displayed at various viewport sizes
-- **WHEN** viewport resizes
-- **THEN** preview scales to fit container while maintaining aspect ratio
-- **AND** preview remains readable at reduced sizes
-
 #### Scenario: Preview DPI and quality
 - **WHEN** preview canvas renders
-- **THEN** use high DPI multiplier (10x) for crisp text at all zoom levels
-- **AND** support zoom range from 30% to 300%
-- **AND** provide "Fit Width" button to auto-scale to container width
-- **AND** provide zoom in/out buttons with 10% increments
+- **THEN** use 20x DPI multiplier for crisp text at all zoom levels
+- **AND** support zoom range from 20% to 300%
 
-#### Scenario: PDF DPI and quality  
-- **WHEN** PDF is generated
-- **THEN** use 3x DPI multiplier (216 DPI) for print quality
-- **AND** ensure sharp text and lines at print resolution
+---
+
+### Requirement: Zoom Controls
+
+The system SHALL provide floating zoom controls in the preview area.
+
+**Rationale**: Users need to zoom in for detail and fit the sheet to their screen.
+
+**Priority**: High
+
+**Status**: IMPLEMENTED ✓
+
+#### Scenario: Zoom control display
+- **WHEN** preview is displayed
+- **THEN** show floating control panel in bottom-right corner
+- **AND** controls have semi-transparent dark background
+- **AND** controls include zoom percentage display
+
+#### Scenario: Zoom in/out
+- **WHEN** user clicks zoom in (+) button
+- **THEN** increase zoom by 15%
+- **AND** cap at maximum 300%
+
+- **WHEN** user clicks zoom out (−) button
+- **THEN** decrease zoom by 15%
+- **AND** cap at minimum 20%
+
+#### Scenario: Fit to width
+- **WHEN** user clicks fit width (↔) button
+- **THEN** calculate scale to fit container width
+- **AND** apply calculated zoom level
+
+#### Scenario: Fit to height
+- **WHEN** user clicks fit height (↕) button
+- **THEN** calculate scale to fit container height
+- **AND** apply calculated zoom level
 
 ---
 
@@ -93,6 +160,8 @@ The system SHALL support browser print of the record sheet.
 
 **Priority**: Medium
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Print action
 - **WHEN** user clicks Print button in PreviewTab
 - **THEN** open browser print dialog
@@ -101,45 +170,55 @@ The system SHALL support browser print of the record sheet.
 
 ---
 
-### Requirement: Armor Diagram Rendering
+### Requirement: Armor Pip Visualization
 
-The system SHALL render a visual armor diagram showing armor values per location.
+The system SHALL render armor pips using MegaMek SVG assets.
 
 **Rationale**: Armor diagrams are essential for tracking damage during gameplay.
 
 **Priority**: High
 
-#### Scenario: Biped mech diagram
-- **GIVEN** a biped BattleMech configuration
-- **WHEN** armor diagram renders
-- **THEN** display mech silhouette with labeled locations:
-  - Head (HD)
-  - Center Torso (CT) with rear
-  - Left Torso (LT) with rear
-  - Right Torso (RT) with rear
-  - Left Arm (LA)
-  - Right Arm (RA)
-  - Left Leg (LL)
-  - Right Leg (RL)
-- **AND** each location shows current/max armor values
-- **AND** rear torso values are shown separately
+**Status**: IMPLEMENTED ✓
 
-#### Scenario: Quad mech diagram
-- **GIVEN** a quad BattleMech configuration
+#### Scenario: Armor pip loading
 - **WHEN** armor diagram renders
-- **THEN** display quad silhouette with four leg locations instead of arms/legs
+- **THEN** load pip SVG files from `/public/record-sheets/biped_pips/`
+- **AND** files follow naming convention `Armor_{Location}_{Count}_Humanoid.svg`
+- **AND** rear armor uses `Armor_{Location}_R_{Count}_Humanoid.svg`
+
+#### Scenario: Armor pip positioning
+- **WHEN** pip SVGs are loaded
+- **THEN** insert pip paths into `canonArmorPips` group
+- **AND** DO NOT apply additional transforms to pip groups
+- **AND** rely on parent group's matrix transform for positioning
 
 #### Scenario: Armor value display
 - **WHEN** armor diagram renders
-- **THEN** display armor point values around the mech silhouette in parentheses format: "( value )"
+- **THEN** display armor point values around the mech silhouette in format "( value )"
 - **AND** display rear armor values separately for CT, LT, RT locations
-- **AND** use SVG text elements with IDs matching template (textArmor_HD, textArmor_CT, textArmor_CTR, etc.)
+- **AND** use SVG text elements with IDs: textArmor_HD, textArmor_CT, textArmor_CTR, etc.
 
-#### Scenario: Armor pip visualization
-- **WHEN** armor diagram renders
-- **THEN** display filled circles (pips) representing current armor points
-- **AND** load pip SVG assets from template directory
-- **AND** position pips according to location-specific layouts
+---
+
+### Requirement: Structure Pip Visualization
+
+The system SHALL render internal structure pips using MegaMek SVG assets.
+
+**Rationale**: Structure tracking is essential for determining unit destruction.
+
+**Priority**: High
+
+**Status**: IMPLEMENTED ✓
+
+#### Scenario: Structure pip loading
+- **WHEN** structure section renders
+- **THEN** load pip SVG files from `/public/record-sheets/biped_pips/`
+- **AND** files follow naming convention `BipedIS{Tonnage}_{Location}.svg`
+
+#### Scenario: Structure value display
+- **WHEN** structure section renders
+- **THEN** display structure point values in format "( value )"
+- **AND** use SVG text elements with IDs: textIS_CT, textIS_LT, textIS_RT, etc.
 
 ---
 
@@ -151,16 +230,19 @@ The system SHALL render a weapons and equipment table with combat statistics.
 
 **Priority**: High
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Equipment columns
 - **WHEN** equipment table renders
 - **THEN** display columns: Qty, Type, Loc, Heat, Damage, Min, Short, Med, Long
-- **AND** weapons are grouped by location
-- **AND** ammunition shows shots remaining
+- **AND** include damage type codes: [DE]=Direct Energy, [DB]=Direct Ballistic, [M,C,S]=Missile
+- **AND** ammunition shows shots remaining in parentheses
 
-#### Scenario: Equipment sorting
-- **GIVEN** multiple weapons on unit
+#### Scenario: Equipment table positioning
 - **WHEN** equipment table renders
-- **THEN** weapons are sorted by location, then by name
+- **THEN** insert rows into `inventory` element area in template
+- **AND** use Eurostile font family with web-safe fallbacks
+- **AND** truncate long equipment names to fit column width
 
 ---
 
@@ -172,98 +254,69 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 
 **Priority**: High
 
+**Status**: IMPLEMENTED ✓
+
 #### Scenario: Critical slot display
 - **WHEN** critical slots section renders
-- **THEN** display 6 columns for HD, CT, LT, RT, LA, RA
-- **AND** display 2 columns for LL, RL below
-- **AND** each slot shows equipment name or "Roll Again"
-- **AND** multi-slot equipment spans consecutive slots with bracket
+- **THEN** render into `crits_*` rect elements in template
+- **AND** display location name label at top of each column
+- **AND** show slot numbers 1-6 (restarting for 12-slot locations)
 
 #### Scenario: Critical slot font styling
 - **WHEN** critical slot text renders
 - **THEN** use Times New Roman serif font (matching MegaMekLab)
 - **AND** bold hittable equipment (weapons, system components)
-- **AND** use normal weight for unhittable equipment (Endo Steel, Ferro-Fibrous, TSM, Stealth, Reactive, Reflective, Blue Shield)
+- **AND** use normal weight for unhittable equipment (Endo Steel, Ferro-Fibrous, TSM)
 - **AND** use normal weight black text for "Roll Again" entries
-- **AND** use gray text for empty slots ("-Empty-")
-
-#### Scenario: Critical slot section layout
-- **WHEN** 12-slot locations (CT, LT, RT, LA, RA) render
-- **THEN** display location name label at top of column (e.g., "Center Torso")
-- **AND** display "1-3" marker for slots 1-6 (dice roll result 1-3)
-- **AND** display "4-6" marker for slots 7-12 (dice roll result 4-6)
-- **AND** add visible gap between slot 6 and slot 7
-- **AND** slot numbers restart at 1 for each section (1-6 in both sections)
 
 #### Scenario: Multi-slot equipment brackets
 - **WHEN** equipment occupies multiple consecutive slots
 - **THEN** draw L-shaped bracket on left side of slots
-- **AND** bracket only applies to user-added equipment, NOT system components (Engine, Gyro, Actuators)
-- **AND** bracket bridges continuously across the 6/7 gap when equipment spans both sections
+- **AND** bracket only applies to user-added equipment, NOT system components
+- **AND** bracket bridges continuously across slot 6/7 gap when equipment spans both sections
 
-#### Scenario: Center Torso slot allocation
-- **GIVEN** a standard fusion engine and standard gyro
-- **WHEN** CT critical slots are filled
-- **THEN** allocate slots in MegaMekLab interleaved pattern:
-  - Slots 1-3: Engine (first half)
-  - Slots 4-7: Gyro (4 slots for standard gyro)
-  - Slots 8-10: Engine (second half)
-  - Slots 11-12: Available for user equipment
-
-#### Scenario: Engine naming
-- **WHEN** engine slots display in critical table
-- **THEN** show full engine type name:
-  - "Fusion Engine" for standard fusion
-  - "XL Engine" for extra-light
-  - "Light Engine" for light fusion
-  - "XXL Engine" for extra-extra-light
-  - "Compact Engine" for compact
-  - "ICE" for internal combustion
-  - "Fuel Cell" for fuel cell
-  - "Fission Engine" for fission
+#### Scenario: Fixed slot allocation
+- **GIVEN** engine and gyro types
+- **WHEN** critical slots are filled
+- **THEN** allocate fixed equipment in standard positions:
+  - Head: Life Support, Sensors, Cockpit
+  - CT: Engine (interleaved), Gyro
+  - Arms: Shoulder, Upper/Lower Arm Actuator, Hand Actuator
+  - Legs: Hip, Upper/Lower Leg Actuator, Foot Actuator
+- **AND** display engine type name (e.g., "XL Engine", "Fusion Engine")
 
 ---
 
-### Requirement: Heat Scale Rendering
+### Requirement: Document Margins
 
-The system SHALL render a heat scale from 0 to 30.
+The system SHALL add proper margins around the record sheet.
 
-**Rationale**: Heat scale tracks heat buildup and associated penalties during combat.
+**Rationale**: Margins ensure content is not cut off during printing.
 
 **Priority**: Medium
 
-#### Scenario: Heat scale display
-- **WHEN** heat scale section renders
-- **THEN** display numbered scale from 0 to 30
-- **AND** show movement penalty thresholds
-- **AND** show heat sink count and capacity
+**Status**: IMPLEMENTED ✓
+
+#### Scenario: Page margins
+- **WHEN** SVG template is loaded
+- **THEN** expand viewBox to add 18pt margins on all sides
+- **AND** center original content within new dimensions
+- **AND** final dimensions match US Letter (612×792 points)
 
 ---
 
-### Requirement: SVG Template Rendering
+### Requirement: Copyright Footer
 
-The system SHALL use SVG templates from MegaMek/MegaMekLab for record sheet generation.
+The system SHALL display copyright information at the bottom of the record sheet.
 
-**Rationale**: SVG templates provide authentic MegaMekLab-style record sheets and leverage existing official assets.
+**Rationale**: Legal requirement for BattleTech content.
 
-**Priority**: High
+**Priority**: Medium
 
-#### Scenario: SVG template loading
+**Status**: IMPLEMENTED ✓
+
+#### Scenario: Copyright display
 - **WHEN** record sheet renders
-- **THEN** load base SVG template from `/public/record-sheets/` directory
-- **AND** parse SVG DOM for element manipulation
-- **AND** locate elements by ID for data injection (e.g., tspanName, tspanTonnage)
-
-#### Scenario: SVG data injection
-- **WHEN** template is loaded with unit data
-- **THEN** populate text elements via setTextContent() helper
-- **AND** populate armor/structure pips via SVG element cloning
-- **AND** render critical slots dynamically into designated areas
-
-#### Scenario: SVG to canvas conversion
-- **WHEN** preview or PDF export is requested
-- **THEN** serialize modified SVG to string
-- **AND** convert to base64 data URL
-- **AND** load as Image for canvas drawing
-- **AND** apply appropriate DPI scaling for output quality
-
+- **THEN** replace %d placeholder with current year
+- **AND** use Eurostile bold font at 7.5px
+- **AND** position footer centered at bottom with margin space

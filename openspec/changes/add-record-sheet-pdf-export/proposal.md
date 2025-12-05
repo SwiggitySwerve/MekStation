@@ -9,29 +9,44 @@ Users need to generate printable record sheets for tabletop play. This is a core
 - **NEW**: `record-sheet-export` capability - PDF generation and preview functionality
 - **MODIFIED**: `customizer-tabs` - Add Preview tab (7th tab alongside existing 6)
 - Add jsPDF dependency for client-side PDF generation
-- Create printing services layer for record sheet rendering
+- Create printing services layer for SVG-based record sheet rendering
 - Create PreviewTab component with live preview and export buttons
 
 ## Impact
 
 - Affected specs: `record-sheet-export` (new), `customizer-tabs` (modified)
 - Affected code:
-  - `src/types/printing/` - New type definitions
-  - `src/services/printing/` - New PDF generation services
-  - `src/components/customizer/tabs/PreviewTab.tsx` - New tab component
+  - `src/types/printing/` - Type definitions
+  - `src/services/printing/` - SVG-based PDF generation services
+  - `src/components/customizer/tabs/PreviewTab.tsx` - Tab component
   - `src/components/customizer/preview/` - Preview rendering components
   - `src/components/customizer/tabs/CustomizerTabs.tsx` - Add Preview tab
-  - `package.json` - Add jsPDF dependency
+  - `package.json` - jsPDF dependency
 
 ---
 
 ## Technical Implementation Details
 
+### SVG Template-Only Architecture
+
+The record sheet renderer uses **only** MegaMek's original SVG templates. Legacy canvas-based renderers have been removed in favor of a single unified SVG approach:
+
+**Final Architecture:**
+- `SVGRecordSheetRenderer.ts` - Loads and populates SVG templates
+- `RecordSheetService.ts` - Orchestrates data extraction and rendering
+
+**Removed (legacy canvas approach):**
+- ~~MechRecordSheetRenderer.ts~~
+- ~~ArmorDiagramRenderer.ts~~
+- ~~EquipmentTableRenderer.ts~~
+- ~~RecordSheetLayout.ts~~
+
 ### SVG Template Integration
 
-The record sheet renderer uses MegaMek's original SVG templates from `mm-data/data/images/recordsheets/templates_us/`. These templates contain:
+Templates from `mm-data/data/images/recordsheets/templates_us/` contain:
 - Pre-defined text element IDs for data fields (e.g., `type`, `tonnage`, `mpWalk`)
 - Positioned groups for armor/structure pips with specific transforms
+- Critical slot areas (`crits_HD`, `crits_CT`, etc.)
 
 ### Armor Pip Rendering (Critical Implementation Detail)
 
@@ -82,5 +97,16 @@ This approach ensures pixel-perfect alignment with MegaMekLab's output.
 
 Required assets copied from `mm-data`:
 - `public/record-sheets/templates/mek_biped_default.svg` - Main template
-- `public/record-sheets/biped_pips/` - All pip SVG files (Armor_*.svg)
+- `public/record-sheets/biped_pips/` - All pip SVG files (Armor_*.svg, BipedIS*.svg)
 
+### Preview UI Features
+
+The preview component includes floating zoom controls:
+- **Zoom In/Out** - 15% increments, range 20%-300%
+- **Fit to Width** - Auto-scale to container width
+- **Fit to Height** - Auto-scale to container height
+- **Zoom Level Display** - Shows current percentage
+
+## Status: COMPLETE
+
+All requirements implemented and tested. Ready for archive.
