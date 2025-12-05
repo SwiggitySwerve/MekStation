@@ -254,7 +254,7 @@ export class SVGRecordSheetRenderer {
     if (footerElement) {
       // Use Eurostile (MegaMekLab's font) with web-safe fallbacks
       footerElement.setAttribute('font-family', 'Eurostile, "Century Gothic", "Trebuchet MS", Arial, sans-serif');
-      footerElement.setAttribute('font-size', '5.7px');
+      footerElement.setAttribute('font-size', '7.5px');
       footerElement.setAttribute('font-weight', 'bold');
       // Position near bottom with margin space (content area ends at 756, margin adds 18 more)
       footerElement.setAttribute('transform', 'translate(288.0 762.0)');
@@ -267,8 +267,8 @@ export class SVGRecordSheetRenderer {
       // Remove textLength and lengthAdjust to prevent text stretching/distortion
       copyrightElement.removeAttribute('textLength');
       copyrightElement.removeAttribute('lengthAdjust');
-      // Position first line above second line
-      copyrightElement.setAttribute('y', '-7.0');
+      // Position first line above second line (adjusted for larger font)
+      copyrightElement.setAttribute('y', '-9.0');
     }
     
     // Also fix the second line of copyright (Catalyst Game Labs)
