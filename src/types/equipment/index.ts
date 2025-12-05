@@ -79,6 +79,14 @@ export interface IEquipmentItem {
   readonly costCBills: number;
   readonly battleValue: number;
   readonly introductionYear: number;
+  /**
+   * Variable equipment formula ID for equipment with variable properties.
+   * If present, weight and criticalSlots should be calculated dynamically
+   * using the EquipmentCalculatorService with the appropriate context.
+   * 
+   * Examples: 'targeting-computer-is', 'masc-is', 'hatchet'
+   */
+  readonly variableEquipmentId?: string;
 }
 
 /**
@@ -192,7 +200,7 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
     });
   }
 
-  // Electronics
+  // Electronics (including targeting computers with variable properties)
   for (const electronics of getAllElectronics()) {
     items.push({
       id: electronics.id,
@@ -205,6 +213,7 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: electronics.costCBills,
       battleValue: electronics.battleValue,
       introductionYear: electronics.introductionYear,
+      variableEquipmentId: electronics.variableEquipmentId,
     });
   }
 
@@ -221,6 +230,7 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+      variableEquipmentId: misc.variableEquipmentId,
     });
   }
 
@@ -239,6 +249,7 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: 0, // Variable
       battleValue: 0, // Variable
       introductionYear: physicalWeapon.introductionYear,
+      variableEquipmentId: id, // Physical weapons use their ID as the formula ID
     });
   }
 
@@ -308,7 +319,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
     });
   }
 
-  // Electronics
+  // Electronics (including targeting computers with variable properties)
   for (const electronics of getAllElectronics()) {
     items.push({
       id: electronics.id,
@@ -321,6 +332,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: electronics.costCBills,
       battleValue: electronics.battleValue,
       introductionYear: electronics.introductionYear,
+      variableEquipmentId: electronics.variableEquipmentId,
     });
   }
 
@@ -342,6 +354,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+      variableEquipmentId: misc.variableEquipmentId,
     });
   }
 
@@ -362,6 +375,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: 0, // Variable: calculated based on weight
       battleValue: 0, // Variable: calculated based on damage
       introductionYear: physicalWeapon.introductionYear,
+      variableEquipmentId: id, // Physical weapons use their ID as the formula ID
     });
   }
 

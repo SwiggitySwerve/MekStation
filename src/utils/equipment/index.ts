@@ -1,14 +1,10 @@
 /**
  * Equipment Utilities Barrel Export
  * 
- * @deprecated This module is deprecated and empty. Use services/equipment/ instead.
+ * Equipment list management utilities for BattleMech components.
  * 
- * The unified formula system in services/equipment/ now handles all variable equipment
- * calculations through a data-driven approach.
- * 
+ * @see src/utils/equipment/equipmentListUtils.ts
  * @see src/services/equipment/EquipmentCalculatorService.ts
  */
 
-// All legacy exports have been removed.
-// Use the service layer instead:
-// import { equipmentCalculatorService } from '@/services';
+export * from './equipmentListUtils';

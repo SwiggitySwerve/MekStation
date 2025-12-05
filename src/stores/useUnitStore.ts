@@ -47,6 +47,7 @@ import {
   IArmorAllocation,
   createEmptyArmorAllocation,
   createMountedEquipment,
+  IMountedEquipmentInstance,
 } from './unitState';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
@@ -82,7 +83,11 @@ import {
   filterOutHeatSinks,
   createEnhancementEquipmentList,
   filterOutEnhancementEquipment,
+  calculateTargetingComputerWeight,
+  calculateTargetingComputerSlots,
 } from '@/utils/equipment/equipmentListUtils';
+import { calculateDirectFireWeaponTonnage } from '@/types/equipment/weapons/utilities';
+import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
 
 // Re-export UnitStore type for convenience
 export type { UnitStore } from './unitState';
@@ -97,7 +102,39 @@ export type { UnitStore } from './unitState';
 // - createHeatSinkEquipmentList, filterOutHeatSinks
 // - createEnhancementEquipmentList, filterOutEnhancementEquipment
 // - calculateEnhancementWeight, calculateEnhancementSlots
+// - calculateTargetingComputerWeight, calculateTargetingComputerSlots
 // =============================================================================
+
+// =============================================================================
+// Targeting Computer IDs
+// =============================================================================
+const TARGETING_COMPUTER_IDS = ['targeting-computer', 'clan-targeting-computer'];
+
+/**
+ * Recalculate targeting computer weight/slots based on current equipment
+ * Called when weapons are added or removed
+ */
+function recalculateTargetingComputers(
+  equipment: IMountedEquipmentInstance[]
+): IMountedEquipmentInstance[] {
+  // Calculate direct fire weapon tonnage from all equipment
+  const weaponIds = equipment.map(e => e.equipmentId);
+  const directFireTonnage = calculateDirectFireWeaponTonnage(weaponIds);
+  
+  // Update any targeting computers with recalculated weight/slots
+  return equipment.map(item => {
+    if (TARGETING_COMPUTER_IDS.includes(item.equipmentId)) {
+      const weight = calculateTargetingComputerWeight(directFireTonnage, item.techBase);
+      const slots = calculateTargetingComputerSlots(directFireTonnage, item.techBase);
+      return {
+        ...item,
+        weight,
+        criticalSlots: slots,
+      };
+    }
+    return item;
+  });
+}
 
 // =============================================================================
 // Store Factory
@@ -114,7 +151,7 @@ export type { UnitStore } from './unitState';
 export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
   return create<UnitStore>()(
     persist(
-      (set) => ({
+      (set, get) => ({
         // Spread initial state
         ...initialState,
         
@@ -693,22 +730,74 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         
         addEquipment: (item: IEquipmentItem) => {
           const instanceId = generateUnitId();
-          const mountedEquipment = createMountedEquipment(item, instanceId);
+          let mountedEquipment = createMountedEquipment(item, instanceId);
           
-          set((state) => ({
-            equipment: [...state.equipment, mountedEquipment],
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }));
+          // Handle variable equipment (targeting computers, physical weapons, etc.)
+          if (item.variableEquipmentId) {
+            const state = get();
+            
+            // Targeting computers: weight based on direct fire weapon tonnage
+            if (item.variableEquipmentId === VARIABLE_EQUIPMENT.TARGETING_COMPUTER_IS ||
+                item.variableEquipmentId === VARIABLE_EQUIPMENT.TARGETING_COMPUTER_CLAN) {
+              // Calculate direct fire weapon tonnage from current equipment
+              const weaponIds = state.equipment.map(e => e.equipmentId);
+              const directFireTonnage = calculateDirectFireWeaponTonnage(weaponIds);
+              
+              // Calculate targeting computer weight/slots
+              const weight = calculateTargetingComputerWeight(directFireTonnage, item.techBase);
+              const slots = calculateTargetingComputerSlots(directFireTonnage, item.techBase);
+              
+              mountedEquipment = {
+                ...mountedEquipment,
+                weight,
+                criticalSlots: slots,
+              };
+            }
+            // Physical weapons and other variable equipment: weight based on mech tonnage
+            else {
+              try {
+                const result = equipmentCalculatorService.calculateProperties(
+                  item.variableEquipmentId,
+                  { tonnage: state.tonnage }
+                );
+                mountedEquipment = {
+                  ...mountedEquipment,
+                  weight: result.weight,
+                  criticalSlots: result.criticalSlots,
+                };
+              } catch {
+                // Formula not found or calculation failed - use defaults
+                console.warn(`Variable equipment calculation failed for ${item.variableEquipmentId}`);
+              }
+            }
+          }
+          
+          set((state) => {
+            // Add the new equipment
+            const newEquipment = [...state.equipment, mountedEquipment];
+            // Recalculate targeting computers if a weapon was added
+            const updatedEquipment = recalculateTargetingComputers(newEquipment);
+            return {
+              equipment: updatedEquipment,
+              isModified: true,
+              lastModifiedAt: Date.now(),
+            };
+          });
           
           return instanceId;
         },
         
-        removeEquipment: (instanceId: string) => set((state) => ({
-          equipment: state.equipment.filter(e => e.instanceId !== instanceId),
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        })),
+        removeEquipment: (instanceId: string) => set((state) => {
+          // Remove the equipment
+          const filteredEquipment = state.equipment.filter(e => e.instanceId !== instanceId);
+          // Recalculate targeting computers if a weapon was removed
+          const updatedEquipment = recalculateTargetingComputers(filteredEquipment);
+          return {
+            equipment: updatedEquipment,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
+        }),
         
         updateEquipmentLocation: (instanceId: string, location: MechLocation, slots: readonly number[]) => 
           set((state) => ({

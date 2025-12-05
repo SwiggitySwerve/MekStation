@@ -25,6 +25,7 @@ import { JUMP_JETS, HEAT_SINKS, MiscEquipmentCategory, IMiscEquipment } from '@/
 import { MOVEMENT_EQUIPMENT, MYOMER_SYSTEMS } from '@/types/equipment/MiscEquipmentTypes';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
+import { TARGETING_COMPUTERS, IElectronics } from '@/types/equipment/ElectronicsTypes';
 
 // =============================================================================
 // Constants
@@ -510,5 +511,147 @@ export function filterOutEnhancementEquipment(
   equipment: readonly IMountedEquipmentInstance[]
 ): IMountedEquipmentInstance[] {
   return equipment.filter(e => !ENHANCEMENT_EQUIPMENT_IDS.includes(e.equipmentId));
+}
+
+// =============================================================================
+// Targeting Computer Equipment Helpers
+// =============================================================================
+
+/** Targeting computer equipment IDs */
+export const TARGETING_COMPUTER_EQUIPMENT_IDS = TARGETING_COMPUTERS.map(tc => tc.id);
+
+/**
+ * Get the correct targeting computer equipment based on tech base
+ * 
+ * @param techBase - Tech base (IS or Clan)
+ * @returns The targeting computer IElectronics definition
+ */
+export function getTargetingComputerEquipment(techBase: TechBase): IElectronics | undefined {
+  return TARGETING_COMPUTERS.find(tc => tc.techBase === techBase);
+}
+
+/**
+ * Get the variable equipment ID for targeting computer based on tech base
+ * 
+ * @param techBase - Tech base (IS or Clan)
+ * @returns The variable equipment ID for formula lookup
+ */
+export function getTargetingComputerFormulaId(techBase: TechBase): string {
+  return techBase === TechBase.CLAN 
+    ? VARIABLE_EQUIPMENT.TARGETING_COMPUTER_CLAN 
+    : VARIABLE_EQUIPMENT.TARGETING_COMPUTER_IS;
+}
+
+/**
+ * Calculate targeting computer weight based on direct fire weapon tonnage
+ * 
+ * Formula:
+ * - IS: ceil(directFireWeaponTonnage / 4)
+ * - Clan: ceil(directFireWeaponTonnage / 5)
+ * 
+ * @param directFireWeaponTonnage - Total tonnage of energy and ballistic weapons
+ * @param techBase - Tech base (IS or Clan)
+ * @returns Weight in tons (minimum 1)
+ */
+export function calculateTargetingComputerWeight(
+  directFireWeaponTonnage: number,
+  techBase: TechBase
+): number {
+  if (directFireWeaponTonnage <= 0) return 0;
+  
+  const formulaId = getTargetingComputerFormulaId(techBase);
+  const result = equipmentCalculatorService.calculateProperties(formulaId, { directFireWeaponTonnage });
+  return Math.max(1, result.weight);
+}
+
+/**
+ * Calculate targeting computer critical slots
+ * Slots = weight (1 slot per ton)
+ * 
+ * @param directFireWeaponTonnage - Total tonnage of energy and ballistic weapons
+ * @param techBase - Tech base (IS or Clan)
+ * @returns Number of critical slots (minimum 1)
+ */
+export function calculateTargetingComputerSlots(
+  directFireWeaponTonnage: number,
+  techBase: TechBase
+): number {
+  if (directFireWeaponTonnage <= 0) return 0;
+  
+  const formulaId = getTargetingComputerFormulaId(techBase);
+  const result = equipmentCalculatorService.calculateProperties(formulaId, { directFireWeaponTonnage });
+  return Math.max(1, result.criticalSlots);
+}
+
+/**
+ * Calculate targeting computer cost
+ * Cost = weight × 10,000 C-Bills
+ * 
+ * @param directFireWeaponTonnage - Total tonnage of energy and ballistic weapons
+ * @param techBase - Tech base (IS or Clan)
+ * @returns Cost in C-Bills
+ */
+export function calculateTargetingComputerCost(
+  directFireWeaponTonnage: number,
+  techBase: TechBase
+): number {
+  if (directFireWeaponTonnage <= 0) return 0;
+  
+  const formulaId = getTargetingComputerFormulaId(techBase);
+  const result = equipmentCalculatorService.calculateProperties(formulaId, { directFireWeaponTonnage });
+  return result.costCBills;
+}
+
+/**
+ * Create targeting computer equipment instance for the equipment array
+ * 
+ * Weight and slots are variable based on direct fire weapon tonnage:
+ * - IS: ceil(directFireWeaponTonnage / 4) tons, same number of slots
+ * - Clan: ceil(directFireWeaponTonnage / 5) tons, same number of slots
+ * 
+ * The targeting computer must be placed in a single location (typically head or torso).
+ * 
+ * @param techBase - Tech base (IS or Clan)
+ * @param directFireWeaponTonnage - Total tonnage of energy and ballistic weapons
+ * @returns Array with single targeting computer equipment instance, or empty if no valid TC
+ */
+export function createTargetingComputerEquipmentList(
+  techBase: TechBase,
+  directFireWeaponTonnage: number
+): IMountedEquipmentInstance[] {
+  // No targeting computer if no direct fire weapons
+  if (directFireWeaponTonnage <= 0) return [];
+  
+  const tcEquip = getTargetingComputerEquipment(techBase);
+  if (!tcEquip) return [];
+  
+  const weight = calculateTargetingComputerWeight(directFireWeaponTonnage, techBase);
+  const slots = calculateTargetingComputerSlots(directFireWeaponTonnage, techBase);
+  
+  // Targeting computer is a single contiguous item
+  return [{
+    instanceId: generateUnitId(),
+    equipmentId: tcEquip.id,
+    name: tcEquip.name,
+    category: EquipmentCategory.ELECTRONICS,
+    weight,
+    criticalSlots: slots,
+    heat: 0,
+    techBase: tcEquip.techBase,
+    location: undefined,
+    slots: undefined,
+    isRearMounted: false,
+    linkedAmmoId: undefined,
+    isRemovable: true, // Targeting computer can be removed from loadout
+  }];
+}
+
+/**
+ * Filter out targeting computer equipment from the equipment array
+ */
+export function filterOutTargetingComputer(
+  equipment: readonly IMountedEquipmentInstance[]
+): IMountedEquipmentInstance[] {
+  return equipment.filter(e => !TARGETING_COMPUTER_EQUIPMENT_IDS.includes(e.equipmentId));
 }
 

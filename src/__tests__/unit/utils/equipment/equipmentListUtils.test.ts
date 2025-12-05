@@ -17,6 +17,13 @@ import {
   calculateEnhancementSlots,
   createEnhancementEquipmentList,
   filterOutEnhancementEquipment,
+  getTargetingComputerEquipment,
+  getTargetingComputerFormulaId,
+  calculateTargetingComputerWeight,
+  calculateTargetingComputerSlots,
+  calculateTargetingComputerCost,
+  createTargetingComputerEquipmentList,
+  filterOutTargetingComputer,
 } from '@/utils/equipment/equipmentListUtils';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -31,6 +38,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 interface MockEquipmentParams {
   tonnage?: number;
   engineWeight?: number;
+  directFireWeaponTonnage?: number;
 }
 
 jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
@@ -51,7 +59,19 @@ jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
       if (id === 'partial-wing') {
         return { weight: (params.tonnage ?? 0) * 0.05, criticalSlots: 6 };
       }
-      return { weight: 0, criticalSlots: 0 };
+      // Targeting Computer IS: ceil(directFireWeaponTonnage / 4)
+      if (id === 'targeting-computer-is') {
+        const dfwt = params.directFireWeaponTonnage ?? 0;
+        const weight = Math.ceil(dfwt / 4);
+        return { weight, criticalSlots: weight, costCBills: weight * 10000 };
+      }
+      // Targeting Computer Clan: ceil(directFireWeaponTonnage / 5)
+      if (id === 'targeting-computer-clan') {
+        const dfwt = params.directFireWeaponTonnage ?? 0;
+        const weight = Math.ceil(dfwt / 5);
+        return { weight, criticalSlots: weight, costCBills: weight * 10000 };
+      }
+      return { weight: 0, criticalSlots: 0, costCBills: 0 };
     }),
   },
   VARIABLE_EQUIPMENT: {
@@ -60,6 +80,8 @@ jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
     SUPERCHARGER: 'supercharger',
     TSM: 'tsm',
     PARTIAL_WING: 'partial-wing',
+    TARGETING_COMPUTER_IS: 'targeting-computer-is',
+    TARGETING_COMPUTER_CLAN: 'targeting-computer-clan',
   },
 }));
 
@@ -303,6 +325,146 @@ describe('equipmentListUtils', () => {
       const filtered = filterOutEnhancementEquipment(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
+    });
+  });
+
+  describe('Targeting Computer Functions', () => {
+    it('should get targeting computer equipment for IS', () => {
+      const equip = getTargetingComputerEquipment(TechBase.INNER_SPHERE);
+      expect(equip).toBeDefined();
+      expect(equip?.id).toBe('targeting-computer');
+      expect(equip?.techBase).toBe(TechBase.INNER_SPHERE);
+    });
+
+    it('should get targeting computer equipment for Clan', () => {
+      const equip = getTargetingComputerEquipment(TechBase.CLAN);
+      expect(equip).toBeDefined();
+      expect(equip?.id).toBe('clan-targeting-computer');
+      expect(equip?.techBase).toBe(TechBase.CLAN);
+    });
+
+    it('should get correct formula ID for IS targeting computer', () => {
+      expect(getTargetingComputerFormulaId(TechBase.INNER_SPHERE)).toBe('targeting-computer-is');
+    });
+
+    it('should get correct formula ID for Clan targeting computer', () => {
+      expect(getTargetingComputerFormulaId(TechBase.CLAN)).toBe('targeting-computer-clan');
+    });
+
+    describe('IS Targeting Computer Calculations', () => {
+      // IS formula: weight = ceil(directFireWeaponTonnage / 4)
+      it.each([
+        [4, 1],   // ceil(4/4) = 1
+        [5, 2],   // ceil(5/4) = 2
+        [8, 2],   // ceil(8/4) = 2
+        [12, 3],  // ceil(12/4) = 3
+        [15, 4],  // ceil(15/4) = 4
+        [16, 4],  // ceil(16/4) = 4
+      ])('%d tons of weapons → %d ton TC', (weaponTons, expectedWeight) => {
+        const weight = calculateTargetingComputerWeight(weaponTons, TechBase.INNER_SPHERE);
+        expect(weight).toBe(expectedWeight);
+      });
+
+      it('should have slots equal to weight', () => {
+        const weight = calculateTargetingComputerWeight(12, TechBase.INNER_SPHERE);
+        const slots = calculateTargetingComputerSlots(12, TechBase.INNER_SPHERE);
+        expect(slots).toBe(weight);
+      });
+
+      it('should calculate cost as weight × 10000', () => {
+        const cost = calculateTargetingComputerCost(12, TechBase.INNER_SPHERE);
+        expect(cost).toBe(30000); // 3 tons × 10000
+      });
+    });
+
+    describe('Clan Targeting Computer Calculations', () => {
+      // Clan formula: weight = ceil(directFireWeaponTonnage / 5)
+      it.each([
+        [5, 1],   // ceil(5/5) = 1
+        [6, 2],   // ceil(6/5) = 2
+        [10, 2],  // ceil(10/5) = 2
+        [15, 3],  // ceil(15/5) = 3
+        [20, 4],  // ceil(20/5) = 4
+      ])('%d tons of weapons → %d ton TC', (weaponTons, expectedWeight) => {
+        const weight = calculateTargetingComputerWeight(weaponTons, TechBase.CLAN);
+        expect(weight).toBe(expectedWeight);
+      });
+
+      it('should weigh less than IS for same weapon tonnage', () => {
+        const isWeight = calculateTargetingComputerWeight(15, TechBase.INNER_SPHERE);
+        const clanWeight = calculateTargetingComputerWeight(15, TechBase.CLAN);
+        expect(clanWeight).toBeLessThan(isWeight);
+      });
+    });
+
+    describe('Edge Cases', () => {
+      it('should return 0 weight for 0 weapon tonnage', () => {
+        expect(calculateTargetingComputerWeight(0, TechBase.INNER_SPHERE)).toBe(0);
+        expect(calculateTargetingComputerWeight(0, TechBase.CLAN)).toBe(0);
+      });
+
+      it('should return minimum 1 ton for any positive weapon tonnage', () => {
+        expect(calculateTargetingComputerWeight(1, TechBase.INNER_SPHERE)).toBe(1);
+        expect(calculateTargetingComputerWeight(1, TechBase.CLAN)).toBe(1);
+      });
+    });
+
+    describe('Create Targeting Computer Equipment List', () => {
+      it('should create IS targeting computer equipment', () => {
+        const list = createTargetingComputerEquipmentList(TechBase.INNER_SPHERE, 12);
+        
+        expect(list).toHaveLength(1);
+        expect(list[0].equipmentId).toBe('targeting-computer');
+        expect(list[0].weight).toBe(3); // ceil(12/4)
+        expect(list[0].criticalSlots).toBe(3);
+        expect(list[0].category).toBe(EquipmentCategory.ELECTRONICS);
+        expect(list[0].techBase).toBe(TechBase.INNER_SPHERE);
+        expect(list[0].isRemovable).toBe(true);
+      });
+
+      it('should create Clan targeting computer equipment', () => {
+        const list = createTargetingComputerEquipmentList(TechBase.CLAN, 15);
+        
+        expect(list).toHaveLength(1);
+        expect(list[0].equipmentId).toBe('clan-targeting-computer');
+        expect(list[0].weight).toBe(3); // ceil(15/5)
+        expect(list[0].criticalSlots).toBe(3);
+        expect(list[0].techBase).toBe(TechBase.CLAN);
+      });
+
+      it('should return empty list for 0 weapon tonnage', () => {
+        const list = createTargetingComputerEquipmentList(TechBase.INNER_SPHERE, 0);
+        expect(list).toHaveLength(0);
+      });
+
+      it('should return empty list for negative weapon tonnage', () => {
+        const list = createTargetingComputerEquipmentList(TechBase.INNER_SPHERE, -5);
+        expect(list).toHaveLength(0);
+      });
+    });
+
+    describe('Filter Out Targeting Computer', () => {
+      it('should filter out IS targeting computer', () => {
+        const equipment = [
+          { equipmentId: 'targeting-computer', name: 'TC' } as { equipmentId: string; name: string },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        ];
+        
+        const filtered = filterOutTargetingComputer(equipment);
+        expect(filtered).toHaveLength(1);
+        expect(filtered[0].equipmentId).toBe('medium-laser');
+      });
+
+      it('should filter out Clan targeting computer', () => {
+        const equipment = [
+          { equipmentId: 'clan-targeting-computer', name: 'Clan TC' } as { equipmentId: string; name: string },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        ];
+        
+        const filtered = filterOutTargetingComputer(equipment);
+        expect(filtered).toHaveLength(1);
+        expect(filtered[0].equipmentId).toBe('medium-laser');
+      });
     });
   });
 });
