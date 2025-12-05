@@ -1099,20 +1099,23 @@ export class SVGRecordSheetRenderer {
     const bracketWidth = 3; // Width of horizontal bracket parts
     const strokeWidth = 0.72;
     
+    // Calculate symmetrical padding from slot edges (15% of slot height on each end)
+    const verticalPadding = slotHeight * 0.15;
+    
     // Calculate Y positions accounting for the gap
     let barStartY: number;
     let barEndY: number;
     
     if (slotCount > 6 && startSlot >= 6) {
-      barStartY = y + startSlot * slotHeight + gapHeight + 3;
+      barStartY = y + startSlot * slotHeight + gapHeight + verticalPadding;
     } else {
-      barStartY = y + startSlot * slotHeight + 3;
+      barStartY = y + startSlot * slotHeight + verticalPadding;
     }
     
     if (slotCount > 6 && endSlot >= 6) {
-      barEndY = y + (endSlot + 1) * slotHeight + gapHeight - 1;
+      barEndY = y + (endSlot + 1) * slotHeight + gapHeight - verticalPadding;
     } else {
-      barEndY = y + (endSlot + 1) * slotHeight - 1;
+      barEndY = y + (endSlot + 1) * slotHeight - verticalPadding;
     }
     
     const bracketX = x + barWidth;
