@@ -212,10 +212,21 @@ export class SVGRecordSheetRenderer {
   }
 
   /**
-   * Fix the copyright text: replace year placeholder and remove text stretching
+   * Fix the copyright text: replace year placeholder, set font, and adjust spacing
    */
   private fixCopyrightYear(): void {
     if (!this.svgDoc) return;
+    
+    // Get the footer parent element to adjust font and position
+    const footerElement = this.svgDoc.getElementById('footer');
+    if (footerElement) {
+      // Change font to Aptos and adjust size for better fit
+      footerElement.setAttribute('font-family', 'Aptos, Calibri, Arial, sans-serif');
+      footerElement.setAttribute('font-size', '5.2px');
+      footerElement.setAttribute('font-weight', 'normal');
+      // Move up to create more space at bottom (was 756.0, now 750.0)
+      footerElement.setAttribute('transform', 'translate(288.0 750.0)');
+    }
     
     const copyrightElement = this.svgDoc.getElementById('tspanCopyright');
     if (copyrightElement && copyrightElement.textContent) {
@@ -224,6 +235,8 @@ export class SVGRecordSheetRenderer {
       // Remove textLength and lengthAdjust to prevent text stretching
       copyrightElement.removeAttribute('textLength');
       copyrightElement.removeAttribute('lengthAdjust');
+      // Adjust line spacing
+      copyrightElement.setAttribute('y', '-6.0');
     }
     
     // Also fix the second line of copyright (Catalyst Game Labs)
@@ -231,6 +244,8 @@ export class SVGRecordSheetRenderer {
     if (catalystElement) {
       catalystElement.removeAttribute('textLength');
       catalystElement.removeAttribute('lengthAdjust');
+      // Adjust line spacing
+      catalystElement.setAttribute('y', '0');
     }
   }
 
