@@ -913,29 +913,31 @@ export class SVGRecordSheetRenderer {
 
     // Calculate slot dimensions based on number of slots
     const slotCount = location.slots.length;
-    const labelHeight = 8; // Height reserved for location label
     const gapHeight = slotCount > 6 ? 4 : 0; // Gap between slots 6 and 7 for 12-slot locations
-    const availableHeight = height - gapHeight - labelHeight;
-    const slotHeight = availableHeight / slotCount;
-    const fontSize = slotCount <= 6 ? 7 : 6; // Larger font for 6-slot locations
+    const slotHeight = (height - gapHeight) / slotCount;
+    // MegaMekLab uses constant 7px font for ALL critical slot entries (DEFAULT_CRITICAL_SLOT_ENTRY_FONT_SIZE = 7f)
+    const fontSize = 7;
+    const titleFontSize = fontSize * 1.25; // 25% larger for title (MegaMekLab style)
     const numberWidth = 12; // Width for slot number column
     const barWidth = 2; // Width of multi-slot indicator bar
     const barMargin = 1; // Margin between bar and slot number
     
-    // Draw location label at the top
+    // Draw location label ABOVE the crit rect (MegaMekLab style)
+    // Position: 7.5% indent from left edge, above the rect with clearance
+    const labelX = x + width * 0.075;
     const labelEl = this.svgDoc.createElementNS(SVG_NS, 'text');
-    labelEl.setAttribute('x', String(x + width / 2));
-    labelEl.setAttribute('y', String(y + labelHeight - 1));
-    labelEl.setAttribute('font-size', '7px');
+    labelEl.setAttribute('x', String(labelX));
+    labelEl.setAttribute('y', String(y - 4)); // Above the crit rect with more clearance
+    labelEl.setAttribute('font-size', `${titleFontSize}px`);
     labelEl.setAttribute('font-family', 'Times New Roman, Times, serif');
     labelEl.setAttribute('font-weight', 'bold');
     labelEl.setAttribute('fill', '#000000');
-    labelEl.setAttribute('text-anchor', 'middle');
+    labelEl.setAttribute('text-anchor', 'start'); // Left-aligned
     labelEl.textContent = location.location;
     group.appendChild(labelEl);
     
-    // Adjust Y offset to account for label
-    const slotsStartY = y + labelHeight;
+    // Slots start at the top of the rect
+    const slotsStartY = y;
     
     // First pass: identify multi-slot equipment groups
     const multiSlotGroups = this.identifyMultiSlotGroups(location.slots);
