@@ -25,6 +25,20 @@ export const PAPER_DIMENSIONS: Record<PaperSize, { width: number; height: number
 };
 
 /**
+ * DPI multiplier for PDF export (3x = 216 DPI, 4x = 288 DPI)
+ * Higher values produce sharper text and lines but larger file sizes.
+ * 3x provides a good balance between quality and file size.
+ */
+export const PDF_DPI_MULTIPLIER = 3;
+
+/**
+ * DPI multiplier for in-app preview rendering.
+ * Must be high enough to support zooming without blur.
+ * 4x ensures crisp text up to 200% zoom on standard displays.
+ */
+export const PREVIEW_DPI_MULTIPLIER = 10;
+
+/**
  * Record sheet header data
  */
 export interface IRecordSheetHeader {

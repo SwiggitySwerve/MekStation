@@ -43,11 +43,38 @@ export function RecordSheetPreview({
   className = '',
 }: RecordSheetPreviewProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(initialScale);
   
+  // Calculate fit-to-width scale
+  const fitToWidth = useCallback(() => {
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.clientWidth - 32; // Account for padding
+      const { width } = PAPER_DIMENSIONS[paperSize];
+      const fitScale = containerWidth / width;
+      setZoom(Math.min(fitScale, 2.0)); // Cap at 200%
+    }
+  }, [paperSize]);
+
+  // Fit to width on initial load and when container resizes
+  useEffect(() => {
+    fitToWidth();
+    
+    const resizeObserver = new ResizeObserver(() => {
+      // Only auto-fit if current zoom is close to a "fit" value
+      // This prevents overriding manual zoom adjustments
+    });
+    
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    
+    return () => resizeObserver.disconnect();
+  }, [fitToWidth]);
+  
   // Zoom controls
-  const zoomIn = () => setZoom(z => Math.min(z + 0.2, 3.0));
-  const zoomOut = () => setZoom(z => Math.max(z - 0.2, 0.4));
+  const zoomIn = () => setZoom(z => Math.min(z + 0.1, 3.0));
+  const zoomOut = () => setZoom(z => Math.max(z - 0.1, 0.3));
   const resetZoom = () => setZoom(1.0);
   
   // Get unit state from store
@@ -297,10 +324,26 @@ export function RecordSheetPreview({
         >
           100%
         </button>
+        <button
+          onClick={fitToWidth}
+          style={{
+            padding: '4px 12px',
+            backgroundColor: '#4a7c59',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            marginLeft: '8px',
+          }}
+        >
+          Fit Width
+        </button>
       </div>
       
       {/* Preview Area */}
       <div 
+        ref={containerRef}
         style={{
           flex: 1,
           display: 'flex',

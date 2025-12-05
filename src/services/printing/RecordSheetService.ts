@@ -21,13 +21,15 @@ import {
   ILocationStructure,
   PaperSize,
   PAPER_DIMENSIONS,
+  PDF_DPI_MULTIPLIER,
+  PREVIEW_DPI_MULTIPLIER,
   LOCATION_ABBREVIATIONS,
   LOCATION_NAMES,
   IPDFExportOptions,
 } from '@/types/printing';
 import { MechRecordSheetRenderer } from './MechRecordSheetRenderer';
 import { SVGRecordSheetRenderer } from './SVGRecordSheetRenderer';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechLocation, STANDARD_FIXED_ALLOCATIONS, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
 import { getAllWeapons, IWeapon, WeaponCategory } from '@/types/equipment';
 
@@ -148,6 +150,7 @@ export class RecordSheetService {
 
   /**
    * Render preview to canvas (legacy canvas-based rendering)
+   * Uses high-DPI rendering (4x) for crisp text at all zoom levels.
    */
   renderPreview(
     canvas: HTMLCanvasElement,
@@ -159,10 +162,17 @@ export class RecordSheetService {
       throw new Error('Could not get canvas 2D context');
     }
 
-    // Set canvas size to match paper
+    // Set canvas size with high-DPI multiplier for crisp preview
     const { width, height } = PAPER_DIMENSIONS[paperSize];
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = width * PREVIEW_DPI_MULTIPLIER;
+    canvas.height = height * PREVIEW_DPI_MULTIPLIER;
+
+    // Scale context so rendering code uses paper coordinates
+    ctx.scale(PREVIEW_DPI_MULTIPLIER, PREVIEW_DPI_MULTIPLIER);
+    
+    // Enable high-quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     // Render record sheet
     const renderer = new MechRecordSheetRenderer(ctx, paperSize);
@@ -188,6 +198,9 @@ export class RecordSheetService {
       // Load and insert armor pips
       await renderer.fillArmorPips(data.armor);
       
+      // Fill structure pips and text values
+      await renderer.fillStructurePips(data.structure, data.header.tonnage);
+      
       await renderer.renderToCanvas(canvas);
     } catch (error) {
       console.warn('SVG rendering failed, falling back to canvas rendering:', error);
@@ -209,11 +222,15 @@ export class RecordSheetService {
     // Load and insert armor pips
     await renderer.fillArmorPips(data.armor);
     
+    // Fill structure pips and text values
+    await renderer.fillStructurePips(data.structure, data.header.tonnage);
+    
     return renderer.getSVGString();
   }
 
   /**
    * Export to PDF and trigger download
+   * Uses high-DPI rendering (3x) for crisp text and graphics.
    */
   async exportPDF(
     data: IRecordSheetData,
@@ -222,13 +239,30 @@ export class RecordSheetService {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
 
-    // Create off-screen canvas
+    // Create off-screen canvas at high DPI for crisp PDF output
+    // 3x multiplier = 216 DPI (vs 72 DPI at 1x)
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    const scaledWidth = width * PDF_DPI_MULTIPLIER;
+    const scaledHeight = height * PDF_DPI_MULTIPLIER;
+    canvas.width = scaledWidth;
+    canvas.height = scaledHeight;
 
-    // Render to canvas
-    this.renderPreview(canvas, data, paperSize);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Could not get canvas 2D context');
+    }
+
+    // Scale the context so rendering code uses the same coordinates
+    // but produces a higher resolution output
+    ctx.scale(PDF_DPI_MULTIPLIER, PDF_DPI_MULTIPLIER);
+
+    // Enable high-quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // Render record sheet (the renderer uses paper-sized coordinates)
+    const renderer = new MechRecordSheetRenderer(ctx, paperSize);
+    renderer.render(data);
 
     // Create PDF
     const pdf = new jsPDF({
@@ -237,7 +271,66 @@ export class RecordSheetService {
       format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
     });
 
-    // Add canvas image to PDF
+    // Add high-res canvas image to PDF, scaled down to paper dimensions
+    // jsPDF will use the full resolution image but fit it to the specified dimensions
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+
+    // Generate filename
+    const pdfFilename = filename || `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
+
+    // Trigger download
+    pdf.save(pdfFilename);
+  }
+
+  /**
+   * Export to PDF using SVG template rendering (higher quality)
+   * Uses high-DPI rendering (3x) for crisp text and graphics.
+   */
+  async exportSVGPDF(
+    data: IRecordSheetData,
+    options: IPDFExportOptions = { paperSize: PaperSize.LETTER, includePilotData: false }
+  ): Promise<void> {
+    const { paperSize, filename } = options;
+    const { width, height } = PAPER_DIMENSIONS[paperSize];
+
+    // Create off-screen canvas at high DPI for crisp PDF output
+    const canvas = document.createElement('canvas');
+    const scaledWidth = width * PDF_DPI_MULTIPLIER;
+    const scaledHeight = height * PDF_DPI_MULTIPLIER;
+    canvas.width = scaledWidth;
+    canvas.height = scaledHeight;
+
+    // Get template path based on mech type
+    const templatePath = SVG_TEMPLATES[data.mechType] || SVG_TEMPLATES.biped;
+
+    try {
+      // Use SVG renderer with high-DPI canvas
+      const renderer = new SVGRecordSheetRenderer();
+      await renderer.loadTemplate(templatePath);
+      renderer.fillTemplate(data);
+      await renderer.fillArmorPips(data.armor);
+      await renderer.fillStructurePips(data.structure, data.header.tonnage);
+      await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
+    } catch (error) {
+      console.warn('SVG PDF rendering failed, falling back to canvas rendering:', error);
+      // Fallback to canvas rendering
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(PDF_DPI_MULTIPLIER, PDF_DPI_MULTIPLIER);
+        const fallbackRenderer = new MechRecordSheetRenderer(ctx, paperSize);
+        fallbackRenderer.render(data);
+      }
+    }
+
+    // Create PDF
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
+    });
+
+    // Add high-res canvas image to PDF
     const imgData = canvas.toDataURL('image/png');
     pdf.addImage(imgData, 'PNG', 0, 0, width, height);
 
@@ -661,7 +754,7 @@ export class RecordSheetService {
   }
 
   /**
-   * Extract critical slots data
+   * Extract critical slots data with fixed equipment (engine, gyro, actuators, etc.)
    */
   private extractCriticals(unit: IUnitConfig): readonly ILocationCriticals[] {
     const locations: MechLocation[] = [
@@ -675,21 +768,50 @@ export class RecordSheetService {
       MechLocation.RIGHT_LEG,
     ];
 
+    // Calculate engine slot requirements
+    const engineSlots = this.getEngineSlots(unit.engine.type, unit.engine.rating);
+    const gyroSlots = this.getGyroSlots(unit.gyro.type);
+
     return locations.map((loc) => {
-      const slotData = unit.criticalSlots?.[loc] || [];
-      const slotCount = loc === MechLocation.HEAD || loc === MechLocation.LEFT_LEG || loc === MechLocation.RIGHT_LEG ? 6 : 12;
+      const slotCount = LOCATION_SLOT_COUNTS[loc];
+      const userSlots = unit.criticalSlots?.[loc] || [];
       
+      // Start with empty slots array
       const slots: IRecordSheetCriticalSlot[] = [];
+      
+      // Fill slots with fixed equipment first, then user equipment
       for (let i = 0; i < slotCount; i++) {
-        const slot = slotData[i];
-        slots.push({
-          slotNumber: i + 1,
-          content: slot?.content || '',
-          isSystem: slot?.isSystem || false,
-          isHittable: true,
-          isRollAgain: !slot?.content,
-          equipmentId: slot?.equipmentId,
-        });
+        // Check for fixed equipment at this slot
+        const fixedContent = this.getFixedSlotContent(loc, i, engineSlots, gyroSlots);
+        const userSlot = userSlots[i];
+        
+        if (fixedContent) {
+          slots.push({
+            slotNumber: i + 1,
+            content: fixedContent,
+            isSystem: true,
+            isHittable: true,
+            isRollAgain: false,
+          });
+        } else if (userSlot?.content) {
+          slots.push({
+            slotNumber: i + 1,
+            content: userSlot.content,
+            isSystem: userSlot.isSystem || false,
+            isHittable: true,
+            isRollAgain: false,
+            equipmentId: userSlot.equipmentId,
+          });
+        } else {
+          // Empty slot - Roll Again
+          slots.push({
+            slotNumber: i + 1,
+            content: '',
+            isSystem: false,
+            isHittable: true,
+            isRollAgain: true,
+          });
+        }
       }
 
       return {
@@ -698,6 +820,116 @@ export class RecordSheetService {
         slots,
       };
     });
+  }
+
+  /**
+   * Get fixed slot content for a location and slot index
+   */
+  private getFixedSlotContent(
+    location: MechLocation,
+    slotIndex: number,
+    engineSlots: { ct: number; sideTorso: number },
+    gyroSlots: number
+  ): string | null {
+    // Head slots
+    if (location === MechLocation.HEAD) {
+      switch (slotIndex) {
+        case 0: return 'Life Support';
+        case 1: return 'Sensors';
+        case 2: return 'Cockpit';
+        case 3: return null; // Available slot
+        case 4: return 'Sensors';
+        case 5: return 'Life Support';
+      }
+    }
+
+    // Center Torso - Engine and Gyro
+    if (location === MechLocation.CENTER_TORSO) {
+      if (slotIndex < engineSlots.ct) {
+        return 'Engine';
+      }
+      if (slotIndex < engineSlots.ct + gyroSlots) {
+        return 'Gyro';
+      }
+      // Remaining CT slots after engine/gyro
+      if (slotIndex < engineSlots.ct + gyroSlots + engineSlots.ct) {
+        // Second half of engine (if applicable for compact engines)
+        return null;
+      }
+    }
+
+    // Side Torsos - Engine slots for XL/Light/XXL engines
+    if ((location === MechLocation.LEFT_TORSO || location === MechLocation.RIGHT_TORSO)) {
+      if (slotIndex < engineSlots.sideTorso) {
+        return 'Engine';
+      }
+    }
+
+    // Arms - Actuators
+    if (location === MechLocation.LEFT_ARM || location === MechLocation.RIGHT_ARM) {
+      switch (slotIndex) {
+        case 0: return 'Shoulder';
+        case 1: return 'Upper Arm Actuator';
+        case 2: return 'Lower Arm Actuator';
+        case 3: return 'Hand Actuator';
+      }
+    }
+
+    // Legs - Actuators
+    if (location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG) {
+      switch (slotIndex) {
+        case 0: return 'Hip';
+        case 1: return 'Upper Leg Actuator';
+        case 2: return 'Lower Leg Actuator';
+        case 3: return 'Foot Actuator';
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Calculate engine slot requirements based on type and rating
+   */
+  private getEngineSlots(engineType: string, rating: number): { ct: number; sideTorso: number } {
+    const type = engineType.toLowerCase();
+    
+    // Standard, Light ICE, and Compact engines fit entirely in CT
+    if (type.includes('standard') || type.includes('ice') || type.includes('compact')) {
+      return { ct: 6, sideTorso: 0 };
+    }
+    
+    // XL engines use 3 CT + 3 each side torso
+    if (type.includes('xl')) {
+      return { ct: 6, sideTorso: 3 };
+    }
+    
+    // Light engines use 6 CT + 2 each side torso
+    if (type.includes('light')) {
+      return { ct: 6, sideTorso: 2 };
+    }
+    
+    // XXL engines use 6 CT + 6 each side torso
+    if (type.includes('xxl')) {
+      return { ct: 6, sideTorso: 6 };
+    }
+    
+    // Default to standard
+    return { ct: 6, sideTorso: 0 };
+  }
+
+  /**
+   * Calculate gyro slot requirements based on type
+   */
+  private getGyroSlots(gyroType: string): number {
+    const type = gyroType.toLowerCase();
+    
+    if (type.includes('compact')) return 2;
+    if (type.includes('heavy')) return 2;
+    if (type.includes('xl')) return 6;
+    
+    // Standard gyro = 4 slots
+    return 4;
   }
 
   /**
