@@ -146,6 +146,37 @@ export class SVGRecordSheetRenderer {
     if (parseError) {
       throw new Error(`Failed to parse SVG template: ${parseError.textContent}`);
     }
+    
+    // Add margins around the document
+    this.addDocumentMargins();
+  }
+
+  /**
+   * Add margins around the SVG document for proper spacing on all edges
+   * The original template is 576x756, we expand to 612x792 (US Letter) with centered content
+   */
+  private addDocumentMargins(): void {
+    if (!this.svgRoot) return;
+    
+    // Original template dimensions
+    const originalWidth = 576;
+    const originalHeight = 756;
+    
+    // Target dimensions (US Letter in points: 612x792)
+    const targetWidth = 612;
+    const targetHeight = 792;
+    
+    // Calculate margins (centered)
+    const marginX = (targetWidth - originalWidth) / 2; // 18 points each side
+    const marginY = (targetHeight - originalHeight) / 2; // 18 points top and bottom
+    
+    // Set viewBox to add margins: negative offset positions content with margins
+    // viewBox = "minX minY width height"
+    this.svgRoot.setAttribute('viewBox', `${-marginX} ${-marginY} ${targetWidth} ${targetHeight}`);
+    
+    // Update width/height to target size
+    this.svgRoot.setAttribute('width', String(targetWidth));
+    this.svgRoot.setAttribute('height', String(targetHeight));
   }
 
   /**
