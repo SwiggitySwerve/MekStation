@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({
   // Only apply margins when sidebar components are actually provided
   const hasSidebar = !!sidebarComponent;
   const contentAndFooterMargin = hasSidebar 
-    ? (isSidebarCollapsed ? 'md:ml-12' : 'md:ml-40')
+    ? (isSidebarCollapsed ? 'md:ml-12' : 'md:ml-52')
     : 'ml-0';
 
   return (
