@@ -8,7 +8,6 @@
 
 import React, { useCallback, useState } from 'react';
 import { PaperSize } from '@/types/printing';
-import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Types
@@ -104,7 +103,7 @@ export function PreviewToolbar({
             cursor: 'pointer',
           }}
         >
-          <option value={PaperSize.LETTER}>Letter (8.5" × 11")</option>
+          <option value={PaperSize.LETTER}>Letter (8.5&quot; × 11&quot;)</option>
           <option value={PaperSize.A4}>A4 (210mm × 297mm)</option>
         </select>
       </div>

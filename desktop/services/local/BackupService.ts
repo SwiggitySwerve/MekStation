@@ -21,8 +21,7 @@ import { createGzip, createGunzip } from 'zlib';
 import { pipeline } from 'stream/promises';
 
 // Service interfaces
-import { IService } from '../../../src/services/core/types/BaseTypes';
-import { Result } from '../../../src/services/core/types/BaseTypes';
+import { IService, ResultType, Result } from '../../types/BaseTypes';
 
 /**
  * Configuration for backup service
@@ -123,7 +122,7 @@ export class BackupService implements IService {
   /**
    * Create a backup
    */
-  async createBackup(type: 'full' | 'incremental' = 'full'): Promise<Result<string, string>> {
+  async createBackup(type: 'full' | 'incremental' = 'full'): Promise<ResultType<string, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -163,7 +162,7 @@ export class BackupService implements IService {
         size: stats.size,
         checksum,
         files: filesToBackup.map(f => path.relative(this.config.dataPath, f)),
-        parent: type === 'incremental' ? await this.getLatestBackupId() : undefined
+        parent: type === 'incremental' ? (await this.getLatestBackupId()) || undefined : undefined
       };
 
       // Save metadata
@@ -187,7 +186,7 @@ export class BackupService implements IService {
   /**
    * Restore from backup
    */
-  async restoreBackup(backupPath: string): Promise<Result<IRestoreResult, string>> {
+  async restoreBackup(backupPath: string): Promise<ResultType<IRestoreResult, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -267,7 +266,7 @@ export class BackupService implements IService {
   /**
    * List available backups
    */
-  async listBackups(): Promise<Result<IBackupMetadata[], string>> {
+  async listBackups(): Promise<ResultType<IBackupMetadata[], string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -299,7 +298,7 @@ export class BackupService implements IService {
   /**
    * Delete backup
    */
-  async deleteBackup(backupId: string): Promise<Result<void, string>> {
+  async deleteBackup(backupId: string): Promise<ResultType<void, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -326,7 +325,7 @@ export class BackupService implements IService {
   /**
    * Get backup statistics
    */
-  async getStats(): Promise<Result<IBackupStats, string>> {
+  async getStats(): Promise<ResultType<IBackupStats, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -474,7 +473,7 @@ export class BackupService implements IService {
   /**
    * Extract backup archive
    */
-  private async extractBackupArchive(backupPath: string, extractPath: string): Promise<Result<void, string>> {
+  private async extractBackupArchive(backupPath: string, extractPath: string): Promise<ResultType<void, string>> {
     try {
       const readStream = createReadStream(backupPath);
       const gunzipStream = createGunzip();

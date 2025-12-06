@@ -30,7 +30,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "typeRoots": ["./node_modules/@types", "./types"],
-    "types": ["node", "electron"]
+    "types": ["node"]
   },
   "include": [
     "electron/**/*",

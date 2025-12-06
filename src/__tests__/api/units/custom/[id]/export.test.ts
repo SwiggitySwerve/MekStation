@@ -10,6 +10,23 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom/[id]/export';
 
+// Response types for type-safe assertions
+interface ErrorResponse {
+  error: string;
+}
+
+interface ExportEnvelope {
+  formatVersion: string;
+  savedAt: string;
+  application: string;
+  applicationVersion: string;
+  unit: {
+    chassis: string;
+    variant: string;
+    [key: string]: unknown;
+  };
+}
+
 // Mock SQLiteService
 jest.mock('@/services/persistence/SQLiteService', () => ({
   getSQLiteService: jest.fn(() => ({
@@ -57,7 +74,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(405);
-    expect(res._getJSONData()).toEqual({ error: 'Method POST Not Allowed' });
+    expect(res._getJSONData() as ErrorResponse).toEqual({ error: 'Method POST Not Allowed' });
   });
 
   it('should return 400 if id is missing', async () => {
@@ -69,7 +86,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
   });
 
   it('should return 404 if unit not found', async () => {
@@ -83,7 +100,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(404);
-    expect(res._getJSONData().error).toContain('not found');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('not found');
   });
 
   it('should export unit as JSON envelope', async () => {
@@ -96,7 +113,7 @@ describe('GET /api/units/custom/:id/export', () => {
 
     expect(res._getStatusCode()).toBe(200);
     
-    const data = res._getJSONData();
+    const data = res._getJSONData() as ExportEnvelope;
     expect(data.formatVersion).toBeDefined();
     expect(data.savedAt).toBeDefined();
     expect(data.application).toBe('battletech-editor');
@@ -153,7 +170,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(500);
-    expect(res._getJSONData().error).toBe('Database error');
+    expect((res._getJSONData() as ErrorResponse).error).toBe('Database error');
   });
 
   it('should handle JSON parse errors', async () => {
@@ -182,7 +199,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
     const afterCall = new Date().toISOString();
 
-    const data = res._getJSONData();
+    const data = res._getJSONData() as ExportEnvelope;
     expect(new Date(data.savedAt).getTime()).toBeGreaterThanOrEqual(new Date(beforeCall).getTime());
     expect(new Date(data.savedAt).getTime()).toBeLessThanOrEqual(new Date(afterCall).getTime());
   });

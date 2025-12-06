@@ -152,7 +152,7 @@ describe('EquipmentNameMapper', () => {
     mapper.mapName('Unknown B');
     
     const json = mapper.exportUnknownNames();
-    const parsed = JSON.parse(json);
+    const parsed = JSON.parse(json) as Record<string, unknown>;
     
     expect(parsed).toHaveProperty('Unknown A');
     expect(parsed).toHaveProperty('Unknown B');

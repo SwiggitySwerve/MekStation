@@ -10,6 +10,11 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom/[id]/revert/[version]';
 
+// Response types for type-safe assertions
+interface ErrorResponse {
+  error: string;
+}
+
 // Mock SQLiteService
 jest.mock('@/services/persistence/SQLiteService', () => ({
   getSQLiteService: jest.fn(() => ({
@@ -58,7 +63,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
   });
 
   it('should return 400 if version is missing', async () => {
@@ -70,7 +75,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing version number');
   });
 
   it('should return 400 for invalid version number', async () => {
@@ -82,7 +87,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
   });
 
   it('should return 400 for version 0', async () => {
@@ -94,7 +99,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
   });
 
   it('should return 400 for negative version', async () => {
@@ -106,7 +111,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
   });
 
   it('should revert to previous version successfully', async () => {
@@ -218,7 +223,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(500);
-    expect(res._getJSONData().error).toBe('Database error');
+    expect((res._getJSONData() as ErrorResponse).error).toBe('Database error');
   });
 
   it('should parse version as integer', async () => {

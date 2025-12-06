@@ -11,6 +11,9 @@
  * - System tray integration
  * - Local file storage and backups
  * - Cross-platform compatibility (Windows, Mac, Linux)
+ * - Native application menus with keyboard shortcuts
+ * - Desktop settings and preferences
+ * - Recent files tracking
  */
 
 import { 
@@ -22,7 +25,8 @@ import {
   shell, 
   ipcMain,
   protocol,
-  session
+  session,
+  screen
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -32,6 +36,18 @@ import * as os from 'os';
 // Import our service layer
 import { LocalStorageService } from '../services/local/LocalStorageService';
 import { BackupService } from '../services/local/BackupService';
+import { SettingsService } from '../services/local/SettingsService';
+import { RecentFilesService, IAddRecentFileParams } from '../services/local/RecentFilesService';
+import { MenuManager } from './MenuManager';
+import {
+  IDesktopSettings,
+  IRecentFile,
+  MenuCommand,
+  SETTINGS_IPC_CHANNELS,
+  RECENT_FILES_IPC_CHANNELS,
+  MENU_IPC_CHANNELS,
+  APP_IPC_CHANNELS
+} from '../types/BaseTypes';
 
 /**
  * Application configuration
@@ -55,10 +71,13 @@ interface IDesktopAppConfig {
  * Main application class
  */
 class BattleTechEditorApp {
-  private mainWindow: typeof BrowserWindow | null = null;
-  private tray: typeof Tray | null = null;
+  private mainWindow: BrowserWindow | null = null;
+  private tray: Tray | null = null;
   private localStorage: LocalStorageService | null = null;
   private backupService: BackupService | null = null;
+  private settingsService: SettingsService | null = null;
+  private recentFilesService: RecentFilesService | null = null;
+  private menuManager: MenuManager | null = null;
   
   private readonly config: IDesktopAppConfig = {
     enableAutoUpdater: !process.env.NODE_ENV?.includes('dev'),
@@ -108,6 +127,9 @@ class BattleTechEditorApp {
     // Initialize services
     await this.initializeServices();
     
+    // Initialize menu manager
+    this.initializeMenuManager();
+    
     // Create main window
     await this.createMainWindow();
     
@@ -121,6 +143,9 @@ class BattleTechEditorApp {
     
     // Setup periodic tasks
     this.setupPeriodicTasks();
+    
+    // Apply startup behavior settings
+    await this.applyStartupSettings();
     
     console.log('✅ BattleTech Editor Desktop App initialized successfully');
   }
@@ -262,18 +287,41 @@ class BattleTechEditorApp {
       });
       await this.localStorage.initialize();
 
+      // Initialize settings service
+      this.settingsService = new SettingsService({
+        localStorage: this.localStorage
+      });
+      await this.settingsService.initialize();
+
+      // Listen for settings changes
+      this.settingsService.on('change', (event) => {
+        this.handleSettingsChange(event);
+      });
+
+      // Initialize recent files service
+      const maxRecentFiles = this.settingsService.get('maxRecentFiles');
+      this.recentFilesService = new RecentFilesService({
+        localStorage: this.localStorage,
+        maxRecentFiles
+      });
+      await this.recentFilesService.initialize();
+
+      // Listen for recent files updates
+      this.recentFilesService.on('update', () => {
+        this.updateRecentFilesMenu();
+      });
+
       // Initialize backup service
       if (this.config.enableBackups) {
+        const settings = this.settingsService.getAll();
         this.backupService = new BackupService({
           dataPath: path.join(this.userDataPath, 'data'),
-          backupPath: path.join(this.userDataPath, 'backups'),
-          maxBackups: 10,
+          backupPath: settings.backupDirectory || path.join(this.userDataPath, 'backups'),
+          maxBackups: settings.maxBackupCount,
           compressionLevel: 6
         });
         await this.backupService.initialize();
       }
-
-      // Service orchestrator removed - not implemented yet
 
       console.log('✅ Services initialized successfully');
     } catch (error) {
@@ -283,24 +331,256 @@ class BattleTechEditorApp {
   }
 
   /**
+   * Initialize the menu manager
+   */
+  private initializeMenuManager(): void {
+    this.menuManager = new MenuManager({
+      developmentMode: this.config.developmentMode,
+      onMenuCommand: (command, ...args) => this.handleMenuCommand(command, ...args),
+      onOpenRecent: (fileId) => this.handleOpenRecent(fileId)
+    });
+
+    this.menuManager.initialize();
+
+    // Update recent files in menu
+    if (this.recentFilesService) {
+      this.menuManager.updateRecentFiles(this.recentFilesService.list());
+    }
+  }
+
+  /**
+   * Handle menu commands
+   */
+  private handleMenuCommand(command: MenuCommand, ...args: unknown[]): void {
+    console.log(`📋 Menu command: ${command}`);
+
+    // Send command to renderer
+    this.sendToRenderer(MENU_IPC_CHANNELS.COMMAND, command, ...args);
+
+    // Handle commands that need main process action
+    switch (command) {
+      case 'file:quit':
+        app.quit();
+        break;
+      case 'file:preferences':
+        this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
+        break;
+      case 'view:fullscreen':
+        if (this.mainWindow) {
+          this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
+        }
+        break;
+      case 'view:dev-tools':
+        if (this.mainWindow) {
+          this.mainWindow.webContents.toggleDevTools();
+        }
+        break;
+      case 'help:documentation':
+        shell.openExternal('https://github.com/swervelabs/battletech-editor/wiki');
+        break;
+      case 'help:report-issue':
+        shell.openExternal('https://github.com/swervelabs/battletech-editor/issues/new');
+        break;
+      case 'help:check-updates':
+        autoUpdater.checkForUpdatesAndNotify();
+        break;
+      case 'help:about':
+        this.showAboutDialog();
+        break;
+    }
+  }
+
+  /**
+   * Handle opening a recent file
+   */
+  private handleOpenRecent(fileId: string): void {
+    console.log(`📂 Opening recent file: ${fileId}`);
+    this.sendToRenderer('open-unit', fileId);
+  }
+
+  /**
+   * Handle settings changes
+   */
+  private handleSettingsChange(event: { key: keyof IDesktopSettings; oldValue: unknown; newValue: unknown }): void {
+    console.log(`⚙️ Setting changed: ${event.key}`);
+
+    switch (event.key) {
+      case 'launchAtLogin':
+        this.updateLaunchAtLogin(event.newValue as boolean);
+        break;
+      case 'maxRecentFiles':
+        if (this.recentFilesService) {
+          this.recentFilesService.setMaxRecentFiles(event.newValue as number);
+        }
+        break;
+      case 'enableAutoBackup':
+      case 'backupIntervalMinutes':
+        // Backup interval changes are handled in periodic tasks
+        break;
+    }
+
+    // Notify renderer of settings change
+    this.sendToRenderer(SETTINGS_IPC_CHANNELS.ON_CHANGE, event);
+  }
+
+  /**
+   * Update recent files menu
+   */
+  private updateRecentFilesMenu(): void {
+    if (this.menuManager && this.recentFilesService) {
+      this.menuManager.updateRecentFiles(this.recentFilesService.list());
+    }
+
+    // Update tray menu if enabled
+    if (this.config.enableSystemTray && this.tray) {
+      this.updateTrayMenu();
+    }
+
+    // Notify renderer
+    if (this.recentFilesService) {
+      this.sendToRenderer(RECENT_FILES_IPC_CHANNELS.ON_UPDATE, this.recentFilesService.list());
+    }
+  }
+
+  /**
+   * Update launch at login setting
+   */
+  private updateLaunchAtLogin(enabled: boolean): void {
+    if (process.platform === 'linux') {
+      // Linux uses .desktop file in autostart
+      this.updateLinuxAutostart(enabled);
+    } else {
+      // Windows and macOS use native API
+      app.setLoginItemSettings({
+        openAtLogin: enabled,
+        openAsHidden: this.settingsService?.get('startMinimized') ?? false
+      });
+    }
+  }
+
+  /**
+   * Update Linux autostart .desktop file
+   */
+  private async updateLinuxAutostart(enabled: boolean): Promise<void> {
+    const autostartDir = path.join(os.homedir(), '.config', 'autostart');
+    const desktopFile = path.join(autostartDir, 'battletech-editor.desktop');
+
+    if (enabled) {
+      const desktopContent = `[Desktop Entry]
+Type=Application
+Name=BattleTech Editor
+Exec=${process.execPath}
+Terminal=false
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+`;
+      try {
+        await fs.mkdir(autostartDir, { recursive: true });
+        await fs.writeFile(desktopFile, desktopContent);
+      } catch (error) {
+        console.error('Failed to create autostart file:', error);
+      }
+    } else {
+      try {
+        await fs.unlink(desktopFile);
+      } catch (error) {
+        // File may not exist, ignore error
+      }
+    }
+  }
+
+  /**
+   * Apply startup settings
+   */
+  private async applyStartupSettings(): Promise<void> {
+    if (!this.settingsService) return;
+
+    const settings = this.settingsService.getAll();
+
+    // Handle start minimized
+    if (settings.startMinimized && this.mainWindow) {
+      this.mainWindow.hide();
+    }
+
+    // Handle reopen last unit
+    if (settings.reopenLastUnit && this.recentFilesService) {
+      const lastUnit = this.recentFilesService.getMostRecent();
+      if (lastUnit) {
+        // Wait for renderer to be ready, then open unit
+        this.mainWindow?.webContents.once('did-finish-load', () => {
+          setTimeout(() => {
+            this.sendToRenderer('open-unit', lastUnit.id);
+          }, 1000); // Small delay to ensure app is fully initialized
+        });
+      }
+    }
+  }
+
+  /**
+   * Show about dialog
+   */
+  private showAboutDialog(): void {
+    if (!this.mainWindow) return;
+
+    dialog.showMessageBox(this.mainWindow, {
+      type: 'info',
+      title: 'About BattleTech Editor',
+      message: 'BattleTech Editor',
+      detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}\n\nA comprehensive BattleMech editor for the MegaMek ecosystem.`,
+      buttons: ['OK']
+    });
+  }
+
+  /**
    * Create the main application window
    */
   private async createMainWindow(): Promise<void> {
     console.log('🪟 Creating main window...');
 
-    // Load previous window bounds if available
-    const savedBounds = await this.loadWindowBounds();
-    const bounds = { ...this.config.windowBounds, ...savedBounds };
+    // Get window bounds from settings service or defaults
+    const settings = this.settingsService?.getAll();
+    const savedBounds = settings?.rememberWindowState ? settings.windowBounds : null;
+    
+    // Validate saved bounds are on a visible display
+    let windowBounds = { 
+      ...this.config.windowBounds,
+      x: savedBounds?.x,
+      y: savedBounds?.y,
+      width: savedBounds?.width || this.config.windowBounds.width,
+      height: savedBounds?.height || this.config.windowBounds.height
+    };
+
+    // Validate window is within visible display bounds
+    if (savedBounds?.x !== undefined && savedBounds?.y !== undefined) {
+      const displays = screen.getAllDisplays();
+      const isVisible = displays.some(display => {
+        const { x, y, width, height } = display.bounds;
+        return (
+          savedBounds.x >= x &&
+          savedBounds.x < x + width &&
+          savedBounds.y >= y &&
+          savedBounds.y < y + height
+        );
+      });
+
+      if (!isVisible) {
+        // Reset to primary display center if not visible
+        const primaryDisplay = screen.getPrimaryDisplay();
+        windowBounds.x = Math.round((primaryDisplay.bounds.width - windowBounds.width) / 2);
+        windowBounds.y = Math.round((primaryDisplay.bounds.height - windowBounds.height) / 2);
+      }
+    }
 
     this.mainWindow = new BrowserWindow({
-      width: bounds.width,
-      height: bounds.height,
-      minWidth: bounds.minWidth,
-      minHeight: bounds.minHeight,
+      width: windowBounds.width,
+      height: windowBounds.height,
+      x: windowBounds.x,
+      y: windowBounds.y,
+      minWidth: this.config.windowBounds.minWidth,
+      minHeight: this.config.windowBounds.minHeight,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        enableRemoteModule: false,
         preload: path.join(__dirname, 'preload.js'),
         webSecurity: !this.config.developmentMode
       },
@@ -308,6 +588,11 @@ class BattleTechEditorApp {
       titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
       show: false // Don't show until ready
     });
+
+    // Restore maximized state
+    if (savedBounds?.isMaximized && this.mainWindow) {
+      this.mainWindow.maximize();
+    }
 
     // Load the application
     if (this.config.developmentMode) {
@@ -341,15 +626,21 @@ class BattleTechEditorApp {
       await this.mainWindow.loadURL('http://127.0.0.1:3001');
     }
 
-    // Show window when ready
+    // Show window when ready (unless start minimized is enabled)
     this.mainWindow.once('ready-to-show', () => {
-      this.mainWindow?.show();
-      
-      // Focus window
-      if (process.platform === 'darwin') {
-        app.dock.show();
+      if (this.mainWindow) {
+        const startMinimized = this.settingsService?.get('startMinimized') ?? false;
+        
+        if (!startMinimized) {
+          this.mainWindow.show();
+          
+          // Focus window
+          if (process.platform === 'darwin') {
+            app.dock.show();
+          }
+          this.mainWindow.focus();
+        }
       }
-      this.mainWindow?.focus();
     });
 
     // Handle window events
@@ -358,15 +649,26 @@ class BattleTechEditorApp {
     });
 
     this.mainWindow.on('close', async (event) => {
-      // Save window bounds
-      if (this.mainWindow) {
-        await this.saveWindowBounds(this.mainWindow.getBounds());
+      // Save window bounds to settings
+      if (this.mainWindow && this.settingsService) {
+        const bounds = this.mainWindow.getBounds();
+        const isMaximized = this.mainWindow.isMaximized();
+        
+        await this.settingsService.updateWindowBounds({
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          isMaximized
+        });
       }
 
       // Hide to tray instead of closing (except on macOS)
       if (this.config.enableSystemTray && process.platform !== 'darwin') {
         event.preventDefault();
-        this.mainWindow?.hide();
+        if (this.mainWindow) {
+          this.mainWindow.hide();
+        }
       }
     });
 
@@ -390,6 +692,52 @@ class BattleTechEditorApp {
     const trayIcon = this.getTrayIcon();
     this.tray = new Tray(trayIcon);
 
+    this.updateTrayMenu();
+
+    this.tray.setToolTip('BattleTech Editor');
+
+    this.tray.on('click', () => {
+      if (this.mainWindow) {
+        if (this.mainWindow.isVisible()) {
+          this.mainWindow.hide();
+        } else {
+          this.mainWindow.show();
+          this.mainWindow.focus();
+        }
+      }
+    });
+
+    console.log('✅ System tray created successfully');
+  }
+
+  /**
+   * Update system tray context menu
+   */
+  private updateTrayMenu(): void {
+    if (!this.tray) return;
+
+    const recentFiles = this.recentFilesService?.list() ?? [];
+    
+    // Build recent files submenu
+    const recentFilesSubmenu: Electron.MenuItemConstructorOptions[] = recentFiles.length > 0
+      ? [
+          ...recentFiles.slice(0, 5).map(file => ({
+            label: `${file.name}${file.variant ? ` ${file.variant}` : ''}`,
+            click: () => this.handleOpenRecent(file.id)
+          })),
+          { type: 'separator' as const },
+          {
+            label: 'More...',
+            click: () => {
+              if (this.mainWindow) {
+                this.mainWindow.show();
+                this.mainWindow.focus();
+              }
+            }
+          }
+        ]
+      : [{ label: 'No Recent Files', enabled: false }];
+
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Show BattleTech Editor',
@@ -402,6 +750,11 @@ class BattleTechEditorApp {
       },
       { type: 'separator' },
       {
+        label: 'Recent Files',
+        submenu: recentFilesSubmenu
+      },
+      { type: 'separator' },
+      {
         label: 'New Unit',
         click: () => {
           this.sendToRenderer('create-new-unit');
@@ -411,6 +764,17 @@ class BattleTechEditorApp {
         label: 'Import Unit',
         click: () => {
           this.importUnitFile();
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'Preferences',
+        click: () => {
+          if (this.mainWindow) {
+            this.mainWindow.show();
+            this.mainWindow.focus();
+          }
+          this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
         }
       },
       { type: 'separator' },
@@ -436,20 +800,6 @@ class BattleTechEditorApp {
     ]);
 
     this.tray.setContextMenu(contextMenu);
-    this.tray.setToolTip('BattleTech Editor');
-
-    this.tray.on('click', () => {
-      if (this.mainWindow) {
-        if (this.mainWindow.isVisible()) {
-          this.mainWindow.hide();
-        } else {
-          this.mainWindow.show();
-          this.mainWindow.focus();
-        }
-      }
-    });
-
-    console.log('✅ System tray created successfully');
   }
 
   /**
@@ -458,22 +808,77 @@ class BattleTechEditorApp {
   private setupIpcHandlers(): void {
     console.log('📡 Setting up IPC handlers...');
 
-    // Service orchestrator communication - disabled until implemented
-    // ipcMain.handle('service-call', async (event, method: string, ...args: any[]) => {
-    //   // Service orchestrator not implemented yet
-    // });
+    // =========================================================================
+    // SETTINGS IPC HANDLERS
+    // =========================================================================
 
-    // File operations
-    ipcMain.handle('save-file', async (event, defaultPath: string, filters: any[]) => {
-      const result = await dialog.showSaveDialog(this.mainWindow!, {
+    ipcMain.handle(SETTINGS_IPC_CHANNELS.GET, () => {
+      return this.settingsService?.getAll() ?? null;
+    });
+
+    ipcMain.handle(SETTINGS_IPC_CHANNELS.SET, async (event, updates: Partial<IDesktopSettings>) => {
+      if (!this.settingsService) return { success: false, error: 'Settings service not initialized' };
+      return await this.settingsService.setMultiple(updates);
+    });
+
+    ipcMain.handle(SETTINGS_IPC_CHANNELS.RESET, async () => {
+      if (!this.settingsService) return { success: false, error: 'Settings service not initialized' };
+      return await this.settingsService.reset();
+    });
+
+    ipcMain.handle(SETTINGS_IPC_CHANNELS.GET_VALUE, (event, key: keyof IDesktopSettings) => {
+      return this.settingsService?.get(key) ?? null;
+    });
+
+    // =========================================================================
+    // RECENT FILES IPC HANDLERS
+    // =========================================================================
+
+    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.LIST, () => {
+      return this.recentFilesService?.list() ?? [];
+    });
+
+    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.ADD, async (event, params: IAddRecentFileParams) => {
+      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
+      return await this.recentFilesService.add(params);
+    });
+
+    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.REMOVE, async (event, id: string) => {
+      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
+      return await this.recentFilesService.remove(id);
+    });
+
+    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.CLEAR, async () => {
+      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
+      return await this.recentFilesService.clear();
+    });
+
+    // =========================================================================
+    // MENU IPC HANDLERS
+    // =========================================================================
+
+    ipcMain.handle(MENU_IPC_CHANNELS.UPDATE_STATE, (event, state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }) => {
+      if (this.menuManager) {
+        this.menuManager.updateMenuState(state);
+      }
+    });
+
+    // =========================================================================
+    // FILE OPERATIONS
+    // =========================================================================
+
+    ipcMain.handle('save-file', async (event, defaultPath: string, filters: Electron.FileFilter[]) => {
+      if (!this.mainWindow) return { canceled: true };
+      const result = await dialog.showSaveDialog(this.mainWindow, {
         defaultPath,
         filters
       });
       return result;
     });
 
-    ipcMain.handle('open-file', async (event, filters: any[]) => {
-      const result = await dialog.showOpenDialog(this.mainWindow!, {
+    ipcMain.handle('open-file', async (event, filters: Electron.FileFilter[]) => {
+      if (!this.mainWindow) return { canceled: true, filePaths: [] };
+      const result = await dialog.showOpenDialog(this.mainWindow, {
         filters,
         properties: ['openFile']
       });
@@ -504,7 +909,18 @@ class BattleTechEditorApp {
       }
     });
 
-    // Application info
+    ipcMain.handle('select-directory', async () => {
+      if (!this.mainWindow) return { canceled: true, filePaths: [] };
+      const result = await dialog.showOpenDialog(this.mainWindow, {
+        properties: ['openDirectory', 'createDirectory']
+      });
+      return result;
+    });
+
+    // =========================================================================
+    // APPLICATION INFO
+    // =========================================================================
+
     ipcMain.handle('get-app-info', () => ({
       version: app.getVersion(),
       platform: process.platform,
@@ -512,24 +928,62 @@ class BattleTechEditorApp {
       developmentMode: this.config.developmentMode
     }));
 
-    // Window operations
+    // =========================================================================
+    // WINDOW OPERATIONS
+    // =========================================================================
+
     ipcMain.handle('minimize-window', () => {
-      this.mainWindow?.minimize();
+      if (this.mainWindow) {
+        this.mainWindow.minimize();
+      }
     });
 
     ipcMain.handle('maximize-window', () => {
-      if (this.mainWindow?.isMaximized()) {
-        this.mainWindow.unmaximize();
-      } else {
-        this.mainWindow?.maximize();
+      if (this.mainWindow) {
+        if (this.mainWindow.isMaximized()) {
+          this.mainWindow.unmaximize();
+        } else {
+          this.mainWindow.maximize();
+        }
       }
     });
 
     ipcMain.handle('close-window', () => {
-      this.mainWindow?.close();
+      if (this.mainWindow) {
+        this.mainWindow.close();
+      }
     });
 
-    // Backup operations
+    // =========================================================================
+    // SERVICE OPERATIONS
+    // =========================================================================
+
+    ipcMain.handle('service-call', async (event, method: string) => {
+      try {
+        switch (method) {
+          case 'checkForUpdates':
+            autoUpdater.checkForUpdatesAndNotify();
+            return { success: true };
+          case 'clearCache':
+            // Clear any cached data
+            if (this.localStorage) {
+              // Clear only the cache, not the actual storage
+              await this.localStorage.clear();
+            }
+            return { success: true };
+          default:
+            return { success: false, error: `Unknown method: ${method}` };
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return { success: false, error: message };
+      }
+    });
+
+    // =========================================================================
+    // BACKUP OPERATIONS
+    // =========================================================================
+
     ipcMain.handle('create-backup', async () => {
       return await this.createBackup();
     });
@@ -634,40 +1088,14 @@ class BattleTechEditorApp {
     return path.join(__dirname, '../assets/icons', iconName);
   }
 
-  /**
-   * Load saved window bounds
-   */
-  private async loadWindowBounds(): Promise<Partial<Electron.Rectangle>> {
-    try {
-      if (this.localStorage) {
-        const bounds = await this.localStorage.get('window-bounds');
-        return bounds || {};
-      }
-    } catch (error) {
-      console.error('Failed to load window bounds:', error);
-    }
-    return {};
-  }
-
-  /**
-   * Save window bounds
-   */
-  private async saveWindowBounds(bounds: Electron.Rectangle): Promise<void> {
-    try {
-      if (this.localStorage) {
-        await this.localStorage.set('window-bounds', bounds);
-      }
-    } catch (error) {
-      console.error('Failed to save window bounds:', error);
-    }
-  }
 
   /**
    * Import unit from file
    */
   private async importUnitFile(): Promise<void> {
     try {
-      const result = await dialog.showOpenDialog(this.mainWindow!, {
+      if (!this.mainWindow) return;
+      const result = await dialog.showOpenDialog(this.mainWindow, {
         filters: [
           { name: 'MegaMek Files', extensions: ['mtf'] },
           { name: 'BattleTech Editor Files', extensions: ['bte', 'json'] },
@@ -676,7 +1104,7 @@ class BattleTechEditorApp {
         properties: ['openFile']
       });
 
-      if (!result.canceled && result.filePaths.length > 0) {
+      if (!result.canceled && result.filePaths && result.filePaths.length > 0) {
         await this.sendToRenderer('import-unit-file', result.filePaths[0]);
       }
     } catch (error) {
@@ -733,10 +1161,7 @@ class BattleTechEditorApp {
         console.log('✅ Backup restored:', backupPath);
         
         // Restart services to pick up restored data
-        if (this.serviceOrchestrator) {
-          await this.serviceOrchestrator.cleanup();
-          await this.serviceOrchestrator.initialize();
-        }
+        // Service orchestrator not implemented yet
         
         return true;
       }
@@ -751,7 +1176,8 @@ class BattleTechEditorApp {
    * Notify about available update
    */
   private async notifyUpdateAvailable(info: any): Promise<void> {
-    const choice = await dialog.showMessageBox(this.mainWindow!, {
+    if (!this.mainWindow) return;
+    const choice = await dialog.showMessageBox(this.mainWindow, {
       type: 'info',
       title: 'Update Available',
       message: `A new version (${info.version}) is available. Would you like to download it now?`,
@@ -768,7 +1194,7 @@ class BattleTechEditorApp {
    * Update download progress
    */
   private updateDownloadProgress(percent: number): void {
-    if (this.mainWindow) {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.setProgressBar(percent / 100);
     }
   }
@@ -777,7 +1203,8 @@ class BattleTechEditorApp {
    * Notify about ready update
    */
   private async notifyUpdateReady(): Promise<void> {
-    const choice = await dialog.showMessageBox(this.mainWindow!, {
+    if (!this.mainWindow) return;
+    const choice = await dialog.showMessageBox(this.mainWindow, {
       type: 'info',
       title: 'Update Ready',
       message: 'Update downloaded. The application will restart to apply the update.',
@@ -805,17 +1232,21 @@ class BattleTechEditorApp {
       // Save current state
       await this.sendToRenderer('save-all-data');
 
-      // Cleanup services
-      if (this.serviceOrchestrator) {
-        await this.serviceOrchestrator.cleanup();
+      // Cleanup services in reverse initialization order
+      if (this.recentFilesService) {
+        await this.recentFilesService.cleanup();
       }
 
-      if (this.localStorage) {
-        await this.localStorage.cleanup();
+      if (this.settingsService) {
+        await this.settingsService.cleanup();
       }
 
       if (this.backupService) {
         await this.backupService.cleanup();
+      }
+
+      if (this.localStorage) {
+        await this.localStorage.cleanup();
       }
 
       console.log('✅ Cleanup completed');

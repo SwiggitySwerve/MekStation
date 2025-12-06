@@ -10,6 +10,26 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom/[id]/versions';
 
+// Response types for type-safe assertions
+interface ErrorResponse {
+  error: string;
+}
+
+interface VersionEntry {
+  unitId: string;
+  version: number;
+  createdAt: string;
+  description: string;
+  changeType: string;
+}
+
+interface VersionHistoryResponse {
+  unitId: string;
+  currentVersion: number;
+  versions: VersionEntry[];
+  count: number;
+}
+
 // Mock SQLiteService
 jest.mock('@/services/persistence/SQLiteService', () => ({
   getSQLiteService: jest.fn(() => ({
@@ -95,7 +115,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
   });
 
   it('should return 404 if unit not found', async () => {
@@ -109,7 +129,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(404);
-    expect(res._getJSONData().error).toContain('not found');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('not found');
   });
 
   it('should return version history', async () => {
@@ -122,7 +142,7 @@ describe('GET /api/units/custom/:id/versions', () => {
 
     expect(res._getStatusCode()).toBe(200);
     
-    const data = res._getJSONData();
+    const data = res._getJSONData() as VersionHistoryResponse;
     expect(data.unitId).toBe('unit-1');
     expect(data.currentVersion).toBe(3);
     expect(data.versions).toEqual(mockVersions);
@@ -141,7 +161,7 @@ describe('GET /api/units/custom/:id/versions', () => {
 
     expect(res._getStatusCode()).toBe(200);
     
-    const data = res._getJSONData();
+    const data = res._getJSONData() as VersionHistoryResponse;
     expect(data.versions).toEqual([]);
     expect(data.count).toBe(0);
   });
@@ -159,7 +179,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(500);
-    expect(res._getJSONData().error).toBe('Database error');
+    expect((res._getJSONData() as ErrorResponse).error).toBe('Database error');
   });
 
   it('should call getVersionHistory with correct unit id', async () => {
@@ -187,7 +207,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    expect(res._getJSONData().currentVersion).toBe(7);
+    expect((res._getJSONData() as VersionHistoryResponse).currentVersion).toBe(7);
   });
 
   it('should handle non-string id', async () => {
@@ -199,6 +219,6 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
   });
 });

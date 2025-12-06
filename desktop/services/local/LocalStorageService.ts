@@ -20,8 +20,7 @@ import * as zlib from 'zlib';
 import { promisify } from 'util';
 
 // Service interfaces
-import { IService } from '../../../src/services/core/types/BaseTypes';
-import { Result } from '../../../src/services/core/types/BaseTypes';
+import { IService, ResultType, Result } from '../../types/BaseTypes';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -71,7 +70,7 @@ export class LocalStorageService implements IService {
   private readonly cache = new Map<string, ICachedEntry>();
   private readonly metadataCache = new Map<string, IStorageMetadata>();
   private initialized = false;
-  private cleanupTimer: NodeJS.Timer | null = null;
+  private cleanupTimer: NodeJS.Timeout | null = null;
 
   constructor(config: Partial<ILocalStorageConfig>) {
     this.config = {
@@ -138,7 +137,7 @@ export class LocalStorageService implements IService {
   /**
    * Store data with a key
    */
-  async set<T>(key: string, data: T): Promise<Result<void, string>> {
+  async set<T>(key: string, data: T): Promise<ResultType<void, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -197,7 +196,7 @@ export class LocalStorageService implements IService {
   /**
    * Retrieve data by key
    */
-  async get<T>(key: string): Promise<Result<T | null, string>> {
+  async get<T>(key: string): Promise<ResultType<T | null, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -264,7 +263,7 @@ export class LocalStorageService implements IService {
   /**
    * Delete data by key
    */
-  async delete(key: string): Promise<Result<boolean, string>> {
+  async delete(key: string): Promise<ResultType<boolean, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -295,7 +294,7 @@ export class LocalStorageService implements IService {
   /**
    * Check if key exists
    */
-  async exists(key: string): Promise<Result<boolean, string>> {
+  async exists(key: string): Promise<ResultType<boolean, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -323,7 +322,7 @@ export class LocalStorageService implements IService {
   /**
    * List all keys
    */
-  async keys(): Promise<Result<string[], string>> {
+  async keys(): Promise<ResultType<string[], string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -340,7 +339,7 @@ export class LocalStorageService implements IService {
   /**
    * Get storage statistics
    */
-  async getStats(): Promise<Result<IStorageStats, string>> {
+  async getStats(): Promise<ResultType<IStorageStats, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -370,7 +369,7 @@ export class LocalStorageService implements IService {
   /**
    * Clear all data
    */
-  async clear(): Promise<Result<void, string>> {
+  async clear(): Promise<ResultType<void, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');

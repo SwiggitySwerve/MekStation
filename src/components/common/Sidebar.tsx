@@ -15,9 +15,11 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon, label, isCollapsed }) => (
   <Link href={href} legacyBehavior>
-    <a className="flex items-center p-1.5 space-x-2 rounded-md hover:bg-gray-700 transition-colors duration-150">
+    <a className={`flex items-center p-2.5 rounded hover:bg-gray-700 transition-colors duration-150 ${
+      isCollapsed ? 'justify-center' : 'gap-3'
+    }`}>
       {icon}
-      {!isCollapsed && <span className="text-xs font-medium">{label}</span>}
+      {!isCollapsed && <span className="text-sm font-medium truncate">{label}</span>}
     </a>
   </Link>
 );
@@ -33,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
       href: '/',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3m-16.5 0h16.5m-16.5 0V3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
       ),
       label: 'Dashboard',
@@ -42,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
       href: '/units',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
         </svg>
       ),
       label: 'Units',
@@ -79,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
       href: '/compare',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 4.006 4.006 0 00-3.663-.138 4.006 4.006 0 00-3.7 3.7c-.091 1.21-.137 2.43-.137 3.662M19.5 12l2.25 2.25m-2.25-2.25l2.25-2.25M19.5 12l-2.25 2.25m-15-2.25l2.25 2.25m-2.25-2.25l2.25-2.25m-2.25 2.25l-2.25-2.25M12 19.5c-1.232 0-2.453-.046-3.662-.138a4.006 4.006 0 01-3.7-3.7 4.006 4.006 0 01-.138-3.662 4.006 4.006 0 013.7-3.7c1.209-.091 2.43-.137 3.662-.137m0 9.25c1.232 0 2.453.046 3.662.138a4.006 4.006 0 003.7 3.7 4.006 4.006 0 003.663.138 4.006 4.006 0 003.7-3.7c.091-1.21.137-2.43.137-3.662m0 9.25l-2.25-2.25m2.25 2.25l-2.25 2.25M4.5 12l2.25-2.25M4.5 12l-2.25-2.25" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
         </svg>
       ),
       label: 'Compare',
@@ -91,34 +93,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   return (
     <div
       className={`bg-gray-800 text-white transition-all duration-300 ease-in-out print:hidden ${
-        isCollapsed ? 'w-12' : 'w-40' // Compact sidebar widths
+        isCollapsed ? 'w-12' : 'w-52' // Wider sidebar for better readability
       } fixed inset-y-0 left-0 z-30 flex flex-col shadow-lg`}
     >
-      <div className="flex items-center justify-between px-2 py-2 border-b border-gray-700 h-12">
-        {!isCollapsed && <span className="text-sm font-bold truncate">BattleTech</span>}
+      <div className={`flex items-center border-b border-gray-700 h-12 ${
+        isCollapsed ? 'justify-center' : 'gap-3 px-3'
+      }`}>
+        {!isCollapsed && <span className="text-base font-bold whitespace-nowrap flex-1">Mek Lab</span>}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          className="p-1.5 rounded hover:bg-gray-700 focus:outline-none flex-shrink-0"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (
+            // Chevron right - expand sidebar
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           ) : (
+            // Chevron left - collapse sidebar
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           )}
         </button>
       </div>
-      <nav className="flex-grow p-1.5 space-y-0.5 overflow-y-auto">
+      <nav className={`flex-grow space-y-1 overflow-y-auto ${isCollapsed ? 'px-1.5 py-2' : 'p-2'}`}>
         {navItems.map((item) => (
           <NavItem key={item.label} {...item} isCollapsed={isCollapsed} />
         ))}
       </nav>
       {!isCollapsed && (
-        <div className="px-2 py-1.5 border-t border-gray-700 text-[10px] text-gray-400">
+        <div className="px-3 py-2 border-t border-gray-700 text-xs text-gray-400">
           <span>v0.1.0</span>
         </div>
       )}

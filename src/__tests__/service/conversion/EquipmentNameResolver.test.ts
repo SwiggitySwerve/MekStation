@@ -6,8 +6,7 @@
  * @spec openspec/specs/equipment-database/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+// Enums used in mock data but not directly in test assertions
 
 // Mock the EquipmentLoaderService with comprehensive equipment data
 jest.mock('@/services/equipment/EquipmentLoaderService', () => {

@@ -376,7 +376,7 @@ export function MultiUnitTabs({
   // Empty state - no tabs
   if (tabs.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center h-full ${className}`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen py-16 ${className}`}>
         <div className="text-center max-w-md">
           {/* Icon */}
           <div className="w-20 h-20 mx-auto mb-6 bg-slate-800 rounded-2xl flex items-center justify-center">

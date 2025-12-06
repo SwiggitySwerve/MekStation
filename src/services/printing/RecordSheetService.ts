@@ -153,7 +153,7 @@ export class RecordSheetService {
   async renderPreview(
     canvas: HTMLCanvasElement,
     data: IRecordSheetData,
-    paperSize: PaperSize = PaperSize.LETTER
+    _paperSize: PaperSize = PaperSize.LETTER
   ): Promise<void> {
     // Get template path based on mech type
     const templatePath = SVG_TEMPLATES[data.mechType] || SVG_TEMPLATES.biped;
@@ -799,7 +799,7 @@ export class RecordSheetService {
   /**
    * Calculate engine slot requirements based on type and rating
    */
-  private getEngineSlots(engineType: string, rating: number): { ct: number; sideTorso: number } {
+  private getEngineSlots(engineType: string, _rating: number): { ct: number; sideTorso: number } {
     const type = engineType.toLowerCase();
     
     // Standard, Light ICE, and Compact engines fit entirely in CT

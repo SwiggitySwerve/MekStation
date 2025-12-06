@@ -4,8 +4,7 @@
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
-import React from 'react';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
 import { TechBase } from '@/types/enums/TechBase';
@@ -23,14 +22,17 @@ jest.mock('@/stores/useEquipmentStore', () => ({
 }));
 
 // Mock getAllEquipmentItems
-jest.mock('@/types/equipment', () => ({
-  ...jest.requireActual('@/types/equipment'),
-  getAllEquipmentItems: jest.fn().mockReturnValue([
-    { id: 'eq-1', name: 'Medium Laser', category: 'Energy' },
-    { id: 'eq-2', name: 'AC/20', category: 'Ballistic' },
-    { id: 'eq-3', name: 'LRM 10', category: 'Missile' },
-  ]),
-}));
+jest.mock('@/types/equipment', () => {
+  const actualModule = jest.requireActual<typeof import('@/types/equipment')>('@/types/equipment');
+  return {
+    ...actualModule,
+    getAllEquipmentItems: jest.fn().mockReturnValue([
+      { id: 'eq-1', name: 'Medium Laser', category: 'Energy' },
+      { id: 'eq-2', name: 'AC/20', category: 'Ballistic' },
+      { id: 'eq-3', name: 'LRM 10', category: 'Missile' },
+    ]),
+  };
+});
 
 describe('useEquipmentBrowser Hook', () => {
   const mockEquipment = [

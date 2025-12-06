@@ -26,7 +26,7 @@ import { IEditableMech, IArmorAllocation as IEditableArmorAllocation } from '@/s
 
 interface PreviewTabProps {
   /** Read-only mode (ignored for preview) */
-  readOnly?: boolean;
+  _readOnly?: boolean;
   /** CSS class name */
   className?: string;
 }
@@ -41,7 +41,7 @@ interface PreviewTabProps {
  * Provides record sheet preview and export functionality.
  */
 export function PreviewTab({
-  readOnly = false,
+  _readOnly = false,
   className = '',
 }: PreviewTabProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -150,6 +150,47 @@ export function PreviewTab({
   }, [editableMech]);
 
   /**
+   * Build critical slots from equipment assignments
+   */
+  const buildCriticalSlotsFromEquipment = useCallback(() => {
+    const result: Record<string, Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>> = {};
+    
+    const locations = [
+      MechLocation.HEAD,
+      MechLocation.CENTER_TORSO,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+      MechLocation.LEFT_ARM,
+      MechLocation.RIGHT_ARM,
+      MechLocation.LEFT_LEG,
+      MechLocation.RIGHT_LEG,
+    ];
+    
+    // Initialize empty arrays for each location with proper typing
+    locations.forEach(loc => {
+      const slotCount = loc === MechLocation.HEAD || loc === MechLocation.LEFT_LEG || loc === MechLocation.RIGHT_LEG ? 6 : 12;
+      result[loc] = new Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>(slotCount).fill(null);
+    });
+    
+    // Fill in equipment from the equipment list
+    equipment.forEach(eq => {
+      if (eq.location && eq.slots && eq.slots.length > 0) {
+        eq.slots.forEach(slotIndex => {
+          if (result[eq.location!] && slotIndex < result[eq.location!].length) {
+            result[eq.location!][slotIndex] = {
+              content: eq.name,
+              isSystem: false,
+              equipmentId: eq.instanceId,
+            };
+          }
+        });
+      }
+    });
+    
+    return result;
+  }, [equipment]);
+
+  /**
    * Build unit config from store state
    */
   const buildUnitConfig = useCallback(() => {
@@ -220,48 +261,8 @@ export function PreviewTab({
     engineType, engineRating, gyroType, internalStructureType,
     armorType, armorAllocation, heatSinkType, heatSinkCount,
     enhancement, walkMP, runMP, jumpMP, equipment, battleValue, cost,
+    buildCriticalSlotsFromEquipment,
   ]);
-
-  /**
-   * Build critical slots from equipment assignments
-   */
-  const buildCriticalSlotsFromEquipment = useCallback(() => {
-    const result: Record<string, Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>> = {};
-    
-    const locations = [
-      MechLocation.HEAD,
-      MechLocation.CENTER_TORSO,
-      MechLocation.LEFT_TORSO,
-      MechLocation.RIGHT_TORSO,
-      MechLocation.LEFT_ARM,
-      MechLocation.RIGHT_ARM,
-      MechLocation.LEFT_LEG,
-      MechLocation.RIGHT_LEG,
-    ];
-    
-    // Initialize empty arrays for each location
-    locations.forEach(loc => {
-      const slotCount = loc === MechLocation.HEAD || loc === MechLocation.LEFT_LEG || loc === MechLocation.RIGHT_LEG ? 6 : 12;
-      result[loc] = new Array(slotCount).fill(null);
-    });
-    
-    // Fill in equipment from the equipment list
-    equipment.forEach(eq => {
-      if (eq.location && eq.slots && eq.slots.length > 0) {
-        eq.slots.forEach(slotIndex => {
-          if (result[eq.location!] && slotIndex < result[eq.location!].length) {
-            result[eq.location!][slotIndex] = {
-              content: eq.name,
-              isSystem: false,
-              equipmentId: eq.instanceId,
-            };
-          }
-        });
-      }
-    });
-    
-    return result;
-  }, [equipment]);
 
   /**
    * Handle PDF export using SVG template rendering

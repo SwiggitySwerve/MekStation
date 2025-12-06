@@ -5,7 +5,7 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { useCustomizerStore, EquipmentSelection, SelectionMode } from '@/stores/useCustomizerStore';
+import { useCustomizerStore, EquipmentSelection } from '@/stores/useCustomizerStore';
 import { MechLocation } from '@/types/construction';
 
 describe('useCustomizerStore', () => {

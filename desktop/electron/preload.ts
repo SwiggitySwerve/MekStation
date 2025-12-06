@@ -14,6 +14,29 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
+// Import types
+import {
+  IDesktopSettings,
+  IRecentFile,
+  MenuCommand,
+  SETTINGS_IPC_CHANNELS,
+  RECENT_FILES_IPC_CHANNELS,
+  MENU_IPC_CHANNELS,
+  APP_IPC_CHANNELS,
+  ISettingsChangeEvent,
+  UnitType
+} from '../types/BaseTypes';
+
+// Recent file params type for add operation
+interface IAddRecentFileParams {
+  id: string;
+  name: string;
+  path: string;
+  unitType: UnitType;
+  tonnage?: number;
+  variant?: string;
+}
+
 // Define the API that will be exposed to the renderer
 interface IElectronAPI {
   // Application info
@@ -29,9 +52,28 @@ interface IElectronAPI {
   openFile(filters: IFileFilter[]): Promise<IOpenDialogResult>;
   readFile(filePath: string): Promise<IFileResult>;
   writeFile(filePath: string, data: string): Promise<IFileResult>;
+  selectDirectory(): Promise<IOpenDialogResult>;
+  
+  // Settings operations
+  getSettings(): Promise<IDesktopSettings | null>;
+  setSettings(updates: Partial<IDesktopSettings>): Promise<IServiceResult>;
+  resetSettings(): Promise<IServiceResult>;
+  getSettingValue<K extends keyof IDesktopSettings>(key: K): Promise<IDesktopSettings[K] | null>;
+  onSettingsChange(callback: (event: ISettingsChangeEvent) => void): void;
+  
+  // Recent files operations
+  getRecentFiles(): Promise<readonly IRecentFile[]>;
+  addRecentFile(params: IAddRecentFileParams): Promise<IServiceResult>;
+  removeRecentFile(id: string): Promise<IServiceResult>;
+  clearRecentFiles(): Promise<IServiceResult>;
+  onRecentFilesUpdate(callback: (files: readonly IRecentFile[]) => void): void;
+  
+  // Menu operations
+  updateMenuState(state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }): void;
+  onMenuCommand(callback: (command: MenuCommand) => void): void;
   
   // Service operations
-  serviceCall(method: string, ...args: any[]): Promise<IServiceResult>;
+  serviceCall(method: string, ...args: unknown[]): Promise<IServiceResult>;
   
   // Backup operations
   createBackup(): Promise<boolean>;
@@ -43,6 +85,7 @@ interface IElectronAPI {
   onImportUnitUrl(callback: (url: string) => void): void;
   onOpenUnit(callback: (unitId: string) => void): void;
   onCreateNewUnit(callback: () => void): void;
+  onOpenSettings(callback: () => void): void;
   
   // Remove event listeners
   removeAllListeners(channel: string): void;
@@ -122,8 +165,63 @@ const electronAPI: IElectronAPI = {
     return await ipcRenderer.invoke('write-file', filePath, data);
   },
 
+  async selectDirectory(): Promise<IOpenDialogResult> {
+    return await ipcRenderer.invoke('select-directory');
+  },
+
+  // Settings operations
+  async getSettings(): Promise<IDesktopSettings | null> {
+    return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.GET);
+  },
+
+  async setSettings(updates: Partial<IDesktopSettings>): Promise<IServiceResult> {
+    return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.SET, updates);
+  },
+
+  async resetSettings(): Promise<IServiceResult> {
+    return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.RESET);
+  },
+
+  async getSettingValue<K extends keyof IDesktopSettings>(key: K): Promise<IDesktopSettings[K] | null> {
+    return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.GET_VALUE, key);
+  },
+
+  onSettingsChange(callback: (event: ISettingsChangeEvent) => void): void {
+    ipcRenderer.on(SETTINGS_IPC_CHANNELS.ON_CHANGE, (_event, changeEvent) => callback(changeEvent));
+  },
+
+  // Recent files operations
+  async getRecentFiles(): Promise<readonly IRecentFile[]> {
+    return await ipcRenderer.invoke(RECENT_FILES_IPC_CHANNELS.LIST);
+  },
+
+  async addRecentFile(params: IAddRecentFileParams): Promise<IServiceResult> {
+    return await ipcRenderer.invoke(RECENT_FILES_IPC_CHANNELS.ADD, params);
+  },
+
+  async removeRecentFile(id: string): Promise<IServiceResult> {
+    return await ipcRenderer.invoke(RECENT_FILES_IPC_CHANNELS.REMOVE, id);
+  },
+
+  async clearRecentFiles(): Promise<IServiceResult> {
+    return await ipcRenderer.invoke(RECENT_FILES_IPC_CHANNELS.CLEAR);
+  },
+
+  onRecentFilesUpdate(callback: (files: readonly IRecentFile[]) => void): void {
+    ipcRenderer.on(RECENT_FILES_IPC_CHANNELS.ON_UPDATE, (_event, files) => callback(files));
+  },
+
+  // Menu operations
+  updateMenuState(state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }): void {
+    ipcRenderer.invoke(MENU_IPC_CHANNELS.UPDATE_STATE, state);
+  },
+
+  onMenuCommand(callback: (command: MenuCommand) => void): void {
+    ipcRenderer.on(MENU_IPC_CHANNELS.COMMAND, (_event, command) => callback(command));
+  },
+
   // Service operations
-  async serviceCall(method: string, ...args: any[]): Promise<IServiceResult> {
+  async serviceCall(method: string, ...args: unknown[]): Promise<IServiceResult> {
     return await ipcRenderer.invoke('service-call', method, ...args);
   },
 
@@ -155,6 +253,10 @@ const electronAPI: IElectronAPI = {
 
   onCreateNewUnit(callback: () => void): void {
     ipcRenderer.on('create-new-unit', callback);
+  },
+
+  onOpenSettings(callback: () => void): void {
+    ipcRenderer.on(APP_IPC_CHANNELS.OPEN_SETTINGS, callback);
   },
 
   // Remove event listeners
@@ -207,9 +309,9 @@ declare global {
 // Security hardening: Remove Node.js globals from the window object
 // Type-safe window cleanup for Electron security
 interface NodeWindow extends Window {
-  global?: any;
-  process?: any;
-  Buffer?: any;
+  global?: unknown;
+  process?: unknown;
+  Buffer?: unknown;
 }
 
 const nodeWindow = window as NodeWindow;
@@ -220,4 +322,11 @@ delete nodeWindow.Buffer;
 // Log preload script loaded
 console.log('🔌 BattleTech Editor preload script loaded');
 
-export type { IElectronAPI, IAppInfo, IFileFilter, IFileResult, IServiceResult };
+export type { 
+  IElectronAPI, 
+  IAppInfo, 
+  IFileFilter, 
+  IFileResult, 
+  IServiceResult,
+  IAddRecentFileParams
+};

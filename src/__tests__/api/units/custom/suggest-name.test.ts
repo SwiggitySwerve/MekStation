@@ -10,6 +10,17 @@ import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom/suggest-name';
 
+// Response types for type-safe assertions
+interface ErrorResponse {
+  error: string;
+}
+
+interface SuggestNameResponse {
+  suggestedChassis: string;
+  suggestedVariant: string;
+  isOriginalAvailable: boolean;
+}
+
 // Mock SQLiteService
 jest.mock('@/services/persistence/SQLiteService', () => ({
   getSQLiteService: jest.fn(() => ({
@@ -59,7 +70,7 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing required fields');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing required fields');
   });
 
   it('should return 400 if variant is missing', async () => {
@@ -71,7 +82,7 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect(res._getJSONData().error).toContain('Missing required fields');
+    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing required fields');
   });
 
   it('should return name suggestion when original is available', async () => {
@@ -89,7 +100,7 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    expect(res._getJSONData()).toEqual({
+    expect(res._getJSONData() as SuggestNameResponse).toEqual({
       suggestedChassis: 'Atlas',
       suggestedVariant: 'AS7-D Custom',
       isOriginalAvailable: true,
@@ -111,7 +122,7 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    expect(res._getJSONData()).toEqual({
+    expect(res._getJSONData() as SuggestNameResponse).toEqual({
       suggestedChassis: 'Atlas',
       suggestedVariant: 'AS7-D (2)',
       isOriginalAvailable: false,
@@ -131,7 +142,7 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(500);
-    expect(res._getJSONData().error).toBe('Database error');
+    expect((res._getJSONData() as ErrorResponse).error).toBe('Database error');
   });
 
   it('should call nameExists with correct parameters', async () => {
