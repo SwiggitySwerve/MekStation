@@ -32,7 +32,7 @@
     "prepare": "npm run build",
     "type-check": "tsc --noEmit",
     "icons:generate": "node scripts/generate-icons.js",
-    "test:build": "node scripts/test-build.js",
+    "test:build": "node scripts/test-build.js all",
     "test:build:win": "node scripts/test-build.js win",
     "test:build:mac": "node scripts/test-build.js mac",
     "test:build:linux": "node scripts/test-build.js linux"
