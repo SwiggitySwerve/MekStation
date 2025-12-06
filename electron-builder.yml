@@ -9,7 +9,7 @@ copyright: Copyright © 2025 SwerveLabs
 # Paths are relative to the desktop directory when running from desktop/
 directories:
   output: release
-  buildResources: assets
+  # buildResources: assets  # Commented out to avoid auto-detecting icons
 
 # Files to include in the application
 # Paths are relative to the desktop directory when running from desktop/
@@ -111,7 +111,7 @@ portable:
 # Linux Configuration
 # =============================================================================
 linux:
-  icon: assets/icons  # Can use SVG or PNG directory
+  # icon: assets/icons  # TODO: Generate PNG icons from SVG
   category: Game
   synopsis: BattleTech unit construction and customization tool
   description: >
