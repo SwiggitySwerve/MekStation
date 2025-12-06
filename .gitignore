@@ -94,3 +94,7 @@ src/services/core/types/BaseTypes.d.ts
 src/services/core/types/BaseTypes.d.ts.map
 src/services/core/types/BaseTypes.js
 src/services/core/types/BaseTypes.js.map
+
+# Cursor workspace storage files
+assets/c__Users_*
+**/c__Users_*
