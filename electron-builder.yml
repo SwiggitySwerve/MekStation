@@ -42,9 +42,9 @@ asarUnpack:
 # =============================================================================
 mac:
   category: public.app-category.games
-  icon: assets/icons/icon.icns
+  # icon: assets/icons/icon.icns  # TODO: Generate .icns from SVG
   darkModeSupport: true
-  hardenedRuntime: true
+  hardenedRuntime: false  # Disable for unsigned builds
   gatekeeperAssess: false
   entitlements: assets/entitlements.mac.plist
   entitlementsInherit: assets/entitlements.mac.plist
@@ -75,7 +75,7 @@ dmg:
 # Windows Configuration
 # =============================================================================
 win:
-  icon: assets/icons/icon.ico
+  # icon: assets/icons/icon.ico  # TODO: Generate .ico from SVG
   target:
     - target: nsis
       arch:
@@ -96,9 +96,9 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  installerIcon: assets/icons/icon.ico
-  uninstallerIcon: assets/icons/icon.ico
-  installerHeaderIcon: assets/icons/icon.ico
+  # installerIcon: assets/icons/icon.ico  # TODO: Generate .ico from SVG
+  # uninstallerIcon: assets/icons/icon.ico
+  # installerHeaderIcon: assets/icons/icon.ico
   deleteAppDataOnUninstall: false
   runAfterFinish: true
   shortcutName: BattleTech Editor
@@ -111,7 +111,7 @@ portable:
 # Linux Configuration
 # =============================================================================
 linux:
-  icon: desktop/assets/icons
+  icon: assets/icons  # Can use SVG or PNG directory
   category: Game
   synopsis: BattleTech unit construction and customization tool
   description: >
