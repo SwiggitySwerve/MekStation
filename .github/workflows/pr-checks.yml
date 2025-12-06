@@ -39,7 +39,7 @@ jobs:
         run: npm run test:coverage
 
   build-test:
-    name: Build Test
+    name: Build Test / ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
