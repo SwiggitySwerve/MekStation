@@ -266,7 +266,7 @@ export class MenuManager {
       { type: 'separator' },
       {
         label: 'Clear Recent',
-        click: () => this.sendCommand('file:open') // Will trigger clear in the handler
+        click: () => this.sendCommand('file:clear-recent')
       }
     );
 

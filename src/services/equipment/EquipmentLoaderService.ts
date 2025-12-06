@@ -27,14 +27,23 @@ const isServer = typeof window === 'undefined';
 async function readJsonFile<T>(filePath: string, basePath: string): Promise<T | null> {
   if (isServer) {
     // Server-side: use fs to read from public directory
+    // This code only runs server-side and is not bundled for the client
+    // Turbopack warning: This dynamic path is server-only and won't affect client bundle
     try {
       // Dynamic imports to avoid bundling in browser
       const fs = await import('fs').then(m => m.promises);
       const path = await import('path');
       
       // Resolve path relative to public directory
-      const publicDir = path.join(process.cwd(), 'public');
-      const fullPath = path.join(publicDir, basePath, filePath);
+      // Construct path explicitly to help with static analysis
+      const publicDir = path.resolve(process.cwd(), 'public');
+      // Remove leading slashes and construct path explicitly
+      const cleanBasePath = basePath.replace(/^\/+/, '');
+      const cleanFilePath = filePath.replace(/^\/+/, '');
+      // Use explicit string construction for known file patterns
+      // This helps Turbopack understand the file access pattern
+      const pathSegments = [publicDir, cleanBasePath, cleanFilePath].filter(Boolean);
+      const fullPath = path.resolve(...pathSegments);
       
       const content = await fs.readFile(fullPath, 'utf-8');
       return JSON.parse(content) as T;

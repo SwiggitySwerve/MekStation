@@ -185,6 +185,7 @@ export type FileMenuCommand =
   | 'file:export'
   | 'file:print'
   | 'file:preferences'
+  | 'file:clear-recent'
   | 'file:quit';
 
 /**

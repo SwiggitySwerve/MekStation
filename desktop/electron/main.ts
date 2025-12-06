@@ -365,6 +365,15 @@ class BattleTechEditorApp {
       case 'file:preferences':
         this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
         break;
+      case 'file:clear-recent':
+        if (this.recentFilesService) {
+          this.recentFilesService.clear();
+          // Update menu to reflect cleared list
+          if (this.menuManager) {
+            this.menuManager.updateRecentFiles([]);
+          }
+        }
+        break;
       case 'view:fullscreen':
         if (this.mainWindow) {
           this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
@@ -502,18 +511,8 @@ X-GNOME-Autostart-enabled=true
       this.mainWindow.hide();
     }
 
-    // Handle reopen last unit
-    if (settings.reopenLastUnit && this.recentFilesService) {
-      const lastUnit = this.recentFilesService.getMostRecent();
-      if (lastUnit) {
-        // Wait for renderer to be ready, then open unit
-        this.mainWindow?.webContents.once('did-finish-load', () => {
-          setTimeout(() => {
-            this.sendToRenderer('open-unit', lastUnit.id);
-          }, 1000); // Small delay to ensure app is fully initialized
-        });
-      }
-    }
+    // Note: reopen last unit is handled in createMainWindow() before URL load
+    // to ensure the did-finish-load listener is registered in time
   }
 
   /**
@@ -592,6 +591,22 @@ X-GNOME-Autostart-enabled=true
     // Restore maximized state
     if (savedBounds?.isMaximized && this.mainWindow) {
       this.mainWindow.maximize();
+    }
+
+    // Register did-finish-load listener for reopen last unit BEFORE loading URL
+    // This must be done before loadURL() to catch the initial page load event
+    if (this.settingsService && this.recentFilesService) {
+      const settings = this.settingsService.getAll();
+      if (settings.reopenLastUnit) {
+        const lastUnit = this.recentFilesService.getMostRecent();
+        if (lastUnit) {
+          this.mainWindow.webContents.once('did-finish-load', () => {
+            setTimeout(() => {
+              this.sendToRenderer('open-unit', lastUnit.id);
+            }, 1000); // Small delay to ensure app is fully initialized
+          });
+        }
+      }
     }
 
     // Load the application
