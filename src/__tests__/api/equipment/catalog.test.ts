@@ -17,19 +17,30 @@ jest.mock('@/services/equipment/EquipmentLookupService', () => ({
   },
 }));
 
+// Type for the mocked service
+interface MockEquipmentLookupService {
+  initialize: jest.Mock;
+  getAllEquipment: jest.Mock;
+  getAllWeapons: jest.Mock;
+  getAllAmmunition: jest.Mock;
+  getDataSource: jest.Mock;
+}
+
 // Import after mocking to get mock references
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { equipmentLookupService } = require('@/services/equipment/EquipmentLookupService');
+const { equipmentLookupService } = require('@/services/equipment/EquipmentLookupService') as {
+  equipmentLookupService: MockEquipmentLookupService;
+};
 
-const mockGetAllEquipment = equipmentLookupService.getAllEquipment as jest.Mock;
-const mockGetAllWeapons = equipmentLookupService.getAllWeapons as jest.Mock;
-const mockGetAllAmmunition = equipmentLookupService.getAllAmmunition as jest.Mock;
+const mockGetAllEquipment = equipmentLookupService.getAllEquipment;
+const mockGetAllWeapons = equipmentLookupService.getAllWeapons;
+const mockGetAllAmmunition = equipmentLookupService.getAllAmmunition;
 
 describe('/api/equipment/catalog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Re-setup initialize mock after clearing
-    (equipmentLookupService.initialize as jest.Mock).mockResolvedValue(undefined);
+    equipmentLookupService.initialize.mockResolvedValue(undefined);
   });
 
   describe('GET method validation', () => {

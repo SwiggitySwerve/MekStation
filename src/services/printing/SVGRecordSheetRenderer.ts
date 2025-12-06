@@ -9,12 +9,10 @@
 
 import { 
   IRecordSheetData,
-  ILocationArmor,
   ILocationStructure,
   IRecordSheetEquipment,
   ILocationCriticals,
   IRecordSheetCriticalSlot,
-  PaperSize,
   PREVIEW_DPI_MULTIPLIER,
 } from '@/types/printing';
 
@@ -773,7 +771,7 @@ export class SVGRecordSheetRenderer {
 
     const x = parseFloat(inventoryArea.getAttribute('x') || '3');
     const y = parseFloat(inventoryArea.getAttribute('y') || '87.5');
-    const width = parseFloat(inventoryArea.getAttribute('width') || '216');
+    // width available: parseFloat(inventoryArea.getAttribute('width') || '216')
     const height = parseFloat(inventoryArea.getAttribute('height') || '185');
 
     const group = this.svgDoc.createElementNS(SVG_NS, 'g');

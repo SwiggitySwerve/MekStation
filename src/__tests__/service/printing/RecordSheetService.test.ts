@@ -5,7 +5,7 @@
  */
 
 import { RecordSheetService, recordSheetService } from '@/services/printing/RecordSheetService';
-import { PaperSize, IRecordSheetData } from '@/types/printing';
+import { PaperSize } from '@/types/printing';
 
 // Mock jsPDF
 jest.mock('jspdf', () => ({

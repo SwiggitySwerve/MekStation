@@ -177,7 +177,6 @@ import {
   getDirectFireWeapons,
   calculateDirectFireWeaponTonnage,
   calculateDirectFireTonnageFromWeapons,
-  getAllStandardWeapons,
   DIRECT_FIRE_CATEGORIES,
 } from '@/types/equipment/weapons/utilities';
 

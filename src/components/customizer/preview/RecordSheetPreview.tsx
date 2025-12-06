@@ -205,10 +205,10 @@ export function RecordSheetPreview({
       MechLocation.RIGHT_LEG,
     ];
     
-    // Initialize empty arrays for each location
+    // Initialize empty arrays for each location with proper typing
     locations.forEach(loc => {
       const slotCount = loc === MechLocation.HEAD || loc === MechLocation.LEFT_LEG || loc === MechLocation.RIGHT_LEG ? 6 : 12;
-      result[loc] = new Array(slotCount).fill(null);
+      result[loc] = new Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>(slotCount).fill(null);
     });
     
     // Fill in equipment from the equipment list

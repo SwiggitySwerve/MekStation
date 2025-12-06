@@ -5,7 +5,7 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { useEquipmentStore, SortColumn, SortDirection } from '@/stores/useEquipmentStore';
+import { useEquipmentStore } from '@/stores/useEquipmentStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 
@@ -66,8 +66,7 @@ const mockEquipment: IEquipmentItem[] = [
 describe('useEquipmentStore', () => {
   // Reset store between tests
   beforeEach(() => {
-    // Get store and reset all state
-    const store = useEquipmentStore.getState();
+    // Reset all state
     useEquipmentStore.setState({
       equipment: [],
       isLoading: false,

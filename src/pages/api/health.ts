@@ -87,7 +87,7 @@ export default function handler(
     res.setHeader('Pragma', 'no-cache');
     
     res.status(statusCode).json(response);
-  } catch (_error) {
+  } catch {
     // If we can't even check health, we're definitely unhealthy
     const errorResponse: IHealthResponse = {
       status: 'unhealthy',
