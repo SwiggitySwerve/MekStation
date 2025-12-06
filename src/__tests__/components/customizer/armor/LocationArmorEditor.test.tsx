@@ -7,7 +7,7 @@ import { MechLocation } from '@/types/construction';
 describe('LocationArmorEditor', () => {
   const defaultProps = {
     location: MechLocation.HEAD,
-    data: { current: 9, max: 9 },
+    data: { location: MechLocation.HEAD, current: 9, maximum: 9 },
     tonnage: 50,
     onChange: jest.fn(),
     onClose: jest.fn(),
@@ -72,7 +72,7 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ current: 20, rear: 5, max: 46 }}
+        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5 }}
       />
     );
     
@@ -93,7 +93,7 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ current: 20, rear: 5, max: 46 }}
+        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5 }}
       />
     );
     
@@ -120,7 +120,7 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         onChange={onChange}
-        data={{ current: 9, max: 9 }}
+        data={{ location: MechLocation.HEAD, current: 9, maximum: 9 }}
       />
     );
     

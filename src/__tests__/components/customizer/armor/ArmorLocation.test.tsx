@@ -11,7 +11,7 @@ describe('ArmorLocation', () => {
     y: 10,
     width: 50,
     height: 40,
-    data: { current: 9, max: 9 },
+    data: { location: MechLocation.HEAD, current: 9, maximum: 9 },
     isSelected: false,
     isHovered: false,
     onClick: jest.fn(),
@@ -36,7 +36,7 @@ describe('ArmorLocation', () => {
   it('should render armor value', () => {
     const { container } = render(
       <svg>
-        <ArmorLocation {...defaultProps} data={{ current: 9, max: 9 }} />
+        <ArmorLocation {...defaultProps} data={{ location: MechLocation.HEAD, current: 9, maximum: 9 }} />
       </svg>
     );
     
@@ -55,7 +55,7 @@ describe('ArmorLocation', () => {
           location={MechLocation.CENTER_TORSO}
           locationType="torso"
           showRear={true}
-          data={{ current: 30, max: 46, rear: 10 }}
+          data={{ location: MechLocation.CENTER_TORSO, current: 30, maximum: 46, rear: 10 }}
         />
       </svg>
     );
@@ -133,7 +133,7 @@ describe('ArmorLocation', () => {
         <ArmorLocation
           {...defaultProps}
           location={MechLocation.CENTER_TORSO}
-          data={{ current: 30, rear: 10 }}
+          data={{ location: MechLocation.CENTER_TORSO, current: 30, maximum: 46, rear: 10 }}
           showRear={true}
         />
       </svg>
