@@ -104,9 +104,10 @@ export interface ILoadUnitResult {
 // =============================================================================
 
 /**
- * Type guard to check if IFullUnit is actually ISerializedUnit
+ * Check if IFullUnit has the structure of ISerializedUnit
+ * Since IFullUnit has [key: string]: unknown, we can check if it matches ISerializedUnit structure
  */
-function isSerializedUnit(data: IFullUnit): data is ISerializedUnit {
+function hasSerializedUnitStructure(data: IFullUnit): boolean {
   // Check required fields for ISerializedUnit
   return (
     typeof data.id === 'string' &&
@@ -588,10 +589,13 @@ export class UnitLoaderService {
       
       // Custom units may already be in UnitState format (saved from customizer)
       // or in serialized format (imported)
-      if (!isSerializedUnit(fullUnit)) {
+      // IFullUnit has [key: string]: unknown, so we can use it as ISerializedUnit if it has the right structure
+      if (!hasSerializedUnitStructure(fullUnit)) {
         return { success: false, error: 'Custom unit data is not in serialized format' };
       }
-      const state = this.mapToUnitState(fullUnit, false);
+      // Type assertion is safe here because we've verified the structure matches ISerializedUnit
+      // and IFullUnit's index signature [key: string]: unknown makes it compatible
+      const state = this.mapToUnitState(fullUnit as ISerializedUnit, false);
       return { success: true, state };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load custom unit';

@@ -249,10 +249,14 @@ export class RecordSheetService {
       throw new Error('Could not open print window. Check popup blocker settings.');
     }
 
-    // After null check, printWindow is definitely a Window object with document
-    // TypeScript needs help here because Window.document might not be available in all contexts
-    // but in browser context after window.open, it's always available
-    const windowDoc = printWindow.document as Document;
+    // After null check, printWindow is a Window object
+    // In browser context, window.open returns a Window with document property
+    // Access document property - it exists in browser context after window.open
+    // TypeScript needs help here because the Window type doesn't always include document
+    const windowDoc = (printWindow as { document?: Document }).document;
+    if (!windowDoc) {
+      throw new Error('Print window does not have document access');
+    }
 
     windowDoc.write(`
       <!DOCTYPE html>
