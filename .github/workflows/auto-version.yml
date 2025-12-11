@@ -135,8 +135,10 @@ jobs:
           # Generate changelog from commits since last tag
           if [ "$LATEST_TAG" != "v0.0.0" ]; then
             CHANGELOG=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
+            COMPARE_URL="**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_VERSION}"
           else
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+            COMPARE_URL="🎉 **Initial Release**"
           fi
           
           # Create release notes
@@ -145,7 +147,7 @@ jobs:
           
           $CHANGELOG
           
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_VERSION}
+          $COMPARE_URL
           EOF
           
           echo "Release notes generated"

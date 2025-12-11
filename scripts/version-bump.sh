@@ -100,7 +100,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
     echo -e "${GREEN}✅ Successfully created and pushed $NEW_VERSION${NC}"
     echo -e "${BLUE}📋 The release workflow will now build and publish artifacts.${NC}"
-    echo -e "${BLUE}🔗 Check progress at: https://github.com/\$(git remote get-url origin | sed 's/.*github.com[:/]//;s/.git$//')/actions${NC}"
+    echo -e "${BLUE}🔗 Check progress at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//;s/.git$//')/actions${NC}"
 else
     echo -e "${YELLOW}Aborted.${NC}"
     exit 0
