@@ -1,4 +1,4 @@
-name: Build and Release Electron App
+name: Build and Release
 
 on:
   push:
@@ -143,9 +143,49 @@ jobs:
             desktop/release-upload/*
           retention-days: 30
 
-  docker-image:
-    name: Build & Push Docker image
+  docker-build:
+    name: Build Docker image
     needs: release-context
+    runs-on: ubuntu-latest
+    if: startsWith(needs.release-context.outputs.tag, 'v')
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-context.outputs.ref }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/mekstation
+            docker.io/anaklumos/mekstation
+          tags: |
+            type=raw,value=${{ needs.release-context.outputs.tag }}
+            type=raw,value=latest
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  docker-push:
+    name: Push Docker image
+    needs: [release-context, build, docker-build]
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
@@ -157,9 +197,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -197,9 +234,10 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
 
   release:
-    needs: [release-context, build, docker-image]
+    needs: [release-context, build, docker-push]
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
