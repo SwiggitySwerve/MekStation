@@ -13,14 +13,52 @@ function createMockKeyboardEvent(key: string, options?: { preventDefault?: jest.
 }
 
 /**
- * Create a mock React.KeyboardEvent for testing
+ * Create a mock React.KeyboardEvent for testing.
+ * We create a plain object that satisfies the React.KeyboardEvent interface.
  */
 function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: jest.Mock }): React.KeyboardEvent {
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }) as unknown as React.KeyboardEvent;
-  if (options?.preventDefault) {
-    jest.spyOn(event, 'preventDefault').mockImplementation(options.preventDefault);
-  }
-  return event;
+  const nativeEvent = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+  
+  // Create a mock object that satisfies React.KeyboardEvent interface
+  // Using a plain object avoids issues with read-only properties on native events
+  const mockPreventDefault = options?.preventDefault ?? jest.fn();
+  
+  const reactEvent: React.KeyboardEvent = {
+    // Native event properties
+    key,
+    code: nativeEvent.code,
+    keyCode: nativeEvent.keyCode,
+    charCode: nativeEvent.charCode,
+    which: nativeEvent.which,
+    altKey: nativeEvent.altKey,
+    ctrlKey: nativeEvent.ctrlKey,
+    metaKey: nativeEvent.metaKey,
+    shiftKey: nativeEvent.shiftKey,
+    repeat: nativeEvent.repeat,
+    location: nativeEvent.location,
+    getModifierState: (key: string) => nativeEvent.getModifierState(key),
+    
+    // Base event properties
+    nativeEvent,
+    currentTarget: null as unknown as EventTarget & Element,
+    target: null as unknown as EventTarget & Element,
+    bubbles: nativeEvent.bubbles,
+    cancelable: nativeEvent.cancelable,
+    defaultPrevented: nativeEvent.defaultPrevented,
+    eventPhase: nativeEvent.eventPhase,
+    isTrusted: nativeEvent.isTrusted,
+    timeStamp: nativeEvent.timeStamp,
+    type: nativeEvent.type,
+    
+    // React synthetic event methods
+    preventDefault: mockPreventDefault,
+    stopPropagation: jest.fn(),
+    isDefaultPrevented: () => false,
+    isPropagationStopped: () => false,
+    persist: () => { /* no-op for synthetic events */ },
+  } as React.KeyboardEvent;
+
+  return reactEvent;
 }
 
 describe('useKeyboardNavigation', () => {

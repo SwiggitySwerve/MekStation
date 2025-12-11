@@ -217,14 +217,16 @@ describe('FormulaRegistry', () => {
     });
 
     it('should reject formulas with missing required fields', async () => {
-      const invalidFormulas = {
+      // Intentionally create an incomplete formula object to test validation
+      // Use Partial to indicate incomplete implementation
+      const invalidFormulas: Partial<IVariableFormulas> = {
         weight: fixed(1),
         // Missing criticalSlots
         cost: fixed(1000),
         requiredContext: [],
-      } as unknown as IVariableFormulas;
+      };
 
-      await expect(registry.registerCustomFormulas('invalid', invalidFormulas))
+      await expect(registry.registerCustomFormulas('invalid', invalidFormulas as IVariableFormulas))
         .rejects.toThrow();
     });
   });

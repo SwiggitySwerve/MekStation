@@ -172,12 +172,24 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       expect(result.success).toBe(true);
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as {
+        type SerializedUnitEnvelope = {
           unit: {
-            equipment: Array<{ id: string; isRearMounted?: boolean; linkedAmmo?: string }>;
+            equipment: Array<{
+              id: string;
+              location?: string;
+              slots?: number[];
+              isRearMounted?: boolean;
+              linkedAmmo?: string;
+            }>;
             criticalSlots: Record<string, Array<string | null>>;
+            quirks?: string[];
+            movement: {
+              enhancements?: string[];
+            };
           };
         };
+
+        const envelope = JSON.parse(result.data) as SerializedUnitEnvelope;
 
         expect(envelope.unit.equipment[0]).toMatchObject({
           id: 'medium-laser',

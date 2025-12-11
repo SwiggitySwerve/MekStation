@@ -178,9 +178,13 @@ const mockIndexedDBWithTransactions = {
           request.result = db;
           
           if (request.onupgradeneeded) {
-            const upgradeEvent = {
+            // Create upgrade event with minimal required properties
+            // IDBVersionChangeEvent requires target.result to be the database
+            const upgradeEvent: IDBVersionChangeEvent = {
               target: { result: db },
-            } as unknown as IDBVersionChangeEvent;
+              oldVersion: 0,
+              newVersion: dbVersion,
+            } as IDBVersionChangeEvent;
             request.onupgradeneeded(upgradeEvent);
           }
         }

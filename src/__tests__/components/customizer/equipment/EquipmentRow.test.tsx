@@ -8,14 +8,14 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 
 // Mock getAllWeapons to return our test weapon data
 jest.mock('@/types/equipment', () => {
-  const actual = jest.requireActual('@/types/equipment');
+  const actual = jest.requireActual<typeof import('@/types/equipment')>('@/types/equipment');
   return {
     ...actual,
-    getAllWeapons: jest.fn(() => []),
+    getAllWeapons: jest.fn((): ReturnType<typeof actual.getAllWeapons> => []),
   };
 });
 
-const mockGetAllWeapons = getAllWeapons as jest.Mock;
+const mockGetAllWeapons = getAllWeapons as jest.MockedFunction<typeof getAllWeapons>;
 
 describe('EquipmentRow', () => {
   beforeEach(() => {
@@ -41,11 +41,12 @@ describe('EquipmentRow', () => {
     id: 'medium-laser',
     name: 'Medium Laser',
     category: WeaponCategory.ENERGY,
+  subType: '',
     weight: 1,
     criticalSlots: 1,
     heat: 3,
     damage: 5,
-    ranges: { short: 3, medium: 6, long: 9 },
+    ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
     costCBills: 40000,
@@ -156,7 +157,12 @@ describe('EquipmentRow', () => {
   });
 
   it('should render dash when heat is zero or missing', () => {
-    const equipment = createEquipment({ heat: 0 });
+    // Provide a weapon with zero heat to simulate dash display
+    mockGetAllWeapons.mockReturnValue([
+      createMockWeapon({ id: 'medium-laser', heat: 0 }),
+    ]);
+
+    const equipment = createEquipment();
     const onAdd = jest.fn();
     
     render(
@@ -176,7 +182,7 @@ describe('EquipmentRow', () => {
     mockGetAllWeapons.mockReturnValue([
       createMockWeapon({ 
         id: 'medium-laser', 
-        ranges: { short: 3, medium: 6, long: 9 } 
+        ranges: { minimum: 0, short: 3, medium: 6, long: 9 } 
       }),
     ]);
     

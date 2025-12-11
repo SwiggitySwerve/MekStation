@@ -1,4 +1,5 @@
 import { FileService } from '@/services/persistence/FileService';
+import { createDOMMock } from '../../helpers';
 
 describe('FileService', () => {
   let service: FileService;
@@ -18,7 +19,7 @@ describe('FileService', () => {
       click: mockClick,
     };
     
-    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(createDOMMock<HTMLElement>(mockAnchor));
     mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation();
     mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation();
     
@@ -174,16 +175,18 @@ describe('FileService', () => {
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
       
-      // Mock FileReader to fail
+      // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
-      global.FileReader = jest.fn().mockImplementation(() => ({
-        readAsText: jest.fn(function(this: FileReader) {
+      class MockFileReaderError {
+        onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
+        readAsText(): void {
           setTimeout(() => {
-            // @ts-expect-error - accessing private property for testing
-            this.onerror?.(new Error('Read error'));
+            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            this.onerror?.(event);
           }, 0);
-        }),
-      })) as unknown as typeof FileReader;
+        }
+      }
+      global.FileReader = MockFileReaderError as typeof FileReader;
 
       const result = await service.importUnit(file);
 
@@ -316,16 +319,18 @@ describe('FileService', () => {
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
       
-      // Mock FileReader to fail
+      // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
-      global.FileReader = jest.fn().mockImplementation(() => ({
-        readAsText: jest.fn(function(this: FileReader) {
+      class MockFileReaderValidateError {
+        onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
+        readAsText(): void {
           setTimeout(() => {
-            // @ts-expect-error - accessing private property for testing
-            this.onerror?.(new Error('Read error'));
+            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            this.onerror?.(event);
           }, 0);
-        }),
-      })) as unknown as typeof FileReader;
+        }
+      }
+      global.FileReader = MockFileReaderValidateError as typeof FileReader;
 
       const result = await service.validateFile(file);
 

@@ -29,7 +29,6 @@ export default [
       '**/desktop/**',
       '**/scripts/**',
       '**/.github/**',
-      '**/__tests__/**',
     ],
   },
   
@@ -103,6 +102,16 @@ export default [
     rules: {
       // TypeScript rules
       '@typescript-eslint/no-explicit-any': 'warn',
+      
+      // Prevent double casting with "as unknown as" pattern
+      // This bypasses type safety and should be avoided
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: 'TSAsExpression > TSAsExpression',
+          message: 'Avoid double type assertions (as unknown as). Use type guards, conversion functions, or fix the underlying type issue instead.',
+        },
+      ],
       '@typescript-eslint/no-unsafe-assignment': 'warn',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
       '@typescript-eslint/no-unsafe-call': 'warn',

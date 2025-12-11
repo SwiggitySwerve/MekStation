@@ -255,7 +255,8 @@ describe('UnitSearchService', () => {
       await service.rebuildIndex();
 
       expect(mockSearchIndex.addAll).toHaveBeenCalledTimes(2);
-      const latestCallArgs = mockSearchIndex.addAll.mock.calls.at(-1)?.[0] as { id: string }[];
+      const lastCall = mockSearchIndex.addAll.mock.calls.at(-1) as [Array<{ id: string }>] | undefined;
+      const latestCallArgs = lastCall?.[0] ?? [];
       const ids = latestCallArgs.map(entry => entry.id);
       expect(ids).toContain('new-id');
       expect(ids).not.toContain('custom-1');

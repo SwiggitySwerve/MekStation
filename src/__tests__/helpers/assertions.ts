@@ -184,15 +184,17 @@ export function registerBattleTechMatchers(): void {
 /**
  * TypeScript declarations for custom matchers
  */
-declare module 'jest' {
-  interface Matchers<R> {
-    toBeValidWeight(expected: number): R;
-    toBeHalfTonIncrement(): R;
-    toBeWithinRange(min: number, max: number): R;
-    toBeMultipleOf(multiple: number): R;
-    toHaveValidationError(errorCode: string): R;
-    toBeValidEngineRating(): R;
-    toBeValidSlotCount(): R;
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeValidWeight(expected: number): R;
+      toBeHalfTonIncrement(): R;
+      toBeWithinRange(min: number, max: number): R;
+      toBeMultipleOf(multiple: number): R;
+      toHaveValidationError(errorCode: string): R;
+      toBeValidEngineRating(): R;
+      toBeValidSlotCount(): R;
+    }
   }
 }
 

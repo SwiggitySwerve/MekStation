@@ -78,10 +78,16 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
   })),
 }));
 
+// Helper type for accessing private singleton instance
+interface SingletonResettable {
+  instance: null;
+}
+
 describe('EquipmentRegistry', () => {
   beforeEach(() => {
     // Reset singleton instance using type assertion for private property access
-    (EquipmentRegistry as unknown as { instance: null }).instance = null;
+    // This is acceptable in tests to reset singleton state between test cases
+    (EquipmentRegistry as typeof EquipmentRegistry & SingletonResettable).instance = null;
   });
 
   it('should return singleton instance', () => {

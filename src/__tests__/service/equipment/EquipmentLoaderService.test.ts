@@ -14,6 +14,16 @@ type ServiceWithMaps = {
   miscEquipment: Map<string, Partial<IMiscEquipment>>;
 };
 
+/**
+ * Helper to access private map properties for testing.
+ * This creates an intersection type that exposes the internal maps.
+ */
+function getServiceMaps(svc: EquipmentLoaderService): ServiceWithMaps {
+  // In tests, we need to access private maps to set up test state
+  // Using intersection type is cleaner than double assertion
+  return svc as EquipmentLoaderService & ServiceWithMaps;
+}
+
 // Mock fetch globally
 global.fetch = jest.fn();
 
@@ -74,7 +84,7 @@ describe('EquipmentLoaderService', () => {
   describe('clear()', () => {
     it('should clear all equipment', () => {
       // Manually add some items to test clear (accessing private properties for testing)
-      const serviceInternal = service as unknown as { weapons: Map<string, unknown>; isLoaded: boolean };
+      const serviceInternal = service as EquipmentLoaderService & { weapons: Map<string, unknown>; isLoaded: boolean };
       serviceInternal.weapons.set('test-weapon', { id: 'test-weapon', name: 'Test' });
       serviceInternal.isLoaded = true;
       
@@ -447,22 +457,8 @@ describe('EquipmentLoaderService', () => {
         { id: 'unknown-misc', name: 'Unknown Misc', category: 'Unknown', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 10000, battleValue: 5, introductionYear: 3025 },
       ]);
 
-      const originalFileCtor = global.File;
-      class MockFile extends Blob {
-        readonly name: string;
-
-        constructor(parts: BlobPart[], name: string, options?: FilePropertyBag) {
-          super(parts, options);
-          this.name = name;
-        }
-      }
-      (global as typeof globalThis & { File: typeof File }).File = MockFile as typeof File;
-
-      const fileBlob = new MockFile([JSON.stringify(weaponFile)], 'weapons.json', { type: 'application/json' }) as File;
-      const fileResult = await service.loadCustomEquipment(fileBlob);
+      const fileResult = await service.loadCustomEquipment(weaponFile);
       expect(fileResult.itemsLoaded).toBe(2);
-      (global as typeof globalThis & { File: typeof File }).File = originalFileCtor as typeof File;
-
       await service.loadCustomEquipment(ammoFile);
       await service.loadCustomEquipment(electronicsFile);
       await service.loadCustomEquipment(miscFile);
@@ -511,7 +507,7 @@ describe('EquipmentLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
       
-      (service as unknown as { weapons: Map<string, typeof mockWeapon> }).weapons.set('medium-laser', mockWeapon);
+      (service as EquipmentLoaderService & { weapons: Map<string, typeof mockWeapon> }).weapons.set('medium-laser', mockWeapon);
       
       const weapon = service.getWeaponById('medium-laser');
       expect(weapon).toEqual(mockWeapon);
@@ -526,21 +522,21 @@ describe('EquipmentLoaderService', () => {
   describe('searchWeapons()', () => {
     beforeEach(() => {
       // Add test weapons
-      (service as unknown as ServiceWithMaps).weapons.set('medium-laser', {
+      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('medium-laser', {
         id: 'medium-laser',
         name: 'Medium Laser',
         techBase: TechBase.INNER_SPHERE,
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2470,
       });
-      (service as unknown as ServiceWithMaps).weapons.set('large-laser', {
+      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('large-laser', {
         id: 'large-laser',
         name: 'Large Laser',
         techBase: TechBase.INNER_SPHERE,
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2470,
       });
-      (service as unknown as ServiceWithMaps).weapons.set('clan-er-large', {
+      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('clan-er-large', {
         id: 'clan-er-large',
         name: 'ER Large Laser',
         techBase: TechBase.CLAN,
@@ -620,7 +616,7 @@ describe('EquipmentLoaderService', () => {
 
   describe('getById()', () => {
     it('should return weapon when id exists in weapons map first', () => {
-      const serviceMaps = service as unknown as ServiceWithMaps;
+      const serviceMaps = getServiceMaps(service);
       const weapon = { id: 'shared-id', name: 'Weapon' };
       const ammo = { id: 'shared-id', name: 'Ammo' };
       serviceMaps.weapons.set('shared-id', weapon);
@@ -632,7 +628,7 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should return electronics when weapon is not present', () => {
-      const serviceMaps = service as unknown as ServiceWithMaps;
+      const serviceMaps = getServiceMaps(service);
       const electronics = { id: 'sensor', name: 'Sensor' };
       serviceMaps.electronics.set('sensor', electronics);
 
@@ -642,7 +638,7 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should return miscellaneous equipment when only misc matches', () => {
-      const serviceMaps = service as unknown as ServiceWithMaps;
+      const serviceMaps = getServiceMaps(service);
       const misc = { id: 'misc-id', name: 'Misc' };
       serviceMaps.miscEquipment.set('misc-id', misc);
 
@@ -658,11 +654,12 @@ describe('EquipmentLoaderService', () => {
 
   describe('getTotalCount()', () => {
     it('should return correct total count', () => {
-      (service as unknown as ServiceWithMaps).weapons.set('w1', {});
-      (service as unknown as ServiceWithMaps).weapons.set('w2', {});
-      (service as unknown as ServiceWithMaps).ammunition.set('a1', {});
-      (service as unknown as ServiceWithMaps).electronics.set('e1', {});
-      (service as unknown as ServiceWithMaps).miscEquipment.set('m1', {});
+      const serviceMaps = getServiceMaps(service);
+      serviceMaps.weapons.set('w1', {});
+      serviceMaps.weapons.set('w2', {});
+      serviceMaps.ammunition.set('a1', {});
+      serviceMaps.electronics.set('e1', {});
+      serviceMaps.miscEquipment.set('m1', {});
       
       expect(service.getTotalCount()).toBe(5);
     });

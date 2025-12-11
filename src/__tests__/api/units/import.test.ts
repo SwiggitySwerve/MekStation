@@ -4,9 +4,9 @@
 import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/import';
-import { getSQLiteService, ISQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
-import { getUnitRepository, IUnitRepository, UnitRepository } from '@/services/units/UnitRepository';
-import { parseErrorResponse, parseImportResponse, parseApiResponse } from '../../helpers';
+import { getSQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
+import { getUnitRepository, UnitRepository } from '@/services/units/UnitRepository';
+import { parseErrorResponse, parseImportResponse, parseApiResponse, createMock } from '../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
@@ -40,14 +40,14 @@ describe('/api/units/import', () => {
       create: jest.fn(),
     };
     
-    mockSQLiteService.mockReturnValue({
+    mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
       initialize: jest.fn(),
       getDatabase: jest.fn(),
       close: jest.fn(),
       isInitialized: jest.fn().mockReturnValue(true),
-    } as Partial<ISQLiteService> as SQLiteService);
+    }));
     
-    mockGetUnitRepository.mockReturnValue(mockUnitRepository as Partial<IUnitRepository> as UnitRepository);
+    mockGetUnitRepository.mockReturnValue(createMock<UnitRepository>(mockUnitRepository));
   });
 
   describe('Method validation', () => {
@@ -69,8 +69,8 @@ describe('/api/units/import', () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
       });
-      // Explicitly set body to null
-      delete (req as unknown as { body: unknown }).body;
+      // Explicitly set body to null using proper type narrowing
+      // NextApiRequest body can be set to null directly
       req.body = null;
 
       await handler(req, res);
@@ -295,14 +295,14 @@ describe('/api/units/import', () => {
 
   describe('Error handling', () => {
     it('should handle database initialization errors', async () => {
-      mockSQLiteService.mockReturnValue({
+      mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
         initialize: jest.fn(() => {
           throw new Error('Database init failed');
         }),
         getDatabase: jest.fn(),
         close: jest.fn(),
         isInitialized: jest.fn().mockReturnValue(false),
-      } as Partial<ISQLiteService> as SQLiteService);
+      }));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',

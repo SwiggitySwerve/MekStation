@@ -102,7 +102,13 @@ jobs:
             test -d release/win-unpacked || exit 1
             test -f release/win-unpacked/"BattleTech Editor.exe" || exit 1
           elif [ "${{ matrix.platform }}" = "mac" ]; then
-            test -d release/mac || exit 1
+            mac_dirs="$(compgen -G "release/mac*")"
+            if [ -n "$mac_dirs" ]; then
+              mac_apps="$(compgen -G "release/mac*/BattleTech Editor.app")"
+              [ -n "$mac_apps" ] || exit 1
+            else
+              exit 1
+            fi
           else
             test -d release/linux-unpacked || exit 1
           fi

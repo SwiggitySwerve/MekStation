@@ -35,6 +35,7 @@ jest.mock('@/types/equipment', () => {
 });
 
 describe('useEquipmentBrowser Hook', () => {
+  const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<typeof useEquipmentStore>;
   const mockEquipment = [
     { id: 'eq-1', name: 'Medium Laser', category: 'Energy' },
     { id: 'eq-2', name: 'AC/20', category: 'Ballistic' },
@@ -88,7 +89,7 @@ describe('useEquipmentBrowser Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useEquipmentStore as jest.Mock).mockReturnValue(createMockStore());
+    mockUseEquipmentStore.mockReturnValue(createMockStore());
   });
 
   describe('Data Loading', () => {

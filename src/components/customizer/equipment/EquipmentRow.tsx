@@ -51,10 +51,14 @@ function formatRange(equipment: IEquipmentItem): string {
   }
   
   const ranges = weapon.ranges;
-  if (ranges.short && ranges.medium && ranges.long) {
+  const hasShort = ranges.short !== undefined && ranges.short !== null;
+  const hasMedium = ranges.medium !== undefined && ranges.medium !== null;
+  const hasLong = ranges.long !== undefined && ranges.long !== null;
+
+  if (hasShort && hasMedium && hasLong) {
     return `${ranges.short}/${ranges.medium}/${ranges.long}`;
   }
-  if (ranges.long) {
+  if (hasLong) {
     return `${ranges.long}`;
   }
   return '-';

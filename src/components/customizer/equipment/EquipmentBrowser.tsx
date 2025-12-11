@@ -15,7 +15,7 @@ import { SortColumn } from '@/stores/useEquipmentStore';
 import { IEquipmentItem } from '@/types/equipment';
 import { PaginationButtons } from '@/components/ui/Button';
 
-interface EquipmentBrowserProps {
+export interface EquipmentBrowserProps {
   /** Called when equipment is added to unit */
   onAddEquipment: (equipment: IEquipmentItem) => void;
   /** Additional CSS classes */

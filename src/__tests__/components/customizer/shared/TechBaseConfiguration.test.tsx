@@ -3,11 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TechBaseConfiguration, DEFAULT_COMPONENT_VALUES } from '@/components/customizer/shared/TechBaseConfiguration';
 import { TechBaseMode, createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
 describe('TechBaseConfiguration', () => {
   const defaultProps = {
     mode: TechBaseMode.INNER_SPHERE,
-    components: createDefaultComponentTechBases(),
+    components: createDefaultComponentTechBases(TechBase.INNER_SPHERE),
     componentValues: DEFAULT_COMPONENT_VALUES,
     onModeChange: jest.fn(),
     onComponentChange: jest.fn(),

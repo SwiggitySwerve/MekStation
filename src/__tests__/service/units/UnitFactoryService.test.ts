@@ -558,14 +558,16 @@ describe('UnitFactoryService', () => {
 
     describe('error handling', () => {
       it('should handle missing required fields gracefully', () => {
-        const malformed = {
+        // Create intentionally incomplete unit using Partial type
+        const malformed: Partial<ISerializedUnit> = {
           id: 'test',
           chassis: 'Test',
           model: 'T1',
           tonnage: 50,
-        } as unknown as ISerializedUnit;
+          // Missing required fields like engine, armor, etc.
+        };
 
-        const result = factory.createFromSerialized(malformed);
+        const result = factory.createFromSerialized(malformed as ISerializedUnit);
 
         expect(result.success).toBe(false);
         expect(result.errors.length).toBeGreaterThan(0);

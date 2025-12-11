@@ -15,7 +15,7 @@ jest.mock('@/hooks/useEquipmentBrowser', () => ({
 jest.mock('@/components/customizer/equipment/CategoryToggleBar', () => ({
   CategoryToggleBar: ({ activeCategories, onSelectCategory }: CategoryToggleBarProps) => (
     <div data-testid="category-toggle-bar">
-      {Array.from(activeCategories).map((cat: EquipmentCategory) => (
+      {Array.from<EquipmentCategory>(activeCategories).map((cat) => (
         <button key={cat} onClick={(): void => { (onSelectCategory as (cat: EquipmentCategory, selected: boolean) => void)(cat, false); }}>
           {cat}
         </button>

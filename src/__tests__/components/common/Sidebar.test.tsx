@@ -11,23 +11,19 @@ jest.mock('next/link', () => {
   return {
     __esModule: true,
     default: ({ children, href, legacyBehavior }: { children: React.ReactNode | ((props: { href: string }) => React.ReactNode); href: string; legacyBehavior?: boolean }): React.ReactElement => {
+      // Normalize children so TypeScript sees a ReactNode before rendering
+      const resolvedChildren = typeof children === 'function' ? children({ href }) : children;
+
       if (legacyBehavior) {
         // For legacyBehavior, children can be a function or React element
-        // If it's a function, call it with href prop
-        if (typeof children === 'function') {
-          const result = children({ href });
-          return typeof result === 'object' && result !== null && 'type' in result 
-            ? result as React.ReactElement 
-            : <>{result}</>;
+        if (React.isValidElement(resolvedChildren)) {
+          return React.cloneElement(resolvedChildren as React.ReactElement<{ href?: string }>, { href });
         }
-        // If it's an element (like <a>), clone it and add href
-        if (React.isValidElement(children)) {
-          return React.cloneElement(children as React.ReactElement<{ href?: string }>, { href });
-        }
-        return <>{children}</>;
+        return <>{resolvedChildren}</>;
       }
+
       // For non-legacy, wrap children in anchor
-      return <a href={href}>{children}</a>;
+      return <a href={href}>{resolvedChildren}</a>;
     },
   };
 });
