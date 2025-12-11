@@ -38,10 +38,10 @@ function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: 
     location: nativeEvent.location,
     getModifierState: (key: string) => nativeEvent.getModifierState(key),
     
-    // Base event properties
+    // Base event properties - using empty div as placeholder for event targets
     nativeEvent,
-    currentTarget: null as unknown as EventTarget & Element,
-    target: null as unknown as EventTarget & Element,
+    currentTarget: document.createElement('div'),
+    target: document.createElement('div'),
     bubbles: nativeEvent.bubbles,
     cancelable: nativeEvent.cancelable,
     defaultPrevented: nativeEvent.defaultPrevented,

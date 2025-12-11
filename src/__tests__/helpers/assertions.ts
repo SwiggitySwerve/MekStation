@@ -183,8 +183,10 @@ export function registerBattleTechMatchers(): void {
 
 /**
  * TypeScript declarations for custom matchers
+ * Note: namespace is required here to augment Jest's Matchers interface
  */
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     interface Matchers<R> {
       toBeValidWeight(expected: number): R;
