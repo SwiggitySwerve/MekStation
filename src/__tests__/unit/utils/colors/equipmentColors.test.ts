@@ -192,6 +192,14 @@ describe('Equipment Colors', () => {
         expect(classifyEquipment('LRM Ammo')).toBe('ammunition');
         expect(classifyEquipment('Machine Gun Ammunition')).toBe('ammunition');
       });
+
+      it('should classify ammunition by suffix even without keywords', () => {
+        expect(classifyEquipment('Tracer rounds')).toBe('ammunition');
+      });
+
+      it('should prioritize ammunition classification over weapon keywords', () => {
+        expect(classifyEquipment('Laser Ammo')).toBe('ammunition');
+      });
     });
 
     describe('Heat Sinks', () => {
@@ -288,6 +296,12 @@ describe('Equipment Colors', () => {
       
       expect(classes).toContain('ring-2');
       expect(classes).toContain('ring-yellow-400');
+    });
+
+    it('should omit hover classes when selected', () => {
+      const classes = getBattleTechEquipmentClasses('Medium Laser', true);
+
+      expect(classes).not.toContain('hover:');
     });
 
     it('should use correct colors for different equipment types', () => {

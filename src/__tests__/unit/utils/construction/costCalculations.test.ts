@@ -4,12 +4,16 @@ import {
   calculateStructureCost,
   calculateCockpitCost,
   calculateHeatSinkCost,
+  calculateChassisCost,
+  calculateTotalCost,
+  getCostBreakdown,
   ENGINE_COST_MULTIPLIERS,
   GYRO_COST_MULTIPLIERS,
 } from '@/utils/construction/costCalculations';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
@@ -92,6 +96,51 @@ describe('costCalculations', () => {
       const cost = calculateHeatSinkCost(10, HeatSinkType.DOUBLE_IS);
       // 10 × 6000 = 60000
       expect(cost).toBe(60000);
+    });
+  });
+
+  describe('calculateChassisCost()', () => {
+    it('should scale linearly with tonnage', () => {
+      expect(calculateChassisCost(50)).toBe(500000);
+      expect(calculateChassisCost(75)).toBe(750000);
+    });
+  });
+
+  describe('calculateTotalCost() and getCostBreakdown()', () => {
+    const config = {
+      tonnage: 50,
+      engineRating: 250,
+      engineType: EngineType.STANDARD,
+      gyroType: GyroType.STANDARD,
+      structureType: InternalStructureType.ENDO_STEEL_IS,
+      armorType: ArmorTypeEnum.STANDARD,
+      totalArmorPoints: 184,
+      cockpitType: CockpitType.STANDARD,
+      heatSinkType: HeatSinkType.DOUBLE_IS,
+      externalHeatSinks: 5,
+      equipmentCost: 1_000_000,
+    };
+
+    it('should calculate aggregate unit cost', () => {
+      const total = calculateTotalCost(config);
+      expect(total).toBeGreaterThan(config.equipmentCost);
+    });
+
+    it('should provide a detailed cost breakdown', () => {
+      const breakdown = getCostBreakdown(config);
+      expect(breakdown.chassis).toBe(calculateChassisCost(config.tonnage));
+      expect(breakdown.engine).toBeGreaterThan(0);
+      expect(breakdown.armor).toBeGreaterThan(0);
+      expect(breakdown.total).toBe(
+        breakdown.chassis +
+          breakdown.engine +
+          breakdown.gyro +
+          breakdown.structure +
+          breakdown.armor +
+          breakdown.cockpit +
+          breakdown.heatSinks +
+          breakdown.equipment
+      );
     });
   });
 

@@ -343,4 +343,22 @@ describe('EquipmentNameResolver', () => {
       expect(mappings['MediumLaser']).toBe('medium-laser');
     });
   });
+
+  // ============================================================================
+  // getById()
+  // ============================================================================
+  describe('getById()', () => {
+    it('should return equipment when the id exists', () => {
+      resolver.resolve('MediumLaser', 'Medium Laser');
+      const item = resolver.getById('medium-laser');
+
+      expect(item).toBeDefined();
+      expect(item?.name).toBe('Medium Laser');
+    });
+
+    it('should return undefined for unknown ids', () => {
+      resolver.resolve('MediumLaser', 'Medium Laser');
+      expect(resolver.getById('non-existent-id')).toBeUndefined();
+    });
+  });
 });

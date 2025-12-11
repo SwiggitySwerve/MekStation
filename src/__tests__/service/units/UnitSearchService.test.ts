@@ -10,6 +10,7 @@ jest.mock('minisearch', () => {
     addAll: jest.fn(),
     add: jest.fn(),
     remove: jest.fn(),
+    discard: jest.fn(),
     search: jest.fn(),
   };
   
@@ -37,6 +38,8 @@ import MiniSearch from 'minisearch';
 interface MockSearchIndex {
   addAll: jest.Mock;
   search: jest.Mock;
+  add: jest.Mock;
+  discard: jest.Mock;
 }
 
 describe('UnitSearchService', () => {
@@ -154,9 +157,40 @@ describe('UnitSearchService', () => {
     });
 
     it('should limit results when maxResults is provided', () => {
-      const results = service.search('Atlas', { maxResults: 5 });
+      mockSearchIndex.search.mockReturnValue([
+        { id: 'atlas-as7-d' },
+        { id: 'custom-1' },
+      ]);
+
+      const results = service.search('Atlas', { limit: 1 });
       
-      expect(results.length).toBeLessThanOrEqual(5);
+      expect(results).toHaveLength(1);
+      expect(results[0]?.id).toBe('atlas-as7-d');
+    });
+
+    it('should drop unknown ids returned by index', () => {
+      mockSearchIndex.search.mockReturnValue([
+        { id: 'missing' },
+        { id: 'atlas-as7-d' },
+      ]);
+
+      const results = service.search('Atlas');
+
+      expect(results).toHaveLength(1);
+      expect(results[0]?.id).toBe('atlas-as7-d');
+    });
+
+    it('should forward custom search options', () => {
+      service.search('Atlas', { fuzzy: false, fields: ['name'] });
+
+      expect(mockSearchIndex.search).toHaveBeenCalledWith(
+        'Atlas',
+        expect.objectContaining({
+          fuzzy: false,
+          fields: ['name'],
+          prefix: true,
+        }),
+      );
     });
   });
 
@@ -170,6 +204,19 @@ describe('UnitSearchService', () => {
       
       expect(mockSearchIndex.add).toHaveBeenCalledWith(mockCanonicalUnit);
     });
+
+    it('should discard existing entry before adding', () => {
+      service.addToIndex(mockCanonicalUnit);
+      service.addToIndex({ ...mockCanonicalUnit, name: 'Updated Atlas' });
+
+      expect(mockSearchIndex.discard).toHaveBeenCalledWith('atlas-as7-d');
+      expect(mockSearchIndex.add).toHaveBeenCalledTimes(2);
+    });
+
+    it('should be a no-op when index is uninitialized', () => {
+      const fresh = new UnitSearchService();
+      expect(() => fresh.addToIndex(mockCanonicalUnit)).not.toThrow();
+    });
   });
 
   describe('removeFromIndex()', () => {
@@ -182,6 +229,11 @@ describe('UnitSearchService', () => {
       
       expect(mockSearchIndex.discard).toHaveBeenCalled();
     });
+
+    it('should be a no-op when index is uninitialized', () => {
+      const fresh = new UnitSearchService();
+      expect(() => fresh.removeFromIndex('atlas-as7-d')).not.toThrow();
+    });
   });
 
   describe('rebuildIndex()', () => {
@@ -191,6 +243,22 @@ describe('UnitSearchService', () => {
       
       expect(canonicalUnitService.getIndex).toHaveBeenCalledTimes(2);
       expect(customUnitApiService.list).toHaveBeenCalledTimes(2);
+    });
+
+    it('should refresh indexed data', async () => {
+      await service.initialize();
+      (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([
+        { ...mockCanonicalUnit, id: 'new-id', name: 'New Unit' },
+      ]);
+      (customUnitApiService.list as jest.Mock).mockResolvedValue([]);
+
+      await service.rebuildIndex();
+
+      expect(mockSearchIndex.addAll).toHaveBeenCalledTimes(2);
+      const latestCallArgs = mockSearchIndex.addAll.mock.calls.at(-1)?.[0] as { id: string }[];
+      const ids = latestCallArgs.map(entry => entry.id);
+      expect(ids).toContain('new-id');
+      expect(ids).not.toContain('custom-1');
     });
   });
 });

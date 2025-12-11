@@ -155,5 +155,10 @@ describe('Tech Base Colors', () => {
     it('should return "Mixed" for Mixed mode', () => {
       expect(getTechBaseModeShortName(TechBaseMode.MIXED)).toBe('Mixed');
     });
+
+    it('should return string fallback for unknown modes', () => {
+      const result = getTechBaseModeShortName('unknown-mode' as TechBaseMode);
+      expect(result).toBe('unknown-mode');
+    });
   });
 });
