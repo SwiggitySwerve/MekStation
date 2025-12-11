@@ -4,7 +4,6 @@
  * Provides type-safe utilities for testing API endpoints.
  * Resolves ESLint no-unsafe-* warnings by providing proper typing.
  */
-import type { MockResponse } from 'node-mocks-http';
 
 /**
  * Standard API response structure for success cases

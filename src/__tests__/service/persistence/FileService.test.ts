@@ -3,8 +3,6 @@ import { FileService } from '@/services/persistence/FileService';
 describe('FileService', () => {
   let service: FileService;
   let mockCreateElement: jest.SpyInstance;
-  let mockAppendChild: jest.SpyInstance;
-  let mockRemoveChild: jest.SpyInstance;
   let mockCreateObjectURL: jest.SpyInstance;
   let mockRevokeObjectURL: jest.SpyInstance;
   let mockClick: jest.Mock;
@@ -24,8 +22,8 @@ describe('FileService', () => {
     
     // @ts-expect-error - Mocking createElement for test purposes
     mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchorElement);
-    mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchorElement);
-    mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchorElement);
+    jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchorElement);
+    jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchorElement);
     
     // Mock URL methods
     const urlMock = {
