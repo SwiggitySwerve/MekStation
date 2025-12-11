@@ -27,6 +27,8 @@ jest.mock('@/stores/useCustomizerStore', () => ({
 }));
 
 describe('useUnit Hook', () => {
+  const mockUseMultiUnitStore = useMultiUnitStore as jest.MockedFunction<typeof useMultiUnitStore>;
+  
   const mockMultiUnitStore = {
     tabs: [
       { id: 'tab-1', name: 'Atlas AS7-D', isModified: false, tonnage: 100 },
@@ -47,7 +49,7 @@ describe('useUnit Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMultiUnitStore as jest.Mock).mockReturnValue(mockMultiUnitStore);
+    mockUseMultiUnitStore.mockReturnValue(mockMultiUnitStore);
   });
 
   it('should return current tab', () => {
@@ -86,7 +88,7 @@ describe('useUnit Hook', () => {
       ...mockMultiUnitStore,
       activeTabId: 'tab-2',
     };
-    (useMultiUnitStore as jest.Mock).mockReturnValue(modifiedStore);
+    mockUseMultiUnitStore.mockReturnValue(modifiedStore);
     
     const { result } = renderHook(() => useUnit());
     
@@ -142,7 +144,7 @@ describe('useUnit Hook', () => {
       ...mockMultiUnitStore,
       activeTabId: null,
     };
-    (useMultiUnitStore as jest.Mock).mockReturnValue(noActiveStore);
+    mockUseMultiUnitStore.mockReturnValue(noActiveStore);
     
     const { result } = renderHook(() => useUnit());
     
@@ -205,7 +207,7 @@ describe('useUnit Hook', () => {
       ...mockMultiUnitStore,
       activeTabId: null,
     };
-    (useMultiUnitStore as jest.Mock).mockReturnValue(noActiveStore);
+    mockUseMultiUnitStore.mockReturnValue(noActiveStore);
     
     const { result } = renderHook(() => useUnit());
     
@@ -215,8 +217,10 @@ describe('useUnit Hook', () => {
 });
 
 describe('useSelection Hook', () => {
+  const mockUseCustomizerStore = useCustomizerStore as jest.MockedFunction<typeof useCustomizerStore>;
+  
   const mockCustomizerStore = {
-    selectedEquipment: { id: 'eq-1', name: 'Medium Laser' },
+    selectedEquipment: { id: 'eq-1', name: 'Medium Laser', equipmentId: 'eq-1', criticalSlots: 1, source: 'browser' as const },
     selectedLocation: MechLocation.LEFT_ARM,
     selectionMode: 'click' as const,
     selectEquipment: jest.fn(),
@@ -226,7 +230,7 @@ describe('useSelection Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useCustomizerStore as jest.Mock).mockReturnValue(mockCustomizerStore);
+    mockUseCustomizerStore.mockReturnValue(mockCustomizerStore);
   });
 
   it('should return selected equipment', () => {
@@ -249,7 +253,7 @@ describe('useSelection Hook', () => {
 
   it('should call selectEquipment', () => {
     const { result } = renderHook(() => useSelection());
-    const newEquipment = { id: 'eq-2', name: 'PPC' };
+    const newEquipment = { id: 'eq-2', name: 'PPC', equipmentId: 'eq-2', criticalSlots: 3, source: 'browser' as const };
     
     act(() => {
       result.current.selectEquipment(newEquipment);
@@ -280,6 +284,9 @@ describe('useSelection Hook', () => {
 });
 
 describe('useUnitEditor Hook', () => {
+  const mockUseMultiUnitStore = useMultiUnitStore as jest.MockedFunction<typeof useMultiUnitStore>;
+  const mockUseCustomizerStore = useCustomizerStore as jest.MockedFunction<typeof useCustomizerStore>;
+  
   const mockMultiUnitStore = {
     tabs: [{ id: 'tab-1', name: 'Atlas', isModified: false, tonnage: 100 }],
     activeTabId: 'tab-1',
@@ -306,8 +313,8 @@ describe('useUnitEditor Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMultiUnitStore as jest.Mock).mockReturnValue(mockMultiUnitStore);
-    (useCustomizerStore as jest.Mock).mockReturnValue(mockCustomizerStore);
+    mockUseMultiUnitStore.mockReturnValue(mockMultiUnitStore);
+    mockUseCustomizerStore.mockReturnValue(mockCustomizerStore);
   });
 
   it('should return combined unit and selection context', () => {

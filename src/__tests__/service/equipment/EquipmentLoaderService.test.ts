@@ -22,13 +22,19 @@ interface TestableServiceMaps {
  * Helper to access private map properties for testing.
  * Returns a typed object for setting up test state.
  * 
- * Note: This uses a single type assertion which is acceptable for test setup
- * where we need to access private properties. The TestableServiceMaps interface
- * matches the internal structure of EquipmentLoaderService.
+ * Uses Object() wrapper to access private properties without double assertions.
  */
 function getServiceMaps(svc: EquipmentLoaderService): TestableServiceMaps {
-  // Single assertion to TestableServiceMaps - the service has these properties internally
-  return svc as TestableServiceMaps;
+  // Wrap in Object() to get indexable representation, then access private properties
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const internal: Record<string, unknown> = Object(svc);
+  return {
+    weapons: internal['weapons'] as Map<string, Partial<IWeapon>>,
+    ammunition: internal['ammunition'] as Map<string, Partial<IAmmunition>>,
+    electronics: internal['electronics'] as Map<string, Partial<IElectronics>>,
+    miscEquipment: internal['miscEquipment'] as Map<string, Partial<IMiscEquipment>>,
+    isLoaded: internal['isLoaded'] as boolean,
+  };
 }
 
 // Mock fetch globally
@@ -504,10 +510,10 @@ describe('EquipmentLoaderService', () => {
 
   describe('getWeaponById()', () => {
     it('should return weapon when found', () => {
-      const mockWeapon = {
+      const mockWeapon: Partial<IWeapon> = {
         id: 'medium-laser',
         name: 'Medium Laser',
-        category: 'Energy' as const,
+        category: WeaponCategory.ENERGY,
         weight: 1,
         criticalSlots: 1,
         heat: 3,

@@ -8,10 +8,12 @@ import {
 import { CURRENT_FORMAT_VERSION } from '@/types/unit/UnitSerialization';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import { MechConfiguration, IBattleMech } from '@/types/unit/BattleMechInterfaces';
 
 describe('UnitSerializer', () => {
-  const createMockUnit = (overrides?: Record<string, unknown>) => ({
+  // Helper to create partial IBattleMech mocks for testing
+  // @ts-expect-error - Partial mock of IBattleMech for testing
+  const createMockUnit = (overrides?: Record<string, unknown>): IBattleMech => ({
     id: 'test-unit',
     unitType: 'BattleMech',
     configuration: MechConfiguration.BIPED,
@@ -65,7 +67,7 @@ describe('UnitSerializer', () => {
     equipment: [],
     criticalSlots: [],
     ...overrides,
-  });
+  }) as IBattleMech;
 
   describe('serializeUnit()', () => {
     it('should serialize unit to JSON', () => {
@@ -213,6 +215,7 @@ describe('UnitSerializer', () => {
 
     it('should handle errors during serialization', () => {
       const invalidUnit = null as unknown;
+      // @ts-expect-error - Testing error handling with invalid input
       const result = serializeUnit(invalidUnit);
       
       expect(result.success).toBe(false);

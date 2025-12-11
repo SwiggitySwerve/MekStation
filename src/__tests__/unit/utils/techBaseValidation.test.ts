@@ -72,7 +72,7 @@ describe('techBaseValidation', () => {
         internalStructureType: InternalStructureType.ENDO_STEEL_CLAN, // Clan structure
       });
       const updates = getValidatedSelectionUpdates(
-        TechBaseComponent.STRUCTURE,
+        TechBaseComponent.CHASSIS,
         TechBase.INNER_SPHERE,
         selections
       );
@@ -85,7 +85,7 @@ describe('techBaseValidation', () => {
         heatSinkType: HeatSinkType.DOUBLE_CLAN, // Clan heat sink
       });
       const updates = getValidatedSelectionUpdates(
-        TechBaseComponent.HEAT_SINK,
+        TechBaseComponent.HEATSINK,
         TechBase.INNER_SPHERE,
         selections
       );

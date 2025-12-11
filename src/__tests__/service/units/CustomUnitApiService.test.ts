@@ -290,11 +290,12 @@ describe('CustomUnitApiService', () => {
   describe('isCanonical', () => {
     it('should check if unit is canonical', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([
+        // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
         {
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
-        } as { id: string; chassis: string; variant: string },
+        },
       ]);
 
       const result = await service.isCanonical('Atlas', 'AS7-D');
@@ -328,11 +329,12 @@ describe('CustomUnitApiService', () => {
       } as IFullUnit;
 
       mockCanonicalUnitService.getIndex.mockResolvedValue([
+        // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
         {
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
-        } as { id: string; chassis: string; variant: string },
+        },
       ]);
 
       mockFetch.mockResolvedValueOnce({
@@ -588,6 +590,7 @@ describe('CustomUnitApiService', () => {
       expect(appendSpy).toHaveBeenCalled();
       expect(removeSpy).toHaveBeenCalled();
       expect(revokeObjectURLSpy).toHaveBeenCalled();
+      // @ts-expect-error - appendedNode is set by appendChild mock and known to be HTMLAnchorElement
       const anchor = appendedNode as HTMLAnchorElement;
       expect(anchor.download).toBe('Atlas-AS7-D.json');
     });

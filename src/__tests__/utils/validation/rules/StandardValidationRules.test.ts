@@ -22,8 +22,8 @@ import { IValidationContext, ValidationCategory, ValidationSeverity } from '@/ty
 function createContext(unit: Record<string, unknown>): IValidationContext {
   return {
     unit,
-    validatedAt: new Date(),
-    rulesVersion: '1.0.0',
+    options: {},
+    cache: new Map(),
   };
 }
 
@@ -429,7 +429,7 @@ describe('Standard Validation Rules', () => {
 
   describe('Rule Priorities', () => {
     it('should have increasing priority values', () => {
-      expect(TotalWeightRule.priority).toBeLessThan(WeightRoundingRule.priority);
+      expect(TotalWeightRule.priority ?? 0).toBeLessThan(WeightRoundingRule.priority ?? 0);
     });
 
     it('should have category assignments', () => {

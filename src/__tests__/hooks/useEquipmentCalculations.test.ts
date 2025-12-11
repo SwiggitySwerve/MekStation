@@ -2,6 +2,8 @@ import { renderHook } from '@testing-library/react';
 import { useEquipmentCalculations, useRemainingCapacity } from '@/hooks/useEquipmentCalculations';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { EquipmentCategory } from '@/types/equipment';
+import { MechLocation } from '@/types/construction';
+import { TechBase } from '@/types/enums/TechBase';
 
 describe('useEquipmentCalculations', () => {
   const createEquipment = (
@@ -10,7 +12,7 @@ describe('useEquipmentCalculations', () => {
     slots: number,
     heat: number,
     category: EquipmentCategory,
-    location?: string
+    location?: MechLocation
   ): IMountedEquipmentInstance => ({
     equipmentId: id,
     name: id,
@@ -20,6 +22,9 @@ describe('useEquipmentCalculations', () => {
     category,
     location,
     instanceId: id,
+    techBase: TechBase.INNER_SPHERE,
+    isRearMounted: false,
+    isRemovable: true,
   });
 
   it('should calculate totals for empty equipment', () => {
@@ -50,9 +55,9 @@ describe('useEquipmentCalculations', () => {
 
   it('should separate allocated and unallocated equipment', () => {
     const equipment = [
-      createEquipment('laser1', 1, 1, 3, EquipmentCategory.ENERGY_WEAPON, 'leftArm'),
+      createEquipment('laser1', 1, 1, 3, EquipmentCategory.ENERGY_WEAPON, MechLocation.LEFT_ARM),
       createEquipment('laser2', 1, 1, 3, EquipmentCategory.ENERGY_WEAPON),
-      createEquipment('ammo', 1, 1, 0, EquipmentCategory.AMMUNITION, 'leftTorso'),
+      createEquipment('ammo', 1, 1, 0, EquipmentCategory.AMMUNITION, MechLocation.LEFT_TORSO),
     ];
 
     const { result } = renderHook(() => useEquipmentCalculations(equipment));
@@ -113,6 +118,9 @@ describe('useRemainingCapacity', () => {
     heat: 0,
     category: EquipmentCategory.ENERGY_WEAPON,
     instanceId: id,
+    techBase: TechBase.INNER_SPHERE,
+    isRearMounted: false,
+    isRemovable: true,
   });
 
   it('should calculate remaining capacity', () => {

@@ -20,16 +20,19 @@ jest.mock('@/services/equipment/EquipmentRegistry', () => {
   };
 });
 
-// Helper type for accessing private singleton instance
-interface SingletonResettable {
-  instance: null;
+/**
+ * Reset singleton instance for clean tests.
+ * Uses Object() wrapper to access private static property.
+ */
+function resetSingleton(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const mapper: Record<string, unknown> = Object(EquipmentNameMapper);
+  mapper['instance'] = null;
 }
 
 describe('EquipmentNameMapper', () => {
   beforeEach(() => {
-    // Reset singleton for clean tests - accessing private static via type assertion
-    // This is acceptable in tests to reset singleton state between test cases
-    (EquipmentNameMapper as typeof EquipmentNameMapper & SingletonResettable).instance = null;
+    resetSingleton();
     jest.clearAllMocks();
   });
 

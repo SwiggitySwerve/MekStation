@@ -1,9 +1,10 @@
 import { FileService } from '@/services/persistence/FileService';
-import { createDOMMock } from '../../helpers';
 
 describe('FileService', () => {
   let service: FileService;
   let mockCreateElement: jest.SpyInstance;
+  let mockAppendChild: jest.SpyInstance;
+  let mockRemoveChild: jest.SpyInstance;
   let mockCreateObjectURL: jest.SpyInstance;
   let mockRevokeObjectURL: jest.SpyInstance;
   let mockClick: jest.Mock;
@@ -13,24 +14,25 @@ describe('FileService', () => {
     
     // Mock DOM APIs
     mockClick = jest.fn();
-    const mockAnchor = {
+    // Create mock anchor with minimal properties needed for testing
+    const mockAnchor: Partial<HTMLAnchorElement> = {
       href: '',
       download: '',
       click: mockClick,
     };
+    const mockAnchorElement = mockAnchor as HTMLAnchorElement;
     
-    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(createDOMMock<HTMLElement>(mockAnchor));
-    mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation();
-    mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation();
+    // @ts-expect-error - Mocking createElement for test purposes
+    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchorElement);
+    mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchorElement);
+    mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchorElement);
     
     // Mock URL methods
     const urlMock = {
       createObjectURL: jest.fn().mockReturnValue('blob:mock-url'),
       revokeObjectURL: jest.fn(),
     };
-    // @ts-expect-error - Mocking URL methods
     global.URL.createObjectURL = urlMock.createObjectURL;
-    // @ts-expect-error - Mocking URL methods
     global.URL.revokeObjectURL = urlMock.revokeObjectURL;
     mockCreateObjectURL = urlMock.createObjectURL;
     mockRevokeObjectURL = urlMock.revokeObjectURL;
@@ -186,7 +188,8 @@ describe('FileService', () => {
           }, 0);
         }
       }
-      global.FileReader = MockFileReaderError as typeof FileReader;
+      // @ts-expect-error - Mocking FileReader class for error testing
+      global.FileReader = MockFileReaderError;
 
       const result = await service.importUnit(file);
 
@@ -330,7 +333,8 @@ describe('FileService', () => {
           }, 0);
         }
       }
-      global.FileReader = MockFileReaderValidateError as typeof FileReader;
+      // @ts-expect-error - Mocking FileReader class for error testing
+      global.FileReader = MockFileReaderValidateError;
 
       const result = await service.validateFile(file);
 

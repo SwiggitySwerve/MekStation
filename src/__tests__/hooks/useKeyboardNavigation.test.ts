@@ -23,6 +23,7 @@ function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: 
   // Using a plain object avoids issues with read-only properties on native events
   const mockPreventDefault = options?.preventDefault ?? jest.fn();
   
+  // @ts-expect-error - Partial mock of KeyboardEvent for testing
   const reactEvent: React.KeyboardEvent = {
     // Native event properties
     key,
@@ -36,7 +37,12 @@ function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: 
     shiftKey: nativeEvent.shiftKey,
     repeat: nativeEvent.repeat,
     location: nativeEvent.location,
+    locale: '',
     getModifierState: (key: string) => nativeEvent.getModifierState(key),
+    
+    // UIEvent properties
+    detail: 0,
+    view: null,
     
     // Base event properties - using empty div as placeholder for event targets
     nativeEvent,
@@ -452,7 +458,8 @@ describe('useFocusOnSelect', () => {
   });
 
   it('should not focus if ref is null', () => {
-    const ref = { current: null };
+    // @ts-expect-error - Testing null ref handling
+    const ref: React.RefObject<HTMLElement> = { current: null };
     
     expect(() => {
       renderHook(() => useFocusOnSelect(ref, true));

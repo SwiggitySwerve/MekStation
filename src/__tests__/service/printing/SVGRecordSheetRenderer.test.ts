@@ -121,6 +121,7 @@ const createMockData = (overrides: Partial<IRecordSheetData> = {}): IRecordSheet
       { location: 'Right Leg', abbreviation: 'RL', current: 41, maximum: 42 },
     ],
   } as IRecordSheetArmor,
+  // @ts-expect-error - Partial mock of IRecordSheetStructure for testing
   structure: {
     type: 'Standard',
     locations: [

@@ -101,6 +101,7 @@ jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
 const equipmentLoaderMock = getEquipmentLoader as jest.MockedFunction<typeof getEquipmentLoader>;
 
 beforeEach(() => {
+  // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
   equipmentLoaderMock.mockReturnValue({
     getIsLoaded: jest.fn(() => false),
     getMiscEquipmentById: jest.fn(() => null),
@@ -171,6 +172,7 @@ describe('equipmentListUtils', () => {
         })),
         getElectronicsById: jest.fn(() => null),
       };
+      // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
       equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
 
       const equip = getJumpJetEquipment(50, JumpJetType.STANDARD);
@@ -181,11 +183,12 @@ describe('equipmentListUtils', () => {
 
     it('should filter out jump jets', () => {
       const equipment = [
-        { equipmentId: 'jump-jet-light', name: 'Jump Jet' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
-        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' } as { equipmentId: string; name: string },
+        { equipmentId: 'jump-jet-light', name: 'Jump Jet' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
+        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutJumpJets(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -210,10 +213,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out internal structure', () => {
       const equipment = [
-        { equipmentId: 'internal-structure-slot-Endo Steel IS', name: 'Endo Steel' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'internal-structure-slot-Endo Steel IS', name: 'Endo Steel' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutInternalStructure(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -247,10 +251,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out armor slots', () => {
       const equipment = [
-        { equipmentId: 'armor-slot-Ferro-Fibrous', name: 'Ferro-Fibrous' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'armor-slot-Ferro-Fibrous', name: 'Ferro-Fibrous' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutArmorSlots(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -303,6 +308,7 @@ describe('equipmentListUtils', () => {
         })),
         getElectronicsById: jest.fn(() => null),
       };
+      // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
       equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
 
       const equip = getHeatSinkEquipment(HeatSinkType.DOUBLE_CLAN);
@@ -313,10 +319,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out heat sinks', () => {
       const equipment = [
-        { equipmentId: 'double-heat-sink', name: 'DHS' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'double-heat-sink', name: 'DHS' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutHeatSinks(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -415,10 +422,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out enhancement equipment', () => {
       const equipment = [
-        { equipmentId: 'masc', name: 'MASC' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'masc', name: 'MASC' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutEnhancementEquipment(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -561,6 +569,7 @@ describe('equipmentListUtils', () => {
             introductionYear: 3050,
           })),
         };
+        // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
         equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
 
         const equip = getTargetingComputerEquipment(TechBase.CLAN);
@@ -573,10 +582,11 @@ describe('equipmentListUtils', () => {
     describe('Filter Out Targeting Computer', () => {
       it('should filter out IS targeting computer', () => {
         const equipment = [
-          { equipmentId: 'targeting-computer', name: 'TC' } as { equipmentId: string; name: string },
-          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+          { equipmentId: 'targeting-computer', name: 'TC' },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' },
         ];
         
+        // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
         const filtered = filterOutTargetingComputer(equipment);
         expect(filtered).toHaveLength(1);
         expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -584,10 +594,11 @@ describe('equipmentListUtils', () => {
 
       it('should filter out Clan targeting computer', () => {
         const equipment = [
-          { equipmentId: 'clan-targeting-computer', name: 'Clan TC' } as { equipmentId: string; name: string },
-          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+          { equipmentId: 'clan-targeting-computer', name: 'Clan TC' },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' },
         ];
         
+        // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
         const filtered = filterOutTargetingComputer(equipment);
         expect(filtered).toHaveLength(1);
         expect(filtered[0].equipmentId).toBe('medium-laser');

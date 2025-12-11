@@ -66,8 +66,8 @@ describe('slotOperations', () => {
       const fixedLeft = getFixedSlotIndices(MechLocation.LEFT_TORSO, EngineType.XL_IS, GyroType.STANDARD);
       const fixedRight = getFixedSlotIndices(MechLocation.RIGHT_TORSO, EngineType.XL_IS, GyroType.STANDARD);
 
-      expect([...fixedLeft]).toEqual([0, 1, 2]);
-      expect([...fixedRight]).toEqual([0, 1, 2]);
+      expect(Array.from(fixedLeft)).toEqual([0, 1, 2]);
+      expect(Array.from(fixedRight)).toEqual([0, 1, 2]);
     });
 
     it('should place compact engine slots before XL gyro slots in center torso', () => {

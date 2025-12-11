@@ -135,7 +135,7 @@ describe('useEquipmentBrowser Hook', () => {
     it('should calculate total pages', () => {
       const mockStore = createMockStore();
       mockStore.getFilteredEquipment.mockReturnValue(mockEquipment);
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -150,7 +150,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call setPage', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -163,7 +163,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call setPageSize', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -176,7 +176,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should go to first page', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -191,7 +191,7 @@ describe('useEquipmentBrowser Hook', () => {
       const mockStore = createMockStore({
         pagination: { currentPage: 3, pageSize: 20 },
       });
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -207,7 +207,7 @@ describe('useEquipmentBrowser Hook', () => {
         pagination: { currentPage: 1, pageSize: 1 },
       });
       mockStore.getFilteredEquipment.mockReturnValue(mockEquipment);
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -224,7 +224,7 @@ describe('useEquipmentBrowser Hook', () => {
       const mockStore = createMockStore({
         filters: { ...createMockStore().filters, search: 'laser' },
       });
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -233,7 +233,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call setSearch', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -248,7 +248,7 @@ describe('useEquipmentBrowser Hook', () => {
       const mockStore = createMockStore({
         filters: { ...createMockStore().filters, techBase: TechBase.CLAN },
       });
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -257,7 +257,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call setTechBaseFilter', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -270,7 +270,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call toggleHidePrototype', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -283,7 +283,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call toggleHideUnavailable', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -296,7 +296,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call clearFilters', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -318,7 +318,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call setSort', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -351,7 +351,7 @@ describe('useEquipmentBrowser Hook', () => {
   describe('Category Selection', () => {
     it('should call selectCategory', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -364,7 +364,7 @@ describe('useEquipmentBrowser Hook', () => {
 
     it('should call showAll', () => {
       const mockStore = createMockStore();
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -381,7 +381,7 @@ describe('useEquipmentBrowser Hook', () => {
       const mockStore = createMockStore({
         error: 'Failed to load equipment',
       });
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       
@@ -392,7 +392,7 @@ describe('useEquipmentBrowser Hook', () => {
       const mockStore = createMockStore({
         isLoading: true,
       });
-      (useEquipmentStore as jest.Mock).mockReturnValue(mockStore);
+      mockUseEquipmentStore.mockReturnValue(mockStore);
       
       const { result } = renderHook(() => useEquipmentBrowser());
       

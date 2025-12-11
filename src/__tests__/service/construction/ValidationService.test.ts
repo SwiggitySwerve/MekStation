@@ -203,8 +203,8 @@ describe('ValidationService', () => {
     it('should validate each location separately', () => {
       const mech = createValidMech({
         equipment: [
-          ...Array<{ id: string; location: string }>(6).fill({ id: 'eq', location: 'leftArm' }),
-          ...Array<{ id: string; location: string }>(6).fill({ id: 'eq', location: 'rightArm' }),
+          ...Array(6).fill(null).map((_, i) => ({ equipmentId: 'eq', location: 'leftArm', slotIndex: i })),
+          ...Array(6).fill(null).map((_, i) => ({ equipmentId: 'eq', location: 'rightArm', slotIndex: i })),
         ],
       });
       

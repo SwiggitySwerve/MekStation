@@ -1,6 +1,7 @@
 import { unitNameValidator } from '@/services/units/UnitNameValidator';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitService } from '@/services/units/CustomUnitService';
+import { IUnitIndexEntry } from '@/services/common/types';
 
 // Mock dependencies
 jest.mock('@/services/units/CanonicalUnitService');
@@ -8,6 +9,11 @@ jest.mock('@/services/units/CustomUnitService');
 
 const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<typeof canonicalUnitService>;
 const mockCustomUnitService = customUnitService as jest.Mocked<typeof customUnitService>;
+
+// Helper to create partial IUnitIndexEntry mocks for testing
+function mockUnit(data: { id: string; chassis: string; variant: string; name: string }): IUnitIndexEntry {
+  return data as IUnitIndexEntry;
+}
 
 describe('UnitNameValidator', () => {
   beforeEach(() => {
@@ -59,12 +65,12 @@ describe('UnitNameValidator', () => {
 
     it('should reject canonical unit conflicts', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([
-        {
+        mockUnit({
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       mockCustomUnitService.list.mockResolvedValue([]);
       
@@ -80,12 +86,12 @@ describe('UnitNameValidator', () => {
     it('should detect custom unit conflicts', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([]);
       mockCustomUnitService.list.mockResolvedValue([
-        {
+        mockUnit({
           id: 'custom-1',
           chassis: 'Custom Atlas',
           variant: 'AS7-X',
           name: 'Custom Atlas AS7-X',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       
       const result = await unitNameValidator.validateUnitName('Custom Atlas', 'AS7-X');
@@ -100,12 +106,12 @@ describe('UnitNameValidator', () => {
     it('should exclude unit ID from conflict check', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([]);
       mockCustomUnitService.list.mockResolvedValue([
-        {
+        mockUnit({
           id: 'custom-1',
           chassis: 'Custom Atlas',
           variant: 'AS7-X',
           name: 'Custom Atlas AS7-X',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       
       const result = await unitNameValidator.validateUnitName('Custom Atlas', 'AS7-X', 'custom-1');
@@ -127,12 +133,12 @@ describe('UnitNameValidator', () => {
 
     it('should handle case-insensitive matching', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([
-        {
+        mockUnit({
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       mockCustomUnitService.list.mockResolvedValue([]);
       
@@ -155,20 +161,20 @@ describe('UnitNameValidator', () => {
   describe('generateUniqueName', () => {
     it('should generate unique name by appending suffix', async () => {
       mockCanonicalUnitService.getIndex.mockResolvedValue([
-        {
+        mockUnit({
           id: 'canon-1',
           chassis: 'Atlas',
           variant: 'AS7-D',
           name: 'Atlas AS7-D',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       mockCustomUnitService.list.mockResolvedValue([
-        {
+        mockUnit({
           id: 'custom-1',
           chassis: 'Atlas',
           variant: 'AS7-D (2)',
           name: 'Atlas AS7-D (2)',
-        } as { id: string; chassis: string; variant: string; name: string },
+        }),
       ]);
       
       // First two names are taken, third should be available
@@ -177,12 +183,12 @@ describe('UnitNameValidator', () => {
         callCount++;
         if (callCount <= 2) {
           return Promise.resolve([
-            {
+            mockUnit({
               id: 'canon-1',
               chassis: 'Atlas',
               variant: callCount === 1 ? 'AS7-D' : 'AS7-D (2)',
               name: `Atlas AS7-D${callCount === 2 ? ' (2)' : ''}`,
-            } as { id: string; chassis: string; variant: string; name: string },
+            }),
           ]);
         }
         return Promise.resolve([]);
@@ -192,12 +198,12 @@ describe('UnitNameValidator', () => {
         callCount++;
         if (callCount <= 2) {
           return Promise.resolve([
-            {
+            mockUnit({
               id: 'custom-1',
               chassis: 'Atlas',
               variant: callCount === 1 ? 'AS7-D' : 'AS7-D (2)',
               name: `Atlas AS7-D${callCount === 2 ? ' (2)' : ''}`,
-            } as { id: string; chassis: string; variant: string; name: string },
+            }),
           ]);
         }
         return Promise.resolve([]);
@@ -212,10 +218,10 @@ describe('UnitNameValidator', () => {
     it('should use timestamp fallback if many conflicts', async () => {
       // Mock to always return conflicts
       mockCanonicalUnitService.getIndex.mockResolvedValue([
-        { id: 'canon-1', chassis: 'Atlas', variant: 'AS7-D', name: 'Atlas AS7-D' } as { id: string; chassis: string; variant: string; name: string },
+        mockUnit({ id: 'canon-1', chassis: 'Atlas', variant: 'AS7-D', name: 'Atlas AS7-D' }),
       ]);
       mockCustomUnitService.list.mockResolvedValue([
-        { id: 'custom-1', chassis: 'Atlas', variant: 'AS7-D (2)', name: 'Atlas AS7-D (2)' } as { id: string; chassis: string; variant: string; name: string },
+        mockUnit({ id: 'custom-1', chassis: 'Atlas', variant: 'AS7-D (2)', name: 'Atlas AS7-D (2)' }),
       ]);
       
       // Mock validateUnitName to always return conflicts for first 100 attempts

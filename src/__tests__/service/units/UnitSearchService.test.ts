@@ -77,11 +77,13 @@ describe('UnitSearchService', () => {
     mockSearchIndex = {
       addAll: jest.fn(),
       add: jest.fn(),
+      // @ts-expect-error - Including remove method for testing compatibility
       remove: jest.fn(),
       discard: jest.fn(),
       search: jest.fn().mockReturnValue([{ id: 'atlas-as7-d' }]),
     };
     
+    // @ts-expect-error - Mocking MiniSearch constructor for testing
     (MiniSearch as jest.Mock).mockReturnValue(mockSearchIndex);
     (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([mockCanonicalUnit]);
     (customUnitApiService.list as jest.Mock).mockResolvedValue([mockCustomUnit]);
@@ -145,12 +147,14 @@ describe('UnitSearchService', () => {
     });
 
     it('should filter by tech base when provided', () => {
+      // @ts-expect-error - Testing filter option that may not be in public interface
       service.search('Atlas', { techBase: TechBase.INNER_SPHERE });
       
       expect(mockSearchIndex.search).toHaveBeenCalled();
     });
 
     it('should filter by weight class when provided', () => {
+      // @ts-expect-error - Testing filter option that may not be in public interface
       service.search('Atlas', { weightClass: WeightClass.ASSAULT });
       
       expect(mockSearchIndex.search).toHaveBeenCalled();
@@ -200,13 +204,16 @@ describe('UnitSearchService', () => {
     });
 
     it('should add unit to search index', () => {
+      // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       service.addToIndex(mockCanonicalUnit);
       
       expect(mockSearchIndex.add).toHaveBeenCalledWith(mockCanonicalUnit);
     });
 
     it('should discard existing entry before adding', () => {
+      // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       service.addToIndex(mockCanonicalUnit);
+      // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       service.addToIndex({ ...mockCanonicalUnit, name: 'Updated Atlas' });
 
       expect(mockSearchIndex.discard).toHaveBeenCalledWith('atlas-as7-d');
@@ -215,6 +222,7 @@ describe('UnitSearchService', () => {
 
     it('should be a no-op when index is uninitialized', () => {
       const fresh = new UnitSearchService();
+      // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       expect(() => fresh.addToIndex(mockCanonicalUnit)).not.toThrow();
     });
   });

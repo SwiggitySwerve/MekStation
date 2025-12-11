@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
 import { useTabManagerStore, TabManagerState, TabInfo } from '@/stores/useTabManagerStore';
 import { useRouter } from 'next/router';
+import { TechBase } from '@/types/enums/TechBase';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -44,7 +45,7 @@ describe('MultiUnitTabs', () => {
     id: 'tab-1',
     name: 'Atlas AS7-D',
     tonnage: 100,
-    techBase: 'INNER_SPHERE',
+    techBase: TechBase.INNER_SPHERE,
   };
 
   const mockTabManager: TabManagerState = {

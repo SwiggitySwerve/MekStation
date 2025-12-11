@@ -59,8 +59,9 @@ describe('OverviewTab', () => {
     // TS: the test uses a narrowed mock state; suppress strict selector typing
     // @ts-expect-error - mock store is partial for testing
     mockUseUnitStore.mockImplementation((selector) => selector(mockStoreValues));
-    mockUseTabManagerStore.mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
+    mockUseTabManagerStore.mockImplementation((selector) => {
       if (typeof selector === 'function') {
+        // @ts-expect-error - mock tab manager is partial for testing
         return selector(mockTabManager);
       }
       return undefined;
