@@ -29,6 +29,7 @@ export default [
       '**/desktop/**',
       '**/scripts/**',
       '**/.github/**',
+      '**/__tests__/**',
     ],
   },
   

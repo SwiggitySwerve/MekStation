@@ -45,6 +45,7 @@
     "**/.disabled/**/*",
     "src/services/catalog/**/*",
     "src/services/editor/**/*",
-    "src/services/integration/**/*"
+    "src/services/integration/**/*",
+    "src/__tests__/**/*"
   ]
 }

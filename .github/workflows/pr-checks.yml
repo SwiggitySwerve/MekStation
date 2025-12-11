@@ -80,6 +80,7 @@ jobs:
 
       - name: Test Electron build (pack mode)
         working-directory: desktop
+        shell: bash
         run: |
           if [ "${{ matrix.platform }}" = "win" ]; then
             npx electron-builder --win --dir --config.win.sign=false --config.win.signAndEditExecutable=false
@@ -95,6 +96,7 @@ jobs:
 
       - name: Verify build output
         working-directory: desktop
+        shell: bash
         run: |
           if [ "${{ matrix.platform }}" = "win" ]; then
             test -d release/win-unpacked || exit 1

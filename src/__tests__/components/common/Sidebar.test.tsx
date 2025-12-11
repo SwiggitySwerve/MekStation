@@ -46,7 +46,7 @@ describe('Sidebar', () => {
     it('should render sidebar', () => {
       render(<Sidebar {...defaultProps} />);
 
-      expect(screen.getByText('BattleTech')).toBeInTheDocument();
+      expect(screen.getByText('Mek Lab')).toBeInTheDocument();
     });
 
     it('should render navigation items', () => {
@@ -71,7 +71,7 @@ describe('Sidebar', () => {
     it('should hide title when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('BattleTech')).not.toBeInTheDocument();
+      expect(screen.queryByText('Mek Lab')).not.toBeInTheDocument();
     });
 
     it('should hide nav labels when collapsed', () => {
@@ -98,7 +98,7 @@ describe('Sidebar', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('w-40');
+      expect(sidebar).toHaveClass('w-52');
     });
   });
 
