@@ -2,7 +2,7 @@
 
 ## Why
 
-The BattleTech Editor Electron application currently functions as a basic web app wrapper but lacks the polished desktop experience users expect from native applications. Users have expressed frustration with:
+The MekStation Electron application currently functions as a basic web app wrapper but lacks the polished desktop experience users expect from native applications. Users have expressed frustration with:
 
 - No persistent window state or startup preferences
 - Missing standard application menus and keyboard shortcuts

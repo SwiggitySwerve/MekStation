@@ -1,6 +1,6 @@
 # Getting Started
 
-Quick guide to setting up and running the BattleTech Editor locally.
+Quick guide to setting up and running the MekStation locally.
 
 ## Prerequisites
 

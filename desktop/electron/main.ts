@@ -1,9 +1,9 @@
 /**
- * BattleTech Editor - Electron Main Process
+ * MekStation - Electron Main Process
  * 
  * This is the main Electron process that creates and manages the desktop
  * application window, handles system integration, and provides native
- * desktop features for the self-hosted BattleTech Editor.
+ * desktop features for the self-hosted MekStation.
  * 
  * Features:
  * - Native desktop application experience
@@ -70,7 +70,7 @@ interface IDesktopAppConfig {
 /**
  * Main application class
  */
-class BattleTechEditorApp {
+class MekStationApp {
   private mainWindow: BrowserWindow | null = null;
   private tray: Tray | null = null;
   private localStorage: LocalStorageService | null = null;
@@ -108,7 +108,7 @@ class BattleTechEditorApp {
    * Initialize the application
    */
   private async initializeApp(): Promise<void> {
-    console.log('🚀 Initializing BattleTech Editor Desktop App...');
+    console.log('🚀 Initializing MekStation Desktop App...');
     
     // Handle app events
     this.registerAppEvents();
@@ -147,7 +147,7 @@ class BattleTechEditorApp {
     // Apply startup behavior settings
     await this.applyStartupSettings();
     
-    console.log('✅ BattleTech Editor Desktop App initialized successfully');
+    console.log('✅ MekStation Desktop App initialized successfully');
   }
 
   /**
@@ -201,10 +201,10 @@ class BattleTechEditorApp {
    * Setup custom protocol handlers
    */
   private setupProtocolHandlers(): void {
-    // Register battletech:// protocol for deep linking
+    // Register mekstation:// protocol for deep linking
     protocol.registerSchemesAsPrivileged([
       {
-        scheme: 'battletech',
+        scheme: 'mekstation',
         privileges: {
           standard: true,
           secure: true,
@@ -215,9 +215,9 @@ class BattleTechEditorApp {
     ]);
 
     app.whenReady().then(() => {
-      protocol.registerStringProtocol('battletech', (request, callback) => {
-        // Handle battletech:// URLs for unit imports, etc.
-        const url = request.url.substr('battletech://'.length);
+      protocol.registerStringProtocol('mekstation', (request, callback) => {
+        // Handle mekstation:// URLs for unit imports, etc.
+        const url = request.url.substr('mekstation://'.length);
         this.handleDeepLink(url);
         callback('');
       });
@@ -233,7 +233,7 @@ class BattleTechEditorApp {
     autoUpdater.setFeedURL({
       provider: 'github',
       owner: 'swervelabs',
-      repo: 'battletech-editor',
+      repo: 'mekstation',
       private: false
     });
 
@@ -385,10 +385,10 @@ class BattleTechEditorApp {
         }
         break;
       case 'help:documentation':
-        shell.openExternal('https://github.com/swervelabs/battletech-editor/wiki');
+        shell.openExternal('https://github.com/swervelabs/mekstation/wiki');
         break;
       case 'help:report-issue':
-        shell.openExternal('https://github.com/swervelabs/battletech-editor/issues/new');
+        shell.openExternal('https://github.com/swervelabs/mekstation/issues/new');
         break;
       case 'help:check-updates':
         autoUpdater.checkForUpdatesAndNotify();
@@ -472,12 +472,12 @@ class BattleTechEditorApp {
    */
   private async updateLinuxAutostart(enabled: boolean): Promise<void> {
     const autostartDir = path.join(os.homedir(), '.config', 'autostart');
-    const desktopFile = path.join(autostartDir, 'battletech-editor.desktop');
+    const desktopFile = path.join(autostartDir, 'mekstation.desktop');
 
     if (enabled) {
       const desktopContent = `[Desktop Entry]
 Type=Application
-Name=BattleTech Editor
+Name=MekStation
 Exec=${process.execPath}
 Terminal=false
 StartupNotify=false
@@ -523,8 +523,8 @@ X-GNOME-Autostart-enabled=true
 
     dialog.showMessageBox(this.mainWindow, {
       type: 'info',
-      title: 'About BattleTech Editor',
-      message: 'BattleTech Editor',
+      title: 'About MekStation',
+      message: 'MekStation',
       detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}\n\nA comprehensive BattleMech editor for the MegaMek ecosystem.`,
       buttons: ['OK']
     });
@@ -709,7 +709,7 @@ X-GNOME-Autostart-enabled=true
 
     this.updateTrayMenu();
 
-    this.tray.setToolTip('BattleTech Editor');
+    this.tray.setToolTip('MekStation');
 
     this.tray.on('click', () => {
       if (this.mainWindow) {
@@ -755,7 +755,7 @@ X-GNOME-Autostart-enabled=true
 
     const contextMenu = Menu.buildFromTemplate([
       {
-        label: 'Show BattleTech Editor',
+        label: 'Show MekStation',
         click: () => {
           if (this.mainWindow) {
             this.mainWindow.show();
@@ -1113,7 +1113,7 @@ X-GNOME-Autostart-enabled=true
       const result = await dialog.showOpenDialog(this.mainWindow, {
         filters: [
           { name: 'MegaMek Files', extensions: ['mtf'] },
-          { name: 'BattleTech Editor Files', extensions: ['bte', 'json'] },
+          { name: 'MekStation Files', extensions: ['bte', 'json'] },
           { name: 'All Files', extensions: ['*'] }
         ],
         properties: ['openFile']
@@ -1274,7 +1274,7 @@ X-GNOME-Autostart-enabled=true
 }
 
 // Create and run the application
-const battletechApp = new BattleTechEditorApp();
+new MekStationApp();
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
@@ -1286,4 +1286,4 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-export default BattleTechEditorApp;
+export default MekStationApp;

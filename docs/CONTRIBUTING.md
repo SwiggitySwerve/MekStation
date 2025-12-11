@@ -1,6 +1,6 @@
-# Contributing to BattleTech Editor
+# Contributing to MekStation
 
-Thank you for your interest in contributing to the BattleTech Editor project!
+Thank you for your interest in contributing to the MekStation project!
 
 ## Code of Conduct
 

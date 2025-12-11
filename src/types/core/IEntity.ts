@@ -6,7 +6,7 @@
  */
 
 /**
- * Base interface for all entities in the BattleTech Editor system.
+ * Base interface for all entities in the MekStation system.
  * Provides universal identification properties that all entities must have.
  */
 export interface IEntity {

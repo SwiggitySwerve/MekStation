@@ -1,5 +1,5 @@
 {
-  "name": "battletech-editor-app",
+  "name": "mekstation-app",
   "version": "0.1.0",
   "description": "BattleTech unit construction and customization tool",
   "author": {
@@ -41,8 +41,8 @@
     "terminology:fix": "npx ts-node openspec/scripts/terminology-tool.ts fix",
     "terminology:fix:dry-run": "npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run",
     "terminology:check": "node openspec/scripts/validate-terminology.js",
-    "docker:build": "docker build -t battletech-editor .",
-    "docker:run": "docker run -p 3000:3000 -v battletech-data:/app/data battletech-editor",
+    "docker:build": "docker build -t mekstation .",
+    "docker:run": "docker run -p 3000:3000 -v mekstation-data:/app/data mekstation",
     "docker:dev": "docker-compose up dev",
     "docker:prod": "docker-compose up app -d",
     "docker:stop": "docker-compose down",

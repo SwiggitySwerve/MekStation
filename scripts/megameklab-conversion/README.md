@@ -1,6 +1,6 @@
 # MegaMekLab Conversion Scripts (PostgreSQL Version)
 
-This directory contains the PostgreSQL-based version of the MegaMekLab data conversion scripts. These scripts were used for initial development but have been superseded by the SQLite version in the `battletech-editor-app/data` directory.
+This directory contains the PostgreSQL-based version of the MegaMekLab data conversion scripts. These scripts were used for initial development but have been superseded by the SQLite version in the `mekstation-app/data` directory.
 
 ## Files
 
@@ -15,9 +15,9 @@ This directory contains the PostgreSQL-based version of the MegaMekLab data conv
 
 ## Current Status
 
-**DEPRECATED**: The battletech-editor-app now uses SQLite instead of PostgreSQL. The active conversion scripts are located in:
-- `battletech-editor-app/data/populate_db.py` (SQLite version)
-- `battletech-editor-app/data/schema_sqlite.sql` (SQLite schema)
+**DEPRECATED**: The mekstation-app now uses SQLite instead of PostgreSQL. The active conversion scripts are located in:
+- `mekstation-app/data/populate_db.py` (SQLite version)
+- `mekstation-app/data/schema_sqlite.sql` (SQLite schema)
 
 These PostgreSQL scripts are kept for reference only.
 

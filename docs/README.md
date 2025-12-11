@@ -1,4 +1,4 @@
-# BattleTech Editor Documentation
+# MekStation Documentation
 
 ## Source of Truth
 
@@ -28,6 +28,7 @@ See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications 
 - [Getting Started](./development/getting-started.md) - Project setup and running locally
 - [Coding Standards](./development/coding-standards.md) - TypeScript, React, and code style guidelines
 - [Troubleshooting](./development/troubleshooting.md) - Common issues and solutions
+- [Overview & Deep Dive](./overview.md) - Features, APIs, rules, roadmap
 
 ### Architecture
 

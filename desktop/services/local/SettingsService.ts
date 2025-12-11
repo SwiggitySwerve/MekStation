@@ -1,5 +1,5 @@
 /**
- * Settings Service for BattleTech Editor Desktop App
+ * Settings Service for MekStation Desktop App
  * 
  * Manages all desktop application preferences with type-safe access,
  * default values, persistence, and change notifications.

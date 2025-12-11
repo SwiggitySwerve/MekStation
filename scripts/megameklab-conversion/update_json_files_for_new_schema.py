@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 # Base directory for the converted files
-CONVERTED_DIR = Path("battletech-editor-app/data/megameklab_converted_output/mekfiles")
+CONVERTED_DIR = Path("mekstation-app/data/megameklab_converted_output/mekfiles")
 
 def determine_equipment_tech_base(item_name: str, unit_tech_base: str) -> str:
     """

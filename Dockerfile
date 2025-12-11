@@ -1,4 +1,4 @@
-# BattleTech Editor - Production Dockerfile
+# MekStation - Production Dockerfile
 # Multi-stage build for optimized production image
 
 # =============================================================================

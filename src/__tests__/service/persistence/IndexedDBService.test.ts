@@ -460,7 +460,7 @@ describe('IndexedDBService', () => {
     it('should handle transaction errors in put', async () => {
       await service.initialize();
       
-      const db = mockDatabases.get('battletech-editor');
+      const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
@@ -476,7 +476,7 @@ describe('IndexedDBService', () => {
     it('should handle transaction errors in get', async () => {
       await service.initialize();
       
-      const db = mockDatabases.get('battletech-editor');
+      const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
@@ -492,7 +492,7 @@ describe('IndexedDBService', () => {
     it('should handle transaction errors in delete', async () => {
       await service.initialize();
       
-      const db = mockDatabases.get('battletech-editor');
+      const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
@@ -508,7 +508,7 @@ describe('IndexedDBService', () => {
     it('should handle transaction errors in getAll', async () => {
       await service.initialize();
       
-      const db = mockDatabases.get('battletech-editor');
+      const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
@@ -524,7 +524,7 @@ describe('IndexedDBService', () => {
     it('should handle transaction errors in clear', async () => {
       await service.initialize();
       
-      const db = mockDatabases.get('battletech-editor');
+      const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({

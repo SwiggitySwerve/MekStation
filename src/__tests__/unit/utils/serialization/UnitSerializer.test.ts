@@ -95,7 +95,7 @@ describe('UnitSerializer', () => {
       if (result.success && result.data) {
         const envelope = JSON.parse(result.data) as { application: string; applicationVersion: string };
         expect(envelope.application).toBeDefined();
-        expect(envelope.application).toBe('BattleTech Editor');
+        expect(envelope.application).toBe('MekStation');
         expect(envelope.applicationVersion).toBeDefined();
       }
     });

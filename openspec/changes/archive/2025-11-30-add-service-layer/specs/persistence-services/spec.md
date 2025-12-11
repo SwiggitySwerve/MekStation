@@ -48,7 +48,7 @@ The system SHALL initialize IndexedDB on first access.
 #### Scenario: First initialization
 - **GIVEN** the database does not exist
 - **WHEN** IndexedDBService.initialize() is called
-- **THEN** create database "battletech-editor"
+- **THEN** create database "mekstation"
 - **AND** create object stores: "custom-units", "unit-metadata"
 
 #### Scenario: Upgrade schema

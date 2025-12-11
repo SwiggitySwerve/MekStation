@@ -45,7 +45,7 @@ The system SHALL store user-created data in IndexedDB.
 #### Scenario: IndexedDB database
 - **GIVEN** the application needs custom data storage
 - **WHEN** initializing persistence
-- **THEN** create database named "battletech-editor"
+- **THEN** create database named "mekstation"
 - **AND** database version SHALL be incremented for schema changes
 
 #### Scenario: Custom units store

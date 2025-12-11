@@ -11,7 +11,7 @@
 ## Overview
 
 ### Purpose
-This document consolidates ALL validation rules from all BattleTech Editor specifications into a single, comprehensive reference. It provides a complete catalog of validation requirements, error messages, severity levels, and cross-references to source specifications.
+This document consolidates ALL validation rules from all MekStation specifications into a single, comprehensive reference. It provides a complete catalog of validation requirements, error messages, severity levels, and cross-references to source specifications.
 
 ### Scope
 **In Scope:**

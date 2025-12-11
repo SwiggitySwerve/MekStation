@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Solutions for common issues when developing the BattleTech Editor.
+Solutions for common issues when developing the MekStation.
 
 ## Build Issues
 

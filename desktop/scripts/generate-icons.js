@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * BattleTech Editor - Icon Generator Script
+ * MekStation - Icon Generator Script
  * 
  * Generates placeholder icons for development/testing.
  * For production, replace these with actual designed icons.

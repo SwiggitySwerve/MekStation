@@ -153,7 +153,7 @@ The system SHALL export custom units as JSON files.
 - **THEN** envelope SHALL include:
   - formatVersion: schema version string
   - savedAt: ISO timestamp
-  - application: "battletech-editor"
+  - application: "mekstation"
   - applicationVersion: current app version
   - unit: ISerializedUnit data
 

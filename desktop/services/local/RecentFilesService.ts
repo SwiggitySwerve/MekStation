@@ -1,5 +1,5 @@
 /**
- * Recent Files Service for BattleTech Editor Desktop App
+ * Recent Files Service for MekStation Desktop App
  * 
  * Maintains a persistent list of recently opened units with relevant metadata
  * for quick access from menus and the application UI.

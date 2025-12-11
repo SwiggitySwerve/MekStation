@@ -1,6 +1,6 @@
 # OpenSpec Template Guide
 
-This directory contains templates for creating BattleTech Editor OpenSpec specifications.
+This directory contains templates for creating MekStation OpenSpec specifications.
 
 ## Template Files
 

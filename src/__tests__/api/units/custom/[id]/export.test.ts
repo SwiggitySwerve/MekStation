@@ -116,7 +116,7 @@ describe('GET /api/units/custom/:id/export', () => {
     const data = res._getJSONData() as ExportEnvelope;
     expect(data.formatVersion).toBeDefined();
     expect(data.savedAt).toBeDefined();
-    expect(data.application).toBe('battletech-editor');
+    expect(data.application).toBe('mekstation');
     expect(data.applicationVersion).toBeDefined();
     expect(data.unit).toBeDefined();
     expect(data.unit.chassis).toBe('Atlas');

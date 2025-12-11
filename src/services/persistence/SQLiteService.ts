@@ -42,7 +42,7 @@ export interface ISQLiteService {
  * Default database configuration
  */
 const DEFAULT_CONFIG: IDatabaseConfig = {
-  path: process.env.DATABASE_PATH || './data/battletech.db',
+  path: process.env.DATABASE_PATH || './data/mekstation.db',
   maxVersionHistory: parseInt(process.env.MAX_VERSION_HISTORY || '50', 10),
 };
 

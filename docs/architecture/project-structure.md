@@ -1,6 +1,6 @@
 # Project Structure
 
-Overview of the BattleTech Editor codebase organization.
+Overview of the MekStation codebase organization.
 
 ## Directory Layout
 

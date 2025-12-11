@@ -2,7 +2,7 @@
 
 **Version**: 1.0
 **Last Updated**: 2025-11-28
-**Purpose**: Canonical terminology reference for all BattleTech Editor OpenSpec specifications
+**Purpose**: Canonical terminology reference for all MekStation OpenSpec specifications
 
 ---
 
@@ -1086,7 +1086,7 @@ interface IBattleMech {
 
 ## Summary
 
-This glossary establishes **canonical terminology** for all BattleTech Editor OpenSpec specifications. By using consistent terminology:
+This glossary establishes **canonical terminology** for all MekStation OpenSpec specifications. By using consistent terminology:
 
 - **Maintainability improves**: Changes only need to be made in one place
 - **Clarity increases**: Everyone uses the same terms for the same concepts

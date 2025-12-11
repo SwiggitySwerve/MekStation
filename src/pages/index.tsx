@@ -1,5 +1,5 @@
 /**
- * BattleTech Editor - Home Dashboard
+ * MekStation - Home Dashboard
  * Central navigation hub with quick access to all sections and system stats.
  */
 import Link from 'next/link';
