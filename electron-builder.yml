@@ -118,9 +118,9 @@ portable:
 linux:
   # icon: assets/icons  # TODO: Generate PNG icons from SVG
   category: Game
-  synopsis: BattleTech unit construction and customization tool
+  synopsis: MekStation - BattleTech unit construction tool
   description: >
-    A modern web application for constructing and customizing BattleTech combat units.
+    A spec-driven BattleTech unit construction app that implements TechManual construction rules.
     Features complete unit customization, record sheet generation, and PDF export.
   target:
     - target: AppImage
@@ -161,8 +161,8 @@ appImage:
 # =============================================================================
 publish:
   provider: github
-  owner: swervelabs
-  repo: mekstation
+  owner: SwiggitySwerve
+  repo: megamek-web
   private: false
   releaseType: release
 
