@@ -6,22 +6,29 @@ import { AmmoCategory, AmmoVariant, IAmmunition } from '@/types/equipment/Ammuni
 import { ElectronicsCategory, IElectronics } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 
-// Type for accessing private maps on the service
-type ServiceWithMaps = {
+/**
+ * Interface for accessing private maps on the service for testing.
+ * This provides type-safe access to internal state for test setup.
+ */
+interface TestableServiceMaps {
   weapons: Map<string, Partial<IWeapon>>;
   ammunition: Map<string, Partial<IAmmunition>>;
   electronics: Map<string, Partial<IElectronics>>;
   miscEquipment: Map<string, Partial<IMiscEquipment>>;
-};
+  isLoaded: boolean;
+}
 
 /**
  * Helper to access private map properties for testing.
- * This creates an intersection type that exposes the internal maps.
+ * Returns a typed object for setting up test state.
+ * 
+ * Note: This uses a single type assertion which is acceptable for test setup
+ * where we need to access private properties. The TestableServiceMaps interface
+ * matches the internal structure of EquipmentLoaderService.
  */
-function getServiceMaps(svc: EquipmentLoaderService): ServiceWithMaps {
-  // In tests, we need to access private maps to set up test state
-  // Using intersection type is cleaner than double assertion
-  return svc as EquipmentLoaderService & ServiceWithMaps;
+function getServiceMaps(svc: EquipmentLoaderService): TestableServiceMaps {
+  // Single assertion to TestableServiceMaps - the service has these properties internally
+  return svc as TestableServiceMaps;
 }
 
 // Mock fetch globally
@@ -84,7 +91,7 @@ describe('EquipmentLoaderService', () => {
   describe('clear()', () => {
     it('should clear all equipment', () => {
       // Manually add some items to test clear (accessing private properties for testing)
-      const serviceInternal = service as EquipmentLoaderService & { weapons: Map<string, unknown>; isLoaded: boolean };
+      const serviceInternal = getServiceMaps(service);
       serviceInternal.weapons.set('test-weapon', { id: 'test-weapon', name: 'Test' });
       serviceInternal.isLoaded = true;
       
@@ -507,7 +514,7 @@ describe('EquipmentLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
       
-      (service as EquipmentLoaderService & { weapons: Map<string, typeof mockWeapon> }).weapons.set('medium-laser', mockWeapon);
+      getServiceMaps(service).weapons.set('medium-laser', mockWeapon);
       
       const weapon = service.getWeaponById('medium-laser');
       expect(weapon).toEqual(mockWeapon);
@@ -521,22 +528,23 @@ describe('EquipmentLoaderService', () => {
 
   describe('searchWeapons()', () => {
     beforeEach(() => {
-      // Add test weapons
-      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('medium-laser', {
+      // Add test weapons using helper
+      const maps = getServiceMaps(service);
+      maps.weapons.set('medium-laser', {
         id: 'medium-laser',
         name: 'Medium Laser',
         techBase: TechBase.INNER_SPHERE,
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2470,
       });
-      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('large-laser', {
+      maps.weapons.set('large-laser', {
         id: 'large-laser',
         name: 'Large Laser',
         techBase: TechBase.INNER_SPHERE,
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2470,
       });
-      (service as ServiceWithMaps & EquipmentLoaderService).weapons.set('clan-er-large', {
+      maps.weapons.set('clan-er-large', {
         id: 'clan-er-large',
         name: 'ER Large Laser',
         techBase: TechBase.CLAN,

@@ -100,22 +100,22 @@ export default [
     },
     
     rules: {
-      // TypeScript rules
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // TypeScript rules - strict type safety enforcement
+      '@typescript-eslint/no-explicit-any': 'error',
       
       // Prevent double casting with "as unknown as" pattern
       // This bypasses type safety and should be avoided
       'no-restricted-syntax': [
-        'warn',
+        'error',
         {
           selector: 'TSAsExpression > TSAsExpression',
           message: 'Avoid double type assertions (as unknown as). Use type guards, conversion functions, or fix the underlying type issue instead.',
         },
       ],
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
       '@typescript-eslint/explicit-module-boundary-types': ['warn', {
         allowArgumentsExplicitlyTypedAsAny: false,
       }],

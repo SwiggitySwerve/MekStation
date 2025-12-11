@@ -109,8 +109,8 @@ export interface CategoryResponse {
  * @param res - Mock response object
  * @returns Parsed JSON data with the specified type
  */
-export function parseApiResponse<T = ApiResponse>(res: MockResponse<any>): T {
-  const rawData = res._getData();
+export function parseApiResponse<T = ApiResponse>(res: MockResponse<string | Buffer | object>): T {
+  const rawData: string | Buffer | object = res._getData() as string | Buffer | object;
   const jsonString = typeof rawData === 'string'
     ? rawData
     : rawData instanceof Buffer
