@@ -1,0 +1,183 @@
+name: Auto Version and Release
+
+on:
+  push:
+    branches:
+      - main
+    # Only trigger on actual code changes, not workflow changes
+    paths-ignore:
+      - '.github/workflows/**'
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE*'
+
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  version-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest version tag
+        id: get_version
+        run: |
+          # Fetch all tags
+          git fetch --tags
+          
+          # Get the latest version tag (excluding pre-release tags like -test, -alpha, etc.)
+          LATEST_TAG=$(git tag -l "v*" --sort=-version:refname | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | head -n 1)
+          
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous version tag found, starting at v0.0.0"
+            LATEST_TAG="v0.0.0"
+          fi
+          
+          echo "Latest tag: $LATEST_TAG"
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          
+          # Parse version components
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Determine bump type from commit
+        id: bump_type
+        run: |
+          # Use input if manually triggered, otherwise detect from commit message
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            BUMP_TYPE="${{ inputs.bump_type }}"
+          else
+            # Get the commit message
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            
+            # Check for version bump indicators in commit message
+            if echo "$COMMIT_MSG" | grep -qiE "\[major\]|BREAKING CHANGE"; then
+              BUMP_TYPE="major"
+            elif echo "$COMMIT_MSG" | grep -qiE "\[minor\]|feat:|feature:"; then
+              BUMP_TYPE="minor"
+            else
+              BUMP_TYPE="patch"
+            fi
+          fi
+          
+          echo "Bump type: $BUMP_TYPE"
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+
+      - name: Calculate new version
+        id: new_version
+        run: |
+          MAJOR=${{ steps.get_version.outputs.major }}
+          MINOR=${{ steps.get_version.outputs.minor }}
+          PATCH=${{ steps.get_version.outputs.patch }}
+          BUMP_TYPE=${{ steps.bump_type.outputs.bump_type }}
+          
+          case $BUMP_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
+          if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "Tag $NEW_VERSION already exists, skipping"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $NEW_VERSION does not exist, will create"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate release notes
+        id: release_notes
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          LATEST_TAG=${{ steps.get_version.outputs.latest_tag }}
+          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
+          
+          # Generate changelog from commits since last tag
+          if [ "$LATEST_TAG" != "v0.0.0" ]; then
+            CHANGELOG=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
+            COMPARE_URL="**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_VERSION}"
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+            COMPARE_URL="🎉 **Initial Release**"
+          fi
+          
+          # Create release notes
+          cat << EOF > release_notes.md
+          ## What's Changed in $NEW_VERSION
+          
+          $CHANGELOG
+          
+          $COMPARE_URL
+          EOF
+          
+          echo "Release notes generated"
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+          git push origin "$NEW_VERSION"
+          
+          echo "✅ Created and pushed tag: $NEW_VERSION"
+
+      - name: Summary
+        run: |
+          echo "## Version Bump Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Previous Version | ${{ steps.get_version.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Bump Type | ${{ steps.bump_type.outputs.bump_type }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| New Version | ${{ steps.new_version.outputs.new_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag Created | ${{ steps.check_tag.outputs.exists == 'false' && '✅ Yes' || '⏭️ Skipped (already exists)' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_tag.outputs.exists }}" == "false" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 The release workflow will now build and publish artifacts for ${{ steps.new_version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
