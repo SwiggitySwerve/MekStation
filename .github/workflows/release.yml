@@ -121,25 +121,15 @@ jobs:
           rm -rf release-upload
           mkdir -p release-upload
 
-          # Find and copy release artifacts (cross-platform compatible)
-          found=false
-          for ext in exe msi dmg zip AppImage deb rpm yml blockmap; do
-            for file in release/*."$ext" release/**/*."$ext" 2>/dev/null; do
-              if [ -f "$file" ]; then
-                found=true
-                cp -v "$file" release-upload/
-              fi
-            done
-          done
-          # Handle tar.gz separately
-          for file in release/*.tar.gz release/**/*.tar.gz 2>/dev/null; do
-            if [ -f "$file" ]; then
-              found=true
-              cp -v "$file" release-upload/
-            fi
-          done
+          # Find and copy release artifacts using find (cross-platform compatible)
+          find release -maxdepth 1 -type f \( \
+            -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.zip" \
+            -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \
+            -o -name "*.tar.gz" -o -name "*.yml" -o -name "*.blockmap" \
+          \) -exec cp -v {} release-upload/ \;
 
-          if [ "$found" = false ]; then
+          # Check if any files were copied
+          if [ -z "$(ls -A release-upload 2>/dev/null)" ]; then
             echo "No release artifacts found in desktop/release" >&2
             ls -R release || true
             exit 1
