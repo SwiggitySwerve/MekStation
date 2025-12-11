@@ -120,18 +120,23 @@ jobs:
           set -euo pipefail
           rm -rf release-upload
           mkdir -p release-upload
-          shopt -s globstar nullglob
 
-          patterns=(
-            "release/**/*.{exe,msi,dmg,zip,AppImage,deb,rpm,tar.gz,yml,blockmap}"
-          )
-
+          # Find and copy release artifacts (cross-platform compatible)
           found=false
-          for pattern in "${patterns[@]}"; do
-            for file in $pattern; do
+          for ext in exe msi dmg zip AppImage deb rpm yml blockmap; do
+            for file in release/*."$ext" release/**/*."$ext" 2>/dev/null; do
+              if [ -f "$file" ]; then
+                found=true
+                cp -v "$file" release-upload/
+              fi
+            done
+          done
+          # Handle tar.gz separately
+          for file in release/*.tar.gz release/**/*.tar.gz 2>/dev/null; do
+            if [ -f "$file" ]; then
               found=true
               cp -v "$file" release-upload/
-            done
+            fi
           done
 
           if [ "$found" = false ]; then
