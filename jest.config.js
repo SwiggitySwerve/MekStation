@@ -23,7 +23,7 @@ const customJestConfig = {
     '!**/*.d.ts',
   ],
   // Coverage thresholds - will fail if coverage drops below these levels
-  // Updated 2025-12-11 to match actual coverage levels
+  // Set based on coverage analysis from 2025-12-03
   coverageThreshold: {
     global: {
       statements: 45,
@@ -31,11 +31,11 @@ const customJestConfig = {
       functions: 40,
       lines: 45
     },
-    // Critical areas with thresholds based on current coverage
+    // Critical areas with higher thresholds
     './src/utils/construction/': {
-      statements: 70,
-      branches: 50,
-      functions: 75
+      statements: 85,
+      branches: 65,
+      functions: 95
     },
     './src/utils/validation/': {
       statements: 90,
@@ -45,12 +45,12 @@ const customJestConfig = {
     './src/services/conversion/': {
       statements: 85,
       branches: 65,
-      functions: 98
+      functions: 100
     },
     './src/utils/serialization/': {
-      statements: 85,
-      branches: 70,
-      functions: 80
+      statements: 90,
+      branches: 85,
+      functions: 100
     },
     './src/utils/temporal/': {
       statements: 95,
