@@ -31,6 +31,7 @@ echo "📝 Configuring branch protection rules..."
 
 # Create temporary JSON file with protection rules
 TEMP_JSON=$(mktemp)
+trap 'rm -f "$TEMP_JSON"' EXIT
 cat > "$TEMP_JSON" <<EOF
 {
   "required_status_checks": {
@@ -65,9 +66,6 @@ EOF
 gh api repos/:owner/:repo/branches/$BRANCH/protection \
   --method PUT \
   --input "$TEMP_JSON"
-
-# Clean up
-rm -f "$TEMP_JSON"
 
 echo ""
 echo "✅ Branch protection configured successfully!"
