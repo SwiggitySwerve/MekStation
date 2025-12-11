@@ -1,8 +1,8 @@
 /**
- * BattleTech Editor - Desktop Installation Setup
+ * MekStation - Desktop Installation Setup
  * 
  * This script provides automated installation and configuration
- * for the BattleTech Editor desktop application.
+ * for the MekStation desktop application.
  * 
  * Features:
  * - One-click installation
@@ -60,7 +60,7 @@ export class DesktopInstaller {
   }
 
   /**
-   * Install the BattleTech Editor desktop application
+   * Install the MekStation desktop application
    */
   async install(config: Partial<IInstallConfig> = {}): Promise<IInstallResult> {
     const installConfig = this.getDefaultConfig(config);
@@ -68,7 +68,7 @@ export class DesktopInstaller {
     const warnings: string[] = [];
 
     try {
-      console.log('🚀 Starting BattleTech Editor installation...');
+      console.log('🚀 Starting MekStation installation...');
 
       // Check system requirements
       const requirements = await this.checkSystemRequirements();
@@ -147,7 +147,7 @@ export class DesktopInstaller {
       // Write installation metadata
       await this.writeInstallationMetadata(installConfig);
 
-      console.log('✅ BattleTech Editor installation completed successfully!');
+      console.log('✅ MekStation installation completed successfully!');
       
       return {
         success: true,
@@ -170,14 +170,14 @@ export class DesktopInstaller {
   }
 
   /**
-   * Uninstall the BattleTech Editor desktop application
+   * Uninstall the MekStation desktop application
    */
   async uninstall(installPath: string, removeUserData: boolean = false): Promise<IInstallResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
     try {
-      console.log('🗑️ Starting BattleTech Editor uninstallation...');
+      console.log('🗑️ Starting MekStation uninstallation...');
 
       // Read installation metadata
       const metadata = await this.readInstallationMetadata(installPath);
@@ -219,7 +219,7 @@ export class DesktopInstaller {
         }
       }
 
-      console.log('✅ BattleTech Editor uninstallation completed successfully!');
+      console.log('✅ MekStation uninstallation completed successfully!');
       
       return {
         success: true,
@@ -307,13 +307,13 @@ export class DesktopInstaller {
   private getDefaultInstallPath(): string {
     switch (this.platform) {
       case 'win32':
-        return path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'BattleTech Editor');
+        return path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'MekStation');
       case 'darwin':
-        return path.join('/Applications', 'BattleTech Editor.app');
+        return path.join('/Applications', 'MekStation.app');
       case 'linux':
-        return path.join('/opt', 'battletech-editor');
+        return path.join('/opt', 'mekstation');
       default:
-        return path.join(this.userHome, 'BattleTech Editor');
+        return path.join(this.userHome, 'MekStation');
     }
   }
 
@@ -323,13 +323,13 @@ export class DesktopInstaller {
   private getDefaultDataPath(): string {
     switch (this.platform) {
       case 'win32':
-        return path.join(process.env.APPDATA || path.join(this.userHome, 'AppData', 'Roaming'), 'BattleTech Editor');
+        return path.join(process.env.APPDATA || path.join(this.userHome, 'AppData', 'Roaming'), 'MekStation');
       case 'darwin':
-        return path.join(this.userHome, 'Library', 'Application Support', 'BattleTech Editor');
+        return path.join(this.userHome, 'Library', 'Application Support', 'MekStation');
       case 'linux':
-        return path.join(this.userHome, '.battletech-editor');
+        return path.join(this.userHome, '.mekstation');
       default:
-        return path.join(this.userHome, '.battletech-editor');
+        return path.join(this.userHome, '.mekstation');
     }
   }
 
@@ -361,7 +361,7 @@ export class DesktopInstaller {
       await fs.mkdir(path.dirname(targetPath), { recursive: true });
       
       // Create placeholder file
-      await fs.writeFile(targetPath, `// BattleTech Editor - ${file}\n`);
+      await fs.writeFile(targetPath, `// MekStation - ${file}\n`);
     }
 
     console.log('📦 Application files copied successfully');
@@ -397,21 +397,21 @@ export class DesktopInstaller {
     switch (this.platform) {
       case 'win32':
         // Create .lnk file on Windows
-        const shortcutPath = path.join(desktopPath, 'BattleTech Editor.lnk');
+        const shortcutPath = path.join(desktopPath, 'MekStation.lnk');
         // Implementation would create actual Windows shortcut
         break;
       case 'darwin':
         // Create symlink on macOS
-        const symlinkPath = path.join(desktopPath, 'BattleTech Editor.app');
+        const symlinkPath = path.join(desktopPath, 'MekStation.app');
         await fs.symlink(installPath, symlinkPath);
         break;
       case 'linux':
         // Create .desktop file on Linux
-        const desktopFilePath = path.join(desktopPath, 'battletech-editor.desktop');
+        const desktopFilePath = path.join(desktopPath, 'mekstation.desktop');
         const desktopFileContent = `[Desktop Entry]
-Name=BattleTech Editor
+Name=MekStation
 Comment=BattleTech Unit Editor
-Exec=${path.join(installPath, 'battletech-editor')}
+Exec=${path.join(installPath, 'mekstation')}
 Icon=${path.join(installPath, 'assets/icons/icon.png')}
 Terminal=false
 Type=Application
@@ -470,7 +470,7 @@ Categories=Game;
    */
   private async createUninstaller(installPath: string): Promise<void> {
     const uninstallerPath = path.join(installPath, 'uninstall.js');
-    const uninstallerContent = `// BattleTech Editor Uninstaller
+    const uninstallerContent = `// MekStation Uninstaller
 const { DesktopInstaller } = require('./installer/setup');
 const installer = new DesktopInstaller();
 installer.uninstall('${installPath}');

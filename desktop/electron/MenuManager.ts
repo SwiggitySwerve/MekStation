@@ -1,5 +1,5 @@
 /**
- * Menu Manager for BattleTech Editor Desktop App
+ * Menu Manager for MekStation Desktop App
  * 
  * Manages the native application menu bar with standard menus,
  * keyboard shortcuts, and dynamic content like recent files.
@@ -442,7 +442,7 @@ export class MenuManager {
       submenu.push(
         { type: 'separator' },
         {
-          label: 'About BattleTech Editor',
+          label: 'About MekStation',
           click: () => this.sendCommand('help:about')
         }
       );

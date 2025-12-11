@@ -65,7 +65,7 @@ export default async function handler(
     const envelope: ISerializedUnitEnvelope = {
       formatVersion: FORMAT_VERSION,
       savedAt: new Date().toISOString(),
-      application: 'battletech-editor',
+      application: 'mekstation',
       applicationVersion: APP_VERSION,
       unit: unitData,
     };

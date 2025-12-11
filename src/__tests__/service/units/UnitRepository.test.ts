@@ -21,7 +21,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Test database path
-const TEST_DB_PATH = './data/test-battletech.db';
+const TEST_DB_PATH = './data/test-mekstation.db';
 
 describe('UnitRepository', () => {
   let repository: UnitRepository;

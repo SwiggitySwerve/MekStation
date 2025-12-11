@@ -2,7 +2,7 @@
 
 ## Context
 
-The BattleTech Editor desktop application uses Electron with a Next.js frontend. The main process handles native OS integration while the renderer process runs the React application. Communication occurs via IPC with a secure preload bridge.
+The MekStation desktop application uses Electron with a Next.js frontend. The main process handles native OS integration while the renderer process runs the React application. Communication occurs via IPC with a secure preload bridge.
 
 ### Current Architecture
 - `desktop/electron/main.ts` - Main process with window management

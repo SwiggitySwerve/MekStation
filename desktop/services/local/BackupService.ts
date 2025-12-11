@@ -1,8 +1,8 @@
 /**
- * Backup Service for BattleTech Editor Desktop App
+ * Backup Service for MekStation Desktop App
  * 
  * Provides automatic backup and restoration capabilities
- * for the self-hosted BattleTech Editor application.
+ * for the self-hosted MekStation application.
  * 
  * Features:
  * - Automatic scheduled backups

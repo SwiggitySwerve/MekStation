@@ -1,6 +1,6 @@
-# BattleTech Editor - Keyboard Shortcuts
+# MekStation - Keyboard Shortcuts
 
-This document lists all keyboard shortcuts available in the BattleTech Editor desktop application.
+This document lists all keyboard shortcuts available in the MekStation desktop application.
 
 ## Platform Conventions
 

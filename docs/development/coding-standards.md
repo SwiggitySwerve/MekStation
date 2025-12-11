@@ -1,6 +1,6 @@
 # Coding Standards
 
-Essential coding standards for the BattleTech Editor project.
+Essential coding standards for the MekStation project.
 
 ## TypeScript
 

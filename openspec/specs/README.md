@@ -1,6 +1,6 @@
 # OpenSpec Specifications
 
-This directory contains all OpenSpec specifications for the BattleTech Editor, organized by development phase.
+This directory contains all OpenSpec specifications for the MekStation, organized by development phase.
 
 ## Directory Structure
 

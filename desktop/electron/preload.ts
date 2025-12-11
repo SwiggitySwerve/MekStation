@@ -1,5 +1,5 @@
 /**
- * BattleTech Editor - Electron Preload Script
+ * MekStation - Electron Preload Script
  * 
  * This script runs in the renderer process and provides a secure bridge
  * between the main process and the web content. It exposes a limited
@@ -320,7 +320,7 @@ delete nodeWindow.process;
 delete nodeWindow.Buffer;
 
 // Log preload script loaded
-console.log('🔌 BattleTech Editor preload script loaded');
+console.log('🔌 MekStation preload script loaded');
 
 export type { 
   IElectronAPI, 

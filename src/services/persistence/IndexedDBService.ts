@@ -8,7 +8,7 @@
 
 import { StorageError } from '../common/errors';
 
-const DB_NAME = 'battletech-editor';
+const DB_NAME = 'mekstation';
 const DB_VERSION = 2;  // Bumped for custom-formulas store
 
 /**

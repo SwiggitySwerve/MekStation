@@ -22,7 +22,7 @@ echo "====================="
 
 # Find and analyze all TypeScript files
 {
-    find battletech-editor-app -name "*.ts" -o -name "*.tsx" | \
+    find mekstation-app -name "*.ts" -o -name "*.tsx" | \
     grep -v node_modules | \
     grep -v ".backup." | \
     while read file; do

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the service layer architecture for the BattleTech Editor application. The design separates concerns between canonical (read-only) unit data and user-created custom units, with a clean service abstraction layer.
+This document outlines the service layer architecture for the MekStation application. The design separates concerns between canonical (read-only) unit data and user-created custom units, with a clean service abstraction layer.
 
 ## Architecture Diagram
 
@@ -73,7 +73,7 @@ interface UnitIndexEntry {
 
 ### Custom Units (Read-Write)
 
-**Storage:** IndexedDB database `battletech-editor`
+**Storage:** IndexedDB database `mekstation`
 
 **Stores:**
 - `custom-units` - User-created mech variants

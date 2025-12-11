@@ -1,5 +1,5 @@
 #!/bin/bash
-# BattleTech Editor - Post-installation script for Linux
+# MekStation - Post-installation script for Linux
 
 # Update desktop database
 if command -v update-desktop-database &> /dev/null; then
@@ -16,4 +16,4 @@ if command -v update-mime-database &> /dev/null; then
     update-mime-database /usr/share/mime || true
 fi
 
-echo "BattleTech Editor installed successfully!"
+echo "MekStation installed successfully!"

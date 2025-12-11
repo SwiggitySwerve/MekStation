@@ -1,4 +1,4 @@
-# BattleTech Editor - Docker Compose Configuration
+# MekStation - Docker Compose Configuration
 # 
 # Usage:
 #   Development:  docker-compose up dev
@@ -18,16 +18,16 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
-    container_name: battletech-editor
+    container_name: mekstation
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_PATH=/app/data/battletech.db
+      - DATABASE_PATH=/app/data/mekstation.db
     volumes:
       # Persist SQLite database and user data
-      - battletech-data:/app/data
+      - mekstation-data:/app/data
       # Optional: Mount custom unit files
       # - ./custom-units:/app/public/data/units/custom:ro
     healthcheck:
@@ -38,8 +38,8 @@ services:
       start_period: 10s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.battletech.rule=Host(`battletech.localhost`)"
-      - "traefik.http.services.battletech.loadbalancer.server.port=3000"
+      - "traefik.http.routers.mekstation.rule=Host(`mekstation.localhost`)"
+      - "traefik.http.services.mekstation.loadbalancer.server.port=3000"
 
   # ==========================================================================
   # Development Server with Hot Reload
@@ -48,7 +48,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: battletech-editor-dev
+    container_name: mekstation-dev
     ports:
       - "${DEV_PORT:-3000}:3000"
     environment:
@@ -60,7 +60,7 @@ services:
       - /app/node_modules
       - /app/.next
       # Persist dev database
-      - battletech-data-dev:/app/data
+      - mekstation-data-dev:/app/data
     command: npm run dev
 
   # ==========================================================================
@@ -68,9 +68,9 @@ services:
   # ==========================================================================
   backup:
     image: alpine:latest
-    container_name: battletech-backup
+    container_name: mekstation-backup
     volumes:
-      - battletech-data:/data:ro
+      - mekstation-data:/data:ro
       - ./backups:/backups
     command: |
       sh -c 'while true; do
@@ -86,16 +86,16 @@ services:
 # Volumes
 # ==========================================================================
 volumes:
-  battletech-data:
+  mekstation-data:
     driver: local
-    name: battletech-editor-data
-  battletech-data-dev:
+    name: mekstation-data
+  mekstation-data-dev:
     driver: local
-    name: battletech-editor-data-dev
+    name: mekstation-data-dev
 
 # ==========================================================================
 # Networks
 # ==========================================================================
 networks:
   default:
-    name: battletech-network
+    name: mekstation-network

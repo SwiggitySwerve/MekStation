@@ -1,8 +1,8 @@
-# BattleTech Editor - Electron Builder Configuration
+# MekStation - Electron Builder Configuration
 # https://www.electron.build/configuration
 
-appId: com.battletecheditor.desktop
-productName: BattleTech Editor
+appId: com.mekstation.desktop
+productName: MekStation
 copyright: Copyright © 2025 SwerveLabs
 
 # Directories
@@ -106,7 +106,7 @@ nsis:
   # installerHeaderIcon: assets/icons/icon.ico
   deleteAppDataOnUninstall: false
   runAfterFinish: true
-  shortcutName: BattleTech Editor
+  shortcutName: MekStation
   license: ../LICENSE
 
 portable:
@@ -162,7 +162,7 @@ appImage:
 publish:
   provider: github
   owner: swervelabs
-  repo: battletech-editor
+  repo: mekstation
   private: false
   releaseType: release
 
@@ -174,6 +174,9 @@ electronDownload:
 
 # Compression settings
 compression: maximum
+
+# Consistent artifact naming across platforms/architectures
+artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 
 # Build metadata
 buildVersion: "1"

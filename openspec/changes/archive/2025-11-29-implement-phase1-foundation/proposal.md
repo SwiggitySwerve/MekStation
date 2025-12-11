@@ -1,7 +1,7 @@
 # Change: Implement Phase 1 Foundation Types
 
 ## Why
-The BattleTech Editor requires a solid foundation of core types, enumerations, and patterns that all other specifications depend on. Phase 1 establishes the base interface hierarchy, temporal systems, validation patterns, and property standards used throughout the application.
+The MekStation requires a solid foundation of core types, enumerations, and patterns that all other specifications depend on. Phase 1 establishes the base interface hierarchy, temporal systems, validation patterns, and property standards used throughout the application.
 
 ## What Changes
 - **ADDED** Core Entity Types - 8 foundational interfaces (IEntity, ITechBaseEntity, IWeightedComponent, etc.)

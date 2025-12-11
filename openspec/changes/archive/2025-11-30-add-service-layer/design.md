@@ -2,7 +2,7 @@
 
 ## Context
 
-The BattleTech Editor needs a service layer to abstract data access and business logic from UI components. This enables:
+The MekStation needs a service layer to abstract data access and business logic from UI components. This enables:
 - Clear separation of concerns
 - Testable business logic
 - Consistent data access patterns
@@ -67,7 +67,7 @@ Canonical unit data is bundled as static JSON in `public/data/units/`:
 ### Decision: Custom Units in IndexedDB
 
 User-created variants stored in browser IndexedDB:
-- Database: `battletech-editor`
+- Database: `mekstation`
 - Stores: `custom-units`, `unit-metadata`
 - Full CRUD operations
 

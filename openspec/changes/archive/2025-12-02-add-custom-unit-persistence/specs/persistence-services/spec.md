@@ -24,7 +24,7 @@ The system SHALL initialize SQLite database on application startup.
 - **GIVEN** environment variable `DATABASE_PATH` is set
 - **WHEN** initializing database
 - **THEN** use the configured path for database file
-- **AND** default to `./data/battletech.db` if not set
+- **AND** default to `./data/mekstation.db` if not set
 
 ---
 

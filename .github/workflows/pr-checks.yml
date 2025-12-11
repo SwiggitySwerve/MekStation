@@ -100,11 +100,11 @@ jobs:
         run: |
           if [ "${{ matrix.platform }}" = "win" ]; then
             test -d release/win-unpacked || exit 1
-            test -f release/win-unpacked/"BattleTech Editor.exe" || exit 1
+            test -f release/win-unpacked/"MekStation.exe" || exit 1
           elif [ "${{ matrix.platform }}" = "mac" ]; then
             mac_dirs="$(compgen -G "release/mac*")"
             if [ -n "$mac_dirs" ]; then
-              mac_apps="$(compgen -G "release/mac*/BattleTech Editor.app")"
+              mac_apps="$(compgen -G "release/mac*/MekStation.app")"
               [ -n "$mac_apps" ] || exit 1
             else
               exit 1

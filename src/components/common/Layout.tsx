@@ -11,7 +11,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title = 'BattleTech Editor',
+  title = 'MekStation',
   sidebarComponent,
   isSidebarCollapsed,
   secondarySidebar,

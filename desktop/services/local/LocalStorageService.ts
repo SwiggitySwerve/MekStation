@@ -1,8 +1,8 @@
 /**
- * Local Storage Service for BattleTech Editor Desktop App
+ * Local Storage Service for MekStation Desktop App
  * 
  * Provides local file storage with compression, encryption, and caching
- * for the self-hosted BattleTech Editor application.
+ * for the self-hosted MekStation application.
  * 
  * Features:
  * - JSON data storage with type safety

@@ -1,17 +1,17 @@
 {
-  "name": "battletech-editor-desktop",
+  "name": "mekstation-desktop",
   "version": "1.0.0",
-  "description": "BattleTech Editor - Desktop Application",
+  "description": "MekStation - Desktop Application",
   "main": "dist/electron/main.js",
   "author": {
     "name": "SwerveLabs",
     "email": "swervelabs@proton.me"
   },
   "license": "Apache-2.0",
-  "homepage": "https://github.com/swervelabs/battletech-editor",
+  "homepage": "https://github.com/swervelabs/mekstation",
   "repository": {
     "type": "git",
-    "url": "https://github.com/swervelabs/battletech-editor.git"
+    "url": "https://github.com/swervelabs/mekstation.git"
   },
   "scripts": {
     "build": "tsc",

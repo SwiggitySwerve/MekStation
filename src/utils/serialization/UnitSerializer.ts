@@ -34,7 +34,7 @@ interface IParsedSerializedData {
 /**
  * Application info for serialization envelope
  */
-const APPLICATION_NAME = 'BattleTech Editor';
+const APPLICATION_NAME = 'MekStation';
 const APPLICATION_VERSION = '1.0.0';
 
 /**
