@@ -101,17 +101,17 @@ jobs:
       - name: Build Electron application (Linux)
         if: matrix.platform == 'linux'
         working-directory: desktop
-        run: npm run dist:linux
+        run: npx electron-builder --linux --publish never
 
       - name: Build Electron application (Windows)
         if: matrix.platform == 'win'
         working-directory: desktop
-        run: npm run dist:win
+        run: npx electron-builder --win --publish never
 
       - name: Build Electron application (macOS)
         if: matrix.platform == 'mac'
         working-directory: desktop
-        run: npm run dist:mac
+        run: npx electron-builder --mac --publish never
 
       - name: Prepare release artifacts
         working-directory: desktop
