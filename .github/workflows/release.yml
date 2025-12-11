@@ -69,14 +69,17 @@ jobs:
     if: startsWith(needs.release-context.outputs.tag, 'v')
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             platform: linux
           - os: windows-latest
             platform: win
           - os: macos-latest
-            platform: mac
+            platform: mac-arm64
+            mac_arch: arm64
+          - os: macos-latest
+            platform: mac-x64
+            mac_arch: x64
 
     steps:
       - name: Checkout code
@@ -90,6 +93,20 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+            ~/AppData/Local/electron/Cache
+            ~/AppData/Local/electron-builder/Cache
+          key: ${{ runner.os }}-electron-${{ hashFiles('desktop/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
 
       - name: Install root dependencies
         run: npm ci
@@ -116,9 +133,9 @@ jobs:
         run: npx electron-builder --win --publish never
 
       - name: Build Electron application (macOS)
-        if: matrix.platform == 'mac'
+        if: startsWith(matrix.platform, 'mac')
         working-directory: desktop
-        run: npx electron-builder --mac --publish never
+        run: npx electron-builder --mac --${{ matrix.mac_arch }} --publish never
 
       - name: Prepare release artifacts
         working-directory: desktop
@@ -163,6 +180,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
+
+      - name: Fetch tags
+        run: git fetch --tags --force
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -257,6 +277,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.release-context.outputs.ref }}
 
+      - name: Fetch tags
+        run: git fetch --tags --force
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -268,6 +291,18 @@ jobs:
           set -euo pipefail
           CURRENT_TAG="${{ needs.release-context.outputs.tag }}"
           PREV_TAG="${{ needs.release-context.outputs.prev_tag }}"
+
+          # Ensure current tag exists
+          if ! git rev-parse "${CURRENT_TAG}^{tag}" >/dev/null 2>&1; then
+            echo "Tag ${CURRENT_TAG} not found. Ensure it is pushed before releasing." >&2
+            exit 1
+          fi
+
+          # If previous tag is missing or not found, treat as initial release
+          if [ -n "$PREV_TAG" ] && ! git rev-parse "${PREV_TAG}^{tag}" >/dev/null 2>&1; then
+            echo "Previous tag ${PREV_TAG} not found; treating as initial release." >&2
+            PREV_TAG=""
+          fi
 
           if [ -z "$PREV_TAG" ]; then
             # No previous tag - this is the initial release
