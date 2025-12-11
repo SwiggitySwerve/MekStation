@@ -129,9 +129,6 @@ linux:
     - target: deb
       arch:
         - x64
-    - target: rpm
-      arch:
-        - x64
     - target: tar.gz
       arch:
         - x64
@@ -146,12 +143,6 @@ deb:
     - libnss3
   afterInstall: scripts/linux/after-install.sh
   afterRemove: scripts/linux/after-remove.sh
-
-rpm:
-  depends:
-    - libnotify
-    - libXtst
-    - nss
 
 appImage:
   artifactName: "${productName}-${version}.AppImage"
