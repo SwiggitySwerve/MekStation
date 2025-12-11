@@ -5,10 +5,61 @@ on:
     tags:
       - 'v*'  # Trigger on version tags like v1.0.0
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      release_tag:
+        description: 'Tag to release (defaults to latest v*)'
+        required: false
+        type: string
+  workflow_run:
+    workflows:
+      - Auto Version and Release
+    types:
+      - completed
 
 jobs:
+  release-context:
+    name: Determine release tag
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    outputs:
+      tag: ${{ steps.resolve_tag.outputs.tag }}
+      ref: ${{ steps.resolve_tag.outputs.ref }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: resolve_tag
+        run: |
+          set -euo pipefail
+          TAG_INPUT="${{ inputs.release_tag }}"
+
+          if [ -n "$TAG_INPUT" ]; then
+            TAG="$TAG_INPUT"
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            git fetch --tags
+            TAG=$(git tag -l 'v*' --sort=-version:refname | head -n 1)
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "No release tag found" >&2
+            exit 1
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "ref=refs/tags/$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          echo "Release tag: ${{ steps.resolve_tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
   build:
+    needs: release-context
     runs-on: ${{ matrix.os }}
+    if: startsWith(needs.release-context.outputs.tag, 'v')
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -23,6 +74,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-context.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,17 +101,17 @@ jobs:
       - name: Build Electron application (Linux)
         if: matrix.platform == 'linux'
         working-directory: desktop
-        run: npm run dist:linux
+        run: npx electron-builder --linux --publish never
 
       - name: Build Electron application (Windows)
         if: matrix.platform == 'win'
         working-directory: desktop
-        run: npm run dist:win
+        run: npx electron-builder --win --publish never
 
       - name: Build Electron application (macOS)
         if: matrix.platform == 'mac'
         working-directory: desktop
-        run: npm run dist:mac
+        run: npx electron-builder --mac --publish never
 
       - name: Prepare release artifacts
         working-directory: desktop
@@ -66,18 +120,23 @@ jobs:
           set -euo pipefail
           rm -rf release-upload
           mkdir -p release-upload
-          shopt -s globstar nullglob
 
-          patterns=(
-            "release/**/*.{exe,msi,dmg,zip,AppImage,deb,rpm,tar.gz,yml,blockmap}"
-          )
-
+          # Find and copy release artifacts (cross-platform compatible)
           found=false
-          for pattern in "${patterns[@]}"; do
-            for file in $pattern; do
+          for ext in exe msi dmg zip AppImage deb rpm yml blockmap; do
+            for file in release/*."$ext" release/**/*."$ext" 2>/dev/null; do
+              if [ -f "$file" ]; then
+                found=true
+                cp -v "$file" release-upload/
+              fi
+            done
+          done
+          # Handle tar.gz separately
+          for file in release/*.tar.gz release/**/*.tar.gz 2>/dev/null; do
+            if [ -f "$file" ]; then
               found=true
               cp -v "$file" release-upload/
-            done
+            fi
           done
 
           if [ "$found" = false ]; then
@@ -96,14 +155,18 @@ jobs:
 
   docker-image:
     name: Build & Push Docker image
+    needs: release-context
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-context.outputs.ref }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -132,7 +195,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/mekstation
             docker.io/anaklumos/mekstation
           tags: |
-            type=ref,event=tag,pattern=v{{version}}
+            type=raw,value=${{ needs.release-context.outputs.tag }}
             type=raw,value=latest
 
       - name: Build and push image
@@ -146,15 +209,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   release:
-    needs: [build, docker-image]
+    needs: [release-context, build, docker-image]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
       contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-context.outputs.ref }}
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4

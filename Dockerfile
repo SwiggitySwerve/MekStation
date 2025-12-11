@@ -28,8 +28,11 @@ RUN apk add --no-cache libc6-compat python3 make g++
 
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Copy package files and install ALL dependencies (including dev for build)
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy source files
 COPY . .
 
 # Build the application
