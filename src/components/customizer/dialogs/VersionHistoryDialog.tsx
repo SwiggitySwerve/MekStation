@@ -223,13 +223,16 @@ export function VersionHistoryDialog({
             </div>
           ) : previewData ? (
             (() => {
-              // Extract values with type assertions for safe rendering
+              // Extract values with proper type checking
+              // previewData.data is IFullUnit which has [key: string]: unknown
               const unitData = previewData.data;
               const tonnageStr = String(unitData.tonnage ?? 'N/A');
               const techBaseStr = String(unitData.techBase ?? 'N/A');
               const eraStr = String(unitData.era ?? 'N/A');
-              const rulesLevelStr = String((unitData as Record<string, unknown>).rulesLevel ?? 'N/A');
-              const equipmentArr = (unitData as Record<string, unknown>).equipment as unknown[] | undefined;
+              const rulesLevel = 'rulesLevel' in unitData ? unitData.rulesLevel : undefined;
+              const rulesLevelStr = String(rulesLevel ?? 'N/A');
+              const equipment = 'equipment' in unitData ? unitData.equipment : undefined;
+              const equipmentArr = Array.isArray(equipment) ? equipment : undefined;
               const equipmentCount = equipmentArr?.length ?? 0;
               
               return (

@@ -19,6 +19,8 @@ jest.mock('@/components/customizer/shared/TechBaseConfiguration', () => ({
 }));
 
 describe('OverviewTab', () => {
+  const mockUseUnitStore = useUnitStore as jest.MockedFunction<typeof useUnitStore>;
+  const mockUseTabManagerStore = useTabManagerStore as jest.MockedFunction<typeof useTabManagerStore>;
   const mockStoreValues = {
     id: 'unit-1',
     chassis: 'Atlas',
@@ -54,14 +56,12 @@ describe('OverviewTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
+    // TS: the test uses a narrowed mock state; suppress strict selector typing
+    // @ts-expect-error - mock store is partial for testing
+    mockUseUnitStore.mockImplementation((selector) => selector(mockStoreValues));
+    mockUseTabManagerStore.mockImplementation((selector) => {
       if (typeof selector === 'function') {
-        return selector(mockStoreValues);
-      }
-      return undefined;
-    });
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
-      if (typeof selector === 'function') {
+        // @ts-expect-error - mock tab manager is partial for testing
         return selector(mockTabManager);
       }
       return undefined;

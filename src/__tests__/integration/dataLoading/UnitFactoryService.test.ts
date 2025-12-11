@@ -280,13 +280,14 @@ describe('UnitFactoryService', () => {
   // ============================================================================
   describe('Error Handling', () => {
     it('should handle missing required fields', () => {
-      const invalidData = {
+      // Create minimal invalid data using Partial to indicate intentionally incomplete
+      const invalidData: Partial<ISerializedUnit> = {
         id: 'test',
         chassis: 'Test',
         // Missing most required fields
-      } as unknown as ISerializedUnit;
+      };
 
-      const result = factory.createFromSerialized(invalidData);
+      const result = factory.createFromSerialized(invalidData as ISerializedUnit);
       
       expect(result.success).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);

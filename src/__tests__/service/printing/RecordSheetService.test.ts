@@ -6,6 +6,7 @@
 
 import { RecordSheetService, recordSheetService } from '@/services/printing/RecordSheetService';
 import { PaperSize } from '@/types/printing';
+import { createDOMMock } from '../../helpers';
 
 // Mock jsPDF
 jest.mock('jspdf', () => ({
@@ -28,8 +29,8 @@ jest.mock('@/services/printing/SVGRecordSheetRenderer', () => ({
   })),
 }));
 
-// Mock canvas
-const mockCanvas = {
+// Mock canvas using DOM mock helper
+const mockCanvas = createDOMMock<HTMLCanvasElement>({
   width: 0,
   height: 0,
   getContext: jest.fn().mockReturnValue({
@@ -38,7 +39,7 @@ const mockCanvas = {
     clearRect: jest.fn(),
   }),
   toDataURL: jest.fn().mockReturnValue('data:image/png;base64,test'),
-} as unknown as HTMLCanvasElement;
+});
 
 // Mock unit configuration
 const createMockUnit = (overrides = {}) => ({
@@ -263,6 +264,7 @@ describe('RecordSheetService', () => {
       
       // Mock document.createElement
       const originalCreateElement = document.createElement.bind(document);
+      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;
@@ -281,6 +283,7 @@ describe('RecordSheetService', () => {
       const data = service.extractData(unit);
       
       const originalCreateElement = document.createElement.bind(document);
+      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;
@@ -302,6 +305,7 @@ describe('RecordSheetService', () => {
       const data = service.extractData(unit);
       
       const originalCreateElement = document.createElement.bind(document);
+      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;

@@ -2,6 +2,9 @@ import {
   calculateTMM,
   calculateSpeedFactor,
   calculateDefensiveBV,
+  calculateOffensiveBV,
+  calculateTotalBV,
+  getBVBreakdown,
   SPEED_FACTORS,
 } from '@/utils/construction/battleValueCalculations';
 
@@ -76,6 +79,54 @@ describe('battleValueCalculations', () => {
       const bvWithEq = calculateDefensiveBV(100, 50, 10, true);
       
       expect(bvWithEq).toBeGreaterThan(bvNoEq);
+    });
+  });
+
+  describe('calculateOffensiveBV()', () => {
+    it('should apply rear and targeting computer modifiers', () => {
+      const offensive = calculateOffensiveBV(
+        [
+          { id: 'medium-laser' },
+          { id: 'ac-10', rear: true },
+        ],
+        true
+      );
+
+      // medium-laser: 46 * 1.25 = 57.5 -> 58
+      // ac-10 rear: 123 * 0.5 = 61.5 -> 62, then *1.25 = 77.5 -> 78
+      expect(offensive).toBe(136);
+    });
+  });
+
+  describe('calculateTotalBV() and getBVBreakdown()', () => {
+    const config = {
+      totalArmorPoints: 120,
+      totalStructurePoints: 60,
+      heatSinkCapacity: 16,
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 4,
+      weapons: [
+        { id: 'medium-laser' },
+        { id: 'lrm-10' },
+      ],
+      hasTargetingComputer: true,
+      hasDefensiveEquipment: true,
+    };
+
+    it('should calculate total BV from defensive and offensive values', () => {
+      const total = calculateTotalBV(config);
+      expect(total).toBeGreaterThan(0);
+    });
+
+    it('should provide a consistent breakdown', () => {
+      const breakdown = getBVBreakdown(config);
+      expect(breakdown.defensiveBV).toBeGreaterThan(0);
+      expect(breakdown.offensiveBV).toBeGreaterThan(0);
+      expect(breakdown.speedFactor).toBeGreaterThan(1);
+      expect(breakdown.totalBV).toBe(
+        calculateTotalBV(config)
+      );
     });
   });
 

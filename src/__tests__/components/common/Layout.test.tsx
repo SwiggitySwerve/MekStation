@@ -96,8 +96,8 @@ describe('Layout', () => {
         </Layout>
       );
 
-      // When expanded, should have ml-40 class
-      const contentArea = container.querySelector('.md\\:ml-40');
+      // When expanded, should have ml-52 class (matching component's md:ml-52)
+      const contentArea = container.querySelector('.md\\:ml-52');
       expect(contentArea).toBeInTheDocument();
     });
 

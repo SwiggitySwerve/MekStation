@@ -140,6 +140,56 @@ describe('CanonicalUnitService', () => {
 
       expect(index[0].era).toBe(Era.CLAN_INVASION);
     });
+
+    it('should default mixed tech base to Inner Sphere', async () => {
+      const mockIndex = {
+        units: [
+          {
+            id: 'mixed',
+            chassis: 'Mixed',
+            model: 'MX-1',
+            tonnage: 55,
+            techBase: 'MIXED',
+            year: 3070,
+            path: '6-dark-age/mixed.json',
+          },
+        ],
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockIndex,
+      });
+
+      const index = await service.getIndex();
+
+      expect(index[0].techBase).toBe(TechBase.INNER_SPHERE);
+    });
+
+    it('should fallback era to Late Succession Wars when path is unknown', async () => {
+      const mockIndex = {
+        units: [
+          {
+            id: 'unknown-era',
+            chassis: 'Unknown',
+            model: 'UE-1',
+            tonnage: 40,
+            techBase: 'INNER_SPHERE',
+            year: 3025,
+            path: 'unknown/path.json',
+          },
+        ],
+      };
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockIndex,
+      });
+
+      const index = await service.getIndex();
+
+      expect(index[0].era).toBe(Era.LATE_SUCCESSION_WARS);
+    });
   });
 
   describe('getById()', () => {
@@ -227,6 +277,35 @@ describe('CanonicalUnitService', () => {
       
       // Unit should be cached, so second call shouldn't fetch unit again
       expect(secondCallCount).toBe(firstCallCount);
+    });
+
+    it('should return null when unit fetch fails', async () => {
+      const mockIndex = {
+        units: [
+          {
+            id: 'failing',
+            chassis: 'Fail',
+            model: 'F-1',
+            tonnage: 50,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: 'test/fail.json',
+          },
+        ],
+      };
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockIndex,
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+        });
+
+      const unit = await service.getById('failing');
+
+      expect(unit).toBeNull();
     });
   });
 
@@ -406,6 +485,12 @@ describe('CanonicalUnitService', () => {
       const results = await service.query({});
 
       expect(results.length).toBe(3);
+    });
+
+    it('should filter by unit type with no matches', async () => {
+      const results = await service.query({ unitType: 'Vehicle' });
+
+      expect(results.length).toBe(0);
     });
   });
 

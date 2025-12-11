@@ -64,11 +64,19 @@ $body = @{
     lock_branch = $false
     allow_lock_branch = $false
     required_conversation_resolution = $true
-} | ConvertTo-Json -Depth 10
+}
 
-gh api "repos/:owner/:repo/branches/$BRANCH/protection" `
-    --method PUT `
-    --input - <<< $body
+# Create temporary JSON file
+$tempFile = [System.IO.Path]::GetTempFileName()
+$body | ConvertTo-Json -Depth 10 | Set-Content -Path $tempFile -Encoding UTF8
+
+try {
+    # Apply branch protection
+    Get-Content $tempFile | gh api "repos/:owner/:repo/branches/$BRANCH/protection" --method PUT --input -
+} finally {
+    # Clean up
+    Remove-Item $tempFile -ErrorAction SilentlyContinue
+}
 
 Write-Host ""
 Write-Host "✅ Branch protection configured successfully!" -ForegroundColor Green

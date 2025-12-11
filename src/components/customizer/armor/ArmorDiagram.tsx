@@ -22,7 +22,7 @@ export interface LocationArmorData {
   readonly rearMaximum?: number;
 }
 
-interface ArmorDiagramProps {
+export interface ArmorDiagramProps {
   /** Armor allocation for all locations */
   armorData: LocationArmorData[];
   /** Currently selected location */

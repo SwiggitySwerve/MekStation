@@ -123,10 +123,11 @@ export class MigrationService implements IMigrationService {
           }
 
           // Create unit in SQLite
+          // IFullUnit has [key: string]: unknown, which is compatible with Record<string, unknown>
           const result = unitRepository.create({
             chassis: unit.chassis || 'Unknown',
             variant: unit.variant || 'Unknown',
-            data: unit as unknown as Record<string, unknown>,
+            data: unit,
             notes: 'Migrated from IndexedDB',
           });
 

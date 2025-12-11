@@ -18,6 +18,8 @@ jest.mock('@/components/customizer/critical-slots/LocationGrid', () => ({
 }));
 
 describe('CriticalSlotsTab', () => {
+  const mockUseUnitStore = useUnitStore as jest.MockedFunction<typeof useUnitStore>;
+  const mockUseCustomizerStore = useCustomizerStore as jest.MockedFunction<typeof useCustomizerStore>;
   const mockStoreValues = {
     tonnage: 50,
     engineType: 'Standard Fusion',
@@ -41,13 +43,13 @@ describe('CriticalSlotsTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: unknown): unknown => {
+    mockUseUnitStore.mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
         return (selector as (state: typeof mockStoreValues) => unknown)(mockStoreValues);
       }
       return undefined;
     });
-    (useCustomizerStore as jest.Mock).mockImplementation((selector: unknown): unknown => {
+    mockUseCustomizerStore.mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
         return (selector as (state: typeof mockCustomizerStore) => unknown)(mockCustomizerStore);
       }

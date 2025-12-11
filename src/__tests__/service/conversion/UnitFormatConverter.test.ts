@@ -528,15 +528,16 @@ describe('UnitFormatConverter', () => {
   // ============================================================================
   describe('convert() - Error Handling', () => {
     it('should handle conversion errors gracefully', () => {
-      // Create a unit that might cause issues
-      const source = {
+      // Create a minimal unit to test error handling
+      // Using Partial to indicate intentionally incomplete data
+      const source: Partial<MegaMekLabUnit> = {
         chassis: 'Test',
         model: 'T-1',
         // Minimal fields that might cause issues
-      } as unknown as MegaMekLabUnit;
+      };
       
       // Should not throw
-      expect(() => converter.convert(source)).not.toThrow();
+      expect(() => converter.convert(source as MegaMekLabUnit)).not.toThrow();
     });
 
     it('should capture errors in result', () => {

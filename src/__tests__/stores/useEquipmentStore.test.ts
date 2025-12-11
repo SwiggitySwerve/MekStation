@@ -71,7 +71,7 @@ describe('useEquipmentStore', () => {
       equipment: [],
       isLoading: false,
       error: null,
-      unitContext: { unitYear: null, unitTechBase: null },
+      unitContext: { unitYear: null, unitTechBase: null, unitWeaponIds: [] },
       filters: {
         search: '',
         techBase: null,
@@ -80,6 +80,7 @@ describe('useEquipmentStore', () => {
         showAllCategories: true,
         hidePrototype: false,
         hideOneShot: false,
+        hideAmmoWithoutWeapon: false,
         hideUnavailable: true,
         maxWeight: null,
         maxCriticalSlots: null,

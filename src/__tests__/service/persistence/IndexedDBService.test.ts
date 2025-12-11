@@ -178,14 +178,20 @@ const mockIndexedDBWithTransactions = {
           request.result = db;
           
           if (request.onupgradeneeded) {
+            // Create upgrade event with minimal required properties for testing
+            // The mock target contains result property needed by the upgrade handler
+            const mockTarget = { result: db };
             const upgradeEvent = {
-              target: { result: db },
-            } as unknown as IDBVersionChangeEvent;
+              target: mockTarget,
+              oldVersion: 0,
+              newVersion: dbVersion,
+            };
+            // @ts-expect-error - Partial mock of IDBVersionChangeEvent for testing
             request.onupgradeneeded(upgradeEvent);
           }
         }
         
-        request.result = db;
+        request.result = db ?? null;
         if (request.onsuccess) {
           request.onsuccess(new Event('success'));
         }
@@ -241,7 +247,13 @@ describe('IndexedDBService', () => {
       // Mock a failing open
       const originalOpen = mockIndexedDBWithTransactions.open;
       mockIndexedDBWithTransactions.open = jest.fn(() => {
-        const request = {
+        const request: {
+          result: null;
+          error: Error;
+          onsuccess: ((ev: Event) => void) | null;
+          onerror: ((ev: Event) => void) | null;
+          onupgradeneeded: ((ev: IDBVersionChangeEvent) => void) | null;
+        } = {
           result: null,
           error: new Error('Database error'),
           onsuccess: null,
@@ -450,9 +462,10 @@ describe('IndexedDBService', () => {
       
       const db = mockDatabases.get('battletech-editor');
       if (db) {
+        // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
           objectStore: () => createFailingStore(),
-        })) as MockDatabase['transaction'];
+        }));
       }
 
       await expect(
@@ -465,9 +478,10 @@ describe('IndexedDBService', () => {
       
       const db = mockDatabases.get('battletech-editor');
       if (db) {
+        // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
           objectStore: () => createFailingStore(),
-        })) as MockDatabase['transaction'];
+        }));
       }
 
       await expect(
@@ -480,9 +494,10 @@ describe('IndexedDBService', () => {
       
       const db = mockDatabases.get('battletech-editor');
       if (db) {
+        // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
           objectStore: () => createFailingStore(),
-        })) as MockDatabase['transaction'];
+        }));
       }
 
       await expect(
@@ -495,9 +510,10 @@ describe('IndexedDBService', () => {
       
       const db = mockDatabases.get('battletech-editor');
       if (db) {
+        // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
           objectStore: () => createFailingStore(),
-        })) as MockDatabase['transaction'];
+        }));
       }
 
       await expect(
@@ -510,9 +526,10 @@ describe('IndexedDBService', () => {
       
       const db = mockDatabases.get('battletech-editor');
       if (db) {
+        // @ts-expect-error - Mocking transaction for error testing
         db.transaction = jest.fn(() => ({
           objectStore: () => createFailingStore(),
-        })) as MockDatabase['transaction'];
+        }));
       }
 
       await expect(

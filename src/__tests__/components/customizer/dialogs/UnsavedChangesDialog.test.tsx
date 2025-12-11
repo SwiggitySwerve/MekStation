@@ -66,9 +66,9 @@ describe('UnsavedChangesDialog', () => {
   });
 
   it('should not show Yes button when onSave is not provided', () => {
-    const propsWithoutSave = { ...defaultProps };
-    delete propsWithoutSave.onSave;
-    render(<UnsavedChangesDialog {...propsWithoutSave} />);
+    const { onSave: _omitted, ...propsWithoutSave } = defaultProps;
+    void _omitted;
+    render(<UnsavedChangesDialog {...propsWithoutSave} onSave={undefined} />);
     
     expect(screen.queryByText('Yes')).not.toBeInTheDocument();
     expect(screen.getByText('No')).toBeInTheDocument();

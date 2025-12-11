@@ -15,7 +15,7 @@ import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmen
 // Types
 // =============================================================================
 
-interface CategoryToggleBarProps {
+export interface CategoryToggleBarProps {
   /** Currently active categories */
   activeCategories: Set<EquipmentCategory>;
   /** Called when category is selected. isMultiSelect is true when Ctrl+click. */
@@ -28,7 +28,7 @@ interface CategoryToggleBarProps {
   className?: string;
 }
 
-interface HideToggleBarProps {
+export interface HideToggleBarProps {
   /** Hide prototype equipment */
   hidePrototype: boolean;
   /** Hide one-shot equipment */

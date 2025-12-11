@@ -4,6 +4,10 @@ import {
   calculateCombinedSprintMP,
   getMaxJumpMP,
   calculateEnhancedMaxRunMP,
+  getJumpJetDefinition,
+  calculateJumpJetWeight,
+  calculateJumpJetSlots,
+  validateJumpConfiguration,
   JumpJetType,
   JUMP_JET_DEFINITIONS,
 } from '@/utils/construction/movementCalculations';
@@ -65,6 +69,45 @@ describe('movementCalculations', () => {
     });
   });
 
+  describe('jump jet calculations', () => {
+    it('should return definitions and undefined for unknown type', () => {
+      expect(getJumpJetDefinition(JumpJetType.STANDARD)?.name).toBe('Standard Jump Jet');
+      expect(getJumpJetDefinition('Unknown' as JumpJetType)).toBeUndefined();
+    });
+
+    it('should calculate jump jet weight across all types and fallbacks', () => {
+      expect(calculateJumpJetWeight(90, 2, JumpJetType.STANDARD)).toBe(4); // 2 × 2.0t
+      expect(calculateJumpJetWeight(90, 3, JumpJetType.IMPROVED)).toBe(12); // 3 × 4.0t
+      expect(calculateJumpJetWeight(60, 4, JumpJetType.MECHANICAL)).toBeCloseTo(6); // 4 × (60 × 0.025)
+      expect(calculateJumpJetWeight(45, 2, 'Unknown' as JumpJetType)).toBe(1); // default 0.5t per jump
+    });
+
+    it('should calculate jump jet slots and default to jump MP for unknown types', () => {
+      expect(calculateJumpJetSlots(3, JumpJetType.IMPROVED)).toBe(6);
+      expect(calculateJumpJetSlots(2, 'Unknown' as JumpJetType)).toBe(2);
+    });
+  });
+
+  describe('validateJumpConfiguration()', () => {
+    it('should flag negative jump MP', () => {
+      const result = validateJumpConfiguration(5, -1, JumpJetType.STANDARD);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain('Jump MP cannot be negative');
+    });
+
+    it('should flag jump MP exceeding maximum for the selected jets', () => {
+      const result = validateJumpConfiguration(4, 7, JumpJetType.STANDARD);
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toContain('exceeds maximum');
+    });
+
+    it('should be valid when jump MP is within limits', () => {
+      const result = validateJumpConfiguration(5, 5, JumpJetType.STANDARD);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+  });
+
   describe('calculateEnhancedMaxRunMP()', () => {
     it('should calculate enhanced max run MP with MASC', () => {
       // MASC allows sprint = walkMP * 2
@@ -93,6 +136,11 @@ describe('movementCalculations', () => {
     it('should return undefined for no enhancement', () => {
       expect(calculateEnhancedMaxRunMP(5, null, false)).toBeUndefined();
       expect(calculateEnhancedMaxRunMP(5, undefined, false)).toBeUndefined();
+    });
+
+    it('should handle triple-strength myomer wording', () => {
+      const enhanced = calculateEnhancedMaxRunMP(6, 'Triple-Strength Myomer', false);
+      expect(enhanced).toBe(calculateRunMP(6) + 1);
     });
   });
 

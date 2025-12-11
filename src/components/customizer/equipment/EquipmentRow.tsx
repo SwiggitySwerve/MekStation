@@ -7,7 +7,7 @@
  */
 
 import React, { memo } from 'react';
-import { IEquipmentItem } from '@/types/equipment';
+import { IEquipmentItem, EquipmentCategory, getAllWeapons, IWeapon } from '@/types/equipment';
 import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmentColors';
 
 interface EquipmentRowProps {
@@ -20,20 +20,46 @@ interface EquipmentRowProps {
 }
 
 /**
+ * Get weapon data from equipment item if it's a weapon
+ */
+function getWeaponData(equipment: IEquipmentItem): IWeapon | null {
+  // Check if equipment is a weapon category
+  const isWeaponCategory = 
+    equipment.category === EquipmentCategory.ENERGY_WEAPON ||
+    equipment.category === EquipmentCategory.BALLISTIC_WEAPON ||
+    equipment.category === EquipmentCategory.MISSILE_WEAPON ||
+    equipment.category === EquipmentCategory.ARTILLERY ||
+    equipment.category === EquipmentCategory.CAPITAL_WEAPON ||
+    equipment.category === EquipmentCategory.PHYSICAL_WEAPON;
+  
+  if (!isWeaponCategory) {
+    return null;
+  }
+  
+  // Look up weapon by ID
+  const weapons = getAllWeapons();
+  return weapons.find(w => w.id === equipment.id) ?? null;
+}
+
+/**
  * Format range display (short/medium/long)
  */
 function formatRange(equipment: IEquipmentItem): string {
-  // Check if equipment has range properties - cast through unknown to access weapon-specific properties
-  const equipmentRecord = equipment as unknown as Record<string, unknown>;
-  const rangeShort = equipmentRecord.rangeShort as number | undefined;
-  const rangeMedium = equipmentRecord.rangeMedium as number | undefined;
-  const rangeLong = equipmentRecord.rangeLong as number | undefined;
-  
-  if (rangeShort && rangeMedium && rangeLong) {
-    return `${rangeShort}/${rangeMedium}/${rangeLong}`;
+  const weapon = getWeaponData(equipment);
+  if (!weapon) {
+    return '-';
   }
-  if (rangeLong) {
-    return `${rangeLong}`;
+  
+  const ranges = weapon.ranges;
+  const hasShort = ranges.short !== undefined && ranges.short !== null;
+  const hasMedium = ranges.medium !== undefined && ranges.medium !== null;
+  const hasLong = ranges.long !== undefined && ranges.long !== null;
+
+  if (hasShort && hasMedium && hasLong) {
+    return `${ranges.short}/${ranges.medium}/${ranges.long}`;
+  }
+  if (hasLong) {
+    return `${ranges.long}`;
   }
   return '-';
 }
@@ -42,9 +68,13 @@ function formatRange(equipment: IEquipmentItem): string {
  * Get damage display
  */
 function formatDamage(equipment: IEquipmentItem): string {
-  const damage = (equipment as unknown as Record<string, unknown>).damage as number | undefined;
-  if (damage !== undefined && damage !== null) {
-    return String(damage);
+  const weapon = getWeaponData(equipment);
+  if (!weapon) {
+    return '-';
+  }
+  
+  if (weapon.damage !== undefined && weapon.damage !== null) {
+    return String(weapon.damage);
   }
   return '-';
 }
@@ -53,10 +83,13 @@ function formatDamage(equipment: IEquipmentItem): string {
  * Get heat display
  */
 function formatHeat(equipment: IEquipmentItem): string {
-  // Heat is only on weapon types, access via type cast
-  const heat = (equipment as unknown as Record<string, unknown>).heat as number | undefined;
-  if (heat !== undefined && heat !== null && heat > 0) {
-    return String(heat);
+  const weapon = getWeaponData(equipment);
+  if (!weapon) {
+    return '-';
+  }
+  
+  if (weapon.heat !== undefined && weapon.heat !== null && weapon.heat > 0) {
+    return String(weapon.heat);
   }
   return '-';
 }

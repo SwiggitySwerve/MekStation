@@ -25,13 +25,17 @@ import {
   createTargetingComputerEquipmentList,
   filterOutTargetingComputer,
 } from '@/utils/equipment/equipmentListUtils';
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
+import { ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
+import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 // Mock EquipmentLoaderService - return not loaded so fallbacks are used
@@ -94,6 +98,17 @@ jest.mock('@/services/equipment/EquipmentCalculatorService', () => ({
   },
 }));
 
+const equipmentLoaderMock = getEquipmentLoader as jest.MockedFunction<typeof getEquipmentLoader>;
+
+beforeEach(() => {
+  // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
+  equipmentLoaderMock.mockReturnValue({
+    getIsLoaded: jest.fn(() => false),
+    getMiscEquipmentById: jest.fn(() => null),
+    getElectronicsById: jest.fn(() => null),
+  });
+});
+
 describe('equipmentListUtils', () => {
   describe('Jump Jet Functions', () => {
     it('should get correct jump jet ID for light mech', () => {
@@ -135,13 +150,45 @@ describe('equipmentListUtils', () => {
       expect(list).toHaveLength(0);
     });
 
+    it('should return empty list for negative jump MP', () => {
+      const list = createJumpJetEquipmentList(50, -2, JumpJetType.STANDARD);
+      expect(list).toHaveLength(0);
+    });
+
+    it('should use loader-provided jump jet when data is loaded', () => {
+      const loaderReturn = {
+        getIsLoaded: jest.fn(() => true),
+        getMiscEquipmentById: jest.fn(() => ({
+          id: 'loader-jj',
+          name: 'Loader Jump Jet',
+          category: MiscEquipmentCategory.JUMP_JET,
+          techBase: TechBase.CLAN,
+          rulesLevel: RulesLevel.STANDARD,
+          weight: 1.25,
+          criticalSlots: 1,
+          costCBills: 500,
+          battleValue: 0,
+          introductionYear: 3050,
+        })),
+        getElectronicsById: jest.fn(() => null),
+      };
+      // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
+      equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
+
+      const equip = getJumpJetEquipment(50, JumpJetType.STANDARD);
+      expect(loaderReturn.getMiscEquipmentById).toHaveBeenCalledWith('jump-jet-light');
+      expect(equip?.id).toBe('loader-jj');
+      expect(equip?.techBase).toBe(TechBase.CLAN);
+    });
+
     it('should filter out jump jets', () => {
       const equipment = [
-        { equipmentId: 'jump-jet-light', name: 'Jump Jet' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
-        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' } as { equipmentId: string; name: string },
+        { equipmentId: 'jump-jet-light', name: 'Jump Jet' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
+        { equipmentId: 'jump-jet-medium', name: 'Jump Jet' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutJumpJets(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -166,10 +213,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out internal structure', () => {
       const equipment = [
-        { equipmentId: 'internal-structure-slot-Endo Steel IS', name: 'Endo Steel' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'internal-structure-slot-Endo Steel IS', name: 'Endo Steel' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutInternalStructure(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -203,10 +251,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out armor slots', () => {
       const equipment = [
-        { equipmentId: 'armor-slot-Ferro-Fibrous', name: 'Ferro-Fibrous' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'armor-slot-Ferro-Fibrous', name: 'Ferro-Fibrous' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutArmorSlots(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -242,12 +291,39 @@ describe('equipmentListUtils', () => {
       expect(list).toHaveLength(0);
     });
 
+    it('should use loader-provided heat sink when data is loaded', () => {
+      const loaderReturn = {
+        getIsLoaded: jest.fn(() => true),
+        getMiscEquipmentById: jest.fn(() => ({
+          id: 'loader-dhs',
+          name: 'Loaded DHS',
+          category: MiscEquipmentCategory.HEAT_SINK,
+          techBase: TechBase.CLAN,
+          rulesLevel: RulesLevel.STANDARD,
+          weight: 0.8,
+          criticalSlots: 2,
+          costCBills: 5000,
+          battleValue: 0,
+          introductionYear: 3060,
+        })),
+        getElectronicsById: jest.fn(() => null),
+      };
+      // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
+      equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
+
+      const equip = getHeatSinkEquipment(HeatSinkType.DOUBLE_CLAN);
+      expect(loaderReturn.getMiscEquipmentById).toHaveBeenCalledWith('clan-double-heat-sink');
+      expect(equip?.id).toBe('loader-dhs');
+      expect(equip?.criticalSlots).toBe(2);
+    });
+
     it('should filter out heat sinks', () => {
       const equipment = [
-        { equipmentId: 'double-heat-sink', name: 'DHS' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'double-heat-sink', name: 'DHS' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutHeatSinks(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -287,6 +363,11 @@ describe('equipmentListUtils', () => {
       expect(weight).toBe(0);
     });
 
+    it('should calculate Partial Wing weight', () => {
+      const weight = calculateEnhancementWeight(MovementEnhancementType.PARTIAL_WING, 80, TechBase.INNER_SPHERE, 5);
+      expect(weight).toBeCloseTo(4);
+    });
+
     it('should calculate MASC slots for IS', () => {
       const slots = calculateEnhancementSlots(MovementEnhancementType.MASC, 85, TechBase.INNER_SPHERE, 5);
       expect(slots).toBe(5);
@@ -299,6 +380,11 @@ describe('equipmentListUtils', () => {
 
     it('should calculate TSM slots (6)', () => {
       const slots = calculateEnhancementSlots(MovementEnhancementType.TSM, 85, TechBase.INNER_SPHERE, 5);
+      expect(slots).toBe(6);
+    });
+
+    it('should calculate Partial Wing slots', () => {
+      const slots = calculateEnhancementSlots(MovementEnhancementType.PARTIAL_WING, 80, TechBase.INNER_SPHERE, 5);
       expect(slots).toBe(6);
     });
 
@@ -320,6 +406,15 @@ describe('equipmentListUtils', () => {
       expect(list[0].weight).toBe(0);
     });
 
+    it('should create Supercharger equipment with calculated weight and slots', () => {
+      const list = createEnhancementEquipmentList(MovementEnhancementType.SUPERCHARGER, 85, TechBase.INNER_SPHERE, 10);
+      
+      expect(list).toHaveLength(1);
+      expect(list[0].equipmentId).toBe('supercharger');
+      expect(list[0].criticalSlots).toBe(1);
+      expect(list[0].weight).toBeGreaterThan(0);
+    });
+
     it('should return empty list for null enhancement', () => {
       const list = createEnhancementEquipmentList(null, 85, TechBase.INNER_SPHERE, 5);
       expect(list).toHaveLength(0);
@@ -327,10 +422,11 @@ describe('equipmentListUtils', () => {
 
     it('should filter out enhancement equipment', () => {
       const equipment = [
-        { equipmentId: 'masc', name: 'MASC' } as { equipmentId: string; name: string },
-        { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+        { equipmentId: 'masc', name: 'MASC' },
+        { equipmentId: 'medium-laser', name: 'Medium Laser' },
       ];
       
+      // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
       const filtered = filterOutEnhancementEquipment(equipment);
       expect(filtered).toHaveLength(1);
       expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -412,6 +508,11 @@ describe('equipmentListUtils', () => {
         expect(calculateTargetingComputerWeight(0, TechBase.CLAN)).toBe(0);
       });
 
+    it('should return 0 slots and cost for 0 weapon tonnage', () => {
+      expect(calculateTargetingComputerSlots(0, TechBase.INNER_SPHERE)).toBe(0);
+      expect(calculateTargetingComputerCost(0, TechBase.CLAN)).toBe(0);
+    });
+
       it('should return minimum 1 ton for any positive weapon tonnage', () => {
         expect(calculateTargetingComputerWeight(1, TechBase.INNER_SPHERE)).toBe(1);
         expect(calculateTargetingComputerWeight(1, TechBase.CLAN)).toBe(1);
@@ -450,15 +551,42 @@ describe('equipmentListUtils', () => {
         const list = createTargetingComputerEquipmentList(TechBase.INNER_SPHERE, -5);
         expect(list).toHaveLength(0);
       });
+
+      it('should use loader-provided targeting computer when available', () => {
+        const loaderReturn = {
+          getIsLoaded: jest.fn(() => true),
+          getMiscEquipmentById: jest.fn(() => null),
+          getElectronicsById: jest.fn(() => ({
+            id: 'loader-tc',
+            name: 'Loaded TC',
+            category: ElectronicsCategory.TARGETING,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            weight: 1,
+            criticalSlots: 1,
+            costCBills: 10000,
+            battleValue: 0,
+            introductionYear: 3050,
+          })),
+        };
+        // @ts-expect-error - Partial mock of EquipmentLoaderService for testing
+        equipmentLoaderMock.mockReturnValueOnce(loaderReturn);
+
+        const equip = getTargetingComputerEquipment(TechBase.CLAN);
+        expect(loaderReturn.getElectronicsById).toHaveBeenCalledWith('clan-targeting-computer');
+        expect(equip?.id).toBe('loader-tc');
+        expect(equip?.techBase).toBe(TechBase.CLAN);
+      });
     });
 
     describe('Filter Out Targeting Computer', () => {
       it('should filter out IS targeting computer', () => {
         const equipment = [
-          { equipmentId: 'targeting-computer', name: 'TC' } as { equipmentId: string; name: string },
-          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+          { equipmentId: 'targeting-computer', name: 'TC' },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' },
         ];
         
+        // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
         const filtered = filterOutTargetingComputer(equipment);
         expect(filtered).toHaveLength(1);
         expect(filtered[0].equipmentId).toBe('medium-laser');
@@ -466,10 +594,11 @@ describe('equipmentListUtils', () => {
 
       it('should filter out Clan targeting computer', () => {
         const equipment = [
-          { equipmentId: 'clan-targeting-computer', name: 'Clan TC' } as { equipmentId: string; name: string },
-          { equipmentId: 'medium-laser', name: 'Medium Laser' } as { equipmentId: string; name: string },
+          { equipmentId: 'clan-targeting-computer', name: 'Clan TC' },
+          { equipmentId: 'medium-laser', name: 'Medium Laser' },
         ];
         
+        // @ts-expect-error - Partial mock of IMountedEquipmentInstance for testing
         const filtered = filterOutTargetingComputer(equipment);
         expect(filtered).toHaveLength(1);
         expect(filtered[0].equipmentId).toBe('medium-laser');

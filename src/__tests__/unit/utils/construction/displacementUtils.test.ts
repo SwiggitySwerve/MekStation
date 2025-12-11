@@ -28,9 +28,10 @@ describe('displacementUtils', () => {
     it('should return empty result when no displacement', () => {
       const equipment = [createEquipment()];
       const result = getDisplacedEquipment(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
-        EngineType.STANDARD_FUSION,
+        EngineType.STANDARD,
+        EngineType.STANDARD,
         GyroType.STANDARD,
         GyroType.STANDARD
       );
@@ -42,9 +43,10 @@ describe('displacementUtils', () => {
     it('should detect equipment displaced by engine change', () => {
       const equipment = [createEquipment({ slots: [0, 1] })];
       const result = getDisplacedEquipment(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
-        EngineType.XL_FUSION,
+        EngineType.STANDARD,
+        EngineType.XL_IS,
         GyroType.STANDARD,
         GyroType.STANDARD
       );
@@ -56,9 +58,10 @@ describe('displacementUtils', () => {
     it('should detect equipment displaced by gyro change', () => {
       const equipment = [createEquipment({ slots: [3, 4] })];
       const result = getDisplacedEquipment(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
-        EngineType.STANDARD_FUSION,
+        EngineType.STANDARD,
+        EngineType.STANDARD,
         GyroType.STANDARD,
         GyroType.COMPACT
       );
@@ -69,9 +72,10 @@ describe('displacementUtils', () => {
     it('should include affected locations', () => {
       const equipment = [createEquipment({ location: MechLocation.CENTER_TORSO })];
       const result = getDisplacedEquipment(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
-        EngineType.XL_FUSION,
+        EngineType.STANDARD,
+        EngineType.XL_IS,
         GyroType.STANDARD,
         GyroType.STANDARD
       );
@@ -84,9 +88,10 @@ describe('displacementUtils', () => {
     it('should detect equipment displaced by engine change', () => {
       const equipment = [createEquipment()];
       const result = getEquipmentDisplacedByEngineChange(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
-        EngineType.XL_FUSION,
+        EngineType.STANDARD,
+        EngineType.XL_IS,
         GyroType.STANDARD
       );
 
@@ -99,8 +104,9 @@ describe('displacementUtils', () => {
     it('should detect equipment displaced by gyro change', () => {
       const equipment = [createEquipment()];
       const result = getEquipmentDisplacedByGyroChange(
+        // @ts-expect-error - MockEquipment is partial for testing
         equipment,
-        EngineType.STANDARD_FUSION,
+        EngineType.STANDARD,
         GyroType.STANDARD,
         GyroType.COMPACT
       );
@@ -113,7 +119,8 @@ describe('displacementUtils', () => {
   describe('applyDisplacement()', () => {
     it('should return original equipment when no displacement', () => {
       const equipment = [createEquipment()];
-      const result = applyDisplacement(equipment, []);
+      // @ts-expect-error - MockEquipment is partial for testing
+      const result = applyDisplacement(equipment as Parameters<typeof applyDisplacement>[0], []);
 
       expect(result).toEqual(equipment);
     });
@@ -123,6 +130,7 @@ describe('displacementUtils', () => {
         createEquipment({ instanceId: 'equip-1' }),
         createEquipment({ instanceId: 'equip-2' }),
       ];
+      // @ts-expect-error - MockEquipment is partial for testing
       const result = applyDisplacement(equipment, ['equip-1']);
 
       expect(result[0].location).toBeUndefined();
@@ -136,6 +144,7 @@ describe('displacementUtils', () => {
         createEquipment({ instanceId: 'equip-2' }),
         createEquipment({ instanceId: 'equip-3' }),
       ];
+      // @ts-expect-error - MockEquipment is partial for testing
       const result = applyDisplacement(equipment, ['equip-1', 'equip-3']);
 
       expect(result[0].location).toBeUndefined();

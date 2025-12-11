@@ -8,10 +8,12 @@ import {
 import { CURRENT_FORMAT_VERSION } from '@/types/unit/UnitSerialization';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import { MechConfiguration, IBattleMech } from '@/types/unit/BattleMechInterfaces';
 
 describe('UnitSerializer', () => {
-  const createMockUnit = (overrides?: Record<string, unknown>) => ({
+  // Helper to create partial IBattleMech mocks for testing
+  // @ts-expect-error - Partial mock of IBattleMech for testing
+  const createMockUnit = (overrides?: Record<string, unknown>): IBattleMech => ({
     id: 'test-unit',
     unitType: 'BattleMech',
     configuration: MechConfiguration.BIPED,
@@ -65,7 +67,7 @@ describe('UnitSerializer', () => {
     equipment: [],
     criticalSlots: [],
     ...overrides,
-  });
+  }) as IBattleMech;
 
   describe('serializeUnit()', () => {
     it('should serialize unit to JSON', () => {
@@ -132,8 +134,88 @@ describe('UnitSerializer', () => {
       }
     });
 
+    it('should serialize equipment and critical slots', () => {
+      const unit = createMockUnit({
+        equipment: [
+          {
+            equipmentId: 'medium-laser',
+            location: 'RA',
+            slots: [0, 1],
+            isRearMounted: true,
+            linkedAmmoId: 'ml-ammo',
+          },
+          {
+            equipmentId: 'small-laser',
+            location: 'LA',
+            slots: [2],
+            isRearMounted: false,
+          },
+        ],
+        criticalSlots: [
+          {
+            location: 'RA',
+            slots: [
+              { content: { name: 'Medium Laser' } },
+              { content: null },
+            ],
+          },
+        ],
+        quirks: ['Nimble Jumper'],
+        movement: {
+          walkMP: 5,
+          jumpMP: 2,
+          jumpJetType: null,
+          hasMASC: true,
+          hasSupercharger: true,
+          hasTSM: true,
+        },
+      });
+
+      const result = serializeUnit(unit);
+      expect(result.success).toBe(true);
+      if (result.success && result.data) {
+        type SerializedUnitEnvelope = {
+          unit: {
+            equipment: Array<{
+              id: string;
+              location?: string;
+              slots?: number[];
+              isRearMounted?: boolean;
+              linkedAmmo?: string;
+            }>;
+            criticalSlots: Record<string, Array<string | null>>;
+            quirks?: string[];
+            movement: {
+              enhancements?: string[];
+            };
+          };
+        };
+
+        const envelope = JSON.parse(result.data) as SerializedUnitEnvelope;
+
+        expect(envelope.unit.equipment[0]).toMatchObject({
+          id: 'medium-laser',
+          location: 'RA',
+          slots: [0, 1],
+          isRearMounted: true,
+          linkedAmmo: 'ml-ammo',
+        });
+        expect(envelope.unit.equipment[1]).toMatchObject({
+          id: 'small-laser',
+          location: 'LA',
+        });
+        expect(envelope.unit.equipment[1].isRearMounted).toBeUndefined();
+        expect(envelope.unit.criticalSlots.RA).toEqual(['Medium Laser', null]);
+        expect(envelope.unit.quirks?.[0]).toBe('Nimble Jumper');
+        expect(envelope.unit.movement.enhancements).toEqual(
+          expect.arrayContaining(['MASC', 'Supercharger', 'TSM'])
+        );
+      }
+    });
+
     it('should handle errors during serialization', () => {
       const invalidUnit = null as unknown;
+      // @ts-expect-error - Testing error handling with invalid input
       const result = serializeUnit(invalidUnit);
       
       expect(result.success).toBe(false);
@@ -155,6 +237,27 @@ describe('UnitSerializer', () => {
     it('should reject invalid JSON', () => {
       const validation = validateSerializedFormat('invalid json');
       expect(validation.isValid).toBe(false);
+    });
+
+    it('should flag missing unit fields', () => {
+      const envelope = {
+        formatVersion: CURRENT_FORMAT_VERSION,
+        application: { name: 'Test', version: '1.0.0' },
+        unit: {},
+      };
+      const validation = validateSerializedFormat(JSON.stringify(envelope));
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toEqual(
+        expect.arrayContaining([
+          'Missing unit.chassis',
+          'Missing unit.model',
+          'Missing unit.unitType',
+          'Missing unit.tonnage',
+          'Missing unit.engine',
+          'Missing unit.armor',
+        ])
+      );
     });
 
     it('should reject missing envelope', () => {
@@ -248,6 +351,53 @@ describe('UnitSerializer', () => {
         const version = serializer.getFormatVersion(serialized.data);
         expect(version).toBe(CURRENT_FORMAT_VERSION);
       }
+    });
+
+    it('should return validation errors for malformed payloads', () => {
+      const serializer = createUnitSerializer();
+      const malformed = { formatVersion: CURRENT_FORMAT_VERSION };
+      const result = serializer.deserialize(JSON.stringify(malformed));
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toContain('Missing unit field');
+    });
+
+    it('should reject unsupported format versions during deserialize', () => {
+      const serializer = createUnitSerializer();
+      const envelope = {
+        formatVersion: '99.0.0',
+        unit: {
+          chassis: 'Test',
+          model: 'TST',
+          unitType: 'BattleMech',
+          tonnage: 50,
+          engine: { type: 'Standard', rating: 250 },
+          armor: { type: 'Standard' },
+        },
+      };
+
+      const result = serializer.deserialize(JSON.stringify(envelope));
+      expect(result.success).toBe(false);
+      expect(result.errors[0]).toContain('Unsupported format version');
+    });
+
+    it('should return not implemented result for valid payloads', () => {
+      const serializer = createUnitSerializer();
+      const envelope = {
+        formatVersion: CURRENT_FORMAT_VERSION,
+        unit: {
+          chassis: 'Test',
+          model: 'TST',
+          unitType: 'BattleMech',
+          tonnage: 50,
+          engine: { type: 'Standard', rating: 250 },
+          armor: { type: 'Standard' },
+        },
+      };
+
+      const result = serializer.deserialize(JSON.stringify(envelope));
+      expect(result.success).toBe(false);
+      expect(result.errors[0]).toContain('Deserialization not yet implemented');
     });
   });
 });

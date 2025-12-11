@@ -145,11 +145,20 @@ export type MenuCommand =
   | 'help:about' | 'help:check-updates' | 'help:documentation' | 'help:report-issue';
 
 /**
+ * Extend Window interface to include electronAPI
+ */
+declare global {
+  interface Window {
+    electronAPI?: IElectronAPI;
+  }
+}
+
+/**
  * Get the electron API if available
  */
 function getElectronAPI(): IElectronAPI | null {
   if (typeof window !== 'undefined' && 'electronAPI' in window) {
-    return (window as unknown as { electronAPI: IElectronAPI }).electronAPI;
+    return window.electronAPI ?? null;
   }
   return null;
 }

@@ -244,12 +244,21 @@ export class RecordSheetService {
   print(canvas: HTMLCanvasElement): void {
     const dataUrl = canvas.toDataURL('image/png');
     
-    const printWindow = window.open('', '_blank') as unknown as Window | null;
+    const printWindow = window.open('', '_blank');
     if (!printWindow) {
       throw new Error('Could not open print window. Check popup blocker settings.');
     }
 
-    printWindow.document.write(`
+    // After null check, printWindow is a Window object
+    // In browser context, window.open returns a Window with document property
+    // Access document property - it exists in browser context after window.open
+    // TypeScript needs help here because the Window type doesn't always include document
+    const windowDoc = (printWindow as { document?: Document }).document;
+    if (!windowDoc) {
+      throw new Error('Print window does not have document access');
+    }
+
+    windowDoc.write(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -269,7 +278,7 @@ export class RecordSheetService {
         </body>
       </html>
     `);
-    printWindow.document.close();
+    windowDoc.close();
   }
 
   /**

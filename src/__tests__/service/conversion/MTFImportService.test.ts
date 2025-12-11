@@ -229,9 +229,12 @@ describe('MTFImportService', () => {
     });
 
     it('should detect missing required fields', () => {
-      const invalidUnit = { ...validUnit, id: undefined } as unknown as ISerializedUnit;
+      // Create unit with missing id using Partial to indicate incomplete type
+      const { id: _removed, ...unitWithoutId } = validUnit;
+      void _removed;
+      const invalidUnit: Partial<ISerializedUnit> = unitWithoutId;
       
-      const result = service.importFromJSON(invalidUnit);
+      const result = service.importFromJSON(invalidUnit as ISerializedUnit);
       
       expect(result.errors).toContain('Missing required field: id');
     });
@@ -249,9 +252,12 @@ describe('MTFImportService', () => {
     });
 
     it('should fail in strict mode with any errors', () => {
-      const invalidUnit = { ...validUnit, id: undefined } as unknown as ISerializedUnit;
+      // Create unit with missing id using destructuring
+      const { id: _removed, ...unitWithoutId } = validUnit;
+      void _removed;
+      const invalidUnit: Partial<ISerializedUnit> = unitWithoutId;
       
-      const result = service.importFromJSON(invalidUnit, { strictMode: true });
+      const result = service.importFromJSON(invalidUnit as ISerializedUnit, { strictMode: true });
       
       expect(result.success).toBe(false);
     });
@@ -293,13 +299,13 @@ describe('MTFImportService', () => {
     });
 
     it('should handle thrown exceptions', () => {
-      // Create a unit that will cause an exception during processing
-      const badUnit = {
+      // Create a minimal unit with missing required fields to trigger validation
+      const badUnit: Partial<ISerializedUnit> = {
         id: 'test',
-        // Missing most fields will trigger exception
-      } as unknown as ISerializedUnit;
+        // Missing most fields will trigger validation errors
+      };
 
-      const result = service.importFromJSON(badUnit);
+      const result = service.importFromJSON(badUnit as ISerializedUnit);
       
       expect(result.success).toBe(false);
     });

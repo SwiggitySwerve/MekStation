@@ -8,7 +8,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { canonicalUnitService } from './CanonicalUnitService';
+import { canonicalUnitService, IFullUnit } from './CanonicalUnitService';
 import { customUnitApiService } from './CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { TechBase } from '@/types/enums/TechBase';
@@ -97,6 +97,24 @@ export interface ILoadUnitResult {
   readonly success: boolean;
   readonly state?: UnitState;
   readonly error?: string;
+}
+
+// =============================================================================
+// Type Guards
+// =============================================================================
+
+/**
+ * Check if IFullUnit has the structure of ISerializedUnit
+ * Since IFullUnit has [key: string]: unknown, we can check if it matches ISerializedUnit structure
+ */
+function hasSerializedUnitStructure(data: IFullUnit): boolean {
+  // Check required fields for ISerializedUnit
+  return (
+    typeof data.id === 'string' &&
+    typeof data.chassis === 'string' &&
+    typeof data.techBase === 'string' &&
+    typeof data.tonnage === 'number'
+  );
 }
 
 // =============================================================================
@@ -357,6 +375,42 @@ function mapMechLocation(locationStr: string): MechLocation | undefined {
 }
 
 /**
+ * Set armor value for a specific location in IArmorAllocation
+ */
+function setArmorValue(
+  result: IArmorAllocation,
+  location: MechLocation,
+  value: number
+): void {
+  switch (location) {
+    case MechLocation.HEAD:
+      result[MechLocation.HEAD] = value;
+      break;
+    case MechLocation.CENTER_TORSO:
+      result[MechLocation.CENTER_TORSO] = value;
+      break;
+    case MechLocation.LEFT_TORSO:
+      result[MechLocation.LEFT_TORSO] = value;
+      break;
+    case MechLocation.RIGHT_TORSO:
+      result[MechLocation.RIGHT_TORSO] = value;
+      break;
+    case MechLocation.LEFT_ARM:
+      result[MechLocation.LEFT_ARM] = value;
+      break;
+    case MechLocation.RIGHT_ARM:
+      result[MechLocation.RIGHT_ARM] = value;
+      break;
+    case MechLocation.LEFT_LEG:
+      result[MechLocation.LEFT_LEG] = value;
+      break;
+    case MechLocation.RIGHT_LEG:
+      result[MechLocation.RIGHT_LEG] = value;
+      break;
+  }
+}
+
+/**
  * Map armor allocation from JSON format to IArmorAllocation
  */
 function mapArmorAllocation(
@@ -371,24 +425,24 @@ function mapArmorAllocation(
   for (const [locationKey, value] of Object.entries(allocation)) {
     const location = mapMechLocation(locationKey);
     
+    if (location === undefined) {
+      continue;
+    }
+    
     if (typeof value === 'number') {
       // Simple number - direct armor value
-      if (location !== undefined) {
-        (result as unknown as Record<string, number>)[location] = value;
-      }
-    } else if (typeof value === 'object' && 'front' in value) {
+      setArmorValue(result, location, value);
+    } else if (typeof value === 'object' && value !== null && 'front' in value && 'rear' in value) {
       // Object with front/rear
-      if (location !== undefined) {
-        (result as unknown as Record<string, number>)[location] = value.front;
-        
-        // Map rear armor
-        if (location === MechLocation.CENTER_TORSO) {
-          result.centerTorsoRear = value.rear;
-        } else if (location === MechLocation.LEFT_TORSO) {
-          result.leftTorsoRear = value.rear;
-        } else if (location === MechLocation.RIGHT_TORSO) {
-          result.rightTorsoRear = value.rear;
-        }
+      setArmorValue(result, location, value.front);
+      
+      // Map rear armor
+      if (location === MechLocation.CENTER_TORSO) {
+        result.centerTorsoRear = value.rear;
+      } else if (location === MechLocation.LEFT_TORSO) {
+        result.leftTorsoRear = value.rear;
+      } else if (location === MechLocation.RIGHT_TORSO) {
+        result.rightTorsoRear = value.rear;
       }
     }
   }
@@ -535,7 +589,13 @@ export class UnitLoaderService {
       
       // Custom units may already be in UnitState format (saved from customizer)
       // or in serialized format (imported)
-      const state = this.mapToUnitState(fullUnit as unknown as ISerializedUnit, false);
+      // IFullUnit has [key: string]: unknown, so we can use it as ISerializedUnit if it has the right structure
+      if (!hasSerializedUnitStructure(fullUnit)) {
+        return { success: false, error: 'Custom unit data is not in serialized format' };
+      }
+      // Type assertion is safe here because we've verified the structure matches ISerializedUnit
+      // and IFullUnit's index signature [key: string]: unknown makes it compatible
+      const state = this.mapToUnitState(fullUnit as ISerializedUnit, false);
       return { success: true, state };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load custom unit';

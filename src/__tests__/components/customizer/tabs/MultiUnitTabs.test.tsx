@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
-import { useTabManagerStore } from '@/stores/useTabManagerStore';
+import { useTabManagerStore, TabManagerState, TabInfo } from '@/stores/useTabManagerStore';
 import { useRouter } from 'next/router';
+import { TechBase } from '@/types/enums/TechBase';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -34,15 +35,21 @@ jest.mock('@/components/customizer/dialogs/UnitLoadDialog', () => ({
 }));
 
 describe('MultiUnitTabs', () => {
+  const mockUseTabManagerStore = useTabManagerStore as jest.MockedFunction<typeof useTabManagerStore>;
   const mockRouter = {
     push: jest.fn(),
     query: {},
   };
 
-  const mockTabManager = {
-    tabs: [
-      { id: 'tab-1', name: 'Atlas AS7-D', isModified: false },
-    ],
+  const mockTab: TabInfo = {
+    id: 'tab-1',
+    name: 'Atlas AS7-D',
+    tonnage: 100,
+    techBase: TechBase.INNER_SPHERE,
+  };
+
+  const mockTabManager: TabManagerState = {
+    tabs: [mockTab],
     activeTabId: 'tab-1',
     isLoading: false,
     isNewTabModalOpen: false,
@@ -50,14 +57,19 @@ describe('MultiUnitTabs', () => {
     closeTab: jest.fn(),
     renameTab: jest.fn(),
     createTab: jest.fn(),
+    duplicateTab: jest.fn(),
+    reorderTabs: jest.fn(),
+    addTab: jest.fn(),
     openNewTabModal: jest.fn(),
     closeNewTabModal: jest.fn(),
+    getActiveTab: jest.fn(() => mockTab),
+    setLoading: jest.fn(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
+    mockUseTabManagerStore.mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockTabManager);
       }
@@ -78,7 +90,7 @@ describe('MultiUnitTabs', () => {
   });
 
   it('should render new tab modal when open', () => {
-    (useTabManagerStore as jest.Mock).mockImplementation((selector: (state: typeof mockTabManager & { isNewTabModalOpen: boolean }) => unknown) => {
+    mockUseTabManagerStore.mockImplementation((selector: (state: typeof mockTabManager & { isNewTabModalOpen: boolean }) => unknown) => {
       if (typeof selector === 'function') {
         return selector({ ...mockTabManager, isNewTabModalOpen: true });
       }

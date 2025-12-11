@@ -12,24 +12,25 @@ describe('FileService', () => {
     
     // Mock DOM APIs
     mockClick = jest.fn();
-    const mockAnchor = {
+    // Create mock anchor with minimal properties needed for testing
+    const mockAnchor: Partial<HTMLAnchorElement> = {
       href: '',
       download: '',
       click: mockClick,
     };
+    const mockAnchorElement = mockAnchor as HTMLAnchorElement;
     
-    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor as unknown as HTMLElement);
-    mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation();
-    mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation();
+    // @ts-expect-error - Mocking createElement for test purposes
+    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchorElement);
+    jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchorElement);
+    jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchorElement);
     
     // Mock URL methods
     const urlMock = {
       createObjectURL: jest.fn().mockReturnValue('blob:mock-url'),
       revokeObjectURL: jest.fn(),
     };
-    // @ts-expect-error - Mocking URL methods
     global.URL.createObjectURL = urlMock.createObjectURL;
-    // @ts-expect-error - Mocking URL methods
     global.URL.revokeObjectURL = urlMock.revokeObjectURL;
     mockCreateObjectURL = urlMock.createObjectURL;
     mockRevokeObjectURL = urlMock.revokeObjectURL;
@@ -174,16 +175,19 @@ describe('FileService', () => {
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
       
-      // Mock FileReader to fail
+      // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
-      global.FileReader = jest.fn().mockImplementation(() => ({
-        readAsText: jest.fn(function(this: FileReader) {
+      class MockFileReaderError {
+        onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
+        readAsText(): void {
           setTimeout(() => {
-            // @ts-expect-error - accessing private property for testing
-            this.onerror?.(new Error('Read error'));
+            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            this.onerror?.(event);
           }, 0);
-        }),
-      })) as unknown as typeof FileReader;
+        }
+      }
+      // @ts-expect-error - Mocking FileReader class for error testing
+      global.FileReader = MockFileReaderError;
 
       const result = await service.importUnit(file);
 
@@ -316,16 +320,19 @@ describe('FileService', () => {
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
       
-      // Mock FileReader to fail
+      // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
-      global.FileReader = jest.fn().mockImplementation(() => ({
-        readAsText: jest.fn(function(this: FileReader) {
+      class MockFileReaderValidateError {
+        onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
+        readAsText(): void {
           setTimeout(() => {
-            // @ts-expect-error - accessing private property for testing
-            this.onerror?.(new Error('Read error'));
+            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            this.onerror?.(event);
           }, 0);
-        }),
-      })) as unknown as typeof FileReader;
+        }
+      }
+      // @ts-expect-error - Mocking FileReader class for error testing
+      global.FileReader = MockFileReaderValidateError;
 
       const result = await service.validateFile(file);
 

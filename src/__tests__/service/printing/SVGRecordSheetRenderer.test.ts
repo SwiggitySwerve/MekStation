@@ -15,6 +15,7 @@ import {
   IRecordSheetHeatSinks,
   ILocationCriticals,
 } from '@/types/printing';
+import { createDOMMock } from '../../helpers';
 
 // Mock fetch for template loading
 const mockSVGContent = `
@@ -77,13 +78,13 @@ const mockContext = {
   fillRect: jest.fn(),
 };
 
-// Mock canvas
-const mockCanvas = {
+// Mock canvas using DOM mock helper
+const mockCanvas = createDOMMock<HTMLCanvasElement>({
   width: 612,
   height: 792,
   getContext: jest.fn().mockReturnValue(mockContext),
   toDataURL: jest.fn().mockReturnValue('data:image/png;base64,test'),
-} as unknown as HTMLCanvasElement;
+});
 
 // Create mock record sheet data
 const createMockData = (overrides: Partial<IRecordSheetData> = {}): IRecordSheetData => ({
@@ -120,6 +121,7 @@ const createMockData = (overrides: Partial<IRecordSheetData> = {}): IRecordSheet
       { location: 'Right Leg', abbreviation: 'RL', current: 41, maximum: 42 },
     ],
   } as IRecordSheetArmor,
+  // @ts-expect-error - Partial mock of IRecordSheetStructure for testing
   structure: {
     type: 'Standard',
     locations: [
@@ -309,11 +311,11 @@ describe('SVGRecordSheetRenderer', () => {
         return mockImage;
       });
       
-      const highDPICanvas = {
+      const highDPICanvas = createDOMMock<HTMLCanvasElement>({
         ...mockCanvas,
         width: 612 * 3,
         height: 792 * 3,
-      } as unknown as HTMLCanvasElement;
+      });
       
       await renderer.renderToCanvasHighDPI(highDPICanvas, 3);
       

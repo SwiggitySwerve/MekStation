@@ -4,9 +4,9 @@
 import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@/pages/api/units/custom';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getUnitRepository } from '@/services/units/UnitRepository';
-import { parseErrorResponse, parseApiResponse, parseUnitListResponse } from '../../../helpers';
+import { getSQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
+import { getUnitRepository, UnitRepository } from '@/services/units/UnitRepository';
+import { parseErrorResponse, parseApiResponse, parseUnitListResponse, createMock } from '../../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
@@ -39,11 +39,14 @@ describe('/api/units/custom', () => {
       create: jest.fn(),
     };
     
-    mockSQLiteService.mockReturnValue({
+    mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
       initialize: jest.fn(),
-    } as ReturnType<typeof getSQLiteService>);
+      getDatabase: jest.fn(),
+      close: jest.fn(),
+      isInitialized: jest.fn().mockReturnValue(true),
+    }));
     
-    mockGetUnitRepository.mockReturnValue(mockUnitRepository as unknown as ReturnType<typeof getUnitRepository>);
+    mockGetUnitRepository.mockReturnValue(createMock<UnitRepository>(mockUnitRepository));
   });
 
   describe('Method validation', () => {
@@ -253,11 +256,14 @@ describe('/api/units/custom', () => {
 
   describe('Database initialization', () => {
     it('should handle database initialization errors', async () => {
-      mockSQLiteService.mockReturnValue({
+      mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
         initialize: jest.fn(() => {
           throw new Error('Database init failed');
         }),
-      } as ReturnType<typeof getSQLiteService>);
+        getDatabase: jest.fn(),
+        close: jest.fn(),
+        isInitialized: jest.fn().mockReturnValue(false),
+      }));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'GET',

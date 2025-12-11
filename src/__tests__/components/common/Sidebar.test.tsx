@@ -10,21 +10,20 @@ import Sidebar from '@/components/common/Sidebar';
 jest.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ children, href, legacyBehavior }: { children: React.ReactNode | ((props: { href: string }) => React.ReactNode); href: string; legacyBehavior?: boolean }) => {
+    default: ({ children, href, legacyBehavior }: { children: React.ReactNode | ((props: { href: string }) => React.ReactNode); href: string; legacyBehavior?: boolean }): React.ReactElement => {
+      // Normalize children so TypeScript sees a ReactNode before rendering
+      const resolvedChildren = typeof children === 'function' ? children({ href }) : children;
+
       if (legacyBehavior) {
         // For legacyBehavior, children can be a function or React element
-        // If it's a function, call it with href prop
-        if (typeof children === 'function') {
-          return children({ href });
+        if (React.isValidElement(resolvedChildren)) {
+          return React.cloneElement(resolvedChildren as React.ReactElement<{ href?: string }>, { href });
         }
-        // If it's an element (like <a>), clone it and add href
-        if (React.isValidElement(children)) {
-          return React.cloneElement(children, { href });
-        }
-        return children;
+        return <>{resolvedChildren}</>;
       }
+
       // For non-legacy, wrap children in anchor
-      return <a href={href}>{children}</a>;
+      return <a href={href}>{resolvedChildren}</a>;
     },
   };
 });
@@ -43,7 +42,7 @@ describe('Sidebar', () => {
     it('should render sidebar', () => {
       render(<Sidebar {...defaultProps} />);
 
-      expect(screen.getByText('BattleTech')).toBeInTheDocument();
+      expect(screen.getByText('Mek Lab')).toBeInTheDocument();
     });
 
     it('should render navigation items', () => {
@@ -68,7 +67,7 @@ describe('Sidebar', () => {
     it('should hide title when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('BattleTech')).not.toBeInTheDocument();
+      expect(screen.queryByText('Mek Lab')).not.toBeInTheDocument();
     });
 
     it('should hide nav labels when collapsed', () => {
@@ -95,7 +94,7 @@ describe('Sidebar', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('w-40');
+      expect(sidebar).toHaveClass('w-52');
     });
   });
 

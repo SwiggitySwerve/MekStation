@@ -87,7 +87,8 @@ describe('UnitLoaderService', () => {
         updatedAt: '2024-01-02',
       };
 
-      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as IFullUnit);
+      // @ts-expect-error - Partial mock of IFullUnit for testing
+      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit);
 
       const result = await service.loadCustomUnit('custom-1');
 
@@ -142,7 +143,8 @@ describe('UnitLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
 
-      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit as IFullUnit);
+      // @ts-expect-error - Partial mock of IFullUnit for testing
+      mockCustomUnitApiService.getById.mockResolvedValue(mockUnit);
 
       const result = await service.loadUnit('custom-1', 'custom');
 
@@ -248,6 +250,7 @@ describe('UnitLoaderService', () => {
 
     it('should use default heat sink count if not provided', () => {
       const serialized = createMockSerializedUnit({
+        // @ts-expect-error - Testing default value behavior with missing count
         heatSinks: { type: 'Single' },
       });
       const state = service.mapToUnitState(serialized, true);
@@ -293,7 +296,8 @@ describe('UnitLoaderService', () => {
         techBase: TechBase.INNER_SPHERE,
       };
 
-      mockEquipmentLookupService.getById.mockReturnValue(mockEquipment as ReturnType<typeof mockEquipmentLookupService.getById>);
+      // @ts-expect-error - Partial mock of IEquipmentItem for testing
+      mockEquipmentLookupService.getById.mockReturnValue(mockEquipment);
 
       const serialized = createMockSerializedUnit({
         equipment: [

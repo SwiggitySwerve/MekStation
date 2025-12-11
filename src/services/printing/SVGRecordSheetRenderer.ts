@@ -137,12 +137,23 @@ export class SVGRecordSheetRenderer {
     
     const parser = new DOMParser();
     this.svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-    this.svgRoot = this.svgDoc.documentElement as unknown as SVGSVGElement;
     
-    // Check for parse errors
+    // Check for parse errors first
     const parseError = this.svgDoc.querySelector('parsererror');
     if (parseError) {
       throw new Error(`Failed to parse SVG template: ${parseError.textContent}`);
+    }
+    
+    // Verify documentElement is an SVG element
+    const docElement = this.svgDoc.documentElement;
+    if (
+      docElement.tagName === 'svg' &&
+      docElement.namespaceURI === SVG_NS &&
+      docElement instanceof SVGSVGElement
+    ) {
+      this.svgRoot = docElement;
+    } else {
+      throw new Error('SVG template root element is not a valid SVGSVGElement');
     }
     
     // Add margins around the document

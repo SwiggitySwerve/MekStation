@@ -1,8 +1,9 @@
 import { MigrationService } from '@/services/persistence/MigrationService';
 import { indexedDBService, STORES } from '@/services/persistence/IndexedDBService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getUnitRepository } from '@/services/units/UnitRepository';
+import { getSQLiteService, ISQLiteService } from '@/services/persistence/SQLiteService';
+import { getUnitRepository, IUnitRepository } from '@/services/units/UnitRepository';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
+import { createMock } from '../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/IndexedDBService');
@@ -29,14 +30,16 @@ describe('MigrationService', () => {
     mockIndexedDBService.getAll.mockResolvedValue([]);
     mockIndexedDBService.clear.mockResolvedValue();
     
-    mockSQLiteService.mockReturnValue({
+    // @ts-expect-error - Returning interface mock instead of class instance for testing
+    mockSQLiteService.mockReturnValue(createMock<ISQLiteService>({
       initialize: jest.fn(),
-    } as unknown as ReturnType<typeof mockSQLiteService>);
+    }));
     
-    mockUnitRepository.mockReturnValue({
+    // @ts-expect-error - Returning interface mock instead of class instance for testing
+    mockUnitRepository.mockReturnValue(createMock<IUnitRepository>({
       findByName: jest.fn(),
       create: jest.fn(),
-    } as unknown as ReturnType<typeof mockUnitRepository>);
+    }));
   });
 
   describe('hasIndexedDBData', () => {
@@ -99,7 +102,8 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null), // Unit doesn't exist
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       const result = await service.migrateToSQLite(mockProgressCallback);
       
@@ -128,7 +132,8 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue({ id: 'existing' }), // Unit exists
         create: jest.fn(),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       const result = await service.migrateToSQLite();
       
@@ -152,7 +157,8 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       const result = await service.migrateToSQLite();
       
@@ -181,7 +187,8 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: false, error: 'Creation failed' }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       const result = await service.migrateToSQLite();
       
@@ -210,7 +217,8 @@ describe('MigrationService', () => {
         }),
         create: jest.fn(),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       const result = await service.migrateToSQLite();
       
@@ -253,7 +261,8 @@ describe('MigrationService', () => {
         findByName: jest.fn().mockReturnValue(null),
         create: jest.fn().mockReturnValue({ success: true }),
       };
-      mockUnitRepository.mockReturnValue(mockRepo as unknown as ReturnType<typeof mockUnitRepository>);
+      // @ts-expect-error - Returning interface mock instead of class instance for testing
+      mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));
       
       await service.migrateToSQLite(mockProgressCallback);
       

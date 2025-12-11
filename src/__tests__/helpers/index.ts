@@ -34,6 +34,8 @@ export {
   parseCategoryResponse,
   isApiError,
   isApiSuccess,
+  createMock,
+  createDOMMock,
   type ApiResponse,
   type ApiSuccessResponse,
   type ApiErrorResponse,
@@ -44,4 +46,6 @@ export {
   type FilterItem,
   type FilterResponse,
   type CategoryResponse,
+  type MockImplementation,
+  type PartialMock,
 } from './apiTestHelpers';

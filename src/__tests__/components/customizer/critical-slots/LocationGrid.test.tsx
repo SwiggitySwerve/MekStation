@@ -17,6 +17,7 @@ describe('LocationGrid', () => {
   const defaultProps = {
     location: MechLocation.HEAD,
     data: {
+      location: MechLocation.HEAD,
       slots: [],
     },
     assignableSlots: [],
@@ -45,6 +46,7 @@ describe('LocationGrid', () => {
 
   it('should render slots with equipment', () => {
     const data = {
+      location: MechLocation.HEAD,
       slots: [
         { index: 0, type: 'equipment' as const, equipmentId: 'equip-1', equipmentName: 'Medium Laser' },
       ],
@@ -74,6 +76,7 @@ describe('LocationGrid', () => {
 
   it('should highlight selected equipment', () => {
     const data = {
+      location: MechLocation.HEAD,
       slots: [
         { index: 0, type: 'equipment' as const, equipmentId: 'equip-1', equipmentName: 'Medium Laser' },
       ],
