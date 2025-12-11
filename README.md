@@ -1,6 +1,6 @@
 # MekStation
 
-MekStation is a spec-driven BattleTech unit construction app built with Next.js, React, and TypeScript. It mirrors TechManual construction rules with OpenSpec as the source of truth.
+MekStation is a spec-driven BattleTech unit construction app (Next.js + React + TypeScript) that implements TechManual construction rules with OpenSpec as the single source of truth.
 
 ## Quick Start
 
