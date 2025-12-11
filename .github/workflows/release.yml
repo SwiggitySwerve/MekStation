@@ -24,6 +24,7 @@ jobs:
     outputs:
       tag: ${{ steps.resolve_tag.outputs.tag }}
       ref: ${{ steps.resolve_tag.outputs.ref }}
+      prev_tag: ${{ steps.resolve_tag.outputs.prev_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,12 +37,13 @@ jobs:
           set -euo pipefail
           TAG_INPUT="${{ inputs.release_tag }}"
 
+          git fetch --tags
+
           if [ -n "$TAG_INPUT" ]; then
             TAG="$TAG_INPUT"
           elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
             TAG="${GITHUB_REF_NAME}"
           else
-            git fetch --tags
             TAG=$(git tag -l 'v*' --sort=-version:refname | head -n 1)
           fi
 
@@ -50,12 +52,17 @@ jobs:
             exit 1
           fi
 
+          # Find the previous v* tag (second in sorted list, or empty if none)
+          PREV_TAG=$(git tag -l 'v*' --sort=-version:refname | grep -v "^${TAG}$" | head -n 1 || true)
+
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "ref=refs/tags/$TAG" >> "$GITHUB_OUTPUT"
+          echo "prev_tag=$PREV_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Summary
         run: |
           echo "Release tag: ${{ steps.resolve_tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Previous tag: ${{ steps.resolve_tag.outputs.prev_tag }}" >> "$GITHUB_STEP_SUMMARY"
   build:
     needs: release-context
     runs-on: ${{ matrix.os }}
@@ -255,10 +262,57 @@ jobs:
         with:
           path: artifacts
 
+      - name: Generate commit list
+        id: commits
+        run: |
+          set -euo pipefail
+          CURRENT_TAG="${{ needs.release-context.outputs.tag }}"
+          PREV_TAG="${{ needs.release-context.outputs.prev_tag }}"
+
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag - this is the initial release
+            echo "Initial release - listing all commits up to $CURRENT_TAG"
+            git log "$CURRENT_TAG" --pretty=format:"- %s (%h)" > commits.md
+          else
+            # Generate commit list between previous and current tag
+            echo "Generating commits from $PREV_TAG to $CURRENT_TAG"
+            git log "${PREV_TAG}..${CURRENT_TAG}" --pretty=format:"- %s (%h)" > commits.md
+          fi
+
+          # Check if we have any commits
+          if [ ! -s commits.md ]; then
+            echo "- No commits in this release" > commits.md
+          fi
+
+      - name: Generate release notes with Docker links
+        id: notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name=${{ needs.release-context.outputs.tag }} > notes.json
+          body=$(jq -r '.body' notes.json)
+          {
+            echo "$body"
+            echo ""
+            echo "---"
+            echo "## Commits in this release"
+            echo ""
+            cat commits.md
+            echo ""
+            echo "---"
+            echo "## Docker images"
+            echo "- Docker Hub: https://hub.docker.com/r/anaklumos/mekstation"
+            echo "- GHCR: https://ghcr.io/${{ github.repository_owner }}/mekstation"
+          } > release-notes.md
+          echo "body_path=release-notes.md" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: artifacts/**/*
+          body_path: ${{ steps.notes.outputs.body_path }}
           draft: false
           prerelease: false
         env:
