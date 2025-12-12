@@ -154,6 +154,11 @@ jobs:
             -o -name "*.tar.gz" -o -name "*.yml" -o -name "*.blockmap" \
           \) -exec cp -v {} release-upload/ \;
 
+          # Disambiguate mac update manifests so arm/x64 don't collide
+          if [[ "${{ matrix.platform }}" == mac* && -f release-upload/latest-mac.yml ]]; then
+            mv release-upload/latest-mac.yml "release-upload/latest-mac-${{ matrix.mac_arch }}.yml"
+          fi
+
           # Check if any files were copied
           if [ -z "$(ls -A release-upload 2>/dev/null)" ]; then
             echo "No release artifacts found in desktop/release" >&2
