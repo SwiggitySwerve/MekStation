@@ -137,6 +137,7 @@ jobs:
       - name: Build Electron application (Windows)
         if: matrix.platform == 'win'
         working-directory: desktop
+        shell: bash
         run: npx electron-builder --win --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Build Electron application (macOS)
