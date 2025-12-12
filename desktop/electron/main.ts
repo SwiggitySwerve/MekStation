@@ -58,6 +58,7 @@ interface IDesktopAppConfig {
   readonly enableBackups: boolean;
   readonly autoSaveInterval: number;
   readonly backupInterval: number;
+  readonly updateCheckIntervalMs: number;
   readonly windowBounds: {
     width: number;
     height: number;
@@ -85,6 +86,11 @@ class MekStationApp {
     enableBackups: true,
     autoSaveInterval: 30000, // 30 seconds
     backupInterval: 300000, // 5 minutes
+    updateCheckIntervalMs: (() => {
+      const envIntervalMinutes = Number.parseInt(process.env.MEKSTATION_UPDATE_INTERVAL_MINUTES ?? '', 10);
+      const isValidInterval = Number.isFinite(envIntervalMinutes) && envIntervalMinutes > 0;
+      return (isValidInterval ? envIntervalMinutes : 60) * 60 * 1000;
+    })(),
     windowBounds: {
       width: 1400,
       height: 900,
@@ -229,20 +235,38 @@ class MekStationApp {
    */
   private initializeAutoUpdater(): void {
     const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
+    const platformChannel =
+      process.platform === 'darwin'
+        ? `${updateChannel}-mac-${process.arch === 'arm64' ? 'arm64' : 'x64'}`
+        : updateChannel;
 
-    // Configure auto-updater feed (GitHub Releases, per electron-builder publish config)
-    autoUpdater.channel = updateChannel;
+    // Configure auto-updater feed (GitHub Releases or generic feed for mac arch specificity)
+    autoUpdater.channel = platformChannel;
     autoUpdater.allowDowngrade = false;
-    autoUpdater.autoDownload = true;
-    autoUpdater.setFeedURL({
-      provider: 'github',
-      owner: 'SwiggitySwerve',
-      repo: 'MekStation',
-      private: false
-    });
+    autoUpdater.autoDownload = false;
+
+    if (process.platform === 'darwin') {
+      autoUpdater.setFeedURL({
+        provider: 'generic',
+        url: 'https://github.com/SwiggitySwerve/MekStation/releases/latest/download',
+        channel: platformChannel
+      });
+    } else {
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'SwiggitySwerve',
+        repo: 'MekStation',
+        private: false,
+        channel: updateChannel
+      });
+    }
+
+    console.log(
+      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${platformChannel} | platform=${process.platform} | arch=${process.arch}`
+    );
 
     // Initial check
-    autoUpdater.checkForUpdatesAndNotify();
+    void this.checkForUpdates();
 
     autoUpdater.on('checking-for-update', () => {
       console.log('🔍 Checking for updates...');
@@ -250,15 +274,18 @@ class MekStationApp {
 
     autoUpdater.on('update-available', (info) => {
       console.log('📥 Update available:', info.version);
-      this.notifyUpdateAvailable(info);
+      void this.notifyUpdateAvailable(info);
     });
 
     autoUpdater.on('update-not-available', () => {
       console.log('✅ App is up to date');
+      this.resetProgressBar();
     });
 
     autoUpdater.on('error', (err) => {
       console.error('❌ Auto-updater error:', err);
+      this.resetProgressBar();
+      this.notifyUpdateError(err);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
@@ -269,13 +296,26 @@ class MekStationApp {
 
     autoUpdater.on('update-downloaded', () => {
       console.log('✅ Update downloaded');
-      this.notifyUpdateReady();
+      this.resetProgressBar();
+      void this.notifyUpdateReady();
     });
 
     // Check for updates every hour
     setInterval(() => {
-      autoUpdater.checkForUpdatesAndNotify();
-    }, 60 * 60 * 1000);
+      void this.checkForUpdates();
+    }, this.config.updateCheckIntervalMs);
+  }
+
+  /**
+   * Check for updates without auto-download
+   */
+  private async checkForUpdates(): Promise<void> {
+    try {
+      await autoUpdater.checkForUpdates();
+    } catch (error) {
+      console.error('❌ Failed to check for updates:', error);
+      this.notifyUpdateError(error);
+    }
   }
 
   /**
@@ -392,13 +432,13 @@ class MekStationApp {
         }
         break;
       case 'help:documentation':
-        shell.openExternal('https://github.com/swervelabs/mekstation/wiki');
+        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/wiki');
         break;
       case 'help:report-issue':
-        shell.openExternal('https://github.com/swervelabs/mekstation/issues/new');
+        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/issues/new');
         break;
       case 'help:check-updates':
-        autoUpdater.checkForUpdatesAndNotify();
+        void this.checkForUpdates();
         break;
       case 'help:about':
         this.showAboutDialog();
@@ -809,7 +849,7 @@ X-GNOME-Autostart-enabled=true
       {
         label: 'Check for Updates',
         click: () => {
-          autoUpdater.checkForUpdatesAndNotify();
+          void this.checkForUpdates();
         }
       },
       { type: 'separator' },
@@ -984,7 +1024,7 @@ X-GNOME-Autostart-enabled=true
       try {
         switch (method) {
           case 'checkForUpdates':
-            autoUpdater.checkForUpdatesAndNotify();
+            await this.checkForUpdates();
             return { success: true };
           case 'clearCache':
             // Clear any cached data
@@ -1208,6 +1248,7 @@ X-GNOME-Autostart-enabled=true
     });
 
     if (choice.response === 0) {
+      this.updateDownloadProgress(0);
       autoUpdater.downloadUpdate();
     }
   }
@@ -1219,6 +1260,30 @@ X-GNOME-Autostart-enabled=true
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.setProgressBar(percent / 100);
     }
+  }
+
+  /**
+   * Clear any download progress indicator
+   */
+  private resetProgressBar(): void {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+      this.mainWindow.setProgressBar(-1);
+    }
+  }
+
+  /**
+   * Notify about update errors
+   */
+  private notifyUpdateError(error: unknown): void {
+    if (!this.mainWindow) return;
+    const message = error instanceof Error ? error.message : 'Unknown error occurred while checking for updates.';
+    dialog.showMessageBox(this.mainWindow, {
+      type: 'error',
+      title: 'Update Failed',
+      message: 'Failed to check for or download updates.',
+      detail: message,
+      buttons: ['OK']
+    });
   }
 
   /**
