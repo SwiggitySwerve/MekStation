@@ -135,7 +135,9 @@ jobs:
       - name: Build Electron application (macOS)
         if: startsWith(matrix.platform, 'mac')
         working-directory: desktop
-        run: npx electron-builder --mac --${{ matrix.mac_arch }} --publish never
+        env:
+          ELECTRON_BUILDER_ARCH: ${{ matrix.mac_arch }}
+        run: npx electron-builder --mac dmg zip --${{ matrix.mac_arch }} --publish never
 
       - name: Prepare release artifacts
         working-directory: desktop
@@ -346,6 +348,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ needs.release-context.outputs.tag }}
           files: artifacts/**/*
           body_path: ${{ steps.notes.outputs.body_path }}
           draft: false
