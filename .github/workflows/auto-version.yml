@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-    # Only trigger on actual code changes, not workflow changes
-    paths-ignore:
-      - '.github/workflows/**'
-      - '*.md'
-      - 'docs/**'
-      - 'LICENSE*'
 
   workflow_dispatch:
     inputs:
