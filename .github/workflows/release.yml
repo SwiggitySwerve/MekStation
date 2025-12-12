@@ -95,6 +95,7 @@ jobs:
           cache: 'npm'
 
       - name: Set app version from tag
+        shell: bash
         run: |
           APP_VERSION="${{ needs.release-context.outputs.tag }}"
           APP_VERSION="${APP_VERSION#v}"
