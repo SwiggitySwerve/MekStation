@@ -16,7 +16,7 @@ directories:
 files:
   - "dist/**/*"
   - "assets/**/*"
-  - "!node_modules/**/*"
+  - "node_modules/**/*"
   # Include the Next.js standalone build (relative to project root)
   - "../.next/standalone/**/*"
   - "../.next/static/**/*"
