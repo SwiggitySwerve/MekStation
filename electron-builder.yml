@@ -17,15 +17,17 @@ files:
   - "dist/**/*"
   - "assets/**/*"
   - "node_modules/**/*"
-  # Include the Next.js standalone build (relative to project root)
-  - "../.next/standalone/**/*"
-  - "../.next/static/**/*"
-  - "../public/**/*"
 
 # Extra resources to include (outside of app.asar)
 extraResources:
   - from: "assets"
     to: "assets"
+  # Next.js standalone output (self-contained server + deps)
+  - from: "../.next/standalone"
+    to: "next-standalone"
+  # Next.js static assets (CSS/JS) for standalone server
+  - from: "../.next/static"
+    to: "next-standalone/.next/static"
   - from: "../public/data"
     to: "data"
   - from: "../public/record-sheets"

@@ -656,6 +656,22 @@ X-GNOME-Autostart-enabled=true
       }
     }
 
+    // Show window when ready (unless start minimized is enabled)
+    this.mainWindow.once('ready-to-show', () => {
+      const startMinimized = this.settingsService?.get('startMinimized') ?? false;
+      if (this.mainWindow) {
+        if (!startMinimized) {
+          this.mainWindow.show();
+          
+          // Focus window
+          if (process.platform === 'darwin') {
+            app.dock.show();
+          }
+          this.mainWindow.focus();
+        }
+      }
+    });
+
     // Load the application
     if (this.config.developmentMode) {
       await this.mainWindow.loadURL('http://localhost:3000');
@@ -663,16 +679,33 @@ X-GNOME-Autostart-enabled=true
     } else {
       // In production, start the Next.js standalone server and load it
       const { spawn } = require('child_process');
-      const serverPath = path.join(__dirname, '../../.next/standalone/server.js');
+      const serverCwd = app.isPackaged
+        ? path.join(process.resourcesPath, 'next-standalone')
+        : path.join(this.appPath, '..', '.next', 'standalone');
+      const serverPath = path.join(serverCwd, 'server.js');
       
       // Start the Next.js server
-      const server = spawn('node', [serverPath], {
+      const server = spawn(process.execPath, [serverPath], {
         env: {
           ...process.env,
+          ELECTRON_RUN_AS_NODE: '1',
           PORT: '3001', // Use different port to avoid conflicts
           HOSTNAME: '127.0.0.1',
         },
-        cwd: path.join(__dirname, '../../.next/standalone'),
+        cwd: serverCwd,
+      });
+
+      server.on('error', (error: Error) => {
+        console.error('❌ Failed to start Next.js server:', error);
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+          void dialog.showMessageBox(this.mainWindow, {
+            type: 'error',
+            title: 'Startup Error',
+            message: 'Failed to start the local web server required to run MekStation.',
+            detail: error.message,
+            buttons: ['OK']
+          });
+        }
       });
       
       server.stdout?.on('data', (data: Buffer) => {
@@ -685,25 +718,23 @@ X-GNOME-Autostart-enabled=true
       
       // Wait for server to start and then load
       await new Promise(resolve => setTimeout(resolve, 2000));
-      await this.mainWindow.loadURL('http://127.0.0.1:3001');
-    }
-
-    // Show window when ready (unless start minimized is enabled)
-    this.mainWindow.once('ready-to-show', () => {
-      if (this.mainWindow) {
-        const startMinimized = this.settingsService?.get('startMinimized') ?? false;
-        
-        if (!startMinimized) {
-          this.mainWindow.show();
-          
-          // Focus window
-          if (process.platform === 'darwin') {
-            app.dock.show();
-          }
-          this.mainWindow.focus();
+      try {
+        await this.mainWindow.loadURL('http://127.0.0.1:3001');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('❌ Failed to load MekStation UI:', message);
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+          await dialog.showMessageBox(this.mainWindow, {
+            type: 'error',
+            title: 'Startup Error',
+            message: 'MekStation failed to load its UI.',
+            detail: message,
+            buttons: ['OK']
+          });
         }
+        throw error;
       }
-    });
+    }
 
     // Handle window events
     this.mainWindow.on('closed', () => {
