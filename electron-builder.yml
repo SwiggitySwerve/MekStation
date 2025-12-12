@@ -147,7 +147,7 @@ appImage:
 publish:
   provider: github
   owner: SwiggitySwerve
-  repo: megamek-web
+  repo: MekStation
   private: false
   releaseType: release
 

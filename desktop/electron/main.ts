@@ -228,14 +228,21 @@ class MekStationApp {
    * Initialize auto-updater
    */
   private initializeAutoUpdater(): void {
-    // Configure auto-updater
-    autoUpdater.checkForUpdatesAndNotify();
+    const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
+
+    // Configure auto-updater feed (GitHub Releases, per electron-builder publish config)
+    autoUpdater.channel = updateChannel;
+    autoUpdater.allowDowngrade = false;
+    autoUpdater.autoDownload = true;
     autoUpdater.setFeedURL({
       provider: 'github',
-      owner: 'swervelabs',
-      repo: 'mekstation',
+      owner: 'SwiggitySwerve',
+      repo: 'MekStation',
       private: false
     });
+
+    // Initial check
+    autoUpdater.checkForUpdatesAndNotify();
 
     autoUpdater.on('checking-for-update', () => {
       console.log('🔍 Checking for updates...');
