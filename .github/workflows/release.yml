@@ -94,6 +94,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Set app version from tag
+        run: |
+          APP_VERSION="${{ needs.release-context.outputs.tag }}"
+          APP_VERSION="${APP_VERSION#v}"
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
+
       - name: Cache Electron downloads
         uses: actions/cache@v4
         with:
@@ -125,19 +131,19 @@ jobs:
       - name: Build Electron application (Linux)
         if: matrix.platform == 'linux'
         working-directory: desktop
-        run: npx electron-builder --linux --publish never
+        run: npx electron-builder --linux --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Build Electron application (Windows)
         if: matrix.platform == 'win'
         working-directory: desktop
-        run: npx electron-builder --win --publish never
+        run: npx electron-builder --win --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Build Electron application (macOS)
         if: startsWith(matrix.platform, 'mac')
         working-directory: desktop
         env:
           ELECTRON_BUILDER_ARCH: ${{ matrix.mac_arch }}
-        run: npx electron-builder --mac dmg zip --${{ matrix.mac_arch }} --publish never
+        run: npx electron-builder --mac dmg zip --${{ matrix.mac_arch }} --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Prepare release artifacts
         working-directory: desktop

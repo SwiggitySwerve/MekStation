@@ -58,6 +58,7 @@ interface IDesktopAppConfig {
   readonly enableBackups: boolean;
   readonly autoSaveInterval: number;
   readonly backupInterval: number;
+  readonly updateCheckIntervalMs: number;
   readonly windowBounds: {
     width: number;
     height: number;
@@ -85,6 +86,11 @@ class MekStationApp {
     enableBackups: true,
     autoSaveInterval: 30000, // 30 seconds
     backupInterval: 300000, // 5 minutes
+    updateCheckIntervalMs: (() => {
+      const envIntervalMinutes = Number.parseInt(process.env.MEKSTATION_UPDATE_INTERVAL_MINUTES ?? '', 10);
+      const isValidInterval = Number.isFinite(envIntervalMinutes) && envIntervalMinutes > 0;
+      return (isValidInterval ? envIntervalMinutes : 60) * 60 * 1000;
+    })(),
     windowBounds: {
       width: 1400,
       height: 900,
@@ -228,14 +234,39 @@ class MekStationApp {
    * Initialize auto-updater
    */
   private initializeAutoUpdater(): void {
-    // Configure auto-updater
-    autoUpdater.checkForUpdatesAndNotify();
-    autoUpdater.setFeedURL({
-      provider: 'github',
-      owner: 'swervelabs',
-      repo: 'mekstation',
-      private: false
-    });
+    const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
+    const platformChannel =
+      process.platform === 'darwin'
+        ? `${updateChannel}-mac-${process.arch === 'arm64' ? 'arm64' : 'x64'}`
+        : updateChannel;
+
+    // Configure auto-updater feed (GitHub Releases or generic feed for mac arch specificity)
+    autoUpdater.channel = platformChannel;
+    autoUpdater.allowDowngrade = false;
+    autoUpdater.autoDownload = false;
+
+    if (process.platform === 'darwin') {
+      autoUpdater.setFeedURL({
+        provider: 'generic',
+        url: 'https://github.com/SwiggitySwerve/MekStation/releases/latest/download',
+        channel: platformChannel
+      });
+    } else {
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'SwiggitySwerve',
+        repo: 'MekStation',
+        private: false,
+        channel: updateChannel
+      });
+    }
+
+    console.log(
+      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${platformChannel} | platform=${process.platform} | arch=${process.arch}`
+    );
+
+    // Initial check
+    void this.checkForUpdates();
 
     autoUpdater.on('checking-for-update', () => {
       console.log('🔍 Checking for updates...');
@@ -243,15 +274,18 @@ class MekStationApp {
 
     autoUpdater.on('update-available', (info) => {
       console.log('📥 Update available:', info.version);
-      this.notifyUpdateAvailable(info);
+      void this.notifyUpdateAvailable(info);
     });
 
     autoUpdater.on('update-not-available', () => {
       console.log('✅ App is up to date');
+      this.resetProgressBar();
     });
 
     autoUpdater.on('error', (err) => {
       console.error('❌ Auto-updater error:', err);
+      this.resetProgressBar();
+      this.notifyUpdateError(err);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
@@ -262,13 +296,26 @@ class MekStationApp {
 
     autoUpdater.on('update-downloaded', () => {
       console.log('✅ Update downloaded');
-      this.notifyUpdateReady();
+      this.resetProgressBar();
+      void this.notifyUpdateReady();
     });
 
     // Check for updates every hour
     setInterval(() => {
-      autoUpdater.checkForUpdatesAndNotify();
-    }, 60 * 60 * 1000);
+      void this.checkForUpdates();
+    }, this.config.updateCheckIntervalMs);
+  }
+
+  /**
+   * Check for updates without auto-download
+   */
+  private async checkForUpdates(): Promise<void> {
+    try {
+      await autoUpdater.checkForUpdates();
+    } catch (error) {
+      console.error('❌ Failed to check for updates:', error);
+      this.notifyUpdateError(error);
+    }
   }
 
   /**
@@ -385,13 +432,13 @@ class MekStationApp {
         }
         break;
       case 'help:documentation':
-        shell.openExternal('https://github.com/swervelabs/mekstation/wiki');
+        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/wiki');
         break;
       case 'help:report-issue':
-        shell.openExternal('https://github.com/swervelabs/mekstation/issues/new');
+        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/issues/new');
         break;
       case 'help:check-updates':
-        autoUpdater.checkForUpdatesAndNotify();
+        void this.checkForUpdates();
         break;
       case 'help:about':
         this.showAboutDialog();
@@ -609,6 +656,22 @@ X-GNOME-Autostart-enabled=true
       }
     }
 
+    // Show window when ready (unless start minimized is enabled)
+    this.mainWindow.once('ready-to-show', () => {
+      const startMinimized = this.settingsService?.get('startMinimized') ?? false;
+      if (this.mainWindow) {
+        if (!startMinimized) {
+          this.mainWindow.show();
+          
+          // Focus window
+          if (process.platform === 'darwin') {
+            app.dock.show();
+          }
+          this.mainWindow.focus();
+        }
+      }
+    });
+
     // Load the application
     if (this.config.developmentMode) {
       await this.mainWindow.loadURL('http://localhost:3000');
@@ -616,16 +679,33 @@ X-GNOME-Autostart-enabled=true
     } else {
       // In production, start the Next.js standalone server and load it
       const { spawn } = require('child_process');
-      const serverPath = path.join(__dirname, '../../.next/standalone/server.js');
+      const serverCwd = app.isPackaged
+        ? path.join(process.resourcesPath, 'next-standalone')
+        : path.join(this.appPath, '..', '.next', 'standalone');
+      const serverPath = path.join(serverCwd, 'server.js');
       
       // Start the Next.js server
-      const server = spawn('node', [serverPath], {
+      const server = spawn(process.execPath, [serverPath], {
         env: {
           ...process.env,
+          ELECTRON_RUN_AS_NODE: '1',
           PORT: '3001', // Use different port to avoid conflicts
           HOSTNAME: '127.0.0.1',
         },
-        cwd: path.join(__dirname, '../../.next/standalone'),
+        cwd: serverCwd,
+      });
+
+      server.on('error', (error: Error) => {
+        console.error('❌ Failed to start Next.js server:', error);
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+          void dialog.showMessageBox(this.mainWindow, {
+            type: 'error',
+            title: 'Startup Error',
+            message: 'Failed to start the local web server required to run MekStation.',
+            detail: error.message,
+            buttons: ['OK']
+          });
+        }
       });
       
       server.stdout?.on('data', (data: Buffer) => {
@@ -638,25 +718,23 @@ X-GNOME-Autostart-enabled=true
       
       // Wait for server to start and then load
       await new Promise(resolve => setTimeout(resolve, 2000));
-      await this.mainWindow.loadURL('http://127.0.0.1:3001');
-    }
-
-    // Show window when ready (unless start minimized is enabled)
-    this.mainWindow.once('ready-to-show', () => {
-      if (this.mainWindow) {
-        const startMinimized = this.settingsService?.get('startMinimized') ?? false;
-        
-        if (!startMinimized) {
-          this.mainWindow.show();
-          
-          // Focus window
-          if (process.platform === 'darwin') {
-            app.dock.show();
-          }
-          this.mainWindow.focus();
+      try {
+        await this.mainWindow.loadURL('http://127.0.0.1:3001');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('❌ Failed to load MekStation UI:', message);
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+          await dialog.showMessageBox(this.mainWindow, {
+            type: 'error',
+            title: 'Startup Error',
+            message: 'MekStation failed to load its UI.',
+            detail: message,
+            buttons: ['OK']
+          });
         }
+        throw error;
       }
-    });
+    }
 
     // Handle window events
     this.mainWindow.on('closed', () => {
@@ -802,7 +880,7 @@ X-GNOME-Autostart-enabled=true
       {
         label: 'Check for Updates',
         click: () => {
-          autoUpdater.checkForUpdatesAndNotify();
+          void this.checkForUpdates();
         }
       },
       { type: 'separator' },
@@ -977,7 +1055,7 @@ X-GNOME-Autostart-enabled=true
       try {
         switch (method) {
           case 'checkForUpdates':
-            autoUpdater.checkForUpdatesAndNotify();
+            await this.checkForUpdates();
             return { success: true };
           case 'clearCache':
             // Clear any cached data
@@ -1201,6 +1279,7 @@ X-GNOME-Autostart-enabled=true
     });
 
     if (choice.response === 0) {
+      this.updateDownloadProgress(0);
       autoUpdater.downloadUpdate();
     }
   }
@@ -1212,6 +1291,30 @@ X-GNOME-Autostart-enabled=true
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.setProgressBar(percent / 100);
     }
+  }
+
+  /**
+   * Clear any download progress indicator
+   */
+  private resetProgressBar(): void {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+      this.mainWindow.setProgressBar(-1);
+    }
+  }
+
+  /**
+   * Notify about update errors
+   */
+  private notifyUpdateError(error: unknown): void {
+    if (!this.mainWindow) return;
+    const message = error instanceof Error ? error.message : 'Unknown error occurred while checking for updates.';
+    dialog.showMessageBox(this.mainWindow, {
+      type: 'error',
+      title: 'Update Failed',
+      message: 'Failed to check for or download updates.',
+      detail: message,
+      buttons: ['OK']
+    });
   }
 
   /**
