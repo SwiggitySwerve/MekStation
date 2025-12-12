@@ -348,6 +348,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ needs.release-context.outputs.tag }}
           files: artifacts/**/*
           body_path: ${{ steps.notes.outputs.body_path }}
           draft: false
