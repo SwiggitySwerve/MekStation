@@ -41,6 +41,41 @@ npx openspec show movement-system --type spec
 - Use defined interfaces and types from `types/` directory
 - Use base objects from `getAvailable*` utilities for dropdowns
 - Prefer full canonical objects over string types
+- **Use enum types from `types/construction/`** instead of string matching:
+  - `EngineType.XL_IS` not `engineType.includes('xl')`
+  - `GyroType.COMPACT` not `gyroType.includes('compact')`
+  - `HeatSinkType.DOUBLE_CLAN` not `heatSinkType.includes('Double')`
+- For backward compatibility with legacy string values, create type-safe helper functions
+
+### **Construction Type Enums**
+Always prefer enum types from `types/construction/` over string comparisons:
+
+| Type | Enum | Location |
+|------|------|----------|
+| Engine | `EngineType` | `types/construction/EngineType.ts` |
+| Gyro | `GyroType` | `types/construction/GyroType.ts` |
+| Structure | `InternalStructureType` | `types/construction/InternalStructureType.ts` |
+| Cockpit | `CockpitType` | `types/construction/CockpitType.ts` |
+| Armor | `ArmorTypeEnum` | `types/construction/ArmorType.ts` |
+| Heat Sink | `HeatSinkType` | `types/construction/HeatSinkType.ts` |
+
+**Example - Type-Safe Helper Function:**
+```typescript
+// GOOD: Type-safe with backward compatibility
+function isDoubleHeatSink(heatSinkType: HeatSinkType | string): boolean {
+  if (heatSinkType === HeatSinkType.DOUBLE_IS || 
+      heatSinkType === HeatSinkType.DOUBLE_CLAN) {
+    return true;
+  }
+  if (typeof heatSinkType === 'string') {
+    return heatSinkType.toLowerCase().includes('double');
+  }
+  return false;
+}
+
+// BAD: String matching without type safety
+const isDouble = mech.heatSinkType.includes('Double');
+```
 
 ### **Forbidden Patterns**
 - **NO `as any` Casting**: Silences compiler errors but causes runtime crashes.
@@ -48,6 +83,8 @@ npx openspec show movement-system --type spec
 - **NO Legacy Imports**: Do not import from `types/systemComponents.ts`. Use `types/core`.
 - **NO Magic Strings**: Use constants (e.g., `TechBase.INNER_SPHERE`) instead of literals.
 - **NO Direct Property Access on `unknown`**: Use `isValid*` type guards first.
+- **NO String Matching for Component Types**: Use enum comparisons, not `.includes()` or `.toLowerCase()`.
+  - Create helper functions if legacy string support is needed.
 
 ### **Architecture**
 - Follow SOLID principles
@@ -206,9 +243,13 @@ import { IMiscEquipment, MOVEMENT_EQUIPMENT } from '@/types/equipment/MiscEquipm
 
 ### **Construction Types**
 ```typescript
-import { IEngineType, ENGINE_TYPES } from '@/types/construction/EngineType';
-import { IGyroType, GYRO_TYPES } from '@/types/construction/GyroType';
-import { IArmorType, ARMOR_TYPES } from '@/types/construction/ArmorType';
+// Enum types for type-safe comparisons
+import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
+import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { CockpitType, getCockpitDefinition } from '@/types/construction/CockpitType';
+import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
+import { HeatSinkType, getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 ```
 
 ### **Calculations**
@@ -289,5 +330,5 @@ npx openspec archive <change-id> --yes
 
 ---
 
-**Last Updated**: 2025-11-30
-**Version**: 3.0
+**Last Updated**: 2025-12-13
+**Version**: 3.1
