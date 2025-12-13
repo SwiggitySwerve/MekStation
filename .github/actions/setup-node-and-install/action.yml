@@ -1,0 +1,55 @@
+name: Setup Node + caches + install deps
+description: Standardized Node setup, caching, and dependency installation for MekStation CI.
+
+inputs:
+  node-version:
+    description: Node.js version to use
+    required: false
+    default: '20'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+        cache-dependency-path: |
+          package-lock.json
+          desktop/package-lock.json
+
+    - name: Cache Next.js build cache (.next/cache)
+      uses: actions/cache@v4
+      with:
+        path: .next/cache
+        key: ${{ runner.os }}-nextjs-${{ inputs.node-version }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ inputs.node-version }}-
+          ${{ runner.os }}-nextjs-
+
+    - name: Cache Electron downloads (desktop/.electron-cache)
+      uses: actions/cache@v4
+      with:
+        path: |
+          desktop/.electron-cache
+          ~/.cache/electron
+          ~/.cache/electron-builder
+          ~/Library/Caches/electron
+          ~/Library/Caches/electron-builder
+          ~/AppData/Local/electron/Cache
+          ~/AppData/Local/electron-builder/Cache
+        key: ${{ runner.os }}-electron-${{ hashFiles('desktop/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-electron-
+
+    - name: Install root dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Install desktop dependencies
+      shell: bash
+      working-directory: desktop
+      run: npm ci
+
+

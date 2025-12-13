@@ -10,24 +10,16 @@ jobs:
   lint-and-test:
     name: Lint and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '20'
-          cache: 'npm'
-
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install desktop dependencies
-        working-directory: desktop
-        run: npm ci
 
       - name: Run linter
         run: npm run lint
@@ -58,41 +50,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install desktop dependencies
-        working-directory: desktop
-        run: npm ci
-
-      - name: Build Next.js application
-        run: npm run build
-
-      - name: Build Electron TypeScript
-        working-directory: desktop
-        run: npm run build
+      - name: Build desktop (Next.js + Electron TypeScript)
+        run: npm run electron:build
 
       - name: Test Electron build (pack mode)
         working-directory: desktop
         shell: bash
-        run: |
-          if [ "${{ matrix.platform }}" = "win" ]; then
-            npx electron-builder --win --dir --config.win.sign=false --config.win.signAndEditExecutable=false
-          elif [ "${{ matrix.platform }}" = "mac" ]; then
-            npx electron-builder --mac --dir --config.mac.sign=false
-          else
-            npx electron-builder --linux --dir
-          fi
+        run: npm run pack -- --publish never
         env:
-          CI: 'false'
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
 
       - name: Verify build output
         working-directory: desktop
