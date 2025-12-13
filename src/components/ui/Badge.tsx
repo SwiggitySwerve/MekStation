@@ -7,7 +7,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
 type BadgeVariant = 
-  // Colors
+  // Base colors
   | 'blue' 
   | 'emerald' 
   | 'purple' 
@@ -18,6 +18,18 @@ type BadgeVariant =
   | 'violet' 
   | 'yellow' 
   | 'slate'
+  // Extended colors for weapon differentiation
+  | 'rose'      // Energy weapons
+  | 'sky'       // Missile weapons  
+  | 'fuchsia'   // Capital weapons
+  | 'teal'      // Alternative to cyan
+  | 'lime'      // Alternative green
+  | 'pink'      // Light rose for ammo
+  // Light variants for ammunition (softer versions)
+  | 'orange-light'  // Ballistic ammo
+  | 'sky-light'     // Missile ammo
+  | 'violet-light'  // Artillery ammo
+  | 'rose-light'    // Energy-related ammo
   // Semantic aliases
   | 'muted'
   | 'warning'
@@ -35,7 +47,7 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  // Colors
+  // Base colors
   blue: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
   emerald: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
   purple: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
@@ -46,6 +58,18 @@ const variantClasses: Record<BadgeVariant, string> = {
   violet: 'bg-violet-600/20 text-violet-400 border-violet-600/30',
   yellow: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30',
   slate: 'bg-slate-600/20 text-slate-400 border-slate-600/30',
+  // Extended colors for weapon differentiation
+  rose: 'bg-rose-600/20 text-rose-400 border-rose-600/30',
+  sky: 'bg-sky-600/20 text-sky-400 border-sky-600/30',
+  fuchsia: 'bg-fuchsia-600/20 text-fuchsia-400 border-fuchsia-600/30',
+  teal: 'bg-teal-600/20 text-teal-400 border-teal-600/30',
+  lime: 'bg-lime-600/20 text-lime-400 border-lime-600/30',
+  pink: 'bg-pink-600/20 text-pink-400 border-pink-600/30',
+  // Light variants for ammunition (higher opacity, softer look)
+  'orange-light': 'bg-orange-500/10 text-orange-300 border-orange-400/20',
+  'sky-light': 'bg-sky-500/10 text-sky-300 border-sky-400/20',
+  'violet-light': 'bg-violet-500/10 text-violet-300 border-violet-400/20',
+  'rose-light': 'bg-rose-500/10 text-rose-300 border-rose-400/20',
   // Semantic aliases  
   muted: 'bg-slate-600/50 text-slate-300 border-slate-500/30',
   warning: 'bg-amber-600/20 text-amber-400 border-amber-600/30',

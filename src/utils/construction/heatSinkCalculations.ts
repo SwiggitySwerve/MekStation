@@ -48,11 +48,32 @@ export function calculateExternalHeatSinks(
 }
 
 /**
- * Calculate weight of external heat sinks
+ * Calculate weight of heat sinks requiring weight
  * 
- * @param externalCount - Number of external heat sinks
+ * Per BattleTech rules, the first 10 heat sinks are WEIGHT-FREE.
+ * Only heat sinks beyond the first 10 add weight.
+ * 
+ * NOTE: This is different from "external" heat sinks (which refers to slots).
+ * - External = heat sinks not integrated in engine (require slots)
+ * - Weight-requiring = heat sinks beyond first 10 (add weight)
+ * 
+ * @param totalHeatSinks - Total number of heat sinks on the mech
  * @param heatSinkType - Type of heat sinks
  * @returns Weight in tons
+ */
+export function calculateHeatSinkWeight(totalHeatSinks: number, heatSinkType: HeatSinkType): number {
+  const definition = getHeatSinkDefinition(heatSinkType);
+  const weightPerSink = definition?.weight ?? 1.0;
+  // First 10 heat sinks are weight-free
+  const heatSinksRequiringWeight = Math.max(0, totalHeatSinks - 10);
+  return heatSinksRequiringWeight * weightPerSink;
+}
+
+/**
+ * @deprecated Use calculateHeatSinkWeight instead. This function incorrectly
+ * calculates weight based on external count instead of total - 10.
+ * 
+ * Calculate weight of external heat sinks (LEGACY - INCORRECT)
  */
 export function calculateExternalHeatSinkWeight(externalCount: number, heatSinkType: HeatSinkType): number {
   const definition = getHeatSinkDefinition(heatSinkType);
@@ -138,13 +159,17 @@ export function getHeatSinkSummary(
   weight: number;
   slots: number;
   dissipation: number;
+  weightFree: number;
 } {
   const integrated = calculateIntegralHeatSinks(engineRating, engineType);
   const external = calculateExternalHeatSinks(totalHeatSinks, engineRating, engineType);
-  const weight = calculateExternalHeatSinkWeight(external, heatSinkType);
+  // Use correct weight formula: first 10 heat sinks are weight-free
+  const weight = calculateHeatSinkWeight(totalHeatSinks, heatSinkType);
   const slots = calculateExternalHeatSinkSlots(external, heatSinkType);
   const dissipation = calculateHeatDissipation(heatSinkType, totalHeatSinks);
+  // First 10 heat sinks are weight-free
+  const weightFree = Math.min(totalHeatSinks, 10);
 
-  return { integrated, external, weight, slots, dissipation };
+  return { integrated, external, weight, slots, dissipation, weightFree };
 }
 

@@ -283,5 +283,11 @@ export function createUnitFromFullState(state: UnitState): StoreApi<UnitStore> {
   
   const store = createUnitStore(validatedState);
   unitStores.set(validId, store);
+  
+  // Force initial state to be persisted to localStorage.
+  // Zustand's persist middleware only saves on set() calls, not on initial creation.
+  // We trigger a minimal state change to force the persist middleware to write.
+  store.setState({ lastModifiedAt: Date.now() });
+  
   return store;
 }

@@ -70,6 +70,10 @@
     {
       "id": "ultra-ac-5",
       "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "uac-5-ammo",
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

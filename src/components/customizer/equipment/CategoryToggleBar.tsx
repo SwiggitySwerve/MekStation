@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EquipmentCategory } from '@/types/equipment';
-import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmentColors';
+import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 
 // =============================================================================
 // Types
@@ -116,8 +116,7 @@ export function CategoryToggleBar({
             ? OTHER_COMBINED_CATEGORIES.some(cat => activeCategories.has(cat))
             : activeCategories.has(category)
         );
-        const colorType = categoryToColorType(category);
-        const colors = getEquipmentColors(colorType);
+        const colors = getCategoryColorsLegacy(category);
         
         return (
           <button

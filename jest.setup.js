@@ -4,6 +4,24 @@
 // Import Jest DOM matchers
 import '@testing-library/jest-dom';
 
+// Polyfill fetch for Node.js test environment
+if (typeof global.fetch === 'undefined') {
+  // Mock fetch for tests - return empty arrays for equipment JSON files
+  global.fetch = async (url) => {
+    const urlStr = typeof url === 'string' ? url : url.toString();
+    
+    // Return empty arrays for equipment JSON files
+    if (urlStr.includes('.json')) {
+      return {
+        ok: true,
+        json: async () => [],
+      };
+    }
+    
+    throw new Error(`Unmocked fetch: ${urlStr}`);
+  };
+}
+
 // Import BattleTech custom matchers (auto-registers)
 import './src/__tests__/helpers/assertions';
 

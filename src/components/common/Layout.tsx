@@ -16,11 +16,11 @@ const Layout: React.FC<LayoutProps> = ({
   isSidebarCollapsed,
   secondarySidebar,
 }) => {
-  // Determine margin based on sidebar presence and state for md screens and up
-  // Only apply margins when sidebar components are actually provided
+  // Determine margin based on sidebar presence and state
+  // Sidebar widths: collapsed = w-16 (4rem), expanded = w-56 (14rem)
   const hasSidebar = !!sidebarComponent;
   const contentAndFooterMargin = hasSidebar 
-    ? (isSidebarCollapsed ? 'md:ml-12' : 'md:ml-52')
+    ? (isSidebarCollapsed ? 'md:ml-16' : 'md:ml-56')
     : 'ml-0';
 
   return (
@@ -29,25 +29,24 @@ const Layout: React.FC<LayoutProps> = ({
         <title>{title}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        {/* Add other meta tags, favicons etc. here */}
       </Head>
 
-      <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div className="flex flex-col h-screen bg-slate-900 overflow-hidden">
         <div className="flex flex-1 overflow-hidden">
-          {/* Global sidebar is expected to be a fixed position component, rendered here */}
+          {/* Global sidebar - fixed position component */}
           {sidebarComponent && <div className="print:hidden">{sidebarComponent}</div>}
 
           {/* Main content area with optional secondary sidebar */}
           <div className={`flex-1 flex ml-0 ${contentAndFooterMargin} transition-all duration-300 ease-in-out overflow-hidden`}>
             {/* Optional page-specific secondary sidebar */}
             {secondarySidebar && (
-              <aside className="w-64 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 print:hidden overflow-auto">
+              <aside className="w-64 bg-slate-800 border-r border-slate-700 print:hidden overflow-auto">
                 {secondarySidebar}
               </aside>
             )}
             
             {/* Main content */}
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto bg-slate-900">
               {children}
             </main>
           </div>

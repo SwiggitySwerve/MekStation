@@ -8,6 +8,7 @@ import {
   MINIMUM_HEAT_SINKS,
   calculateHeatDissipation,
   calculateExternalHeatSinks,
+  calculateHeatSinkWeight,
   calculateExternalHeatSinkWeight,
   calculateExternalHeatSinkSlots,
   validateHeatSinks,
@@ -68,7 +69,33 @@ describe('Heat Sink Calculations', () => {
     });
   });
 
-  describe('calculateExternalHeatSinkWeight', () => {
+  describe('calculateHeatSinkWeight (first 10 weight-free)', () => {
+    it('should return 0 weight when total <= 10', () => {
+      // First 10 heat sinks are weight-free
+      expect(calculateHeatSinkWeight(10, HeatSinkType.SINGLE)).toBe(0);
+      expect(calculateHeatSinkWeight(8, HeatSinkType.SINGLE)).toBe(0);
+    });
+
+    it('should calculate weight for heat sinks beyond 10', () => {
+      // 15 total - 10 free = 5 requiring weight at 1t each
+      const weight = calculateHeatSinkWeight(15, HeatSinkType.SINGLE);
+      expect(weight).toBe(5);
+    });
+
+    it('should handle Marauder C case: 19 heat sinks = 9 tons', () => {
+      // 19 total - 10 free = 9 requiring weight at 1t each
+      const weight = calculateHeatSinkWeight(19, HeatSinkType.SINGLE);
+      expect(weight).toBe(9);
+    });
+
+    it('should work with double heat sinks (still 1t each)', () => {
+      // Double heat sinks also weigh 1 ton each
+      const weight = calculateHeatSinkWeight(15, HeatSinkType.DOUBLE_IS);
+      expect(weight).toBe(5);
+    });
+  });
+
+  describe('calculateExternalHeatSinkWeight (legacy/deprecated)', () => {
     it('should calculate single heat sink weight', () => {
       // Single heat sinks weigh 1 ton each
       const weight = calculateExternalHeatSinkWeight(5, HeatSinkType.SINGLE);
@@ -163,13 +190,25 @@ describe('Heat Sink Calculations', () => {
       expect(doubleSummary.dissipation).toBeGreaterThan(singleSummary.dissipation);
     });
 
-    it('should have weight of 0 when no external heat sinks', () => {
+    it('should have weight of 0 when total <= 10 (first 10 are weight-free)', () => {
       const summary = getHeatSinkSummary(10, HeatSinkType.SINGLE, 300, EngineType.STANDARD);
       
-      // With 300 rating, integrated = 12, so 10 total = 0 external
-      if (summary.external === 0) {
-        expect(summary.weight).toBe(0);
-      }
+      // First 10 heat sinks are weight-free, regardless of external count
+      expect(summary.weight).toBe(0);
+      expect(summary.weightFree).toBe(10);
+    });
+
+    it('should calculate correct weight for Marauder C (19 HS, 300 engine)', () => {
+      // Marauder C: 19 heat sinks, 300 engine
+      const summary = getHeatSinkSummary(19, HeatSinkType.SINGLE, 300, EngineType.STANDARD);
+      
+      // 300 engine integrates 12 heat sinks (slots)
+      expect(summary.integrated).toBe(12);
+      // 19 - 12 = 7 external (require slots)
+      expect(summary.external).toBe(7);
+      // First 10 are weight-free, so 19 - 10 = 9 tons
+      expect(summary.weight).toBe(9);
+      expect(summary.weightFree).toBe(10);
     });
   });
 });

@@ -15,7 +15,43 @@ export enum BVVersion {
 }
 
 /**
- * Speed factor lookup table for BV2
+ * Speed factor lookup table for BV2 - indexed by TMM (Target Movement Modifier)
+ * Per TechManual BV2 rules
+ */
+export const BV2_SPEED_FACTORS_BY_TMM: Record<number, number> = {
+  0: 1.0,
+  1: 1.1,
+  2: 1.2,
+  3: 1.3,
+  4: 1.4,
+  5: 1.5,
+  6: 1.6,
+  7: 1.7,
+  8: 1.8,
+  9: 1.9,
+  10: 2.0,
+};
+
+/**
+ * Calculate TMM from movement points
+ * Per TechManual movement rules
+ */
+export function calculateTMM(runMP: number, jumpMP: number = 0): number {
+  // Use the better of run or jump MP for TMM calculation
+  const effectiveMP = Math.max(runMP, jumpMP);
+  
+  if (effectiveMP <= 2) return 0;
+  if (effectiveMP <= 4) return 1;
+  if (effectiveMP <= 6) return 2;
+  if (effectiveMP <= 9) return 3;
+  if (effectiveMP <= 17) return 4;
+  if (effectiveMP <= 24) return 5;
+  return 6;
+}
+
+/**
+ * @deprecated Use BV2_SPEED_FACTORS_BY_TMM with calculateTMM instead
+ * Speed factor lookup table for BV2 - indexed by raw MP (legacy/incorrect)
  */
 export const BV2_SPEED_FACTORS: Record<number, number> = {
   0: 0.44,
@@ -91,6 +127,47 @@ export interface BVCalculation {
 }
 
 /**
+ * Offensive speed factor lookup table - indexed by TMM
+ * Per MegaMekLab BV2 implementation
+ * Offensive factors are slightly lower than defensive factors
+ */
+export const BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM: Record<number, number> = {
+  0: 1.0,
+  1: 1.06,
+  2: 1.12,
+  3: 1.18,
+  4: 1.24,
+  5: 1.30,
+  6: 1.36,
+  7: 1.42,
+  8: 1.48,
+  9: 1.54,
+  10: 1.60,
+};
+
+/**
+ * Get defensive speed factor for BV2 calculation
+ * Applied to (armor + structure + gyro)
+ */
+export function getDefensiveSpeedFactor(runMP: number, jumpMP: number): number {
+  const tmm = calculateTMM(runMP, jumpMP);
+  const cappedTMM = Math.min(10, Math.max(0, tmm));
+  return BV2_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+}
+
+/**
+ * Get offensive speed factor for BV2 calculation
+ * Applied to (weapons + ammo + weight bonus)
+ * Slightly lower than defensive factor per MegaMekLab
+ */
+export function getOffensiveSpeedFactor(runMP: number, jumpMP: number): number {
+  const tmm = calculateTMM(runMP, jumpMP);
+  const cappedTMM = Math.min(10, Math.max(0, tmm));
+  return BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+}
+
+/**
+ * @deprecated Use getDefensiveSpeedFactor or getOffensiveSpeedFactor instead
  * Get speed factor for BV2 calculation
  */
 export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {
