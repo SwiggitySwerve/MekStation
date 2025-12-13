@@ -160,7 +160,7 @@ electronDownload:
   cache: .electron-cache
 
 # Compression settings
-compression: maximum
+compression: normal
 
 # Consistent artifact naming across platforms/architectures
 artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
