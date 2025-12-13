@@ -34,6 +34,8 @@ console.log(`Testing platforms: ${PLATFORMS.join(', ')}\n`);
 
 const desktopDir = path.join(__dirname, '..');
 const rootDir = path.join(desktopDir, '..');
+const OUTPUT_DIR = process.env.MEKSTATION_TEST_BUILD_OUTPUT_DIR || 'release-test';
+const OUTPUT_FLAG = `--config.directories.output=${OUTPUT_DIR}`;
 
 // Step 1: Build Next.js application
 console.log('📦 Step 1: Building Next.js application...');
@@ -62,8 +64,22 @@ try {
   process.exit(1);
 }
 
-// Step 3: Verify build outputs exist
-console.log('🔍 Step 3: Verifying build outputs...');
+// Step 3: Rebuild native modules in Next.js standalone output for Electron
+// (The packaged desktop app runs Next server under Electron's Node runtime)
+console.log('🧩 Step 3: Rebuilding Next.js standalone native modules (Electron ABI)...');
+try {
+  execSync('npm run rebuild:next-standalone', {
+    cwd: desktopDir,
+    stdio: 'inherit'
+  });
+  console.log('✅ Next.js standalone native rebuild complete\n');
+} catch (error) {
+  console.error('❌ Next.js standalone native rebuild failed');
+  process.exit(1);
+}
+
+// Step 4: Verify build outputs exist
+console.log('🔍 Step 4: Verifying build outputs...');
 const mainJsPath = path.join(desktopDir, 'dist', 'electron', 'main.js');
 if (!fs.existsSync(mainJsPath)) {
   console.error(`❌ Main entry file not found: ${mainJsPath}`);
@@ -71,8 +87,8 @@ if (!fs.existsSync(mainJsPath)) {
 }
 console.log('✅ Build outputs verified\n');
 
-// Step 4: Test electron-builder for each platform
-console.log('🚀 Step 4: Testing electron-builder configuration...\n');
+// Step 5: Test electron-builder for each platform
+console.log('🚀 Step 5: Testing electron-builder configuration...\n');
 
 const results = {
   win: { tested: false, success: false, error: null },
@@ -121,10 +137,10 @@ for (const platform of PLATFORMS) {
     // Use electron-builder directly with --dir flag and skip signing
     // signAndEditExecutable: false should prevent winCodeSign download
     const packCommand = platform === 'win' 
-      ? 'npx electron-builder --win --dir --config.win.sign=false --config.win.signAndEditExecutable=false'
+      ? `npx electron-builder --win --dir ${OUTPUT_FLAG} --config.win.sign=false --config.win.signAndEditExecutable=false`
       : platform === 'mac'
-      ? 'npx electron-builder --mac --dir --config.mac.sign=false'
-      : 'npx electron-builder --linux --dir';
+      ? `npx electron-builder --mac --dir ${OUTPUT_FLAG} --config.mac.sign=false`
+      : `npx electron-builder --linux --dir ${OUTPUT_FLAG}`;
     
     execSync(packCommand, { 
       cwd: desktopDir, 
@@ -144,7 +160,7 @@ for (const platform of PLATFORMS) {
     });
     
     // Verify output exists
-    const releaseDir = path.join(desktopDir, 'release');
+    const releaseDir = path.join(desktopDir, OUTPUT_DIR);
     if (fs.existsSync(releaseDir)) {
       const files = fs.readdirSync(releaseDir);
       if (files.length > 0) {

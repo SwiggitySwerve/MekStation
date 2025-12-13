@@ -16,22 +16,22 @@ directories:
 files:
   - "dist/**/*"
   - "assets/**/*"
-  - "node_modules/**/*"
+  - "package.json"
+  # Reduce shipped size (debug/dev artifacts are not required at runtime)
+  - "!**/*.map"
+  - "!**/*.d.ts"
+  - "!**/*.d.ts.map"
 
 # Extra resources to include (outside of app.asar)
 extraResources:
-  - from: "assets"
-    to: "assets"
   # Next.js standalone output (self-contained server + deps)
   - from: "../.next/standalone"
     to: "next-standalone"
   # Next.js static assets (CSS/JS) for standalone server
   - from: "../.next/static"
     to: "next-standalone/.next/static"
-  - from: "../public/data"
-    to: "data"
-  - from: "../public/record-sheets"
-    to: "record-sheets"
+  # NOTE: Next.js public assets are copied via an afterPack hook (with retries)
+  # to avoid intermittent Windows file locking errors during electron-builder bulk copy.
 
 # ASAR archive configuration
 asar: true

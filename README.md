@@ -17,6 +17,27 @@ Desktop build (Electron):
 npm run electron:dist:all   # Build platform installers from root
 ```
 
+Desktop auto-updates (clean GitHub Releases):
+
+- GitHub Releases are kept **installer/package only** (no `latest*.yml` / `*.blockmap` clutter).
+- Auto-update metadata (`latest*.yml`) is hosted on **GitHub Pages** under `updates/`.
+
+Release workflow (per platform):
+
+```bash
+# 1) Build platform artifacts (generates installers/packages + update metadata in desktop/release/)
+npm run electron:dist:win   # or :mac / :linux
+
+# 2) Upload installers/packages to the GitHub Release (filters out *.yml and *.blockmap)
+npm --prefix desktop run release:upload-assets -- --tag vX.Y.Z
+
+# 3) Publish update metadata to GitHub Pages (gh-pages branch)
+npm --prefix desktop run release:publish-update-metadata -- --tag vX.Y.Z
+```
+
+If you are using a fork or custom hosting, set:
+- `MEKSTATION_UPDATE_FEED_BASE_URL` (defaults to `https://swiggityswerve.github.io/MekStation/updates`)
+
 ## Key Docs
 
 - Overview & deep-dive: `docs/overview.md`
