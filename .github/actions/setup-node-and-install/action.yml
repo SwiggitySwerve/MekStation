@@ -6,6 +6,10 @@ inputs:
     description: Node.js version to use
     required: false
     default: '20'
+  skip-nextjs-cache:
+    description: Skip Next.js build cache (use when downloading pre-built artifacts)
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -20,6 +24,7 @@ runs:
           desktop/package-lock.json
 
     - name: Cache Next.js build cache (.next/cache)
+      if: inputs.skip-nextjs-cache != 'true'
       uses: actions/cache@v4
       with:
         path: .next/cache
@@ -51,5 +56,3 @@ runs:
       shell: bash
       working-directory: desktop
       run: npm ci
-
-

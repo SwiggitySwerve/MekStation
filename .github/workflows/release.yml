@@ -63,8 +63,53 @@ jobs:
         run: |
           echo "Release tag: ${{ steps.resolve_tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Previous tag: ${{ steps.resolve_tag.outputs.prev_tag }}" >> "$GITHUB_STEP_SUMMARY"
-  build:
+
+  prepare-build:
+    name: Prepare Build Artifacts
     needs: release-context
+    runs-on: ubuntu-latest
+    if: startsWith(needs.release-context.outputs.tag, 'v')
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-context.outputs.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Build Electron TypeScript
+        working-directory: desktop
+        run: npm run build
+
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: |
+            .next/standalone
+            .next/static
+            desktop/dist
+          retention-days: 1
+
+  build:
+    needs: [release-context, prepare-build]
     runs-on: ${{ matrix.os }}
     if: startsWith(needs.release-context.outputs.tag, 'v')
     strategy:
@@ -122,12 +167,23 @@ jobs:
         working-directory: desktop
         run: npm ci
 
-      - name: Build Next.js application
-        run: npm run build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
 
-      - name: Build Electron TypeScript
+      - name: Restore artifact structure
+        shell: bash
+        run: |
+          # Verify the artifacts are in place
+          test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
+          test -d .next/static || { echo "Missing .next/static"; exit 1; }
+          test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
+
+      - name: Rebuild native modules for platform
         working-directory: desktop
-        run: npm run build
+        shell: bash
+        run: npm run rebuild:next-standalone
 
       - name: Build Electron application (Linux)
         if: matrix.platform == 'linux'

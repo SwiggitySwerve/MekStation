@@ -30,8 +30,40 @@ jobs:
       - name: Run tests
         run: npm run test:coverage
 
+  prepare-build:
+    name: Prepare Build Artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Build Electron TypeScript
+        working-directory: desktop
+        run: npm run build
+
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: |
+            .next/standalone
+            .next/static
+            desktop/dist
+          retention-days: 1
+
   build-test:
     name: Build Test / ${{ matrix.platform }}
+    needs: prepare-build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -54,14 +86,32 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '20'
+          skip-nextjs-cache: 'true'
 
-      - name: Build desktop (Next.js + Electron TypeScript)
-        run: npm run electron:build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+
+      - name: Restore artifact structure
+        shell: bash
+        run: |
+          # Move downloaded artifacts to their correct locations
+          # download-artifact extracts to current directory preserving structure
+          # Verify the artifacts are in place
+          test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
+          test -d .next/static || { echo "Missing .next/static"; exit 1; }
+          test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
+
+      - name: Rebuild native modules for platform
+        working-directory: desktop
+        shell: bash
+        run: npm run rebuild:next-standalone
 
       - name: Test Electron build (pack mode)
         working-directory: desktop
         shell: bash
-        run: npm run pack -- --publish never
+        run: npx electron-builder --dir --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
