@@ -15,7 +15,7 @@ import { ArmorTypeEnum, getArmorDefinition } from '../../types/construction/Armo
 import { CockpitType, getCockpitDefinition } from '../../types/construction/CockpitType';
 import { calculateEngineWeight, calculateIntegralHeatSinks, validateEngineRating } from './engineCalculations';
 import { calculateGyroWeight, getGyroCriticalSlots } from './gyroCalculations';
-import { MINIMUM_HEAT_SINKS, calculateExternalHeatSinkWeight, calculateExternalHeatSinkSlots } from './heatSinkCalculations';
+import { MINIMUM_HEAT_SINKS, calculateHeatSinkWeight, calculateExternalHeatSinkSlots } from './heatSinkCalculations';
 import { calculateArmorWeight } from './armorCalculations';
 import { ceilToHalfTon } from '../physical/weightUtils';
 
@@ -223,7 +223,8 @@ export function calculateHeatSinks(
   const integrated = calculateIntegralHeatSinks(engineRating, engineType);
   const external = Math.max(0, totalHeatSinks - integrated);
 
-  const weight = calculateExternalHeatSinkWeight(external, heatSinkType);
+  // First 10 heat sinks are weight-free per BattleTech rules
+  const weight = calculateHeatSinkWeight(totalHeatSinks, heatSinkType);
   const criticalSlots = calculateExternalHeatSinkSlots(external, heatSinkType);
 
   if (external > integrated) {
@@ -286,9 +287,8 @@ export function calculateStructuralWeight(config: MechBuildConfig): number {
   const gyroWeight = calculateGyroWeight(config.engineRating, config.gyroType);
   const cockpitWeight = getCockpitDefinition(config.cockpitType)?.weight ?? 3;
   
-  const integrated = calculateIntegralHeatSinks(config.engineRating, config.engineType);
-  const externalHS = Math.max(0, config.totalHeatSinks - integrated);
-  const heatSinkWeight = calculateExternalHeatSinkWeight(externalHS, config.heatSinkType);
+  // First 10 heat sinks are weight-free per BattleTech rules
+  const heatSinkWeight = calculateHeatSinkWeight(config.totalHeatSinks, config.heatSinkType);
   
   const armorWeight = calculateArmorWeight(config.totalArmorPoints, config.armorType);
 

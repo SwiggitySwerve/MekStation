@@ -97,11 +97,15 @@ export function useUnitCalculations(
     const cockpitWeight = cockpitDef?.weight ?? 3;
     
     // Heat sink calculations
+    // Engine-integrated heat sinks don't require critical slots
     const integralHeatSinks = calculateIntegralHeatSinks(selections.engineRating, selections.engineType);
     const externalHeatSinks = Math.max(0, selections.heatSinkCount - integralHeatSinks);
-    const heatSinkWeight = heatSinkDef 
-      ? externalHeatSinks * heatSinkDef.weight
-      : externalHeatSinks * 1.0;
+    
+    // First 10 heat sinks are WEIGHT-FREE per BattleTech rules
+    // Weight only applies to heat sinks beyond the free 10
+    const heatSinksRequiringWeight = Math.max(0, selections.heatSinkCount - 10);
+    const weightPerHeatSink = heatSinkDef?.weight ?? 1.0;
+    const heatSinkWeight = heatSinksRequiringWeight * weightPerHeatSink;
     
     // Armor weight - use armorTonnage directly (not calculated from allocated points)
     // The user sets armor tonnage in the Armor tab, and weight should reflect that setting

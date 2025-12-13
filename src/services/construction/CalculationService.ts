@@ -11,7 +11,7 @@ import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { EngineType } from '@/types/construction/EngineType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { BV2_SPEED_FACTORS } from '@/types/validation/BattleValue';
+import { BV2_SPEED_FACTORS_BY_TMM, calculateTMM } from '@/types/validation/BattleValue';
 
 /**
  * Mech totals summary
@@ -109,6 +109,10 @@ export class CalculationService implements ICalculationService {
     const baseBV = defensiveBV + adjustedOffensive;
     const finalBV = baseBV * speedFactor;
     
+    // #region agent log
+    console.log('[BV DEBUG] Total BV:', { defensiveBV, offensiveBV, heatAdjustment, movement, speedFactor, adjustedOffensive, baseBV, finalBV: Math.round(finalBV) });
+    // #endregion
+    
     return Math.round(finalBV);
   }
 
@@ -117,10 +121,16 @@ export class CalculationService implements ICalculationService {
    */
   private calculateDefensiveBV(mech: IEditableMech): number {
     // Armor BV = total armor points × 2.5
-    const armorBV = this.calculateTotalArmorPoints(mech) * 2.5;
+    const totalArmorPoints = this.calculateTotalArmorPoints(mech);
+    const armorBV = totalArmorPoints * 2.5;
     
     // Structure BV = total structure points × 1.5
-    const structureBV = this.calculateTotalStructurePoints(mech) * 1.5;
+    const totalStructurePoints = this.calculateTotalStructurePoints(mech);
+    const structureBV = totalStructurePoints * 1.5;
+    
+    // #region agent log
+    console.log('[BV DEBUG] Defensive BV:', { totalArmorPoints, armorBV, totalStructurePoints, structureBV, totalDefensiveBV: armorBV + structureBV, armorAllocation: mech.armorAllocation });
+    // #endregion
     
     return armorBV + structureBV;
   }
@@ -130,44 +140,125 @@ export class CalculationService implements ICalculationService {
    */
   private calculateOffensiveBV(mech: IEditableMech): number {
     const registry = getEquipmentRegistry();
+    
+    // If registry isn't initialized, trigger initialization and return 0
+    // The component will re-render when data is available
+    if (!registry.isReady()) {
+      // Trigger async initialization (fire-and-forget)
+      registry.initialize().catch(console.error);
+      console.log('[BV DEBUG] Registry not ready, returning 0 offensive BV');
+      return 0;
+    }
+    
     let totalBV = 0;
+    
+    // #region agent log
+    const bvDebugInfo: Array<{ equipmentId: string; found: boolean; bv: number; hasBV: boolean }> = [];
+    // #endregion
     
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
+      // #region agent log
+      const equipmentKeys = result.equipment ? Object.keys(result.equipment) : [];
+      const rawBV = result.equipment ? (result.equipment as Record<string, unknown>).battleValue : undefined;
+      console.log('[BV DEBUG] Equipment lookup:', { 
+        equipmentId: slot.equipmentId, 
+        found: result.found, 
+        equipmentName: result.equipment?.name,
+        hasEquipment: !!result.equipment,
+        hasBattleValueProp: result.equipment ? 'battleValue' in result.equipment : false,
+        rawBV,
+        keys: equipmentKeys.slice(0, 10)
+      });
+      // #endregion
       if (result.found && result.equipment && 'battleValue' in result.equipment) {
-        totalBV += (result.equipment as { battleValue: number }).battleValue;
+        const bv = (result.equipment as { battleValue: number }).battleValue;
+        totalBV += bv;
+        // #region agent log
+        bvDebugInfo.push({ equipmentId: slot.equipmentId, found: true, bv, hasBV: true });
+        // #endregion
+      } else {
+        // #region agent log
+        bvDebugInfo.push({ equipmentId: slot.equipmentId, found: result.found, bv: 0, hasBV: result.equipment ? 'battleValue' in result.equipment : false });
+        // #endregion
       }
     }
+    
+    // #region agent log
+    console.log('[BV DEBUG] Offensive BV:', { equipmentCount: mech.equipment.length, bvDebugInfo: JSON.stringify(bvDebugInfo), totalBV });
+    // #endregion
     
     return totalBV;
   }
 
   /**
    * Calculate heat adjustment factor for BV
-   * If heat generation exceeds dissipation, offensive BV is reduced
+   * 
+   * Per BV2 rules, mechs that generate more heat than they dissipate
+   * receive a reduced offensive BV based on heat efficiency.
+   * 
+   * Heat Efficiency = dissipation / generation (capped at 1.0)
+   * The adjustment factor ranges from ~0.5 (very inefficient) to 1.0 (heat neutral)
    */
   private calculateHeatAdjustment(mech: IEditableMech): number {
     const heatProfile = this.calculateHeatProfile(mech);
     
-    if (heatProfile.netHeat <= 0) {
-      return 1.0; // No penalty if heat neutral or negative
+    // No penalty if heat neutral or negative (can dissipate all heat)
+    if (heatProfile.netHeat <= 0 || heatProfile.alphaStrikeHeat <= 0) {
+      return 1.0;
     }
     
-    // Heat penalty: reduce BV by 10% for each point of excess heat (max 50% reduction)
-    const penalty = Math.min(0.5, heatProfile.netHeat * 0.1);
-    return 1.0 - penalty;
+    // BV2 heat adjustment: based on TechManual errata
+    // The formula uses the ratio of dissipation to generation
+    // Penalty only applies when generating significantly more heat than dissipation
+    const heatEfficiency = Math.min(1.0, heatProfile.heatDissipated / heatProfile.alphaStrikeHeat);
+    
+    // Per BV2 rules, the adjustment is more lenient for small amounts of excess heat
+    // Formula: efficiency ratio with a floor of 0.5
+    // For mechs that can dissipate 70%+ of their heat, minimal penalty
+    // For mechs that can only dissipate 50% or less, significant penalty
+    let adjustment: number;
+    if (heatEfficiency >= 0.9) {
+      // 90%+ efficiency: no penalty
+      adjustment = 1.0;
+    } else if (heatEfficiency >= 0.7) {
+      // 70-90% efficiency: small penalty (0.95-1.0)
+      adjustment = 0.95 + ((heatEfficiency - 0.7) * 0.25);
+    } else {
+      // Below 70% efficiency: scaling penalty down to 0.5
+      adjustment = 0.5 + (heatEfficiency * 0.64);
+    }
+    
+    // #region agent log
+    console.log('[BV DEBUG] Heat Adjustment:', { 
+      alphaStrikeHeat: heatProfile.alphaStrikeHeat, 
+      heatDissipated: heatProfile.heatDissipated, 
+      netHeat: heatProfile.netHeat,
+      heatEfficiency, 
+      adjustment 
+    });
+    // #endregion
+    
+    return adjustment;
   }
 
   /**
-   * Get speed factor from BV2 table
+   * Get speed factor from BV2 table using TMM
+   * Per TechManual BV2 rules
    */
   private getSpeedFactor(runMP: number, jumpMP: number): number {
-    // Use higher of run or jump (jump weighted)
-    const effectiveSpeed = Math.max(runMP, Math.ceil(jumpMP * 0.5));
+    // Calculate TMM from movement profile
+    const tmm = calculateTMM(runMP, jumpMP);
     
-    if (effectiveSpeed <= 0) return BV2_SPEED_FACTORS[0];
-    if (effectiveSpeed >= 25) return BV2_SPEED_FACTORS[25];
-    return BV2_SPEED_FACTORS[effectiveSpeed] ?? 1.0;
+    // Look up speed factor by TMM (capped at 10)
+    const cappedTMM = Math.min(10, Math.max(0, tmm));
+    const speedFactor = BV2_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+    
+    // #region agent log
+    console.log('[BV DEBUG] Speed Factor:', { runMP, jumpMP, tmm, speedFactor });
+    // #endregion
+    
+    return speedFactor;
   }
 
   /**
@@ -274,14 +365,50 @@ export class CalculationService implements ICalculationService {
 
     // Calculate heat generated from weapons
     const registry = getEquipmentRegistry();
+    
+    // If registry isn't initialized, trigger initialization and return default
+    if (!registry.isReady()) {
+      registry.initialize().catch(console.error);
+      console.log('[HEAT DEBUG] Registry not ready, returning default heat profile');
+      return {
+        heatGenerated: 0,
+        heatDissipated,
+        netHeat: -heatDissipated,
+        alphaStrikeHeat: 0,
+      };
+    }
+    
     let heatGenerated = 0;
+    
+    // #region agent log
+    const heatDebugInfo: Array<{ equipmentId: string; heat: number; found: boolean }> = [];
+    // #endregion
     
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (result.found && result.equipment && 'heat' in result.equipment) {
-        heatGenerated += (result.equipment as { heat: number }).heat;
+        const heat = (result.equipment as { heat: number }).heat;
+        heatGenerated += heat;
+        // #region agent log
+        heatDebugInfo.push({ equipmentId: slot.equipmentId, heat, found: true });
+        // #endregion
+      } else {
+        // #region agent log
+        heatDebugInfo.push({ equipmentId: slot.equipmentId, heat: 0, found: result.found });
+        // #endregion
       }
     }
+    
+    // #region agent log
+    console.log('[HEAT DEBUG] Heat Profile:', { 
+      equipmentCount: mech.equipment.length, 
+      heatGenerated, 
+      heatDissipated,
+      heatSinkCount: mech.heatSinkCount,
+      heatSinkType: mech.heatSinkType,
+      heatDebugInfo: JSON.stringify(heatDebugInfo)
+    });
+    // #endregion
 
     // Alpha strike heat = total heat from firing all weapons
     const alphaStrikeHeat = heatGenerated;

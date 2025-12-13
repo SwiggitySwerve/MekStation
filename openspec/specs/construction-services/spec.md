@@ -261,16 +261,42 @@ The system SHALL calculate all derived values for a mech.
 
 ### Requirement: Calculate Battle Value
 
-The system SHALL calculate the Battle Value of a mech.
+The system SHALL calculate the Battle Value of a mech using BV2 formula.
 
 **Rationale**: BV is the primary balancing metric for gameplay.
 
 **Priority**: High
 
-#### Scenario: Calculate BV
-- **GIVEN** a complete mech build
+#### Scenario: Calculate BV with all components
+- **GIVEN** a complete mech build with weapons, armor, and heat sinks
 - **WHEN** calculateBattleValue(mech) is called
-- **THEN** return numeric BV calculated per official rules
+- **THEN** defensive BV SHALL be calculated from armor and structure
+- **AND** offensive BV SHALL be calculated from weapon BV values
+- **AND** heat adjustment SHALL be applied to offensive BV
+- **AND** speed factor SHALL be applied based on TMM
+- **AND** return numeric BV calculated per BV2 formula
+
+#### Scenario: Calculate BV before registry initialization
+- **GIVEN** equipment registry is not yet initialized
+- **WHEN** calculateBattleValue(mech) is called
+- **THEN** offensive BV SHALL be 0
+- **AND** defensive BV SHALL still be calculated
+- **AND** registry initialization SHALL be triggered
+- **AND** BV SHALL recalculate when registry becomes ready
+
+#### Scenario: Defensive BV calculation
+- **GIVEN** a mech with armor allocation and structure
+- **WHEN** calculating defensive BV
+- **THEN** armor BV SHALL equal total armor points × 2.5
+- **AND** structure BV SHALL equal total structure points × 1.5
+- **AND** total defensive BV SHALL equal armor BV + structure BV
+
+#### Scenario: Offensive BV calculation
+- **GIVEN** a mech with weapons in equipment array
+- **WHEN** calculating offensive BV
+- **THEN** each weapon BV SHALL be looked up from equipment registry
+- **AND** ammunition BV SHALL be included
+- **AND** total offensive BV SHALL be sum of all equipment BV values
 
 ---
 
@@ -291,16 +317,26 @@ The system SHALL calculate the C-Bill cost of a mech.
 
 ### Requirement: Calculate Heat Profile
 
-The system SHALL analyze heat generation vs dissipation.
+The system SHALL analyze heat generation vs dissipation using registry lookup.
 
 **Rationale**: Heat management is critical for mech effectiveness.
 
 **Priority**: High
 
-#### Scenario: Calculate heat profile
+#### Scenario: Calculate heat profile with registry
 - **GIVEN** a mech with weapons and heat sinks
+- **AND** equipment registry is initialized
 - **WHEN** calculateHeatProfile(mech) is called
-- **THEN** return IHeatProfile with heatGenerated, heatDissipated, netHeat
+- **THEN** heat generated SHALL be sum of weapon heat values from registry
+- **AND** heat dissipated SHALL be heat sink count × dissipation per sink
+- **AND** return IHeatProfile with heatGenerated, heatDissipated, netHeat, alphaStrikeHeat
+
+#### Scenario: Calculate heat profile before registry ready
+- **GIVEN** equipment registry is not initialized
+- **WHEN** calculateHeatProfile(mech) is called
+- **THEN** heat generated SHALL be 0
+- **AND** heat dissipated SHALL still be calculated
+- **AND** registry initialization SHALL be triggered asynchronously
 
 ---
 
@@ -316,6 +352,22 @@ The system SHALL calculate movement points.
 - **GIVEN** a mech with engine and optional jump jets
 - **WHEN** calculateMovement(mech) is called
 - **THEN** return IMovementProfile with walkMP, runMP, jumpMP
+
+---
+
+### Requirement: Service Initialization
+
+Browser services SHALL be initialized on application mount.
+
+**Rationale**: Equipment registry must be ready before calculations can succeed.
+
+**Priority**: Critical
+
+#### Scenario: Browser service initialization
+- **WHEN** application mounts in browser
+- **THEN** IndexedDBService SHALL be initialized
+- **AND** EquipmentRegistry SHALL be initialized
+- **AND** components SHALL be notified when initialization completes
 
 ---
 

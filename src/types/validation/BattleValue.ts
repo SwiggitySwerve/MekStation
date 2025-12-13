@@ -15,7 +15,43 @@ export enum BVVersion {
 }
 
 /**
- * Speed factor lookup table for BV2
+ * Speed factor lookup table for BV2 - indexed by TMM (Target Movement Modifier)
+ * Per TechManual BV2 rules
+ */
+export const BV2_SPEED_FACTORS_BY_TMM: Record<number, number> = {
+  0: 1.0,
+  1: 1.1,
+  2: 1.2,
+  3: 1.3,
+  4: 1.4,
+  5: 1.5,
+  6: 1.6,
+  7: 1.7,
+  8: 1.8,
+  9: 1.9,
+  10: 2.0,
+};
+
+/**
+ * Calculate TMM from movement points
+ * Per TechManual movement rules
+ */
+export function calculateTMM(runMP: number, jumpMP: number = 0): number {
+  // Use the better of run or jump MP for TMM calculation
+  const effectiveMP = Math.max(runMP, jumpMP);
+  
+  if (effectiveMP <= 2) return 0;
+  if (effectiveMP <= 4) return 1;
+  if (effectiveMP <= 6) return 2;
+  if (effectiveMP <= 9) return 3;
+  if (effectiveMP <= 17) return 4;
+  if (effectiveMP <= 24) return 5;
+  return 6;
+}
+
+/**
+ * @deprecated Use BV2_SPEED_FACTORS_BY_TMM with calculateTMM instead
+ * Speed factor lookup table for BV2 - indexed by raw MP (legacy/incorrect)
  */
 export const BV2_SPEED_FACTORS: Record<number, number> = {
   0: 0.44,
