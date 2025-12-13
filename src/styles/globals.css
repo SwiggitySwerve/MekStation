@@ -883,3 +883,57 @@ button:disabled {
 .filter-clear-btn {
   @apply px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors;
 }
+
+/* ========================================
+   TYPOGRAPHY UTILITY CLASSES
+   ======================================== */
+
+/*
+ * Display and heading typography utilities inspired by COMP/CON.
+ * Use these for distinctive, bold page headers and section titles.
+ */
+
+/* Display title - spaced letters "C O M P E N D I U M" style */
+.text-display {
+  @apply text-5xl font-light tracking-[0.3em] uppercase text-center text-slate-200;
+}
+
+/* Display title - smaller variant */
+.text-display-sm {
+  @apply text-3xl font-light tracking-[0.25em] uppercase text-center text-slate-200;
+}
+
+/* Section header - bold uppercase like COMP/CON category headers */
+.text-section-header {
+  @apply text-xl font-bold tracking-wide uppercase text-white;
+}
+
+/* Category label - used on navigation cards */
+.text-category-label {
+  @apply text-sm font-semibold uppercase tracking-wider;
+}
+
+/* Subtitle text - for descriptions under headers */
+.text-subtitle {
+  @apply text-sm text-slate-400 tracking-wide;
+}
+
+/* ========================================
+   ANIMATION UTILITY CLASSES
+   ======================================== */
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}

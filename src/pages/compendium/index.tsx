@@ -1,18 +1,21 @@
 /**
  * Rules Compendium Page
  * Reference for BattleTech construction rules and game mechanics.
+ * Redesigned with COMP/CON-inspired layout and typography.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  PageLayout,
   Card,
+  CategoryCard,
 } from '@/components/ui';
+import type { AccentColor } from '@/components/ui';
 
 interface RuleSection {
   id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
+  accentColor: AccentColor;
   items: RuleItem[];
 }
 
@@ -28,6 +31,7 @@ const ruleSections: RuleSection[] = [
     title: 'Internal Structure',
     description: 'Structure types and weight calculations',
     icon: <StructureIcon />,
+    accentColor: 'amber',
     items: [
       {
         title: 'Standard Structure',
@@ -56,6 +60,7 @@ const ruleSections: RuleSection[] = [
     title: 'Engine',
     description: 'Engine types and rating calculations',
     icon: <LightningIcon />,
+    accentColor: 'amber',
     items: [
       {
         title: 'Engine Rating',
@@ -85,6 +90,7 @@ const ruleSections: RuleSection[] = [
     title: 'Armor',
     description: 'Armor types and maximum allocations',
     icon: <ShieldIcon />,
+    accentColor: 'rose',
     items: [
       {
         title: 'Maximum Armor Formula',
@@ -115,6 +121,7 @@ const ruleSections: RuleSection[] = [
     title: 'Heat Sinks',
     description: 'Heat management and dissipation',
     icon: <FlameIcon />,
+    accentColor: 'rose',
     items: [
       {
         title: 'Minimum Heat Sinks',
@@ -140,6 +147,7 @@ const ruleSections: RuleSection[] = [
     title: 'Gyro',
     description: 'Gyro types and stability',
     icon: <GyroIcon />,
+    accentColor: 'amber',
     items: [
       {
         title: 'Standard Gyro',
@@ -165,6 +173,7 @@ const ruleSections: RuleSection[] = [
     title: 'Movement',
     description: 'Movement points and jump jets',
     icon: <RocketIcon />,
+    accentColor: 'emerald',
     items: [
       {
         title: 'Running MP',
@@ -190,6 +199,7 @@ const ruleSections: RuleSection[] = [
     title: 'Critical Slots',
     description: 'Critical slot allocation by location',
     icon: <ListIcon />,
+    accentColor: 'cyan',
     items: [
       {
         title: 'Head',
@@ -215,85 +225,202 @@ const ruleSections: RuleSection[] = [
   },
 ];
 
-export default function CompendiumPage(): React.ReactElement {
-  return (
-    <PageLayout
-      title="Rules Compendium"
-      subtitle="Quick reference for BattleTech TechManual construction rules"
-      maxWidth="narrow"
-    >
-      {/* Navigation */}
-      <Card className="mb-8">
-        <nav aria-label="Compendium sections">
-          <div className="flex flex-wrap gap-2">
-            {ruleSections.map((section) => (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors text-sm"
-              >
-                {section.title}
-              </a>
-            ))}
-          </div>
-        </nav>
-      </Card>
+// Accent color styles for section headers
+const accentColorStyles: Record<AccentColor, { bg: string; text: string; border: string }> = {
+  amber: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30' },
+  cyan: { bg: 'bg-cyan-500/20', text: 'text-cyan-400', border: 'border-cyan-500/30' },
+  emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
+  rose: { bg: 'bg-rose-500/20', text: 'text-rose-400', border: 'border-rose-500/30' },
+  violet: { bg: 'bg-violet-500/20', text: 'text-violet-400', border: 'border-violet-500/30' },
+};
 
-      {/* Rule Sections */}
-      <div className="space-y-8">
-        {ruleSections.map((section) => (
-          <section
-            key={section.id}
-            id={section.id}
-            className="bg-slate-800/30 border border-slate-700 rounded-xl overflow-hidden scroll-mt-6"
-            aria-labelledby={`${section.id}-title`}
-          >
-            {/* Section Header */}
-            <div className="bg-slate-800/50 px-6 py-4 border-b border-slate-700">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-rose-600/20 text-rose-400">
-                  {section.icon}
-                </div>
-                <div>
-                  <h2 id={`${section.id}-title`} className="text-xl font-semibold text-white">
-                    {section.title}
-                  </h2>
-                  <p className="text-slate-400 text-sm">{section.description}</p>
+export default function CompendiumPage(): React.ReactElement {
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter sections based on search
+  const filteredSections = ruleSections.filter(section =>
+    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    section.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    section.items.some(item => 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  // Get the selected section data
+  const activeSectionData = selectedSection 
+    ? ruleSections.find(s => s.id === selectedSection) 
+    : null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Header with spaced-letter title */}
+        <header className="text-center mb-12">
+          <h1 className="text-display mb-6">
+            COMPENDIUM
+          </h1>
+          
+          {/* Search bar */}
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search the Compendium..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 transition-colors"
+              />
+            </div>
+          </div>
+        </header>
+
+        {/* Category Navigation Grid or Section Detail */}
+        {selectedSection && activeSectionData ? (
+          // Section Detail View
+          <div className="animate-fadeIn">
+            {/* Back button */}
+            <button
+              onClick={() => setSelectedSection(null)}
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors mb-6"
+            >
+              <BackIcon />
+              <span>Back to Categories</span>
+            </button>
+
+            {/* Section content */}
+            <section
+              className="bg-slate-800/30 border border-slate-700 rounded-xl overflow-hidden"
+              aria-labelledby={`${activeSectionData.id}-title`}
+            >
+              {/* Section Header with accent color */}
+              <div className={`px-6 py-5 border-b ${accentColorStyles[activeSectionData.accentColor].border} bg-slate-800/50`}>
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-lg ${accentColorStyles[activeSectionData.accentColor].bg} ${accentColorStyles[activeSectionData.accentColor].text}`}>
+                    {activeSectionData.icon}
+                  </div>
+                  <div>
+                    <h2 
+                      id={`${activeSectionData.id}-title`} 
+                      className="text-section-header"
+                    >
+                      {activeSectionData.title}
+                    </h2>
+                    <p className="text-subtitle mt-1">{activeSectionData.description}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Section Items */}
-            <div className="divide-y divide-slate-700/50">
-              {section.items.map((item, index) => (
-                <article key={index} className="px-6 py-4">
-                  <h3 className="font-medium text-amber-400 mb-1">{item.title}</h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">{item.content}</p>
-                  {item.formula && (
-                    <div className="mt-2 inline-block px-3 py-1 bg-slate-700/50 rounded font-mono text-sm text-cyan-400">
-                      {item.formula}
-                    </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
+              {/* Section Items */}
+              <div className="divide-y divide-slate-700/50">
+                {activeSectionData.items.map((item, index) => (
+                  <article key={index} className="px-6 py-5 hover:bg-slate-800/30 transition-colors">
+                    <h3 className={`font-semibold ${accentColorStyles[activeSectionData.accentColor].text} mb-2`}>
+                      {item.title}
+                    </h3>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      {item.content}
+                    </p>
+                    {item.formula && (
+                      <div className="mt-3 inline-block px-3 py-1.5 bg-slate-700/50 rounded-lg font-mono text-sm text-cyan-400 border border-slate-600/50">
+                        {item.formula}
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </section>
+          </div>
+        ) : (
+          // Category Grid View
+          <div className="space-y-8">
+            {/* Grid of category cards */}
+            <nav aria-label="Compendium sections">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSections.map((section) => (
+                  <CategoryCard
+                    key={section.id}
+                    icon={section.icon}
+                    title={section.title}
+                    subtitle={section.description}
+                    href={`#${section.id}`}
+                    accentColor={section.accentColor}
+                    onClick={() => setSelectedSection(section.id)}
+                  />
+                ))}
+              </div>
+            </nav>
+
+            {/* Empty state when search yields no results */}
+            {filteredSections.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-slate-400">No sections match your search.</p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="mt-4 text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  Clear search
+                </button>
+              </div>
+            )}
+
+            {/* Quick Reference Stats */}
+            <Card variant="dark" className="mt-8">
+              <h3 className="text-category-label text-slate-400 mb-4">Quick Reference</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400">Total Critical Slots</div>
+                  <div className="text-2xl font-bold text-white mt-1">78</div>
+                </div>
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400">Min Heat Sinks</div>
+                  <div className="text-2xl font-bold text-white mt-1">10</div>
+                </div>
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400">Max Head Armor</div>
+                  <div className="text-2xl font-bold text-white mt-1">9</div>
+                </div>
+                <div className="bg-slate-700/30 rounded-lg p-3">
+                  <div className="text-slate-400">Structure Weight</div>
+                  <div className="text-2xl font-bold text-white mt-1">10%</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer className="mt-16 text-center">
+          <p className="text-slate-500 text-sm">
+            Rules reference based on BattleTech TechManual.
+            <br />
+            For complete rules, consult the official rulebooks.
+          </p>
+        </footer>
       </div>
-
-      {/* Source Reference */}
-      <Card variant="dark" className="mt-12 text-center">
-        <p className="text-slate-400 text-sm">
-          Rules reference based on BattleTech TechManual.
-          <br />
-          For complete rules, consult the official rulebooks.
-        </p>
-      </Card>
-    </PageLayout>
+    </div>
   );
 }
 
 // Icon Components
+function SearchIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+  );
+}
+
 function StructureIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
