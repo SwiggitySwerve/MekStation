@@ -187,6 +187,66 @@ export class EquipmentRegistry {
       this.nameToIdMap.set(noSpace, id);
       this.nameToIdMap.set(withSpace, id);
     }
+    
+    // Add slug-style ID aliases for common weapon patterns
+    // This handles unit JSON files that use legacy IDs like 'ultra-ac-5' instead of 'uac-5'
+    this.addSlugAliases(id, name, weapon.techBase === TechBase.CLAN);
+  }
+  
+  /**
+   * Add slug-style ID aliases (e.g., 'ultra-ac-5' → 'uac-5')
+   * Handles legacy ID formats commonly found in unit JSON files
+   */
+  private addSlugAliases(id: string, name: string, isClan: boolean): void {
+    const prefix = isClan ? 'clan-' : '';
+    
+    // Ultra AC patterns: 'uac-5' should also match 'ultra-ac-5'
+    const ultraMatch = id.match(/^(clan-)?uac-(\d+)$/);
+    if (ultraMatch) {
+      const num = ultraMatch[2];
+      this.nameToIdMap.set(`${prefix}ultra-ac-${num}`, id);
+      this.nameToIdMap.set(`ultra-ac-${num}`, id); // Also without prefix for fallback
+    }
+    
+    // Rotary AC patterns: 'rac-5' should also match 'rotary-ac-5'
+    const rotaryMatch = id.match(/^(clan-)?rac-(\d+)$/);
+    if (rotaryMatch) {
+      const num = rotaryMatch[2];
+      this.nameToIdMap.set(`${prefix}rotary-ac-${num}`, id);
+      this.nameToIdMap.set(`rotary-ac-${num}`, id);
+    }
+    
+    // Light AC patterns: 'lac-5' should also match 'light-ac-5'
+    const lightMatch = id.match(/^(clan-)?lac-(\d+)$/);
+    if (lightMatch) {
+      const num = lightMatch[2];
+      this.nameToIdMap.set(`${prefix}light-ac-${num}`, id);
+      this.nameToIdMap.set(`light-ac-${num}`, id);
+    }
+    
+    // LB-X AC patterns: 'lb-10x-ac' should also match 'lb-10-x-ac'
+    const lbxMatch = id.match(/^(clan-)?lb-(\d+)x-ac$/);
+    if (lbxMatch) {
+      const num = lbxMatch[2];
+      this.nameToIdMap.set(`${prefix}lb-${num}-x-ac`, id);
+      this.nameToIdMap.set(`lb-${num}-x-ac`, id);
+    }
+    
+    // ER Laser patterns: 'er-medium-laser' should match 'extended-range-medium-laser'
+    const erMatch = id.match(/^(clan-)?er-(.+)-laser$/);
+    if (erMatch) {
+      const size = erMatch[2];
+      this.nameToIdMap.set(`${prefix}extended-range-${size}-laser`, id);
+      this.nameToIdMap.set(`extended-range-${size}-laser`, id);
+    }
+    
+    // Pulse laser patterns with different naming
+    const pulseMatch = id.match(/^(clan-)?(.+)-pulse-laser$/);
+    if (pulseMatch) {
+      const size = pulseMatch[2];
+      this.nameToIdMap.set(`${prefix}pulse-${size}-laser`, id);
+      this.nameToIdMap.set(`pulse-${size}-laser`, id);
+    }
   }
   
   /**
@@ -194,20 +254,66 @@ export class EquipmentRegistry {
    */
   private addAmmoAliases(ammo: IAmmunition): void {
     const name = ammo.name;
+    const id = ammo.id;
+    const isClan = ammo.techBase === TechBase.CLAN;
     
     // Handle "IS Ammo" and "Clan Ammo" prefixes
     if (ammo.techBase === TechBase.INNER_SPHERE) {
-      this.nameToIdMap.set(`IS ${name}`, ammo.id);
-      this.nameToIdMap.set(`IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, ammo.id);
-    } else if (ammo.techBase === TechBase.CLAN) {
-      this.nameToIdMap.set(`Clan ${name}`, ammo.id);
-      this.nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, ammo.id);
+      this.nameToIdMap.set(`IS ${name}`, id);
+      this.nameToIdMap.set(`IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
+    } else if (isClan) {
+      this.nameToIdMap.set(`Clan ${name}`, id);
+      this.nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
     }
     
     // Handle various ammo naming patterns from MTF files
     const weaponBase = name.replace(' Ammo', '').replace('Ammo ', '');
-    this.nameToIdMap.set(`Ammo ${weaponBase}`, ammo.id);
-    this.nameToIdMap.set(`${weaponBase} Ammo`, ammo.id);
+    this.nameToIdMap.set(`Ammo ${weaponBase}`, id);
+    this.nameToIdMap.set(`${weaponBase} Ammo`, id);
+    
+    // Add slug-style ID aliases for ammo (e.g., 'ultra-ac-5-ammo' → 'uac-5-ammo')
+    this.addAmmoSlugAliases(id, isClan);
+  }
+  
+  /**
+   * Add slug-style ID aliases for ammunition
+   * Handles legacy ID formats like 'ultra-ac-5-ammo' → 'uac-5-ammo'
+   */
+  private addAmmoSlugAliases(id: string, isClan: boolean): void {
+    const prefix = isClan ? 'clan-' : '';
+    
+    // Ultra AC ammo: 'uac-5-ammo' should also match 'ultra-ac-5-ammo'
+    const uacMatch = id.match(/^(clan-)?uac-(\d+)-ammo$/);
+    if (uacMatch) {
+      const num = uacMatch[2];
+      this.nameToIdMap.set(`${prefix}ultra-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`ultra-ac-${num}-ammo`, id);
+    }
+    
+    // Rotary AC ammo: 'rac-5-ammo' should also match 'rotary-ac-5-ammo'
+    const racMatch = id.match(/^(clan-)?rac-(\d+)-ammo$/);
+    if (racMatch) {
+      const num = racMatch[2];
+      this.nameToIdMap.set(`${prefix}rotary-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`rotary-ac-${num}-ammo`, id);
+    }
+    
+    // Light AC ammo: 'lac-5-ammo' should also match 'light-ac-5-ammo'
+    const lacMatch = id.match(/^(clan-)?lac-(\d+)-ammo$/);
+    if (lacMatch) {
+      const num = lacMatch[2];
+      this.nameToIdMap.set(`${prefix}light-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`light-ac-${num}-ammo`, id);
+    }
+    
+    // LB-X AC ammo: 'lb-10x-ac-ammo' should also match 'lb-10-x-ac-ammo'
+    const lbxMatch = id.match(/^(clan-)?lb-(\d+)x-ac-(.*ammo.*)$/);
+    if (lbxMatch) {
+      const num = lbxMatch[2];
+      const suffix = lbxMatch[3];
+      this.nameToIdMap.set(`${prefix}lb-${num}-x-ac-${suffix}`, id);
+      this.nameToIdMap.set(`lb-${num}-x-ac-${suffix}`, id);
+    }
   }
   
   /**

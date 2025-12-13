@@ -295,8 +295,11 @@ export function MultiUnitTabs({
       }
       
       // Create a store from the full loaded state
-      createUnitFromFullState(result.state);
+      const createdStore = createUnitFromFullState(result.state);
       const newTabId = result.state.id;
+      
+      // Suppress unused variable warning - store is registered in unitStores map
+      void createdStore;
       
       // Register the tab with the tab manager
       useTabManagerStore.getState().addTab({

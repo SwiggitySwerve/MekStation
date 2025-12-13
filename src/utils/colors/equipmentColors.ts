@@ -480,6 +480,22 @@ export function getEquipmentColors(colorType: EquipmentColorType): EquipmentColo
 }
 
 /**
+ * Get equipment colors in legacy format for a specific category.
+ * This provides per-category colors (Energy=yellow, Ballistic=red, Missile=teal, etc.)
+ * instead of grouping all weapons into a single color.
+ */
+export function getCategoryColorsLegacy(category: EquipmentCategory): EquipmentColorDefinition {
+  const cat = EQUIPMENT_CATEGORY_COLORS[category];
+  return {
+    bg: cat.slotBg,
+    border: cat.slotBorder,
+    text: cat.slotText,
+    hoverBg: cat.slotHoverBg,
+    badge: `${cat.slotBg} ${cat.slotText}`,
+  };
+}
+
+/**
  * @deprecated Use getCategorySlotClasses instead
  */
 export function getEquipmentColorClasses(colorType: EquipmentColorType): string {
