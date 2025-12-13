@@ -127,6 +127,47 @@ export interface BVCalculation {
 }
 
 /**
+ * Offensive speed factor lookup table - indexed by TMM
+ * Per MegaMekLab BV2 implementation
+ * Offensive factors are slightly lower than defensive factors
+ */
+export const BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM: Record<number, number> = {
+  0: 1.0,
+  1: 1.06,
+  2: 1.12,
+  3: 1.18,
+  4: 1.24,
+  5: 1.30,
+  6: 1.36,
+  7: 1.42,
+  8: 1.48,
+  9: 1.54,
+  10: 1.60,
+};
+
+/**
+ * Get defensive speed factor for BV2 calculation
+ * Applied to (armor + structure + gyro)
+ */
+export function getDefensiveSpeedFactor(runMP: number, jumpMP: number): number {
+  const tmm = calculateTMM(runMP, jumpMP);
+  const cappedTMM = Math.min(10, Math.max(0, tmm));
+  return BV2_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+}
+
+/**
+ * Get offensive speed factor for BV2 calculation
+ * Applied to (weapons + ammo + weight bonus)
+ * Slightly lower than defensive factor per MegaMekLab
+ */
+export function getOffensiveSpeedFactor(runMP: number, jumpMP: number): number {
+  const tmm = calculateTMM(runMP, jumpMP);
+  const cappedTMM = Math.min(10, Math.max(0, tmm));
+  return BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+}
+
+/**
+ * @deprecated Use getDefensiveSpeedFactor or getOffensiveSpeedFactor instead
  * Get speed factor for BV2 calculation
  */
 export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {

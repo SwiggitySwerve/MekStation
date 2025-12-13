@@ -11,7 +11,7 @@ import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { EngineType } from '@/types/construction/EngineType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { BV2_SPEED_FACTORS_BY_TMM, calculateTMM } from '@/types/validation/BattleValue';
+import { getDefensiveSpeedFactor, getOffensiveSpeedFactor } from '@/types/validation/BattleValue';
 
 /**
  * Mech totals summary
@@ -87,39 +87,37 @@ export class CalculationService implements ICalculationService {
   }
 
   /**
-   * Calculate Battle Value using BV2 formula
-   * BV = (Defensive BV + Offensive BV) × Speed Factor
+   * Calculate Battle Value using MegaMekLab BV2 formula
+   * 
+   * Formula:
+   *   Defensive BV = (armor + structure + gyro) × defensiveSpeedFactor
+   *   Offensive BV = (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
+   *   Total BV = round(Defensive BV + Offensive BV)
+   * 
+   * @spec openspec/specs/battle-value-system/spec.md
    */
   calculateBattleValue(mech: IEditableMech): number {
-    // 1. Calculate Defensive BV
-    const defensiveBV = this.calculateDefensiveBV(mech);
-    
-    // 2. Calculate Offensive BV (weapons + ammo)
-    const offensiveBV = this.calculateOffensiveBV(mech);
-    
-    // 3. Calculate heat adjustment factor
-    const heatAdjustment = this.calculateHeatAdjustment(mech);
-    
-    // 4. Get speed factor from movement
     const movement = this.calculateMovement(mech);
-    const speedFactor = this.getSpeedFactor(movement.runMP, movement.jumpMP);
     
-    // 5. Apply formula: (Defensive + (Offensive × Heat Adjustment)) × Speed Factor
-    const adjustedOffensive = offensiveBV * heatAdjustment;
-    const baseBV = defensiveBV + adjustedOffensive;
-    const finalBV = baseBV * speedFactor;
+    // 1. Calculate Defensive BV (includes gyro and defensive speed factor)
+    const defensiveBV = this.calculateDefensiveBV(mech, movement);
     
-    // #region agent log
-    console.log('[BV DEBUG] Total BV:', { defensiveBV, offensiveBV, heatAdjustment, movement, speedFactor, adjustedOffensive, baseBV, finalBV: Math.round(finalBV) });
-    // #endregion
+    // 2. Calculate Offensive BV (includes incremental heat penalties, weight bonus, and offensive speed factor)
+    const offensiveBV = this.calculateOffensiveBV(mech, movement);
+    
+    // 3. Final BV is simply the sum (speed factors already applied separately)
+    const finalBV = defensiveBV + offensiveBV;
     
     return Math.round(finalBV);
   }
 
   /**
-   * Calculate defensive BV from armor and structure
+   * Calculate defensive BV from armor, structure, and gyro
+   * Per MegaMekLab BV2: (armor + structure + gyro) × defensiveSpeedFactor
+   * 
+   * @spec openspec/specs/battle-value-system/spec.md
    */
-  private calculateDefensiveBV(mech: IEditableMech): number {
+  private calculateDefensiveBV(mech: IEditableMech, movement: IMovementProfile): number {
     // Armor BV = total armor points × 2.5
     const totalArmorPoints = this.calculateTotalArmorPoints(mech);
     const armorBV = totalArmorPoints * 2.5;
@@ -128,137 +126,102 @@ export class CalculationService implements ICalculationService {
     const totalStructurePoints = this.calculateTotalStructurePoints(mech);
     const structureBV = totalStructurePoints * 1.5;
     
-    // #region agent log
-    console.log('[BV DEBUG] Defensive BV:', { totalArmorPoints, armorBV, totalStructurePoints, structureBV, totalDefensiveBV: armorBV + structureBV, armorAllocation: mech.armorAllocation });
-    // #endregion
+    // Gyro BV = tonnage × 0.5 (per MegaMekLab)
+    const gyroBV = mech.tonnage * 0.5;
     
-    return armorBV + structureBV;
+    // Base defensive BV before speed factor
+    const baseDefensiveBV = armorBV + structureBV + gyroBV;
+    
+    // Apply defensive speed factor (TMM-based)
+    const defensiveSpeedFactor = getDefensiveSpeedFactor(movement.runMP, movement.jumpMP);
+    const finalDefensiveBV = baseDefensiveBV * defensiveSpeedFactor;
+    
+    return finalDefensiveBV;
   }
 
   /**
-   * Calculate offensive BV from weapons and ammunition
+   * Calculate offensive BV using incremental heat tracking
+   * Per MegaMekLab BV2: (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
+   * 
+   * Weapons are added incrementally with cumulative heat tracking.
+   * Weapons that cause the mech to exceed heat dissipation receive 50% BV penalty.
+   * 
+   * @spec openspec/specs/battle-value-system/spec.md
    */
-  private calculateOffensiveBV(mech: IEditableMech): number {
+  private calculateOffensiveBV(mech: IEditableMech, movement: IMovementProfile): number {
     const registry = getEquipmentRegistry();
     
     // If registry isn't initialized, trigger initialization and return 0
-    // The component will re-render when data is available
     if (!registry.isReady()) {
-      // Trigger async initialization (fire-and-forget)
       registry.initialize().catch(console.error);
-      console.log('[BV DEBUG] Registry not ready, returning 0 offensive BV');
       return 0;
     }
     
-    let totalBV = 0;
+    // Calculate heat dissipation
+    const heatSinkCapacity = mech.heatSinkType.includes('Double') ? 2 : 1;
+    const heatDissipation = mech.heatSinkCount * heatSinkCapacity;
     
-    // #region agent log
-    const bvDebugInfo: Array<{ equipmentId: string; found: boolean; bv: number; hasBV: boolean }> = [];
-    // #endregion
+    // Running heat: 2 heat for running movement
+    const RUNNING_HEAT = 2;
+    let cumulativeHeat = RUNNING_HEAT;
+    
+    // Separate weapons/ammo from equipment
+    const weaponsWithBV: Array<{ id: string; bv: number; heat: number; isAmmo: boolean }> = [];
+    let ammoBV = 0;
     
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
-      // #region agent log
-      const equipmentKeys = result.equipment ? Object.keys(result.equipment) : [];
-      const rawBV = result.equipment ? (result.equipment as Record<string, unknown>).battleValue : undefined;
-      console.log('[BV DEBUG] Equipment lookup:', { 
-        equipmentId: slot.equipmentId, 
-        found: result.found, 
-        equipmentName: result.equipment?.name,
-        hasEquipment: !!result.equipment,
-        hasBattleValueProp: result.equipment ? 'battleValue' in result.equipment : false,
-        rawBV,
-        keys: equipmentKeys.slice(0, 10)
-      });
-      // #endregion
-      if (result.found && result.equipment && 'battleValue' in result.equipment) {
-        const bv = (result.equipment as { battleValue: number }).battleValue;
-        totalBV += bv;
-        // #region agent log
-        bvDebugInfo.push({ equipmentId: slot.equipmentId, found: true, bv, hasBV: true });
-        // #endregion
-      } else {
-        // #region agent log
-        bvDebugInfo.push({ equipmentId: slot.equipmentId, found: result.found, bv: 0, hasBV: result.equipment ? 'battleValue' in result.equipment : false });
-        // #endregion
+      if (!result.found || !result.equipment) continue;
+      
+      const equipment = result.equipment as { battleValue?: number; heat?: number; category?: string };
+      const bv = equipment.battleValue ?? 0;
+      const heat = equipment.heat ?? 0;
+      const category = equipment.category ?? '';
+      
+      // Check if this is ammunition
+      const isAmmo = category.toLowerCase().includes('ammun') || 
+                     slot.equipmentId.toLowerCase().includes('ammo');
+      
+      if (isAmmo) {
+        // Ammo BV is added directly, no heat penalty
+        ammoBV += bv;
+      } else if (heat > 0 || bv > 0) {
+        // Heat-generating equipment or equipment with BV
+        weaponsWithBV.push({ id: slot.equipmentId, bv, heat, isAmmo: false });
       }
     }
     
-    // #region agent log
-    console.log('[BV DEBUG] Offensive BV:', { equipmentCount: mech.equipment.length, bvDebugInfo: JSON.stringify(bvDebugInfo), totalBV });
-    // #endregion
+    // Sort weapons by BV descending (per MegaMekLab - highest BV weapons first)
+    weaponsWithBV.sort((a, b) => b.bv - a.bv);
     
-    return totalBV;
-  }
-
-  /**
-   * Calculate heat adjustment factor for BV
-   * 
-   * Per BV2 rules, mechs that generate more heat than they dissipate
-   * receive a reduced offensive BV based on heat efficiency.
-   * 
-   * Heat Efficiency = dissipation / generation (capped at 1.0)
-   * The adjustment factor ranges from ~0.5 (very inefficient) to 1.0 (heat neutral)
-   */
-  private calculateHeatAdjustment(mech: IEditableMech): number {
-    const heatProfile = this.calculateHeatProfile(mech);
+    // Calculate weapon BV with incremental heat penalties
+    let weaponsBV = 0;
     
-    // No penalty if heat neutral or negative (can dissipate all heat)
-    if (heatProfile.netHeat <= 0 || heatProfile.alphaStrikeHeat <= 0) {
-      return 1.0;
+    for (const weapon of weaponsWithBV) {
+      // Add this weapon's heat to cumulative heat
+      cumulativeHeat += weapon.heat;
+      
+      // Check if we're now over dissipation threshold
+      if (cumulativeHeat <= heatDissipation) {
+        // Within dissipation: full BV
+        weaponsBV += weapon.bv;
+      } else {
+        // Exceeds dissipation: 50% penalty
+        weaponsBV += weapon.bv * 0.5;
+      }
     }
     
-    // BV2 heat adjustment: based on TechManual errata
-    // The formula uses the ratio of dissipation to generation
-    // Penalty only applies when generating significantly more heat than dissipation
-    const heatEfficiency = Math.min(1.0, heatProfile.heatDissipated / heatProfile.alphaStrikeHeat);
+    // Weight bonus: add tonnage
+    const weightBonus = mech.tonnage;
     
-    // Per BV2 rules, the adjustment is more lenient for small amounts of excess heat
-    // Formula: efficiency ratio with a floor of 0.5
-    // For mechs that can dissipate 70%+ of their heat, minimal penalty
-    // For mechs that can only dissipate 50% or less, significant penalty
-    let adjustment: number;
-    if (heatEfficiency >= 0.9) {
-      // 90%+ efficiency: no penalty
-      adjustment = 1.0;
-    } else if (heatEfficiency >= 0.7) {
-      // 70-90% efficiency: small penalty (0.95-1.0)
-      adjustment = 0.95 + ((heatEfficiency - 0.7) * 0.25);
-    } else {
-      // Below 70% efficiency: scaling penalty down to 0.5
-      adjustment = 0.5 + (heatEfficiency * 0.64);
-    }
+    // Base offensive BV before speed factor
+    const baseOffensiveBV = weaponsBV + ammoBV + weightBonus;
     
-    // #region agent log
-    console.log('[BV DEBUG] Heat Adjustment:', { 
-      alphaStrikeHeat: heatProfile.alphaStrikeHeat, 
-      heatDissipated: heatProfile.heatDissipated, 
-      netHeat: heatProfile.netHeat,
-      heatEfficiency, 
-      adjustment 
-    });
-    // #endregion
+    // Apply offensive speed factor (slightly lower than defensive)
+    const offensiveSpeedFactor = getOffensiveSpeedFactor(movement.runMP, movement.jumpMP);
+    const finalOffensiveBV = baseOffensiveBV * offensiveSpeedFactor;
     
-    return adjustment;
-  }
-
-  /**
-   * Get speed factor from BV2 table using TMM
-   * Per TechManual BV2 rules
-   */
-  private getSpeedFactor(runMP: number, jumpMP: number): number {
-    // Calculate TMM from movement profile
-    const tmm = calculateTMM(runMP, jumpMP);
-    
-    // Look up speed factor by TMM (capped at 10)
-    const cappedTMM = Math.min(10, Math.max(0, tmm));
-    const speedFactor = BV2_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
-    
-    // #region agent log
-    console.log('[BV DEBUG] Speed Factor:', { runMP, jumpMP, tmm, speedFactor });
-    // #endregion
-    
-    return speedFactor;
+    return finalOffensiveBV;
   }
 
   /**

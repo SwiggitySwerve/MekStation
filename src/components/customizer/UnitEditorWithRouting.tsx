@@ -322,7 +322,11 @@ export function UnitEditorWithRouting({
         gyroType,
         cockpitType,
         armorType,
-        armorAllocation: {},
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
         heatSinkType,
         heatSinkCount,
         equipment: equipmentSlots,
