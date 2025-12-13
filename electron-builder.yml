@@ -30,9 +30,8 @@ extraResources:
   # Next.js static assets (CSS/JS) for standalone server
   - from: "../.next/static"
     to: "next-standalone/.next/static"
-  # Next.js public assets (served as /<path> by the standalone server)
-  - from: "../public"
-    to: "next-standalone/public"
+  # NOTE: Next.js public assets are copied via an afterPack hook (with retries)
+  # to avoid intermittent Windows file locking errors during electron-builder bulk copy.
 
 # ASAR archive configuration
 asar: true
