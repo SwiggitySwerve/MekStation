@@ -29,6 +29,7 @@ import {
   screen
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import { spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
@@ -235,34 +236,46 @@ class MekStationApp {
    */
   private initializeAutoUpdater(): void {
     const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
-    const platformChannel =
-      process.platform === 'darwin'
-        ? `${updateChannel}-mac-${process.arch === 'arm64' ? 'arm64' : 'x64'}`
-        : updateChannel;
+    const updateFeedBaseUrl = process.env.MEKSTATION_UPDATE_FEED_BASE_URL || 'https://swiggityswerve.github.io/MekStation/updates';
 
-    // Configure auto-updater feed (GitHub Releases or generic feed for mac arch specificity)
-    autoUpdater.channel = platformChannel;
+    // Clean-release best practice:
+    // - Keep GitHub Releases "installer/package only" (no latest*.yml or *.blockmap clutter)
+    // - Host update metadata (latest*.yml) on a static update feed (e.g., GitHub Pages)
+    // - Disable differential downloads so blockmaps are not required.
+    autoUpdater.disableDifferentialDownload = true;
+
+    // IMPORTANT: Do NOT include platform suffixes in the channel name.
+    // electron-updater automatically appends:
+    // - "-mac" on macOS
+    // - "-linux" (+ arch suffix for non-x64) on Linux
+    // - "" on Windows (historical)
+    autoUpdater.channel = updateChannel;
     autoUpdater.allowDowngrade = false;
     autoUpdater.autoDownload = false;
 
-    if (process.platform === 'darwin') {
-      autoUpdater.setFeedURL({
-        provider: 'generic',
-        url: 'https://github.com/SwiggitySwerve/MekStation/releases/latest/download',
-        channel: platformChannel
-      });
-    } else {
-      autoUpdater.setFeedURL({
-        provider: 'github',
-        owner: 'SwiggitySwerve',
-        repo: 'MekStation',
-        private: false,
-        channel: updateChannel
-      });
-    }
+    const normalizedBaseUrl = updateFeedBaseUrl.replace(/\/+$/, '');
+    const platformFeedUrl =
+      process.platform === 'win32'
+        ? `${normalizedBaseUrl}/win`
+        : process.platform === 'linux'
+          ? `${normalizedBaseUrl}/linux`
+          : process.platform === 'darwin'
+            ? `${normalizedBaseUrl}/mac/${process.arch === 'arm64' ? 'arm64' : 'x64'}`
+            : normalizedBaseUrl;
+
+    // Use generic provider pointing at static update metadata hosting (e.g. GitHub Pages).
+    // The hosted channel files MUST exist:
+    // - Windows: <channel>.yml (e.g., latest.yml)
+    // - Linux:   <channel>-linux.yml (e.g., latest-linux.yml)
+    // - macOS:   <channel>-mac.yml (e.g., latest-mac.yml) in arch-specific directory
+    autoUpdater.setFeedURL({
+      provider: 'generic',
+      url: platformFeedUrl,
+      channel: updateChannel,
+    });
 
     console.log(
-      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${platformChannel} | platform=${process.platform} | arch=${process.arch}`
+      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${updateChannel} | platform=${process.platform} | arch=${process.arch} | feed=${platformFeedUrl}`
     );
 
     // Initial check
@@ -678,11 +691,16 @@ X-GNOME-Autostart-enabled=true
       this.mainWindow.webContents.openDevTools();
     } else {
       // In production, start the Next.js standalone server and load it
-      const { spawn } = require('child_process');
       const serverCwd = app.isPackaged
         ? path.join(process.resourcesPath, 'next-standalone')
         : path.join(this.appPath, '..', '.next', 'standalone');
       const serverPath = path.join(serverCwd, 'server.js');
+
+      // Ensure a per-user writable SQLite path for packaged desktop builds
+      // (never write to the packaged resources directory).
+      const dataDir = path.join(this.userDataPath, 'data');
+      const databasePath = path.join(dataDir, 'mekstation.db');
+      await fs.mkdir(dataDir, { recursive: true });
       
       // Start the Next.js server
       const server = spawn(process.execPath, [serverPath], {
@@ -691,6 +709,7 @@ X-GNOME-Autostart-enabled=true
           ELECTRON_RUN_AS_NODE: '1',
           PORT: '3001', // Use different port to avoid conflicts
           HOSTNAME: '127.0.0.1',
+          DATABASE_PATH: databasePath,
         },
         cwd: serverCwd,
       });
