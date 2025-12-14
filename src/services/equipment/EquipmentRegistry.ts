@@ -134,6 +134,154 @@ export class EquipmentRegistry {
       this.registerEquipment(equipment.id, equipment.name, 'Miscellaneous');
       this.addMiscAliases(equipment);
     });
+    
+    // Add static alias mappings for known variants
+    this.addStaticAliasMappings();
+  }
+  
+  /**
+   * Add static alias mappings for common equipment variants
+   * These map alternative IDs directly to canonical equipment IDs
+   */
+  private addStaticAliasMappings(): void {
+    // C3 system variants
+    this.nameToIdMap.set('c3-master-with-tag', 'c3-master');
+    this.nameToIdMap.set('c3-computer-master', 'c3-master');
+    this.nameToIdMap.set('c3-master-boosted-with-tag', 'boosted-c3-master');
+    this.nameToIdMap.set('c3-boosted-system-master', 'boosted-c3-master');
+    this.nameToIdMap.set('improved-c3-computer', 'improved-c3');
+    
+    // Light autocannons (alternate naming)
+    this.nameToIdMap.set('light-auto-cannon-2', 'lac-2');
+    this.nameToIdMap.set('light-auto-cannon-5', 'lac-5');
+    this.nameToIdMap.set('light-autocannon-2', 'lac-2');
+    this.nameToIdMap.set('light-autocannon-5', 'lac-5');
+    
+    // VSP lasers (short form)
+    this.nameToIdMap.set('medium-vsp', 'medium-vsp-laser');
+    this.nameToIdMap.set('large-vsp', 'large-vsp-laser');
+    this.nameToIdMap.set('small-vsp', 'small-vsp-laser');
+    
+    // Blazer cannon
+    this.nameToIdMap.set('blazer-cannon', 'binary-laser-blazer-cannon');
+    this.nameToIdMap.set('blazer', 'binary-laser-blazer-cannon');
+    
+    // Particle cannon (alternate name for PPC)
+    this.nameToIdMap.set('particle-cannon', 'ppc');
+    
+    // Arrow IV
+    this.nameToIdMap.set('arrow-iv', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv-system', 'arrow-iv-launcher');
+    
+    // Long Tom
+    this.nameToIdMap.set('long-tom-cannon', 'long-tom');
+    
+    // Mech Mortars
+    this.nameToIdMap.set('mech-mortar-1', 'mech-mortar-1');
+    this.nameToIdMap.set('mech-mortar-2', 'mech-mortar-2');
+    this.nameToIdMap.set('mech-mortar-4', 'mech-mortar-4');
+    this.nameToIdMap.set('mech-mortar-8', 'mech-mortar-8');
+    
+    // TSEMP
+    this.nameToIdMap.set('tsemp-cannon', 'tsemp');
+    this.nameToIdMap.set('tsemp', 'tsemp');
+    
+    // Pods
+    this.nameToIdMap.set('m-pod', 'm-pod');
+    this.nameToIdMap.set('b-pod', 'b-pod');
+    this.nameToIdMap.set('anti-battlearmor-pods-b-pods', 'b-pod');
+    
+    // iATM
+    this.nameToIdMap.set('iatm-3', 'iatm-3');
+    this.nameToIdMap.set('iatm-6', 'iatm-6');
+    this.nameToIdMap.set('iatm-9', 'iatm-9');
+    this.nameToIdMap.set('iatm-12', 'iatm-12');
+    
+    // Fluid Gun
+    this.nameToIdMap.set('fluid-gun', 'fluid-gun');
+    
+    // Taser
+    this.nameToIdMap.set('battlemech-taser', 'mech-taser');
+    this.nameToIdMap.set('mech-taser', 'mech-taser');
+    
+    // Coolant Pod
+    this.nameToIdMap.set('coolant-pod', 'coolant-pod');
+    
+    // Rocket launchers with -pp suffix (prototype/primitive)
+    this.nameToIdMap.set('rocket-launcher-10-pp', 'rocket-launcher-10');
+    this.nameToIdMap.set('rocket-launcher-15-pp', 'rocket-launcher-15');
+    this.nameToIdMap.set('rocket-launcher-20-pp', 'rocket-launcher-20');
+    
+    // Vehicular weapons
+    this.nameToIdMap.set('vehicular-grenade-launcher', 'vehicular-grenade-launcher');
+    
+    // Cargo/Industrial
+    this.nameToIdMap.set('cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('lift-hoist', 'lift-hoist');
+    
+    // Chemical lasers
+    this.nameToIdMap.set('medium-chem-laser', 'medium-chemical-laser');
+    this.nameToIdMap.set('large-chem-laser', 'large-chemical-laser');
+    this.nameToIdMap.set('small-chem-laser', 'small-chemical-laser');
+    
+    // Prototype weapons
+    this.nameToIdMap.set('prototype-er-medium-laser', 'er-medium-laser');
+    this.nameToIdMap.set('prototype-rocket-launcher-10', 'rocket-launcher-10');
+    this.nameToIdMap.set('prototype-rocket-launcher-15', 'rocket-launcher-15');
+    this.nameToIdMap.set('prototype-rocket-launcher-20', 'rocket-launcher-20');
+    
+    // RISC equipment
+    this.nameToIdMap.set('risc-advanced-point-defense-system', 'risc-apds');
+    
+    // Additional aliases for missing patterns
+    // Heavy lasers with clan prefix
+    this.nameToIdMap.set('clan-heavy-medium-laser', 'medium-heavy-laser');
+    this.nameToIdMap.set('clan-heavy-large-laser', 'large-heavy-laser');
+    this.nameToIdMap.set('clan-heavy-small-laser', 'small-heavy-laser');
+    
+    // ER flamer (doesn't exist - map to regular flamer or clan flamer)
+    this.nameToIdMap.set('er-flamer', 'flamer');
+    this.nameToIdMap.set('clan-er-flamer', 'clan-flamer');
+    
+    // Improved C3 (no separate improved-c3, use c3i which is improved C3)
+    this.nameToIdMap.set('improved-c3', 'c3i');
+    
+    // Plasma weapons
+    this.nameToIdMap.set('plasma-rifle', 'plasmarifle');
+    this.nameToIdMap.set('clan-plasma-cannon', 'plasmacannon');
+    
+    // Arrow IV variants  
+    this.nameToIdMap.set('clan-arrow-iv', 'clan-arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv', 'arrow-iv-launcher');
+    
+    // ECM suite
+    this.nameToIdMap.set('clan-ecm-suite', 'clan-ecm');
+    this.nameToIdMap.set('ecm-suite', 'guardian-ecm');
+    this.nameToIdMap.set('guardian-ecm-suite', 'guardian-ecm');
+    
+    // Sniper cannon (artillery)
+    this.nameToIdMap.set('sniper', 'sniper-cannon');
+    
+    // VSP laser aliases (map to existing IDs)
+    this.nameToIdMap.set('medium-vsp-laser', 'bamediumvsplaser');
+    this.nameToIdMap.set('large-vsp-laser', 'largevsplaser');
+    this.nameToIdMap.set('small-vsp-laser', 'basmallvsplaser');
+    
+    // Rotary AC with clan prefix
+    this.nameToIdMap.set('clan-rac-2', 'clan-rac-2');
+    this.nameToIdMap.set('clan-rac-5', 'clan-rac-5');
+    
+    // Coolant pod variant
+    this.nameToIdMap.set('is-coolant-pod', 'coolant-pod');
+    
+    // Sword
+    this.nameToIdMap.set('sword', 'sword');
+    
+    // ATM aliases
+    this.nameToIdMap.set('clan-atm-3', 'atm-3');
+    this.nameToIdMap.set('clan-atm-6', 'atm-6');
+    this.nameToIdMap.set('clan-atm-9', 'atm-9');
+    this.nameToIdMap.set('clan-atm-12', 'atm-12');
   }
   
   /**
@@ -360,8 +508,10 @@ export class EquipmentRegistry {
    */
   private parseLegacyMegaMekId(legacyId: string): string | null {
     // Match pattern: optional quantity prefix + techbase + equipment
-    // Examples: "1-ismediumlaser", "clerlargelaser", "1-islbxac10"
+    // Examples: "1-ismediumlaser", "clerlargelaser", "1-islbxac10", "1-is-coolant-pod"
     const patterns = [
+      // With quantity prefix and hyphenated techbase: "1-is-coolant-pod"
+      /^(\d+)-(is|cl)-(.+)$/i,
       // With quantity prefix: "1-ismediumlaser"
       /^(\d+)-?(is|cl)(.+)$/i,
       // Without quantity: "ismediumlaser", "clerlargelaser"  
@@ -421,9 +571,9 @@ export class EquipmentRegistry {
       [/^smallvsplaser$/, `${prefix}small-vsp-laser`],
       [/^mediumvsplaser$/, `${prefix}medium-vsp-laser`],
       [/^largevsplaser$/, `${prefix}large-vsp-laser`],
-      [/^heavylargelaser$/, `${prefix}heavy-large-laser`],
-      [/^heavymediumlaser$/, `${prefix}heavy-medium-laser`],
-      [/^heavysmalllaser$/, `${prefix}heavy-small-laser`],
+      [/^heavylargelaser$/, `large-heavy-laser`],
+      [/^heavymediumlaser$/, `medium-heavy-laser`],
+      [/^heavysmalllaser$/, `small-heavy-laser`],
       [/^microlaser$/, `${prefix}micro-laser`],
       [/^microlaser$/, `${prefix}micro-laser`],
       [/^rellaser$/, `${prefix}re-engineered-large-laser`],
@@ -446,13 +596,16 @@ export class EquipmentRegistry {
       [/^ultraac(\d+)$/, `${prefix}uac-$1`],
       [/^lac(\d+)$/, `${prefix}lac-$1`],
       [/^lightac(\d+)$/, `${prefix}lac-$1`],
-      [/^lbxac(\d+)$/, `${prefix}lb-$1x-ac`],
-      [/^lb(\d+)xac$/, `${prefix}lb-$1x-ac`],
-      [/^lb(\d+)x$/, `${prefix}lb-$1x-ac`],
+      [/^lbxac(\d+)$/, `${prefix}lb-$1-x-ac`],
+      [/^lb(\d+)xac$/, `${prefix}lb-$1-x-ac`],
+      [/^lb(\d+)x$/, `${prefix}lb-$1-x-ac`],
       [/^rac(\d+)$/, `${prefix}rac-$1`],
       [/^rotaryac(\d+)$/, `${prefix}rac-$1`],
       [/^hvac(\d+)$/, `${prefix}hvac-$1`],
       [/^hypervelocityac(\d+)$/, `${prefix}hvac-$1`],
+      
+      // Hyper Assault Gauss
+      [/^hag(\d+)$/, `${prefix}hag-$1`],
       
       // Gauss
       [/^gaussrifle$/, `${prefix}gauss-rifle`],
@@ -471,8 +624,11 @@ export class EquipmentRegistry {
       [/^streaklrm(\d+)$/, `${prefix}streak-lrm-$1`],
       [/^atm(\d+)$/, `${prefix}atm-$1`],
       [/^iatm(\d+)$/, `${prefix}iatm-$1`],
+      [/^extendedlrm(\d+)$/, `${prefix}extended-lrm-$1`],
+      [/^elrm(\d+)$/, `${prefix}extended-lrm-$1`],
       [/^rl(\d+)$/, `${prefix}rocket-launcher-$1`],
       [/^rocketlauncher(\d+)$/, `${prefix}rocket-launcher-$1`],
+      [/^rocketlauncher(\d+)prototype$/, `${prefix}prototype-rocket-launcher-$1`],
       [/^narc$/, `${prefix}narc`],
       [/^narcbeacon$/, `${prefix}narc`],
       [/^inarc$/, `${prefix}inarc`],
@@ -481,8 +637,11 @@ export class EquipmentRegistry {
       
       // Machine Guns
       [/^machinegun$/, `${prefix}machine-gun`],
+      [/^mg$/, `${prefix}machine-gun`],
       [/^lightmachinegun$/, `${prefix}light-machine-gun`],
+      [/^lightmg$/, `${prefix}light-machine-gun`],
       [/^heavymachinegun$/, `${prefix}heavy-machine-gun`],
+      [/^heavymg$/, `${prefix}heavy-machine-gun`],
       
       // Other weapons
       [/^flamer$/, `${prefix}flamer`],
@@ -497,8 +656,10 @@ export class EquipmentRegistry {
       // Electronics
       [/^guardianecm$/, `${prefix}guardian-ecm`],
       [/^angelecm$/, `${prefix}angel-ecm`],
+      [/^ecmsuite$/, `${prefix}ecm-suite`],
       [/^beagleactiveprobe$/, `${prefix}beagle-active-probe`],
       [/^bloodhoundactiveprobe$/, `${prefix}bloodhound-active-probe`],
+      [/^lightactiveprobe$/, `${prefix}light-active-probe`],
       [/^c3slaveunit$/, 'c3-slave'],
       [/^c3slave$/, 'c3-slave'],
       [/^c3mastercomputer$/, 'c3-master'],
@@ -510,6 +671,26 @@ export class EquipmentRegistry {
       [/^watchdogcews$/, `${prefix}watchdog-cews`],
       [/^ecm$/, `${prefix}guardian-ecm`],
       [/^activeprobe$/, `${prefix}active-probe`],
+      
+      // Physical Weapons
+      [/^sword$/, 'sword'],
+      [/^hatchet$/, 'hatchet'],
+      [/^mace$/, 'mace'],
+      [/^claw$/, `${prefix}claw`],
+      [/^talons$/, `${prefix}talons`],
+      
+      // Artillery
+      [/^arrowiv$/, `${prefix}arrow-iv`],
+      [/^arrowivmissile$/, `${prefix}arrow-iv`],
+      [/^arropivsystem$/, `${prefix}arrow-iv`],
+      [/^longtom$/, `${prefix}long-tom`],
+      [/^sniper$/, `${prefix}sniper-cannon`],
+      [/^thumper$/, `${prefix}thumper-cannon`],
+      
+      // Misc Equipment
+      [/^coolantpod$/, `${prefix}coolant-pod`],
+      [/^mpod$/, `${prefix}m-pod`],
+      [/^bpod$/, `${prefix}b-pod`],
       
       // Anti-Missile
       [/^ams$/, `${prefix}ams`],
