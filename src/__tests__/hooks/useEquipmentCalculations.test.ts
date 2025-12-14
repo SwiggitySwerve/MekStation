@@ -9,6 +9,7 @@ import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { EquipmentCategory } from '@/types/equipment';
 import { TechBase } from '@/types/enums/TechBase';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 
@@ -39,7 +40,7 @@ describe('useEquipmentCalculations', () => {
     criticalSlots: 1,
     heat: 3,
     techBase: TechBase.INNER_SPHERE,
-    location: 'LEFT_ARM',
+    location: MechLocation.LEFT_ARM,
     slots: [0],
     isRearMounted: false,
     linkedAmmoId: undefined,
@@ -98,7 +99,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 2,
           heat: 10,
           techBase: TechBase.CLAN,
-          location: 'LEFT_ARM',
+          location: MechLocation.LEFT_ARM,
           slots: [4, 5],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -113,7 +114,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 1,
           heat: 3,
           techBase: TechBase.INNER_SPHERE,
-          location: 'LEFT_ARM',
+          location: MechLocation.LEFT_ARM,
           slots: [6],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -128,7 +129,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 2,
           heat: 10,
           techBase: TechBase.CLAN,
-          location: 'RIGHT_ARM',
+          location: MechLocation.RIGHT_ARM,
           slots: [4, 5],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -143,7 +144,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 1,
           heat: 3,
           techBase: TechBase.INNER_SPHERE,
-          location: 'RIGHT_ARM',
+          location: MechLocation.RIGHT_ARM,
           slots: [6],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -158,7 +159,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 3,
           heat: 1,
           techBase: TechBase.CLAN,
-          location: 'RIGHT_TORSO',
+          location: MechLocation.RIGHT_TORSO,
           slots: [0, 1, 2],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -173,7 +174,7 @@ describe('useEquipmentCalculations', () => {
           criticalSlots: 1,
           heat: 0, // Ammo doesn't generate heat
           techBase: TechBase.INNER_SPHERE,
-          location: 'LEFT_TORSO',
+          location: MechLocation.LEFT_TORSO,
           slots: [0],
           isRearMounted: false,
           linkedAmmoId: undefined,
@@ -248,8 +249,8 @@ describe('useEquipmentCalculations', () => {
   describe('Allocated vs Unallocated', () => {
     it('should separate allocated and unallocated equipment', () => {
       const equipment: IMountedEquipmentInstance[] = [
-        createMockEquipment({ instanceId: '1', location: 'LEFT_ARM' }),
-        createMockEquipment({ instanceId: '2', location: 'RIGHT_ARM' }),
+        createMockEquipment({ instanceId: '1', location: MechLocation.LEFT_ARM }),
+        createMockEquipment({ instanceId: '2', location: MechLocation.RIGHT_ARM }),
         createMockEquipment({ instanceId: '3', location: undefined }),
         createMockEquipment({ instanceId: '4', location: undefined }),
         createMockEquipment({ instanceId: '5', location: undefined }),
