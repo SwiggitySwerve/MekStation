@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentType } from '@/types/enums/EquipmentType';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
@@ -20,17 +21,14 @@ import { EquipmentLoaderService, getEquipmentLoader } from './EquipmentLoaderSer
 export type AnyEquipment = IWeapon | IAmmunition | IElectronics | IMiscEquipment;
 
 /**
- * Equipment category union
+ * Equipment category union - combines top-level types with sub-categories
  */
 export type EquipmentCategoryType = 
   | WeaponCategory 
   | AmmoCategory 
   | ElectronicsCategory 
   | MiscEquipmentCategory 
-  | 'Weapon' 
-  | 'Ammunition' 
-  | 'Electronics' 
-  | 'Miscellaneous';
+  | EquipmentType;
 
 /**
  * Equipment registry statistics
@@ -114,24 +112,24 @@ export class EquipmentRegistry {
     
     // Map weapons
     this.loader.getAllWeapons().forEach(weapon => {
-      this.registerEquipment(weapon.id, weapon.name, 'Weapon');
+      this.registerEquipment(weapon.id, weapon.name, EquipmentType.WEAPON);
       this.addCommonAliases(weapon.id, weapon.name, weapon);
     });
     
     // Map ammunition
     this.loader.getAllAmmunition().forEach(ammo => {
-      this.registerEquipment(ammo.id, ammo.name, 'Ammunition');
+      this.registerEquipment(ammo.id, ammo.name, EquipmentType.AMMUNITION);
       this.addAmmoAliases(ammo);
     });
     
     // Map electronics
     this.loader.getAllElectronics().forEach(electronics => {
-      this.registerEquipment(electronics.id, electronics.name, 'Electronics');
+      this.registerEquipment(electronics.id, electronics.name, EquipmentType.ELECTRONICS);
     });
     
     // Map misc equipment
     this.loader.getAllMiscEquipment().forEach(equipment => {
-      this.registerEquipment(equipment.id, equipment.name, 'Miscellaneous');
+      this.registerEquipment(equipment.id, equipment.name, EquipmentType.MISCELLANEOUS);
       this.addMiscAliases(equipment);
     });
     
