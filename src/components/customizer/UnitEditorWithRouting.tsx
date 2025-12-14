@@ -259,7 +259,7 @@ export function UnitEditorWithRouting({
         unitName, 
         equipmentCount: equipment.length, 
         equipmentSlots: equipmentSlots.map(e => e.equipmentId),
-        armorPoints: Object.values(armorAllocation).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
+        armorPoints: (Object.values(armorAllocation) as number[]).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
       });
       // #endregion
 
@@ -288,11 +288,12 @@ export function UnitEditorWithRouting({
       console.warn('Failed to calculate BV:', error);
       return 0;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- registryReady triggers recalc when registry loads
   }, [
     unitName, chassis, model, tonnage, techBase, engineType, engineRating,
     calculations.walkMP, internalStructureType, gyroType, cockpitType,
     armorType, armorAllocation, heatSinkType, heatSinkCount, equipment,
-    registryReady, // Re-calculate when registry becomes ready
+    registryReady,
   ]);
 
   // Build stats object for UnitInfoBanner
@@ -343,6 +344,7 @@ export function UnitEditorWithRouting({
         alphaStrikeHeat: 0,
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- registryReady triggers recalc when registry loads
   }, [
     chassis, model, tonnage, techBase, engineType, engineRating,
     calculations.walkMP, calculations.totalHeatDissipation,
@@ -391,7 +393,7 @@ export function UnitEditorWithRouting({
     validationStatus: 'valid' as ValidationStatus, // TODO: Get from validation
     errorCount: 0,
     warningCount: 0,
-  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, equipmentCalcs, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
+  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
   
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)

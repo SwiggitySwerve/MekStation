@@ -34,7 +34,7 @@ describe('useEquipmentCalculations', () => {
     instanceId: 'test-instance-1',
     equipmentId: 'medium-laser',
     name: 'Medium Laser',
-    category: EquipmentCategory.ENERGY,
+    category: EquipmentCategory.ENERGY_WEAPON,
     weight: 1,
     criticalSlots: 1,
     heat: 3,
@@ -93,7 +93,7 @@ describe('useEquipmentCalculations', () => {
           instanceId: '1',
           equipmentId: 'clan-large-pulse-laser',
           name: 'Large Pulse Laser (Clan)',
-          category: EquipmentCategory.ENERGY,
+          category: EquipmentCategory.ENERGY_WEAPON,
           weight: 6,
           criticalSlots: 2,
           heat: 10,
@@ -108,7 +108,7 @@ describe('useEquipmentCalculations', () => {
           instanceId: '2',
           equipmentId: 'medium-laser',
           name: 'Medium Laser',
-          category: EquipmentCategory.ENERGY,
+          category: EquipmentCategory.ENERGY_WEAPON,
           weight: 1,
           criticalSlots: 1,
           heat: 3,
@@ -123,7 +123,7 @@ describe('useEquipmentCalculations', () => {
           instanceId: '3',
           equipmentId: 'clan-large-pulse-laser',
           name: 'Large Pulse Laser (Clan)',
-          category: EquipmentCategory.ENERGY,
+          category: EquipmentCategory.ENERGY_WEAPON,
           weight: 6,
           criticalSlots: 2,
           heat: 10,
@@ -138,7 +138,7 @@ describe('useEquipmentCalculations', () => {
           instanceId: '4',
           equipmentId: 'medium-laser',
           name: 'Medium Laser',
-          category: EquipmentCategory.ENERGY,
+          category: EquipmentCategory.ENERGY_WEAPON,
           weight: 1,
           criticalSlots: 1,
           heat: 3,
@@ -153,7 +153,7 @@ describe('useEquipmentCalculations', () => {
           instanceId: '5',
           equipmentId: 'clan-uac-5',
           name: 'Ultra AC/5 (Clan)',
-          category: EquipmentCategory.BALLISTIC,
+          category: EquipmentCategory.BALLISTIC_WEAPON,
           weight: 7,
           criticalSlots: 3,
           heat: 1,
@@ -202,19 +202,19 @@ describe('useEquipmentCalculations', () => {
       const equipment: IMountedEquipmentInstance[] = [
         createMockEquipment({ 
           instanceId: '1', 
-          category: EquipmentCategory.ENERGY, 
+          category: EquipmentCategory.ENERGY_WEAPON, 
           heat: 10, 
           weight: 6 
         }),
         createMockEquipment({ 
           instanceId: '2', 
-          category: EquipmentCategory.ENERGY, 
+          category: EquipmentCategory.ENERGY_WEAPON, 
           heat: 3, 
           weight: 1 
         }),
         createMockEquipment({ 
           instanceId: '3', 
-          category: EquipmentCategory.BALLISTIC, 
+          category: EquipmentCategory.BALLISTIC_WEAPON, 
           heat: 1, 
           weight: 7 
         }),
@@ -229,14 +229,14 @@ describe('useEquipmentCalculations', () => {
       const { result } = renderHook(() => useEquipmentCalculations(equipment));
       
       // Energy: 2 items, 13 heat, 7 weight
-      expect(result.current.byCategory[EquipmentCategory.ENERGY].count).toBe(2);
-      expect(result.current.byCategory[EquipmentCategory.ENERGY].heat).toBe(13);
-      expect(result.current.byCategory[EquipmentCategory.ENERGY].weight).toBe(7);
+      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].count).toBe(2);
+      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].heat).toBe(13);
+      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].weight).toBe(7);
       
       // Ballistic: 1 item, 1 heat, 7 weight
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC].count).toBe(1);
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC].heat).toBe(1);
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC].weight).toBe(7);
+      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].count).toBe(1);
+      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].heat).toBe(1);
+      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].weight).toBe(7);
       
       // Ammunition: 1 item, 0 heat, 1 weight
       expect(result.current.byCategory[EquipmentCategory.AMMUNITION].count).toBe(1);

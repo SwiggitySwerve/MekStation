@@ -36,7 +36,8 @@ describe('UnitLoaderService', () => {
     service = new UnitLoaderService();
     jest.clearAllMocks();
     
-    // Setup mock equipment registry
+    // Setup mock equipment registry (partial mock requires type assertion)
+    // eslint-disable-next-line no-restricted-syntax
     mockRegistry = {
       isReady: jest.fn().mockReturnValue(false),
       lookup: jest.fn().mockReturnValue({ found: false, equipment: null, category: null }),

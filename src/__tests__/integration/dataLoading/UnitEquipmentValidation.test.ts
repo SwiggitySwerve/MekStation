@@ -687,7 +687,7 @@ describe('Unit Equipment Validation', () => {
           }
 
           processedCount++;
-        } catch (error) {
+        } catch {
           // Silently skip errors to keep output clean
         }
       }

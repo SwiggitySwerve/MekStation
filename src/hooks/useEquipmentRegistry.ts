@@ -9,10 +9,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 
 /**
+ * Return type for useEquipmentRegistry hook
+ */
+interface UseEquipmentRegistryResult {
+  isReady: boolean;
+  recheckReady: () => void;
+}
+
+/**
  * Hook to track equipment registry initialization
  * Returns isReady state that triggers re-render when registry is initialized
  */
-export function useEquipmentRegistry() {
+export function useEquipmentRegistry(): UseEquipmentRegistryResult {
   const [isReady, setIsReady] = useState(false);
   const [initAttempted, setInitAttempted] = useState(false);
 
