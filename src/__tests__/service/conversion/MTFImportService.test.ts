@@ -346,7 +346,7 @@ describe('MTFImportService', () => {
       
       expect(result.success).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.unitId).toBeNull();
+      expect(result.unitId).toBeUndefined();
     });
   });
 });

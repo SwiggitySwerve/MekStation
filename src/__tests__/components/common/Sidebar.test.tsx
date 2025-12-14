@@ -28,6 +28,27 @@ jest.mock('next/link', () => {
   };
 });
 
+// Mock Next.js router
+jest.mock('next/router', () => ({
+  useRouter: () => ({
+    pathname: '/',
+    route: '/',
+    query: {},
+    asPath: '/',
+    push: jest.fn(),
+    replace: jest.fn(),
+    reload: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn().mockResolvedValue(undefined),
+    beforePopState: jest.fn(),
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    },
+  }),
+}));
+
 describe('Sidebar', () => {
   const defaultProps = {
     isCollapsed: false,
@@ -39,10 +60,10 @@ describe('Sidebar', () => {
   });
 
   describe('Rendering', () => {
-    it('should render sidebar', () => {
+    it('should render sidebar with brand name', () => {
       render(<Sidebar {...defaultProps} />);
 
-      expect(screen.getByText('Mek Lab')).toBeInTheDocument();
+      expect(screen.getByText('MekStation')).toBeInTheDocument();
     });
 
     it('should render navigation items', () => {
@@ -56,45 +77,46 @@ describe('Sidebar', () => {
       expect(screen.getByText('Compare')).toBeInTheDocument();
     });
 
-    it('should display version when expanded', () => {
+    it('should display subtitle when expanded', () => {
       render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
-      expect(screen.getByText('v0.1.0')).toBeInTheDocument();
+      expect(screen.getByText('BattleTech Editor')).toBeInTheDocument();
     });
   });
 
   describe('Collapsed state', () => {
-    it('should hide title when collapsed', () => {
+    it('should hide brand name when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('Mek Lab')).not.toBeInTheDocument();
+      expect(screen.queryByText('MekStation')).not.toBeInTheDocument();
     });
 
-    it('should hide nav labels when collapsed', () => {
+    it('should show nav labels as tooltips when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
-      expect(screen.queryByText('Units')).not.toBeInTheDocument();
+      // Labels are in tooltips (invisible by default but in DOM)
+      const unitsTooltips = screen.getAllByText('Units');
+      expect(unitsTooltips.length).toBeGreaterThan(0);
     });
 
-    it('should hide version when collapsed', () => {
+    it('should hide subtitle when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('v0.1.0')).not.toBeInTheDocument();
+      expect(screen.queryByText('BattleTech Editor')).not.toBeInTheDocument();
     });
 
     it('should have narrow width when collapsed', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('w-12');
+      expect(sidebar).toHaveClass('w-16');
     });
 
     it('should have wide width when expanded', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('w-52');
+      expect(sidebar).toHaveClass('w-56');
     });
   });
 
@@ -183,7 +205,7 @@ describe('Sidebar', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('bg-gray-800');
+      expect(sidebar).toHaveClass('bg-slate-900');
     });
 
     it('should be fixed positioned', () => {
@@ -201,4 +223,3 @@ describe('Sidebar', () => {
     });
   });
 });
-

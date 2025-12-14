@@ -9,6 +9,8 @@
 import { MechBuilderService, IEditableMech } from '@/services/construction/MechBuilderService';
 import { TechBase } from '@/types/enums/TechBase';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
+import { EngineType } from '@/types/construction/EngineType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
 describe('MechBuilderService', () => {
   let service: MechBuilderService;
@@ -48,7 +50,7 @@ describe('MechBuilderService', () => {
 
       it('should set standard engine type', () => {
         const mech = service.createEmpty(50, TechBase.INNER_SPHERE);
-        expect(mech.engineType).toBe('Standard');
+        expect(mech.engineType).toBe(EngineType.STANDARD);
       });
 
       it('should set 10 heat sinks', () => {
@@ -58,12 +60,12 @@ describe('MechBuilderService', () => {
 
       it('should set Single heat sinks for IS', () => {
         const mech = service.createEmpty(50, TechBase.INNER_SPHERE);
-        expect(mech.heatSinkType).toBe('Single');
+        expect(mech.heatSinkType).toBe(HeatSinkType.SINGLE);
       });
 
       it('should set Double heat sinks for Clan', () => {
         const mech = service.createEmpty(50, TechBase.CLAN);
-        expect(mech.heatSinkType).toBe('Double (Clan)');
+        expect(mech.heatSinkType).toBe(HeatSinkType.DOUBLE_CLAN);
       });
 
       it('should set empty armor allocation', () => {
