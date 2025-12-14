@@ -211,11 +211,11 @@ describe('Construction Rules', () => {
       expect(result.errors.some(e => e.includes('Minimum'))).toBe(true);
     });
 
-    it('should calculate external heat sink weight', () => {
-      // With 200 rating standard engine, 8 are integrated
-      // So with 12 total, 4 are external = 4 tons
+    it('should calculate heat sink weight (first 10 are weight-free)', () => {
+      // Per BattleTech rules, first 10 heat sinks are WEIGHT-FREE
+      // With 12 total, only 2 cost weight (12 - 10 = 2)
       const result = calculateHeatSinks(HeatSinkType.SINGLE, 12, 200, EngineType.STANDARD);
-      expect(result.weight).toBe(4);
+      expect(result.weight).toBe(2);
     });
 
     it('should calculate external heat sink slots', () => {

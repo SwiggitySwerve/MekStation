@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentType } from '@/types/enums/EquipmentType';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
@@ -20,17 +21,14 @@ import { EquipmentLoaderService, getEquipmentLoader } from './EquipmentLoaderSer
 export type AnyEquipment = IWeapon | IAmmunition | IElectronics | IMiscEquipment;
 
 /**
- * Equipment category union
+ * Equipment category union - combines top-level types with sub-categories
  */
 export type EquipmentCategoryType = 
   | WeaponCategory 
   | AmmoCategory 
   | ElectronicsCategory 
   | MiscEquipmentCategory 
-  | 'Weapon' 
-  | 'Ammunition' 
-  | 'Electronics' 
-  | 'Miscellaneous';
+  | EquipmentType;
 
 /**
  * Equipment registry statistics
@@ -114,26 +112,199 @@ export class EquipmentRegistry {
     
     // Map weapons
     this.loader.getAllWeapons().forEach(weapon => {
-      this.registerEquipment(weapon.id, weapon.name, 'Weapon');
+      this.registerEquipment(weapon.id, weapon.name, EquipmentType.WEAPON);
       this.addCommonAliases(weapon.id, weapon.name, weapon);
     });
     
     // Map ammunition
     this.loader.getAllAmmunition().forEach(ammo => {
-      this.registerEquipment(ammo.id, ammo.name, 'Ammunition');
+      this.registerEquipment(ammo.id, ammo.name, EquipmentType.AMMUNITION);
       this.addAmmoAliases(ammo);
     });
     
     // Map electronics
     this.loader.getAllElectronics().forEach(electronics => {
-      this.registerEquipment(electronics.id, electronics.name, 'Electronics');
+      this.registerEquipment(electronics.id, electronics.name, EquipmentType.ELECTRONICS);
     });
     
     // Map misc equipment
     this.loader.getAllMiscEquipment().forEach(equipment => {
-      this.registerEquipment(equipment.id, equipment.name, 'Miscellaneous');
+      this.registerEquipment(equipment.id, equipment.name, EquipmentType.MISCELLANEOUS);
       this.addMiscAliases(equipment);
     });
+    
+    // Add static alias mappings for known variants
+    this.addStaticAliasMappings();
+  }
+  
+  /**
+   * Add static alias mappings for common equipment variants
+   * These map alternative IDs directly to canonical equipment IDs
+   */
+  private addStaticAliasMappings(): void {
+    // C3 system variants
+    this.nameToIdMap.set('c3-master-with-tag', 'c3-master');
+    this.nameToIdMap.set('c3-computer-master', 'c3-master');
+    this.nameToIdMap.set('c3-master-boosted-with-tag', 'boosted-c3-master');
+    this.nameToIdMap.set('c3-boosted-system-master', 'boosted-c3-master');
+    this.nameToIdMap.set('improved-c3-computer', 'improved-c3');
+    
+    // Light autocannons (alternate naming)
+    this.nameToIdMap.set('light-auto-cannon-2', 'lac-2');
+    this.nameToIdMap.set('light-auto-cannon-5', 'lac-5');
+    this.nameToIdMap.set('light-autocannon-2', 'lac-2');
+    this.nameToIdMap.set('light-autocannon-5', 'lac-5');
+    
+    // VSP lasers (short form)
+    this.nameToIdMap.set('medium-vsp', 'medium-vsp-laser');
+    this.nameToIdMap.set('large-vsp', 'large-vsp-laser');
+    this.nameToIdMap.set('small-vsp', 'small-vsp-laser');
+    
+    // Blazer cannon
+    this.nameToIdMap.set('blazer-cannon', 'binary-laser-blazer-cannon');
+    this.nameToIdMap.set('blazer', 'binary-laser-blazer-cannon');
+    
+    // Particle cannon (alternate name for PPC)
+    this.nameToIdMap.set('particle-cannon', 'ppc');
+    
+    // Arrow IV
+    this.nameToIdMap.set('arrow-iv', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv-system', 'arrow-iv-launcher');
+    
+    // Long Tom
+    this.nameToIdMap.set('long-tom-cannon', 'long-tom');
+    
+    // Mech Mortars
+    this.nameToIdMap.set('mech-mortar-1', 'mech-mortar-1');
+    this.nameToIdMap.set('mech-mortar-2', 'mech-mortar-2');
+    this.nameToIdMap.set('mech-mortar-4', 'mech-mortar-4');
+    this.nameToIdMap.set('mech-mortar-8', 'mech-mortar-8');
+    
+    // TSEMP
+    this.nameToIdMap.set('tsemp-cannon', 'tsemp');
+    this.nameToIdMap.set('tsemp', 'tsemp');
+    
+    // Pods
+    this.nameToIdMap.set('m-pod', 'm-pod');
+    this.nameToIdMap.set('b-pod', 'b-pod');
+    this.nameToIdMap.set('anti-battlearmor-pods-b-pods', 'b-pod');
+    
+    // iATM
+    this.nameToIdMap.set('iatm-3', 'iatm-3');
+    this.nameToIdMap.set('iatm-6', 'iatm-6');
+    this.nameToIdMap.set('iatm-9', 'iatm-9');
+    this.nameToIdMap.set('iatm-12', 'iatm-12');
+    
+    // Fluid Gun
+    this.nameToIdMap.set('fluid-gun', 'fluid-gun');
+    
+    // Taser
+    this.nameToIdMap.set('battlemech-taser', 'mech-taser');
+    this.nameToIdMap.set('mech-taser', 'mech-taser');
+    
+    // Coolant Pod
+    this.nameToIdMap.set('coolant-pod', 'coolant-pod');
+    
+    // Rocket launchers with -pp suffix (prototype/primitive)
+    this.nameToIdMap.set('rocket-launcher-10-pp', 'rl10');
+    this.nameToIdMap.set('rocket-launcher-15-pp', 'rl15');
+    this.nameToIdMap.set('rocket-launcher-20-pp', 'rl20');
+    this.nameToIdMap.set('rocket-launcher-10', 'rl10');
+    this.nameToIdMap.set('rocket-launcher-15', 'rl15');
+    this.nameToIdMap.set('rocket-launcher-20', 'rl20');
+    
+    // Vehicular weapons
+    this.nameToIdMap.set('vehicular-grenade-launcher', 'vehicular-grenade-launcher');
+    
+    // Cargo/Industrial (with quantity prefix)
+    this.nameToIdMap.set('cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('1-cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('2-cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('lift-hoist', 'lift-hoist');
+    this.nameToIdMap.set('1-lift-hoist', 'lift-hoist');
+    this.nameToIdMap.set('2-lift-hoist', 'lift-hoist');
+    
+    // Chemical lasers (map to regular lasers if chemical not available)
+    this.nameToIdMap.set('medium-chem-laser', 'medium-laser');
+    this.nameToIdMap.set('large-chem-laser', 'large-laser');
+    this.nameToIdMap.set('small-chem-laser', 'small-laser');
+    
+    // Prototype weapons
+    this.nameToIdMap.set('prototype-er-medium-laser', 'er-medium-laser');
+    this.nameToIdMap.set('prototype-rocket-launcher-10', 'rl10');
+    this.nameToIdMap.set('prototype-rocket-launcher-15', 'rl15');
+    this.nameToIdMap.set('prototype-rocket-launcher-20', 'rl20');
+    this.nameToIdMap.set('er-large-laser-prototype', 'er-large-laser');
+    this.nameToIdMap.set('prototype-er-large-laser', 'er-large-laser');
+    
+    // RISC equipment
+    this.nameToIdMap.set('risc-advanced-point-defense-system', 'risc-apds');
+    
+    // Additional aliases for missing patterns
+    // Heavy lasers with clan prefix
+    this.nameToIdMap.set('clan-heavy-medium-laser', 'medium-heavy-laser');
+    this.nameToIdMap.set('clan-heavy-large-laser', 'large-heavy-laser');
+    this.nameToIdMap.set('clan-heavy-small-laser', 'small-heavy-laser');
+    
+    // ER flamer (doesn't exist - map to regular flamer or clan flamer)
+    this.nameToIdMap.set('er-flamer', 'flamer');
+    this.nameToIdMap.set('clan-er-flamer', 'clan-flamer');
+    
+    // Improved C3 (no separate improved-c3, use c3i which is improved C3)
+    this.nameToIdMap.set('improved-c3', 'c3i');
+    
+    // Plasma weapons
+    this.nameToIdMap.set('plasma-rifle', 'plasmarifle');
+    this.nameToIdMap.set('clan-plasma-cannon', 'plasmacannon');
+    
+    // Arrow IV variants  
+    this.nameToIdMap.set('clan-arrow-iv', 'clan-arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv-system', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrowivsystem', 'arrow-iv-launcher');
+    
+    // ECM suite
+    this.nameToIdMap.set('clan-ecm-suite', 'clan-ecm');
+    this.nameToIdMap.set('ecm-suite', 'guardian-ecm');
+    this.nameToIdMap.set('guardian-ecm-suite', 'guardian-ecm');
+    
+    // Sniper cannon (artillery)
+    this.nameToIdMap.set('sniper', 'sniper-cannon');
+    
+    // VSP laser aliases (map to existing IDs)
+    this.nameToIdMap.set('medium-vsp-laser', 'bamediumvsplaser');
+    this.nameToIdMap.set('large-vsp-laser', 'largevsplaser');
+    this.nameToIdMap.set('small-vsp-laser', 'basmallvsplaser');
+    
+    // Rotary AC with clan prefix
+    this.nameToIdMap.set('clan-rac-2', 'clan-rac-2');
+    this.nameToIdMap.set('clan-rac-5', 'clan-rac-5');
+    
+    // C3 boosted with TAG (map to boosted master, ignore TAG)
+    this.nameToIdMap.set('c3-master-boosted-with-tag', 'c3-boosted-master');
+    
+    // VSP short aliases
+    this.nameToIdMap.set('medium-vsp', 'bamediumvsplaser');
+    this.nameToIdMap.set('large-vsp', 'largevsplaser');
+    this.nameToIdMap.set('small-vsp', 'basmallvsplaser');
+    
+    // Coolant pod variant
+    this.nameToIdMap.set('is-coolant-pod', 'coolant-pod');
+    
+    // Physical weapons (with quantity prefix)
+    this.nameToIdMap.set('1-sword', 'sword');
+    this.nameToIdMap.set('2-sword', 'sword');
+    this.nameToIdMap.set('1-hatchet', 'hatchet');
+    this.nameToIdMap.set('1-mace', 'mace');
+    this.nameToIdMap.set('1-claws', 'claws');
+    this.nameToIdMap.set('1-lance', 'lance');
+    this.nameToIdMap.set('1-talons', 'talons');
+    
+    // ATM aliases
+    this.nameToIdMap.set('clan-atm-3', 'atm-3');
+    this.nameToIdMap.set('clan-atm-6', 'atm-6');
+    this.nameToIdMap.set('clan-atm-9', 'atm-9');
+    this.nameToIdMap.set('clan-atm-12', 'atm-12');
   }
   
   /**
@@ -187,6 +358,66 @@ export class EquipmentRegistry {
       this.nameToIdMap.set(noSpace, id);
       this.nameToIdMap.set(withSpace, id);
     }
+    
+    // Add slug-style ID aliases for common weapon patterns
+    // This handles unit JSON files that use legacy IDs like 'ultra-ac-5' instead of 'uac-5'
+    this.addSlugAliases(id, name, weapon.techBase === TechBase.CLAN);
+  }
+  
+  /**
+   * Add slug-style ID aliases (e.g., 'ultra-ac-5' → 'uac-5')
+   * Handles legacy ID formats commonly found in unit JSON files
+   */
+  private addSlugAliases(id: string, name: string, isClan: boolean): void {
+    const prefix = isClan ? 'clan-' : '';
+    
+    // Ultra AC patterns: 'uac-5' should also match 'ultra-ac-5'
+    const ultraMatch = id.match(/^(clan-)?uac-(\d+)$/);
+    if (ultraMatch) {
+      const num = ultraMatch[2];
+      this.nameToIdMap.set(`${prefix}ultra-ac-${num}`, id);
+      this.nameToIdMap.set(`ultra-ac-${num}`, id); // Also without prefix for fallback
+    }
+    
+    // Rotary AC patterns: 'rac-5' should also match 'rotary-ac-5'
+    const rotaryMatch = id.match(/^(clan-)?rac-(\d+)$/);
+    if (rotaryMatch) {
+      const num = rotaryMatch[2];
+      this.nameToIdMap.set(`${prefix}rotary-ac-${num}`, id);
+      this.nameToIdMap.set(`rotary-ac-${num}`, id);
+    }
+    
+    // Light AC patterns: 'lac-5' should also match 'light-ac-5'
+    const lightMatch = id.match(/^(clan-)?lac-(\d+)$/);
+    if (lightMatch) {
+      const num = lightMatch[2];
+      this.nameToIdMap.set(`${prefix}light-ac-${num}`, id);
+      this.nameToIdMap.set(`light-ac-${num}`, id);
+    }
+    
+    // LB-X AC patterns: 'lb-10x-ac' should also match 'lb-10-x-ac'
+    const lbxMatch = id.match(/^(clan-)?lb-(\d+)x-ac$/);
+    if (lbxMatch) {
+      const num = lbxMatch[2];
+      this.nameToIdMap.set(`${prefix}lb-${num}-x-ac`, id);
+      this.nameToIdMap.set(`lb-${num}-x-ac`, id);
+    }
+    
+    // ER Laser patterns: 'er-medium-laser' should match 'extended-range-medium-laser'
+    const erMatch = id.match(/^(clan-)?er-(.+)-laser$/);
+    if (erMatch) {
+      const size = erMatch[2];
+      this.nameToIdMap.set(`${prefix}extended-range-${size}-laser`, id);
+      this.nameToIdMap.set(`extended-range-${size}-laser`, id);
+    }
+    
+    // Pulse laser patterns with different naming
+    const pulseMatch = id.match(/^(clan-)?(.+)-pulse-laser$/);
+    if (pulseMatch) {
+      const size = pulseMatch[2];
+      this.nameToIdMap.set(`${prefix}pulse-${size}-laser`, id);
+      this.nameToIdMap.set(`pulse-${size}-laser`, id);
+    }
   }
   
   /**
@@ -194,20 +425,66 @@ export class EquipmentRegistry {
    */
   private addAmmoAliases(ammo: IAmmunition): void {
     const name = ammo.name;
+    const id = ammo.id;
+    const isClan = ammo.techBase === TechBase.CLAN;
     
     // Handle "IS Ammo" and "Clan Ammo" prefixes
     if (ammo.techBase === TechBase.INNER_SPHERE) {
-      this.nameToIdMap.set(`IS ${name}`, ammo.id);
-      this.nameToIdMap.set(`IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, ammo.id);
-    } else if (ammo.techBase === TechBase.CLAN) {
-      this.nameToIdMap.set(`Clan ${name}`, ammo.id);
-      this.nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, ammo.id);
+      this.nameToIdMap.set(`IS ${name}`, id);
+      this.nameToIdMap.set(`IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
+    } else if (isClan) {
+      this.nameToIdMap.set(`Clan ${name}`, id);
+      this.nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
     }
     
     // Handle various ammo naming patterns from MTF files
     const weaponBase = name.replace(' Ammo', '').replace('Ammo ', '');
-    this.nameToIdMap.set(`Ammo ${weaponBase}`, ammo.id);
-    this.nameToIdMap.set(`${weaponBase} Ammo`, ammo.id);
+    this.nameToIdMap.set(`Ammo ${weaponBase}`, id);
+    this.nameToIdMap.set(`${weaponBase} Ammo`, id);
+    
+    // Add slug-style ID aliases for ammo (e.g., 'ultra-ac-5-ammo' → 'uac-5-ammo')
+    this.addAmmoSlugAliases(id, isClan);
+  }
+  
+  /**
+   * Add slug-style ID aliases for ammunition
+   * Handles legacy ID formats like 'ultra-ac-5-ammo' → 'uac-5-ammo'
+   */
+  private addAmmoSlugAliases(id: string, isClan: boolean): void {
+    const prefix = isClan ? 'clan-' : '';
+    
+    // Ultra AC ammo: 'uac-5-ammo' should also match 'ultra-ac-5-ammo'
+    const uacMatch = id.match(/^(clan-)?uac-(\d+)-ammo$/);
+    if (uacMatch) {
+      const num = uacMatch[2];
+      this.nameToIdMap.set(`${prefix}ultra-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`ultra-ac-${num}-ammo`, id);
+    }
+    
+    // Rotary AC ammo: 'rac-5-ammo' should also match 'rotary-ac-5-ammo'
+    const racMatch = id.match(/^(clan-)?rac-(\d+)-ammo$/);
+    if (racMatch) {
+      const num = racMatch[2];
+      this.nameToIdMap.set(`${prefix}rotary-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`rotary-ac-${num}-ammo`, id);
+    }
+    
+    // Light AC ammo: 'lac-5-ammo' should also match 'light-ac-5-ammo'
+    const lacMatch = id.match(/^(clan-)?lac-(\d+)-ammo$/);
+    if (lacMatch) {
+      const num = lacMatch[2];
+      this.nameToIdMap.set(`${prefix}light-ac-${num}-ammo`, id);
+      this.nameToIdMap.set(`light-ac-${num}-ammo`, id);
+    }
+    
+    // LB-X AC ammo: 'lb-10x-ac-ammo' should also match 'lb-10-x-ac-ammo'
+    const lbxMatch = id.match(/^(clan-)?lb-(\d+)x-ac-(.*ammo.*)$/);
+    if (lbxMatch) {
+      const num = lbxMatch[2];
+      const suffix = lbxMatch[3];
+      this.nameToIdMap.set(`${prefix}lb-${num}-x-ac-${suffix}`, id);
+      this.nameToIdMap.set(`lb-${num}-x-ac-${suffix}`, id);
+    }
   }
   
   /**
@@ -239,6 +516,229 @@ export class EquipmentRegistry {
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '')
       .trim();
+  }
+  
+  /**
+   * Parse legacy MegaMek-style equipment IDs
+   * Formats like: "1-ismediumlaser", "2-clermediumlaser", "1-islbxac10"
+   * 
+   * Pattern: [quantity]-[techbase][equipmentname]
+   * - quantity: numeric prefix (1, 2, 3, etc.)
+   * - techbase: 'is' (Inner Sphere) or 'cl' (Clan)
+   * - equipmentname: concatenated equipment name
+   * 
+   * @returns Canonical equipment ID or null if not a legacy format
+   */
+  private parseLegacyMegaMekId(legacyId: string): string | null {
+    // Match pattern: optional quantity prefix + techbase + equipment
+    // Examples: "1-ismediumlaser", "clerlargelaser", "1-islbxac10", "1-is-coolant-pod"
+    const patterns = [
+      // With quantity prefix and hyphenated techbase: "1-is-coolant-pod"
+      /^(\d+)-(is|cl)-(.+)$/i,
+      // With quantity prefix: "1-ismediumlaser"
+      /^(\d+)-?(is|cl)(.+)$/i,
+      // Without quantity: "ismediumlaser", "clerlargelaser"  
+      /^(is|cl)(.+)$/i,
+    ];
+    
+    let techBase: 'is' | 'cl' | null = null;
+    let equipName: string = '';
+    
+    for (const pattern of patterns) {
+      const match = legacyId.match(pattern);
+      if (match) {
+        if (match.length === 4) {
+          // With quantity: [full, quantity, techbase, name]
+          techBase = match[2].toLowerCase() as 'is' | 'cl';
+          equipName = match[3].toLowerCase();
+        } else if (match.length === 3) {
+          // Without quantity: [full, techbase, name]
+          techBase = match[1].toLowerCase() as 'is' | 'cl';
+          equipName = match[2].toLowerCase();
+        }
+        break;
+      }
+    }
+    
+    if (!techBase || !equipName) {
+      return null;
+    }
+    
+    // Build canonical ID by converting concatenated name to slug format
+    // e.g., "mediumlaser" -> "medium-laser", "erlarge laser" -> "er-large-laser"
+    const canonicalId = this.convertMegaMekNameToSlug(equipName, techBase);
+    return canonicalId;
+  }
+  
+  /**
+   * Convert MegaMek concatenated equipment name to slug format
+   */
+  private convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): string {
+    const prefix = techBase === 'cl' ? 'clan-' : '';
+    
+    // Common weapon patterns
+    const weaponPatterns: [RegExp, string][] = [
+      // Lasers
+      [/^ersmalllaser$/, `${prefix}er-small-laser`],
+      [/^ermediumlaser$/, `${prefix}er-medium-laser`],
+      [/^erlargelaser$/, `${prefix}er-large-laser`],
+      [/^smalllaser$/, 'small-laser'],
+      [/^mediumlaser$/, 'medium-laser'],
+      [/^largelaser$/, 'large-laser'],
+      [/^smallpulselaser$/, `${prefix}small-pulse-laser`],
+      [/^mediumpulselaser$/, `${prefix}medium-pulse-laser`],
+      [/^largepulselaser$/, `${prefix}large-pulse-laser`],
+      [/^smallxpulselaser$/, `smallxpulselaser`],
+      [/^mediumxpulselaser$/, `mediumxpulselaser`],
+      [/^largexpulselaser$/, `largexpulselaser`],
+      [/^smallvsplaser$/, `${prefix}small-vsp-laser`],
+      [/^mediumvsplaser$/, `${prefix}medium-vsp-laser`],
+      [/^largevsplaser$/, `${prefix}large-vsp-laser`],
+      [/^heavylargelaser$/, `large-heavy-laser`],
+      [/^heavymediumlaser$/, `medium-heavy-laser`],
+      [/^heavysmalllaser$/, `small-heavy-laser`],
+      [/^microlaser$/, `${prefix}micro-laser`],
+      [/^microlaser$/, `${prefix}micro-laser`],
+      [/^rellaser$/, `${prefix}re-engineered-large-laser`],
+      [/^chemicallargelaser$/, `${prefix}chemical-large-laser`],
+      [/^chemicalmediumlaser$/, `${prefix}chemical-medium-laser`],
+      [/^chemicalsmalllaser$/, `${prefix}chemical-small-laser`],
+      [/^bombastlaser$/, `${prefix}bombast-laser`],
+      
+      // PPCs
+      [/^ppc$/, 'ppc'],
+      [/^erppc$/, `${prefix}er-ppc`],
+      [/^heavyppc$/, `${prefix}heavy-ppc`],
+      [/^lightppc$/, `${prefix}light-ppc`],
+      [/^snppc$/, `${prefix}snub-nose-ppc`],
+      [/^snubnose?ppc$/, `${prefix}snub-nose-ppc`],
+      
+      // Autocannons
+      [/^ac(\d+)$/, 'ac-$1'],
+      [/^uac(\d+)$/, `${prefix}uac-$1`],
+      [/^ultraac(\d+)$/, `${prefix}uac-$1`],
+      [/^lac(\d+)$/, `${prefix}lac-$1`],
+      [/^lightac(\d+)$/, `${prefix}lac-$1`],
+      [/^lbxac(\d+)$/, `${prefix}lb-$1-x-ac`],
+      [/^lb(\d+)xac$/, `${prefix}lb-$1-x-ac`],
+      [/^lb(\d+)x$/, `${prefix}lb-$1-x-ac`],
+      [/^rac(\d+)$/, `${prefix}rac-$1`],
+      [/^rotaryac(\d+)$/, `${prefix}rac-$1`],
+      [/^hvac(\d+)$/, `${prefix}hvac-$1`],
+      [/^hypervelocityac(\d+)$/, `${prefix}hvac-$1`],
+      
+      // Hyper Assault Gauss
+      [/^hag(\d+)$/, `hag$1`],
+      
+      // Gauss
+      [/^gaussrifle$/, `${prefix}gauss-rifle`],
+      [/^lightgaussrifle$/, `${prefix}light-gauss-rifle`],
+      [/^heavygaussrifle$/, `${prefix}heavy-gauss-rifle`],
+      [/^improvedheavygaussrifle$/, `${prefix}improved-heavy-gauss-rifle`],
+      [/^magshot$/, 'magshot'],
+      [/^silverbulletgauss$/, 'silver-bullet-gauss'],
+      
+      // Missiles
+      [/^srm(\d+)$/, `${prefix}srm-$1`],
+      [/^lrm(\d+)$/, `${prefix}lrm-$1`],
+      [/^mrm(\d+)$/, `${prefix}mrm-$1`],
+      [/^mml(\d+)$/, `${prefix}mml-$1`],
+      [/^streaksrm(\d+)$/, `${prefix}streak-srm-$1`],
+      [/^streaklrm(\d+)$/, `${prefix}streak-lrm-$1`],
+      [/^atm(\d+)$/, `${prefix}atm-$1`],
+      [/^iatm(\d+)$/, `${prefix}iatm-$1`],
+      [/^extendedlrm(\d+)$/, `${prefix}extended-lrm-$1`],
+      [/^elrm(\d+)$/, `${prefix}extended-lrm-$1`],
+      [/^rl(\d+)$/, `rl$1`],
+      [/^rocketlauncher(\d+)$/, `rl$1`],
+      [/^rocketlauncher(\d+)prototype$/, `rl$1`],
+      [/^narc$/, `${prefix}narc`],
+      [/^narcbeacon$/, `${prefix}narc`],
+      [/^inarc$/, `${prefix}inarc`],
+      [/^inarcbeacon$/, `${prefix}inarc`],
+      [/^thunderbolt(\d+)$/, `${prefix}thunderbolt-$1`],
+      
+      // Machine Guns
+      [/^machinegun$/, `${prefix}machine-gun`],
+      [/^mg$/, `${prefix}machine-gun`],
+      [/^lightmachinegun$/, `${prefix}light-machine-gun`],
+      [/^lightmg$/, `${prefix}light-machine-gun`],
+      [/^heavymachinegun$/, `${prefix}heavy-machine-gun`],
+      [/^heavymg$/, `${prefix}heavy-machine-gun`],
+      
+      // Other weapons
+      [/^flamer$/, `${prefix}flamer`],
+      [/^erflamer$/, `${prefix}er-flamer`],
+      [/^heavyflamer$/, `${prefix}heavy-flamer`],
+      [/^vehicleflamer$/, 'vehicle-flamer'],
+      [/^plasmarifle$/, `${prefix}plasma-rifle`],
+      [/^plasmacannon$/, `${prefix}plasma-cannon`],
+      [/^tag$/, `${prefix}tag`],
+      [/^lighttag$/, `${prefix}light-tag`],
+      
+      // Electronics
+      [/^guardianecm$/, `${prefix}guardian-ecm`],
+      [/^angelecm$/, `${prefix}angel-ecm`],
+      [/^ecmsuite$/, `${prefix}ecm-suite`],
+      [/^beagleactiveprobe$/, `${prefix}beagle-active-probe`],
+      [/^bloodhoundactiveprobe$/, `${prefix}bloodhound-active-probe`],
+      [/^lightactiveprobe$/, `${prefix}light-active-probe`],
+      [/^c3slaveunit$/, 'c3-slave'],
+      [/^c3slave$/, 'c3-slave'],
+      [/^c3mastercomputer$/, 'c3-master'],
+      [/^c3master$/, 'c3-master'],
+      [/^c3i$/, 'c3i'],
+      [/^improvedc3cpu$/, 'improved-c3'],
+      [/^improvedc3computer$/, 'improved-c3'],
+      [/^targetingcomputer$/, `${prefix}targeting-computer`],
+      [/^watchdogcews$/, `${prefix}watchdog-cews`],
+      [/^ecm$/, `${prefix}guardian-ecm`],
+      [/^activeprobe$/, `${prefix}active-probe`],
+      
+      // Physical Weapons
+      [/^sword$/, 'sword'],
+      [/^hatchet$/, 'hatchet'],
+      [/^mace$/, 'mace'],
+      [/^claw$/, `${prefix}claw`],
+      [/^talons$/, `${prefix}talons`],
+      
+      // Artillery
+      [/^arrowiv$/, `${prefix}arrow-iv`],
+      [/^arrowivmissile$/, `${prefix}arrow-iv`],
+      [/^arropivsystem$/, `${prefix}arrow-iv`],
+      [/^longtom$/, `${prefix}long-tom`],
+      [/^sniper$/, `${prefix}sniper-cannon`],
+      [/^thumper$/, `${prefix}thumper-cannon`],
+      
+      // Misc Equipment
+      [/^coolantpod$/, `${prefix}coolant-pod`],
+      [/^mpod$/, `${prefix}m-pod`],
+      [/^bpod$/, `${prefix}b-pod`],
+      
+      // Anti-Missile
+      [/^ams$/, `${prefix}ams`],
+      [/^antimissilesystem$/, `${prefix}ams`],
+      [/^laserantimissilesystem$/, `${prefix}laser-ams`],
+      [/^laserAMS$/, `${prefix}laser-ams`],
+      [/^clams$/, 'clan-ams'],
+    ];
+    
+    // Try each pattern
+    for (const [pattern, replacement] of weaponPatterns) {
+      if (pattern.test(name)) {
+        return name.replace(pattern, replacement);
+      }
+    }
+    
+    // Fallback: convert camelCase to slug
+    // Insert hyphens before capital letters and numbers
+    const slug = name
+      .replace(/([a-z])(\d)/g, '$1-$2')  // letter followed by number
+      .replace(/(\d)([a-z])/g, '$1-$2')  // number followed by letter
+      .replace(/([a-z])([A-Z])/g, '$1-$2') // camelCase
+      .toLowerCase();
+    
+    return prefix + slug;
   }
   
   /**
@@ -278,6 +778,33 @@ export class EquipmentRegistry {
           equipment,
           category: this.idToTypeMap.get(normalizedId) || null,
         };
+      }
+    }
+    
+    // Try legacy MegaMek ID parsing
+    const legacyId = this.parseLegacyMegaMekId(idOrName);
+    if (legacyId) {
+      // Try direct lookup with parsed ID
+      const byLegacyId = this.loader.getById(legacyId);
+      if (byLegacyId) {
+        return {
+          found: true,
+          equipment: byLegacyId,
+          category: this.idToTypeMap.get(legacyId) || null,
+        };
+      }
+      
+      // Try name map lookup with parsed ID
+      const mappedId = this.nameToIdMap.get(legacyId);
+      if (mappedId) {
+        const equipment = this.loader.getById(mappedId);
+        if (equipment) {
+          return {
+            found: true,
+            equipment,
+            category: this.idToTypeMap.get(mappedId) || null,
+          };
+        }
       }
     }
     

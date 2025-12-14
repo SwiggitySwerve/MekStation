@@ -1,6 +1,9 @@
 /**
  * Equipment Browser Page
- * Browse and search the equipment catalog with filtering.
+ * Browse and search the equipment catalog with filtering and multiple view modes.
+ * Inspired by COMP/CON's efficient, compact UI layout.
+ * 
+ * Uses centralized colors from @/utils/colors/equipmentColors.ts
  */
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
@@ -8,10 +11,8 @@ import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
 import { 
-  PageLayout, 
   PageLoading, 
   PageError,
-  Card,
   Badge,
   TechBaseBadge,
   Button,
@@ -19,7 +20,14 @@ import {
   Input,
   Select,
   EmptyState,
+  ViewModeToggle,
 } from '@/components/ui';
+import type { ViewMode } from '@/components/ui';
+import { 
+  EQUIPMENT_CATEGORY_COLORS,
+  getCategoryColors,
+  getAmmoColors,
+} from '@/utils/colors/equipmentColors';
 
 interface EquipmentEntry {
   id: string;
@@ -42,22 +50,7 @@ interface FilterState {
   rulesLevel: RulesLevel | '';
 }
 
-const ITEMS_PER_PAGE = 30;
-
-// Category display names and badge colors - uses EquipmentCategory enum values
-const categoryConfig: Record<EquipmentCategory, { label: string; variant: 'red' | 'orange' | 'cyan' | 'yellow' | 'emerald' | 'violet' }> = {
-  [EquipmentCategory.ENERGY_WEAPON]: { label: 'Energy Weapons', variant: 'red' },
-  [EquipmentCategory.BALLISTIC_WEAPON]: { label: 'Ballistic Weapons', variant: 'red' },
-  [EquipmentCategory.MISSILE_WEAPON]: { label: 'Missile Weapons', variant: 'red' },
-  [EquipmentCategory.ARTILLERY]: { label: 'Artillery', variant: 'red' },
-  [EquipmentCategory.CAPITAL_WEAPON]: { label: 'Capital Weapons', variant: 'red' },
-  [EquipmentCategory.PHYSICAL_WEAPON]: { label: 'Physical Weapons', variant: 'orange' },
-  [EquipmentCategory.AMMUNITION]: { label: 'Ammunition', variant: 'yellow' },
-  [EquipmentCategory.ELECTRONICS]: { label: 'Electronics', variant: 'cyan' },
-  [EquipmentCategory.MOVEMENT]: { label: 'Movement', variant: 'emerald' },
-  [EquipmentCategory.STRUCTURAL]: { label: 'Structural', variant: 'violet' },
-  [EquipmentCategory.MISC_EQUIPMENT]: { label: 'Misc Equipment', variant: 'violet' },
-};
+const ITEMS_PER_PAGE = 36;
 
 export default function EquipmentListPage(): React.ReactElement {
   const [equipment, setEquipment] = useState<EquipmentEntry[]>([]);
@@ -65,6 +58,8 @@ export default function EquipmentListPage(): React.ReactElement {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     category: '',
@@ -72,10 +67,13 @@ export default function EquipmentListPage(): React.ReactElement {
     rulesLevel: '',
   });
   
-  // Build select options from enums
+  const hasActiveFilters = filters.category || filters.techBase || filters.rulesLevel;
+  const activeFilterCount = [filters.category, filters.techBase, filters.rulesLevel].filter(Boolean).length;
+  
+  // Build select options from centralized color config
   const categoryOptions = Object.values(EquipmentCategory).map(cat => ({
     value: cat,
-    label: categoryConfig[cat]?.label ?? cat,
+    label: EQUIPMENT_CATEGORY_COLORS[cat]?.label ?? cat,
   }));
 
   const techBaseOptions = Object.values(TechBase).map(tb => ({
@@ -172,134 +170,308 @@ export default function EquipmentListPage(): React.ReactElement {
   }
 
   return (
-    <PageLayout
-      title="Equipment Catalog"
-      subtitle={`Browse ${equipment.length.toLocaleString()} items across all categories`}
-      maxWidth="full"
-    >
-      {/* Filters */}
-      <Card variant="header" className="mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          {/* Search */}
-          <div className="lg:col-span-2">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        {/* Compact Header Row - Title + View Toggle + Search + Filter Toggle */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          {/* Title with count badge */}
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold tracking-wide uppercase text-white">
+              Equipment
+            </h1>
+            <span className="px-2 py-0.5 text-xs font-mono bg-amber-600/20 text-amber-400 rounded">
+              {filteredEquipment.length}
+            </span>
+          </div>
+
+          {/* View Mode Toggle */}
+          <ViewModeToggle mode={viewMode} onChange={setViewMode} className="ml-2" />
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Search - always visible */}
+          <div className="w-64">
             <Input
               type="text"
-              placeholder="Search by name..."
+              placeholder="Search..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              accent="cyan"
-              aria-label="Search equipment by name"
+              accent="amber"
+              aria-label="Search equipment"
+              className="!py-1.5 text-sm"
             />
           </div>
 
-          {/* Category */}
-          <Select
-            value={filters.category}
-            onChange={(e) => handleFilterChange('category', e.target.value as EquipmentCategory | '')}
-            options={categoryOptions}
-            placeholder="All Categories"
-            accent="cyan"
-            aria-label="Filter by equipment category"
-          />
-
-          {/* Tech Base */}
-          <Select
-            value={filters.techBase}
-            onChange={(e) => handleFilterChange('techBase', e.target.value as TechBase | '')}
-            options={techBaseOptions}
-            placeholder="All Tech Bases"
-            accent="cyan"
-            aria-label="Filter by tech base"
-          />
-
-          {/* Rules Level */}
-          <Select
-            value={filters.rulesLevel}
-            onChange={(e) => handleFilterChange('rulesLevel', e.target.value as RulesLevel | '')}
-            options={rulesLevelOptions}
-            placeholder="All Rules Levels"
-            accent="cyan"
-            aria-label="Filter by rules level"
-          />
-
-          {/* Clear Filters */}
-          <Button variant="secondary" onClick={clearFilters}>
-            Clear Filters
-          </Button>
+          {/* Filter Toggle Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              showFilters || hasActiveFilters
+                ? 'bg-amber-600 text-white'
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Results count */}
-        <div className="mt-4 text-sm text-slate-400">
-          Showing {displayedEquipment.length} of {filteredEquipment.length} results
-          {filteredEquipment.length !== equipment.length && (
-            <span className="text-cyan-400 ml-2">
-              (filtered from {equipment.length} total)
-            </span>
-          )}
-        </div>
-      </Card>
+        {/* Collapsible Filter Panel */}
+        {showFilters && (
+          <div className="mb-4 p-3 bg-slate-800/40 border border-slate-700/50 rounded-lg animate-fadeIn">
+            <div className="flex flex-wrap items-center gap-3">
+              <Select
+                value={filters.category}
+                onChange={(e) => handleFilterChange('category', e.target.value as EquipmentCategory | '')}
+                options={categoryOptions}
+                placeholder="Category"
+                accent="amber"
+                aria-label="Filter by category"
+                className="w-36"
+              />
+              <Select
+                value={filters.techBase}
+                onChange={(e) => handleFilterChange('techBase', e.target.value as TechBase | '')}
+                options={techBaseOptions}
+                placeholder="Tech Base"
+                accent="amber"
+                aria-label="Filter by tech base"
+                className="w-36"
+              />
+              <Select
+                value={filters.rulesLevel}
+                onChange={(e) => handleFilterChange('rulesLevel', e.target.value as RulesLevel | '')}
+                options={rulesLevelOptions}
+                placeholder="Rules Level"
+                accent="amber"
+                aria-label="Filter by rules level"
+                className="w-36"
+              />
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-slate-400 hover:text-white">
+                  Clear All
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
-      {/* Equipment Grid - Compact layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mb-6">
+        {/* Equipment Display */}
         {displayedEquipment.length === 0 ? (
-          <div className="col-span-full">
-            <EmptyState
-              title="No equipment found matching your filters"
-              action={<Button variant="secondary" onClick={clearFilters}>Clear Filters</Button>}
+          <EmptyState
+            title="No equipment found"
+            action={<Button variant="secondary" onClick={clearFilters}>Clear Filters</Button>}
+          />
+        ) : (
+          <>
+            {viewMode === 'grid' && <EquipmentGridView equipment={displayedEquipment} />}
+            {viewMode === 'list' && <EquipmentListView equipment={displayedEquipment} />}
+            {viewMode === 'table' && <EquipmentTableView equipment={displayedEquipment} />}
+          </>
+        )}
+
+        {/* Pagination - Compact */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-xs text-slate-500">
+              Page {currentPage} of {totalPages}
+            </span>
+            <PaginationButtons
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
             />
           </div>
-        ) : (
-          displayedEquipment.map((eq) => (
-            <Link
-              key={eq.id}
-              href={`/equipment/${encodeURIComponent(eq.id)}`}
-            >
-              <Card variant="interactive" className="h-full !p-2.5">
-                {/* Top row: Name + Badges stacked */}
-                <div className="flex items-start justify-between gap-2">
-                  {/* Left: Name + Stats */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-white leading-tight line-clamp-1 mb-1">
-                      {eq.name}
-                    </h3>
-                    {/* Stats inline under name */}
-                    <div className="flex flex-wrap gap-x-2 text-xs text-slate-400">
-                      {eq.weight !== undefined && (
-                        <span><span className="text-slate-300 font-mono">{eq.weight}</span> tons</span>
-                      )}
-                      {eq.criticalSlots !== undefined && (
-                        <span><span className="text-slate-300 font-mono">{eq.criticalSlots}</span> slots</span>
-                      )}
-                      {eq.damage !== undefined && (
-                        <span><span className="text-slate-300 font-mono">{eq.damage}</span> dmg</span>
-                      )}
-                    </div>
-                  </div>
-                  {/* Right: Badges stacked */}
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
-                    {eq.category && categoryConfig[eq.category as EquipmentCategory] && (
-                      <Badge 
-                        variant={categoryConfig[eq.category as EquipmentCategory].variant} 
-                        size="sm"
-                      >
-                        {categoryConfig[eq.category as EquipmentCategory].label}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Pagination */}
-      <PaginationButtons
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
-    </PageLayout>
+// ============================================================================
+// View Components - Using centralized colors from equipmentColors.ts
+// ============================================================================
+
+interface ViewProps {
+  equipment: EquipmentEntry[];
+}
+
+// Helper to get colors for an equipment item (handles ammo sub-types)
+function getEquipmentDisplayColors(category: EquipmentCategory | undefined, name: string) {
+  if (!category) return null;
+  
+  // For ammunition, use name-based detection for missile vs ballistic
+  if (category === EquipmentCategory.AMMUNITION) {
+    return getAmmoColors(name);
+  }
+  
+  return getCategoryColors(category);
+}
+
+// Grid View - Compact cards (max 3 columns)
+function EquipmentGridView({ equipment }: ViewProps): React.ReactElement {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {equipment.map((eq) => {
+        const colors = getEquipmentDisplayColors(eq.category, eq.name);
+        
+        return (
+          <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
+            <div className="group p-3 bg-slate-800/40 border border-slate-700/50 rounded-lg hover:bg-slate-800/60 hover:border-amber-600/50 transition-all cursor-pointer">
+              {/* Header row */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 className="text-sm font-medium text-white leading-tight group-hover:text-amber-100 line-clamp-1">
+                  {eq.name}
+                </h3>
+                {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
+              </div>
+
+              {/* Stats row - compact inline */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mb-2">
+                {eq.weight !== undefined && (
+                  <span><span className="text-slate-300 font-mono">{eq.weight}</span>t</span>
+                )}
+                {eq.criticalSlots !== undefined && (
+                  <span><span className="text-slate-300 font-mono">{eq.criticalSlots}</span> slots</span>
+                )}
+                {eq.damage !== undefined && (
+                  <span><span className="text-cyan-400 font-mono">{eq.damage}</span> dmg</span>
+                )}
+                {eq.heat !== undefined && (
+                  <span><span className="text-amber-400 font-mono">{eq.heat}</span> heat</span>
+                )}
+              </div>
+
+              {/* Category badge - using centralized colors */}
+              {colors && (
+                <Badge variant={colors.badgeVariant as 'rose' | 'amber' | 'sky' | 'violet' | 'fuchsia' | 'slate' | 'yellow' | 'teal' | 'emerald' | 'lime' | 'red'} size="sm">
+                  {colors.label}
+                </Badge>
+              )}
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+// List View - Ultra compact rows
+function EquipmentListView({ equipment }: ViewProps): React.ReactElement {
+  return (
+    <div className="space-y-1">
+      {equipment.map((eq) => {
+        const colors = getEquipmentDisplayColors(eq.category, eq.name);
+        
+        return (
+          <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
+            <div className="flex items-center gap-3 px-3 py-2 bg-slate-800/30 border border-transparent rounded hover:bg-slate-800/50 hover:border-slate-700/50 transition-all cursor-pointer group">
+              {/* Category indicator bar - using centralized colors */}
+              {colors && (
+                <div className={`w-0.5 h-8 rounded-full ${colors.indicatorBg}`} />
+              )}
+
+              {/* Name */}
+              <span className="flex-1 text-sm text-white group-hover:text-amber-100 truncate min-w-0">
+                {eq.name}
+              </span>
+
+              {/* Quick stats */}
+              <div className="hidden sm:flex items-center gap-3 text-xs text-slate-500 flex-shrink-0">
+                {eq.weight !== undefined && <span className="font-mono">{eq.weight}t</span>}
+                {eq.criticalSlots !== undefined && <span className="font-mono">{eq.criticalSlots}sl</span>}
+                {eq.damage !== undefined && <span className="font-mono text-cyan-500">{eq.damage}d</span>}
+                {eq.heat !== undefined && <span className="font-mono text-amber-500">{eq.heat}h</span>}
+              </div>
+
+              {/* Badges */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {colors && (
+                  <Badge variant={colors.badgeVariant as 'rose' | 'amber' | 'sky' | 'violet' | 'fuchsia' | 'slate' | 'yellow' | 'teal' | 'emerald' | 'lime' | 'red'} size="sm">
+                    {colors.label}
+                  </Badge>
+                )}
+                {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
+              </div>
+
+              {/* Arrow */}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-slate-600 group-hover:text-slate-400 flex-shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+// Table View - Compact data table
+function EquipmentTableView({ equipment }: ViewProps): React.ReactElement {
+  return (
+    <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-800/60 border-b border-slate-700/50">
+              <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Type</th>
+              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Tech</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Wt</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Slots</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Dmg</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Heat</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-700/30">
+            {equipment.map((eq) => {
+              const colors = getEquipmentDisplayColors(eq.category, eq.name);
+              
+              return (
+                <tr 
+                  key={eq.id}
+                  className="hover:bg-slate-700/20 transition-colors cursor-pointer"
+                  onClick={() => window.location.href = `/equipment/${encodeURIComponent(eq.id)}`}
+                >
+                  <td className="px-3 py-2">
+                    <span className="font-medium text-white">{eq.name}</span>
+                  </td>
+                  <td className="px-3 py-2">
+                    {colors && (
+                      <Badge variant={colors.badgeVariant as 'rose' | 'amber' | 'sky' | 'violet' | 'fuchsia' | 'slate' | 'yellow' | 'teal' | 'emerald' | 'lime' | 'red'} size="sm">
+                        {colors.label}
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-slate-300">
+                    {eq.weight !== undefined ? `${eq.weight}` : '-'}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-slate-300">
+                    {eq.criticalSlots ?? '-'}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-cyan-400">
+                    {eq.damage ?? '-'}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-amber-400">
+                    {eq.heat ?? '-'}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

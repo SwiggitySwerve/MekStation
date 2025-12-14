@@ -1,8 +1,7 @@
-# battle-value-system Specification
+# battle-value-system Spec Delta
 
-## Purpose
-Defines how Battle Value (BV) is calculated for BattleMech units following BV2 rules from the TechManual.
-## Requirements
+## MODIFIED Requirements
+
 ### Requirement: Defensive Battle Value
 
 The system SHALL calculate defensive BV from armor, structure, gyro, and defensive speed factor.
@@ -87,12 +86,8 @@ Movement capability SHALL modify defensive and offensive BV using separate TMM-b
 - **AND** 18-24 MP SHALL give TMM 5
 - **AND** 25+ MP SHALL give TMM 6
 
-### Requirement: Registry Initialization Check
-BV calculation SHALL handle uninitialized equipment registry gracefully.
+## REMOVED Requirements
 
-#### Scenario: Registry not ready
-- **WHEN** equipment registry is not initialized
-- **THEN** offensive BV SHALL return 0
-- **AND** registry initialization SHALL be triggered asynchronously
-- **AND** calculation SHALL be retried when registry becomes ready
+### Requirement: Heat Efficiency Adjustment
 
+Offensive BV no longer uses a global heat adjustment factor. Instead, incremental heat tracking per weapon is used in the Offensive Battle Value calculation.

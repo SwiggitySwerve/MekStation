@@ -2,7 +2,7 @@
   "$schema": "../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2025-12-05T03:18:04.830Z",
-  "count": 117,
+  "count": 121,
   "items": [
     {
       "id": "small-laser",
@@ -2656,6 +2656,96 @@
       "battleValue": 105,
       "introductionYear": 3059,
       "special": []
+    },
+    {
+      "id": "tsemp",
+      "name": "TSEMP Cannon",
+      "category": "Energy",
+      "subType": "EMP",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 6,
+      "criticalSlots": 5,
+      "costCBills": 800000,
+      "battleValue": 92,
+      "introductionYear": 3100,
+      "special": ["tsemp"]
+    },
+    {
+      "id": "tsemp-one-shot",
+      "name": "TSEMP One-Shot",
+      "category": "Energy",
+      "subType": "EMP",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 4,
+      "criticalSlots": 3,
+      "costCBills": 400000,
+      "battleValue": 46,
+      "introductionYear": 3100,
+      "special": ["tsemp", "one-shot"]
+    },
+    {
+      "id": "fluid-gun",
+      "name": "Fluid Gun",
+      "category": "Energy",
+      "subType": "Industrial",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 2,
+      "criticalSlots": 2,
+      "ammoPerTon": 20,
+      "costCBills": 35000,
+      "battleValue": 6,
+      "introductionYear": 2300,
+      "special": ["industrial"]
+    },
+    {
+      "id": "mech-taser",
+      "name": "BattleMech Taser",
+      "category": "Energy",
+      "subType": "Taser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 0,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 4
+      },
+      "weight": 4,
+      "criticalSlots": 3,
+      "ammoPerTon": 5,
+      "costCBills": 200000,
+      "battleValue": 40,
+      "introductionYear": 3084,
+      "special": ["taser"]
     }
   ]
 }

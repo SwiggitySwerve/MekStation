@@ -2,7 +2,7 @@
   "$schema": "../_schema/misc-equipment-schema.json",
   "version": "1.0.0",
   "generatedAt": "2025-12-05T03:18:04.835Z",
-  "count": 314,
+  "count": 321,
   "items": [
     {
       "id": "single-heat-sink",
@@ -4306,6 +4306,97 @@
       "battleValue": 0,
       "introductionYear": 2680,
       "special": []
+    },
+    {
+      "id": "m-pod",
+      "name": "M-Pod",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 6000,
+      "battleValue": 5,
+      "introductionYear": 3060,
+      "special": ["anti-infantry", "one-shot"]
+    },
+    {
+      "id": "b-pod",
+      "name": "B-Pod",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 2500,
+      "battleValue": 2,
+      "introductionYear": 3068,
+      "special": ["anti-battle-armor", "one-shot"]
+    },
+    {
+      "id": "coolant-pod",
+      "name": "Coolant Pod",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 3049,
+      "special": ["coolant"]
+    },
+    {
+      "id": "cargo",
+      "name": "Cargo (1 ton)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2000,
+      "special": ["industrial"]
+    },
+    {
+      "id": "lift-hoist",
+      "name": "Lift Hoist",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 3,
+      "criticalSlots": 3,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 2000,
+      "special": ["industrial"]
+    },
+    {
+      "id": "vehicular-grenade-launcher",
+      "name": "Vehicular Grenade Launcher",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 10000,
+      "battleValue": 5,
+      "introductionYear": 3065,
+      "special": ["smoke"]
+    },
+    {
+      "id": "risc-apds",
+      "name": "RISC Advanced Point Defense System",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 3,
+      "criticalSlots": 4,
+      "costCBills": 300000,
+      "battleValue": 45,
+      "introductionYear": 3137,
+      "special": ["point-defense"]
     }
   ]
 }

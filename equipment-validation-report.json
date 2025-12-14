@@ -1,0 +1,700 @@
+{
+  "generatedAt": "2025-12-14T20:45:45.860Z",
+  "summary": {
+    "unitsProcessed": 4217,
+    "unitsWithIssues": 1914,
+    "totalEquipment": 22171,
+    "resolvedEquipment": 22114,
+    "failedEquipment": 57,
+    "resolutionRate": "99.74%"
+  },
+  "unresolvedEquipmentIds": [
+    {
+      "id": "1-clrotaryac2",
+      "occurrences": 4,
+      "suggestions": [
+        "ac-2",
+        "rac-2"
+      ]
+    },
+    {
+      "id": "c3-boosted-system-master",
+      "occurrences": 3,
+      "suggestions": [
+        "boosted-c3-master"
+      ]
+    },
+    {
+      "id": "1-isimprovedheavygaussrifle",
+      "occurrences": 2,
+      "suggestions": [
+        "gauss-rifle",
+        "heavy-gauss-rifle",
+        "improvedheavygaussrifle"
+      ]
+    },
+    {
+      "id": "1-isheavyrifle",
+      "occurrences": 2,
+      "suggestions": []
+    },
+    {
+      "id": "2-clantipersonnelpod",
+      "occurrences": 2,
+      "suggestions": []
+    },
+    {
+      "id": "1-clbpod",
+      "occurrences": 2,
+      "suggestions": [
+        "b-pod"
+      ]
+    },
+    {
+      "id": "1-chainsaw",
+      "occurrences": 2,
+      "suggestions": [
+        "chainsaw"
+      ]
+    },
+    {
+      "id": "rifle-cannon",
+      "occurrences": 2,
+      "suggestions": [
+        "rifle-cannon-heavy",
+        "rifle-cannon-light",
+        "rifle-cannon-medium"
+      ]
+    },
+    {
+      "id": "nail-gun",
+      "occurrences": 2,
+      "suggestions": []
+    },
+    {
+      "id": "prototype-er-small-laser",
+      "occurrences": 2,
+      "suggestions": [
+        "small-laser",
+        "er-small-laser",
+        "ersmalllaserprototype"
+      ]
+    },
+    {
+      "id": "thumper",
+      "occurrences": 2,
+      "suggestions": [
+        "thumper-cannon",
+        "thumperammo",
+        "thumpercannonammo"
+      ]
+    },
+    {
+      "id": "1-retractable-blade",
+      "occurrences": 2,
+      "suggestions": [
+        "retractable-blade"
+      ]
+    },
+    {
+      "id": "mortar-8",
+      "occurrences": 2,
+      "suggestions": [
+        "mech-mortar-8"
+      ]
+    },
+    {
+      "id": "1-islbxac10prototype",
+      "occurrences": 2,
+      "suggestions": [
+        "ac-10"
+      ]
+    },
+    {
+      "id": "1-lrt-15",
+      "occurrences": 2,
+      "suggestions": [
+        "lrtorpedo1",
+        "lrtorpedo15"
+      ]
+    },
+    {
+      "id": "1-issrt4",
+      "occurrences": 2,
+      "suggestions": [
+        "srt4"
+      ]
+    },
+    {
+      "id": "tsemp-repeating-cannon",
+      "occurrences": 2,
+      "suggestions": [
+        "tsemp"
+      ]
+    },
+    {
+      "id": "1-islppc",
+      "occurrences": 2,
+      "suggestions": [
+        "ppc"
+      ]
+    },
+    {
+      "id": "2-clmicropulselaser",
+      "occurrences": 2,
+      "suggestions": [
+        "bamicropulselaser"
+      ]
+    },
+    {
+      "id": "taser",
+      "occurrences": 1,
+      "suggestions": [
+        "mech-taser"
+      ]
+    },
+    {
+      "id": "1-isc3boostedsystemslaveunit",
+      "occurrences": 1,
+      "suggestions": [
+        "c3boostedsystemslaveunit"
+      ]
+    },
+    {
+      "id": "1-ismektaser",
+      "occurrences": 1,
+      "suggestions": []
+    },
+    {
+      "id": "1-spikes",
+      "occurrences": 1,
+      "suggestions": [
+        "spikes"
+      ]
+    },
+    {
+      "id": "prototype-ultra-autocannon-10",
+      "occurrences": 1,
+      "suggestions": [
+        "ac-10"
+      ]
+    },
+    {
+      "id": "ppcp",
+      "occurrences": 1,
+      "suggestions": [
+        "ppc"
+      ]
+    },
+    {
+      "id": "prototype-lb-10-x-autocannon",
+      "occurrences": 1,
+      "suggestions": []
+    },
+    {
+      "id": "1-clrotaryac5",
+      "occurrences": 1,
+      "suggestions": [
+        "ac-5",
+        "rac-5"
+      ]
+    },
+    {
+      "id": "1-issniperartcannon",
+      "occurrences": 1,
+      "suggestions": [
+        "sniper-cannon"
+      ]
+    },
+    {
+      "id": "c3-computer-[master]",
+      "occurrences": 1,
+      "suggestions": [
+        "c3-master"
+      ]
+    },
+    {
+      "id": "ac-10p",
+      "occurrences": 1,
+      "suggestions": [
+        "ac-10"
+      ]
+    },
+    {
+      "id": "1-cargo-0.5-tons",
+      "occurrences": 1,
+      "suggestions": []
+    },
+    {
+      "id": "1-issrm4-os",
+      "occurrences": 1,
+      "suggestions": [
+        "srm-4",
+        "basrm4-os"
+      ]
+    },
+    {
+      "id": "1-iseherppc",
+      "occurrences": 1,
+      "suggestions": [
+        "ppc",
+        "er-ppc"
+      ]
+    },
+    {
+      "id": "1-isc3remotesensorlauncher",
+      "occurrences": 1,
+      "suggestions": []
+    },
+    {
+      "id": "c3-remote-sensor-launcher",
+      "occurrences": 1,
+      "suggestions": []
+    }
+  ],
+  "unitsWithMostIssues": [
+    {
+      "unit": "Hatamoto-Kaeru HTM-35X",
+      "failed": 4,
+      "total": 12,
+      "issues": [
+        "1-issnppc",
+        "1-issnppc",
+        "1-lrt-15",
+        "1-lrt-15",
+        "1-issrt4",
+        "1-issrt4",
+        "1-ismediumlaser",
+        "1-ismediumlaser",
+        "1-ismediumlaser",
+        "1-ismediumlaser",
+        "1-ismediumlaser",
+        "1-ismass"
+      ]
+    },
+    {
+      "unit": "Kraken-XR Unknown",
+      "failed": 4,
+      "total": 7,
+      "issues": [
+        "1-clrotaryac2",
+        "1-clrotaryac2",
+        "1-clrotaryac2",
+        "1-clrotaryac2",
+        "1-clstreaklrm10",
+        "1-clstreaklrm10",
+        "1-clerlargelaser"
+      ]
+    },
+    {
+      "unit": "Annihilator ANH-2AX",
+      "failed": 2,
+      "total": 2,
+      "issues": [
+        "1-isimprovedheavygaussrifle",
+        "1-isimprovedheavygaussrifle"
+      ]
+    },
+    {
+      "unit": "Bowman 2",
+      "failed": 2,
+      "total": 7,
+      "issues": [
+        "1-cllrm20",
+        "3-clermediumlaser",
+        "1-clerlargelaser",
+        "1-cllrm20",
+        "1-clecmsuite",
+        "2-clantipersonnelpod",
+        "2-clantipersonnelpod"
+      ]
+    },
+    {
+      "unit": "Bowman 3",
+      "failed": 2,
+      "total": 9,
+      "issues": [
+        "1-clecmsuite",
+        "1-clbpod",
+        "1-clbpod",
+        "1-clermediumlaser",
+        "1-clermediumlaser",
+        "1-clermediumlaser",
+        "1-clermediumlaser",
+        "1-clatm9",
+        "1-clhag20"
+      ]
+    },
+    {
+      "unit": "Crosscut ED-XX 'Ichabod'",
+      "failed": 2,
+      "total": 4,
+      "issues": [
+        "1-isermediumlaser",
+        "1-isersmalllaser",
+        "1-ismektaser",
+        "1-chainsaw"
+      ]
+    },
+    {
+      "unit": "Diomede D-M3D-4 DemolitionMech",
+      "failed": 2,
+      "total": 4,
+      "issues": [
+        "nail-gun",
+        "nail-gun"
+      ]
+    },
+    {
+      "unit": "Ha Otoko-HR Unknown",
+      "failed": 2,
+      "total": 4,
+      "issues": [
+        "mortar-8",
+        "mortar-8"
+      ]
+    },
+    {
+      "unit": "Hatamoto-Chi HTM-27T (Daniel)",
+      "failed": 2,
+      "total": 4,
+      "issues": [
+        "1-islbxac10prototype",
+        "1-islbxac10prototype",
+        "1-issrm4",
+        "1-issrm4"
+      ]
+    },
+    {
+      "unit": "Hatamoto-Godai HTM-30Z",
+      "failed": 2,
+      "total": 6,
+      "issues": [
+        "c3-boosted-system-master",
+        "c3-boosted-system-master"
+      ]
+    },
+    {
+      "unit": "Jenner JR7-K (Grace II)",
+      "failed": 2,
+      "total": 3,
+      "issues": [
+        "1-isnarcbeacon",
+        "1-islppc",
+        "1-islppc"
+      ]
+    },
+    {
+      "unit": "Pinion Unknown",
+      "failed": 2,
+      "total": 5,
+      "issues": [
+        "1-clheavylargelaser",
+        "1-clmediumpulselaser",
+        "2-clmicropulselaser",
+        "1-clmediumpulselaser",
+        "2-clmicropulselaser"
+      ]
+    },
+    {
+      "unit": "Aquagladius AQS-3",
+      "failed": 1,
+      "total": 1,
+      "issues": [
+        "taser"
+      ]
+    },
+    {
+      "unit": "Arbiter ARB-001 SecurityMech",
+      "failed": 1,
+      "total": 1,
+      "issues": [
+        "1-isheavyrifle"
+      ]
+    },
+    {
+      "unit": "Charger CGR-1X1",
+      "failed": 1,
+      "total": 9,
+      "issues": [
+        "1-istag",
+        "1-iserlargelaser",
+        "1-ismediumxpulselaser",
+        "1-isc3boostedsystemslaveunit",
+        "1-islaserantimissilesystem",
+        "1-isangelecm",
+        "1-isbloodhoundactiveprobe",
+        "1-ischaffpod",
+        "1-islaserantimissilesystem"
+      ]
+    },
+    {
+      "unit": "Crosscut ED-X2 LoggerMech",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "1-lift-hoist",
+        "1-chainsaw",
+        "1-cargo-1-ton",
+        "1-cargo-1-ton"
+      ]
+    },
+    {
+      "unit": "Deep Lord RCL-Z1M MilitiaMech",
+      "failed": 1,
+      "total": 2,
+      "issues": [
+        "rifle-cannon"
+      ]
+    },
+    {
+      "unit": "Dervish DV-8D2 'Lightbringer'",
+      "failed": 1,
+      "total": 9,
+      "issues": [
+        "1-isermediumlaser",
+        "1-isermediumlaser",
+        "1-isermediumlaser",
+        "1-isermediumlaser",
+        "1-issnppc",
+        "1-issnppc",
+        "1-spikes",
+        "1-is-coolant-pod",
+        "1-is-coolant-pod"
+      ]
+    },
+    {
+      "unit": "Dig Lord RCL-Z1 Armed MiningMech",
+      "failed": 1,
+      "total": 3,
+      "issues": [
+        "1-ismediumvibroblade",
+        "1-ismml5",
+        "1-isheavyrifle"
+      ]
+    },
+    {
+      "unit": "Enfield END-6J-EC",
+      "failed": 1,
+      "total": 3,
+      "issues": [
+        "prototype-ultra-autocannon-10"
+      ]
+    },
+    {
+      "unit": "Excalibur EXC-B2b-EC",
+      "failed": 1,
+      "total": 5,
+      "issues": [
+        "prototype-er-medium-laser",
+        "anti-missile-system",
+        "prototype-er-small-laser"
+      ]
+    },
+    {
+      "unit": "Grand Titan T-IT-N14R 'Vengeance'",
+      "failed": 1,
+      "total": 3,
+      "issues": [
+        "thumper"
+      ]
+    },
+    {
+      "unit": "Griffin GRF-1A",
+      "failed": 1,
+      "total": 2,
+      "issues": [
+        "ppcp"
+      ]
+    },
+    {
+      "unit": "Gurkha GUR-8G",
+      "failed": 1,
+      "total": 7,
+      "issues": [
+        "1-isersmalllaser",
+        "1-issnppc",
+        "1-isermediumlaser",
+        "1-isermediumlaser",
+        "1-isermediumlaser",
+        "1-isimprovedc3cpu",
+        "1-retractable-blade"
+      ]
+    },
+    {
+      "unit": "Hatchetman HCT-3F (Austin)",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "prototype-lb-10-x-autocannon"
+      ]
+    },
+    {
+      "unit": "Hoplite HOP-4X",
+      "failed": 1,
+      "total": 3,
+      "issues": [
+        "1-clrotaryac5",
+        "1-clstreaklrm15",
+        "1-cllightactiveprobe"
+      ]
+    },
+    {
+      "unit": "Icarus II ICR-2X",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "tsemp-repeating-cannon"
+      ]
+    },
+    {
+      "unit": "Jinggau JN-G8BX (Rush)",
+      "failed": 1,
+      "total": 7,
+      "issues": [
+        "1-issniperartcannon",
+        "1-ismediumxpulselaser",
+        "1-ismediumxpulselaser",
+        "1-ismediumxpulselaser",
+        "1-ismediumxpulselaser",
+        "1-istag",
+        "1-isc3slaveunit"
+      ]
+    },
+    {
+      "unit": "Lao Hu LHU-3B",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "c3-computer-[master]"
+      ]
+    },
+    {
+      "unit": "Orion ON1-H",
+      "failed": 1,
+      "total": 6,
+      "issues": [
+        "ac-10p"
+      ]
+    },
+    {
+      "unit": "Phoenix PX-1KR",
+      "failed": 1,
+      "total": 3,
+      "issues": [
+        "rifle-cannon"
+      ]
+    },
+    {
+      "unit": "Powerman SC XI LoaderMech",
+      "failed": 1,
+      "total": 7,
+      "issues": [
+        "1-lift-hoist",
+        "1-lift-hoist",
+        "1-cargo-0.5-tons",
+        "1-cargo-1-ton",
+        "1-cargo-1-ton",
+        "1-cargo-1-ton",
+        "1-cargo-1-ton"
+      ]
+    },
+    {
+      "unit": "Quickdraw QKD-5M",
+      "failed": 1,
+      "total": 5,
+      "issues": [
+        "1-islrm10",
+        "1-issrm4-os",
+        "2-ismediumlaser",
+        "1-ismediumlaser",
+        "1-ismediumlaser"
+      ]
+    },
+    {
+      "unit": "Seraph C-SRP-OR (Ravana)",
+      "failed": 1,
+      "total": 6,
+      "issues": [
+        "1-issnppc",
+        "1-islargevsplaser",
+        "1-isthunderbolt20",
+        "1-retractable-blade",
+        "1-islaserantimissilesystem",
+        "1-isimprovedc3cpu"
+      ]
+    },
+    {
+      "unit": "Stag II ST-24G",
+      "failed": 1,
+      "total": 8,
+      "issues": [
+        "1-iseherppc",
+        "1-ismediumlaser",
+        "1-ismediumpulselaser",
+        "1-issmalllaser",
+        "1-issmalllaser",
+        "1-ismediumpulselaser",
+        "1-ismediumlaser",
+        "1-ismediumlaser"
+      ]
+    },
+    {
+      "unit": "Starslayer STY-2C-EC",
+      "failed": 1,
+      "total": 6,
+      "issues": [
+        "prototype-er-small-laser",
+        "prototype-er-medium-laser",
+        "prototype-er-medium-laser",
+        "prototype-streak-srm-4"
+      ]
+    },
+    {
+      "unit": "Templar TLR1-ORISC",
+      "failed": 1,
+      "total": 7,
+      "issues": [
+        "tsemp-repeating-cannon"
+      ]
+    },
+    {
+      "unit": "Tessen TSN-X-4",
+      "failed": 1,
+      "total": 6,
+      "issues": [
+        "1-ismediumpulselaser",
+        "1-iserppc",
+        "1-istag",
+        "1-isangelecm",
+        "1-isbloodhoundactiveprobe",
+        "1-isc3remotesensorlauncher"
+      ]
+    },
+    {
+      "unit": "Tessen TSN-X4R 'Rapunzel'",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "c3-remote-sensor-launcher"
+      ]
+    },
+    {
+      "unit": "Uni ATAE-70 ArtilleryMech",
+      "failed": 1,
+      "total": 1,
+      "issues": [
+        "thumper"
+      ]
+    },
+    {
+      "unit": "Yu Huang Y-H12GC",
+      "failed": 1,
+      "total": 4,
+      "issues": [
+        "medium-vsp-laser",
+        "c3-boosted-system-master"
+      ]
+    }
+  ]
+}

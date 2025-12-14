@@ -2,7 +2,7 @@
   "$schema": "../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2025-12-05T03:18:04.833Z",
-  "count": 260,
+  "count": 264,
   "items": [
     {
       "id": "lrm-5",
@@ -5919,6 +5919,98 @@
       "battleValue": 12,
       "introductionYear": 2665,
       "special": []
+    },
+    {
+      "id": "iatm-3",
+      "name": "iATM 3",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 20,
+      "costCBills": 50000,
+      "battleValue": 63,
+      "introductionYear": 3070,
+      "special": ["iatm"]
+    },
+    {
+      "id": "iatm-6",
+      "name": "iATM 6",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 3,
+      "criticalSlots": 3,
+      "ammoPerTon": 10,
+      "costCBills": 125000,
+      "battleValue": 126,
+      "introductionYear": 3070,
+      "special": ["iatm"]
+    },
+    {
+      "id": "iatm-9",
+      "name": "iATM 9",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "ammoPerTon": 7,
+      "costCBills": 225000,
+      "battleValue": 189,
+      "introductionYear": 3070,
+      "special": ["iatm"]
+    },
+    {
+      "id": "iatm-12",
+      "name": "iATM 12",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 8,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 5,
+      "ammoPerTon": 5,
+      "costCBills": 350000,
+      "battleValue": 252,
+      "introductionYear": 3070,
+      "special": ["iatm"]
     }
   ]
 }

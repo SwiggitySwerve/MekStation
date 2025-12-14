@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { canonicalUnitService, IFullUnit } from './CanonicalUnitService';
 import { customUnitApiService } from './CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EngineType } from '@/types/construction/EngineType';
@@ -21,7 +22,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { EquipmentCategory } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import {
   UnitState,
   IArmorAllocation,
@@ -86,6 +87,11 @@ export interface ISerializedUnit {
     readonly id: string;
     readonly location: string;
   }>;
+  /**
+   * Optional critical slot grid from import sources (e.g., MegaMek).
+   * Used as a hint for tech-base variant resolution (Clan vs Inner Sphere) in mixed-tech units.
+   */
+  readonly criticalSlots?: Readonly<Record<string, ReadonlyArray<string | null>>>;
   readonly mulId?: number;
   readonly [key: string]: unknown;
 }
@@ -327,6 +333,23 @@ function mapTechBase(techBaseStr: string): TechBase {
 }
 
 /**
+ * Map unit tech base string to TechBaseMode.
+ * Mixed tech applies at the unit level (TechBaseMode), while components remain binary (TechBase).
+ */
+function mapTechBaseMode(techBaseStr: string): TechBaseMode {
+  const normalized = techBaseStr.toUpperCase().replace(/[_\s-]/g, '');
+  
+  if (normalized === 'CLAN') {
+    return TechBaseMode.CLAN;
+  }
+  if (normalized === 'MIXED') {
+    return TechBaseMode.MIXED;
+  }
+  
+  return TechBaseMode.INNER_SPHERE;
+}
+
+/**
  * Map rules level string to RulesLevel enum
  */
 function mapRulesLevel(levelStr: string): RulesLevel {
@@ -450,13 +473,253 @@ function mapArmorAllocation(
   return result;
 }
 
+// =============================================================================
+// Equipment ID + Variant Resolution Helpers
+// =============================================================================
+
+type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
+type TechHint = 'clan' | 'is';
+
+const CRITICAL_SLOTS_LOCATION_KEYS: Readonly<Record<MechLocation, string>> = {
+  [MechLocation.HEAD]: 'HEAD',
+  [MechLocation.CENTER_TORSO]: 'CENTER_TORSO',
+  [MechLocation.LEFT_TORSO]: 'LEFT_TORSO',
+  [MechLocation.RIGHT_TORSO]: 'RIGHT_TORSO',
+  [MechLocation.LEFT_ARM]: 'LEFT_ARM',
+  [MechLocation.RIGHT_ARM]: 'RIGHT_ARM',
+  [MechLocation.LEFT_LEG]: 'LEFT_LEG',
+  [MechLocation.RIGHT_LEG]: 'RIGHT_LEG',
+};
+
+function normalizeMatchKey(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
+function stripTechMarkersFromName(name: string): string {
+  return name
+    .replace(/\s*\(Clan\)\s*$/i, '')
+    .replace(/\s*\(IS\)\s*$/i, '')
+    .replace(/\s*\[IS\]\s*$/i, '')
+    .replace(/^Clan\s+/i, '')
+    .replace(/^IS\s+/i, '')
+    .trim();
+}
+
+function getTechHintFromToken(token: string): TechHint | null {
+  const trimmed = token.trim();
+  
+  // Clan markers commonly found in MegaMek exports
+  if (/^CL[A-Za-z0-9]/.test(trimmed) || /^Clan\s+/i.test(trimmed) || /\(Clan\)/i.test(trimmed)) {
+    return 'clan';
+  }
+  
+  // Inner Sphere markers commonly found in import sources
+  if (/^IS[A-Za-z0-9]/.test(trimmed) || /^IS\s+/i.test(trimmed) || /\(IS\)/i.test(trimmed) || /\[IS\]/i.test(trimmed)) {
+    return 'is';
+  }
+  
+  return null;
+}
+
+function stripTechPrefixFromNormalizedKey(normalized: string, hint: TechHint): string {
+  if (hint === 'clan') {
+    if (normalized.startsWith('clan')) return normalized.slice(4);
+    if (normalized.startsWith('cl')) return normalized.slice(2);
+    return normalized;
+  }
+  
+  if (hint === 'is') {
+    if (normalized.startsWith('is')) return normalized.slice(2);
+    return normalized;
+  }
+  
+  return normalized;
+}
+
+function inferPreferredTechBaseFromCriticalSlots(
+  locationSlots: ReadonlyArray<string | null> | undefined,
+  equipmentNameKey: string
+): TechBase | null {
+  if (!locationSlots || locationSlots.length === 0) {
+    return null;
+  }
+  
+  for (const entry of locationSlots) {
+    if (typeof entry !== 'string') {
+      continue;
+    }
+    
+    const hint = getTechHintFromToken(entry);
+    if (!hint) {
+      continue;
+    }
+    
+    const normalizedToken = normalizeMatchKey(entry);
+    const strippedToken = stripTechPrefixFromNormalizedKey(normalizedToken, hint);
+    
+    if (strippedToken === equipmentNameKey) {
+      return hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Normalize an equipment ID by converting legacy formats to canonical IDs.
+ * Handles patterns like:
+ * - 'ultra-ac-5' → 'uac-5'
+ * - 'clan-ultra-ac-5' → 'clan-uac-5'
+ * - 'lb-10-x-ac' → 'lb-10x-ac'
+ * - 'rotary-ac-5' → 'rac-5'
+ */
+function normalizeEquipmentId(id: string, _unitTechBase: TechBase): string {
+  let normalized = id.toLowerCase().trim();
+  
+  // Check for Clan prefix
+  const isClanPrefix = normalized.startsWith('clan-');
+  if (isClanPrefix) {
+    normalized = normalized.slice(5); // Remove 'clan-' prefix
+  }
+  
+  // Ultra AC/x patterns: 'ultra-ac-5' → 'uac-5'
+  if (/^ultra-ac-?\d+$/.test(normalized)) {
+    const num = normalized.match(/\d+$/)?.[0];
+    normalized = `uac-${num}`;
+  }
+  
+  // Rotary AC patterns: 'rotary-ac-5' → 'rac-5'
+  if (/^rotary-ac-?\d+$/.test(normalized)) {
+    const num = normalized.match(/\d+$/)?.[0];
+    normalized = `rac-${num}`;
+  }
+  
+  // Light AC patterns: 'light-ac-5' → 'lac-5'
+  if (/^light-ac-?\d+$/.test(normalized)) {
+    const num = normalized.match(/\d+$/)?.[0];
+    normalized = `lac-${num}`;
+  }
+  
+  // LB X AC patterns: 'lb-10-x-ac' → 'lb-10x-ac'
+  normalized = normalized.replace(/^lb-(\d+)-x-ac$/, 'lb-$1x-ac');
+  
+  // ER laser patterns
+  normalized = normalized.replace(/^extended-range-(.*)$/, 'er-$1');
+  
+  // Handle ammo patterns
+  if (normalized.endsWith('-ammo') || normalized.includes('-ammo-')) {
+    // 'ultra-ac-5-ammo' → 'uac-5-ammo'
+    normalized = normalized.replace(/ultra-ac-(\d+)/, 'uac-$1');
+    normalized = normalized.replace(/rotary-ac-(\d+)/, 'rac-$1');
+    normalized = normalized.replace(/light-ac-(\d+)/, 'lac-$1');
+    normalized = normalized.replace(/lb-(\d+)-x-ac/, 'lb-$1x-ac');
+  }
+  
+  // Re-add clan prefix if it was explicitly present in the source ID
+  if (isClanPrefix) {
+    normalized = `clan-${normalized}`;
+  }
+  
+  return normalized;
+}
+
+/**
+ * Attempt to resolve an equipment ID using multiple strategies.
+ * Returns the equipment definition if found, or null.
+ */
+function resolveEquipmentId(
+  id: string,
+  unitTechBase: TechBase,
+  unitTechBaseMode: TechBaseMode,
+  locationCriticalSlots: ReadonlyArray<string | null> | undefined
+): { equipmentDef: IEquipmentItem | undefined; resolvedId: string } {
+  const normalizedId = normalizeEquipmentId(id, unitTechBase);
+  const baseId = normalizedId.startsWith('clan-') ? normalizedId.slice(5) : normalizedId;
+  
+  // Canonical IDs in our catalog generally follow the pattern:
+  // - Inner Sphere: <id>
+  // - Clan: clan-<id>
+  const isId = baseId;
+  const clanId = `clan-${baseId}`;
+  
+  const isDef = equipmentLookupService.getById(isId);
+  const clanDef = equipmentLookupService.getById(clanId);
+  
+  // For mixed-tech units, use critical slot tokens as a per-item hint for Clan vs IS variants.
+  if (unitTechBaseMode === TechBaseMode.MIXED && (isDef || clanDef)) {
+    const candidateName = (isDef ?? clanDef)?.name;
+    const equipmentNameKey = candidateName
+      ? normalizeMatchKey(stripTechMarkersFromName(candidateName))
+      : normalizeMatchKey(baseId);
+    
+    const hintedTechBase = inferPreferredTechBaseFromCriticalSlots(locationCriticalSlots, equipmentNameKey);
+    
+    if (hintedTechBase === TechBase.CLAN && clanDef) {
+      return { equipmentDef: clanDef, resolvedId: clanId };
+    }
+    if (hintedTechBase === TechBase.INNER_SPHERE && isDef) {
+      return { equipmentDef: isDef, resolvedId: isId };
+    }
+  }
+  
+  // Unit-level preference: Clan units prefer clan-* variants when available.
+  const preferredTechBase: TechBase =
+    unitTechBaseMode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
+  
+  if (preferredTechBase === TechBase.CLAN && clanDef) {
+    return { equipmentDef: clanDef, resolvedId: clanId };
+  }
+  if (preferredTechBase === TechBase.INNER_SPHERE && isDef) {
+    return { equipmentDef: isDef, resolvedId: isId };
+  }
+  
+  // Fallback: return whichever variant exists.
+  if (isDef) {
+    return { equipmentDef: isDef, resolvedId: isId };
+  }
+  if (clanDef) {
+    return { equipmentDef: clanDef, resolvedId: clanId };
+  }
+  
+  // Final fallback: EquipmentRegistry name-based alias resolution
+  const registry = getEquipmentRegistry();
+  if (registry.isReady()) {
+    const lookupResult = registry.lookup(id);
+    if (lookupResult.found && lookupResult.equipment) {
+      const resolvedEquipment = equipmentLookupService.getById(lookupResult.equipment.id);
+      if (resolvedEquipment) {
+        return { equipmentDef: resolvedEquipment, resolvedId: lookupResult.equipment.id };
+      }
+    }
+    
+    if (normalizedId !== id) {
+      const normalizedLookup = registry.lookup(normalizedId);
+      if (normalizedLookup.found && normalizedLookup.equipment) {
+        const resolvedEquipment = equipmentLookupService.getById(normalizedLookup.equipment.id);
+        if (resolvedEquipment) {
+          return { equipmentDef: resolvedEquipment, resolvedId: normalizedLookup.equipment.id };
+        }
+      }
+    }
+  }
+  
+  // Not found
+  return { equipmentDef: undefined, resolvedId: normalizedId };
+}
+
 /**
  * Map equipment array to IMountedEquipmentInstance array
  * Looks up equipment from the equipment database to get full properties.
+ * Uses multiple resolution strategies including ID normalization and aliasing.
  */
 function mapEquipment(
   equipment: ReadonlyArray<{ id: string; location: string }> | undefined,
-  unitTechBase: TechBase
+  unitTechBase: TechBase,
+  unitTechBaseMode: TechBaseMode,
+  unitCriticalSlots: UnitCriticalSlots | undefined
 ): IMountedEquipmentInstance[] {
   if (!equipment || equipment.length === 0) {
     return [];
@@ -464,13 +727,26 @@ function mapEquipment(
   
   return equipment.map((item) => {
     const location = mapMechLocation(item.location);
+    const locationCriticalSlots = unitCriticalSlots
+      ? (location ? unitCriticalSlots[CRITICAL_SLOTS_LOCATION_KEYS[location]] : unitCriticalSlots[item.location])
+      : undefined;
     
-    // Look up equipment from database
-    const equipmentDef = equipmentLookupService.getById(item.id);
+    // Look up equipment using multiple resolution strategies
+    const { equipmentDef, resolvedId } = resolveEquipmentId(
+      item.id,
+      unitTechBase,
+      unitTechBaseMode,
+      locationCriticalSlots
+    );
     
     if (equipmentDef) {
       // Found in database - use full properties
       const heat = 'heat' in equipmentDef ? (equipmentDef as { heat: number }).heat : 0;
+      
+      // Log if we resolved through normalization/aliasing
+      if (resolvedId !== item.id) {
+        console.debug(`Equipment ID resolved: "${item.id}" → "${resolvedId}"`);
+      }
       
       return {
         instanceId: uuidv4(),
@@ -489,7 +765,7 @@ function mapEquipment(
       };
     } else {
       // Not found - create placeholder with unknown equipment
-      console.warn(`Equipment not found in database: ${item.id}`);
+      console.warn(`Equipment not found in database: ${item.id} (tried: ${resolvedId})`);
       return {
         instanceId: uuidv4(),
         equipmentId: item.id,
@@ -558,10 +834,25 @@ function calculateArmorTonnage(allocation: IArmorAllocation, armorType: ArmorTyp
  */
 export class UnitLoaderService {
   /**
+   * Ensure equipment services are initialized for ID resolution
+   */
+  private async ensureEquipmentInitialized(): Promise<void> {
+    // Initialize equipment lookup service (loads JSON equipment data)
+    await equipmentLookupService.initialize();
+    
+    // Initialize equipment registry (builds name-to-ID mappings)
+    const registry = getEquipmentRegistry();
+    await registry.initialize();
+  }
+  
+  /**
    * Load a canonical unit by ID
    */
   async loadCanonicalUnit(id: string): Promise<ILoadUnitResult> {
     try {
+      // Ensure equipment is loaded before mapping
+      await this.ensureEquipmentInitialized();
+      
       const fullUnit = await canonicalUnitService.getById(id);
       
       if (!fullUnit) {
@@ -581,6 +872,9 @@ export class UnitLoaderService {
    */
   async loadCustomUnit(id: string): Promise<ILoadUnitResult> {
     try {
+      // Ensure equipment is loaded before mapping
+      await this.ensureEquipmentInitialized();
+      
       const fullUnit = await customUnitApiService.getById(id);
       
       if (!fullUnit) {
@@ -618,7 +912,9 @@ export class UnitLoaderService {
    * Map serialized unit JSON to UnitState
    */
   mapToUnitState(serialized: ISerializedUnit, _isCanonical: boolean): UnitState {
-    // Determine tech base first as it affects other mappings
+    // Determine unit tech base mode first (mixed tech applies at unit level)
+    const techBaseMode = mapTechBaseMode(serialized.techBase);
+    // Determine binary tech base for component mappings (per spec, components are binary)
     const techBase = mapTechBase(serialized.techBase);
     
     // Map engine
@@ -656,8 +952,13 @@ export class UnitLoaderService {
     const armorAllocation = mapArmorAllocation(serialized.armor?.allocation);
     const armorTonnage = calculateArmorTonnage(armorAllocation, armorType);
     
-    // Map equipment (requires techBase for fallback)
-    const equipment = mapEquipment(serialized.equipment, techBase);
+    // Map equipment (uses tech base mode + criticalSlots hints for mixed-tech variants)
+    const equipment = mapEquipment(
+      serialized.equipment,
+      techBase,
+      techBaseMode,
+      serialized.criticalSlots
+    );
     
     // Determine rules level
     const rulesLevel = serialized.rulesLevel 
@@ -666,11 +967,6 @@ export class UnitLoaderService {
     
     // Get model/variant - canonical uses 'model', custom may use 'variant'
     const model = serialized.model ?? serialized.variant ?? '';
-    
-    // Create tech base mode based on tech base
-    const techBaseMode: TechBaseMode = techBase === TechBase.CLAN 
-      ? TechBaseMode.CLAN 
-      : TechBaseMode.INNER_SPHERE;
     
     // Create the full UnitState
     const state: UnitState = {

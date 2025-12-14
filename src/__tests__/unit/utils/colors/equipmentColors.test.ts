@@ -45,36 +45,36 @@ describe('Equipment Colors', () => {
       }
     });
 
-    it('should have weapon colors as red', () => {
-      expect(EQUIPMENT_COLORS.weapon.bg).toBe('bg-red-700');
+    it('should have weapon colors as yellow', () => {
+      expect(EQUIPMENT_COLORS.weapon.bg).toBe('bg-yellow-600');
     });
 
-    it('should have ammunition colors as orange', () => {
-      expect(EQUIPMENT_COLORS.ammunition.bg).toBe('bg-orange-700');
+    it('should have ammunition colors as amber', () => {
+      expect(EQUIPMENT_COLORS.ammunition.bg).toBe('bg-amber-600');
     });
 
     it('should have heatsink colors as cyan', () => {
       expect(EQUIPMENT_COLORS.heatsink.bg).toBe('bg-cyan-700');
     });
 
-    it('should have electronics colors as blue', () => {
-      expect(EQUIPMENT_COLORS.electronics.bg).toBe('bg-blue-700');
+    it('should have electronics colors as cyan', () => {
+      expect(EQUIPMENT_COLORS.electronics.bg).toBe('bg-cyan-700');
     });
 
-    it('should have movement colors as green', () => {
-      expect(EQUIPMENT_COLORS.movement.bg).toBe('bg-green-700');
+    it('should have movement colors as emerald', () => {
+      expect(EQUIPMENT_COLORS.movement.bg).toBe('bg-emerald-700');
     });
   });
 
   describe('getEquipmentColors', () => {
     it('should return weapon colors', () => {
       const colors = getEquipmentColors('weapon');
-      expect(colors.bg).toBe('bg-red-700');
+      expect(colors.bg).toBe('bg-yellow-600');
     });
 
     it('should return ammunition colors', () => {
       const colors = getEquipmentColors('ammunition');
-      expect(colors.bg).toBe('bg-orange-700');
+      expect(colors.bg).toBe('bg-amber-600');
     });
 
     it('should return heatsink colors', () => {
@@ -92,17 +92,17 @@ describe('Equipment Colors', () => {
     it('should return combined class string for weapon', () => {
       const classes = getEquipmentColorClasses('weapon');
       
-      expect(classes).toContain('bg-red-700');
-      expect(classes).toContain('border-red-800');
-      expect(classes).toContain('text-white');
-      expect(classes).toContain('hover:bg-red-600');
+      expect(classes).toContain('bg-yellow-600');
+      expect(classes).toContain('border-yellow-700');
+      expect(classes).toContain('text-black');
+      expect(classes).toContain('hover:bg-yellow-500');
     });
 
     it('should return combined class string for electronics', () => {
       const classes = getEquipmentColorClasses('electronics');
       
-      expect(classes).toContain('bg-blue-700');
-      expect(classes).toContain('border-blue-800');
+      expect(classes).toContain('bg-cyan-700');
+      expect(classes).toContain('border-cyan-800');
     });
   });
 
@@ -298,10 +298,11 @@ describe('Equipment Colors', () => {
       expect(classes).toContain('ring-yellow-400');
     });
 
-    it('should omit hover classes when selected', () => {
+    it('should still include hover classes when selected', () => {
       const classes = getBattleTechEquipmentClasses('Medium Laser', true);
 
-      expect(classes).not.toContain('hover:');
+      // Hover classes are preserved even when selected (for interactive feedback)
+      expect(classes).toContain('hover:');
     });
 
     it('should use correct colors for different equipment types', () => {
@@ -309,8 +310,9 @@ describe('Equipment Colors', () => {
       const ammoClasses = getBattleTechEquipmentClasses('AC/10 Ammo');
       const hsClasses = getBattleTechEquipmentClasses('Double Heat Sink');
       
-      expect(laserClasses).toContain('bg-red-700');
-      expect(ammoClasses).toContain('bg-orange-700');
+      // Energy weapons use yellow, ammo uses amber, heat sinks use cyan
+      expect(laserClasses).toContain('bg-yellow-600');
+      expect(ammoClasses).toContain('bg-amber-600');
       expect(hsClasses).toContain('bg-cyan-700');
     });
   });

@@ -10,7 +10,7 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
-import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmentColors';
+import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 import { MechLocation } from '@/types/construction';
 
 // =============================================================================
@@ -271,8 +271,7 @@ interface EquipmentItemProps {
 }
 
 function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, onUnassign: _onUnassign }: EquipmentItemProps) {
-  const colorType = categoryToColorType(item.category);
-  const colors = getEquipmentColors(colorType);
+  const colors = getCategoryColorsLegacy(item.category);
   const [isDragging, setIsDragging] = useState(false);
   
   // Unallocated items can be dragged to critical slots
@@ -434,8 +433,7 @@ interface CategoryGroupProps {
 }
 
 function CategoryGroup({ category, items, selectedId, onSelect, onRemove, onUnassign, onContextMenu }: CategoryGroupProps) {
-  const colorType = categoryToColorType(category);
-  const colors = getEquipmentColors(colorType);
+  const colors = getCategoryColorsLegacy(category);
   const label = CATEGORY_LABELS[category] || category;
   
   return (

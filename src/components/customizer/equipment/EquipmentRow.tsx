@@ -8,7 +8,7 @@
 
 import React, { memo } from 'react';
 import { IEquipmentItem, EquipmentCategory, getAllWeapons, IWeapon } from '@/types/equipment';
-import { categoryToColorType, getEquipmentColors } from '@/utils/colors/equipmentColors';
+import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 
 interface EquipmentRowProps {
   /** Equipment item data */
@@ -103,8 +103,7 @@ export const EquipmentRow = memo(function EquipmentRow({
   onAdd,
   compact = false,
 }: EquipmentRowProps) {
-  const colorType = categoryToColorType(equipment.category);
-  const colors = getEquipmentColors(colorType);
+  const colors = getCategoryColorsLegacy(equipment.category);
   
   if (compact) {
     // Compact layout - fewer columns, MekLab-style

@@ -7,11 +7,19 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ValidationError } from '../common/errors';
 import { IFullUnit } from '../units/CanonicalUnitService';
 
 /**
  * Editable mech representation
+ * 
+ * Uses concrete enum types for type safety instead of strings.
  */
 export interface IEditableMech {
   readonly id: string;
@@ -21,21 +29,21 @@ export interface IEditableMech {
   readonly techBase: TechBase;
   
   // Engine
-  readonly engineType: string;
+  readonly engineType: EngineType | string;
   readonly engineRating: number;
   readonly walkMP: number;
   
   // Structure
-  readonly structureType: string;
-  readonly gyroType: string;
-  readonly cockpitType: string;
+  readonly structureType: InternalStructureType | string;
+  readonly gyroType: GyroType | string;
+  readonly cockpitType: CockpitType | string;
   
   // Armor
-  readonly armorType: string;
+  readonly armorType: ArmorTypeEnum | string;
   readonly armorAllocation: IArmorAllocation;
   
   // Heat Sinks
-  readonly heatSinkType: string;
+  readonly heatSinkType: HeatSinkType | string;
   readonly heatSinkCount: number;
   
   // Equipment
@@ -140,15 +148,15 @@ export class MechBuilderService implements IMechBuilderService {
       variant: 'Custom',
       tonnage,
       techBase,
-      engineType: 'Standard',
+      engineType: EngineType.STANDARD,
       engineRating,
       walkMP: defaultWalkMP,
-      structureType: 'Standard',
-      gyroType: 'Standard',
-      cockpitType: 'Standard',
-      armorType: 'Standard',
+      structureType: InternalStructureType.STANDARD,
+      gyroType: GyroType.STANDARD,
+      cockpitType: CockpitType.STANDARD,
+      armorType: ArmorTypeEnum.STANDARD,
       armorAllocation: { ...EMPTY_ARMOR },
-      heatSinkType: techBase === TechBase.CLAN ? 'Double (Clan)' : 'Single',
+      heatSinkType: techBase === TechBase.CLAN ? HeatSinkType.DOUBLE_CLAN : HeatSinkType.SINGLE,
       heatSinkCount: 10,
       equipment: [],
       isDirty: false,

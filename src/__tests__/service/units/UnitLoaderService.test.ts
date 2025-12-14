@@ -2,6 +2,7 @@ import { UnitLoaderService, ISerializedUnit } from '@/services/units/UnitLoaderS
 import { canonicalUnitService, IFullUnit } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry, EquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EngineType } from '@/types/construction/EngineType';
@@ -17,6 +18,7 @@ import { EquipmentCategory } from '@/types/equipment';
 jest.mock('@/services/units/CanonicalUnitService');
 jest.mock('@/services/units/CustomUnitApiService');
 jest.mock('@/services/equipment/EquipmentLookupService');
+jest.mock('@/services/equipment/EquipmentRegistry');
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
@@ -24,13 +26,27 @@ jest.mock('uuid', () => ({
 const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<typeof canonicalUnitService>;
 const mockCustomUnitApiService = customUnitApiService as jest.Mocked<typeof customUnitApiService>;
 const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<typeof equipmentLookupService>;
+const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<typeof getEquipmentRegistry>;
 
 describe('UnitLoaderService', () => {
   let service: UnitLoaderService;
+  let mockRegistry: jest.Mocked<EquipmentRegistry>;
 
   beforeEach(() => {
     service = new UnitLoaderService();
     jest.clearAllMocks();
+    
+    // Setup mock equipment registry (partial mock requires type assertion)
+    // eslint-disable-next-line no-restricted-syntax
+    mockRegistry = {
+      isReady: jest.fn().mockReturnValue(false),
+      lookup: jest.fn().mockReturnValue({ found: false, equipment: null, category: null }),
+      initialize: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<EquipmentRegistry>;
+    mockGetEquipmentRegistry.mockReturnValue(mockRegistry);
+    
+    // Setup mock equipment lookup service initialization
+    mockEquipmentLookupService.initialize = jest.fn().mockResolvedValue(undefined);
   });
 
   describe('loadCanonicalUnit', () => {
@@ -408,6 +424,440 @@ describe('UnitLoaderService', () => {
       expect(state.createdAt).toBeLessThanOrEqual(afterTime);
       expect(state.lastModifiedAt).toBeGreaterThanOrEqual(beforeTime);
       expect(state.lastModifiedAt).toBeLessThanOrEqual(afterTime);
+    });
+  });
+
+  describe('Legacy Equipment ID Resolution', () => {
+    const createMockSerializedUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+      id: 'test-unit',
+      chassis: 'Marauder',
+      model: 'C',
+      tonnage: 75,
+      techBase: 'Inner Sphere',
+      ...overrides,
+    });
+
+    it('should resolve ultra-ac-5 to uac-5 through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'uac-5') {
+          return {
+            id: 'uac-5',
+            name: 'Ultra AC/5',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 9,
+            criticalSlots: 5,
+            heat: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 112,
+            introductionYear: 2640,
+          };
+        }
+        if (id === 'clan-uac-5') {
+          return {
+            id: 'clan-uac-5',
+            name: 'Ultra AC/5 (Clan)',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 7,
+            criticalSlots: 3,
+            heat: 1,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 122,
+            introductionYear: 2825,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        equipment: [
+          { id: 'ultra-ac-5', location: 'Right Arm' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('uac-5');
+      expect(state.equipment[0].name).toBe('Ultra AC/5');
+      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+      expect(state.equipment[0].weight).toBe(9);
+      expect(state.equipment[0].criticalSlots).toBe(5);
+    });
+
+    it('should prefer clan variant for Clan tech base units when both variants exist', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'uac-5') {
+          return {
+            id: 'uac-5',
+            name: 'Ultra AC/5',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 9,
+            criticalSlots: 5,
+            heat: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 112,
+            introductionYear: 2640,
+          };
+        }
+        if (id === 'clan-uac-5') {
+          return {
+            id: 'clan-uac-5',
+            name: 'Ultra AC/5 (Clan)',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 7,
+            criticalSlots: 3,
+            heat: 1,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 122,
+            introductionYear: 2825,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Clan',
+        equipment: [
+          { id: 'ultra-ac-5', location: 'Right Torso' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('clan-uac-5');
+      expect(state.equipment[0].weight).toBe(7);
+      expect(state.equipment[0].criticalSlots).toBe(3);
+    });
+
+    it('should use criticalSlots hint to select clan UAC/5 in MIXED units (Marauder C case)', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'uac-5') {
+          return {
+            id: 'uac-5',
+            name: 'Ultra AC/5',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 9,
+            criticalSlots: 5,
+            heat: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 112,
+            introductionYear: 2640,
+          };
+        }
+        if (id === 'clan-uac-5') {
+          return {
+            id: 'clan-uac-5',
+            name: 'Ultra AC/5 (Clan)',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 7,
+            criticalSlots: 3,
+            heat: 1,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 122,
+            introductionYear: 2825,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'MIXED',
+        equipment: [
+          { id: 'ultra-ac-5', location: 'Right Torso' },
+        ],
+        criticalSlots: {
+          RIGHT_TORSO: ['CLUltraAC5'],
+        },
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('clan-uac-5');
+      expect(state.equipment[0].weight).toBe(7);
+      expect(state.equipment[0].criticalSlots).toBe(3);
+    });
+
+    it('should use criticalSlots hint to select clan Large Pulse Laser in MIXED units', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'large-pulse-laser') {
+          return {
+            id: 'large-pulse-laser',
+            name: 'Large Pulse Laser',
+            category: EquipmentCategory.ENERGY_WEAPON,
+            weight: 7,
+            criticalSlots: 2,
+            heat: 10,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 175000,
+            battleValue: 240,
+            introductionYear: 2609,
+          };
+        }
+        if (id === 'clan-large-pulse-laser') {
+          return {
+            id: 'clan-large-pulse-laser',
+            name: 'Large Pulse Laser (Clan)',
+            category: EquipmentCategory.ENERGY_WEAPON,
+            weight: 6,
+            criticalSlots: 2,
+            heat: 10,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 175000,
+            battleValue: 265,
+            introductionYear: 2829,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'MIXED',
+        equipment: [
+          { id: 'large-pulse-laser', location: 'Left Arm' },
+        ],
+        criticalSlots: {
+          LEFT_ARM: ['CLLargePulseLaser'],
+        },
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('clan-large-pulse-laser');
+      expect(state.equipment[0].weight).toBe(6);
+    });
+
+    it('should resolve clan-ultra-ac-5 to clan-uac-5 through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'clan-uac-5') {
+          return {
+            id: 'clan-uac-5',
+            name: 'Ultra AC/5 (Clan)',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 7,
+            criticalSlots: 3,
+            heat: 1,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 122,
+            introductionYear: 2825,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        equipment: [
+          { id: 'clan-ultra-ac-5', location: 'Right Torso' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('clan-uac-5');
+      expect(state.equipment[0].name).toBe('Ultra AC/5 (Clan)');
+      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+      expect(state.equipment[0].weight).toBe(7);
+      expect(state.equipment[0].criticalSlots).toBe(3);
+    });
+
+    it('should resolve rotary-ac-5 to rac-5 through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'rac-5') {
+          return {
+            id: 'rac-5',
+            name: 'Rotary AC/5',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 10,
+            criticalSlots: 6,
+            heat: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 275000,
+            battleValue: 247,
+            introductionYear: 3062,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Inner Sphere',
+        equipment: [
+          { id: 'rotary-ac-5', location: 'Left Arm' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('rac-5');
+      expect(state.equipment[0].name).toBe('Rotary AC/5');
+      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+    });
+
+    it('should resolve light-ac-5 to lac-5 through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'lac-5') {
+          return {
+            id: 'lac-5',
+            name: 'Light AC/5',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 5,
+            criticalSlots: 2,
+            heat: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 150000,
+            battleValue: 62,
+            introductionYear: 3068,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Inner Sphere',
+        equipment: [
+          { id: 'light-ac-5', location: 'Right Arm' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('lac-5');
+      expect(state.equipment[0].name).toBe('Light AC/5');
+    });
+
+    it('should add clan prefix for Clan tech base units when not found', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'clan-uac-5') {
+          return {
+            id: 'clan-uac-5',
+            name: 'Ultra AC/5 (Clan)',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 7,
+            criticalSlots: 3,
+            heat: 1,
+            techBase: TechBase.CLAN,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 200000,
+            battleValue: 122,
+            introductionYear: 2825,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Clan',
+        equipment: [
+          { id: 'ultra-ac-5', location: 'Right Torso' },  // No clan prefix, but unit is Clan
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      // Should resolve to clan-uac-5 via clan prefix strategy
+      expect(state.equipment[0].equipmentId).toBe('clan-uac-5');
+    });
+
+    it('should fallback to placeholder for truly unknown equipment', () => {
+      mockEquipmentLookupService.getById.mockReturnValue(undefined);
+      mockRegistry.isReady.mockReturnValue(true);
+      mockRegistry.lookup.mockReturnValue({ found: false, equipment: null, category: null });
+
+      const serialized = createMockSerializedUnit({
+        equipment: [
+          { id: 'unknown-super-weapon-999', location: 'Center Torso' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('unknown-super-weapon-999');
+      expect(state.equipment[0].name).toBe('unknown-super-weapon-999');
+      expect(state.equipment[0].category).toBe(EquipmentCategory.MISC_EQUIPMENT);
+      expect(state.equipment[0].weight).toBe(0);
+      expect(state.equipment[0].criticalSlots).toBe(1);
+    });
+
+    it('should resolve lb-10-x-ac to lb-10x-ac through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'lb-10x-ac') {
+          return {
+            id: 'lb-10x-ac',
+            name: 'LB 10-X AC',
+            category: EquipmentCategory.BALLISTIC_WEAPON,
+            weight: 11,
+            criticalSlots: 6,
+            heat: 2,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 400000,
+            battleValue: 148,
+            introductionYear: 2595,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Inner Sphere',
+        equipment: [
+          { id: 'lb-10-x-ac', location: 'Right Arm' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('lb-10x-ac');
+      expect(state.equipment[0].name).toBe('LB 10-X AC');
+    });
+
+    it('should resolve ultra-ac-5-ammo to uac-5-ammo through normalization', () => {
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'uac-5-ammo') {
+          return {
+            id: 'uac-5-ammo',
+            name: 'Ultra AC/5 Ammo',
+            category: EquipmentCategory.AMMUNITION,
+            weight: 1,
+            criticalSlots: 1,
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.STANDARD,
+            costCBills: 20000,
+            battleValue: 0,
+            introductionYear: 2640,
+          };
+        }
+        return undefined;
+      });
+
+      const serialized = createMockSerializedUnit({
+        techBase: 'Inner Sphere',
+        equipment: [
+          { id: 'ultra-ac-5-ammo', location: 'Right Torso' },
+        ],
+      });
+      const state = service.mapToUnitState(serialized, true);
+
+      expect(state.equipment).toHaveLength(1);
+      expect(state.equipment[0].equipmentId).toBe('uac-5-ammo');
+      expect(state.equipment[0].name).toBe('Ultra AC/5 Ammo');
+      expect(state.equipment[0].category).toBe(EquipmentCategory.AMMUNITION);
     });
   });
 });

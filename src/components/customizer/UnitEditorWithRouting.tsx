@@ -19,6 +19,7 @@ import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { CustomizerTabId, VALID_TAB_IDS } from '@/hooks/useCustomizerRouter';
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 
 // Services
 import { calculationService } from '@/services/construction/CalculationService';
@@ -163,6 +164,9 @@ export function UnitEditorWithRouting({
   // Equipment selection state (for critical slot assignment)
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   
+  // Track equipment registry initialization for BV calculation
+  const { isReady: registryReady } = useEquipmentRegistry();
+  
   // Access unit state from context
   const unitName = useUnitStore((s) => s.name);
   const chassis = useUnitStore((s) => s.chassis);
@@ -250,6 +254,15 @@ export function UnitEditorWithRouting({
         slotIndex: eq.slots?.[0] ?? 0,
       }));
 
+      // #region agent log
+      console.log('[BV DEBUG] Equipment for BV calc:', { 
+        unitName, 
+        equipmentCount: equipment.length, 
+        equipmentSlots: equipmentSlots.map(e => e.equipmentId),
+        armorPoints: (Object.values(armorAllocation) as number[]).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
+      });
+      // #endregion
+
       const editableMech: IEditableMech = {
         id: 'banner',
         chassis: chassis || unitName.split(' ')[0] || 'Unknown',
@@ -275,15 +288,69 @@ export function UnitEditorWithRouting({
       console.warn('Failed to calculate BV:', error);
       return 0;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- registryReady triggers recalc when registry loads
   }, [
     unitName, chassis, model, tonnage, techBase, engineType, engineRating,
     calculations.walkMP, internalStructureType, gyroType, cockpitType,
     armorType, armorAllocation, heatSinkType, heatSinkCount, equipment,
+    registryReady,
   ]);
 
   // Build stats object for UnitInfoBanner
   const totalWeight = calculations.totalStructuralWeight + equipmentCalcs.totalWeight;
   const totalSlotsUsed = calculations.totalSystemSlots + equipmentCalcs.totalSlots;
+  
+  // Calculate heat profile using the CalculationService (looks up heat from registry)
+  // This is more reliable than using item.heat which may be 0 if loaded before registry
+  const heatProfile = useMemo(() => {
+    try {
+      const equipmentSlots = equipment.map(eq => ({
+        equipmentId: eq.equipmentId,
+        location: eq.location ?? '',
+        slotIndex: eq.slots?.[0] ?? 0,
+      }));
+
+      const editableMech: IEditableMech = {
+        id: 'heat-calc',
+        chassis: chassis || 'Unknown',
+        variant: model || 'Custom',
+        tonnage,
+        techBase: techBase as TechBase,
+        engineType,
+        engineRating,
+        walkMP: calculations.walkMP,
+        structureType: internalStructureType,
+        gyroType,
+        cockpitType,
+        armorType,
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
+        heatSinkType,
+        heatSinkCount,
+        equipment: equipmentSlots,
+        isDirty: false,
+      };
+
+      return calculationService.calculateHeatProfile(editableMech);
+    } catch (error) {
+      console.warn('Failed to calculate heat profile:', error);
+      return {
+        heatGenerated: 0,
+        heatDissipated: calculations.totalHeatDissipation,
+        netHeat: -calculations.totalHeatDissipation,
+        alphaStrikeHeat: 0,
+      };
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- registryReady triggers recalc when registry loads
+  }, [
+    chassis, model, tonnage, techBase, engineType, engineRating,
+    calculations.walkMP, calculations.totalHeatDissipation,
+    internalStructureType, gyroType, cockpitType, armorType,
+    heatSinkType, heatSinkCount, equipment, registryReady,
+  ]);
   
   // Calculate max run MP with enhancement active
   const maxRunMP = useMemo(() => {
@@ -320,13 +387,13 @@ export function UnitEditorWithRouting({
     maxArmorPoints: maxArmorPoints,
     criticalSlotsUsed: totalSlotsUsed,
     criticalSlotsTotal: 78,
-    heatGenerated: equipmentCalcs.totalHeat,
-    heatDissipation: calculations.totalHeatDissipation,
+    heatGenerated: heatProfile.heatGenerated,
+    heatDissipation: heatProfile.heatDissipated,
     battleValue,
     validationStatus: 'valid' as ValidationStatus, // TODO: Get from validation
     errorCount: 0,
     warningCount: 0,
-  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, equipmentCalcs, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
+  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
   
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)

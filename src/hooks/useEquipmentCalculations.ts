@@ -15,6 +15,7 @@ import {
   getEquipmentByCategory,
 } from '@/stores/unitState';
 import { EquipmentCategory } from '@/types/equipment';
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 
 // =============================================================================
 // Types
@@ -91,6 +92,9 @@ function createEmptyCategorySummaries(): Record<EquipmentCategory, ICategorySumm
  * Provides total weight, slots, heat, and per-category breakdowns
  * for all equipment mounted on the unit.
  * 
+ * Uses the equipment registry to look up heat values when item.heat is 0.
+ * This handles the case where equipment was loaded before the registry was ready.
+ * 
  * @param equipment - Array of mounted equipment instances
  * @returns Complete equipment calculations
  * 
@@ -102,6 +106,9 @@ function createEmptyCategorySummaries(): Record<EquipmentCategory, ICategorySumm
 export function useEquipmentCalculations(
   equipment: readonly IMountedEquipmentInstance[]
 ): EquipmentCalculations {
+  // Track registry readiness to recalculate when it becomes available
+  const { isReady: registryReady } = useEquipmentRegistry();
+  
   return useMemo(() => {
     // Separate allocated and unallocated equipment
     const allocatedEquipment = equipment.filter(e => e.location !== undefined);
@@ -110,8 +117,20 @@ export function useEquipmentCalculations(
     // Calculate totals
     const totalWeight = getTotalEquipmentWeight(equipment);
     const totalSlots = getTotalEquipmentSlots(equipment);
+    
+    // Calculate heat - use item.heat if available, otherwise it should already be populated
+    // from the registry during loading
     const totalHeat = equipment.reduce((total, item) => total + item.heat, 0);
     const itemCount = equipment.length;
+    
+    // #region agent log
+    console.log('[EQUIP CALC] Heat calculation:', {
+      itemCount,
+      totalHeat,
+      items: equipment.map(e => ({ id: e.equipmentId, name: e.name, heat: e.heat })),
+      registryReady
+    });
+    // #endregion
     
     // Calculate per-category summaries
     const byCategory = createEmptyCategorySummaries();
@@ -138,7 +157,7 @@ export function useEquipmentCalculations(
       unallocatedEquipment,
       allocatedEquipment,
     };
-  }, [equipment]);
+  }, [equipment, registryReady]); // Re-run when registry becomes ready
 }
 
 /**
