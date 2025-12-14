@@ -208,27 +208,36 @@ export class EquipmentRegistry {
     this.nameToIdMap.set('coolant-pod', 'coolant-pod');
     
     // Rocket launchers with -pp suffix (prototype/primitive)
-    this.nameToIdMap.set('rocket-launcher-10-pp', 'rocket-launcher-10');
-    this.nameToIdMap.set('rocket-launcher-15-pp', 'rocket-launcher-15');
-    this.nameToIdMap.set('rocket-launcher-20-pp', 'rocket-launcher-20');
+    this.nameToIdMap.set('rocket-launcher-10-pp', 'rl10');
+    this.nameToIdMap.set('rocket-launcher-15-pp', 'rl15');
+    this.nameToIdMap.set('rocket-launcher-20-pp', 'rl20');
+    this.nameToIdMap.set('rocket-launcher-10', 'rl10');
+    this.nameToIdMap.set('rocket-launcher-15', 'rl15');
+    this.nameToIdMap.set('rocket-launcher-20', 'rl20');
     
     // Vehicular weapons
     this.nameToIdMap.set('vehicular-grenade-launcher', 'vehicular-grenade-launcher');
     
-    // Cargo/Industrial
+    // Cargo/Industrial (with quantity prefix)
     this.nameToIdMap.set('cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('1-cargo-1-ton', 'cargo');
+    this.nameToIdMap.set('2-cargo-1-ton', 'cargo');
     this.nameToIdMap.set('lift-hoist', 'lift-hoist');
+    this.nameToIdMap.set('1-lift-hoist', 'lift-hoist');
+    this.nameToIdMap.set('2-lift-hoist', 'lift-hoist');
     
-    // Chemical lasers
-    this.nameToIdMap.set('medium-chem-laser', 'medium-chemical-laser');
-    this.nameToIdMap.set('large-chem-laser', 'large-chemical-laser');
-    this.nameToIdMap.set('small-chem-laser', 'small-chemical-laser');
+    // Chemical lasers (map to regular lasers if chemical not available)
+    this.nameToIdMap.set('medium-chem-laser', 'medium-laser');
+    this.nameToIdMap.set('large-chem-laser', 'large-laser');
+    this.nameToIdMap.set('small-chem-laser', 'small-laser');
     
     // Prototype weapons
     this.nameToIdMap.set('prototype-er-medium-laser', 'er-medium-laser');
-    this.nameToIdMap.set('prototype-rocket-launcher-10', 'rocket-launcher-10');
-    this.nameToIdMap.set('prototype-rocket-launcher-15', 'rocket-launcher-15');
-    this.nameToIdMap.set('prototype-rocket-launcher-20', 'rocket-launcher-20');
+    this.nameToIdMap.set('prototype-rocket-launcher-10', 'rl10');
+    this.nameToIdMap.set('prototype-rocket-launcher-15', 'rl15');
+    this.nameToIdMap.set('prototype-rocket-launcher-20', 'rl20');
+    this.nameToIdMap.set('er-large-laser-prototype', 'er-large-laser');
+    this.nameToIdMap.set('prototype-er-large-laser', 'er-large-laser');
     
     // RISC equipment
     this.nameToIdMap.set('risc-advanced-point-defense-system', 'risc-apds');
@@ -253,6 +262,8 @@ export class EquipmentRegistry {
     // Arrow IV variants  
     this.nameToIdMap.set('clan-arrow-iv', 'clan-arrow-iv-launcher');
     this.nameToIdMap.set('arrow-iv', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrow-iv-system', 'arrow-iv-launcher');
+    this.nameToIdMap.set('arrowivsystem', 'arrow-iv-launcher');
     
     // ECM suite
     this.nameToIdMap.set('clan-ecm-suite', 'clan-ecm');
@@ -271,11 +282,25 @@ export class EquipmentRegistry {
     this.nameToIdMap.set('clan-rac-2', 'clan-rac-2');
     this.nameToIdMap.set('clan-rac-5', 'clan-rac-5');
     
+    // C3 boosted with TAG (map to boosted master, ignore TAG)
+    this.nameToIdMap.set('c3-master-boosted-with-tag', 'c3-boosted-master');
+    
+    // VSP short aliases
+    this.nameToIdMap.set('medium-vsp', 'bamediumvsplaser');
+    this.nameToIdMap.set('large-vsp', 'largevsplaser');
+    this.nameToIdMap.set('small-vsp', 'basmallvsplaser');
+    
     // Coolant pod variant
     this.nameToIdMap.set('is-coolant-pod', 'coolant-pod');
     
-    // Sword
-    this.nameToIdMap.set('sword', 'sword');
+    // Physical weapons (with quantity prefix)
+    this.nameToIdMap.set('1-sword', 'sword');
+    this.nameToIdMap.set('2-sword', 'sword');
+    this.nameToIdMap.set('1-hatchet', 'hatchet');
+    this.nameToIdMap.set('1-mace', 'mace');
+    this.nameToIdMap.set('1-claws', 'claws');
+    this.nameToIdMap.set('1-lance', 'lance');
+    this.nameToIdMap.set('1-talons', 'talons');
     
     // ATM aliases
     this.nameToIdMap.set('clan-atm-3', 'atm-3');
@@ -565,9 +590,9 @@ export class EquipmentRegistry {
       [/^smallpulselaser$/, `${prefix}small-pulse-laser`],
       [/^mediumpulselaser$/, `${prefix}medium-pulse-laser`],
       [/^largepulselaser$/, `${prefix}large-pulse-laser`],
-      [/^smallxpulselaser$/, `${prefix}small-x-pulse-laser`],
-      [/^mediumxpulselaser$/, `${prefix}medium-x-pulse-laser`],
-      [/^largexpulselaser$/, `${prefix}large-x-pulse-laser`],
+      [/^smallxpulselaser$/, `smallxpulselaser`],
+      [/^mediumxpulselaser$/, `mediumxpulselaser`],
+      [/^largexpulselaser$/, `largexpulselaser`],
       [/^smallvsplaser$/, `${prefix}small-vsp-laser`],
       [/^mediumvsplaser$/, `${prefix}medium-vsp-laser`],
       [/^largevsplaser$/, `${prefix}large-vsp-laser`],
@@ -605,7 +630,7 @@ export class EquipmentRegistry {
       [/^hypervelocityac(\d+)$/, `${prefix}hvac-$1`],
       
       // Hyper Assault Gauss
-      [/^hag(\d+)$/, `${prefix}hag-$1`],
+      [/^hag(\d+)$/, `hag$1`],
       
       // Gauss
       [/^gaussrifle$/, `${prefix}gauss-rifle`],
@@ -626,9 +651,9 @@ export class EquipmentRegistry {
       [/^iatm(\d+)$/, `${prefix}iatm-$1`],
       [/^extendedlrm(\d+)$/, `${prefix}extended-lrm-$1`],
       [/^elrm(\d+)$/, `${prefix}extended-lrm-$1`],
-      [/^rl(\d+)$/, `${prefix}rocket-launcher-$1`],
-      [/^rocketlauncher(\d+)$/, `${prefix}rocket-launcher-$1`],
-      [/^rocketlauncher(\d+)prototype$/, `${prefix}prototype-rocket-launcher-$1`],
+      [/^rl(\d+)$/, `rl$1`],
+      [/^rocketlauncher(\d+)$/, `rl$1`],
+      [/^rocketlauncher(\d+)prototype$/, `rl$1`],
       [/^narc$/, `${prefix}narc`],
       [/^narcbeacon$/, `${prefix}narc`],
       [/^inarc$/, `${prefix}inarc`],
