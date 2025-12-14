@@ -80,7 +80,7 @@ describe('Sidebar', () => {
     it('should display subtitle when expanded', () => {
       render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
-      expect(screen.getByText('BattleTech Editor')).toBeInTheDocument();
+      expect(screen.getByText('BattleTech Lab')).toBeInTheDocument();
     });
   });
 
@@ -102,7 +102,7 @@ describe('Sidebar', () => {
     it('should hide subtitle when collapsed', () => {
       render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      expect(screen.queryByText('BattleTech Editor')).not.toBeInTheDocument();
+      expect(screen.queryByText('BattleTech Lab')).not.toBeInTheDocument();
     });
 
     it('should have narrow width when collapsed', () => {

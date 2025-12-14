@@ -154,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <span className="text-base font-bold text-white tracking-tight">MekStation</span>
-            <span className="block text-[10px] text-slate-500 uppercase tracking-wider">BattleTech Editor</span>
+            <span className="block text-[10px] text-slate-500 uppercase tracking-wider">BattleTech Lab</span>
           </div>
         )}
         

@@ -137,9 +137,8 @@ export default function HomePage(): React.ReactElement {
             <div className="text-center mb-16">
               <h1 className="text-5xl sm:text-6xl font-black tracking-tight mb-4">
                 <span className="bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent">
-                  BattleTech
+                  MekStation
                 </span>
-                <span className="text-white"> Editor</span>
               </h1>
               <p className="text-slate-400 text-lg max-w-2xl mx-auto">
                 Your comprehensive toolkit for browsing, building, and customizing BattleMech units.
