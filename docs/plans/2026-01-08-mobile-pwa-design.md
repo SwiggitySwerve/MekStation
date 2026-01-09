@@ -303,3 +303,13 @@ This design prioritizes:
 4. **Maintainability** — Leverage Tailwind and existing architecture
 
 Desktop users retain current functionality with incremental improvements. Mobile users gain optimized touch patterns without separate codebase.
+
+### Electron Compatibility
+
+The Electron desktop app is fully compatible with this responsive design:
+
+- **Desktop windows always use desktop breakpoints** — Minimum window size (1024×768px) matches the `md` breakpoint. Default size (1400×900px) is in `lg` breakpoint.
+- **Responsive CSS works in Chromium** — Tailwind media queries function correctly in Electron's rendering engine.
+- **PWA features are browser-only** — Service workers, install prompts, and manifest are ignored by Electron (intentional, as Electron has its own installation mechanism).
+- **Dual-mode interactions work automatically** — Electron is mouse/keyboard first, so desktop patterns (react-dnd, hover states, multi-panel) always activate.
+- **CSS-based armor benefits all platforms** — Replaces clunky SVG system with smoother, more maintainable approach for web and desktop.
