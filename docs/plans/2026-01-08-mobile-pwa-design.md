@@ -23,6 +23,43 @@ MekStation requires mobile support and cross-platform capabilities. This design 
 
 ## Architecture
 
+### Layout Architecture: Stackable Panel System
+
+**Current State (Desktop):**
+Three-panel layout visible simultaneously:
+- Left sidebar (navigation)
+- Center tabs (editor content)
+- Right equipment tray
+
+**Mobile Challenge:**
+375px width cannot fit three panels simultaneously. Screen real estate requires rethinking information hierarchy.
+
+**Solution: Stackable Full-Screen Panels**
+
+Desktop (1024px+): All panels visible (existing layout)
+Tablet (768px-1024px): Two-panel layout (sidebar + content, tray overlays)
+Mobile (<768px): Single-panel layout with navigation stack
+
+**Mobile Panel Navigation:**
+- Each panel becomes a full-screen view
+- Navigation stack with back/forward capability
+- Smooth transitions between panels
+- Persistent navigation bar for quick switching
+- State preserved when switching between panels
+
+**Example Mobile Flow:**
+1. User opens app → sees unit catalog (default panel)
+2. Taps unit → transitions to unit detail (pushes to stack)
+3. Taps "Edit" → transitions to editor tabs (pushes to stack)
+4. Taps equipment browser → transitions to equipment (pushes to stack)
+5. Back button or swipe → returns to previous panel
+
+**Implementation:**
+- `PanelStack` component manages navigation state
+- `ResponsiveContainer` wraps each panel with mobile/desktop behavior
+- Panel transitions use React transition group or Framer Motion
+- State management via Zustand store (panel history, current panel)
+
 ### Progressive Enhancement Strategy
 
 Build mobile-first, then enhance for larger displays. This approach prevents awkward desktop layouts shrinking unpredictably.
@@ -291,6 +328,101 @@ viewports.forEach(viewport => {
 - [ ] No horizontal scroll on mobile
 - [ ] Text readable without zoom (16px minimum)
 - [ ] Functional parity between desktop and mobile
+
+---
+
+## Implementation Phases
+
+### Phase 1: PWA Foundation
+**Goal:** Installable app with responsive infrastructure
+
+- PWA manifest configuration (`public/manifest.json`)
+- Service worker setup with `next-pwa` plugin
+- Install prompt UI in header
+- Viewport meta tags and safe-area handling
+- Basic responsive testing setup
+- Lighthouse PWA audit compliance (90+ score)
+
+**Success criteria:** PWA installable on iOS/Android, passes Lighthouse audit
+
+---
+
+### Phase 2: Layout Architecture
+**Goal:** Stackable panel system for mobile
+
+- `ResponsiveContainer` component with safe-area insets
+- Bottom navigation bar for editor tabs (mobile)
+- Stackable panel system (sidebar/tabs/tray as full-screen views)
+- Navigation between panels with back/forward
+- Mobile breakpoint testing
+- Basic responsive utilities and hooks (`useDeviceCapabilities`)
+
+**Success criteria:** All panels accessible and navigable on mobile, no horizontal scroll
+
+---
+
+### Phase 3: Touch Interactions
+**Goal:** Touch-first interaction patterns
+
+- `EquipmentAssignmentAdapter` with dual-mode (drag/tap)
+- Tap-to-place flow for equipment assignment
+- Touch target sizing utilities (`useTouchTarget`)
+- Haptic feedback integration (Vibration API)
+- Swipe gesture detection for tab navigation
+- Long-press context menus for secondary actions
+- Modal sheets and bottom drawers (80% screen height)
+
+**Success criteria:** All features usable via touch on mobile devices
+
+---
+
+### Phase 4: Component Redesigns
+**Goal:** Mobile-optimized critical components
+
+- **Armor Allocation:** CSS Grid-based mech diagram (replaces SVG)
+  - Desktop: Human silhouette layout
+  - Mobile: Stacked vertical cards with swipe front/rear
+  - Quick-add buttons, stepper controls, auto-allocate dropdown
+- **Equipment Browser:** Master-detail pattern
+  - Full-screen catalog list with sticky search
+  - Detail view transitions
+  - Collapsible filter drawer
+- **Critical Slots:** Location-by-location view with tabs
+  - Mobile: Horizontal scrolling or tabbed by location
+  - Desktop: Full grid view (existing)
+
+**Success criteria:** All critical components functional on 375px width
+
+---
+
+### Phase 5: Digital Gameplay Sheet
+**Goal:** Interactive record sheet for gameplay
+
+- Clickable armor pips to mark damage
+- Heat tracking with clickable heat sinks
+- Ammo consumption tracking
+- Critical hit markers
+- Save/load game state
+- Share unit state (JSON export/import)
+- Reset between games
+- Undo/redo for game actions
+
+**Success criteria:** Complete gameplay tracking without physical record sheets
+
+---
+
+### Phase 6: Polish & Optimization
+**Goal:** Production-ready mobile experience
+
+- Performance optimization (bundle size, rendering, animations)
+- Smooth transitions and micro-interactions
+- Comprehensive cross-browser testing (iOS Safari, Chrome Android)
+- Accessibility improvements (WCAG 2.1 AA compliance)
+- Visual regression testing setup (Percy/Chromatic)
+- Offline capability verification
+- Battery and data usage optimization
+
+**Success criteria:** Smooth 60fps interactions, passes all testing checklists
 
 ---
 
