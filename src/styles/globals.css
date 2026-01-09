@@ -937,3 +937,25 @@ button:disabled {
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
 }
+/* Touch Target Sizing */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Apply touch targets to common interactive elements on mobile */
+@media (max-width: 767px) {
+  button.touch-target,
+  a.touch-target,
+  [role="button"].touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Ensure inputs meet touch target size */
+  input[type="checkbox"].touch-target,
+  input[type="radio"].touch-target {
+    width: 44px;
+    height: 44px;
+  }
+}
