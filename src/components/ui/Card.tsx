@@ -32,7 +32,7 @@ const variantClasses: Record<CardVariant, string> = {
   interactive: 'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-4 hover:border-border-theme hover:bg-surface-base/50 transition-all cursor-pointer',
   gradient: 'bg-surface-base/40 backdrop-blur border border-border-theme-subtle/50 rounded-2xl p-6 transition-all duration-300 hover:border-border-theme hover:bg-surface-base/60 hover:shadow-xl hover:shadow-amber-900/10',
   'accent-left': 'bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 rounded-lg p-4 transition-all hover:bg-surface-base/60',
-  'accent-bottom': 'bg-slate-300 rounded-lg overflow-hidden transition-all hover:shadow-lg',
+  'accent-bottom': 'bg-surface-raised rounded-lg overflow-hidden transition-all hover:shadow-lg',
 };
 
 // Accent color classes for left border variant
