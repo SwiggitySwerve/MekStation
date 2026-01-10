@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import type { Configuration, WebpackPluginInstance } from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 
+// Note: PWA is implemented with a manual service worker in public/sw.js
+// and registered via src/components/common/ServiceWorkerRegistration.tsx
+
 interface WebpackContext {
   buildId: string;
   dev: boolean;

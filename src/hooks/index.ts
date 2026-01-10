@@ -11,4 +11,5 @@ export * from './useKeyboardNavigation';
 export * from './useTechBaseSync';
 export * from './useTechBaseSyncEffect';
 export * from './useUnitCalculations';
+export * from './usePWAInstall';
 

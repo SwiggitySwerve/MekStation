@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
+import { PWAInstallButton } from './PWAInstallButton';
+import { ServiceWorkerRegistration } from './ServiceWorkerRegistration';
 
 interface LayoutProps {
   children: ReactNode;
@@ -51,6 +53,10 @@ const Layout: React.FC<LayoutProps> = ({
             </main>
           </div>
         </div>
+
+        {/* PWA Components */}
+        <PWAInstallButton />
+        <ServiceWorkerRegistration />
       </div>
     </>
   );
