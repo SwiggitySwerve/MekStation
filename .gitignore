@@ -108,3 +108,7 @@ assets/c__Users_*
 
 # Auto Claude data directory
 .auto-claude/
+
+# Playwright
+playwright-report/
+test-results/
