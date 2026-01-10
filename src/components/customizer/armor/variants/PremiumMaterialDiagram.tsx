@@ -1,0 +1,553 @@
+/**
+ * Premium Material Armor Diagram
+ *
+ * Design Philosophy: Modern app polish and tactile feel
+ * - Realistic contour silhouette
+ * - Metallic/textured fills
+ * - Circular badge number display
+ * - Dot indicator capacity
+ * - Stacked front/rear display for torso
+ * - Lift/shadow interaction
+ */
+
+import React, { useState } from 'react';
+import { MechLocation } from '@/types/construction';
+import { LocationArmorData } from '../ArmorDiagram';
+import {
+  REALISTIC_SILHOUETTE,
+  LOCATION_LABELS,
+  getLocationCenter,
+  hasTorsoRear,
+} from '../shared/MechSilhouette';
+import {
+  GradientDefs,
+  getArmorStatusColor,
+  getTorsoFrontStatusColor,
+  getTorsoRearStatusColor,
+  darkenColor,
+  lightenColor,
+} from '../shared/ArmorFills';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+
+/**
+ * Circular badge with number
+ */
+function NumberBadge({
+  x,
+  y,
+  value,
+  color,
+  size = 24,
+}: {
+  x: number;
+  y: number;
+  value: number;
+  color: string;
+  size?: number;
+}): React.ReactElement {
+  const radius = size / 2;
+  return (
+    <g>
+      {/* Outer ring */}
+      <circle
+        cx={x}
+        cy={y}
+        r={radius + 2}
+        fill="none"
+        stroke={lightenColor(color, 0.2)}
+        strokeWidth={1.5}
+        opacity={0.6}
+      />
+      {/* Badge background */}
+      <circle
+        cx={x}
+        cy={y}
+        r={radius}
+        fill={darkenColor(color, 0.3)}
+        stroke={color}
+        strokeWidth={1}
+      />
+      {/* Inner highlight */}
+      <circle
+        cx={x}
+        cy={y - radius * 0.3}
+        r={radius * 0.6}
+        fill="url(#armor-metallic)"
+        opacity={0.5}
+      />
+      {/* Number */}
+      <text
+        x={x}
+        y={y + size * 0.15}
+        textAnchor="middle"
+        fontSize={size * 0.55}
+        fontWeight="bold"
+        fill="white"
+        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+      >
+        {value}
+      </text>
+    </g>
+  );
+}
+
+/**
+ * Dot indicator row (like battery level)
+ */
+function DotIndicator({
+  x,
+  y,
+  fillPercent,
+  color,
+  dots = 5,
+  dotSize = 4,
+  gap = 2,
+}: {
+  x: number;
+  y: number;
+  fillPercent: number;
+  color: string;
+  dots?: number;
+  dotSize?: number;
+  gap?: number;
+}): React.ReactElement {
+  const filledDots = Math.ceil((fillPercent / 100) * dots);
+  const totalWidth = dots * dotSize + (dots - 1) * gap;
+  const startX = x - totalWidth / 2;
+
+  return (
+    <g>
+      {Array.from({ length: dots }).map((_, i) => {
+        const isFilled = i < filledDots;
+        return (
+          <circle
+            key={i}
+            cx={startX + i * (dotSize + gap) + dotSize / 2}
+            cy={y}
+            r={dotSize / 2}
+            fill={isFilled ? color : '#334155'}
+            stroke={isFilled ? lightenColor(color, 0.2) : '#475569'}
+            strokeWidth={0.5}
+            className="transition-all duration-200"
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+interface PremiumLocationProps {
+  location: MechLocation;
+  data?: LocationArmorData;
+  isSelected: boolean;
+  isHovered: boolean;
+  onClick: () => void;
+  onHover: (hovered: boolean) => void;
+}
+
+function PremiumLocation({
+  location,
+  data,
+  isSelected,
+  isHovered,
+  onClick,
+  onHover,
+}: PremiumLocationProps): React.ReactElement {
+  const basePos = REALISTIC_SILHOUETTE.locations[location];
+  const label = LOCATION_LABELS[location];
+  const showRear = hasTorsoRear(location);
+  const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
+
+  // Adjust height for torso locations to fit stacked layout, offset legs down
+  const TORSO_MULTIPLIER = 1.4;
+  const legOffset = REALISTIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
+  const pos = showRear
+    ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
+    : isLeg
+      ? { ...basePos, y: basePos.y + legOffset }
+      : basePos;
+
+  const front = data?.current ?? 0;
+  const frontMax = data?.maximum ?? 1;
+  const rear = data?.rear ?? 0;
+  const rearMax = data?.rearMaximum ?? 1;
+
+  // For torso locations, use expected capacity (75/25 split) as baseline
+  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
+  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
+
+  // Fill percentages based on expected capacity
+  const frontPercent = expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
+  const rearPercent = expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
+
+  // Status-based colors for front and rear independently
+  const frontColor = isSelected
+    ? '#3b82f6'
+    : showRear
+      ? getTorsoFrontStatusColor(front, frontMax)
+      : getArmorStatusColor(front, frontMax);
+  const rearColor = isSelected
+    ? '#2563eb'
+    : getTorsoRearStatusColor(rear, frontMax);
+
+  // Lift effect when hovered
+  const liftOffset = isHovered ? -2 : 0;
+
+  // Layout for stacked front/rear
+  const frontSectionHeight = showRear ? pos.height * 0.58 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.42 : 0;
+  const dividerY = pos.y + frontSectionHeight;
+
+  const center = getLocationCenter(pos);
+  const frontCenterY = pos.y + frontSectionHeight / 2;
+  const rearCenterY = dividerY + rearSectionHeight / 2;
+
+  return (
+    <g
+      role="button"
+      tabIndex={0}
+      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
+      aria-pressed={isSelected}
+      className="cursor-pointer focus:outline-none"
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      onMouseEnter={() => onHover(true)}
+      onMouseLeave={() => onHover(false)}
+      onFocus={() => onHover(true)}
+      onBlur={() => onHover(false)}
+    >
+      {/* Front section plate */}
+      <g
+        transform={`translate(0, ${liftOffset})`}
+        style={{
+          filter: isHovered ? 'url(#armor-lift-shadow)' : undefined,
+          transition: 'transform 0.15s ease-out',
+        }}
+      >
+        {/* Front plate background */}
+        <rect
+          x={pos.x}
+          y={pos.y}
+          width={pos.width}
+          height={frontSectionHeight}
+          rx={showRear ? 8 : 8}
+          ry={showRear ? 8 : 8}
+          fill={darkenColor(frontColor, 0.3)}
+          stroke={isSelected ? '#60a5fa' : darkenColor(frontColor, 0.1)}
+          strokeWidth={isSelected ? 2 : 1}
+          className="transition-colors duration-150"
+        />
+
+        {/* Metallic gradient overlay */}
+        <rect
+          x={pos.x}
+          y={pos.y}
+          width={pos.width}
+          height={frontSectionHeight}
+          rx={8}
+          fill="url(#armor-metallic)"
+          opacity={0.6}
+        />
+
+        {/* Top highlight edge */}
+        <rect
+          x={pos.x + 2}
+          y={pos.y + 2}
+          width={pos.width - 4}
+          height={frontSectionHeight * 0.12}
+          rx={6}
+          fill="white"
+          opacity={0.1}
+        />
+
+        {/* Filled state indicator */}
+        <rect
+          x={pos.x}
+          y={pos.y + frontSectionHeight * (1 - frontPercent / 100)}
+          width={pos.width}
+          height={frontSectionHeight * (frontPercent / 100)}
+          rx={8}
+          fill={frontColor}
+          opacity={0.4}
+          className="transition-all duration-300"
+        />
+
+        {/* Front label */}
+        <text
+          x={center.x}
+          y={pos.y + 12}
+          textAnchor="middle"
+          fontSize={showRear ? '7' : '9'}
+          fill="rgba(255,255,255,0.8)"
+          fontWeight="600"
+          letterSpacing="0.5"
+        >
+          {showRear ? `${label} FRONT` : label}
+        </text>
+
+        {/* Front number badge */}
+        <NumberBadge
+          x={center.x}
+          y={frontCenterY + 2}
+          value={front}
+          color={frontColor}
+          size={showRear ? (pos.width < 50 ? 18 : 22) : (pos.width < 50 ? 20 : 28)}
+        />
+
+        {/* Front dot indicators */}
+        <DotIndicator
+          x={center.x}
+          y={pos.y + frontSectionHeight - 10}
+          fillPercent={frontPercent}
+          color={frontColor}
+          dots={showRear ? 4 : 5}
+          dotSize={showRear ? 3 : (pos.width < 50 ? 3 : 4)}
+        />
+
+        {/* Rivets/bolts at corners (only on front) */}
+        {pos.width > 40 && !showRear && (
+          <>
+            <circle cx={pos.x + 8} cy={pos.y + 8} r={2} fill="#64748b" />
+            <circle cx={pos.x + pos.width - 8} cy={pos.y + 8} r={2} fill="#64748b" />
+            <circle cx={pos.x + 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
+            <circle cx={pos.x + pos.width - 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
+          </>
+        )}
+      </g>
+
+      {/* Rear section plate (only for torso) */}
+      {showRear && (
+        <>
+          {/* Divider line */}
+          <line
+            x1={pos.x + 4}
+            y1={dividerY}
+            x2={pos.x + pos.width - 4}
+            y2={dividerY}
+            stroke="#475569"
+            strokeWidth={1}
+            strokeDasharray="3 2"
+          />
+
+          {/* Rear plate background */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            rx={8}
+            fill={darkenColor(rearColor, 0.4)}
+            stroke={isSelected ? '#60a5fa' : darkenColor(rearColor, 0.2)}
+            strokeWidth={isSelected ? 2 : 1}
+            className="transition-colors duration-150"
+          />
+
+          {/* Carbon fiber texture on rear */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            rx={8}
+            fill="url(#armor-carbon)"
+            opacity={0.3}
+          />
+
+          {/* Filled state indicator for rear */}
+          <rect
+            x={pos.x}
+            y={dividerY + rearSectionHeight * (1 - rearPercent / 100)}
+            width={pos.width}
+            height={rearSectionHeight * (rearPercent / 100)}
+            rx={8}
+            fill={rearColor}
+            opacity={0.4}
+            className="transition-all duration-300"
+          />
+
+          {/* Rear label */}
+          <text
+            x={center.x}
+            y={dividerY + 11}
+            textAnchor="middle"
+            fontSize="7"
+            fill="rgba(255,255,255,0.7)"
+            fontWeight="500"
+          >
+            REAR
+          </text>
+
+          {/* Rear number badge */}
+          <NumberBadge
+            x={center.x}
+            y={rearCenterY + 2}
+            value={rear}
+            color={rearColor}
+            size={pos.width < 50 ? 16 : 20}
+          />
+
+          {/* Rear dot indicators */}
+          <DotIndicator
+            x={center.x}
+            y={dividerY + rearSectionHeight - 8}
+            fillPercent={rearPercent}
+            color={rearColor}
+            dots={4}
+            dotSize={3}
+          />
+        </>
+      )}
+
+      {/* Outer border for entire location */}
+      <rect
+        x={pos.x}
+        y={pos.y}
+        width={pos.width}
+        height={pos.height}
+        rx={8}
+        fill="none"
+        stroke={isSelected ? '#60a5fa' : (isHovered ? '#64748b' : 'transparent')}
+        strokeWidth={isSelected ? 2 : 1}
+        className="transition-colors duration-150"
+      />
+    </g>
+  );
+}
+
+export interface PremiumMaterialDiagramProps {
+  armorData: LocationArmorData[];
+  selectedLocation: MechLocation | null;
+  unallocatedPoints: number;
+  onLocationClick: (location: MechLocation) => void;
+  onAutoAllocate?: () => void;
+  className?: string;
+}
+
+export function PremiumMaterialDiagram({
+  armorData,
+  selectedLocation,
+  unallocatedPoints,
+  onLocationClick,
+  onAutoAllocate,
+  className = '',
+}: PremiumMaterialDiagramProps): React.ReactElement {
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+
+  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+    return armorData.find((d) => d.location === location);
+  };
+
+  const isOverAllocated = unallocatedPoints < 0;
+
+  const locations: MechLocation[] = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+  ];
+
+  return (
+    <div
+      className={`rounded-xl border p-5 ${className}`}
+      style={{
+        background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
+        borderColor: '#334155',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-200">
+            Armor Configuration
+          </h3>
+          <ArmorDiagramQuickSettings />
+        </div>
+        {onAutoAllocate && (
+          <button
+            onClick={onAutoAllocate}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+              isOverAllocated
+                ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30'
+                : 'bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30'
+            }`}
+            style={{
+              boxShadow: isOverAllocated
+                ? '0 0 20px rgba(239, 68, 68, 0.1)'
+                : '0 0 20px rgba(245, 158, 11, 0.1)',
+            }}
+          >
+            Auto Allocate ({unallocatedPoints} pts)
+          </button>
+        )}
+      </div>
+
+      {/* Diagram */}
+      <div className="relative">
+        <svg
+          viewBox="0 0 320 490"
+          className="w-full max-w-[320px] mx-auto"
+          style={{ height: 'auto' }}
+        >
+          <GradientDefs />
+
+          {/* Ambient glow behind mech */}
+          <ellipse
+            cx="160"
+            cy="200"
+            rx="120"
+            ry="160"
+            fill="url(#armor-gradient-selected)"
+            opacity="0.03"
+          />
+
+          {/* Render all locations */}
+          {locations.map((loc) => (
+            <PremiumLocation
+              key={loc}
+              location={loc}
+              data={getArmorData(loc)}
+              isSelected={selectedLocation === loc}
+              isHovered={hoveredLocation === loc}
+              onClick={() => onLocationClick(loc)}
+              onHover={(h) => setHoveredLocation(h ? loc : null)}
+            />
+          ))}
+        </svg>
+      </div>
+
+      {/* Legend */}
+      <div className="flex justify-center gap-4 mt-5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
+          <span className="text-xs text-slate-400">75%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
+          <span className="text-xs text-slate-400">50%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
+          <span className="text-xs text-slate-400">25%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
+          <span className="text-xs text-slate-400">&lt;25%</span>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <p className="text-xs text-slate-500 text-center mt-3">
+        Tap any plate to adjust armor values
+      </p>
+    </div>
+  );
+}

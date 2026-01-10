@@ -70,7 +70,7 @@ describe('ArmorDiagram', () => {
   it('should display auto-allocate button when onAutoAllocate is provided', () => {
     render(<ArmorDiagram {...defaultProps} onAutoAllocate={jest.fn()} />);
     
-    expect(screen.getByText(/Auto-Allocate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
   });
 
   it('should call onAutoAllocate when button is clicked', async () => {
@@ -78,7 +78,7 @@ describe('ArmorDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<ArmorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
     
-    const autoAllocateButton = screen.getByText(/Auto-Allocate/i);
+    const autoAllocateButton = screen.getByText(/Auto Allocate/i);
     await user.click(autoAllocateButton);
     
     expect(onAutoAllocate).toHaveBeenCalledTimes(1);

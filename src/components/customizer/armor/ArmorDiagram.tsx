@@ -70,7 +70,7 @@ export function ArmorDiagram({
                 : 'bg-amber-600 hover:bg-amber-500 text-white'
             }`}
           >
-            Auto-Allocate ({unallocatedPoints} pts)
+            Auto Allocate ({unallocatedPoints} pts)
           </button>
         )}
       </div>

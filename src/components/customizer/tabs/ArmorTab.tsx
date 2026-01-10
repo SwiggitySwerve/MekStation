@@ -11,11 +11,18 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
+import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { ArmorDiagram, LocationArmorData } from '../armor/ArmorDiagram';
+import { LocationArmorData } from '../armor/ArmorDiagram';
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
+import {
+  CleanTechDiagram,
+  NeonOperatorDiagram,
+  TacticalHUDDiagram,
+  PremiumMaterialDiagram,
+} from '../armor/variants';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,
@@ -50,6 +57,9 @@ export function ArmorTab({
   readOnly = false,
   className = '',
 }: ArmorTabProps): React.ReactElement {
+  // Get app settings
+  const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
+
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
@@ -102,54 +112,63 @@ export function ArmorTab({
     : Math.min(unallocatedPoints, maxTotalArmor - allocatedPoints); // Cap at max allocatable
   
   // Convert allocation to diagram format
-  const armorData: LocationArmorData[] = useMemo(() => [
-    {
-      location: MechLocation.HEAD,
-      current: armorAllocation[MechLocation.HEAD],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.HEAD),
-    },
-    {
-      location: MechLocation.CENTER_TORSO,
-      current: armorAllocation[MechLocation.CENTER_TORSO],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.CENTER_TORSO),
-      rear: armorAllocation.centerTorsoRear,
-      rearMaximum: getMaxArmorForLocation(tonnage, MechLocation.CENTER_TORSO) - armorAllocation[MechLocation.CENTER_TORSO],
-    },
-    {
-      location: MechLocation.LEFT_TORSO,
-      current: armorAllocation[MechLocation.LEFT_TORSO],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_TORSO),
-      rear: armorAllocation.leftTorsoRear,
-      rearMaximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_TORSO) - armorAllocation[MechLocation.LEFT_TORSO],
-    },
-    {
-      location: MechLocation.RIGHT_TORSO,
-      current: armorAllocation[MechLocation.RIGHT_TORSO],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_TORSO),
-      rear: armorAllocation.rightTorsoRear,
-      rearMaximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_TORSO) - armorAllocation[MechLocation.RIGHT_TORSO],
-    },
-    {
-      location: MechLocation.LEFT_ARM,
-      current: armorAllocation[MechLocation.LEFT_ARM],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_ARM),
-    },
-    {
-      location: MechLocation.RIGHT_ARM,
-      current: armorAllocation[MechLocation.RIGHT_ARM],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_ARM),
-    },
-    {
-      location: MechLocation.LEFT_LEG,
-      current: armorAllocation[MechLocation.LEFT_LEG],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_LEG),
-    },
-    {
-      location: MechLocation.RIGHT_LEG,
-      current: armorAllocation[MechLocation.RIGHT_LEG],
-      maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_LEG),
-    },
-  ], [tonnage, armorAllocation]);
+  // For torso locations, maximum represents the total max for front+rear combined
+  // rearMaximum represents how much of the total max can still go to rear
+  const armorData: LocationArmorData[] = useMemo(() => {
+    const ctMax = getMaxArmorForLocation(tonnage, MechLocation.CENTER_TORSO);
+    const ltMax = getMaxArmorForLocation(tonnage, MechLocation.LEFT_TORSO);
+    const rtMax = getMaxArmorForLocation(tonnage, MechLocation.RIGHT_TORSO);
+
+    return [
+      {
+        location: MechLocation.HEAD,
+        current: armorAllocation[MechLocation.HEAD],
+        maximum: getMaxArmorForLocation(tonnage, MechLocation.HEAD),
+      },
+      {
+        location: MechLocation.CENTER_TORSO,
+        current: armorAllocation[MechLocation.CENTER_TORSO],
+        maximum: ctMax,
+        rear: armorAllocation.centerTorsoRear,
+        // Rear can take whatever is left from the total max after front
+        rearMaximum: ctMax - armorAllocation[MechLocation.CENTER_TORSO],
+      },
+      {
+        location: MechLocation.LEFT_TORSO,
+        current: armorAllocation[MechLocation.LEFT_TORSO],
+        maximum: ltMax,
+        rear: armorAllocation.leftTorsoRear,
+        rearMaximum: ltMax - armorAllocation[MechLocation.LEFT_TORSO],
+      },
+      {
+        location: MechLocation.RIGHT_TORSO,
+        current: armorAllocation[MechLocation.RIGHT_TORSO],
+        maximum: rtMax,
+        rear: armorAllocation.rightTorsoRear,
+        rearMaximum: rtMax - armorAllocation[MechLocation.RIGHT_TORSO],
+      },
+      {
+        location: MechLocation.LEFT_ARM,
+        current: armorAllocation[MechLocation.LEFT_ARM],
+        maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_ARM),
+      },
+      {
+        location: MechLocation.RIGHT_ARM,
+        current: armorAllocation[MechLocation.RIGHT_ARM],
+        maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_ARM),
+      },
+      {
+        location: MechLocation.LEFT_LEG,
+        current: armorAllocation[MechLocation.LEFT_LEG],
+        maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_LEG),
+      },
+      {
+        location: MechLocation.RIGHT_LEG,
+        current: armorAllocation[MechLocation.RIGHT_LEG],
+        maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_LEG),
+      },
+    ];
+  }, [tonnage, armorAllocation]);
   
   // Get selected location data
   const selectedLocationData = useMemo(() => {
@@ -338,13 +357,42 @@ export function ArmorTab({
 
         {/* RIGHT: Armor Diagram */}
         <div className="space-y-4">
-          <ArmorDiagram
-            armorData={armorData}
-            selectedLocation={selectedLocation}
-            unallocatedPoints={pointsDelta}
-            onLocationClick={handleLocationClick}
-            onAutoAllocate={handleAutoAllocate}
-          />
+          {armorDiagramVariant === 'clean-tech' && (
+            <CleanTechDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {armorDiagramVariant === 'neon-operator' && (
+            <NeonOperatorDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {armorDiagramVariant === 'tactical-hud' && (
+            <TacticalHUDDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {armorDiagramVariant === 'premium-material' && (
+            <PremiumMaterialDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,119 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { CleanTechDiagram } from '@/components/customizer/armor/variants/CleanTechDiagram';
+import { MechLocation } from '@/types/construction';
+
+describe('CleanTechDiagram', () => {
+  const mockArmorData = [
+    { location: MechLocation.HEAD, current: 9, maximum: 9 },
+    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
+    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
+    { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
+    { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
+    { location: MechLocation.RIGHT_LEG, current: 28, maximum: 32 },
+  ];
+
+  const defaultProps = {
+    armorData: mockArmorData,
+    selectedLocation: null,
+    unallocatedPoints: 12,
+    onLocationClick: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should render the diagram with title', () => {
+    render(<CleanTechDiagram {...defaultProps} />);
+    expect(screen.getByText('Armor Allocation')).toBeInTheDocument();
+  });
+
+  it('should render all 8 mech locations', () => {
+    render(<CleanTechDiagram {...defaultProps} />);
+
+    // Check for location labels (torso locations show "X FRONT" format)
+    expect(screen.getByText('HD')).toBeInTheDocument();
+    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LA')).toBeInTheDocument();
+    expect(screen.getByText('RA')).toBeInTheDocument();
+    expect(screen.getByText('LL')).toBeInTheDocument();
+    expect(screen.getByText('RL')).toBeInTheDocument();
+  });
+
+  it('should display armor values', () => {
+    render(<CleanTechDiagram {...defaultProps} />);
+
+    // Check for armor values
+    expect(screen.getByText('9')).toBeInTheDocument(); // Head
+    expect(screen.getByText('35')).toBeInTheDocument(); // CT front
+  });
+
+  it('should render auto-allocate button when onAutoAllocate is provided', () => {
+    const onAutoAllocate = jest.fn();
+    render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
+
+    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
+    expect(screen.getByText(/12 pts/i)).toBeInTheDocument();
+  });
+
+  it('should call onAutoAllocate when button is clicked', async () => {
+    const user = userEvent.setup();
+    const onAutoAllocate = jest.fn();
+    render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
+
+    await user.click(screen.getByText(/Auto Allocate/i));
+    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onLocationClick when a location is clicked', async () => {
+    const user = userEvent.setup();
+    render(<CleanTechDiagram {...defaultProps} />);
+
+    // Click on Head location (the first button group)
+    const headGroup = screen.getByRole('button', { name: /Head armor/i });
+    await user.click(headGroup);
+
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+  });
+
+  it('should display legend with status colors', () => {
+    render(<CleanTechDiagram {...defaultProps} />);
+
+    expect(screen.getByText('75%+')).toBeInTheDocument();
+    expect(screen.getByText('50%+')).toBeInTheDocument();
+    expect(screen.getByText('25%+')).toBeInTheDocument();
+    expect(screen.getByText('<25%')).toBeInTheDocument();
+  });
+
+  it('should display instructions text', () => {
+    render(<CleanTechDiagram {...defaultProps} />);
+
+    expect(screen.getByText('Click a location to edit armor values')).toBeInTheDocument();
+  });
+
+  it('should apply custom className', () => {
+    const { container } = render(<CleanTechDiagram {...defaultProps} className="custom-class" />);
+
+    expect(container.firstChild).toHaveClass('custom-class');
+  });
+
+  it('should show red button when over-allocated', () => {
+    const onAutoAllocate = jest.fn();
+    render(
+      <CleanTechDiagram
+        {...defaultProps}
+        unallocatedPoints={-5}
+        onAutoAllocate={onAutoAllocate}
+      />
+    );
+
+    const button = screen.getByText(/Auto Allocate/i);
+    expect(button).toHaveClass('bg-red-600');
+  });
+});

@@ -321,7 +321,7 @@ function createAllocationResult(
 
 /**
  * Calculate armor cost
- * 
+ *
  * @param armorPoints - Total armor points
  * @param armorType - Type of armor
  * @returns Cost in C-Bills
@@ -330,5 +330,45 @@ export function calculateArmorCost(armorPoints: number, armorType: ArmorTypeEnum
   const definition = getArmorDefinition(armorType);
   const baseCost = armorPoints * 10000; // Base 10000 C-Bills per point
   return baseCost * (definition?.costMultiplier ?? 1);
+}
+
+/**
+ * Standard front/rear armor distribution ratio
+ * Based on BattleTech conventions: 75% front, 25% rear
+ */
+export const FRONT_ARMOR_RATIO = 0.75;
+export const REAR_ARMOR_RATIO = 0.25;
+
+/**
+ * Get expected armor capacity for front and rear based on standard distribution
+ *
+ * Uses the 75/25 front/rear split as the baseline for calculating
+ * what the "expected" max is for each side. This allows armor status
+ * colors to show green when at expected capacity, even if front has
+ * more points than rear.
+ *
+ * @param totalMaxArmor - Total max armor for the location (front + rear)
+ * @returns Expected max for front and rear
+ */
+export function getExpectedArmorCapacity(totalMaxArmor: number): { front: number; rear: number } {
+  return {
+    front: Math.round(totalMaxArmor * FRONT_ARMOR_RATIO),
+    rear: Math.round(totalMaxArmor * REAR_ARMOR_RATIO),
+  };
+}
+
+/**
+ * Calculate armor fill percentage based on expected capacity
+ *
+ * Returns a percentage that can exceed 100% if the armor exceeds
+ * the expected allocation (e.g., heavily front-armored).
+ *
+ * @param current - Current armor points
+ * @param expectedMax - Expected max based on front/rear ratio
+ * @returns Fill percentage (can exceed 100)
+ */
+export function getArmorFillPercent(current: number, expectedMax: number): number {
+  if (expectedMax <= 0) return 0;
+  return (current / expectedMax) * 100;
 }
 

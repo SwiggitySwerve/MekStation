@@ -1,0 +1,103 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { PremiumMaterialDiagram } from '@/components/customizer/armor/variants/PremiumMaterialDiagram';
+import { MechLocation } from '@/types/construction';
+
+describe('PremiumMaterialDiagram', () => {
+  const mockArmorData = [
+    { location: MechLocation.HEAD, current: 9, maximum: 9 },
+    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
+    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
+    { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
+    { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
+    { location: MechLocation.RIGHT_LEG, current: 28, maximum: 32 },
+  ];
+
+  const defaultProps = {
+    armorData: mockArmorData,
+    selectedLocation: null,
+    unallocatedPoints: 12,
+    onLocationClick: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should render the diagram with title', () => {
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+    expect(screen.getByText('Armor Configuration')).toBeInTheDocument();
+  });
+
+  it('should render auto-allocate button with points', () => {
+    const onAutoAllocate = jest.fn();
+    render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} unallocatedPoints={55} />);
+
+    expect(screen.getByText(/Auto Allocate \(55 pts\)/)).toBeInTheDocument();
+  });
+
+  it('should call onAutoAllocate when button is clicked', async () => {
+    const user = userEvent.setup();
+    const onAutoAllocate = jest.fn();
+    render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
+
+    await user.click(screen.getByText(/Auto Allocate/));
+    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
+  });
+
+  it('should display legend with status indicators', () => {
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+
+    expect(screen.getByText('75%+')).toBeInTheDocument();
+    expect(screen.getByText('50%+')).toBeInTheDocument();
+    expect(screen.getByText('25%+')).toBeInTheDocument();
+    expect(screen.getByText('<25%')).toBeInTheDocument();
+  });
+
+  it('should display instruction text', () => {
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+
+    expect(screen.getByText('Tap any plate to adjust armor values')).toBeInTheDocument();
+  });
+
+  it('should call onLocationClick when a location is clicked', async () => {
+    const user = userEvent.setup();
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+
+    const headGroup = screen.getByRole('button', { name: /Head armor/i });
+    await user.click(headGroup);
+
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+  });
+
+  it('should apply custom className', () => {
+    const { container } = render(<PremiumMaterialDiagram {...defaultProps} className="custom-class" />);
+
+    expect(container.firstChild).toHaveClass('custom-class');
+  });
+
+  it('should render all 8 mech locations', () => {
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+
+    // Check for location labels (torso locations show "X FRONT" format)
+    expect(screen.getByText('HD')).toBeInTheDocument();
+    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LA')).toBeInTheDocument();
+    expect(screen.getByText('RA')).toBeInTheDocument();
+    expect(screen.getByText('LL')).toBeInTheDocument();
+    expect(screen.getByText('RL')).toBeInTheDocument();
+  });
+
+  it('should display rear armor labels for torso locations', () => {
+    render(<PremiumMaterialDiagram {...defaultProps} />);
+
+    // Check for rear labels (3 torso locations have REAR labels)
+    const rearLabels = screen.getAllByText('REAR');
+    expect(rearLabels.length).toBe(3);
+  });
+});
