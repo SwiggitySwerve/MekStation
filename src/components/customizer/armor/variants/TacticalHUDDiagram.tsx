@@ -6,7 +6,7 @@
  * - Bottom-up tank fill style
  * - LED segmented number display
  * - Horizontal bar capacity indicator
- * - Side-by-side front/rear view
+ * - Stacked front/rear display for torso
  * - Bracket focus interaction
  */
 
@@ -21,7 +21,6 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
-  getTorsoStatusColor,
   darkenColor,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
@@ -29,7 +28,7 @@ import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 /**
  * LED-style segmented digit display
  */
-function LEDDigit({ value, x, y, size = 12 }: { value: string; x: number; y: number; size?: number }): React.ReactElement {
+function LEDDigit({ value, x, y, size = 12, color = '#22d3ee' }: { value: string; x: number; y: number; size?: number; color?: string }): React.ReactElement {
   return (
     <text
       x={x}
@@ -38,9 +37,9 @@ function LEDDigit({ value, x, y, size = 12 }: { value: string; x: number; y: num
       fontFamily="'Courier New', monospace"
       fontWeight="bold"
       fontSize={size}
-      fill="#22d3ee"
+      fill={color}
       style={{
-        textShadow: '0 0 4px #22d3ee, 0 0 8px rgba(34, 211, 238, 0.5)',
+        textShadow: `0 0 4px ${color}, 0 0 8px ${color}50`,
         letterSpacing: '1px',
       }}
     >
@@ -147,9 +146,6 @@ interface TacticalLocationProps {
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
-  isRear?: boolean;
-  scale?: number;
-  offsetX?: number;
 }
 
 function TacticalLocation({
@@ -159,46 +155,51 @@ function TacticalLocation({
   isHovered,
   onClick,
   onHover,
-  isRear = false,
-  scale = 1,
-  offsetX = 0,
 }: TacticalLocationProps): React.ReactElement {
   const basePos = GEOMETRIC_SILHOUETTE.locations[location];
-  const pos = {
-    x: basePos.x * scale + offsetX,
-    y: basePos.y * scale,
-    width: basePos.width * scale,
-    height: basePos.height * scale,
-    path: basePos.path,
-  };
-
   const label = LOCATION_LABELS[location];
+  const showRear = hasTorsoRear(location);
+
+  // Adjust height for torso locations to fit stacked layout
+  const pos = showRear
+    ? { ...basePos, height: basePos.height * 1.5 }
+    : basePos;
+
   const center = {
     x: pos.x + pos.width / 2,
     y: pos.y + pos.height / 2,
   };
 
-  const current = isRear ? (data?.rear ?? 0) : (data?.current ?? 0);
-  const maximum = isRear ? (data?.rearMaximum ?? 1) : (data?.maximum ?? 1);
-  const percentage = maximum > 0 ? (current / maximum) * 100 : 0;
-  const isTorso = hasTorsoRear(location);
+  const front = data?.current ?? 0;
+  const frontMax = data?.maximum ?? 1;
+  const rear = data?.rear ?? 0;
+  const rearMax = data?.rearMaximum ?? 1;
 
-  // For torso locations, use combined front+rear for status color
-  const baseColor = isTorso
-    ? getTorsoStatusColor(data?.current ?? 0, data?.maximum ?? 1, data?.rear ?? 0)
-    : getArmorStatusColor(current, maximum);
-  const fillColor = isSelected ? '#3b82f6' : baseColor;
-  const darkFill = darkenColor(fillColor, 0.6);
+  const frontPercent = frontMax > 0 ? (front / frontMax) * 100 : 0;
+  const rearPercent = rearMax > 0 ? (rear / rearMax) * 100 : 0;
 
-  // Calculate tank fill
-  const fillHeight = pos.height * (percentage / 100);
-  const fillY = pos.y + pos.height - fillHeight;
+  // Status-based colors for front and rear
+  const frontColor = isSelected ? '#3b82f6' : getArmorStatusColor(front, frontMax);
+  const rearColor = isSelected ? '#3b82f6' : getArmorStatusColor(rear, rearMax);
+  const darkFrontFill = darkenColor(frontColor, 0.6);
+  const darkRearFill = darkenColor(rearColor, 0.6);
+
+  // Layout for stacked front/rear
+  const frontSectionHeight = showRear ? pos.height * 0.55 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.45 : 0;
+  const dividerY = pos.y + frontSectionHeight;
+
+  // Tank fill calculations
+  const frontFillHeight = frontSectionHeight * (frontPercent / 100);
+  const frontFillY = pos.y + frontSectionHeight - frontFillHeight;
+  const rearFillHeight = rearSectionHeight * (rearPercent / 100);
+  const rearFillY = dividerY + rearSectionHeight - rearFillHeight;
 
   return (
     <g
       role="button"
       tabIndex={0}
-      aria-label={`${location} ${isRear ? 'rear ' : ''}armor: ${current} of ${maximum}`}
+      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
       aria-pressed={isSelected}
       className="cursor-pointer focus:outline-none"
       onClick={onClick}
@@ -213,40 +214,150 @@ function TacticalLocation({
       onFocus={() => onHover(true)}
       onBlur={() => onHover(false)}
     >
-      {/* Background (empty state) */}
+      {/* Front section background */}
       <rect
         x={pos.x}
         y={pos.y}
         width={pos.width}
-        height={pos.height}
-        fill={darkFill}
+        height={frontSectionHeight}
+        fill={darkFrontFill}
         stroke="#475569"
         strokeWidth={1}
         className="transition-colors duration-200"
       />
 
-      {/* Tank fill */}
+      {/* Front tank fill */}
       <rect
         x={pos.x}
-        y={fillY}
+        y={frontFillY}
         width={pos.width}
-        height={fillHeight}
-        fill={fillColor}
+        height={frontFillHeight}
+        fill={frontColor}
         opacity={0.8}
         className="transition-all duration-300"
       />
 
-      {/* Grid overlay */}
+      {/* Front grid overlay */}
       <rect
         x={pos.x}
         y={pos.y}
         width={pos.width}
-        height={pos.height}
+        height={frontSectionHeight}
         fill="url(#armor-grid)"
         opacity={0.5}
       />
 
-      {/* Border */}
+      {/* Front label */}
+      <text
+        x={center.x}
+        y={pos.y + 10}
+        textAnchor="middle"
+        fontSize={7}
+        fill="#94a3b8"
+        fontFamily="monospace"
+      >
+        {showRear ? `${label}-F` : label}
+      </text>
+
+      {/* Front LED value */}
+      <LEDDigit
+        value={front.toString().padStart(2, '0')}
+        x={center.x}
+        y={pos.y + frontSectionHeight / 2 + 4}
+        size={showRear ? 12 : 14}
+        color={frontColor}
+      />
+
+      {/* Front bar gauge */}
+      <BarGauge
+        x={pos.x + 4}
+        y={pos.y + frontSectionHeight - 8}
+        width={pos.width - 8}
+        height={4}
+        fillPercent={frontPercent}
+        color={frontColor}
+      />
+
+      {showRear && (
+        <>
+          {/* Divider line */}
+          <line
+            x1={pos.x}
+            y1={dividerY}
+            x2={pos.x + pos.width}
+            y2={dividerY}
+            stroke="#64748b"
+            strokeWidth={1}
+            strokeDasharray="3 2"
+          />
+
+          {/* Rear section background */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            fill={darkRearFill}
+            stroke="#475569"
+            strokeWidth={1}
+            className="transition-colors duration-200"
+          />
+
+          {/* Rear tank fill */}
+          <rect
+            x={pos.x}
+            y={rearFillY}
+            width={pos.width}
+            height={rearFillHeight}
+            fill={rearColor}
+            opacity={0.8}
+            className="transition-all duration-300"
+          />
+
+          {/* Rear grid overlay */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            fill="url(#armor-grid)"
+            opacity={0.5}
+          />
+
+          {/* Rear label */}
+          <text
+            x={center.x}
+            y={dividerY + 10}
+            textAnchor="middle"
+            fontSize={6}
+            fill="#94a3b8"
+            fontFamily="monospace"
+          >
+            {label}-R
+          </text>
+
+          {/* Rear LED value */}
+          <LEDDigit
+            value={rear.toString().padStart(2, '0')}
+            x={center.x}
+            y={dividerY + rearSectionHeight / 2 + 4}
+            size={10}
+            color={rearColor}
+          />
+
+          {/* Rear bar gauge */}
+          <BarGauge
+            x={pos.x + 4}
+            y={dividerY + rearSectionHeight - 7}
+            width={pos.width - 8}
+            height={3}
+            fillPercent={rearPercent}
+            color={rearColor}
+          />
+        </>
+      )}
+
+      {/* Outer border */}
       <rect
         x={pos.x}
         y={pos.y}
@@ -267,36 +378,6 @@ function TacticalLocation({
           color={isSelected ? '#60a5fa' : '#22d3ee'}
         />
       )}
-
-      {/* Location label */}
-      <text
-        x={center.x}
-        y={pos.y + 10 * scale}
-        textAnchor="middle"
-        fontSize={7 * scale}
-        fill="#94a3b8"
-        fontFamily="monospace"
-      >
-        {isRear ? `${label}-R` : label}
-      </text>
-
-      {/* LED armor value */}
-      <LEDDigit
-        value={current.toString().padStart(2, '0')}
-        x={center.x}
-        y={center.y + 2}
-        size={Math.max(10, 14 * scale)}
-      />
-
-      {/* Bar gauge */}
-      <BarGauge
-        x={pos.x + 4}
-        y={pos.y + pos.height - 8 * scale}
-        width={pos.width - 8}
-        height={4 * scale}
-        fillPercent={percentage}
-        color={fillColor}
-      />
     </g>
   );
 }
@@ -326,7 +407,7 @@ export function TacticalHUDDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  const allLocations: MechLocation[] = [
+  const locations: MechLocation[] = [
     MechLocation.HEAD,
     MechLocation.CENTER_TORSO,
     MechLocation.LEFT_TORSO,
@@ -336,18 +417,6 @@ export function TacticalHUDDiagram({
     MechLocation.LEFT_LEG,
     MechLocation.RIGHT_LEG,
   ];
-
-  const torsoLocations: MechLocation[] = [
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-  ];
-
-  // Scale factors for side-by-side layout
-  const frontScale = 0.65;
-  const rearScale = 0.45;
-  const frontOffset = 0;
-  const rearOffset = 195;
 
   return (
     <div className={`bg-slate-900 rounded-lg border border-slate-700 p-4 ${className}`}>
@@ -374,60 +443,25 @@ export function TacticalHUDDiagram({
         )}
       </div>
 
-      {/* View labels */}
-      <div className="flex justify-between px-4 mb-2 text-xs font-mono text-slate-500">
-        <span>[ FRONT VIEW ]</span>
-        <span>[ REAR VIEW ]</span>
-      </div>
-
-      {/* Diagram - side by side */}
+      {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 340 280"
-          className="w-full mx-auto"
-          style={{ height: 'auto', maxWidth: '400px' }}
+          viewBox="0 0 300 420"
+          className="w-full max-w-[300px] mx-auto"
+          style={{ height: 'auto' }}
         >
           <GradientDefs />
 
-          {/* Divider line */}
-          <line
-            x1="170"
-            y1="10"
-            x2="170"
-            y2="270"
-            stroke="#334155"
-            strokeWidth="1"
-            strokeDasharray="4 2"
-          />
-
-          {/* Front view - all locations */}
-          {allLocations.map((loc) => (
+          {/* Render all locations */}
+          {locations.map((loc) => (
             <TacticalLocation
-              key={`front-${loc}`}
+              key={loc}
               location={loc}
               data={getArmorData(loc)}
               isSelected={selectedLocation === loc}
               isHovered={hoveredLocation === loc}
               onClick={() => onLocationClick(loc)}
               onHover={(h) => setHoveredLocation(h ? loc : null)}
-              scale={frontScale}
-              offsetX={frontOffset}
-            />
-          ))}
-
-          {/* Rear view - torso locations only */}
-          {torsoLocations.map((loc) => (
-            <TacticalLocation
-              key={`rear-${loc}`}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-              isRear
-              scale={rearScale}
-              offsetX={rearOffset}
             />
           ))}
 
@@ -435,7 +469,7 @@ export function TacticalHUDDiagram({
           <line
             x1="0"
             y1="0"
-            x2="340"
+            x2="300"
             y2="0"
             stroke="#22d3ee"
             strokeWidth="1"
@@ -443,18 +477,38 @@ export function TacticalHUDDiagram({
           >
             <animate
               attributeName="y1"
-              values="0;280;0"
+              values="0;420;0"
               dur="4s"
               repeatCount="indefinite"
             />
             <animate
               attributeName="y2"
-              values="0;280;0"
+              values="0;420;0"
               dur="4s"
               repeatCount="indefinite"
             />
           </line>
         </svg>
+      </div>
+
+      {/* Legend */}
+      <div className="flex justify-center gap-3 mt-3 text-xs font-mono">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+          <span className="text-slate-500">75%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
+          <span className="text-slate-500">50%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
+          <span className="text-slate-500">25%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-sm bg-red-500" />
+          <span className="text-slate-500">&lt;25%</span>
+        </div>
       </div>
 
       {/* Status readout */}

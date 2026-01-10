@@ -20,6 +20,12 @@ export const SELECTED_COLOR = '#3b82f6';        // blue-500
 export const SELECTED_STROKE = '#60a5fa';       // blue-400
 export const HOVER_LIGHTEN = 0.15;
 
+// Front/Rear armor colors for consistent UI
+export const FRONT_ARMOR_COLOR = '#f59e0b';     // amber-500
+export const REAR_ARMOR_COLOR = '#0ea5e9';      // sky-500
+export const FRONT_ARMOR_LIGHT = '#fbbf24';     // amber-400
+export const REAR_ARMOR_LIGHT = '#38bdf8';      // sky-400
+
 /**
  * Get status color based on armor percentage
  */
@@ -117,6 +123,18 @@ export function GradientDefs(): React.ReactElement {
       <linearGradient id="armor-gradient-selected" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#60a5fa" />
         <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+
+      {/* Front armor gradient (amber) */}
+      <linearGradient id="armor-gradient-front" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#fbbf24" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+
+      {/* Rear armor gradient (sky blue) */}
+      <linearGradient id="armor-gradient-rear" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#38bdf8" />
+        <stop offset="100%" stopColor="#0284c7" />
       </linearGradient>
 
       {/* Metallic effect */}

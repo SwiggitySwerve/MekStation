@@ -6,7 +6,7 @@
  * - Metallic/textured fills
  * - Circular badge number display
  * - Dot indicator capacity
- * - 3D layered front/rear display
+ * - Stacked front/rear display for torso
  * - Lift/shadow interaction
  */
 
@@ -22,7 +22,6 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
-  getTorsoStatusColor,
   darkenColor,
   lightenColor,
 } from '../shared/ArmorFills';
@@ -152,39 +151,44 @@ function PremiumLocation({
   onClick,
   onHover,
 }: PremiumLocationProps): React.ReactElement {
-  const pos = REALISTIC_SILHOUETTE.locations[location];
+  const basePos = REALISTIC_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
-  const center = getLocationCenter(pos);
   const showRear = hasTorsoRear(location);
 
-  const current = data?.current ?? 0;
-  const maximum = data?.maximum ?? 1;
+  // Adjust height for torso locations to fit stacked layout
+  const pos = showRear
+    ? { ...basePos, height: basePos.height * 1.4 }
+    : basePos;
+
+  const front = data?.current ?? 0;
+  const frontMax = data?.maximum ?? 1;
   const rear = data?.rear ?? 0;
   const rearMax = data?.rearMaximum ?? 1;
 
-  const frontPercent = maximum > 0 ? (current / maximum) * 100 : 0;
+  const frontPercent = frontMax > 0 ? (front / frontMax) * 100 : 0;
   const rearPercent = rearMax > 0 ? (rear / rearMax) * 100 : 0;
 
-  // Colors - for torso locations, use combined front+rear for status
-  // Both plates share the same status color since they represent one location
-  const combinedStatusColor = showRear
-    ? getTorsoStatusColor(current, maximum, rear)
-    : getArmorStatusColor(current, maximum);
-  const baseColor = isSelected ? '#3b82f6' : combinedStatusColor;
-  const rearBaseColor = isSelected ? '#2563eb' : combinedStatusColor;
-
-  // 3D effect positioning for rear plate
-  const rearOffsetX = 6;
-  const rearOffsetY = 6;
+  // Status-based colors for front and rear independently
+  const frontColor = isSelected ? '#3b82f6' : getArmorStatusColor(front, frontMax);
+  const rearColor = isSelected ? '#2563eb' : getArmorStatusColor(rear, rearMax);
 
   // Lift effect when hovered
   const liftOffset = isHovered ? -2 : 0;
+
+  // Layout for stacked front/rear
+  const frontSectionHeight = showRear ? pos.height * 0.58 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.42 : 0;
+  const dividerY = pos.y + frontSectionHeight;
+
+  const center = getLocationCenter(pos);
+  const frontCenterY = pos.y + frontSectionHeight / 2;
+  const rearCenterY = dividerY + rearSectionHeight / 2;
 
   return (
     <g
       role="button"
       tabIndex={0}
-      aria-label={`${location} armor: ${current} of ${maximum}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
+      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
       aria-pressed={isSelected}
       className="cursor-pointer focus:outline-none"
       onClick={onClick}
@@ -199,61 +203,7 @@ function PremiumLocation({
       onFocus={() => onHover(true)}
       onBlur={() => onHover(false)}
     >
-      {/* Rear plate (behind, offset for 3D effect) */}
-      {showRear && (
-        <g transform={`translate(${rearOffsetX}, ${rearOffsetY})`}>
-          <rect
-            x={pos.x}
-            y={pos.y}
-            width={pos.width}
-            height={pos.height * 0.85}
-            rx={8}
-            fill={darkenColor(rearBaseColor, 0.4)}
-            stroke={darkenColor(rearBaseColor, 0.2)}
-            strokeWidth={1}
-          />
-          {/* Carbon fiber texture */}
-          <rect
-            x={pos.x}
-            y={pos.y}
-            width={pos.width}
-            height={pos.height * 0.85}
-            rx={8}
-            fill="url(#armor-carbon)"
-            opacity={0.3}
-          />
-          {/* Rear badge */}
-          <NumberBadge
-            x={pos.x + pos.width / 2}
-            y={pos.y + pos.height * 0.42}
-            value={rear}
-            color={rearBaseColor}
-            size={pos.width < 50 ? 18 : 22}
-          />
-          {/* Rear label */}
-          <text
-            x={pos.x + pos.width / 2}
-            y={pos.y + 14}
-            textAnchor="middle"
-            fontSize="8"
-            fill="rgba(255,255,255,0.5)"
-            fontWeight="500"
-          >
-            {label} REAR
-          </text>
-          {/* Rear dots */}
-          <DotIndicator
-            x={pos.x + pos.width / 2}
-            y={pos.y + pos.height * 0.75}
-            fillPercent={rearPercent}
-            color={rearBaseColor}
-            dots={4}
-            dotSize={3}
-          />
-        </g>
-      )}
-
-      {/* Front plate (main, on top) */}
+      {/* Front section plate */}
       <g
         transform={`translate(0, ${liftOffset})`}
         style={{
@@ -261,15 +211,16 @@ function PremiumLocation({
           transition: 'transform 0.15s ease-out',
         }}
       >
-        {/* Main plate background */}
+        {/* Front plate background */}
         <rect
           x={pos.x}
           y={pos.y}
           width={pos.width}
-          height={pos.height}
-          rx={8}
-          fill={darkenColor(baseColor, 0.3)}
-          stroke={isSelected ? '#60a5fa' : darkenColor(baseColor, 0.1)}
+          height={frontSectionHeight}
+          rx={showRear ? 8 : 8}
+          ry={showRear ? 8 : 8}
+          fill={darkenColor(frontColor, 0.3)}
+          stroke={isSelected ? '#60a5fa' : darkenColor(frontColor, 0.1)}
           strokeWidth={isSelected ? 2 : 1}
           className="transition-colors duration-150"
         />
@@ -279,7 +230,7 @@ function PremiumLocation({
           x={pos.x}
           y={pos.y}
           width={pos.width}
-          height={pos.height}
+          height={frontSectionHeight}
           rx={8}
           fill="url(#armor-metallic)"
           opacity={0.6}
@@ -290,7 +241,7 @@ function PremiumLocation({
           x={pos.x + 2}
           y={pos.y + 2}
           width={pos.width - 4}
-          height={pos.height * 0.15}
+          height={frontSectionHeight * 0.12}
           rx={6}
           fill="white"
           opacity={0.1}
@@ -299,60 +250,153 @@ function PremiumLocation({
         {/* Filled state indicator */}
         <rect
           x={pos.x}
-          y={pos.y + pos.height * (1 - frontPercent / 100)}
+          y={pos.y + frontSectionHeight * (1 - frontPercent / 100)}
           width={pos.width}
-          height={pos.height * (frontPercent / 100)}
+          height={frontSectionHeight * (frontPercent / 100)}
           rx={8}
-          fill={baseColor}
+          fill={frontColor}
           opacity={0.4}
           className="transition-all duration-300"
-          style={{
-            clipPath: `inset(0 0 0 0 round 8px)`,
-          }}
         />
 
-        {/* Location label */}
+        {/* Front label */}
         <text
           x={center.x}
-          y={pos.y + 14}
+          y={pos.y + 12}
           textAnchor="middle"
-          fontSize="9"
+          fontSize={showRear ? '7' : '9'}
           fill="rgba(255,255,255,0.8)"
           fontWeight="600"
           letterSpacing="0.5"
         >
-          {label}
+          {showRear ? `${label} FRONT` : label}
         </text>
 
-        {/* Number badge */}
+        {/* Front number badge */}
         <NumberBadge
           x={center.x}
-          y={center.y}
-          value={current}
-          color={baseColor}
-          size={pos.width < 50 ? 20 : 28}
+          y={frontCenterY + 2}
+          value={front}
+          color={frontColor}
+          size={showRear ? (pos.width < 50 ? 18 : 22) : (pos.width < 50 ? 20 : 28)}
         />
 
-        {/* Dot indicators */}
+        {/* Front dot indicators */}
         <DotIndicator
           x={center.x}
-          y={pos.y + pos.height - 12}
+          y={pos.y + frontSectionHeight - 10}
           fillPercent={frontPercent}
-          color={baseColor}
-          dots={5}
-          dotSize={pos.width < 50 ? 3 : 4}
+          color={frontColor}
+          dots={showRear ? 4 : 5}
+          dotSize={showRear ? 3 : (pos.width < 50 ? 3 : 4)}
         />
 
-        {/* Rivets/bolts at corners */}
-        {pos.width > 40 && (
+        {/* Rivets/bolts at corners (only on front) */}
+        {pos.width > 40 && !showRear && (
           <>
             <circle cx={pos.x + 8} cy={pos.y + 8} r={2} fill="#64748b" />
             <circle cx={pos.x + pos.width - 8} cy={pos.y + 8} r={2} fill="#64748b" />
-            <circle cx={pos.x + 8} cy={pos.y + pos.height - 8} r={2} fill="#64748b" />
-            <circle cx={pos.x + pos.width - 8} cy={pos.y + pos.height - 8} r={2} fill="#64748b" />
+            <circle cx={pos.x + 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
+            <circle cx={pos.x + pos.width - 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
           </>
         )}
       </g>
+
+      {/* Rear section plate (only for torso) */}
+      {showRear && (
+        <>
+          {/* Divider line */}
+          <line
+            x1={pos.x + 4}
+            y1={dividerY}
+            x2={pos.x + pos.width - 4}
+            y2={dividerY}
+            stroke="#475569"
+            strokeWidth={1}
+            strokeDasharray="3 2"
+          />
+
+          {/* Rear plate background */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            rx={8}
+            fill={darkenColor(rearColor, 0.4)}
+            stroke={isSelected ? '#60a5fa' : darkenColor(rearColor, 0.2)}
+            strokeWidth={isSelected ? 2 : 1}
+            className="transition-colors duration-150"
+          />
+
+          {/* Carbon fiber texture on rear */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearSectionHeight}
+            rx={8}
+            fill="url(#armor-carbon)"
+            opacity={0.3}
+          />
+
+          {/* Filled state indicator for rear */}
+          <rect
+            x={pos.x}
+            y={dividerY + rearSectionHeight * (1 - rearPercent / 100)}
+            width={pos.width}
+            height={rearSectionHeight * (rearPercent / 100)}
+            rx={8}
+            fill={rearColor}
+            opacity={0.4}
+            className="transition-all duration-300"
+          />
+
+          {/* Rear label */}
+          <text
+            x={center.x}
+            y={dividerY + 11}
+            textAnchor="middle"
+            fontSize="7"
+            fill="rgba(255,255,255,0.7)"
+            fontWeight="500"
+          >
+            REAR
+          </text>
+
+          {/* Rear number badge */}
+          <NumberBadge
+            x={center.x}
+            y={rearCenterY + 2}
+            value={rear}
+            color={rearColor}
+            size={pos.width < 50 ? 16 : 20}
+          />
+
+          {/* Rear dot indicators */}
+          <DotIndicator
+            x={center.x}
+            y={dividerY + rearSectionHeight - 8}
+            fillPercent={rearPercent}
+            color={rearColor}
+            dots={4}
+            dotSize={3}
+          />
+        </>
+      )}
+
+      {/* Outer border for entire location */}
+      <rect
+        x={pos.x}
+        y={pos.y}
+        width={pos.width}
+        height={pos.height}
+        rx={8}
+        fill="none"
+        stroke={isSelected ? '#60a5fa' : (isHovered ? '#64748b' : 'transparent')}
+        strokeWidth={isSelected ? 2 : 1}
+        className="transition-colors duration-150"
+      />
     </g>
   );
 }
@@ -434,7 +478,7 @@ export function PremiumMaterialDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 320 380"
+          viewBox="0 0 320 440"
           className="w-full max-w-[320px] mx-auto"
           style={{ height: 'auto' }}
         >
@@ -466,18 +510,22 @@ export function PremiumMaterialDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-5 mt-5">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
-          <span className="text-xs text-slate-400">Optimal</span>
+      <div className="flex justify-center gap-4 mt-5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
+          <span className="text-xs text-slate-400">75%+</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
-          <span className="text-xs text-slate-400">Moderate</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
+          <span className="text-xs text-slate-400">50%+</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
-          <span className="text-xs text-slate-400">Critical</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
+          <span className="text-xs text-slate-400">25%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
+          <span className="text-xs text-slate-400">&lt;25%</span>
         </div>
       </div>
 

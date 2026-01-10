@@ -4,9 +4,8 @@
  * Design Philosophy: Sci-fi aesthetic and visual impact
  * - Wireframe outline silhouette
  * - Glow/neon fills with glowing edges
- * - Progress ring around numbers
- * - Color-only capacity indication
- * - Toggle switch for front/rear
+ * - Stacked progress rings for front/rear
+ * - Amber (front) and sky (rear) color coding
  * - Glow pulse interaction
  */
 
@@ -22,9 +21,12 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
-  getTorsoStatusColor,
   lightenColor,
   SELECTED_COLOR,
+  FRONT_ARMOR_COLOR,
+  REAR_ARMOR_COLOR,
+  FRONT_ARMOR_LIGHT,
+  REAR_ARMOR_LIGHT,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
@@ -85,7 +87,6 @@ interface NeonLocationProps {
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
-  showRear?: boolean;
 }
 
 function NeonLocation({
@@ -95,34 +96,55 @@ function NeonLocation({
   isHovered,
   onClick,
   onHover,
-  showRear = false,
 }: NeonLocationProps): React.ReactElement {
-  const pos = REALISTIC_SILHOUETTE.locations[location];
+  const basePos = REALISTIC_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
-  const center = getLocationCenter(pos);
-  const hasTorso = hasTorsoRear(location);
+  const showRear = hasTorsoRear(location);
 
-  const current = showRear ? (data?.rear ?? 0) : (data?.current ?? 0);
-  const maximum = showRear ? (data?.rearMaximum ?? 1) : (data?.maximum ?? 1);
-  const percentage = maximum > 0 ? (current / maximum) * 100 : 0;
+  // Adjust position for torso locations to be taller
+  const pos = showRear
+    ? { ...basePos, height: basePos.height * 1.4 }
+    : basePos;
 
-  // Calculate colors - for torso locations, use combined front+rear for status
-  const baseColor = isSelected
-    ? SELECTED_COLOR
-    : hasTorso
-      ? getTorsoStatusColor(data?.current ?? 0, data?.maximum ?? 1, data?.rear ?? 0)
-      : getArmorStatusColor(current, maximum);
-  const glowColor = isHovered ? lightenColor(baseColor, 0.3) : baseColor;
+  const front = data?.current ?? 0;
+  const frontMax = data?.maximum ?? 1;
+  const rear = data?.rear ?? 0;
+  const rearMax = data?.rearMaximum ?? 1;
+
+  const frontPercent = frontMax > 0 ? (front / frontMax) * 100 : 0;
+  const rearPercent = rearMax > 0 ? (rear / rearMax) * 100 : 0;
+
+  // Colors
+  const frontColor = isSelected ? SELECTED_COLOR : FRONT_ARMOR_COLOR;
+  const rearColor = isSelected ? SELECTED_COLOR : REAR_ARMOR_COLOR;
+  const nonTorsoColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(front, frontMax);
+
+  const glowColor = showRear
+    ? (isHovered ? lightenColor(frontColor, 0.2) : frontColor)
+    : (isHovered ? lightenColor(nonTorsoColor, 0.3) : nonTorsoColor);
+
   const fillOpacity = isHovered ? 0.4 : 0.25;
 
-  // Ring size based on location
-  const ringRadius = Math.min(pos.width, pos.height) * 0.35;
+  // Layout calculations for stacked front/rear
+  const frontSectionHeight = showRear ? pos.height * 0.55 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.45 : 0;
+  const frontCenterY = pos.y + frontSectionHeight / 2;
+  const rearCenterY = pos.y + frontSectionHeight + rearSectionHeight / 2;
+  const dividerY = pos.y + frontSectionHeight;
+
+  // Ring sizes
+  const frontRingRadius = showRear
+    ? Math.min(pos.width, frontSectionHeight) * 0.3
+    : Math.min(pos.width, pos.height) * 0.35;
+  const rearRingRadius = showRear ? Math.min(pos.width, rearSectionHeight) * 0.35 : 0;
+
+  const center = getLocationCenter(pos);
 
   return (
     <g
       role="button"
       tabIndex={0}
-      aria-label={`${location} ${showRear ? 'rear ' : ''}armor: ${current} of ${maximum}`}
+      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
       aria-pressed={isSelected}
       className="cursor-pointer focus:outline-none"
       onClick={onClick}
@@ -165,53 +187,131 @@ function NeonLocation({
         }}
       />
 
-      {/* Progress ring */}
-      <ProgressRing
-        cx={center.x}
-        cy={center.y}
-        radius={ringRadius}
-        progress={percentage}
-        color={glowColor}
-        strokeWidth={isHovered ? 4 : 3}
-      />
+      {showRear ? (
+        <>
+          {/* Front section */}
+          <text
+            x={center.x}
+            y={pos.y + 11}
+            textAnchor="middle"
+            className="fill-white/70 font-medium pointer-events-none"
+            style={{
+              fontSize: '7px',
+              textShadow: `0 0 5px ${frontColor}`,
+            }}
+          >
+            {label} FRONT
+          </text>
 
-      {/* Armor value */}
-      <text
-        x={center.x}
-        y={center.y + 5}
-        textAnchor="middle"
-        className="fill-white font-bold pointer-events-none"
-        style={{
-          fontSize: pos.width < 40 ? '12px' : '16px',
-          textShadow: `0 0 10px ${glowColor}`,
-        }}
-      >
-        {current}
-      </text>
+          <ProgressRing
+            cx={center.x}
+            cy={frontCenterY + 4}
+            radius={frontRingRadius}
+            progress={frontPercent}
+            color={isHovered ? lightenColor(frontColor, 0.2) : frontColor}
+            strokeWidth={isHovered ? 4 : 3}
+          />
 
-      {/* Location label */}
-      <text
-        x={center.x}
-        y={pos.y + 12}
-        textAnchor="middle"
-        className="fill-white/70 font-medium pointer-events-none"
-        style={{
-          fontSize: '8px',
-          textShadow: `0 0 5px ${glowColor}`,
-        }}
-      >
-        {showRear ? `${label}R` : label}
-      </text>
+          <text
+            x={center.x}
+            y={frontCenterY + 8}
+            textAnchor="middle"
+            className="fill-white font-bold pointer-events-none"
+            style={{
+              fontSize: '14px',
+              textShadow: `0 0 10px ${frontColor}`,
+            }}
+          >
+            {front}
+          </text>
 
-      {/* Has rear indicator dot */}
-      {hasTorso && !showRear && (
-        <circle
-          cx={pos.x + pos.width - 8}
-          cy={pos.y + 8}
-          r={3}
-          fill={getArmorStatusColor(data?.rear ?? 0, data?.rearMaximum ?? 1)}
-          style={{ filter: 'url(#armor-glow)' }}
-        />
+          {/* Divider line */}
+          <line
+            x1={pos.x + 6}
+            y1={dividerY}
+            x2={pos.x + pos.width - 6}
+            y2={dividerY}
+            stroke={FRONT_ARMOR_LIGHT}
+            strokeWidth={1}
+            strokeDasharray="4 3"
+            opacity={0.5}
+            style={{ filter: 'url(#armor-glow)' }}
+          />
+
+          {/* Rear section */}
+          <text
+            x={center.x}
+            y={dividerY + 10}
+            textAnchor="middle"
+            className="fill-white/70 font-medium pointer-events-none"
+            style={{
+              fontSize: '7px',
+              textShadow: `0 0 5px ${rearColor}`,
+            }}
+          >
+            REAR
+          </text>
+
+          <ProgressRing
+            cx={center.x}
+            cy={rearCenterY + 2}
+            radius={rearRingRadius}
+            progress={rearPercent}
+            color={isHovered ? lightenColor(rearColor, 0.2) : rearColor}
+            strokeWidth={isHovered ? 3 : 2}
+          />
+
+          <text
+            x={center.x}
+            y={rearCenterY + 5}
+            textAnchor="middle"
+            className="fill-white font-bold pointer-events-none"
+            style={{
+              fontSize: '12px',
+              textShadow: `0 0 10px ${rearColor}`,
+            }}
+          >
+            {rear}
+          </text>
+        </>
+      ) : (
+        <>
+          {/* Non-torso: single ring */}
+          <text
+            x={center.x}
+            y={pos.y + 12}
+            textAnchor="middle"
+            className="fill-white/70 font-medium pointer-events-none"
+            style={{
+              fontSize: '8px',
+              textShadow: `0 0 5px ${glowColor}`,
+            }}
+          >
+            {label}
+          </text>
+
+          <ProgressRing
+            cx={center.x}
+            cy={pos.y + pos.height / 2 + 4}
+            radius={frontRingRadius}
+            progress={frontPercent}
+            color={glowColor}
+            strokeWidth={isHovered ? 4 : 3}
+          />
+
+          <text
+            x={center.x}
+            y={pos.y + pos.height / 2 + 8}
+            textAnchor="middle"
+            className="fill-white font-bold pointer-events-none"
+            style={{
+              fontSize: pos.width < 40 ? '12px' : '16px',
+              textShadow: `0 0 10px ${glowColor}`,
+            }}
+          >
+            {front}
+          </text>
+        </>
       )}
     </g>
   );
@@ -235,7 +335,6 @@ export function NeonOperatorDiagram({
   className = '',
 }: NeonOperatorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
-  const [showRearView, setShowRearView] = useState(false);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
@@ -243,8 +342,7 @@ export function NeonOperatorDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  // Front view shows all locations
-  const frontLocations: MechLocation[] = [
+  const locations: MechLocation[] = [
     MechLocation.HEAD,
     MechLocation.CENTER_TORSO,
     MechLocation.LEFT_TORSO,
@@ -254,15 +352,6 @@ export function NeonOperatorDiagram({
     MechLocation.LEFT_LEG,
     MechLocation.RIGHT_LEG,
   ];
-
-  // Rear view only shows torso locations
-  const rearLocations: MechLocation[] = [
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-  ];
-
-  const currentLocations = showRearView ? rearLocations : frontLocations;
 
   return (
     <div className={`bg-slate-900 rounded-lg border border-cyan-900/50 p-4 ${className}`}>
@@ -296,42 +385,10 @@ export function NeonOperatorDiagram({
         )}
       </div>
 
-      {/* Front/Rear Toggle */}
-      <div className="flex justify-center mb-4">
-        <div className="inline-flex rounded border border-cyan-800 overflow-hidden">
-          <button
-            onClick={() => setShowRearView(false)}
-            className={`px-4 py-1.5 text-sm font-medium transition-all ${
-              !showRearView
-                ? 'bg-cyan-500/30 text-cyan-300'
-                : 'text-cyan-600 hover:bg-cyan-500/10'
-            }`}
-            style={{
-              textShadow: !showRearView ? '0 0 10px rgba(34, 211, 238, 0.5)' : undefined,
-            }}
-          >
-            FRONT
-          </button>
-          <button
-            onClick={() => setShowRearView(true)}
-            className={`px-4 py-1.5 text-sm font-medium transition-all ${
-              showRearView
-                ? 'bg-cyan-500/30 text-cyan-300'
-                : 'text-cyan-600 hover:bg-cyan-500/10'
-            }`}
-            style={{
-              textShadow: showRearView ? '0 0 10px rgba(34, 211, 238, 0.5)' : undefined,
-            }}
-          >
-            REAR
-          </button>
-        </div>
-      </div>
-
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={REALISTIC_SILHOUETTE.viewBox}
+          viewBox="0 0 300 440"
           className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >
@@ -342,7 +399,7 @@ export function NeonOperatorDiagram({
             x="0"
             y="0"
             width="300"
-            height="400"
+            height="440"
             fill="url(#armor-scanlines)"
             opacity="0.3"
           />
@@ -358,17 +415,16 @@ export function NeonOperatorDiagram({
             />
           )}
 
-          {/* Render locations */}
-          {currentLocations.map((loc) => (
+          {/* Render all locations */}
+          {locations.map((loc) => (
             <NeonLocation
-              key={`${loc}-${showRearView ? 'rear' : 'front'}`}
+              key={loc}
               location={loc}
               data={getArmorData(loc)}
               isSelected={selectedLocation === loc}
               isHovered={hoveredLocation === loc}
               onClick={() => onLocationClick(loc)}
               onHover={(h) => setHoveredLocation(h ? loc : null)}
-              showRear={showRearView && hasTorsoRear(loc)}
             />
           ))}
 
@@ -391,13 +447,24 @@ export function NeonOperatorDiagram({
         </svg>
       </div>
 
-      {/* Status bar */}
-      <div className="flex justify-center items-center gap-2 mt-4 text-xs text-cyan-500/70">
-        <span>SYS: ONLINE</span>
-        <span>|</span>
-        <span>VIEW: {showRearView ? 'REAR' : 'FRONT'}</span>
-        <span>|</span>
-        <span className={unallocatedPoints < 0 ? 'text-red-400' : ''}>
+      {/* Legend */}
+      <div className="flex justify-center items-center gap-3 mt-4 text-xs">
+        <div className="flex items-center gap-1.5">
+          <div
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: FRONT_ARMOR_COLOR, boxShadow: `0 0 6px ${FRONT_ARMOR_COLOR}` }}
+          />
+          <span className="text-slate-400">Front</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: REAR_ARMOR_COLOR, boxShadow: `0 0 6px ${REAR_ARMOR_COLOR}` }}
+          />
+          <span className="text-slate-400">Rear</span>
+        </div>
+        <div className="w-px h-3 bg-slate-700" />
+        <span className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}>
           UNALLOC: {unallocatedPoints}
         </span>
       </div>

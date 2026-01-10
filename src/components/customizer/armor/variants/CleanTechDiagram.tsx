@@ -22,10 +22,11 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
-  getTorsoStatusColor,
   lightenColor,
   SELECTED_COLOR,
   SELECTED_STROKE,
+  FRONT_ARMOR_COLOR,
+  REAR_ARMOR_COLOR,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
@@ -57,23 +58,26 @@ function CleanTechLocation({
   const rearMax = data?.rearMaximum ?? 1;
 
   // Calculate fill colors
-  // For torso locations, use combined front+rear for status color
-  const baseColor = isSelected
+  // For torso locations, use distinct amber (front) and sky (rear) colors
+  // For non-torso locations, use status-based colors
+  const frontBaseColor = isSelected
     ? SELECTED_COLOR
     : showRear
-      ? getTorsoStatusColor(current, maximum, rear)
+      ? FRONT_ARMOR_COLOR
       : getArmorStatusColor(current, maximum);
-  const fillColor = isHovered ? lightenColor(baseColor, 0.15) : baseColor;
+  const rearBaseColor = isSelected ? SELECTED_COLOR : REAR_ARMOR_COLOR;
+
+  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
+  const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
   const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
   const strokeWidth = isSelected ? 2.5 : 1;
 
-  // Split positions for front/rear
-  const frontHeight = showRear ? pos.height * 0.7 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.3 : 0;
-  const rearY = pos.y + frontHeight;
-
-  // Rear uses same base color as front (they share the status)
-  const rearFillColor = isHovered ? lightenColor(baseColor, 0.1) : baseColor;
+  // Split positions for front/rear - adjusted for divider
+  const dividerHeight = showRear ? 2 : 0;
+  const frontHeight = showRear ? pos.height * 0.65 : pos.height;
+  const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
+  const dividerY = pos.y + frontHeight;
+  const rearY = dividerY + dividerHeight;
 
   return (
     <g
@@ -145,13 +149,27 @@ function CleanTechLocation({
       {/* Location label */}
       <text
         x={center.x}
-        y={pos.y + 14}
+        y={pos.y + 12}
         textAnchor="middle"
         className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: '10px' }}
+        style={{ fontSize: showRear ? '8px' : '10px' }}
       >
-        {label}
+        {showRear ? `${label} FRONT` : label}
       </text>
+
+      {/* Divider line between front and rear */}
+      {showRear && (
+        <line
+          x1={pos.x + 4}
+          y1={dividerY + 1}
+          x2={pos.x + pos.width - 4}
+          y2={dividerY + 1}
+          stroke="#334155"
+          strokeWidth={1}
+          strokeDasharray="3 2"
+          className="pointer-events-none"
+        />
+      )}
 
       {/* Rear armor section for torsos */}
       {showRear && (
@@ -168,26 +186,26 @@ function CleanTechLocation({
             className="transition-all duration-150"
           />
 
-          {/* Rear armor value */}
-          <text
-            x={center.x}
-            y={rearY + rearHeight / 2 + 4}
-            textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '12px' }}
-          >
-            {rear}
-          </text>
-
           {/* Rear label */}
           <text
             x={center.x}
-            y={rearY + 10}
+            y={rearY + 11}
             textAnchor="middle"
-            className="fill-white/60 pointer-events-none"
-            style={{ fontSize: '7px' }}
+            className="fill-white/80 font-semibold pointer-events-none"
+            style={{ fontSize: '8px' }}
           >
-            R
+            REAR
+          </text>
+
+          {/* Rear armor value */}
+          <text
+            x={center.x}
+            y={rearY + rearHeight / 2 + 6}
+            textAnchor="middle"
+            className="fill-white font-bold pointer-events-none"
+            style={{ fontSize: '14px' }}
+          >
+            {rear}
           </text>
         </>
       )}
@@ -290,16 +308,17 @@ export function CleanTechDiagram({
       {/* Legend */}
       <div className="flex justify-center gap-4 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: FRONT_ARMOR_COLOR }} />
+          <span className="text-slate-400">Front</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: REAR_ARMOR_COLOR }} />
+          <span className="text-slate-400">Rear</span>
+        </div>
+        <div className="w-px h-3 bg-slate-600" />
+        <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-green-500" />
           <span className="text-slate-400">75%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-amber-500" />
-          <span className="text-slate-400">50-74%</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-orange-500" />
-          <span className="text-slate-400">25-49%</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-500" />
