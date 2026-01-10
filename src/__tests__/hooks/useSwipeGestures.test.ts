@@ -10,24 +10,47 @@ type MockTouch = Pick<Touch, 'clientX' | 'clientY'>;
 /**
  * Creates a mock TouchList with array-like access for testing.
  * Implements the minimal interface needed by the hook.
+ *
+ * Note: We need to create this mock because React.TouchList has specific
+ * requirements that differ from the DOM TouchList.
  */
 function createMockTouchList(touches: MockTouch[]): React.TouchList {
+  // Create a full Touch object from our partial mock
+  const createFullTouch = (mock: MockTouch): Touch => ({
+    clientX: mock.clientX,
+    clientY: mock.clientY,
+    force: 0,
+    identifier: 0,
+    pageX: mock.clientX,
+    pageY: mock.clientY,
+    radiusX: 0,
+    radiusY: 0,
+    rotationAngle: 0,
+    screenX: mock.clientX,
+    screenY: mock.clientY,
+    target: document.body,
+  });
+
+  const fullTouches = touches.map(createFullTouch);
+
+  // Build the TouchList mock
   const touchList = {
-    length: touches.length,
-    item: (index: number) => touches[index] as Touch | null,
-    identifiedTouch: () => null,
+    length: fullTouches.length,
+    item: (index: number): Touch => fullTouches[index],
+    identifiedTouch: (_identifier: number): Touch => fullTouches[0],
     [Symbol.iterator]: function* () {
-      for (const touch of touches) {
-        yield touch as Touch;
+      for (const touch of fullTouches) {
+        yield touch;
       }
     },
-    ...touches.reduce((acc, touch, index) => {
-      acc[index] = touch as Touch;
-      return acc;
-    }, {} as Record<number, Touch>),
-  };
-  // Cast to React.TouchList - this is a test mock that provides the minimal interface
-  return touchList as React.TouchList;
+  } as React.TouchList;
+
+  // Add indexed properties
+  fullTouches.forEach((touch, index) => {
+    Object.defineProperty(touchList, index, { value: touch, enumerable: true });
+  });
+
+  return touchList;
 }
 
 /**
