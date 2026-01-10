@@ -58,9 +58,9 @@ export function NewTabModal({
       onClick={handleOverlayClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-xl w-full max-w-lg mx-4">
+      <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
           <h2 className="text-lg font-semibold text-white">Create New Unit</h2>
           <button
             onClick={onClose}
