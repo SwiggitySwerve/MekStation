@@ -242,38 +242,38 @@ export function StructureTab({
   
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
-      {/* Compact Structural Weight Summary - at top */}
+      {/* Compact Structural Weight Summary - at top, scrollable on mobile */}
       <div className={cs.panel.summary}>
-        <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-6 text-sm">
-            <div className={cs.layout.statRow}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-6 text-sm overflow-x-auto pb-1 sm:pb-0">
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Engine:</span>
               <span className={cs.text.value}>{calculations.engineWeight}t</span>
             </div>
-            <div className={cs.layout.statRow}>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Gyro:</span>
               <span className={cs.text.value}>{calculations.gyroWeight}t</span>
             </div>
-            <div className={cs.layout.statRow}>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Structure:</span>
               <span className={cs.text.value}>{calculations.structureWeight}t</span>
             </div>
-            <div className={cs.layout.statRow}>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Cockpit:</span>
               <span className={cs.text.value}>{calculations.cockpitWeight}t</span>
             </div>
-            <div className={cs.layout.statRow}>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Heat Sinks:</span>
               <span className={cs.text.value}>{calculations.heatSinkWeight}t</span>
             </div>
             {calculations.jumpJetWeight > 0 && (
-              <div className={cs.layout.statRow}>
+              <div className={`${cs.layout.statRow} flex-shrink-0`}>
                 <span className={cs.text.label}>Jump Jets:</span>
                 <span className={cs.text.value}>{calculations.jumpJetWeight}t</span>
               </div>
             )}
           </div>
-          <div className={`${cs.layout.statRow} ${cs.layout.dividerV}`}>
+          <div className={`${cs.layout.statRow} sm:${cs.layout.dividerV} pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-700`}>
             <span className={`text-sm ${cs.text.label}`}>Total:</span>
             <span className="text-lg font-bold text-amber-400">{calculations.totalStructuralWeight}t</span>
           </div>

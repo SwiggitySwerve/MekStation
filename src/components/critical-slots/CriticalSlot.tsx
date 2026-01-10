@@ -51,7 +51,7 @@ export function CriticalSlot({
       onClick={handleTap}
       role="button"
       tabIndex={0}
-      aria-label={`Critical slot ${slot.index + 1}${hasEquipment ? ` containing ${slot.equipment.name}` : ' empty'}`}
+      aria-label={`Critical slot ${slot.index + 1}${hasEquipment && slot.equipment ? ` containing ${slot.equipment.name}` : ' empty'}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
