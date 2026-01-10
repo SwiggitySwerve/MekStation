@@ -96,21 +96,21 @@ export function LocationArmorEditor({
   }, [maxRear, onChange, front]);
 
   // Common styles
-  const inputClass = "w-14 px-1.5 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm text-center font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+  const inputClass = "w-14 px-1.5 py-1 bg-surface-raised border border-border-theme-strong rounded text-white text-sm text-center font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
   const labelClass = "text-xs font-semibold uppercase tracking-wide";
   const sliderTrackClass = "flex-1 h-2 rounded-lg appearance-none cursor-pointer";
 
   return (
-    <div className="bg-slate-800 rounded-lg border border-slate-700 p-4" data-testid="location-armor-editor">
+    <div className="bg-surface-base rounded-lg border border-border-theme p-4" data-testid="location-armor-editor">
       {/* Header Row */}
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-base font-semibold text-white">{getLocationName(location)}</h4>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-slate-700 rounded transition-colors"
+          className="p-1 hover:bg-surface-raised rounded transition-colors"
           aria-label="Close editor"
         >
-          <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-text-theme-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -120,7 +120,7 @@ export function LocationArmorEditor({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
           <span className={labelClass} style={{ color: FRONT_ARMOR_COLOR }}>Front</span>
-          <span className="text-xs text-slate-500">max {maxFront}</span>
+          <span className="text-xs text-text-theme-secondary">max {maxFront}</span>
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -153,7 +153,7 @@ export function LocationArmorEditor({
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
             <span className={labelClass} style={{ color: REAR_ARMOR_COLOR }}>Rear</span>
-            <span className="text-xs text-slate-500">max {maxRear}</span>
+            <span className="text-xs text-text-theme-secondary">max {maxRear}</span>
           </div>
           <div className="flex items-center gap-3">
             <input
@@ -183,15 +183,15 @@ export function LocationArmorEditor({
       )}
 
       {/* Total Summary Bar */}
-      <div className="pt-3 border-t border-slate-700">
+      <div className="pt-3 border-t border-border-theme">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Total</span>
+          <span className="text-xs font-medium text-text-theme-secondary uppercase tracking-wide">Total</span>
           <span className="text-sm font-semibold text-white">
-            {total} <span className="text-slate-500 font-normal">/ {maxArmor}</span>
+            {total} <span className="text-text-theme-secondary font-normal">/ {maxArmor}</span>
           </span>
         </div>
         {/* Visual bar showing total allocation */}
-        <div className="h-2 bg-slate-700 rounded-full overflow-hidden flex">
+        <div className="h-2 bg-surface-raised rounded-full overflow-hidden flex">
           {/* Front portion */}
           <div
             className="h-full transition-all duration-150"
@@ -216,11 +216,11 @@ export function LocationArmorEditor({
           <div className="flex items-center justify-center gap-4 mt-2 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: FRONT_ARMOR_COLOR }} />
-              <span className="text-slate-400">Front ({front})</span>
+              <span className="text-text-theme-secondary">Front ({front})</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: REAR_ARMOR_COLOR }} />
-              <span className="text-slate-400">Rear ({rear})</span>
+              <span className="text-text-theme-secondary">Rear ({rear})</span>
             </div>
           </div>
         )}

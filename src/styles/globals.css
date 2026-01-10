@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
-/* Tailwind v4 theme tokens - must match tailwind.config.ts naming exactly */
+/*
+ * Tailwind v4 @theme block for CSS-first configuration.
+ * These define theme tokens that Tailwind needs to know about at build time
+ * so that @apply directives can use semantic utility classes.
+ *
+ * The actual values reference CSS variables which are overridden by theme classes
+ * at runtime (.theme-neon, .theme-tactical, etc.).
+ */
 @theme {
   /* Surface colors for backgrounds (bg-surface-*) */
   --color-surface-deep: var(--surface-deep);
@@ -12,12 +19,12 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-muted: var(--accent-muted);
 
-  /* Text theme colors (text-text-theme-*) - the config uses 'text-theme' as a color name */
+  /* Text theme colors (text-text-theme-*) */
   --color-text-theme-primary: var(--text-primary);
   --color-text-theme-secondary: var(--text-secondary);
   --color-text-theme-muted: var(--text-muted);
 
-  /* Border theme colors (border-border-theme-*) - the config uses 'border-theme' as a color name */
+  /* Border theme colors (border-border-theme-*) */
   --color-border-theme-subtle: var(--border-subtle);
   --color-border-theme: var(--border-default);
   --color-border-theme-strong: var(--border-strong);
@@ -515,11 +522,11 @@ button:disabled {
 
 /* Page Layout */
 .page-container {
-  @apply min-h-screen bg-slate-900 p-6;
+  @apply min-h-screen bg-surface-deep p-6;
 }
 
 .page-container-gradient {
-  @apply min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
+  @apply min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep;
 }
 
 .page-max-width {
@@ -532,32 +539,32 @@ button:disabled {
 
 /* Cards */
 .card {
-  @apply bg-slate-800/30 border border-slate-700 rounded-xl p-6;
+  @apply bg-surface-base/30 border border-border-theme rounded-xl p-6;
 }
 
 .card-header {
-  @apply bg-slate-800/50 border border-slate-700 rounded-xl p-6;
+  @apply bg-surface-base/50 border border-border-theme rounded-xl p-6;
 }
 
 .card-interactive {
-  @apply bg-slate-800/30 border border-slate-700 rounded-xl p-4 
-         hover:border-slate-600 hover:bg-slate-800/50 transition-all cursor-pointer;
+  @apply bg-surface-base/30 border border-border-theme rounded-xl p-4
+         hover:border-border-theme-strong hover:bg-surface-base/50 transition-all cursor-pointer;
 }
 
 .card-gradient {
-  @apply bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl p-6
-         transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/60 
+  @apply bg-surface-base/40 backdrop-blur border border-border-theme/50 rounded-2xl p-6
+         transition-all duration-300 hover:border-border-theme-strong hover:bg-surface-base/60
          hover:shadow-xl hover:shadow-amber-900/10;
 }
 
 /* Inputs */
 .input-dark {
-  @apply w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 
-         text-white placeholder-slate-400 focus:outline-none transition-colors;
+  @apply w-full bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
+         text-text-theme-primary placeholder-text-theme-muted focus:outline-none transition-colors;
 }
 
 .input-dark:focus {
-  @apply border-amber-500;
+  @apply border-accent;
 }
 
 .input-dark-cyan:focus {
@@ -574,12 +581,12 @@ button:disabled {
 
 /* Selects */
 .select-dark {
-  @apply bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 
-         text-white focus:outline-none transition-colors;
+  @apply bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
+         text-text-theme-primary focus:outline-none transition-colors;
 }
 
 .select-dark:focus {
-  @apply border-amber-500;
+  @apply border-accent;
 }
 
 /* Buttons */
@@ -592,16 +599,16 @@ button:disabled {
 }
 
 .btn-secondary {
-  @apply bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300;
+  @apply bg-surface-raised hover:bg-surface-base border border-border-theme-strong text-text-theme-primary;
 }
 
 .btn-ghost {
-  @apply bg-transparent hover:bg-slate-700/50 text-slate-400 hover:text-white;
+  @apply bg-transparent hover:bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary;
 }
 
 .btn-pagination {
-  @apply px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg 
-         text-slate-400 hover:text-white hover:border-slate-600 
+  @apply px-3 py-2 bg-surface-base border border-border-theme rounded-lg
+         text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme-strong
          disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
 }
 
@@ -652,7 +659,7 @@ button:disabled {
 }
 
 .badge-slate {
-  @apply bg-slate-600/20 text-slate-400 border-slate-600/30;
+  @apply bg-surface-raised/20 text-text-theme-secondary border-border-theme/30;
 }
 
 /* Tables */
@@ -661,19 +668,19 @@ button:disabled {
 }
 
 .table-dark thead {
-  @apply bg-slate-800;
+  @apply bg-surface-base;
 }
 
 .table-dark th {
-  @apply px-6 py-4 text-left text-slate-400 text-sm uppercase tracking-wide font-medium;
+  @apply px-6 py-4 text-left text-text-theme-secondary text-sm uppercase tracking-wide font-medium;
 }
 
 .table-dark tbody {
-  @apply divide-y divide-slate-700/50;
+  @apply divide-y divide-border-theme/50;
 }
 
 .table-dark tr {
-  @apply hover:bg-slate-700/30 transition-colors;
+  @apply hover:bg-surface-raised/30 transition-colors;
 }
 
 .table-dark td {
@@ -707,7 +714,7 @@ button:disabled {
 }
 
 .stat-label {
-  @apply text-slate-400;
+  @apply text-text-theme-secondary;
 }
 
 .stat-value {
@@ -715,7 +722,7 @@ button:disabled {
 }
 
 .stat-value-highlight {
-  @apply text-white font-mono bg-slate-700/50 px-3 py-1 rounded;
+  @apply text-white font-mono bg-surface-raised/50 px-3 py-1 rounded;
 }
 
 /* Loading States */
@@ -733,17 +740,17 @@ button:disabled {
 
 /* Empty States */
 .empty-state {
-  @apply bg-slate-700/30 rounded-lg p-8 text-center text-slate-400 
-         border border-dashed border-slate-600;
+  @apply bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary
+         border border-dashed border-border-theme-strong;
 }
 
 /* Links */
 .back-link {
-  @apply inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6;
+  @apply inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6;
 }
 
 .back-link-cyan {
-  @apply inline-flex items-center text-slate-400 hover:text-cyan-400 transition-colors mb-6;
+  @apply inline-flex items-center text-text-theme-secondary hover:text-cyan-400 transition-colors mb-6;
 }
 
 /* Notices/Alerts */
@@ -774,15 +781,15 @@ button:disabled {
 
 /* Dialog Structure */
 .dialog-header {
-  @apply flex items-center justify-between px-4 py-3 border-b border-slate-700;
+  @apply flex items-center justify-between px-4 py-3 border-b border-border-theme;
 }
 
 .dialog-header-title {
-  @apply text-lg font-medium text-white;
+  @apply text-lg font-medium text-text-theme-primary;
 }
 
 .dialog-header-subtitle {
-  @apply text-sm text-slate-400;
+  @apply text-sm text-text-theme-secondary;
 }
 
 .dialog-content {
@@ -790,16 +797,16 @@ button:disabled {
 }
 
 .dialog-footer {
-  @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+  @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-border-theme bg-surface-base/50;
 }
 
 .dialog-footer-between {
-  @apply flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+  @apply flex items-center justify-between px-4 py-3 border-t border-border-theme bg-surface-base/50;
 }
 
 /* Dialog Close Button */
 .dialog-close-btn {
-  @apply p-1 text-slate-400 hover:text-white transition-colors;
+  @apply p-1 text-text-theme-secondary hover:text-text-theme-primary transition-colors;
 }
 
 /* Dialog Buttons */
@@ -808,15 +815,15 @@ button:disabled {
 }
 
 .dialog-btn-primary:disabled {
-  @apply bg-slate-600 text-slate-400 cursor-not-allowed;
+  @apply bg-surface-raised text-text-theme-muted cursor-not-allowed;
 }
 
 .dialog-btn-secondary {
-  @apply px-4 py-2 text-sm font-medium bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-surface-raised hover:bg-surface-base text-text-theme-primary rounded transition-colors;
 }
 
 .dialog-btn-ghost {
-  @apply px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors;
+  @apply px-4 py-2 text-sm font-medium text-text-theme-primary hover:text-text-theme-primary transition-colors;
 }
 
 .dialog-btn-warning {
@@ -829,18 +836,18 @@ button:disabled {
 
 /* Dialog Inputs */
 .dialog-input {
-  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
-         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 .dialog-input-search {
-  @apply w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
-         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply w-full pl-10 pr-4 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 .dialog-select {
-  @apply px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm 
-         focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply px-3 py-1.5 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
+         focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 /* Dialog Tables */
@@ -849,7 +856,7 @@ button:disabled {
 }
 
 .dialog-table-header {
-  @apply sticky top-0 bg-slate-800 border-b border-slate-600 text-slate-400 text-left;
+  @apply sticky top-0 bg-surface-base border-b border-border-theme-strong text-text-theme-secondary text-left;
 }
 
 .dialog-table-header th {
@@ -857,11 +864,11 @@ button:disabled {
 }
 
 .dialog-table-body {
-  @apply divide-y divide-slate-700/50;
+  @apply divide-y divide-border-theme/50;
 }
 
 .dialog-table-row {
-  @apply cursor-pointer transition-colors hover:bg-slate-700/30;
+  @apply cursor-pointer transition-colors hover:bg-surface-raised/30;
 }
 
 .dialog-table-row-selected {
@@ -870,7 +877,7 @@ button:disabled {
 
 /* Dialog Info Panels */
 .dialog-info-panel {
-  @apply p-3 bg-slate-700/50 rounded-lg;
+  @apply p-3 bg-surface-raised/50 rounded-lg;
 }
 
 .dialog-warning-panel {
@@ -887,21 +894,21 @@ button:disabled {
 
 /* Dialog States */
 .dialog-loading {
-  @apply flex items-center justify-center h-48 text-slate-400;
+  @apply flex items-center justify-center h-48 text-text-theme-secondary;
 }
 
 .dialog-empty {
-  @apply flex items-center justify-center h-48 text-slate-400;
+  @apply flex items-center justify-center h-48 text-text-theme-secondary;
 }
 
 .dialog-empty-icon {
-  @apply w-12 h-12 mx-auto mb-2 text-slate-600;
+  @apply w-12 h-12 mx-auto mb-2 text-text-theme-muted;
 }
 
 /* Dialog Drop Zone */
 .dialog-dropzone {
   @apply relative p-8 border-2 border-dashed rounded-lg text-center transition-colors
-         border-slate-600 hover:border-slate-500;
+         border-border-theme-strong hover:border-border-theme;
 }
 
 .dialog-dropzone-active {
@@ -930,17 +937,17 @@ button:disabled {
 }
 
 .filter-input input {
-  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white 
-         placeholder-slate-400 text-sm focus:outline-none focus:border-amber-500;
+  @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary
+         placeholder-text-theme-muted text-sm focus:outline-none focus:border-accent;
 }
 
 .filter-select {
-  @apply px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm 
-         focus:outline-none focus:border-amber-500;
+  @apply px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
+         focus:outline-none focus:border-accent;
 }
 
 .filter-clear-btn {
-  @apply px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors;
+  @apply px-3 py-2 text-sm text-text-theme-secondary hover:text-text-theme-primary transition-colors;
 }
 
 /* ========================================
@@ -954,12 +961,12 @@ button:disabled {
 
 /* Display title - spaced letters "C O M P E N D I U M" style */
 .text-display {
-  @apply text-5xl font-light tracking-[0.3em] uppercase text-center text-slate-200;
+  @apply text-5xl font-light tracking-[0.3em] uppercase text-center text-text-theme-primary;
 }
 
 /* Display title - smaller variant */
 .text-display-sm {
-  @apply text-3xl font-light tracking-[0.25em] uppercase text-center text-slate-200;
+  @apply text-3xl font-light tracking-[0.25em] uppercase text-center text-text-theme-primary;
 }
 
 /* Section header - bold uppercase like COMP/CON category headers */
@@ -974,7 +981,7 @@ button:disabled {
 
 /* Subtitle text - for descriptions under headers */
 .text-subtitle {
-  @apply text-sm text-slate-400 tracking-wide;
+  @apply text-sm text-text-theme-secondary tracking-wide;
 }
 
 /* ========================================
@@ -1031,9 +1038,9 @@ button:disabled {
  * - /70 - Strong (selected, focused)
  *
  * Usage examples:
- * - bg-slate-800/50 - Default card background
- * - bg-slate-800/30 - Darker/deeper card variant
- * - bg-slate-800/60 - Hover state for /50 backgrounds
+ * - bg-surface-base/50 - Default card background
+ * - bg-surface-base/30 - Darker/deeper card variant
+ * - bg-surface-base/60 - Hover state for /50 backgrounds
  */
 
 /* ========================================
@@ -1067,20 +1074,20 @@ button:disabled {
 
 /* Diagram containers (variant-specific) */
 .diagram-container {
-  @apply bg-slate-800 rounded-lg border border-slate-700 p-4;
+  @apply bg-surface-base rounded-lg border border-border-theme p-4;
 }
 
 .diagram-container-neon {
-  @apply bg-slate-900 rounded-lg border border-cyan-500/30 p-5;
+  @apply bg-surface-deep rounded-lg border border-cyan-500/30 p-5;
 }
 
 .diagram-container-tactical {
-  @apply bg-slate-900 rounded-lg border border-slate-700 p-4;
+  @apply bg-surface-deep rounded-lg border border-border-theme p-4;
 }
 
 .diagram-container-premium {
-  @apply rounded-2xl border border-slate-700 p-5;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  @apply rounded-2xl border border-border-theme p-5;
+  background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-deep) 100%);
 }
 
 /* Diagram headers */
@@ -1098,7 +1105,7 @@ button:disabled {
 }
 
 .diagram-title-tactical {
-  @apply text-sm font-mono font-bold text-slate-300 tracking-wider;
+  @apply text-sm font-mono font-bold text-text-theme-primary tracking-wider;
 }
 
 /* Diagram legends */
@@ -1112,7 +1119,7 @@ button:disabled {
 
 /* Diagram instructions */
 .diagram-instructions {
-  @apply text-xs text-slate-400 text-center mt-2;
+  @apply text-xs text-text-theme-secondary text-center mt-2;
 }
 
 .diagram-instructions-neon {
@@ -1120,7 +1127,7 @@ button:disabled {
 }
 
 .diagram-instructions-tactical {
-  @apply text-xs text-slate-600 font-mono text-center mt-3;
+  @apply text-xs text-text-theme-muted font-mono text-center mt-3;
 }
 
 /* ========================================
@@ -1145,7 +1152,7 @@ button:disabled {
 }
 
 .value-muted {
-  @apply text-slate-400;
+  @apply text-text-theme-secondary;
 }
 
 /* Inline status indicators */
@@ -1171,28 +1178,28 @@ button:disabled {
 
 /* Base focus ring style */
 .focus-ring-base {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep;
 }
 
 /* Accent-colored focus rings (for use with accent color system) */
 .focus-ring-amber {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-amber-500;
 }
 
 .focus-ring-cyan {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-cyan-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-cyan-500;
 }
 
 .focus-ring-emerald {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-emerald-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-emerald-500;
 }
 
 .focus-ring-violet {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-violet-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-violet-500;
 }
 
 .focus-ring-blue {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-blue-500;
 }
 
 /* ========================================
@@ -1201,7 +1208,7 @@ button:disabled {
 
 /* Standard hover patterns documented */
 .hover-brighten {
-  @apply hover:bg-slate-800/60 hover:border-slate-600;
+  @apply hover:bg-surface-base/60 hover:border-border-theme-strong;
 }
 
 .hover-lift {

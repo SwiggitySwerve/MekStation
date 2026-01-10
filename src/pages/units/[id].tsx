@@ -91,7 +91,7 @@ export default function UnitDetailPage(): React.ReactElement {
               )}
             </div>
           </div>
-          <div className="text-right text-slate-400 text-sm">
+          <div className="text-right text-text-theme-secondary text-sm">
             {unit.era && <div>Era: {unit.era.replace(/_/g, ' ')}</div>}
             {unit.year && <div>Year: {unit.year}</div>}
             {unit.rulesLevel && <div>Rules: {unit.rulesLevel.replace(/_/g, ' ')}</div>}
@@ -115,8 +115,8 @@ export default function UnitDetailPage(): React.ReactElement {
             )}
           </StatList>
           {unit.movement?.enhancements && unit.movement.enhancements.length > 0 && (
-            <div className="pt-3 mt-3 border-t border-slate-700">
-              <span className="text-slate-400 text-sm">Enhancements:</span>
+            <div className="pt-3 mt-3 border-t border-border-theme">
+              <span className="text-text-theme-secondary text-sm">Enhancements:</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {unit.movement.enhancements.map((e, i) => (
                   <Badge key={i} variant="success" size="sm">{e}</Badge>
@@ -172,8 +172,8 @@ export default function UnitDetailPage(): React.ReactElement {
           <CardSection title="Armor Allocation" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {Object.entries(unit.armor.allocation).map(([location, value]) => (
-              <div key={location} className="bg-slate-700/30 rounded-lg p-3 text-center">
-                <div className="text-slate-400 text-xs uppercase mb-1">
+              <div key={location} className="bg-surface-raised/30 rounded-lg p-3 text-center">
+                <div className="text-text-theme-secondary text-xs uppercase mb-1">
                   {location.replace(/_/g, ' ')}
                 </div>
                 <div className="text-white font-mono">
@@ -200,19 +200,19 @@ export default function UnitDetailPage(): React.ReactElement {
           <CardSection title="Equipment" />
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-800/50">
-                <tr className="text-left text-slate-400 text-sm uppercase">
+              <thead className="bg-surface-base/50">
+                <tr className="text-left text-text-theme-secondary text-sm uppercase">
                   <th className="px-4 py-3">Equipment</th>
                   <th className="px-4 py-3">Location</th>
                   <th className="px-4 py-3">Notes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
+              <tbody className="divide-y divide-border-theme/50">
                 {unit.equipment.map((eq, index) => (
-                  <tr key={index} className="hover:bg-slate-700/20">
+                  <tr key={index} className="hover:bg-surface-raised/20">
                     <td className="px-4 py-3 text-white">{eq.id}</td>
-                    <td className="px-4 py-3 text-slate-300">{eq.location}</td>
-                    <td className="px-4 py-3 text-slate-400 text-sm">
+                    <td className="px-4 py-3 text-text-theme-primary">{eq.location}</td>
+                    <td className="px-4 py-3 text-text-theme-secondary text-sm">
                       {eq.isRearMounted && (
                         <Badge variant="warning" size="sm">Rear</Badge>
                       )}

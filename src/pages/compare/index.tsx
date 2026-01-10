@@ -100,8 +100,8 @@ export default function ComparePage(): React.ReactElement {
         
         {/* Search Results Dropdown */}
         {searchTerm && filteredCatalog.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl z-10">
-            <ul className="divide-y divide-slate-700/50">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-surface-base border border-border-theme rounded-xl overflow-hidden shadow-xl z-10">
+            <ul className="divide-y divide-border-theme/50">
               {filteredCatalog.map((unit) => {
                 const isLoading = loadingUnits.has(unit.id);
                 const isAdded = selectedUnits.some(u => u.id === unit.id);
@@ -111,13 +111,13 @@ export default function ComparePage(): React.ReactElement {
                     <button
                       onClick={() => addUnit(unit)}
                       disabled={isLoading || isAdded}
-                      className="w-full px-4 py-3 text-left hover:bg-slate-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 text-left hover:bg-surface-raised/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={`Add ${unit.name} to comparison`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-medium text-white">{unit.name}</div>
-                          <div className="text-sm text-slate-400">
+                          <div className="text-sm text-text-theme-secondary">
                             {unit.tonnage}t • {unit.techBase.replace(/_/g, ' ')}
                           </div>
                         </div>
@@ -138,7 +138,7 @@ export default function ComparePage(): React.ReactElement {
         )}
 
         {searchTerm && filteredCatalog.length === 0 && !catalogLoading && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 text-center text-slate-400">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-surface-base border border-border-theme rounded-xl p-4 text-center text-text-theme-secondary">
             No units found matching &quot;{searchTerm}&quot;
           </div>
         )}
@@ -155,9 +155,9 @@ export default function ComparePage(): React.ReactElement {
         <Card variant="dark" className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-800">
+              <thead className="bg-surface-base">
                 <tr>
-                  <th className="px-4 py-3 text-left text-slate-400 font-medium w-40">Stat</th>
+                  <th className="px-4 py-3 text-left text-text-theme-secondary font-medium w-40">Stat</th>
                   {selectedUnits.map((unit) => (
                     <th key={unit.id} className="px-4 py-3 text-left min-w-[200px]">
                       <div className="flex items-start justify-between">
@@ -165,7 +165,7 @@ export default function ComparePage(): React.ReactElement {
                           <div className="font-semibold text-white">
                             {unit.name || `${unit.chassis} ${unit.model}`}
                           </div>
-                          <div className="text-sm text-slate-400">
+                          <div className="text-sm text-text-theme-secondary">
                             {unit.tonnage}t • {unit.techBase?.replace(/_/g, ' ')}
                           </div>
                         </div>
@@ -181,7 +181,7 @@ export default function ComparePage(): React.ReactElement {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
+              <tbody className="divide-y divide-border-theme/50">
                 <CompareRow label="Tonnage" units={selectedUnits} getValue={u => `${u.tonnage}t`} mono />
                 <CompareRow label="Walk MP" units={selectedUnits} getValue={u => u.movement?.walk || '—'} mono />
                 <CompareRow label="Run MP" units={selectedUnits} getValue={u => u.movement?.walk ? Math.ceil(u.movement.walk * 1.5) : '—'} mono />
@@ -198,7 +198,7 @@ export default function ComparePage(): React.ReactElement {
 
       {/* Add more slots indicator */}
       {selectedUnits.length > 0 && selectedUnits.length < MAX_COMPARE && (
-        <div className="mt-4 text-center text-slate-400 text-sm">
+        <div className="mt-4 text-center text-text-theme-secondary text-sm">
           You can add {MAX_COMPARE - selectedUnits.length} more unit{MAX_COMPARE - selectedUnits.length > 1 ? 's' : ''} to compare
         </div>
       )}
@@ -216,8 +216,8 @@ interface CompareRowProps {
 
 function CompareRow({ label, units, getValue, mono }: CompareRowProps) {
   return (
-    <tr className="hover:bg-slate-700/20">
-      <td className="px-4 py-3 text-slate-400">{label}</td>
+    <tr className="hover:bg-surface-raised/20">
+      <td className="px-4 py-3 text-text-theme-secondary">{label}</td>
       {units.map((unit) => (
         <td key={unit.id} className={`px-4 py-3 text-white ${mono ? 'font-mono' : ''}`}>
           {getValue(unit)}

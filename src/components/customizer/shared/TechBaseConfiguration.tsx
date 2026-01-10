@@ -26,35 +26,35 @@ const styles = {
   button: {
     base: 'px-2 py-1 text-xs font-medium transition-colors',
     baseLarge: 'px-4 py-2 text-sm font-medium transition-colors',
-    inactive: 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-300',
+    inactive: 'bg-surface-raised text-text-theme-secondary hover:bg-surface-base hover:text-text-theme-primary',
     disabled: 'opacity-50 cursor-not-allowed',
     enabled: 'cursor-pointer',
-    borderLeft: 'border-l border-slate-600',
+    borderLeft: 'border-l border-border-theme-strong',
   },
-  
+
   // Tech base colors (active state)
   techBase: {
     innerSphere: 'bg-green-600 text-white',
     clan: 'bg-red-600 text-white',
     mixed: 'bg-purple-600 text-white',
   },
-  
+
   // Container styles
   container: {
-    panel: 'bg-slate-800 rounded-lg border border-slate-700 overflow-hidden',
-    header: 'px-4 py-3 border-b border-slate-700 bg-slate-800',
-    buttonGroup: 'inline-flex rounded-md overflow-hidden border border-slate-600',
-    rowEven: 'bg-slate-800',
-    rowOdd: 'bg-slate-800/50',
+    panel: 'bg-surface-base rounded-lg border border-border-theme overflow-hidden',
+    header: 'px-4 py-3 border-b border-border-theme bg-surface-base',
+    buttonGroup: 'inline-flex rounded-md overflow-hidden border border-border-theme-strong',
+    rowEven: 'bg-surface-base',
+    rowOdd: 'bg-surface-base/50',
   },
-  
+
   // Text styles
   text: {
     title: 'text-lg font-semibold text-white',
-    subtitle: 'text-xs text-slate-400 mt-0.5',
+    subtitle: 'text-xs text-text-theme-secondary mt-0.5',
     label: 'text-sm font-medium text-slate-200',
     value: 'text-sm text-white',
-    valueMuted: 'text-sm text-slate-400',
+    valueMuted: 'text-sm text-text-theme-secondary',
   },
 } as const;
 
@@ -275,14 +275,14 @@ export function TechBaseConfiguration({
       </div>
 
       {/* Column Headers */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-700 text-xs font-medium text-slate-500 uppercase tracking-wider">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border-theme text-xs font-medium text-slate-500 uppercase tracking-wider">
         <div className="w-24 flex-shrink-0">Component</div>
         <div className="flex-1 text-center">Selection</div>
         <div className="w-[88px] text-center flex-shrink-0">Tech Base</div>
       </div>
 
       {/* Component Rows */}
-      <div className="divide-y divide-slate-700/50">
+      <div className="divide-y divide-border-theme/50">
         {COMPONENT_ORDER.map((component, index) => (
           <ComponentRow
             key={component}
