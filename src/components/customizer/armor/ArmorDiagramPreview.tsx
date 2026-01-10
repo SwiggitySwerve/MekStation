@@ -193,7 +193,7 @@ export function ArmorDiagramGridPreview({
       {variants.map((variant) => (
         <div
           key={variant}
-          className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+          className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
             selectedVariant === variant
               ? 'border-amber-500 bg-amber-500/5'
               : 'border-slate-700 hover:border-slate-600 bg-slate-800/30'
@@ -210,7 +210,7 @@ export function ArmorDiagramGridPreview({
               </div>
             </div>
             {selectedVariant === variant && (
-              <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-3 h-3 text-white"
                   fill="currentColor"
@@ -225,8 +225,11 @@ export function ArmorDiagramGridPreview({
               </div>
             )}
           </div>
-          <div className="transform scale-[0.55] origin-top-left h-[300px]">
-            <ArmorDiagramPreview variant={variant} />
+          {/* Container sized to fit scaled content: ~320px * 0.5 = 160px wide, ~500px * 0.5 = 250px tall */}
+          <div className="relative h-[280px] overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 origin-top scale-50">
+              <ArmorDiagramPreview variant={variant} />
+            </div>
           </div>
         </div>
       ))}
