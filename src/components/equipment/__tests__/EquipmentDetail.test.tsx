@@ -111,7 +111,7 @@ describe('EquipmentDetail', () => {
 
   describe('Content Sections', () => {
     it('should organize stats in sections', () => {
-      const { container } = render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+      render(<EquipmentDetail item={mockItem} weaponDetails={mockWeaponDetails} description={mockDescription} onBack={mockOnBack} />);
 
       expect(screen.getByText('Information')).toBeInTheDocument();
       expect(screen.getByText('Combat Stats')).toBeInTheDocument();

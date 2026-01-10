@@ -84,8 +84,8 @@ describe('EquipmentCatalog', () => {
         />
       );
 
-      expect(screen.getByText('Energy • 5 tons')).toBeInTheDocument();
-      expect(screen.getByText('Ballistic • 14 tons')).toBeInTheDocument();
+      expect(screen.getByText('Energy Weapon • 5 tons')).toBeInTheDocument();
+      expect(screen.getByText('Ballistic Weapon • 14 tons')).toBeInTheDocument();
     });
 
     it('should apply custom className', () => {
@@ -310,11 +310,11 @@ describe('EquipmentCatalog', () => {
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      expect(screen.getByText('Equipment Type')).toBeInTheDocument();
-      expect(screen.getByText('Energy')).toBeInTheDocument();
-      expect(screen.getByText('Ballistic')).toBeInTheDocument();
-      expect(screen.getByText('Missile')).toBeInTheDocument();
-      expect(screen.getByText('Equipment')).toBeInTheDocument();
+      expect(screen.getByText('Equipment Category')).toBeInTheDocument();
+      expect(screen.getByText(EquipmentCategory.ENERGY_WEAPON)).toBeInTheDocument();
+      expect(screen.getByText(EquipmentCategory.BALLISTIC_WEAPON)).toBeInTheDocument();
+      expect(screen.getByText(EquipmentCategory.MISSILE_WEAPON)).toBeInTheDocument();
+      expect(screen.getByText(EquipmentCategory.MISC_EQUIPMENT)).toBeInTheDocument();
     });
 
     it('should have 80% screen height', () => {

@@ -104,7 +104,7 @@ export function EquipmentDetail({
           </div>
 
           {/* Combat stats (only shown for weapons) */}
-          {weaponDetails && (weaponDetails.damage || weaponDetails.range || weaponDetails.heat !== undefined) && (
+          {weaponDetails && (weaponDetails.damage !== undefined || weaponDetails.range || weaponDetails.heat !== undefined) && (
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                 Combat Stats

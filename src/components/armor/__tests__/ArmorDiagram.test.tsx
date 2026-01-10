@@ -127,7 +127,7 @@ describe('ArmorDiagram', () => {
       const incrementButton = screen.getAllByLabelText('Add 1 armor to Center Torso')[0];
       fireEvent.click(incrementButton);
 
-      expect(mockOnArmorChange).toHaveBeenCalledWith('centerTorso', 51, 'front');
+      expect(mockOnArmorChange).toHaveBeenCalledWith(MechLocation.CENTER_TORSO, 51, 'front');
     });
 
     it('should use front facing by default for changes', () => {
@@ -141,7 +141,7 @@ describe('ArmorDiagram', () => {
       const incrementButtons = screen.getAllByLabelText('Add 1 armor to Center Torso');
       fireEvent.click(incrementButtons[0]);
 
-      expect(mockOnArmorChange).toHaveBeenCalledWith('centerTorso', 51, 'front');
+      expect(mockOnArmorChange).toHaveBeenCalledWith(MechLocation.CENTER_TORSO, 51, 'front');
     });
 
     it('should use rear facing for changes after switching', () => {
@@ -159,7 +159,7 @@ describe('ArmorDiagram', () => {
       const incrementButton = screen.getAllByLabelText('Add 1 armor to Center Torso')[0];
       fireEvent.click(incrementButton);
 
-      expect(mockOnArmorChange).toHaveBeenCalledWith('centerTorso', 31, 'rear');
+      expect(mockOnArmorChange).toHaveBeenCalledWith(MechLocation.CENTER_TORSO, 31, 'rear');
     });
   });
 
