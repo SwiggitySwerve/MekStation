@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
+import { OfflineIndicator } from './OfflineIndicator';
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,6 +33,8 @@ const Layout: React.FC<LayoutProps> = ({
       </Head>
 
       <div className="flex flex-col h-screen bg-slate-900 overflow-hidden">
+        {/* Offline indicator - shows when network is unavailable */}
+        <OfflineIndicator />
         <div className="flex flex-1 overflow-hidden">
           {/* Global sidebar - fixed position component */}
           {sidebarComponent && <div className="print:hidden">{sidebarComponent}</div>}

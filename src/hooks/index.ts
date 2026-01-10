@@ -1,6 +1,6 @@
 /**
  * Hooks Barrel Export
- * 
+ *
  * Custom React hooks for the BattleTech customizer.
  */
 
@@ -11,4 +11,9 @@ export * from './useKeyboardNavigation';
 export * from './useTechBaseSync';
 export * from './useTechBaseSyncEffect';
 export * from './useUnitCalculations';
+
+// PWA and responsive hooks
+export * from './useDeviceCapabilities';
+export * from './useResponsive';
+export * from './usePWAInstall';
 

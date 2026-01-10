@@ -5,6 +5,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { InstallPrompt } from './InstallPrompt';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -216,6 +217,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         </NavSection>
       </nav>
 
+      {/* Install Prompt - shows when PWA is installable */}
+      {!isCollapsed && (
+        <div className="px-3 py-2 border-t border-slate-800">
+          <InstallPrompt variant="compact" className="w-full justify-center" />
+        </div>
+      )}
+
       {/* Footer */}
       <div className={`
         border-t border-slate-800 py-3
@@ -226,9 +234,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         ) : (
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>v0.1.0</span>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
+            <a
+              href="https://github.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="hover:text-amber-400 transition-colors"
             >

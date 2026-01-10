@@ -1,6 +1,79 @@
 import type { NextConfig } from "next";
 import type { Configuration, WebpackPluginInstance } from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import withPWAInit from "next-pwa";
+
+// PWA configuration
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+  // Cache strategies for different asset types
+  runtimeCaching: [
+    {
+      // Cache API responses with network-first strategy
+      urlPattern: /^https?:\/\/.*\/api\/.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "api-cache",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+        networkTimeoutSeconds: 10,
+      },
+    },
+    {
+      // Cache static assets with cache-first strategy
+      urlPattern: /\.(?:js|css|woff|woff2|ttf|otf|eot)$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "static-resources",
+        expiration: {
+          maxEntries: 128,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+    {
+      // Cache images with cache-first strategy
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "image-cache",
+        expiration: {
+          maxEntries: 256,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+    {
+      // Cache data files with stale-while-revalidate
+      urlPattern: /\/data\/.+\.json$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "data-cache",
+        expiration: {
+          maxEntries: 128,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+      },
+    },
+    {
+      // Cache record sheets with stale-while-revalidate
+      urlPattern: /\/record-sheets\/.+\.svg$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "record-sheet-cache",
+        expiration: {
+          maxEntries: 128,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+  ],
+});
 
 interface WebpackContext {
   buildId: string;
@@ -159,4 +232,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

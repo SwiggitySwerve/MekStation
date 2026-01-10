@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="384" height="384" viewBox="0 0 384 384" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="384" height="384" fill="#0f172a"/>
+
+  <!-- Border accent -->
+  <rect x="2" y="2" width="380" height="380" fill="none" stroke="#f59e0b" stroke-width="3" rx="8"/>
+
+  <!-- Inner glow -->
+  <rect x="38" y="38" width="308" height="308" fill="#1e293b" rx="4"/>
+
+  <!-- Mech silhouette (simplified) -->
+  <g transform="translate(192, 168)">
+    <!-- Body -->
+    <rect x="-46.08" y="-30.72" width="92.16" height="76.80000000000001" fill="#f59e0b" rx="2"/>
+    <!-- Head -->
+    <rect x="-23.04" y="-61.44" width="46.08" height="30.72" fill="#f59e0b" rx="1"/>
+    <!-- Arms -->
+    <rect x="-76.80000000000001" y="-23.04" width="23.04" height="61.44" fill="#f59e0b" rx="1"/>
+    <rect x="53.760000000000005" y="-23.04" width="23.04" height="61.44" fill="#f59e0b" rx="1"/>
+    <!-- Legs -->
+    <rect x="-38.400000000000006" y="46.08" width="26.880000000000003" height="53.760000000000005" fill="#f59e0b" rx="1"/>
+    <rect x="11.52" y="46.08" width="26.880000000000003" height="53.760000000000005" fill="#f59e0b" rx="1"/>
+  </g>
+
+  <!-- Text -->
+  <text x="192" y="315"
+        font-family="Arial, sans-serif"
+        font-size="31px"
+        font-weight="bold"
+        fill="#94a3b8"
+        text-anchor="middle">MEK</text>
+</svg>
