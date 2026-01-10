@@ -104,8 +104,8 @@ describe('ArmorTab', () => {
 
   it('should display armor tonnage', () => {
     render(<ArmorTab />);
-    
-    expect(screen.getByText(/Points\/Ton/i)).toBeInTheDocument();
+
+    expect(screen.getByText(/Pts\/Ton:/i)).toBeInTheDocument();
   });
 
   it('should render armor configuration', () => {

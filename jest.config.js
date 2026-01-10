@@ -67,6 +67,9 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/e2e/',
+    '/e2e/',
+    'e2e/',
   ],  // Transform ES modules that Jest can't handle
   transformIgnorePatterns: [
     'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend)/)',

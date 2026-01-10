@@ -1,0 +1,34 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(E:\\Projects\\MekStation/**)",
+      "Write(E:\\Projects\\MekStation/**)",
+      "Edit(E:\\Projects\\MekStation/**)",
+      "Glob(E:\\Projects\\MekStation/**)",
+      "Grep(E:\\Projects\\MekStation/**)",
+      "Read(E:\\Projects\\MekStation\\.auto-claude\\specs\\001-read-docs-and-start-implementing-mm-data-parity-va/**)",
+      "Write(E:\\Projects\\MekStation\\.auto-claude\\specs\\001-read-docs-and-start-implementing-mm-data-parity-va/**)",
+      "Edit(E:\\Projects\\MekStation\\.auto-claude\\specs\\001-read-docs-and-start-implementing-mm-data-parity-va/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

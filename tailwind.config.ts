@@ -8,10 +8,20 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Touch target sizing (44px minimum per iOS/Android guidelines)
+      minWidth: {
+        'touch': '44px',
+      },
+      minHeight: {
+        'touch': '44px',
+      },
+      spacing: {
+        'touch': '44px',
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        
+
         // System component slot colors
         slot: {
           engine: 'rgb(234 88 12)',      // orange-600

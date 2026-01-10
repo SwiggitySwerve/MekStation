@@ -186,24 +186,24 @@ export function ArmorTab({
   
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
-      {/* Compact Summary Bar */}
+      {/* Compact Summary Bar - responsive */}
       <div className={cs.panel.summary}>
-        <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-6 text-sm">
-            <div className={cs.layout.statRow}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-6 text-sm overflow-x-auto pb-1 sm:pb-0">
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Type:</span>
               <span className={cs.text.value}>{armorDef?.name ?? 'Standard'}</span>
             </div>
-            <div className={cs.layout.statRow}>
-              <span className={cs.text.label}>Points/Ton:</span>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+              <span className={cs.text.label}>Pts/Ton:</span>
               <span className={cs.text.value}>{pointsPerTon}</span>
             </div>
-            <div className={cs.layout.statRow}>
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Slots:</span>
               <span className={cs.text.value}>{armorSlots}</span>
             </div>
           </div>
-          <div className={`flex items-center gap-4 ${cs.layout.dividerV}`}>
+          <div className="flex items-center gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l border-slate-700 sm:pl-4">
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Tonnage:</span>
               <span className="text-lg font-bold text-amber-400">{armorTonnage}t</span>

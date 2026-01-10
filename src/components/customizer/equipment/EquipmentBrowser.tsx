@@ -121,19 +121,20 @@ export function EquipmentBrowser({
         
         {/* Text filter */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400">Filter:</span>
+          <span className="hidden sm:inline text-xs text-slate-400">Filter:</span>
           <div className="flex-1 relative">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search equipment..."
-              className="w-full px-3 py-1.5 text-sm bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              inputMode="search"
+              className="w-full px-3 py-2 sm:py-1.5 text-sm bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
                 title="Clear search"
               >
                 ✕
@@ -143,9 +144,9 @@ export function EquipmentBrowser({
           {(search || !showAllCategories || hidePrototype || hideOneShot || hideAmmoWithoutWeapon) && (
             <button
               onClick={clearFilters}
-              className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors"
+              className="px-3 py-2 sm:px-2 sm:py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors whitespace-nowrap"
             >
-              Clear All
+              Clear
             </button>
           )}
         </div>
@@ -168,11 +169,11 @@ export function EquipmentBrowser({
                   direction={sortDirection}
                   onSort={setSort}
                 />
-                <th className="px-2 py-2">Dmg</th>
-                <th className="px-2 py-2">Heat</th>
-                <th className="px-2 py-2">Range</th>
+                <th className="hidden sm:table-cell px-2 py-2">Dmg</th>
+                <th className="hidden sm:table-cell px-2 py-2">Heat</th>
+                <th className="hidden md:table-cell px-2 py-2">Range</th>
                 <SortableHeader
-                  label="Weight"
+                  label="Wt"
                   column="weight"
                   currentColumn={sortColumn}
                   direction={sortDirection}
@@ -185,7 +186,7 @@ export function EquipmentBrowser({
                   direction={sortDirection}
                   onSort={setSort}
                 />
-                <th className="px-2 py-2 w-16">Action</th>
+                <th className="px-2 py-2 w-14 sm:w-16">Action</th>
               </tr>
             </thead>
             <tbody>

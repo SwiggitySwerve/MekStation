@@ -52,8 +52,8 @@ export function TabBar({
 }: TabBarProps): React.ReactElement {
   return (
     <div className={`flex items-center bg-slate-800 border-b border-slate-700 ${className}`}>
-      {/* Tab list */}
-      <div className="flex-1 flex items-center overflow-x-auto">
+      {/* Tab list - scrollable on mobile */}
+      <div className="flex-1 flex items-center overflow-x-auto min-w-0">
         {tabs.map((tab) => (
           <UnitTabComponent
             key={tab.id}
@@ -66,24 +66,24 @@ export function TabBar({
           />
         ))}
       </div>
-      
-      {/* Toolbar icons - MegaMekLab style */}
-      <div className="flex-shrink-0 flex items-center gap-1 px-2 border-l border-slate-700">
+
+      {/* Toolbar icons - MegaMekLab style, touch-friendly */}
+      <div className="flex-shrink-0 flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 border-l border-slate-700">
         {/* New Unit - Document icon */}
         <button
           onClick={onNewTab}
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
+          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors flex items-center justify-center"
           title="Create New Unit (Ctrl+N)"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </button>
-        
+
         {/* Load Unit - Folder icon */}
         <button
           onClick={onLoadUnit}
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
+          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors flex items-center justify-center"
           title="Load Unit from Library (Ctrl+O)"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

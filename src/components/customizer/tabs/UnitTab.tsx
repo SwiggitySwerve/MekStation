@@ -84,10 +84,11 @@ export function UnitTab({
   return (
     <div
       className={`
-        group flex items-center gap-2 px-3 py-2 min-w-[120px] max-w-[200px] cursor-pointer
+        group flex items-center gap-2 px-3 py-2 sm:py-2 min-h-touch sm:min-h-0
+        min-w-[100px] sm:min-w-[120px] max-w-[160px] sm:max-w-[200px] cursor-pointer
         border-b-2 transition-colors
-        ${isActive 
-          ? 'bg-slate-700 text-slate-100 border-blue-500' 
+        ${isActive
+          ? 'bg-slate-700 text-slate-100 border-blue-500'
           : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-700/50 hover:text-slate-300'
         }
       `}
@@ -117,11 +118,11 @@ export function UnitTab({
         <span className="flex-shrink-0 w-2 h-2 rounded-full bg-orange-500" title="Unsaved changes" />
       )}
       
-      {/* Close button - Chrome style */}
+      {/* Close button - Chrome style, larger on touch */}
       {canClose && !isEditing && (
         <button
           onClick={handleCloseClick}
-          className="flex-shrink-0 w-[18px] h-[18px] flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-500 hover:text-white transition-all duration-100 text-xs leading-none"
+          className="flex-shrink-0 w-7 h-7 sm:w-[18px] sm:h-[18px] flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-500 hover:text-white transition-all duration-100 text-sm sm:text-xs leading-none"
           title="Close (Ctrl+W)"
         >
           ×

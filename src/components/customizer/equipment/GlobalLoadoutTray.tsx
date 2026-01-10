@@ -553,8 +553,7 @@ export function GlobalLoadoutTray({
   // Collapsed state
   if (!isExpanded) {
     return (
-      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col items-center py-2 ${className}`}
-           style={{ width: '40px' }}>
+      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col items-center py-2 w-10 ${className}`}>
         <button
           onClick={onToggleExpand}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors p-2"
@@ -577,8 +576,7 @@ export function GlobalLoadoutTray({
   // Expanded state
   return (
     <>
-      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col ${className}`}
-           style={{ width: '260px' }}>
+      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col w-full sm:w-[200px] md:w-[240px] lg:w-[260px] ${className}`}>
         {/* Header */}
         <div className="flex-shrink-0 border-b border-slate-600">
           <div className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}>
