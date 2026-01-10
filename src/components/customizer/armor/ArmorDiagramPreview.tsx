@@ -55,7 +55,7 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Wireframe outline',
       'Neon glow effects',
       'Progress ring indicators',
-      'Toggle front/rear view',
+      'Stacked front/rear',
     ],
   },
   'tactical-hud': {
@@ -65,7 +65,7 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Geometric shapes',
       'LED number display',
       'Tank-fill gauges',
-      'Side-by-side views',
+      'Stacked front/rear',
     ],
   },
   'premium-material': {
@@ -75,7 +75,7 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Realistic contour',
       'Metallic textures',
       'Circular badges',
-      '3D layered plates',
+      'Stacked front/rear',
     ],
   },
 };
@@ -225,7 +225,7 @@ export function ArmorDiagramGridPreview({
               </div>
             )}
           </div>
-          <div className="transform scale-[0.65] origin-top-left h-[260px] overflow-hidden">
+          <div className="transform scale-[0.65] origin-top-left h-[340px] overflow-hidden">
             <ArmorDiagramPreview variant={variant} />
           </div>
         </div>

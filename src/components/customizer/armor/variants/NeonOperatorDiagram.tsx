@@ -89,6 +89,14 @@ interface NeonLocationProps {
   onHover: (hovered: boolean) => void;
 }
 
+// Calculate leg offset based on torso height expansion
+const TORSO_HEIGHT_MULTIPLIER = 1.4;
+const LEG_Y_OFFSET = REALISTIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_HEIGHT_MULTIPLIER - 1);
+
+function isLegLocation(location: MechLocation): boolean {
+  return location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
+}
+
 function NeonLocation({
   location,
   data,
@@ -101,10 +109,12 @@ function NeonLocation({
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
 
-  // Adjust position for torso locations to be taller
+  // Adjust position for torso locations to be taller, and offset legs down
   const pos = showRear
-    ? { ...basePos, height: basePos.height * 1.4 }
-    : basePos;
+    ? { ...basePos, height: basePos.height * TORSO_HEIGHT_MULTIPLIER }
+    : isLegLocation(location)
+      ? { ...basePos, y: basePos.y + LEG_Y_OFFSET }
+      : basePos;
 
   const front = data?.current ?? 0;
   const frontMax = data?.maximum ?? 1;
@@ -388,7 +398,7 @@ export function NeonOperatorDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 300 440"
+          viewBox="0 0 300 480"
           className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >

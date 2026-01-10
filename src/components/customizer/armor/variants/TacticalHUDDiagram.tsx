@@ -159,11 +159,16 @@ function TacticalLocation({
   const basePos = GEOMETRIC_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
+  const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
 
-  // Adjust height for torso locations to fit stacked layout
+  // Adjust height for torso locations to fit stacked layout, offset legs down
+  const TORSO_MULTIPLIER = 1.5;
+  const legOffset = GEOMETRIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
   const pos = showRear
-    ? { ...basePos, height: basePos.height * 1.5 }
-    : basePos;
+    ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
+    : isLeg
+      ? { ...basePos, y: basePos.y + legOffset }
+      : basePos;
 
   const center = {
     x: pos.x + pos.width / 2,
@@ -446,7 +451,7 @@ export function TacticalHUDDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 300 420"
+          viewBox="0 0 300 500"
           className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >

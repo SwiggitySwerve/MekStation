@@ -154,11 +154,16 @@ function PremiumLocation({
   const basePos = REALISTIC_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
+  const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
 
-  // Adjust height for torso locations to fit stacked layout
+  // Adjust height for torso locations to fit stacked layout, offset legs down
+  const TORSO_MULTIPLIER = 1.4;
+  const legOffset = REALISTIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
   const pos = showRear
-    ? { ...basePos, height: basePos.height * 1.4 }
-    : basePos;
+    ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
+    : isLeg
+      ? { ...basePos, y: basePos.y + legOffset }
+      : basePos;
 
   const front = data?.current ?? 0;
   const frontMax = data?.maximum ?? 1;
@@ -478,7 +483,7 @@ export function PremiumMaterialDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 320 440"
+          viewBox="0 0 320 490"
           className="w-full max-w-[320px] mx-auto"
           style={{ height: 'auto' }}
         >
