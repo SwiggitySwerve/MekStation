@@ -210,8 +210,8 @@ export function ArmorTab({
             </div>
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Points:</span>
-              <span className={`text-lg font-bold ${unallocatedPoints < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                {allocatedPoints} / {availablePoints}
+              <span className={`text-lg font-bold ${allocatedPoints > maxTotalArmor ? 'text-red-400' : 'text-green-400'}`}>
+                {allocatedPoints} / {maxTotalArmor}
               </span>
             </div>
           </div>

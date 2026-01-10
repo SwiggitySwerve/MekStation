@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { ArmorTab } from '@/components/customizer/tabs/ArmorTab';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { ArmorDiagramProps } from '@/components/customizer/armor/ArmorDiagram';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 // Mock dependencies
 jest.mock('@/stores/useUnitStore', () => ({
@@ -61,17 +62,17 @@ describe('ArmorTab', () => {
     armorType: 'Standard',
     armorTonnage: 10,
     armorAllocation: {
-      head: 9,
-      centerTorso: 16,
+      [MechLocation.HEAD]: 9,
+      [MechLocation.CENTER_TORSO]: 16,
       centerTorsoRear: 5,
-      leftTorso: 12,
+      [MechLocation.LEFT_TORSO]: 12,
       leftTorsoRear: 4,
-      rightTorso: 12,
+      [MechLocation.RIGHT_TORSO]: 12,
       rightTorsoRear: 4,
-      leftArm: 8,
-      rightArm: 8,
-      leftLeg: 12,
-      rightLeg: 12,
+      [MechLocation.LEFT_ARM]: 8,
+      [MechLocation.RIGHT_ARM]: 8,
+      [MechLocation.LEFT_LEG]: 12,
+      [MechLocation.RIGHT_LEG]: 12,
     },
     setArmorType: jest.fn(),
     setArmorTonnage: jest.fn(),
@@ -140,9 +141,145 @@ describe('ArmorTab', () => {
 
   it('should apply custom className', () => {
     const { container } = render(<ArmorTab className="custom-class" />);
-    
+
     const tab = container.firstChild;
     expect(tab).toHaveClass('custom-class');
+  });
+
+  describe('armor points display', () => {
+    it('should display allocated points vs max armor capacity', () => {
+      // 50-ton mech with 5 tons armor = 80 available points, max capacity = 169
+      const storeWithPartialArmor = {
+        ...mockStoreValues,
+        armorTonnage: 5, // 80 points from tonnage
+        armorAllocation: {
+          [MechLocation.HEAD]: 9,
+          [MechLocation.CENTER_TORSO]: 20,
+          centerTorsoRear: 5,
+          [MechLocation.LEFT_TORSO]: 10,
+          leftTorsoRear: 3,
+          [MechLocation.RIGHT_TORSO]: 10,
+          rightTorsoRear: 3,
+          [MechLocation.LEFT_ARM]: 6,
+          [MechLocation.RIGHT_ARM]: 6,
+          [MechLocation.LEFT_LEG]: 8,
+          [MechLocation.RIGHT_LEG]: 8,
+        }, // Total: 88 points allocated (but only 80 available from tonnage)
+      };
+
+      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithPartialArmor) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(storeWithPartialArmor);
+        }
+        return undefined;
+      });
+
+      render(<ArmorTab />);
+
+      // Should show allocated / maxTotalArmor (169), not allocated / availablePoints (80)
+      expect(screen.getByText(/88\s*\/\s*169/)).toBeInTheDocument();
+    });
+
+    it('should display max armor in denominator when tonnage exceeds capacity', () => {
+      // 50-ton mech with 11 tons armor = 176 available points, max capacity = 169
+      const storeWithExcessTonnage = {
+        ...mockStoreValues,
+        armorTonnage: 11, // 176 points from tonnage, but max is 169
+        armorAllocation: {
+          [MechLocation.HEAD]: 9,
+          [MechLocation.CENTER_TORSO]: 24,
+          centerTorsoRear: 8,
+          [MechLocation.LEFT_TORSO]: 18,
+          leftTorsoRear: 6,
+          [MechLocation.RIGHT_TORSO]: 18,
+          rightTorsoRear: 6,
+          [MechLocation.LEFT_ARM]: 16,
+          [MechLocation.RIGHT_ARM]: 16,
+          [MechLocation.LEFT_LEG]: 24,
+          [MechLocation.RIGHT_LEG]: 24,
+        }, // Total: 169 points (maxed out)
+      };
+
+      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithExcessTonnage) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(storeWithExcessTonnage);
+        }
+        return undefined;
+      });
+
+      render(<ArmorTab />);
+
+      // Should show 169/169, not 169/176
+      expect(screen.getByText(/169\s*\/\s*169/)).toBeInTheDocument();
+    });
+
+    it('should show wasted armor points when tonnage exceeds max capacity', () => {
+      // 50-ton mech with 11 tons armor = 176 available points, max capacity = 169
+      // Wasted = 176 - 169 = 7 points
+      const storeWithWastedPoints = {
+        ...mockStoreValues,
+        armorTonnage: 11, // 176 points from tonnage
+        armorAllocation: {
+          [MechLocation.HEAD]: 9,
+          [MechLocation.CENTER_TORSO]: 24,
+          centerTorsoRear: 8,
+          [MechLocation.LEFT_TORSO]: 18,
+          leftTorsoRear: 6,
+          [MechLocation.RIGHT_TORSO]: 18,
+          rightTorsoRear: 6,
+          [MechLocation.LEFT_ARM]: 16,
+          [MechLocation.RIGHT_ARM]: 16,
+          [MechLocation.LEFT_LEG]: 24,
+          [MechLocation.RIGHT_LEG]: 24,
+        }, // Total: 169 points
+      };
+
+      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithWastedPoints) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(storeWithWastedPoints);
+        }
+        return undefined;
+      });
+
+      render(<ArmorTab />);
+
+      expect(screen.getByText(/Wasted Armor Points/i)).toBeInTheDocument();
+      // Verify wasted points value appears (there may be multiple '7's in the UI)
+      expect(screen.getAllByText('7').length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should not show wasted armor points when tonnage is under max capacity', () => {
+      // 50-ton mech with 5 tons armor = 80 available points, max capacity = 169
+      // No wasted points since 80 < 169
+      const storeWithNoWaste = {
+        ...mockStoreValues,
+        armorTonnage: 5, // 80 points from tonnage
+        armorAllocation: {
+          [MechLocation.HEAD]: 9,
+          [MechLocation.CENTER_TORSO]: 16,
+          centerTorsoRear: 5,
+          [MechLocation.LEFT_TORSO]: 12,
+          leftTorsoRear: 4,
+          [MechLocation.RIGHT_TORSO]: 12,
+          rightTorsoRear: 4,
+          [MechLocation.LEFT_ARM]: 8,
+          [MechLocation.RIGHT_ARM]: 8,
+          [MechLocation.LEFT_LEG]: 12,
+          [MechLocation.RIGHT_LEG]: 12,
+        },
+      };
+
+      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithNoWaste) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(storeWithNoWaste);
+        }
+        return undefined;
+      });
+
+      render(<ArmorTab />);
+
+      expect(screen.queryByText(/Wasted Armor Points/i)).not.toBeInTheDocument();
+    });
   });
 });
 
