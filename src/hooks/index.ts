@@ -12,3 +12,4 @@ export * from './useTechBaseSync';
 export * from './useTechBaseSyncEffect';
 export * from './useUnitCalculations';
 export * from './useGameStatePersistence';
+export * from './useServiceWorker';

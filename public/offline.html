@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - MekStation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      background: #dc2626;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg {
+      width: 64px;
+      height: 64px;
+      fill: white;
+    }
+
+    h1 {
+      color: #1f2937;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #f59e0b;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .retry {
+      background: #dc2626;
+      color: white;
+    }
+
+    .retry:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    .retry:active {
+      transform: translateY(0);
+    }
+
+    .help {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .help:hover {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+      </svg>
+    </div>
+    <h1>You're Offline</h1>
+    <p>
+      MekStation is currently unavailable due to a network connection issue.
+      Don't worry - your data is safe and will sync when you're back online.
+    </p>
+    <div class="status">
+      <span class="status-dot"></span>
+      <span>Attempting to reconnect...</span>
+    </div>
+    <div class="actions">
+      <button class="retry" onclick="window.location.reload()">
+        Try Again
+      </button>
+      <button class="help" onclick="if (window.caches) { caches.keys().then(keys => keys.forEach(key => caches.delete(key))); window.location.reload(); }">
+        Clear Cache & Reload
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Auto-retry every 10 seconds
+    let retryCount = 0;
+    const maxRetries = 6;
+
+    const checkConnection = () => {
+      if (navigator.onLine) {
+        retryCount++;
+        fetch('/', { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              window.location.reload();
+            }
+          })
+          .catch(() => {
+            if (retryCount < maxRetries) {
+              setTimeout(checkConnection, 10000);
+            }
+          });
+      }
+    };
+
+    // Start checking after 5 seconds
+    setTimeout(checkConnection, 5000);
+
+    // Listen for online event
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
