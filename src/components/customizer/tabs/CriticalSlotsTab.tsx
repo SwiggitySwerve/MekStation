@@ -255,21 +255,21 @@ function CriticalSlotsToolbar({
 }: ToolbarProps) {
   const toggleBtnClass = (active: boolean) => `
     px-3 py-1.5 text-sm font-medium rounded border transition-colors
-    ${active 
-      ? 'bg-teal-600 border-teal-500 text-white' 
-      : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+    ${active
+      ? 'bg-teal-600 border-teal-500 text-white'
+      : 'bg-surface-raised border-border-theme text-slate-300 hover:bg-surface-base'
     }
     ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
   `;
   
   const actionBtnClass = `
     px-4 py-1.5 text-sm font-medium rounded border transition-colors
-    bg-slate-600 border-slate-500 text-white hover:bg-slate-500
+    bg-surface-base border-border-theme-subtle text-white hover:bg-surface-raised
     ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
   `;
   
   return (
-    <div className="flex items-center gap-2 p-3 bg-slate-800 border-b border-slate-700">
+    <div className="flex items-center gap-2 p-3 bg-surface-base border-b border-border-theme-subtle">
       <button onClick={onAutoFillToggle} disabled={readOnly} className={toggleBtnClass(autoFillUnhittables)}>
         Auto Fill Unhittables
       </button>
@@ -280,7 +280,7 @@ function CriticalSlotsToolbar({
         Auto Sort
       </button>
       
-      <div className="w-px h-6 bg-slate-600 mx-2" />
+      <div className="w-px h-6 bg-border-theme mx-2" />
       
       <button onClick={onFill} disabled={readOnly} className={actionBtnClass}>Fill</button>
       <button onClick={onCompact} disabled={readOnly} className={actionBtnClass}>Compact</button>
@@ -288,7 +288,7 @@ function CriticalSlotsToolbar({
       
       <div className="flex-1" />
       
-      <button onClick={onReset} disabled={readOnly} className={`${actionBtnClass} bg-slate-700 hover:bg-red-600`}>
+      <button onClick={onReset} disabled={readOnly} className={`${actionBtnClass} bg-surface-raised hover:bg-red-600`}>
         Reset
       </button>
     </div>
@@ -586,7 +586,7 @@ export function CriticalSlotsTab({
   );
   
   return (
-    <div className={`flex flex-col h-full bg-slate-900 ${className}`}>
+    <div className={`flex flex-col h-full bg-surface-deep ${className}`}>
       {/* Toolbar */}
       <CriticalSlotsToolbar
         autoFillUnhittables={autoModeSettings.autoFillUnhittables}
@@ -641,10 +641,10 @@ export function CriticalSlotsTab({
       
       {/* Selection hint bar at bottom */}
       {selectedEquipment && (
-        <div className="flex-shrink-0 px-4 py-2 bg-slate-800 border-t border-slate-700 text-center">
+        <div className="flex-shrink-0 px-4 py-2 bg-surface-base border-t border-border-theme-subtle text-center">
           <span className="text-sm text-slate-300">
-            Select a slot for: <span className="text-amber-400 font-medium">{selectedEquipment.name}</span>
-            <span className="text-slate-500 ml-2">({selectedEquipment.criticalSlots} slot{selectedEquipment.criticalSlots !== 1 ? 's' : ''})</span>
+            Select a slot for: <span className="text-accent font-medium">{selectedEquipment.name}</span>
+            <span className="text-text-theme-muted ml-2">({selectedEquipment.criticalSlots} slot{selectedEquipment.criticalSlots !== 1 ? 's' : ''})</span>
           </span>
         </div>
       )}

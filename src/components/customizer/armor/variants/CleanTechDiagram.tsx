@@ -251,7 +251,7 @@ export function CleanTechDiagram({
   ];
 
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 p-4 ${className}`}>
+    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export function CleanTechDiagram({
             className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
               isOverAllocated
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-amber-600 hover:bg-amber-500 text-white'
+                : 'bg-accent hover:bg-accent text-white'
             }`}
           >
             Auto Allocate ({unallocatedPoints} pts)
@@ -310,24 +310,24 @@ export function CleanTechDiagram({
       <div className="flex justify-center gap-3 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-green-500" />
-          <span className="text-slate-400">75%+</span>
+          <span className="text-text-theme-secondary">75%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-amber-500" />
-          <span className="text-slate-400">50%+</span>
+          <span className="text-text-theme-secondary">50%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-orange-500" />
-          <span className="text-slate-400">25%+</span>
+          <span className="text-text-theme-secondary">25%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-500" />
-          <span className="text-slate-400">&lt;25%</span>
+          <span className="text-text-theme-secondary">&lt;25%</span>
         </div>
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-slate-400 text-center mt-2">
+      <p className="text-xs text-text-theme-secondary text-center mt-2">
         Click a location to edit armor values
       </p>
     </div>

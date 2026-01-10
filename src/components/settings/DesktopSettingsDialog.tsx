@@ -142,16 +142,16 @@ export function DesktopSettingsDialog({
       
       {/* Startup Settings */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-slate-300">Startup</h4>
+        <h4 className="text-sm font-medium text-text-theme-secondary">Startup</h4>
         
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={localSettings.launchAtLogin}
             onChange={(e) => updateLocalSetting('launchAtLogin', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
           />
-          <span className="text-sm text-slate-300">Launch at login</span>
+          <span className="text-sm text-text-theme-secondary">Launch at login</span>
         </label>
         
         <label className="flex items-center gap-3 cursor-pointer">
@@ -159,9 +159,9 @@ export function DesktopSettingsDialog({
             type="checkbox"
             checked={localSettings.startMinimized}
             onChange={(e) => updateLocalSetting('startMinimized', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
           />
-          <span className="text-sm text-slate-300">Start minimized to system tray</span>
+          <span className="text-sm text-text-theme-secondary">Start minimized to system tray</span>
         </label>
         
         <label className="flex items-center gap-3 cursor-pointer">
@@ -169,43 +169,43 @@ export function DesktopSettingsDialog({
             type="checkbox"
             checked={localSettings.reopenLastUnit}
             onChange={(e) => updateLocalSetting('reopenLastUnit', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
           />
-          <span className="text-sm text-slate-300">Reopen last unit on startup</span>
+          <span className="text-sm text-text-theme-secondary">Reopen last unit on startup</span>
         </label>
       </div>
 
       {/* Window Settings */}
-      <div className="space-y-3 pt-4 border-t border-slate-700">
-        <h4 className="text-sm font-medium text-slate-300">Window</h4>
+      <div className="space-y-3 pt-4 border-t border-border-theme-subtle">
+        <h4 className="text-sm font-medium text-text-theme-secondary">Window</h4>
         
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={localSettings.rememberWindowState}
             onChange={(e) => updateLocalSetting('rememberWindowState', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
           />
-          <span className="text-sm text-slate-300">Remember window position and size</span>
+          <span className="text-sm text-text-theme-secondary">Remember window position and size</span>
         </label>
       </div>
 
       {/* Default Directory */}
-      <div className="space-y-2 pt-4 border-t border-slate-700">
-        <h4 className="text-sm font-medium text-slate-300">Default Save Directory</h4>
+      <div className="space-y-2 pt-4 border-t border-border-theme-subtle">
+        <h4 className="text-sm font-medium text-text-theme-secondary">Default Save Directory</h4>
         <div className="flex gap-2">
           <input
             type="text"
             value={localSettings.defaultSaveDirectory}
             onChange={(e) => updateLocalSetting('defaultSaveDirectory', e.target.value)}
             placeholder="Default save location"
-            className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white placeholder-slate-400"
+            className="flex-1 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white placeholder-text-theme-secondary"
           />
           <Button variant="secondary" size="sm" onClick={() => handleSelectDirectory('defaultSaveDirectory')}>
             Browse
           </Button>
         </div>
-        <p className="text-xs text-slate-400">Leave empty to use system default</p>
+        <p className="text-xs text-text-theme-secondary">Leave empty to use system default</p>
       </div>
     </div>
   );
@@ -220,14 +220,14 @@ export function DesktopSettingsDialog({
           type="checkbox"
           checked={localSettings.enableAutoBackup}
           onChange={(e) => updateLocalSetting('enableAutoBackup', e.target.checked)}
-          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+          className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
         />
-        <span className="text-sm text-slate-300">Enable automatic backups</span>
+        <span className="text-sm text-text-theme-secondary">Enable automatic backups</span>
       </label>
 
       {/* Backup Interval */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300">
+        <label className="text-sm font-medium text-text-theme-secondary">
           Backup interval (minutes)
         </label>
         <input
@@ -237,13 +237,13 @@ export function DesktopSettingsDialog({
           value={localSettings.backupIntervalMinutes}
           onChange={(e) => updateLocalSetting('backupIntervalMinutes', parseInt(e.target.value) || 5)}
           disabled={!localSettings.enableAutoBackup}
-          className="w-24 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white disabled:opacity-50"
+          className="w-24 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white disabled:opacity-50"
         />
       </div>
 
       {/* Max Backups */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300">
+        <label className="text-sm font-medium text-text-theme-secondary">
           Maximum backups to keep
         </label>
         <input
@@ -252,26 +252,26 @@ export function DesktopSettingsDialog({
           max={100}
           value={localSettings.maxBackupCount}
           onChange={(e) => updateLocalSetting('maxBackupCount', parseInt(e.target.value) || 10)}
-          className="w-24 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white"
+          className="w-24 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white"
         />
       </div>
 
       {/* Backup Directory */}
-      <div className="space-y-2 pt-4 border-t border-slate-700">
-        <label className="text-sm font-medium text-slate-300">Backup Directory</label>
+      <div className="space-y-2 pt-4 border-t border-border-theme-subtle">
+        <label className="text-sm font-medium text-text-theme-secondary">Backup Directory</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={localSettings.backupDirectory}
             onChange={(e) => updateLocalSetting('backupDirectory', e.target.value)}
             placeholder="Default backup location"
-            className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white placeholder-slate-400"
+            className="flex-1 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white placeholder-text-theme-secondary"
           />
           <Button variant="secondary" size="sm" onClick={() => handleSelectDirectory('backupDirectory')}>
             Browse
           </Button>
         </div>
-        <p className="text-xs text-slate-400">Leave empty to use default location</p>
+        <p className="text-xs text-text-theme-secondary">Leave empty to use default location</p>
       </div>
     </div>
   );
@@ -286,29 +286,29 @@ export function DesktopSettingsDialog({
           type="checkbox"
           checked={localSettings.checkForUpdatesAutomatically}
           onChange={(e) => updateLocalSetting('checkForUpdatesAutomatically', e.target.checked)}
-          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+          className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
         />
-        <span className="text-sm text-slate-300">Check for updates automatically</span>
+        <span className="text-sm text-text-theme-secondary">Check for updates automatically</span>
       </label>
 
       {/* Update Channel */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300">Update Channel</label>
+        <label className="text-sm font-medium text-text-theme-secondary">Update Channel</label>
         <select
           value={localSettings.updateChannel}
           onChange={(e) => updateLocalSetting('updateChannel', e.target.value as UpdateChannel)}
-          className="w-40 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white"
+          className="w-40 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white"
         >
           <option value="stable">Stable</option>
           <option value="beta">Beta</option>
         </select>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-text-theme-secondary">
           Beta channel receives updates earlier but may be less stable
         </p>
       </div>
 
       {/* Check Now Button */}
-      <div className="pt-4 border-t border-slate-700">
+      <div className="pt-4 border-t border-border-theme-subtle">
         <Button 
           variant="secondary" 
           onClick={async () => {
@@ -330,25 +330,25 @@ export function DesktopSettingsDialog({
       
       {/* Data Directory */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300">Data Directory</label>
+        <label className="text-sm font-medium text-text-theme-secondary">Data Directory</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={localSettings.dataDirectory}
             onChange={(e) => updateLocalSetting('dataDirectory', e.target.value)}
             placeholder="Default data location"
-            className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white placeholder-slate-400"
+            className="flex-1 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white placeholder-text-theme-secondary"
           />
           <Button variant="secondary" size="sm" onClick={() => handleSelectDirectory('dataDirectory')}>
             Browse
           </Button>
         </div>
-        <p className="text-xs text-slate-400">Leave empty to use default location</p>
+        <p className="text-xs text-text-theme-secondary">Leave empty to use default location</p>
       </div>
 
       {/* Max Recent Files */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300">
+        <label className="text-sm font-medium text-text-theme-secondary">
           Maximum recent files
         </label>
         <input
@@ -357,26 +357,26 @@ export function DesktopSettingsDialog({
           max={50}
           value={localSettings.maxRecentFiles}
           onChange={(e) => updateLocalSetting('maxRecentFiles', parseInt(e.target.value) || 15)}
-          className="w-24 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-sm text-white"
+          className="w-24 px-3 py-2 bg-surface-raised border border-border-theme rounded text-sm text-white"
         />
       </div>
 
       {/* Developer Tools */}
-      <div className="pt-4 border-t border-slate-700">
+      <div className="pt-4 border-t border-border-theme-subtle">
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={localSettings.enableDevTools}
             onChange={(e) => updateLocalSetting('enableDevTools', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent"
           />
-          <span className="text-sm text-slate-300">Enable developer tools in production</span>
+          <span className="text-sm text-text-theme-secondary">Enable developer tools in production</span>
         </label>
       </div>
 
       {/* Cache Management */}
-      <div className="pt-4 border-t border-slate-700 space-y-3">
-        <h4 className="text-sm font-medium text-slate-300">Cache Management</h4>
+      <div className="pt-4 border-t border-border-theme-subtle space-y-3">
+        <h4 className="text-sm font-medium text-text-theme-secondary">Cache Management</h4>
         <div className="flex items-center gap-3">
           <Button 
             variant="secondary" 
@@ -396,7 +396,7 @@ export function DesktopSettingsDialog({
           >
             Clear Cache
           </Button>
-          <span className="text-xs text-slate-400">Remove temporary files and cached data</span>
+          <span className="text-xs text-text-theme-secondary">Remove temporary files and cached data</span>
         </div>
       </div>
 
@@ -426,11 +426,11 @@ export function DesktopSettingsDialog({
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-theme-subtle">
           <h2 className="text-xl font-semibold text-white">Preferences</h2>
           <button
             onClick={handleClose}
-            className="p-1 text-slate-400 hover:text-white rounded"
+            className="p-1 text-text-theme-secondary hover:text-white rounded"
             disabled={isSaving}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -442,15 +442,15 @@ export function DesktopSettingsDialog({
         {/* Content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Tab Navigation */}
-          <div className="w-40 bg-slate-900/50 border-r border-slate-700 py-2">
+          <div className="w-40 bg-surface-deep/50 border-r border-border-theme-subtle py-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-amber-500/20 text-amber-400 border-r-2 border-amber-500'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-accent/20 text-accent border-r-2 border-accent'
+                    : 'text-text-theme-secondary hover:text-white hover:bg-surface-base'
                 }`}
               >
                 {tab.label}
@@ -462,7 +462,7 @@ export function DesktopSettingsDialog({
           <div className="flex-1 overflow-y-auto p-6">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-slate-400">Loading settings...</div>
+                <div className="text-text-theme-secondary">Loading settings...</div>
               </div>
             ) : (
               <>
@@ -476,9 +476,9 @@ export function DesktopSettingsDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-700">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-theme-subtle">
           {hasChanges && (
-            <span className="text-xs text-amber-400 mr-auto">Unsaved changes</span>
+            <span className="text-xs text-accent mr-auto">Unsaved changes</span>
           )}
           <Button variant="secondary" onClick={handleClose} disabled={isSaving}>
             Cancel

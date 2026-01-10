@@ -273,9 +273,9 @@ export function StructureTab({
               </div>
             )}
           </div>
-          <div className={`${cs.layout.statRow} sm:${cs.layout.dividerV} pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-700`}>
+          <div className={`${cs.layout.statRow} sm:${cs.layout.dividerV} pt-2 sm:pt-0 border-t sm:border-t-0 border-border-theme-subtle`}>
             <span className={`text-sm ${cs.text.label}`}>Total:</span>
-            <span className="text-lg font-bold text-amber-400">{calculations.totalStructuralWeight}t</span>
+            <span className="text-lg font-bold text-accent">{calculations.totalStructuralWeight}t</span>
           </div>
         </div>
       </div>
@@ -403,13 +403,13 @@ export function StructureTab({
             <div className={cs.layout.divider}>
               <div className={cs.layout.rowBetween}>
                 <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
-                <span className={`text-sm ${isAtMaxEngineRating ? 'text-amber-400 font-bold' : cs.text.valueHighlight}`}>
+                <span className={`text-sm ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.valueHighlight}`}>
                   {engineRating}{isAtMaxEngineRating && ' (MAX)'}
                 </span>
               </div>
               {isAtMaxEngineRating && (
-                <p className="text-xs text-amber-400 mt-1">
-                  ⚠️ Maximum engine rating of {MAX_ENGINE_RATING} reached. Cannot increase Walk MP further.
+                <p className="text-xs text-accent mt-1">
+                  Warning: Maximum engine rating of {MAX_ENGINE_RATING} reached. Cannot increase Walk MP further.
                 </p>
               )}
             </div>
@@ -465,19 +465,19 @@ export function StructureTab({
               
               {/* Heat Sink Summary */}
               <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <div className="bg-slate-900/50 rounded p-2">
+                <div className="bg-surface-deep/50 rounded p-2">
                   <div className={`text-lg font-bold ${cs.text.valuePositive}`}>{calculations.integralHeatSinks}</div>
-                  <div className="text-[10px] text-slate-500">Free</div>
+                  <div className="text-[10px] text-text-theme-muted">Free</div>
                 </div>
-                <div className="bg-slate-900/50 rounded p-2">
+                <div className="bg-surface-deep/50 rounded p-2">
                   <div className={`text-lg font-bold ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}>
                     {calculations.externalHeatSinks}
                   </div>
-                  <div className="text-[10px] text-slate-500">External</div>
+                  <div className="text-[10px] text-text-theme-muted">External</div>
                 </div>
-                <div className="bg-slate-900/50 rounded p-2">
+                <div className="bg-surface-deep/50 rounded p-2">
                   <div className={`text-lg font-bold ${cs.text.valueHighlight}`}>{calculations.totalHeatDissipation}</div>
-                  <div className="text-[10px] text-slate-500">Dissipation</div>
+                  <div className="text-[10px] text-text-theme-muted">Dissipation</div>
                 </div>
               </div>
             </div>
@@ -653,7 +653,7 @@ export function StructureTab({
                     <>
                       Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty = net +1 MP.
                       <br />
-                      <span className="text-amber-400">Doubles physical attack damage.</span>
+                      <span className="text-accent">Doubles physical attack damage.</span>
                     </>
                   )}
                 </p>

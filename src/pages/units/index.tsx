@@ -368,7 +368,7 @@ export default function UnitsListPage(): React.ReactElement {
             <Button
               variant="ghost"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={`flex-1 text-xs ${hasAdvancedFilters ? 'text-amber-400' : ''}`}
+              className={`flex-1 text-xs ${hasAdvancedFilters ? 'text-accent' : ''}`}
             >
               {showAdvancedFilters ? '▼' : '▶'} Filters
               {hasAdvancedFilters && ' •'}
@@ -381,11 +381,11 @@ export default function UnitsListPage(): React.ReactElement {
 
         {/* Advanced Filters Panel */}
         {showAdvancedFilters && (
-          <div className="mt-4 pt-4 border-t border-slate-700">
+          <div className="mt-4 pt-4 border-t border-border-theme-subtle">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Year Range */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
                   Design Year
                 </label>
                 <div className="flex items-center gap-2">
@@ -398,7 +398,7 @@ export default function UnitsListPage(): React.ReactElement {
                     min={2000}
                     max={3150}
                   />
-                  <span className="text-slate-500">–</span>
+                  <span className="text-text-theme-muted">–</span>
                   <Input
                     type="number"
                     placeholder="Max"
@@ -413,7 +413,7 @@ export default function UnitsListPage(): React.ReactElement {
 
               {/* Tonnage Range */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
                   Tonnage
                 </label>
                 <div className="flex items-center gap-2">
@@ -427,7 +427,7 @@ export default function UnitsListPage(): React.ReactElement {
                     max={200}
                     step={5}
                   />
-                  <span className="text-slate-500">–</span>
+                  <span className="text-text-theme-muted">–</span>
                   <Input
                     type="number"
                     placeholder="Max"
@@ -443,7 +443,7 @@ export default function UnitsListPage(): React.ReactElement {
 
               {/* BV Range */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
                   Battle Value
                 </label>
                 <div className="flex items-center gap-2">
@@ -457,7 +457,7 @@ export default function UnitsListPage(): React.ReactElement {
                     max={5000}
                     step={50}
                   />
-                  <span className="text-slate-500">–</span>
+                  <span className="text-text-theme-muted">–</span>
                   <Input
                     type="number"
                     placeholder="Max"
@@ -475,17 +475,17 @@ export default function UnitsListPage(): React.ReactElement {
         )}
 
         {/* Results Count */}
-        <div className="mt-4 flex items-center justify-between text-sm text-slate-400">
+        <div className="mt-4 flex items-center justify-between text-sm text-text-theme-secondary">
           <div>
             Showing {displayedUnits.length} of {filteredUnits.length} results
             {filteredUnits.length !== units.length && (
-              <span className="text-amber-400 ml-2">
+              <span className="text-accent ml-2">
                 (filtered from {units.length.toLocaleString()} total)
               </span>
             )}
           </div>
           {hasAdvancedFilters && (
-            <div className="text-xs text-amber-400/70">
+            <div className="text-xs text-accent/70">
               Advanced filters active
             </div>
           )}
@@ -496,8 +496,8 @@ export default function UnitsListPage(): React.ReactElement {
       <Card variant="dark" className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px]">
-            <thead className="bg-slate-800">
-              <tr className="text-left text-slate-400 text-xs uppercase tracking-wide">
+            <thead className="bg-surface-base">
+              <tr className="text-left text-text-theme-secondary text-xs uppercase tracking-wide">
                 <SortableHeader
                   label="Chassis"
                   column="chassis"
@@ -578,10 +578,10 @@ export default function UnitsListPage(): React.ReactElement {
                 />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/50">
+            <tbody className="divide-y divide-border-theme-subtle/50">
               {displayedUnits.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-slate-400">
+                  <td colSpan={10} className="px-3 py-8 text-center text-text-theme-secondary">
                     No units found matching your filters
                   </td>
                 </tr>
@@ -589,22 +589,22 @@ export default function UnitsListPage(): React.ReactElement {
                 displayedUnits.map((unit) => (
                   <tr
                     key={unit.id}
-                    className="hover:bg-slate-700/30 transition-colors"
+                    className="hover:bg-surface-raised/30 transition-colors"
                   >
                     <td className="px-3 py-2">
                       <Link href={`/units/${unit.id}`} className="group">
-                        <span className="font-medium text-sm text-white group-hover:text-amber-400 transition-colors whitespace-nowrap">
+                        <span className="font-medium text-sm text-text-theme-primary group-hover:text-accent transition-colors whitespace-nowrap">
                           {unit.chassis}
                         </span>
                       </Link>
                     </td>
-                    <td className="px-3 py-2 text-slate-300 text-sm whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-theme-primary/80 text-sm whitespace-nowrap">
                       {unit.variant}
                     </td>
-                    <td className="px-3 py-2 text-slate-300 font-mono text-sm text-right">
+                    <td className="px-3 py-2 text-text-theme-primary/80 font-mono text-sm text-right">
                       {unit.tonnage} t
                     </td>
-                    <td className="px-3 py-2 text-slate-400 font-mono text-sm text-right">
+                    <td className="px-3 py-2 text-text-theme-secondary font-mono text-sm text-right">
                       {unit.year ?? '—'}
                     </td>
                     <td className="px-3 py-2">
@@ -613,16 +613,16 @@ export default function UnitsListPage(): React.ReactElement {
                     <td className="px-3 py-2">
                       <TechBaseBadge techBase={unit.techBase} />
                     </td>
-                    <td className="px-3 py-2 text-slate-400 text-sm whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-theme-secondary text-sm whitespace-nowrap">
                       {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
                     </td>
-                    <td className="px-3 py-2 text-slate-400 text-xs font-mono whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-theme-secondary text-xs font-mono whitespace-nowrap">
                       {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ?? unit.rulesLevel ?? '—'}
                     </td>
-                    <td className="px-3 py-2 text-slate-300 text-xs font-mono text-right whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-theme-primary/80 text-xs font-mono text-right whitespace-nowrap">
                       {unit.cost ? `${(unit.cost / 1000000).toPrecision(3)}M` : '—'}
                     </td>
-                    <td className="px-3 py-2 text-amber-400 text-xs font-mono text-right whitespace-nowrap font-medium">
+                    <td className="px-3 py-2 text-accent text-xs font-mono text-right whitespace-nowrap font-medium">
                       {unit.bv?.toLocaleString() ?? '—'}
                     </td>
                   </tr>
@@ -670,13 +670,13 @@ function SortableHeader({
 
   return (
     <th
-      className={`px-3 py-2 font-medium cursor-pointer hover:text-white transition-colors select-none ${className}`}
+      className={`px-3 py-2 font-medium cursor-pointer hover:text-text-theme-primary transition-colors select-none ${className}`}
       onClick={() => onSort(column)}
     >
       <span className={`flex items-center gap-1 ${isRightAligned ? 'justify-end' : ''}`}>
         {label}
         {isActive && (
-          <span className="text-amber-400 text-[10px]">
+          <span className="text-accent text-[10px]">
             {direction === 'asc' ? '▲' : '▼'}
           </span>
         )}

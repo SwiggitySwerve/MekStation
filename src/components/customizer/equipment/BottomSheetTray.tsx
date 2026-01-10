@@ -172,7 +172,7 @@ function DragHandle({ onDragStart, onDragMove, onDragEnd }: DragHandleProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-10 h-1 bg-slate-500 rounded-full" />
+      <div className="w-10 h-1 bg-text-theme-secondary rounded-full" />
     </div>
   );
 }
@@ -194,9 +194,9 @@ function SheetEquipmentItem({ item, isSelected, onSelect, onRemove }: SheetEquip
   return (
     <div
       className={`
-        px-3 py-2 flex items-center gap-2 rounded-lg border border-slate-700/50
+        px-3 py-2 flex items-center gap-2 rounded-lg border border-border-theme-subtle/50
         ${colors.bg}
-        ${isSelected ? 'ring-2 ring-amber-400 ring-inset' : ''}
+        ${isSelected ? 'ring-2 ring-accent ring-inset' : ''}
         active:brightness-110 transition-all min-h-[44px]
       `}
       onClick={onSelect}
@@ -214,7 +214,7 @@ function SheetEquipmentItem({ item, isSelected, onSelect, onRemove }: SheetEquip
             e.stopPropagation();
             onRemove();
           }}
-          className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors"
+          className="w-6 h-6 flex items-center justify-center text-text-theme-secondary hover:text-red-400 transition-colors"
         >
           <span className="text-sm">x</span>
         </button>
@@ -351,7 +351,7 @@ export function BottomSheetTray({
     <div
       className={`
         fixed bottom-0 left-0 right-0 z-40
-        bg-slate-800 border-t border-slate-600 rounded-t-2xl
+        bg-surface-base border-t border-border-theme rounded-t-2xl
         shadow-2xl transition-all duration-300 ease-out
         ${isDragging ? 'transition-none' : ''}
         ${className}
@@ -376,13 +376,13 @@ export function BottomSheetTray({
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-white">Loadout</span>
-            <span className="bg-amber-600 text-white text-xs rounded-full px-2 py-0.5">
+            <span className="bg-accent text-white text-xs rounded-full px-2 py-0.5">
               {equipmentCount}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-text-theme-secondary">
             <span>{unallocated.length} unassigned</span>
-            <span className="text-slate-600">|</span>
+            <span className="text-border-theme">|</span>
             <span className="text-slate-500">Tap to expand</span>
           </div>
         </div>
@@ -392,10 +392,10 @@ export function BottomSheetTray({
       {sheetState !== 'collapsed' && (
         <div className="flex flex-col h-full overflow-hidden">
           {/* Header */}
-          <div className="flex-shrink-0 px-4 py-2 border-b border-slate-700 flex items-center justify-between">
+          <div className="flex-shrink-0 px-4 py-2 border-b border-border-theme-subtle flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-white">Loadout</h3>
-              <span className="bg-slate-700 text-slate-300 text-xs rounded-full px-2 py-0.5">
+              <span className="bg-surface-raised text-text-theme-secondary text-xs rounded-full px-2 py-0.5">
                 {equipmentCount}
               </span>
             </div>
@@ -428,7 +428,7 @@ export function BottomSheetTray({
                 {/* Unallocated Section */}
                 {unallocated.length > 0 && (
                   <div>
-                    <div className="text-xs font-medium text-amber-400 uppercase tracking-wider mb-2">
+                    <div className="text-xs font-medium text-accent uppercase tracking-wider mb-2">
                       Unallocated ({unallocated.length})
                     </div>
                     <div className="space-y-1">
@@ -481,15 +481,15 @@ export function BottomSheetTray({
 
           {/* Selection Info Footer */}
           {selectedEquipmentId && (
-            <div className="flex-shrink-0 px-4 py-2 border-t border-slate-700 bg-slate-700/50">
-              <div className="text-xs text-slate-400">Selected for placement</div>
-              <div className="text-sm text-amber-400 font-medium truncate">
+            <div className="flex-shrink-0 px-4 py-2 border-t border-border-theme-subtle bg-surface-raised/50">
+              <div className="text-xs text-text-theme-secondary">Selected for placement</div>
+              <div className="text-sm text-accent font-medium truncate">
                 {equipment.find((e) => e.instanceId === selectedEquipmentId)?.name}
               </div>
               {onUnassignEquipment && (
                 <button
                   onClick={() => onUnassignEquipment(selectedEquipmentId)}
-                  className="mt-1 text-xs text-slate-400 hover:text-amber-400 transition-colors"
+                  className="mt-1 text-xs text-text-theme-secondary hover:text-accent transition-colors"
                 >
                   Unassign
                 </button>

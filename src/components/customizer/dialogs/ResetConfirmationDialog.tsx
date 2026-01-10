@@ -148,7 +148,7 @@ export function ResetConfirmationDialog({
         {/* Step: Select Option */}
         {step === 'select' && (
           <div className="space-y-4">
-            <p className="text-sm text-slate-400">Choose what to reset:</p>
+            <p className="text-sm text-text-theme-secondary">Choose what to reset:</p>
             
             {options.map((option) => (
               <button
@@ -157,16 +157,16 @@ export function ResetConfirmationDialog({
                 className={`w-full p-4 rounded-lg border text-left transition-colors ${
                   selectedOption.id === option.id
                     ? 'border-blue-500 bg-blue-900/20'
-                    : 'border-slate-600 hover:border-slate-500'
+                    : 'border-border-theme hover:border-border-theme-subtle'
                 }`}
               >
                 <div className="font-medium text-white">{option.title}</div>
-                <div className="text-sm text-slate-400 mt-1">{option.description}</div>
+                <div className="text-sm text-text-theme-secondary mt-1">{option.description}</div>
               </button>
             ))}
             
             {/* Impact preview */}
-            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-700">
+            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border-theme-subtle">
               <div>
                 <h4 className="text-sm font-medium text-red-400 mb-2">What Gets Removed</h4>
                 <ul className="space-y-1">
@@ -198,7 +198,7 @@ export function ResetConfirmationDialog({
           <div className="py-6 text-center">
             <div className="text-4xl mb-4">⚠️</div>
             <h3 className="text-lg font-medium text-white mb-2">Are you sure?</h3>
-            <p className="text-slate-400">
+            <p className="text-text-theme-secondary">
               This will {selectedOption.title.toLowerCase()}. This action cannot be undone.
             </p>
           </div>
@@ -208,15 +208,15 @@ export function ResetConfirmationDialog({
         {step === 'progress' && (
           <div className="py-6">
             <div className="text-center mb-4">
-              <div className="text-slate-400">Resetting...</div>
+              <div className="text-text-theme-secondary">Resetting...</div>
             </div>
-            <div className="w-full bg-slate-700 rounded-full h-2">
+            <div className="w-full bg-surface-raised rounded-full h-2">
               <div
-                className="bg-amber-500 h-2 rounded-full transition-all"
+                className="bg-accent h-2 rounded-full transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="text-center mt-2 text-sm text-slate-400">
+            <div className="text-center mt-2 text-sm text-text-theme-secondary">
               {progress}%
             </div>
           </div>
@@ -229,13 +229,13 @@ export function ResetConfirmationDialog({
               <>
                 <div className="text-4xl mb-4">❌</div>
                 <h3 className="text-lg font-medium text-red-400 mb-2">Reset Failed</h3>
-                <p className="text-slate-400">{error}</p>
+                <p className="text-text-theme-secondary">{error}</p>
               </>
             ) : (
               <>
                 <div className="text-4xl mb-4">✅</div>
                 <h3 className="text-lg font-medium text-green-400 mb-2">Reset Complete</h3>
-                <p className="text-slate-400">Configuration has been reset successfully.</p>
+                <p className="text-text-theme-secondary">Configuration has been reset successfully.</p>
               </>
             )}
           </div>

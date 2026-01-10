@@ -50,11 +50,11 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
   const isOverHeat = stats.heatGenerated > stats.heatDissipation;
   
   return (
-    <div className={`bg-slate-800 border-t border-slate-700 px-4 py-2 ${className}`}>
+    <div className={`bg-surface-base border-t border-border-theme-subtle px-4 py-2 ${className}`}>
       <div className="flex items-center justify-between gap-6 text-sm">
         {/* Weight */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400">Weight:</span>
+          <span className="text-text-theme-secondary">Weight:</span>
           <span className={isOverWeight ? 'text-red-400 font-medium' : 'text-white'}>
             {stats.weightUsed.toFixed(1)} / {stats.weightMax}t
           </span>
@@ -68,7 +68,7 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
         
         {/* Slots */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400">Free Slots:</span>
+          <span className="text-text-theme-secondary">Free Slots:</span>
           <span className={isOverSlots ? 'text-red-400 font-medium' : 'text-white'}>
             {stats.slotsUsed} / {stats.slotsTotal}
           </span>
@@ -84,7 +84,7 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
         
         {/* Heat */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400">Heat:</span>
+          <span className="text-text-theme-secondary">Heat:</span>
           <span className={isOverHeat ? 'text-amber-400 font-medium' : 'text-white'}>
             {stats.heatGenerated} / {stats.heatDissipation}
           </span>

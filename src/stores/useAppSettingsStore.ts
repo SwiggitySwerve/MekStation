@@ -44,15 +44,30 @@ export type FontSize = 'small' | 'medium' | 'large';
 export type AnimationLevel = 'full' | 'reduced' | 'none';
 
 /**
- * App settings state
+ * Appearance settings that support live preview with save/revert
  */
-export interface AppSettingsState {
-  // Appearance
+export interface AppearanceSettings {
   accentColor: AccentColor;
   fontSize: FontSize;
   animationLevel: AnimationLevel;
   compactMode: boolean;
   uiTheme: UITheme;
+}
+
+/**
+ * App settings state
+ */
+export interface AppSettingsState {
+  // Appearance (persisted)
+  accentColor: AccentColor;
+  fontSize: FontSize;
+  animationLevel: AnimationLevel;
+  compactMode: boolean;
+  uiTheme: UITheme;
+
+  // Draft appearance for live preview (not persisted)
+  draftAppearance: AppearanceSettings | null;
+  hasUnsavedAppearance: boolean;
 
   // Customizer preferences
   armorDiagramVariant: ArmorDiagramVariant;
@@ -67,12 +82,29 @@ export interface AppSettingsState {
   highContrast: boolean;
   reduceMotion: boolean;
 
-  // Actions
+  // Actions for persisted settings (immediate save)
   setAccentColor: (color: AccentColor) => void;
   setFontSize: (size: FontSize) => void;
   setAnimationLevel: (level: AnimationLevel) => void;
   setCompactMode: (compact: boolean) => void;
   setUITheme: (theme: UITheme) => void;
+
+  // Draft actions for live preview (requires explicit save)
+  setDraftAccentColor: (color: AccentColor) => void;
+  setDraftFontSize: (size: FontSize) => void;
+  setDraftAnimationLevel: (level: AnimationLevel) => void;
+  setDraftCompactMode: (compact: boolean) => void;
+  setDraftUITheme: (theme: UITheme) => void;
+  saveAppearance: () => void;
+  revertAppearance: () => void;
+  initDraftAppearance: () => void;
+
+  // Getters for effective (draft or saved) appearance
+  getEffectiveAccentColor: () => AccentColor;
+  getEffectiveUITheme: () => UITheme;
+  getEffectiveFontSize: () => FontSize;
+
+  // Other actions
   setArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
   setShowArmorDiagramSelector: (show: boolean) => void;
   setSidebarDefaultCollapsed: (collapsed: boolean) => void;
@@ -83,13 +115,26 @@ export interface AppSettingsState {
   resetToDefaults: () => void;
 }
 
-const DEFAULT_SETTINGS: Omit<AppSettingsState, 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed' | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults'> = {
+/** Keys that are action functions, not state */
+type ActionKeys =
+  | 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme'
+  | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
+  | 'saveAppearance' | 'revertAppearance' | 'initDraftAppearance'
+  | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
+  | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
+  | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults';
+
+const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   // Appearance
   accentColor: 'amber',
   fontSize: 'medium',
   animationLevel: 'full',
   compactMode: false,
   uiTheme: 'default',
+
+  // Draft state (not persisted)
+  draftAppearance: null,
+  hasUnsavedAppearance: false,
 
   // Customizer preferences
   armorDiagramVariant: 'clean-tech',
@@ -110,14 +155,135 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, 'setAccentColor' | 'setFontSize' 
  */
 export const useAppSettingsStore = create<AppSettingsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...DEFAULT_SETTINGS,
 
+      // Direct setters (immediately persisted) - used for non-appearance settings
       setAccentColor: (color) => set({ accentColor: color }),
       setFontSize: (size) => set({ fontSize: size }),
       setAnimationLevel: (level) => set({ animationLevel: level }),
       setCompactMode: (compact) => set({ compactMode: compact }),
       setUITheme: (theme) => set({ uiTheme: theme }),
+
+      // Draft setters for live preview (not persisted until save)
+      setDraftAccentColor: (color) => set((state) => ({
+        draftAppearance: {
+          ...(state.draftAppearance ?? {
+            accentColor: state.accentColor,
+            fontSize: state.fontSize,
+            animationLevel: state.animationLevel,
+            compactMode: state.compactMode,
+            uiTheme: state.uiTheme,
+          }),
+          accentColor: color,
+        },
+        hasUnsavedAppearance: true,
+      })),
+
+      setDraftFontSize: (size) => set((state) => ({
+        draftAppearance: {
+          ...(state.draftAppearance ?? {
+            accentColor: state.accentColor,
+            fontSize: state.fontSize,
+            animationLevel: state.animationLevel,
+            compactMode: state.compactMode,
+            uiTheme: state.uiTheme,
+          }),
+          fontSize: size,
+        },
+        hasUnsavedAppearance: true,
+      })),
+
+      setDraftAnimationLevel: (level) => set((state) => ({
+        draftAppearance: {
+          ...(state.draftAppearance ?? {
+            accentColor: state.accentColor,
+            fontSize: state.fontSize,
+            animationLevel: state.animationLevel,
+            compactMode: state.compactMode,
+            uiTheme: state.uiTheme,
+          }),
+          animationLevel: level,
+        },
+        hasUnsavedAppearance: true,
+      })),
+
+      setDraftCompactMode: (compact) => set((state) => ({
+        draftAppearance: {
+          ...(state.draftAppearance ?? {
+            accentColor: state.accentColor,
+            fontSize: state.fontSize,
+            animationLevel: state.animationLevel,
+            compactMode: state.compactMode,
+            uiTheme: state.uiTheme,
+          }),
+          compactMode: compact,
+        },
+        hasUnsavedAppearance: true,
+      })),
+
+      setDraftUITheme: (theme) => set((state) => ({
+        draftAppearance: {
+          ...(state.draftAppearance ?? {
+            accentColor: state.accentColor,
+            fontSize: state.fontSize,
+            animationLevel: state.animationLevel,
+            compactMode: state.compactMode,
+            uiTheme: state.uiTheme,
+          }),
+          uiTheme: theme,
+        },
+        hasUnsavedAppearance: true,
+      })),
+
+      // Initialize draft with current saved values (call when entering settings)
+      initDraftAppearance: () => set((state) => ({
+        draftAppearance: {
+          accentColor: state.accentColor,
+          fontSize: state.fontSize,
+          animationLevel: state.animationLevel,
+          compactMode: state.compactMode,
+          uiTheme: state.uiTheme,
+        },
+        hasUnsavedAppearance: false,
+      })),
+
+      // Save draft to persisted state
+      saveAppearance: () => set((state) => {
+        if (!state.draftAppearance) return state;
+        return {
+          accentColor: state.draftAppearance.accentColor,
+          fontSize: state.draftAppearance.fontSize,
+          animationLevel: state.draftAppearance.animationLevel,
+          compactMode: state.draftAppearance.compactMode,
+          uiTheme: state.draftAppearance.uiTheme,
+          hasUnsavedAppearance: false,
+        };
+      }),
+
+      // Revert draft to saved state (call when leaving settings without save)
+      revertAppearance: () => set({
+        draftAppearance: null,
+        hasUnsavedAppearance: false,
+      }),
+
+      // Getters for effective appearance (draft if exists, otherwise saved)
+      getEffectiveAccentColor: () => {
+        const state = get();
+        return state.draftAppearance?.accentColor ?? state.accentColor;
+      },
+
+      getEffectiveUITheme: () => {
+        const state = get();
+        return state.draftAppearance?.uiTheme ?? state.uiTheme;
+      },
+
+      getEffectiveFontSize: () => {
+        const state = get();
+        return state.draftAppearance?.fontSize ?? state.fontSize;
+      },
+
+      // Other settings (immediately persisted)
       setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
       setShowArmorDiagramSelector: (show) => set({ showArmorDiagramSelector: show }),
       setSidebarDefaultCollapsed: (collapsed) => set({ sidebarDefaultCollapsed: collapsed }),
@@ -126,10 +292,29 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       setHighContrast: (enabled) => set({ highContrast: enabled }),
       setReduceMotion: (enabled) => set({ reduceMotion: enabled }),
 
-      resetToDefaults: () => set(DEFAULT_SETTINGS),
+      resetToDefaults: () => set({
+        ...DEFAULT_SETTINGS,
+        draftAppearance: null,
+        hasUnsavedAppearance: false,
+      }),
     }),
     {
       name: 'mekstation-app-settings',
+      // Don't persist draft state
+      partialize: (state) => ({
+        accentColor: state.accentColor,
+        fontSize: state.fontSize,
+        animationLevel: state.animationLevel,
+        compactMode: state.compactMode,
+        uiTheme: state.uiTheme,
+        armorDiagramVariant: state.armorDiagramVariant,
+        showArmorDiagramSelector: state.showArmorDiagramSelector,
+        sidebarDefaultCollapsed: state.sidebarDefaultCollapsed,
+        confirmOnClose: state.confirmOnClose,
+        showTooltips: state.showTooltips,
+        highContrast: state.highContrast,
+        reduceMotion: state.reduceMotion,
+      }),
     }
   )
 );

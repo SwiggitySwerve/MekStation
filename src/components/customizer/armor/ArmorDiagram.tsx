@@ -57,7 +57,7 @@ export function ArmorDiagram({
   const isOverAllocated = unallocatedPoints < 0;
   
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 p-4 ${className}`}>
+    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
@@ -211,7 +211,7 @@ export function ArmorDiagram({
       <ArmorLegend className="mt-4" />
       
       {/* Instructions */}
-      <p className="text-xs text-slate-400 text-center mt-2">
+      <p className="text-xs text-text-theme-secondary text-center mt-2">
         Click a location to edit armor values
       </p>
     </div>

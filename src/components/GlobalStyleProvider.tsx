@@ -3,6 +3,9 @@
  *
  * Connects app settings to CSS custom properties and theme classes.
  * Wrap your app with this component to enable dynamic styling.
+ *
+ * Uses "effective" values which are draft values (for live preview)
+ * if they exist, otherwise uses saved/persisted values.
  */
 
 'use client';
@@ -23,10 +26,19 @@ export function GlobalStyleProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const accentColor = useAppSettingsStore((s) => s.accentColor);
-  const fontSize = useAppSettingsStore((s) => s.fontSize);
-  const uiTheme = useAppSettingsStore((s) => s.uiTheme);
+  // Use saved values as base
+  const savedAccentColor = useAppSettingsStore((s) => s.accentColor);
+  const savedFontSize = useAppSettingsStore((s) => s.fontSize);
+  const savedUITheme = useAppSettingsStore((s) => s.uiTheme);
   const reduceMotion = useAppSettingsStore((s) => s.reduceMotion);
+
+  // Use draft values for live preview if they exist
+  const draftAppearance = useAppSettingsStore((s) => s.draftAppearance);
+
+  // Effective values: draft if exists, otherwise saved
+  const accentColor = draftAppearance?.accentColor ?? savedAccentColor;
+  const fontSize = draftAppearance?.fontSize ?? savedFontSize;
+  const uiTheme = draftAppearance?.uiTheme ?? savedUITheme;
 
   useEffect(() => {
     const root = document.documentElement;

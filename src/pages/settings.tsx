@@ -2,10 +2,16 @@
  * Settings Page
  *
  * App configuration and preferences.
+ *
+ * Appearance settings use a draft/preview system:
+ * - Changes are applied immediately for live preview
+ * - Changes are NOT persisted until the user clicks "Save"
+ * - Navigating away without saving reverts to previous values
  */
 
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { PageLayout } from '@/components/ui/PageLayout';
 import {
   useAppSettingsStore,
@@ -252,7 +258,61 @@ function UIThemePicker({
 
 
 export default function SettingsPage() {
+  const router = useRouter();
+
+  // Get store actions and state
+  const initDraftAppearance = useAppSettingsStore((s) => s.initDraftAppearance);
+  const saveAppearance = useAppSettingsStore((s) => s.saveAppearance);
+  const revertAppearance = useAppSettingsStore((s) => s.revertAppearance);
+  const hasUnsavedAppearance = useAppSettingsStore((s) => s.hasUnsavedAppearance);
+
+  // Get draft values for display (or saved values if no draft)
+  const draftAppearance = useAppSettingsStore((s) => s.draftAppearance);
+  const savedAccentColor = useAppSettingsStore((s) => s.accentColor);
+  const savedUITheme = useAppSettingsStore((s) => s.uiTheme);
+  const savedFontSize = useAppSettingsStore((s) => s.fontSize);
+  const savedAnimationLevel = useAppSettingsStore((s) => s.animationLevel);
+  const savedCompactMode = useAppSettingsStore((s) => s.compactMode);
+
+  // Effective values for display
+  const effectiveAccentColor = draftAppearance?.accentColor ?? savedAccentColor;
+  const effectiveUITheme = draftAppearance?.uiTheme ?? savedUITheme;
+  const effectiveFontSize = draftAppearance?.fontSize ?? savedFontSize;
+  const effectiveAnimationLevel = draftAppearance?.animationLevel ?? savedAnimationLevel;
+  const effectiveCompactMode = draftAppearance?.compactMode ?? savedCompactMode;
+
+  // Draft setters for live preview
+  const setDraftAccentColor = useAppSettingsStore((s) => s.setDraftAccentColor);
+  const setDraftUITheme = useAppSettingsStore((s) => s.setDraftUITheme);
+  const setDraftFontSize = useAppSettingsStore((s) => s.setDraftFontSize);
+  const setDraftAnimationLevel = useAppSettingsStore((s) => s.setDraftAnimationLevel);
+  const setDraftCompactMode = useAppSettingsStore((s) => s.setDraftCompactMode);
+
+  // Other settings (not draft-based)
   const settings = useAppSettingsStore();
+
+  // Initialize draft state on mount
+  useEffect(() => {
+    initDraftAppearance();
+  }, [initDraftAppearance]);
+
+  // Handle save
+  const handleSaveAppearance = useCallback(() => {
+    saveAppearance();
+  }, [saveAppearance]);
+
+  // Revert on unmount if there are unsaved changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      // Revert appearance changes when navigating away
+      revertAppearance();
+    };
+
+    router.events.on('routeChangeStart', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [router.events, revertAppearance]);
 
   return (
     <>
@@ -269,23 +329,23 @@ export default function SettingsPage() {
           {/* Appearance Section */}
           <SettingsSection
             title="Appearance"
-            description="Customize colors, fonts, and visual effects"
+            description="Customize colors, fonts, and visual effects. Changes preview instantly but require saving."
           >
             <UIThemePicker
-              value={settings.uiTheme}
-              onChange={settings.setUITheme}
+              value={effectiveUITheme}
+              onChange={setDraftUITheme}
             />
 
             <AccentColorPicker
-              value={settings.accentColor}
-              onChange={settings.setAccentColor}
+              value={effectiveAccentColor}
+              onChange={setDraftAccentColor}
             />
 
             <Select<FontSize>
               label="Font Size"
               description="Base font size for the application"
-              value={settings.fontSize}
-              onChange={settings.setFontSize}
+              value={effectiveFontSize}
+              onChange={setDraftFontSize}
               options={[
                 { value: 'small', label: 'Small (14px)' },
                 { value: 'medium', label: 'Medium (16px)' },
@@ -296,8 +356,8 @@ export default function SettingsPage() {
             <Select<AnimationLevel>
               label="Animation Level"
               description="Control the amount of motion and transitions"
-              value={settings.animationLevel}
-              onChange={settings.setAnimationLevel}
+              value={effectiveAnimationLevel}
+              onChange={setDraftAnimationLevel}
               options={[
                 { value: 'full', label: 'Full - All animations enabled' },
                 { value: 'reduced', label: 'Reduced - Essential animations only' },
@@ -308,9 +368,31 @@ export default function SettingsPage() {
             <Toggle
               label="Compact Mode"
               description="Reduce spacing and padding for more information density"
-              checked={settings.compactMode}
-              onChange={settings.setCompactMode}
+              checked={effectiveCompactMode}
+              onChange={setDraftCompactMode}
             />
+
+            {/* Save Button */}
+            <div className="pt-4 border-t border-border-theme-subtle">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-text-theme-secondary">
+                  {hasUnsavedAppearance
+                    ? 'You have unsaved appearance changes'
+                    : 'Appearance settings saved'}
+                </div>
+                <button
+                  onClick={handleSaveAppearance}
+                  disabled={!hasUnsavedAppearance}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    hasUnsavedAppearance
+                      ? 'bg-accent hover:bg-accent-hover text-white'
+                      : 'bg-surface-raised text-text-theme-muted cursor-not-allowed'
+                  }`}
+                >
+                  Save Appearance
+                </button>
+              </div>
+            </div>
           </SettingsSection>
 
           {/* Customizer Section */}

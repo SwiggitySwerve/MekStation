@@ -254,7 +254,7 @@ export default function CompendiumPage(): React.ReactElement {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep">
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Header with spaced-letter title */}
         <header className="text-center mb-12">
@@ -265,13 +265,13 @@ export default function CompendiumPage(): React.ReactElement {
           {/* Search bar */}
           <div className="max-w-md mx-auto">
             <div className="relative">
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-theme-secondary" />
               <input
                 type="text"
                 placeholder="Search the Compendium..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full pl-12 pr-4 py-3 bg-surface-base/50 border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-secondary focus:outline-none focus:border-accent transition-colors"
               />
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function CompendiumPage(): React.ReactElement {
             {/* Back button */}
             <button
               onClick={() => setSelectedSection(null)}
-              className="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors mb-6"
+              className="inline-flex items-center gap-2 text-text-theme-secondary hover:text-accent transition-colors mb-6"
             >
               <BackIcon />
               <span>Back to Categories</span>
@@ -292,11 +292,11 @@ export default function CompendiumPage(): React.ReactElement {
 
             {/* Section content */}
             <section
-              className="bg-slate-800/30 border border-slate-700 rounded-xl overflow-hidden"
+              className="bg-surface-base/30 border border-border-theme-subtle rounded-xl overflow-hidden"
               aria-labelledby={`${activeSectionData.id}-title`}
             >
               {/* Section Header with accent color */}
-              <div className={`px-6 py-5 border-b ${accentColorStyles[activeSectionData.accentColor].border} bg-slate-800/50`}>
+              <div className={`px-6 py-5 border-b ${accentColorStyles[activeSectionData.accentColor].border} bg-surface-base/50`}>
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-lg ${accentColorStyles[activeSectionData.accentColor].bg} ${accentColorStyles[activeSectionData.accentColor].text}`}>
                     {activeSectionData.icon}
@@ -314,17 +314,17 @@ export default function CompendiumPage(): React.ReactElement {
               </div>
 
               {/* Section Items */}
-              <div className="divide-y divide-slate-700/50">
+              <div className="divide-y divide-border-theme-subtle/50">
                 {activeSectionData.items.map((item, index) => (
-                  <article key={index} className="px-6 py-5 hover:bg-slate-800/30 transition-colors">
+                  <article key={index} className="px-6 py-5 hover:bg-surface-base/30 transition-colors">
                     <h3 className={`font-semibold ${accentColorStyles[activeSectionData.accentColor].text} mb-2`}>
                       {item.title}
                     </h3>
-                    <p className="text-slate-300 text-sm leading-relaxed">
+                    <p className="text-text-theme-primary/80 text-sm leading-relaxed">
                       {item.content}
                     </p>
                     {item.formula && (
-                      <div className="mt-3 inline-block px-3 py-1.5 bg-slate-700/50 rounded-lg font-mono text-sm text-cyan-400 border border-slate-600/50">
+                      <div className="mt-3 inline-block px-3 py-1.5 bg-surface-raised/50 rounded-lg font-mono text-sm text-cyan-400 border border-border-theme/50">
                         {item.formula}
                       </div>
                     )}
@@ -356,10 +356,10 @@ export default function CompendiumPage(): React.ReactElement {
             {/* Empty state when search yields no results */}
             {filteredSections.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-slate-400">No sections match your search.</p>
+                <p className="text-text-theme-secondary">No sections match your search.</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="mt-4 text-amber-400 hover:text-amber-300 transition-colors"
+                  className="mt-4 text-accent hover:text-accent/80 transition-colors"
                 >
                   Clear search
                 </button>
@@ -368,23 +368,23 @@ export default function CompendiumPage(): React.ReactElement {
 
             {/* Quick Reference Stats */}
             <Card variant="dark" className="mt-8">
-              <h3 className="text-category-label text-slate-400 mb-4">Quick Reference</h3>
+              <h3 className="text-category-label text-text-theme-secondary mb-4">Quick Reference</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="bg-slate-700/30 rounded-lg p-3">
-                  <div className="text-slate-400">Total Critical Slots</div>
-                  <div className="text-2xl font-bold text-white mt-1">78</div>
+                <div className="bg-surface-raised/30 rounded-lg p-3">
+                  <div className="text-text-theme-secondary">Total Critical Slots</div>
+                  <div className="text-2xl font-bold text-text-theme-primary mt-1">78</div>
                 </div>
-                <div className="bg-slate-700/30 rounded-lg p-3">
-                  <div className="text-slate-400">Min Heat Sinks</div>
-                  <div className="text-2xl font-bold text-white mt-1">10</div>
+                <div className="bg-surface-raised/30 rounded-lg p-3">
+                  <div className="text-text-theme-secondary">Min Heat Sinks</div>
+                  <div className="text-2xl font-bold text-text-theme-primary mt-1">10</div>
                 </div>
-                <div className="bg-slate-700/30 rounded-lg p-3">
-                  <div className="text-slate-400">Max Head Armor</div>
-                  <div className="text-2xl font-bold text-white mt-1">9</div>
+                <div className="bg-surface-raised/30 rounded-lg p-3">
+                  <div className="text-text-theme-secondary">Max Head Armor</div>
+                  <div className="text-2xl font-bold text-text-theme-primary mt-1">9</div>
                 </div>
-                <div className="bg-slate-700/30 rounded-lg p-3">
-                  <div className="text-slate-400">Structure Weight</div>
-                  <div className="text-2xl font-bold text-white mt-1">10%</div>
+                <div className="bg-surface-raised/30 rounded-lg p-3">
+                  <div className="text-text-theme-secondary">Structure Weight</div>
+                  <div className="text-2xl font-bold text-text-theme-primary mt-1">10%</div>
                 </div>
               </div>
             </Card>
@@ -393,7 +393,7 @@ export default function CompendiumPage(): React.ReactElement {
 
         {/* Footer */}
         <footer className="mt-16 text-center">
-          <p className="text-slate-500 text-sm">
+          <p className="text-text-theme-muted text-sm">
             Rules reference based on BattleTech TechManual.
             <br />
             For complete rules, consult the official rulebooks.

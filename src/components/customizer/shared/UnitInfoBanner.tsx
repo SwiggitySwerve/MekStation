@@ -76,7 +76,7 @@ interface UnitInfoBannerProps {
 // =============================================================================
 
 const styles = {
-  label: 'text-[10px] font-medium text-slate-400 uppercase tracking-wider',
+  label: 'text-[10px] font-medium text-text-theme-secondary uppercase tracking-wider',
   value: {
     normal: 'text-white',
     warning: 'text-amber-400',
@@ -199,16 +199,16 @@ export function UnitInfoBanner({
     stats.heatGenerated === stats.heatDissipation ? 'warning' : 'success';
   
   return (
-    <div className={`bg-slate-800 border border-slate-700 rounded-lg ${className}`}>
+    <div className={`bg-surface-base border border-border-theme-subtle rounded-lg ${className}`}>
       {/* Responsive container - stack on mobile, flex row on larger screens */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch">
         {/* Section 1: Identity + Validation - full width on mobile */}
-        <div className="w-full sm:w-auto px-4 py-2 border-b sm:border-r border-slate-700">
+        <div className="w-full sm:w-auto px-4 py-2 border-b sm:border-r border-border-theme-subtle">
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-lg font-bold text-white whitespace-nowrap">{stats.name}</h2>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                <span className="text-sm text-slate-400">{stats.tonnage} tons</span>
+                <span className="text-sm text-text-theme-secondary">{stats.tonnage} tons</span>
                 <TechBaseBadge techBaseMode={stats.techBaseMode} />
                 <ValidationBadge 
                   status={stats.validationStatus}
@@ -221,7 +221,7 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 2: Movement Stats */}
-        <div className="px-4 py-2 flex items-center justify-center gap-4 border-b sm:border-b-0 sm:border-r border-slate-700">
+        <div className="px-4 py-2 flex items-center justify-center gap-4 border-b sm:border-b-0 sm:border-r border-border-theme-subtle">
           <MovementStat 
             walkMP={stats.walkMP} 
             runMP={stats.runMP} 
@@ -231,7 +231,7 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 3: Capacity Stats - grows to fill available space, wraps on mobile */}
-        <div className="flex-1 px-4 py-2 flex flex-wrap items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-0 sm:min-w-[380px]">
+        <div className="flex-1 px-4 py-2 flex flex-wrap items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-border-theme-subtle min-w-0 sm:min-w-[380px]">
           <SimpleStat 
             label="BV"
             value={stats.battleValue?.toLocaleString() ?? '-'}
@@ -275,7 +275,7 @@ export function UnitInfoBanner({
             {onReset && (
               <button
                 onClick={onReset}
-                className="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors"
+                className="px-3 py-1.5 text-sm bg-surface-raised hover:bg-slate-600 text-slate-300 rounded transition-colors"
               >
                 Reset
               </button>
@@ -283,7 +283,7 @@ export function UnitInfoBanner({
             {onDebug && (
               <button
                 onClick={onDebug}
-                className="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors"
+                className="px-3 py-1.5 text-sm bg-surface-raised hover:bg-slate-600 text-slate-300 rounded transition-colors"
               >
                 Debug
               </button>

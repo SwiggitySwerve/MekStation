@@ -58,13 +58,13 @@ export function NewTabModal({
       onClick={handleOverlayClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface-base rounded-lg border border-border-theme-subtle shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-theme-subtle sticky top-0 bg-surface-base z-10">
           <h2 className="text-lg font-semibold text-white">Create New Unit</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="text-text-theme-secondary hover:text-white transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -73,7 +73,7 @@ export function NewTabModal({
         </div>
         
         {/* Mode tabs */}
-        <div className="flex border-b border-slate-700">
+        <div className="flex border-b border-border-theme-subtle">
           {(['new', 'copy', 'import'] as CreationMode[]).map((m) => (
             <button
               key={m}
@@ -81,7 +81,7 @@ export function NewTabModal({
               className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                 mode === m
                   ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised'
               }`}
             >
               {m === 'new' && 'New Unit'}
@@ -108,11 +108,11 @@ export function NewTabModal({
                       className={`p-3 rounded-lg border text-left transition-colors ${
                         selectedTemplate.id === template.id
                           ? 'border-blue-500 bg-blue-900/30'
-                          : 'border-slate-600 hover:border-slate-500'
+                          : 'border-border-theme hover:border-border-theme-subtle'
                       }`}
                     >
                       <div className="text-sm font-medium text-white">{template.name}</div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-text-theme-secondary">
                         {template.tonnage}t • {template.walkMP}/{Math.ceil(template.walkMP * 1.5)}/{template.jumpMP} MP
                       </div>
                     </button>
@@ -131,7 +131,7 @@ export function NewTabModal({
                     className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                       techBase === TechBase.INNER_SPHERE
                         ? 'border-blue-500 bg-blue-900/30 text-blue-300'
-                        : 'border-slate-600 text-slate-400 hover:border-slate-500'
+                        : 'border-border-theme text-text-theme-secondary hover:border-border-theme-subtle'
                     }`}
                   >
                     Inner Sphere
@@ -141,7 +141,7 @@ export function NewTabModal({
                     className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                       techBase === TechBase.CLAN
                         ? 'border-green-500 bg-green-900/30 text-green-300'
-                        : 'border-slate-600 text-slate-400 hover:border-slate-500'
+                        : 'border-border-theme text-text-theme-secondary hover:border-border-theme-subtle'
                     }`}
                   >
                     Clan
@@ -152,14 +152,14 @@ export function NewTabModal({
           )}
           
           {mode === 'copy' && (
-            <div className="py-8 text-center text-slate-400">
+            <div className="py-8 text-center text-text-theme-secondary">
               <p>Creates a copy of the currently active unit.</p>
               <p className="text-sm mt-2">Select this option when you want to create a variant.</p>
             </div>
           )}
-          
+
           {mode === 'import' && (
-            <div className="py-8 text-center text-slate-400">
+            <div className="py-8 text-center text-text-theme-secondary">
               <p>Import from MTF, SSW, or MegaMek formats.</p>
               <p className="text-sm mt-2">(Coming soon)</p>
             </div>
@@ -167,7 +167,7 @@ export function NewTabModal({
         </div>
         
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-4 py-3 border-t border-slate-700">
+        <div className="flex justify-end gap-2 px-4 py-3 border-t border-border-theme-subtle">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
@@ -177,7 +177,7 @@ export function NewTabModal({
           <button
             onClick={handleCreate}
             disabled={mode === 'import'}
-            className="px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Create Unit
           </button>

@@ -62,13 +62,13 @@ export function EquipmentBrowser({
   
   if (error) {
     return (
-      <div className={`bg-slate-800 rounded-lg border border-slate-700 p-4 ${className}`}>
+      <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
         <div className="text-center py-8">
           <div className="text-red-400 mb-2">Failed to load equipment</div>
-          <p className="text-sm text-slate-400 mb-4">{error}</p>
+          <p className="text-sm text-text-theme-secondary mb-4">{error}</p>
           <button
             onClick={refresh}
-            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+            className="px-4 py-2 bg-accent hover:bg-accent/80 text-white rounded transition-colors"
           >
             Retry
           </button>
@@ -78,14 +78,14 @@ export function EquipmentBrowser({
   }
   
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 flex flex-col ${className}`}>
+    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle flex flex-col ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-slate-700">
+      <div className="px-4 py-3 border-b border-border-theme-subtle">
         <h3 className="text-lg font-semibold text-white">Equipment Database</h3>
       </div>
-      
+
       {/* Toggle Filters */}
-      <div className="px-4 py-2 space-y-2 border-b border-slate-700 bg-slate-800/50">
+      <div className="px-4 py-2 space-y-2 border-b border-border-theme-subtle bg-surface-base/50">
         {/* Category toggles */}
         <CategoryToggleBar
           activeCategories={activeCategories}
@@ -108,20 +108,20 @@ export function EquipmentBrowser({
         
         {/* Unit context info - shows when filtering by availability */}
         {hideUnavailable && (unitYear || unitTechBase) && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 px-1">
+          <div className="flex items-center gap-2 text-xs text-text-theme-secondary px-1">
             <span className="text-slate-500">Filtering:</span>
             {unitYear && (
-              <span className="bg-slate-700 px-2 py-0.5 rounded">Year ≤ {unitYear}</span>
+              <span className="bg-surface-raised px-2 py-0.5 rounded">Year ≤ {unitYear}</span>
             )}
             {unitTechBase && (
-              <span className="bg-slate-700 px-2 py-0.5 rounded">{unitTechBase}</span>
+              <span className="bg-surface-raised px-2 py-0.5 rounded">{unitTechBase}</span>
             )}
           </div>
         )}
         
         {/* Text filter */}
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline text-xs text-slate-400">Filter:</span>
+          <span className="hidden sm:inline text-xs text-text-theme-secondary">Filter:</span>
           <div className="flex-1 relative">
             <input
               type="text"
@@ -129,12 +129,12 @@ export function EquipmentBrowser({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search equipment..."
               inputMode="search"
-              className="w-full px-3 py-2 sm:py-1.5 text-sm bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full px-3 py-2 sm:py-1.5 text-sm bg-surface-raised border border-border-theme rounded text-white placeholder-text-theme-secondary focus:outline-none focus:ring-1 focus:ring-accent"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-text-theme-secondary hover:text-white"
                 title="Clear search"
               >
                 ✕
@@ -144,7 +144,7 @@ export function EquipmentBrowser({
           {(search || !showAllCategories || hidePrototype || hideOneShot || hideAmmoWithoutWeapon) && (
             <button
               onClick={clearFilters}
-              className="px-3 py-2 sm:px-2 sm:py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors whitespace-nowrap"
+              className="px-3 py-2 sm:px-2 sm:py-1 text-xs bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded transition-colors whitespace-nowrap"
             >
               Clear
             </button>
@@ -156,12 +156,12 @@ export function EquipmentBrowser({
       <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="p-8 text-center">
-            <div className="animate-pulse text-slate-400">Loading equipment...</div>
+            <div className="animate-pulse text-text-theme-secondary">Loading equipment...</div>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-800">
-              <tr className="text-left text-xs text-slate-400 uppercase border-b border-slate-700">
+            <thead className="sticky top-0 bg-surface-base">
+              <tr className="text-left text-xs text-text-theme-secondary uppercase border-b border-border-theme-subtle">
                 <SortableHeader
                   label="Name"
                   column="name"
@@ -192,7 +192,7 @@ export function EquipmentBrowser({
             <tbody>
               {paginatedEquipment.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-3 py-8 text-center text-text-theme-secondary">
                     No equipment found
                   </td>
                 </tr>
@@ -212,8 +212,8 @@ export function EquipmentBrowser({
       </div>
       
       {/* Pagination */}
-      <div className="px-4 py-2 border-t border-slate-700 flex items-center justify-between">
-        <div className="text-xs text-slate-400">
+      <div className="px-4 py-2 border-t border-border-theme-subtle flex items-center justify-between">
+        <div className="text-xs text-text-theme-secondary">
           {paginatedEquipment.length} of {totalItems}
         </div>
         <PaginationButtons
@@ -254,7 +254,7 @@ function SortableHeader({
       <span className="flex items-center gap-1">
         {label}
         {isActive && (
-          <span className="text-amber-400 text-[10px]">
+          <span className="text-accent text-[10px]">
             {direction === 'asc' ? '▲' : '▼'}
           </span>
         )}
