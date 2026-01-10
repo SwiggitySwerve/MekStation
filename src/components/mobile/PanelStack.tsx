@@ -169,7 +169,7 @@ export function PanelStack({
 
   // Extract panel children
   const panelChildren = React.Children.toArray(children).filter(
-    (child): child is React.ReactElement => {
+    (child): child is React.ReactElement<PanelProps> => {
       return React.isValidElement(child) && child.type === Panel;
     }
   );
@@ -177,7 +177,7 @@ export function PanelStack({
   // Create map of panel IDs to elements
   const panelMap = new Map<string, ReactNode>();
   panelChildren.forEach((child) => {
-    const panelId = child.props.id as string | undefined;
+    const panelId = child.props.id;
     if (panelId) {
       panelMap.set(panelId, child.props.children);
     }

@@ -9,7 +9,7 @@ export interface InstallPromptProps {
   className?: string;
 }
 
-export function InstallPrompt({ className = '' }: InstallPromptProps): React.ReactElement {
+export function InstallPrompt({ className = '' }: InstallPromptProps): React.ReactElement | null {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -21,8 +21,8 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
       return;
     }
 
-    // Check if running as PWA
-    if (window.navigator.standalone === true) {
+    // Check if running as PWA (Safari-specific property)
+    if ((navigator as Navigator & { standalone?: boolean }).standalone === true) {
       setIsInstalled(true);
       return;
     }

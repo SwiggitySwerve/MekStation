@@ -64,7 +64,7 @@ export function CriticalSlot({
         #{slot.index + 1}
       </div>
 
-      {hasEquipment ? (
+      {hasEquipment && slot.equipment ? (
         <>
           {/* Equipment icon */}
           <div className="flex items-center justify-center h-12 mb-1">
