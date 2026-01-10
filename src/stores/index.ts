@@ -20,3 +20,6 @@ export { useTabManagerStore } from './useTabManagerStore';
 export type { TabInfo, TabManagerState } from './useTabManagerStore';
 export { UnitStoreProvider, useHasUnitStore } from './UnitStoreProvider';
 
+// App settings
+export * from './useAppSettingsStore';
+
