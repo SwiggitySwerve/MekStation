@@ -17,9 +17,12 @@ export interface ArmorData {
   max: Record<ArmorLocationKey, number>;
 }
 
+export type ArmorAllocationType = 'even' | 'front-weighted' | 'rear-weighted';
+
 export interface ArmorDiagramProps {
   armor: ArmorData;
   onArmorChange: (location: ArmorLocationKey, value: number, facing: 'front' | 'rear') => void;
+  onAutoAllocate?: (type: ArmorAllocationType) => void;
   className?: string;
 }
 
@@ -34,11 +37,17 @@ const LOCATION_LABELS: Record<ArmorLocationKey, string> = {
   rightLeg: 'Right Leg',
 };
 
-export function ArmorDiagram({ armor, onArmorChange, className = '' }: ArmorDiagramProps): React.ReactElement {
+export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className = '' }: ArmorDiagramProps): React.ReactElement {
   const [facing, setFacing] = useState<'front' | 'rear'>('front');
+  const [allocationType, setAllocationType] = useState<ArmorAllocationType>('even');
 
   const handleArmorChange = (location: ArmorLocationKey, value: number) => {
     onArmorChange(location, value, facing);
+  };
+
+  const handleAutoAllocate = (type: ArmorAllocationType) => {
+    setAllocationType(type);
+    onAutoAllocate?.(type);
   };
 
   return (
@@ -72,6 +81,34 @@ export function ArmorDiagram({ armor, onArmorChange, className = '' }: ArmorDiag
           </button>
         </div>
       </div>
+
+      {/* Auto-Allocate Dropdown */}
+      {onAutoAllocate && (
+        <div className="mb-4">
+          <label htmlFor="auto-allocate-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Auto-Allocate Armor
+          </label>
+          <div className="flex gap-2">
+            <select
+              id="auto-allocate-select"
+              value={allocationType}
+              onChange={(e) => setAllocationType(e.target.value as ArmorAllocationType)}
+              className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm min-h-[44px]"
+            >
+              <option value="even">Even Distribution</option>
+              <option value="front-weighted">Front-Weighted</option>
+              <option value="rear-weighted">Rear-Weighted</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => handleAutoAllocate(allocationType)}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors min-h-[44px] min-w-[44px]"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Desktop Silhouette Layout (CSS Grid) */}
       <div className="hidden lg:grid armor-diagram-grid" style={{

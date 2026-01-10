@@ -393,4 +393,95 @@ describe('ArmorDiagram', () => {
       expect(screen.getAllByText('45 / 90')).toHaveLength(2); // Right Leg
     });
   });
+
+  describe('Auto-Allocate Feature', () => {
+    it('should not show auto-allocate dropdown when onAutoAllocate is not provided', () => {
+      const { container } = render(<ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} />);
+      expect(container.querySelector('#auto-allocate-select')).not.toBeInTheDocument();
+    });
+
+    it('should show auto-allocate dropdown when onAutoAllocate is provided', () => {
+      const mockAutoAllocate = jest.fn();
+      const { container } = render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+      expect(container.querySelector('#auto-allocate-select')).toBeInTheDocument();
+    });
+
+    it('should display all allocation options', () => {
+      const mockAutoAllocate = jest.fn();
+      render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      expect(screen.getByText('Even Distribution')).toBeInTheDocument();
+      expect(screen.getByText('Front-Weighted')).toBeInTheDocument();
+      expect(screen.getByText('Rear-Weighted')).toBeInTheDocument();
+    });
+
+    it('should call onAutoAllocate with even type when Apply is clicked', () => {
+      const mockAutoAllocate = jest.fn();
+      render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      const applyButton = screen.getByText('Apply');
+      fireEvent.click(applyButton);
+
+      expect(mockAutoAllocate).toHaveBeenCalledWith('even');
+    });
+
+    it('should call onAutoAllocate with front-weighted type when selected and Apply is clicked', () => {
+      const mockAutoAllocate = jest.fn();
+      render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      const select = screen.getByLabelText('Auto-Allocate Armor');
+      fireEvent.change(select, { target: { value: 'front-weighted' } });
+
+      const applyButton = screen.getByText('Apply');
+      fireEvent.click(applyButton);
+
+      expect(mockAutoAllocate).toHaveBeenCalledWith('front-weighted');
+    });
+
+    it('should call onAutoAllocate with rear-weighted type when selected and Apply is clicked', () => {
+      const mockAutoAllocate = jest.fn();
+      render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      const select = screen.getByLabelText('Auto-Allocate Armor');
+      fireEvent.change(select, { target: { value: 'rear-weighted' } });
+
+      const applyButton = screen.getByText('Apply');
+      fireEvent.click(applyButton);
+
+      expect(mockAutoAllocate).toHaveBeenCalledWith('rear-weighted');
+    });
+
+    it('should have 44x44px minimum touch targets on apply button', () => {
+      const mockAutoAllocate = jest.fn();
+      const { container } = render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      const applyButton = screen.getByText('Apply');
+      expect(applyButton).toHaveClass('min-h-[44px]');
+    });
+
+    it('should have proper label association', () => {
+      const mockAutoAllocate = jest.fn();
+      render(
+        <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
+      );
+
+      const label = screen.getByText('Auto-Allocate Armor');
+      const select = screen.getByLabelText('Auto-Allocate Armor');
+
+      expect(label).toBeInTheDocument();
+      expect(select).toBeInTheDocument();
+    });
+  });
 });
