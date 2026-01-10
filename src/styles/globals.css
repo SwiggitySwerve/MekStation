@@ -3,12 +3,30 @@
 :root {
   --background: #f3f4f6;
   --foreground: #1e293b;
-  
+
   /* Global Scrollbar Theme Variables */
   --scrollbar-thumb: #d1d5db;
   --scrollbar-thumb-hover: #9ca3af;
   --scrollbar-track: #f3f4f6;
   --scrollbar-width: 8px;
+
+  /* Armor Diagram Status Colors */
+  --armor-healthy: #22c55e;
+  --armor-moderate: #f59e0b;
+  --armor-low: #f97316;
+  --armor-critical: #ef4444;
+  --armor-selected: #3b82f6;
+  --armor-selected-stroke: #60a5fa;
+
+  /* Standard Transition Durations */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+
+  /* Surface/Container Backgrounds */
+  --surface-base: #1e293b;      /* slate-800 */
+  --surface-deep: #0f172a;      /* slate-900 */
+  --surface-raised: #334155;    /* slate-700 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -958,4 +976,235 @@ button:disabled {
     width: 44px;
     height: 44px;
   }
+}
+
+/* ========================================
+   OPACITY STANDARDS
+   ======================================== */
+/*
+ * Standard opacity levels for backgrounds:
+ * - /30 - Subtle, barely visible (empty states, disabled)
+ * - /40 - Light, understated (default cards)
+ * - /50 - Standard (most common, default containers)
+ * - /60 - Emphasized (hover states, active)
+ * - /70 - Strong (selected, focused)
+ *
+ * Usage examples:
+ * - bg-slate-800/50 - Default card background
+ * - bg-slate-800/30 - Darker/deeper card variant
+ * - bg-slate-800/60 - Hover state for /50 backgrounds
+ */
+
+/* ========================================
+   ARMOR DIAGRAM STYLES
+   ======================================== */
+
+/* Status indicator dots */
+.status-dot {
+  @apply w-2.5 h-2.5 rounded-full;
+}
+
+.status-dot-healthy {
+  background-color: var(--armor-healthy);
+}
+
+.status-dot-moderate {
+  background-color: var(--armor-moderate);
+}
+
+.status-dot-low {
+  background-color: var(--armor-low);
+}
+
+.status-dot-critical {
+  background-color: var(--armor-critical);
+}
+
+.status-dot-glow {
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* Diagram containers (variant-specific) */
+.diagram-container {
+  @apply bg-slate-800 rounded-lg border border-slate-700 p-4;
+}
+
+.diagram-container-neon {
+  @apply bg-slate-900 rounded-lg border border-cyan-500/30 p-5;
+}
+
+.diagram-container-tactical {
+  @apply bg-slate-900 rounded-lg border border-slate-700 p-4;
+}
+
+.diagram-container-premium {
+  @apply rounded-2xl border border-slate-700 p-5;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* Diagram headers */
+.diagram-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.diagram-title {
+  @apply text-lg font-semibold text-white;
+}
+
+.diagram-title-neon {
+  @apply text-lg font-semibold text-cyan-400;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+.diagram-title-tactical {
+  @apply text-sm font-mono font-bold text-slate-300 tracking-wider;
+}
+
+/* Diagram legends */
+.diagram-legend {
+  @apply flex justify-center items-center gap-3 mt-4 text-xs;
+}
+
+.diagram-legend-item {
+  @apply flex items-center gap-1.5;
+}
+
+/* Diagram instructions */
+.diagram-instructions {
+  @apply text-xs text-slate-400 text-center mt-2;
+}
+
+.diagram-instructions-neon {
+  @apply text-xs text-cyan-600/50 text-center mt-3;
+}
+
+.diagram-instructions-tactical {
+  @apply text-xs text-slate-600 font-mono text-center mt-3;
+}
+
+/* ========================================
+   VALUE/STAT DISPLAY STYLES
+   ======================================== */
+
+/* Value colors for StatDisplay, status bars */
+.value-positive {
+  @apply text-green-400 font-medium;
+}
+
+.value-negative {
+  @apply text-red-400 font-medium;
+}
+
+.value-warning {
+  @apply text-amber-400 font-medium;
+}
+
+.value-neutral {
+  @apply text-white font-medium;
+}
+
+.value-muted {
+  @apply text-slate-400;
+}
+
+/* Inline status indicators */
+.status-valid {
+  @apply text-green-400;
+}
+
+.status-warning {
+  @apply text-amber-400;
+}
+
+.status-error {
+  @apply text-red-400;
+}
+
+.status-info {
+  @apply text-blue-400;
+}
+
+/* ========================================
+   INTERACTIVE FOCUS STATES
+   ======================================== */
+
+/* Base focus ring style */
+.focus-ring-base {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900;
+}
+
+/* Accent-colored focus rings (for use with accent color system) */
+.focus-ring-amber {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500;
+}
+
+.focus-ring-cyan {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-cyan-500;
+}
+
+.focus-ring-emerald {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-emerald-500;
+}
+
+.focus-ring-violet {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-violet-500;
+}
+
+.focus-ring-blue {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500;
+}
+
+/* ========================================
+   HOVER STATE PATTERNS
+   ======================================== */
+
+/* Standard hover patterns documented */
+.hover-brighten {
+  @apply hover:bg-slate-800/60 hover:border-slate-600;
+}
+
+.hover-lift {
+  @apply hover:-translate-y-0.5 transition-transform;
+}
+
+.hover-glow {
+  @apply hover:shadow-lg hover:shadow-amber-900/10;
+}
+
+.hover-glow-cyan {
+  @apply hover:shadow-lg hover:shadow-cyan-900/20;
+}
+
+/* ========================================
+   DIAGRAM BUTTON VARIANTS
+   ======================================== */
+
+/* Base diagram button */
+.diagram-btn {
+  @apply px-3 py-1.5 text-sm font-medium rounded transition-colors;
+}
+
+/* Clean Tech variant button */
+.diagram-btn-clean {
+  @apply bg-amber-600 hover:bg-amber-500 text-white;
+}
+
+/* Neon Operator variant button */
+.diagram-btn-neon {
+  @apply bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20;
+}
+
+/* Tactical HUD variant button */
+.diagram-btn-tactical {
+  @apply bg-transparent border border-amber-600 text-amber-400 hover:bg-amber-900/30 font-mono;
+}
+
+/* Premium Material variant button */
+.diagram-btn-premium {
+  @apply bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30 rounded-full;
+}
+
+/* Error state for all diagram buttons */
+.diagram-btn-error {
+  @apply bg-red-600 hover:bg-red-500 text-white;
 }

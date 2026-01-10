@@ -53,6 +53,28 @@ const config: Config = {
           warning: 'rgb(234 179 8)',     // yellow-500
           error: 'rgb(239 68 68)',       // red-500
         },
+
+        // Armor diagram status colors
+        armor: {
+          healthy: 'rgb(34 197 94)',       // green-500
+          moderate: 'rgb(245 158 11)',     // amber-500
+          low: 'rgb(249 115 22)',          // orange-500
+          critical: 'rgb(239 68 68)',      // red-500
+          selected: 'rgb(59 130 246)',     // blue-500
+          'selected-stroke': 'rgb(96 165 250)', // blue-400
+        },
+
+        // UI accent color variants (centralized from scattered local definitions)
+        ui: {
+          accent: {
+            amber: 'rgb(245 158 11)',      // amber-500
+            cyan: 'rgb(6 182 212)',        // cyan-500
+            emerald: 'rgb(16 185 129)',    // emerald-500
+            violet: 'rgb(139 92 246)',     // violet-500
+            rose: 'rgb(244 63 94)',        // rose-500
+            blue: 'rgb(59 130 246)',       // blue-500
+          },
+        },
       },
     },
   },
