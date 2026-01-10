@@ -229,9 +229,9 @@ describe('EquipmentBrowser', () => {
     
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
     
-    const clearButton = screen.getByText('Clear All');
+    const clearButton = screen.getByText('Clear');
     await user.click(clearButton);
-    
+
     expect(clearFilters).toHaveBeenCalledTimes(1);
   });
 
@@ -246,9 +246,9 @@ describe('EquipmentBrowser', () => {
     
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
     
-    const weightHeader = screen.getByText('Weight');
+    const weightHeader = screen.getByText('Wt');
     await user.click(weightHeader);
-    
+
     expect(setSort).toHaveBeenCalled();
   });
 
