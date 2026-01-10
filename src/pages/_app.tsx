@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import '../styles/globals.css'
 import Layout from '../components/common/Layout'
 import Sidebar from '../components/common/Sidebar'
+import { PWAUpdateNotification, PWAOfflineIndicator } from '../components/common/PWAInstallPrompt'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
 import { indexedDBService } from '../services/persistence/IndexedDBService'
@@ -32,16 +33,22 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   }, []);
 
   return (
-    <Layout
-      sidebarComponent={
-        <Sidebar
-          isCollapsed={isSidebarCollapsed}
-          setIsCollapsed={setIsSidebarCollapsed}
-        />
-      }
-      isSidebarCollapsed={isSidebarCollapsed}
-    >
-      <Component {...pageProps} servicesReady={servicesReady} />
-    </Layout>
+    <>
+      {/* PWA Global Components */}
+      <PWAOfflineIndicator />
+      <PWAUpdateNotification />
+
+      <Layout
+        sidebarComponent={
+          <Sidebar
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+          />
+        }
+        isSidebarCollapsed={isSidebarCollapsed}
+      >
+        <Component {...pageProps} servicesReady={servicesReady} />
+      </Layout>
+    </>
   )
 }

@@ -28,7 +28,7 @@ const Layout: React.FC<LayoutProps> = ({
       <Head>
         <title>{title}</title>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
       </Head>
 
       <div className="flex flex-col h-screen bg-slate-900 overflow-hidden">

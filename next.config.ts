@@ -1,6 +1,98 @@
 import type { NextConfig } from "next";
 import type { Configuration, WebpackPluginInstance } from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import withPWAInit from "next-pwa";
+
+// Configure next-pwa
+const withPWA = withPWAInit({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
+  // Cache strategies for different resource types
+  runtimeCaching: [
+    {
+      // Cache API responses with network-first strategy
+      urlPattern: /^https?:\/\/.*\/api\/.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "api-cache",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60 * 24, // 24 hours
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      // Cache static assets with cache-first strategy
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "image-cache",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+    {
+      // Cache equipment data with stale-while-revalidate
+      urlPattern: /\/data\/equipment\/.*/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "equipment-cache",
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+        },
+      },
+    },
+    {
+      // Cache unit data with stale-while-revalidate
+      urlPattern: /\/data\/units\/.*/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "units-cache",
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+        },
+      },
+    },
+    {
+      // Cache record sheet SVGs
+      urlPattern: /\/record-sheets\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "record-sheets-cache",
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+    {
+      // Default cache strategy for other requests
+      urlPattern: /^https?.*/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "default-cache",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 60 * 60 * 24, // 24 hours
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+  ],
+});
 
 interface WebpackContext {
   buildId: string;
@@ -159,4 +251,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);
