@@ -13,3 +13,5 @@ export * from './useTechBaseSyncEffect';
 export * from './useUnitCalculations';
 export * from './useGameStatePersistence';
 export * from './useServiceWorker';
+export * from './useDeviceType';
+export * from './useLongPress';
