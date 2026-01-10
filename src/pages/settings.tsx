@@ -69,21 +69,22 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`
-          relative h-6 w-11 flex-shrink-0 cursor-pointer
-          rounded-md border
+          relative h-7 w-12 flex-shrink-0 cursor-pointer
+          rounded-md border-2
           transition-colors duration-200 ease-in-out
           focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800
           ${checked
             ? 'bg-[var(--accent-primary)] border-[var(--accent-hover)]'
-            : 'bg-slate-700 border-slate-600 hover:bg-slate-600'
+            : 'bg-slate-700 border-slate-500 hover:bg-slate-600 hover:border-slate-400'
           }
         `}
       >
         <span
           aria-hidden="true"
           className={`
-            absolute top-1 left-1
-            h-4 w-4 rounded-sm bg-white shadow-sm
+            absolute top-0.5 left-0.5
+            h-5 w-5 rounded bg-white shadow-md
+            border border-slate-300
             transition-transform duration-200 ease-in-out
             ${checked ? 'translate-x-5' : 'translate-x-0'}
           `}
@@ -155,15 +156,15 @@ function AccentColorPicker({
       <div className="text-xs text-slate-400 mb-3">
         Customize the highlight color throughout the app
       </div>
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-4 flex-wrap">
         {colors.map((color) => (
           <button
             key={color.value}
             onClick={() => onChange(color.value)}
-            className={`w-10 h-10 rounded-md border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800 ${
+            className={`w-10 h-10 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800 ${
               value === color.value
-                ? 'border-white scale-110 shadow-lg ring-2 ring-white/30'
-                : 'border-transparent hover:border-slate-500 hover:scale-105'
+                ? 'scale-125 shadow-xl ring-4 ring-white/50 border-2 border-white'
+                : 'border-2 border-slate-600 hover:border-slate-400 hover:scale-110'
             }`}
             style={{ backgroundColor: ACCENT_COLOR_CSS[color.value].primary }}
             aria-label={color.label}
