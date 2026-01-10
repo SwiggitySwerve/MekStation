@@ -15,3 +15,7 @@ export * from './useGameStatePersistence';
 export * from './useServiceWorker';
 export * from './useDeviceType';
 export * from './useLongPress';
+export * from './useHaptics';
+export * from './useVirtualKeyboard';
+export * from './useOfflineStatus';
+export * from './useTouchTarget';

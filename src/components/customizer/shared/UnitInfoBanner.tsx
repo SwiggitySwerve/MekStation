@@ -200,14 +200,14 @@ export function UnitInfoBanner({
   
   return (
     <div className={`bg-slate-800 border border-slate-700 rounded-lg ${className}`}>
-      {/* Responsive container using flex-wrap for adaptive layout */}
-      <div className="flex flex-wrap items-stretch">
-        {/* Section 1: Identity + Validation - takes minimum space needed */}
-        <div className="px-4 py-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-fit">
+      {/* Responsive container - stack on mobile, flex row on larger screens */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch">
+        {/* Section 1: Identity + Validation - full width on mobile */}
+        <div className="w-full sm:w-auto px-4 py-2 border-b sm:border-r border-slate-700">
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-lg font-bold text-white whitespace-nowrap">{stats.name}</h2>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex flex-wrap items-center gap-2 mt-0.5">
                 <span className="text-sm text-slate-400">{stats.tonnage} tons</span>
                 <TechBaseBadge techBaseMode={stats.techBaseMode} />
                 <ValidationBadge 
@@ -221,7 +221,7 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 2: Movement Stats */}
-        <div className="px-4 py-2 flex items-center justify-center gap-4 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-fit">
+        <div className="px-4 py-2 flex items-center justify-center gap-4 border-b sm:border-b-0 sm:border-r border-slate-700">
           <MovementStat 
             walkMP={stats.walkMP} 
             runMP={stats.runMP} 
@@ -230,8 +230,8 @@ export function UnitInfoBanner({
           />
         </div>
         
-        {/* Section 3: Capacity Stats - grows to fill available space */}
-        <div className="flex-1 px-4 py-2 flex items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-[380px]">
+        {/* Section 3: Capacity Stats - grows to fill available space, wraps on mobile */}
+        <div className="flex-1 px-4 py-2 flex flex-wrap items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-slate-700 min-w-0 sm:min-w-[380px]">
           <SimpleStat 
             label="BV"
             value={stats.battleValue?.toLocaleString() ?? '-'}
