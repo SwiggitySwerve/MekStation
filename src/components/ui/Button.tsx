@@ -17,10 +17,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-amber-600 hover:bg-amber-500 text-white border-transparent',
-  secondary: 'bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300',
-  ghost: 'bg-transparent hover:bg-slate-700/50 text-slate-400 hover:text-white border-transparent',
-  pagination: 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600',
+  primary: 'bg-accent-hover hover:bg-accent text-text-theme-primary border-transparent',
+  secondary: 'bg-surface-raised hover:bg-border-theme border border-border-theme text-slate-300',
+  ghost: 'bg-transparent hover:bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary border-transparent',
+  pagination: 'bg-surface-base border border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme',
   danger: 'bg-red-600 hover:bg-red-500 text-white border-transparent',
   success: 'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent',
 };
@@ -90,7 +90,7 @@ export function PaginationButtons({ currentPage, totalPages, onPageChange }: Pag
       >
         Prev
       </Button>
-      <span className="px-4 py-2 text-slate-400">
+      <span className="px-4 py-2 text-text-theme-secondary">
         Page {currentPage} of {totalPages}
       </span>
       <Button

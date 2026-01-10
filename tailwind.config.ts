@@ -22,6 +22,34 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
 
+        // Global theme surface colors (backgrounds)
+        surface: {
+          deep: 'var(--surface-deep)',
+          base: 'var(--surface-base)',
+          raised: 'var(--surface-raised)',
+        },
+
+        // Global theme accent colors
+        accent: {
+          DEFAULT: 'var(--accent-primary)',
+          hover: 'var(--accent-hover)',
+          muted: 'var(--accent-muted)',
+        },
+
+        // Global theme text colors
+        'text-theme': {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
+        },
+
+        // Global theme border colors
+        'border-theme': {
+          subtle: 'var(--border-subtle)',
+          DEFAULT: 'var(--border-default)',
+          strong: 'var(--border-strong)',
+        },
+
         // System component slot colors
         slot: {
           engine: 'rgb(234 88 12)',      // orange-600

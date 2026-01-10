@@ -437,7 +437,7 @@ export function TacticalHUDDiagram({
   ];
 
   return (
-    <div className={`bg-slate-900 rounded-lg border border-slate-700 p-4 ${className}`}>
+    <div className={`bg-surface-deep rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -513,32 +513,32 @@ export function TacticalHUDDiagram({
       <div className="flex justify-center gap-3 mt-3 text-xs font-mono">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
-          <span className="text-slate-500">75%+</span>
+          <span className="text-text-theme-muted">75%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-          <span className="text-slate-500">50%+</span>
+          <span className="text-text-theme-muted">50%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
-          <span className="text-slate-500">25%+</span>
+          <span className="text-text-theme-muted">25%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-red-500" />
-          <span className="text-slate-500">&lt;25%</span>
+          <span className="text-text-theme-muted">&lt;25%</span>
         </div>
       </div>
 
       {/* Status readout */}
-      <div className="flex justify-between items-center mt-3 px-2 py-1.5 bg-slate-800/50 rounded text-xs font-mono">
+      <div className="flex justify-between items-center mt-3 px-2 py-1.5 bg-surface-base/50 rounded text-xs font-mono">
         <div className="flex items-center gap-4">
-          <span className="text-slate-500">STATUS:</span>
+          <span className="text-text-theme-muted">STATUS:</span>
           <span className={isOverAllocated ? 'text-red-400' : 'text-green-400'}>
             {isOverAllocated ? 'OVERALLOC' : 'NOMINAL'}
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-slate-500">AVAIL:</span>
+          <span className="text-text-theme-muted">AVAIL:</span>
           <span className={unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}>
             {unallocatedPoints}
           </span>

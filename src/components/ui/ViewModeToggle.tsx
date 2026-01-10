@@ -41,8 +41,8 @@ function ViewModeButton({
       className={`
         p-2 rounded transition-all duration-150
         ${isActive
-          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-          : 'text-slate-400 hover:text-white hover:bg-slate-700/50 border border-transparent'
+          ? 'bg-accent/20 text-accent border border-accent/30'
+          : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 border border-transparent'
         }
       `}
     >
@@ -110,7 +110,7 @@ export function ViewModeToggle({
 }: ViewModeToggleProps): React.ReactElement {
   return (
     <div
-      className={`inline-flex items-center gap-1 p-1 bg-slate-800/50 rounded-lg border border-slate-700/50 ${className}`}
+      className={`inline-flex items-center gap-1 p-1 bg-surface-base/50 rounded-lg border border-border-theme-subtle/50 ${className}`}
       role="group"
       aria-label="View mode selection"
     >

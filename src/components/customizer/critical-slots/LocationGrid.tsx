@@ -77,14 +77,14 @@ export function LocationGrid({
   });
   
   return (
-    <div 
+    <div
       className={`
-        bg-slate-900 border border-slate-600 w-36
+        bg-surface-deep border border-border-theme w-36
         ${className}
       `}
     >
       {/* Location header */}
-      <div className="px-2 py-1.5 border-b border-slate-600 bg-slate-800 text-center">
+      <div className="px-2 py-1.5 border-b border-border-theme bg-surface-base text-center">
         <span className="text-sm font-medium text-slate-200">{label}</span>
       </div>
       

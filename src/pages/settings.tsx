@@ -30,10 +30,10 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-5">
-      <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
+    <div className="bg-surface-base/50 rounded-lg border border-border-theme-subtle p-5">
+      <h3 className="text-lg font-semibold text-text-theme-primary mb-1">{title}</h3>
       {description && (
-        <p className="text-sm text-slate-400 mb-4">{description}</p>
+        <p className="text-sm text-text-theme-secondary mb-4">{description}</p>
       )}
       <div className="space-y-4">{children}</div>
     </div>
@@ -58,9 +58,9 @@ function Toggle({
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-white">{label}</div>
+        <div className="text-sm font-medium text-text-theme-primary">{label}</div>
         {description && (
-          <div className="text-xs text-slate-400 mt-0.5">{description}</div>
+          <div className="text-xs text-text-theme-secondary mt-0.5">{description}</div>
         )}
       </div>
       <button
@@ -72,10 +72,10 @@ function Toggle({
           relative h-7 w-12 flex-shrink-0 cursor-pointer
           rounded-md border-2
           transition-colors duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800
+          focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface-base
           ${checked
-            ? 'bg-[var(--accent-primary)] border-[var(--accent-hover)]'
-            : 'bg-slate-700 border-slate-500 hover:bg-slate-600 hover:border-slate-400'
+            ? 'bg-accent border-accent-hover'
+            : 'bg-surface-raised border-border-theme-strong hover:bg-surface-raised/80 hover:border-border-theme-strong'
           }
         `}
       >
@@ -112,14 +112,14 @@ function Select<T extends string>({
 }) {
   return (
     <div>
-      <div className="text-sm font-medium text-white mb-1">{label}</div>
+      <div className="text-sm font-medium text-text-theme-primary mb-1">{label}</div>
       {description && (
-        <div className="text-xs text-slate-400 mb-2">{description}</div>
+        <div className="text-xs text-text-theme-secondary mb-2">{description}</div>
       )}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
-        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="w-full bg-surface-raised border border-border-theme rounded-lg px-3 py-2 text-text-theme-primary text-sm focus:outline-none focus:ring-2 focus:ring-accent"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -152,8 +152,8 @@ function AccentColorPicker({
 
   return (
     <div>
-      <div className="text-sm font-medium text-white mb-2">Accent Color</div>
-      <div className="text-xs text-slate-400 mb-3">
+      <div className="text-sm font-medium text-text-theme-primary mb-2">Accent Color</div>
+      <div className="text-xs text-text-theme-secondary mb-3">
         Customize the highlight color throughout the app
       </div>
       <div className="flex gap-4 flex-wrap">
@@ -161,10 +161,10 @@ function AccentColorPicker({
           <button
             key={color.value}
             onClick={() => onChange(color.value)}
-            className={`w-10 h-10 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800 ${
+            className={`w-10 h-10 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface-base ${
               value === color.value
                 ? 'scale-125 shadow-xl ring-4 ring-white/50 border-2 border-white'
-                : 'border-2 border-slate-600 hover:border-slate-400 hover:scale-110'
+                : 'border-2 border-border-theme hover:border-border-theme-strong hover:scale-110'
             }`}
             style={{ backgroundColor: ACCENT_COLOR_CSS[color.value].primary }}
             aria-label={color.label}
@@ -183,22 +183,22 @@ const UI_THEME_INFO: Record<UITheme, { name: string; description: string; previe
   default: {
     name: 'Default',
     description: 'Clean slate design with amber accents',
-    preview: 'bg-slate-800 border-slate-700',
+    preview: 'bg-surface-base border-border-theme-subtle',
   },
   neon: {
     name: 'Neon',
     description: 'Cyberpunk-inspired with glow effects',
-    preview: 'bg-slate-900 border-cyan-500/30',
+    preview: 'bg-surface-deep border-cyan-500/30',
   },
   tactical: {
     name: 'Tactical',
     description: 'Military HUD style with monospace fonts',
-    preview: 'bg-slate-900 border-slate-600',
+    preview: 'bg-surface-deep border-border-theme',
   },
   minimal: {
     name: 'Minimal',
     description: 'Reduced visual noise, focus on content',
-    preview: 'bg-slate-800/50 border-slate-700/50',
+    preview: 'bg-surface-base/50 border-border-theme-subtle/50',
   },
 };
 
@@ -216,8 +216,8 @@ function UIThemePicker({
 
   return (
     <div>
-      <div className="text-sm font-medium text-white mb-2">UI Theme</div>
-      <div className="text-xs text-slate-400 mb-3">
+      <div className="text-sm font-medium text-text-theme-primary mb-2">UI Theme</div>
+      <div className="text-xs text-text-theme-secondary mb-3">
         Choose the overall visual style of the interface
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -231,17 +231,17 @@ function UIThemePicker({
               onClick={() => onChange(theme)}
               className={`
                 p-3 rounded-md border-2 text-left transition-all
-                focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800
+                focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface-base
                 ${isSelected
-                  ? 'border-[var(--accent-primary)] bg-[var(--accent-muted)]'
-                  : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
+                  ? 'border-accent bg-accent-muted'
+                  : 'border-border-theme hover:border-border-theme-strong bg-surface-raised/30'
                 }
               `}
             >
               {/* Preview bar */}
               <div className={`h-2 w-full rounded mb-2 border ${info.preview}`} />
-              <div className="text-sm font-medium text-white">{info.name}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{info.description}</div>
+              <div className="text-sm font-medium text-text-theme-primary">{info.name}</div>
+              <div className="text-xs text-text-theme-secondary mt-0.5">{info.description}</div>
             </button>
           );
         })}

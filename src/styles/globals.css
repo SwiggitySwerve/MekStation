@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Tailwind v4 theme tokens - must match tailwind.config.ts naming exactly */
+@theme {
+  /* Surface colors for backgrounds (bg-surface-*) */
+  --color-surface-deep: var(--surface-deep);
+  --color-surface-base: var(--surface-base);
+  --color-surface-raised: var(--surface-raised);
+
+  /* Accent colors (bg-accent, text-accent, border-accent) */
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+
+  /* Text theme colors (text-text-theme-*) - the config uses 'text-theme' as a color name */
+  --color-text-theme-primary: var(--text-primary);
+  --color-text-theme-secondary: var(--text-secondary);
+  --color-text-theme-muted: var(--text-muted);
+
+  /* Border theme colors (border-border-theme-*) - the config uses 'border-theme' as a color name */
+  --color-border-theme-subtle: var(--border-subtle);
+  --color-border-theme: var(--border-default);
+  --color-border-theme-strong: var(--border-strong);
+}
+
 :root {
   --background: #f3f4f6;
   --foreground: #1e293b;
@@ -27,6 +50,16 @@
   --surface-base: #1e293b;      /* slate-800 */
   --surface-deep: #0f172a;      /* slate-900 */
   --surface-raised: #334155;    /* slate-700 */
+
+  /* Border Colors */
+  --border-subtle: #334155;     /* slate-700 */
+  --border-default: #475569;    /* slate-600 */
+  --border-strong: #64748b;     /* slate-500 */
+
+  /* Text Colors */
+  --text-primary: #f8fafc;      /* slate-50 */
+  --text-secondary: #94a3b8;    /* slate-400 */
+  --text-muted: #64748b;        /* slate-500 */
 
   /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
   --accent-primary: #f59e0b;    /* amber-500 */
@@ -1228,19 +1261,18 @@ button:disabled {
 
 /* Default theme - clean slate design */
 .theme-default {
-  /* Base theme, no overrides needed */
+  /* Base theme, uses root values */
 }
 
 /* Neon theme - cyberpunk with glow effects */
 .theme-neon {
+  --surface-deep: #020617;
   --surface-base: #0f172a;
   --surface-raised: #1e293b;
-}
-
-.theme-neon .card,
-.theme-neon .card-header {
-  @apply border-cyan-500/20;
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+  --border-subtle: rgba(6, 182, 212, 0.2);
+  --border-default: rgba(6, 182, 212, 0.3);
+  --border-strong: rgba(6, 182, 212, 0.5);
+  --text-secondary: #67e8f9;
 }
 
 .theme-neon input:focus,
@@ -1251,13 +1283,14 @@ button:disabled {
 
 /* Tactical theme - military HUD style */
 .theme-tactical {
+  --surface-deep: #030712;
   --surface-base: #0c1220;
   --surface-raised: #1a2332;
-}
-
-.theme-tactical .card,
-.theme-tactical .card-header {
-  @apply border-slate-600 rounded-none;
+  --border-subtle: #1e293b;
+  --border-default: #334155;
+  --border-strong: #475569;
+  --text-primary: #e2e8f0;
+  --text-secondary: #cbd5e1;
 }
 
 .theme-tactical h1,
@@ -1269,17 +1302,12 @@ button:disabled {
 
 /* Minimal theme - reduced visual noise */
 .theme-minimal {
+  --surface-deep: #0f172a;
   --surface-base: #1e293b;
   --surface-raised: #334155;
-}
-
-.theme-minimal .card,
-.theme-minimal .card-header {
-  @apply border-slate-700/50 shadow-none;
-}
-
-.theme-minimal .badge {
-  @apply border-transparent;
+  --border-subtle: rgba(51, 65, 85, 0.5);
+  --border-default: rgba(71, 85, 105, 0.5);
+  --border-strong: rgba(100, 116, 139, 0.5);
 }
 
 /* ========================================

@@ -75,9 +75,9 @@ export function CategoryCard({
     <div
       className={`
         flex items-center gap-4 p-4
-        bg-slate-800/40 border border-slate-700/50 border-l-4 ${colors.border}
+        bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 ${colors.border}
         rounded-lg transition-all duration-200
-        hover:bg-slate-800/60 hover:border-slate-600 ${colors.borderHover}
+        hover:bg-surface-base/60 hover:border-border-theme ${colors.borderHover}
         cursor-pointer group
       `}
     >
@@ -88,18 +88,18 @@ export function CategoryCard({
 
       {/* Text content */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-category-label text-white group-hover:text-amber-50 transition-colors">
+        <h3 className="text-category-label text-text-theme-primary group-hover:text-amber-50 transition-colors">
           {title}
         </h3>
         {subtitle && (
-          <p className="text-xs text-slate-400 mt-0.5 truncate">
+          <p className="text-xs text-text-theme-secondary mt-0.5 truncate">
             {subtitle}
           </p>
         )}
       </div>
 
       {/* Arrow indicator */}
-      <div className="text-slate-600 group-hover:text-slate-400 transition-colors">
+      <div className="text-border-theme group-hover:text-text-theme-secondary transition-colors">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
