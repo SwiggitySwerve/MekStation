@@ -13,7 +13,7 @@ const mockNavigator = {
     })),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    controller: null,
+    controller: null as ServiceWorker | null,
   },
 };
 
@@ -97,7 +97,7 @@ describe('useServiceWorker', () => {
 
   describe('Controller Detection', () => {
     it('should detect when service worker is controlling the page', () => {
-      mockNavigator.serviceWorker.controller = {};
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
 
       const { result } = renderHook(() => useServiceWorker());
 

@@ -4,17 +4,8 @@ import { EquipmentAssignmentAdapter, usePlacementMode, PlacementModeState, Equip
 import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
 import * as hapticFeedback from '../../../utils/hapticFeedback';
 
-// Extended state interface that includes the helper functions passed by EquipmentAssignmentAdapter
-interface ExtendedPlacementModeState extends PlacementModeState {
-  activatePlacementMode: () => void;
-  handleSlotTap: (slot: EquipmentSlot) => void;
-  cancelPlacementMode: () => void;
-}
-
-// Type guard to safely convert PlacementModeState to ExtendedPlacementModeState
-function asExtendedState(state: PlacementModeState): ExtendedPlacementModeState {
-  return state as ExtendedPlacementModeState;
-}
+// PlacementModeState already includes activatePlacementMode, handleSlotTap, cancelPlacementMode
+// so we don't need an extended interface
 
 // Mock dependencies
 jest.mock('../../../hooks/useDeviceCapabilities');
@@ -86,16 +77,13 @@ describe('EquipmentAssignmentAdapter', () => {
           validSlots={mockValidSlots}
           onAssign={jest.fn()}
         >
-          {(state) => {
-            const extendedState = asExtendedState(state);
-            return (
-              <div>
-                <div data-testid="child" data-active={state.isActive.toString()} />
-                {state.isActive && <div data-testid="placement-mode">Placing...</div>}
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
-              </div>
-            );
-          }}
+          {(state) => (
+            <div>
+              <div data-testid="child" data-active={state.isActive.toString()} />
+              {state.isActive && <div data-testid="placement-mode">Placing...</div>}
+              <button onClick={state.activatePlacementMode}>Activate</button>
+            </div>
+          )}
         </EquipmentAssignmentAdapter>
       );
 
@@ -109,7 +97,7 @@ describe('EquipmentAssignmentAdapter', () => {
 
     it('should assign equipment to valid slot in placement mode', () => {
       const onAssign = jest.fn();
-      let placementState: ExtendedPlacementModeState | null = null;
+      let placementState: PlacementModeState | null = null;
 
       render(
         <EquipmentAssignmentAdapter
@@ -118,13 +106,12 @@ describe('EquipmentAssignmentAdapter', () => {
           onAssign={onAssign}
         >
           {(state) => {
-            const extendedState = asExtendedState(state);
-            placementState = extendedState;
+            placementState = state;
             return (
               <div>
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
+                <button onClick={state.activatePlacementMode}>Activate</button>
                 {state.isActive && (
-                  <button onClick={() => extendedState.handleSlotTap(mockValidSlots[0])}>
+                  <button onClick={() => state.handleSlotTap(mockValidSlots[0])}>
                     Assign to Slot
                   </button>
                 )}
@@ -144,13 +131,13 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(hapticFeedback.tap).toHaveBeenCalledTimes(1);
 
       // Placement mode should be exited
-      expect(placementState?.isActive).toBe(false);
+      expect((placementState as PlacementModeState | null)?.isActive).toBe(false);
     });
 
     it('should show error and stay in placement mode for invalid slot', () => {
       const onAssign = jest.fn();
       const onInvalidSlot = jest.fn();
-      let placementState: ExtendedPlacementModeState | null = null;
+      let placementState: PlacementModeState | null = null;
 
       render(
         <EquipmentAssignmentAdapter
@@ -160,13 +147,12 @@ describe('EquipmentAssignmentAdapter', () => {
           onInvalidSlot={onInvalidSlot}
         >
           {(state) => {
-            const extendedState = asExtendedState(state);
-            placementState = extendedState;
+            placementState = state;
             return (
               <div>
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
+                <button onClick={state.activatePlacementMode}>Activate</button>
                 {state.isActive && (
-                  <button onClick={() => extendedState.handleSlotTap(mockInvalidSlot)}>
+                  <button onClick={() => state.handleSlotTap(mockInvalidSlot)}>
                     Assign to Invalid Slot
                   </button>
                 )}
@@ -187,7 +173,7 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(hapticFeedback.error).toHaveBeenCalledTimes(1);
 
       // Should stay in placement mode
-      expect(placementState?.isActive).toBe(true);
+      expect((placementState as PlacementModeState | null)?.isActive).toBe(true);
     });
 
     it('should cancel placement mode', () => {
@@ -200,17 +186,14 @@ describe('EquipmentAssignmentAdapter', () => {
           onAssign={jest.fn()}
           onCancel={onCancel}
         >
-          {(state) => {
-            const extendedState = asExtendedState(state);
-            return (
-              <div>
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
-                {state.isActive && (
-                  <button onClick={extendedState.cancelPlacementMode}>Cancel</button>
-                )}
-              </div>
-            );
-          }}
+          {(state) => (
+            <div>
+              <button onClick={state.activatePlacementMode}>Activate</button>
+              {state.isActive && (
+                <button onClick={state.cancelPlacementMode}>Cancel</button>
+              )}
+            </div>
+          )}
         </EquipmentAssignmentAdapter>
       );
 
@@ -393,15 +376,12 @@ describe('EquipmentAssignmentAdapter', () => {
           validSlots={[]}
           onAssign={jest.fn()}
         >
-          {(state) => {
-            const extendedState = asExtendedState(state);
-            return (
-              <div>
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
-                {state.isActive && <div data-testid="placement-mode">Placing</div>}
-              </div>
-            );
-          }}
+          {(state) => (
+            <div>
+              <button onClick={state.activatePlacementMode}>Activate</button>
+              {state.isActive && <div data-testid="placement-mode">Placing</div>}
+            </div>
+          )}
         </EquipmentAssignmentAdapter>
       );
 
@@ -418,14 +398,11 @@ describe('EquipmentAssignmentAdapter', () => {
           validSlots={mockValidSlots}
           onAssign={onAssign}
         >
-          {(state) => {
-            const extendedState = asExtendedState(state);
-            return (
-              <button onClick={() => extendedState.handleSlotTap(mockValidSlots[0])}>
-                Tap Slot
-              </button>
-            );
-          }}
+          {(state) => (
+            <button onClick={() => state.handleSlotTap(mockValidSlots[0])}>
+              Tap Slot
+            </button>
+          )}
         </EquipmentAssignmentAdapter>
       );
 
@@ -459,19 +436,16 @@ describe('EquipmentAssignmentAdapter', () => {
           onAssign={jest.fn()}
           // onInvalidSlot not provided
         >
-          {(state) => {
-            const extendedState = asExtendedState(state);
-            return (
-              <div>
-                <button onClick={extendedState.activatePlacementMode}>Activate</button>
-                {state.isActive && (
-                  <button onClick={() => extendedState.handleSlotTap(mockInvalidSlot)}>
-                    Assign to Invalid Slot
-                  </button>
-                )}
-              </div>
-            );
-          }}
+          {(state) => (
+            <div>
+              <button onClick={state.activatePlacementMode}>Activate</button>
+              {state.isActive && (
+                <button onClick={() => state.handleSlotTap(mockInvalidSlot)}>
+                  Assign to Invalid Slot
+                </button>
+              )}
+            </div>
+          )}
         </EquipmentAssignmentAdapter>
       );
 

@@ -587,7 +587,7 @@ describe('PanelStack', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-          <Panel>
+          <Panel id="unnamed">
             <div>Unnamed Panel</div>
           </Panel>
         </PanelStack>

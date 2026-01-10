@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BottomNavBar } from '../../../components/mobile/BottomNavBar';
-import { useNavigationStore } from '../../../stores/navigationStore';
+import { BottomNavBar, Tab } from '../../../components/mobile/BottomNavBar';
+import { useNavigationStore, PanelId } from '../../../stores/navigationStore';
 import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
 
 // Mock dependencies
@@ -13,11 +13,11 @@ describe('BottomNavBar', () => {
   const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<typeof useNavigationStore>;
   const mockUseDeviceCapabilities = useDeviceCapabilities as jest.MockedFunction<typeof useDeviceCapabilities>;
 
-  // Sample tabs for testing
-  const sampleTabs = [
-    { id: 'structure', icon: <span data-testid="icon-structure">S</span>, label: 'Structure', panelId: 'structure' },
-    { id: 'armor', icon: <span data-testid="icon-armor">A</span>, label: 'Armor', panelId: 'armor' },
-    { id: 'equipment', icon: <span data-testid="icon-equipment">E</span>, label: 'Equipment', panelId: 'equipment' },
+  // Sample tabs for testing - use valid PanelId values
+  const sampleTabs: Tab[] = [
+    { id: 'catalog', icon: <span data-testid="icon-catalog">C</span>, label: 'Catalog', panelId: 'catalog' },
+    { id: 'editor', icon: <span data-testid="icon-editor">E</span>, label: 'Editor', panelId: 'editor' },
+    { id: 'equipment-browser', icon: <span data-testid="icon-equipment">Q</span>, label: 'Equipment', panelId: 'equipment-browser' },
   ];
 
   beforeEach(() => {
@@ -28,9 +28,9 @@ describe('BottomNavBar', () => {
     });
 
     mockUseNavigationStore.mockReturnValue({
-      history: [{ id: 'structure' }],
+      history: [{ id: 'catalog' as PanelId }],
       currentIndex: 0,
-      currentPanel: 'structure',
+      currentPanel: 'catalog' as PanelId,
       canGoBack: false,
       canGoForward: false,
       pushPanel: mockPushPanel,
@@ -85,24 +85,24 @@ describe('BottomNavBar', () => {
     it('should render all tabs', () => {
       render(<BottomNavBar tabs={sampleTabs} />);
 
-      expect(screen.getByText('Structure')).toBeInTheDocument();
-      expect(screen.getByText('Armor')).toBeInTheDocument();
+      expect(screen.getByText('Catalog')).toBeInTheDocument();
+      expect(screen.getByText('Editor')).toBeInTheDocument();
       expect(screen.getByText('Equipment')).toBeInTheDocument();
     });
 
     it('should render tab icons', () => {
       render(<BottomNavBar tabs={sampleTabs} />);
 
-      expect(screen.getByTestId('icon-structure')).toBeInTheDocument();
-      expect(screen.getByTestId('icon-armor')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-catalog')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-editor')).toBeInTheDocument();
       expect(screen.getByTestId('icon-equipment')).toBeInTheDocument();
     });
 
     it('should highlight active tab', () => {
       mockUseNavigationStore.mockReturnValue({
-        history: [{ id: 'structure' }],
+        history: [{ id: 'catalog' as PanelId }],
         currentIndex: 0,
-        currentPanel: 'structure',
+        currentPanel: 'catalog' as PanelId,
         canGoBack: false,
         canGoForward: false,
         pushPanel: mockPushPanel,
@@ -115,41 +115,41 @@ describe('BottomNavBar', () => {
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);
 
       const buttons = container.querySelectorAll('button');
-      const structureButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Structure')
+      const catalogButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Catalog')
       );
 
-      expect(structureButton).toHaveClass('text-blue-600');
+      expect(catalogButton).toHaveClass('text-blue-600');
     });
 
     it('should not highlight inactive tabs', () => {
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);
 
       const buttons = container.querySelectorAll('button');
-      const armorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Armor')
+      const editorButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Editor')
       );
 
-      expect(armorButton).not.toHaveClass('text-blue-600');
-      expect(armorButton).toHaveClass('text-gray-600');
+      expect(editorButton).not.toHaveClass('text-blue-600');
+      expect(editorButton).toHaveClass('text-gray-600');
     });
 
     it('should update active tab when currentPanel changes', () => {
       const { rerender } = render(<BottomNavBar tabs={sampleTabs} />);
 
-      // Initially structure is active
+      // Initially catalog is active
       let container = render(<BottomNavBar tabs={sampleTabs} />).container;
       let buttons = container.querySelectorAll('button');
-      const structureButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Structure')
+      const catalogButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Catalog')
       );
-      expect(structureButton).toHaveClass('text-blue-600');
+      expect(catalogButton).toHaveClass('text-blue-600');
 
-      // Change to armor
+      // Change to editor
       mockUseNavigationStore.mockReturnValue({
-        history: [{ id: 'structure' }, { id: 'armor' }],
+        history: [{ id: 'catalog' as PanelId }, { id: 'editor' as PanelId }],
         currentIndex: 1,
-        currentPanel: 'armor',
+        currentPanel: 'editor' as PanelId,
         canGoBack: true,
         canGoForward: false,
         pushPanel: mockPushPanel,
@@ -162,11 +162,11 @@ describe('BottomNavBar', () => {
       rerender(<BottomNavBar tabs={sampleTabs} />);
       container = render(<BottomNavBar tabs={sampleTabs} />).container;
       buttons = container.querySelectorAll('button');
-      const armorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Armor')
+      const editorButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Editor')
       );
 
-      expect(armorButton).toHaveClass('text-blue-600');
+      expect(editorButton).toHaveClass('text-blue-600');
     });
   });
 
@@ -175,24 +175,24 @@ describe('BottomNavBar', () => {
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);
 
       const buttons = container.querySelectorAll('button');
-      const armorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Armor')
+      const editorButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Editor')
       );
 
-      fireEvent.click(armorButton!);
+      fireEvent.click(editorButton!);
 
-      expect(mockPushPanel).toHaveBeenCalledWith('armor');
+      expect(mockPushPanel).toHaveBeenCalledWith('editor');
     });
 
     it('should not call pushPanel when tapping active tab', () => {
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);
 
       const buttons = container.querySelectorAll('button');
-      const structureButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Structure')
+      const catalogButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Catalog')
       );
 
-      fireEvent.click(structureButton!);
+      fireEvent.click(catalogButton!);
 
       expect(mockPushPanel).not.toHaveBeenCalled();
     });
@@ -202,17 +202,17 @@ describe('BottomNavBar', () => {
 
       const buttons = container.querySelectorAll('button');
 
-      // Click armor tab
+      // Click editor tab
       fireEvent.click(Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Armor')
+        btn.textContent?.includes('Editor')
       )!);
-      expect(mockPushPanel).toHaveBeenLastCalledWith('armor');
+      expect(mockPushPanel).toHaveBeenLastCalledWith('editor');
 
       // Click equipment tab
       fireEvent.click(Array.from(buttons).find((btn) =>
         btn.textContent?.includes('Equipment')
       )!);
-      expect(mockPushPanel).toHaveBeenLastCalledWith('equipment');
+      expect(mockPushPanel).toHaveBeenLastCalledWith('equipment-browser');
     });
   });
 
@@ -286,8 +286,8 @@ describe('BottomNavBar', () => {
     it('should have aria-label on each tab', () => {
       render(<BottomNavBar tabs={sampleTabs} />);
 
-      expect(screen.getByLabelText('Structure')).toBeInTheDocument();
-      expect(screen.getByLabelText('Armor')).toBeInTheDocument();
+      expect(screen.getByLabelText('Catalog')).toBeInTheDocument();
+      expect(screen.getByLabelText('Editor')).toBeInTheDocument();
       expect(screen.getByLabelText('Equipment')).toBeInTheDocument();
     });
 
@@ -295,11 +295,11 @@ describe('BottomNavBar', () => {
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);
 
       const buttons = container.querySelectorAll('button');
-      const structureButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Structure')
+      const catalogButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Catalog')
       );
 
-      expect(structureButton).toHaveAttribute('aria-current', 'page');
+      expect(catalogButton).toHaveAttribute('aria-current', 'page');
     });
 
     it('should set aria-selected on tabs', () => {
@@ -311,10 +311,10 @@ describe('BottomNavBar', () => {
         expect(button).toHaveAttribute('aria-selected');
       });
 
-      const structureButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Structure')
+      const catalogButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Catalog')
       );
-      expect(structureButton).toHaveAttribute('aria-selected', 'true');
+      expect(catalogButton).toHaveAttribute('aria-selected', 'true');
     });
 
     it('should hide icons from screen readers', () => {
@@ -364,10 +364,10 @@ describe('BottomNavBar', () => {
     });
 
     it('should handle many tabs (flex distribution)', () => {
-      const manyTabs = [
+      const manyTabs: Tab[] = [
         ...sampleTabs,
-        { id: 'weapons', icon: <span>W</span>, label: 'Weapons', panelId: 'weapons' },
-        { id: 'ammo', icon: <span>A</span>, label: 'Ammo', panelId: 'ammo' },
+        { id: 'sidebar', icon: <span>S</span>, label: 'Sidebar', panelId: 'sidebar' },
+        { id: 'unit-detail', icon: <span>U</span>, label: 'Unit', panelId: 'unit-detail' },
       ];
 
       const { container } = render(<BottomNavBar tabs={manyTabs} />);
@@ -378,9 +378,9 @@ describe('BottomNavBar', () => {
 
     it('should handle no active tab found', () => {
       mockUseNavigationStore.mockReturnValue({
-        history: [{ id: 'unknown' }],
+        history: [{ id: 'sidebar' as PanelId }],
         currentIndex: 0,
-        currentPanel: 'unknown',
+        currentPanel: 'sidebar' as PanelId,
         canGoBack: false,
         canGoForward: false,
         pushPanel: mockPushPanel,
@@ -405,8 +405,8 @@ describe('BottomNavBar', () => {
         </svg>
       );
 
-      const tabsWithCustomIcon = [
-        { id: 'custom', icon: customIcon, label: 'Custom', panelId: 'custom' },
+      const tabsWithCustomIcon: Tab[] = [
+        { id: 'catalog', icon: customIcon, label: 'Custom', panelId: 'catalog' },
       ];
 
       render(<BottomNavBar tabs={tabsWithCustomIcon} />);

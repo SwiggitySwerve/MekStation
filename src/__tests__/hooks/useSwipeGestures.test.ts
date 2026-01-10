@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import type { TouchEvent as ReactTouchEvent } from 'react';
+import React, { type TouchEvent as ReactTouchEvent } from 'react';
 import { useSwipeGestures, useTabSwipeGestures, useBackSwipeGesture } from '../../hooks/useSwipeGestures';
 
 /**
@@ -12,10 +12,20 @@ type MockTouch = Pick<Touch, 'clientX' | 'clientY'>;
  * Implements the minimal interface needed by the hook.
  */
 function createMockTouchList(touches: MockTouch[]): TouchList {
-  const touchList = touches as TouchList;
-  touchList.length = touches.length;
-  touchList.item = (index: number) => touches[index] as Touch | null;
-  return touchList;
+  return {
+    length: touches.length,
+    item: (index: number) => touches[index] as Touch | null,
+    identifiedTouch: () => null,
+    [Symbol.iterator]: function* () {
+      for (const touch of touches) {
+        yield touch as Touch;
+      }
+    },
+    ...touches.reduce((acc, touch, index) => {
+      acc[index] = touch as Touch;
+      return acc;
+    }, {} as Record<number, Touch>),
+  } as TouchList;
 }
 
 /**
@@ -29,7 +39,7 @@ function createMockTouchEvent(
     touches: createMockTouchList([{
       clientX: coordinates.clientX,
       clientY: coordinates.clientY,
-    }]),
+    }]) as unknown as React.TouchList,
   };
 }
 
