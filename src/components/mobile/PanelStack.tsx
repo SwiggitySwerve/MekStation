@@ -26,7 +26,7 @@ interface PanelInternalProps extends PanelProps {
  * </Panel>
  * ```
  */
-export function Panel({ id, children }: PanelProps): React.ReactElement {
+export function Panel({ id: _id, children }: PanelProps): React.ReactElement {
   return <>{children}</>;
 }
 
@@ -177,7 +177,7 @@ export function PanelStack({
   // Create map of panel IDs to elements
   const panelMap = new Map<string, ReactNode>();
   panelChildren.forEach((child) => {
-    const panelId = child.props.id;
+    const panelId = child.props.id as string | undefined;
     if (panelId) {
       panelMap.set(panelId, child.props.children);
     }

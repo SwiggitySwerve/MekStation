@@ -2,6 +2,11 @@
 import { renderHook } from '@testing-library/react';
 import { useDeviceCapabilities } from '../../hooks/useDeviceCapabilities';
 
+// Extend Window interface to include optional touch event handler
+interface WindowWithTouch extends Window {
+  ontouchstart?: (() => void) | null;
+}
+
 // Mock window.matchMedia for all tests
 const mockMatchMedia = jest.fn().mockImplementation((query) => ({
   matches: false,
@@ -50,7 +55,7 @@ describe('useDeviceCapabilities', () => {
 
   it('should detect no touch capability', () => {
     // Remove touch capability
-    delete (window as any).ontouchstart;
+    delete (window as WindowWithTouch).ontouchstart;
 
     const { result } = renderHook(() => useDeviceCapabilities());
 

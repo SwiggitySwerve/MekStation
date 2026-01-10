@@ -142,7 +142,9 @@ describe('ArmorPip', () => {
       const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
 
       const pip = container.querySelector('.armor-pip');
-      expect(pip?.style.transform).toBeDefined();
+      expect(pip).toBeInstanceOf(HTMLElement);
+      const pipElement = pip as HTMLElement;
+      expect(pipElement.style.transform).toBeDefined();
     });
   });
 

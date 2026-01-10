@@ -288,15 +288,19 @@ describe('AmmoCounter', () => {
       // The progress bar is nested inside the h-2 container
       const progressBar = container.querySelector('.h-2 .bg-blue-500');
 
+      // Type guard to ensure progressBar is an HTMLElement
+      expect(progressBar).toBeInstanceOf(HTMLElement);
+      const progressBarElement = progressBar as HTMLElement;
+
       // Initial progress
-      expect(progressBar?.style.width).toBe('0%');
+      expect(progressBarElement.style.width).toBe('0%');
 
       // After 1 second
       act(() => {
         jest.advanceTimersByTime(1000);
       });
 
-      expect(progressBar?.style.width).not.toBe('0%');
+      expect(progressBarElement.style.width).not.toBe('0%');
 
       // After 2 more seconds (total 3 seconds, complete)
       act(() => {
@@ -304,7 +308,7 @@ describe('AmmoCounter', () => {
       });
 
       // Progress should be close to 100% (account for floating point imprecision)
-      const progressValue = parseFloat(progressBar?.style.width || '0');
+      const progressValue = parseFloat(progressBarElement.style.width || '0');
       expect(progressValue).toBeCloseTo(100, 0); // Close to 100 with no decimal precision
     });
 

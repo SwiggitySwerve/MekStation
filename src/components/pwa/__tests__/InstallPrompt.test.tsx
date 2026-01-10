@@ -2,6 +2,11 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { InstallPrompt } from '../InstallPrompt';
 
+// Type for window with optional localStorage for testing
+interface WindowWithOptionalLocalStorage extends Omit<Window, 'localStorage'> {
+  localStorage?: Storage;
+}
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -70,7 +75,7 @@ describe('InstallPrompt', () => {
 
     it('should handle missing localStorage gracefully', () => {
       const originalLocalStorage = window.localStorage;
-      delete (window as any).localStorage;
+      delete (window as WindowWithOptionalLocalStorage).localStorage;
 
       const { container } = render(<InstallPrompt />);
 

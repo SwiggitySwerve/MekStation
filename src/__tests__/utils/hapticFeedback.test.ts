@@ -92,7 +92,7 @@ describe('hapticFeedback', () => {
     });
 
     it('should return false when vibration not supported', () => {
-      // @ts-ignore
+      // @ts-ignore - Deleting readonly property to simulate missing API
       delete navigator.vibrate;
 
       const result = hapticFeedback.success();
@@ -118,7 +118,7 @@ describe('hapticFeedback', () => {
     });
 
     it('should return false when vibration not supported', () => {
-      // @ts-ignore
+      // @ts-ignore - Deleting readonly property to simulate missing API
       delete navigator.vibrate;
 
       const result = hapticFeedback.error();
@@ -185,7 +185,7 @@ describe('hapticFeedback', () => {
     });
 
     it('should return false when vibration not supported', () => {
-      // @ts-ignore
+      // @ts-ignore - Deleting readonly property to simulate missing API
       delete navigator.vibrate;
 
       const result = hapticFeedback.custom(100);
@@ -209,7 +209,7 @@ describe('hapticFeedback', () => {
     });
 
     it('should not throw when vibration not supported', () => {
-      // @ts-ignore
+      // @ts-ignore - Deleting readonly property to simulate missing API
       delete navigator.vibrate;
 
       expect(() => hapticFeedback.cancel()).not.toThrow();

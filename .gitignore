@@ -105,3 +105,6 @@ src/services/core/types/BaseTypes.js.map
 # Cursor workspace storage files
 assets/c__Users_*
 **/c__Users_*
+
+# Auto Claude data directory
+.auto-claude/

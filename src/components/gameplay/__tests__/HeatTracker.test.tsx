@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { HeatTracker } from '../HeatTracker';
-import type { HeatScale } from '../HeatTracker';
 
 describe('HeatTracker', () => {
   const mockOnScaleChange = jest.fn();
@@ -399,8 +398,10 @@ describe('HeatTracker', () => {
       );
 
       const progressBar = container.querySelector('[role="progressbar"]');
+      expect(progressBar).toBeInstanceOf(HTMLElement);
+      const progressBarElement = progressBar as HTMLElement;
       // Width should be capped at 100% when heat exceeds max
-      expect(progressBar?.style.width).toBe('100%');
+      expect(progressBarElement.style.width).toBe('100%');
     });
   });
 

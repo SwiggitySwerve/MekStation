@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
-import { useNavigationStore } from '../../stores/navigationStore';
+import { useNavigationStore, PanelId } from '../../stores/navigationStore';
 import { useDeviceCapabilities } from '../../hooks/useDeviceCapabilities';
 
 export interface Tab {
   id: string;
   icon: ReactNode;
   label: string;
-  panelId: string;
+  panelId: PanelId;
 }
 
 interface BottomNavBarProps {
@@ -54,7 +54,7 @@ export function BottomNavBar({
   const handleTabPress = (tab: Tab) => {
     // Only push if not already active
     if (tab.panelId !== currentPanel) {
-      pushPanel(tab.panelId as any);
+      pushPanel(tab.panelId);
     }
   };
 

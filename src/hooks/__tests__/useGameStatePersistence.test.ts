@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useGameStatePersistence, GameState } from '../useGameStatePersistence';
+import { useGameStatePersistence, GameState, StoredData } from '../useGameStatePersistence';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -31,7 +31,7 @@ Object.defineProperty(window, 'localStorage', {
 // Mock beforeunload event listener
 const mockBeforeUnload = jest.fn();
 Object.defineProperty(window, 'addEventListener', {
-  value: jest.fn((event, callback) => {
+  value: jest.fn((event: string, callback: (e: Event) => void) => {
     if (event === 'beforeunload') {
       mockBeforeUnload.mockImplementation(() => callback(new Event('beforeunload')));
     }
@@ -163,7 +163,7 @@ describe('useGameStatePersistence', () => {
       const storedData = localStorage.getItem(mockStorageKey);
       expect(storedData).toBeDefined();
 
-      const parsed = JSON.parse(storedData!);
+      const parsed = JSON.parse(storedData!) as StoredData;
       expect(parsed.state).toMatchObject(mockState);
     });
 
@@ -362,7 +362,7 @@ describe('useGameStatePersistence', () => {
       await act(async () => {
         try {
           await result.current.load();
-        } catch (e) {
+        } catch (_e) {
           // load() might throw, that's ok
         }
       });
@@ -538,7 +538,7 @@ describe('useGameStatePersistence', () => {
     });
 
     it('should remove beforeunload listener when changes are saved', async () => {
-      const { result, rerender } = renderHook(() =>
+      const { result } = renderHook(() =>
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
@@ -609,7 +609,7 @@ describe('useGameStatePersistence', () => {
         await result.current.save();
       });
 
-      const storedData = JSON.parse(localStorage.getItem(mockStorageKey)!);
+      const storedData = JSON.parse(localStorage.getItem(mockStorageKey)!) as StoredData;
       expect(storedData.metadata.version).toBe('1.0.0');
     });
   });

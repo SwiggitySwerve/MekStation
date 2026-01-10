@@ -1,12 +1,35 @@
 import { renderHook, act } from '@testing-library/react';
+import type { TouchEvent as ReactTouchEvent } from 'react';
 import { useSwipeGestures, useTabSwipeGestures, useBackSwipeGesture } from '../../hooks/useSwipeGestures';
 
-// Mock touch events
-function createTouchEvent(type: string, coordinates: { clientX: number; clientY: number }) {
+/**
+ * Partial Touch type with only the properties used by the hook
+ */
+type MockTouch = Pick<Touch, 'clientX' | 'clientY'>;
+
+/**
+ * Creates a mock TouchList with array-like access for testing.
+ * Implements the minimal interface needed by the hook.
+ */
+function createMockTouchList(touches: MockTouch[]): TouchList {
+  const touchList = touches as TouchList;
+  touchList.length = touches.length;
+  touchList.item = (index: number) => touches[index] as Touch | null;
+  return touchList;
+}
+
+/**
+ * Creates a mock touch event for testing swipe gestures.
+ * Uses Pick to extract only the properties actually used by the hook.
+ */
+function createMockTouchEvent(
+  coordinates: { clientX: number; clientY: number }
+): Pick<ReactTouchEvent<Element>, 'touches'> {
   return {
-    bubbles: true,
-    cancelable: true,
-    touches: [{ clientX: coordinates.clientX, clientY: coordinates.clientY }],
+    touches: createMockTouchList([{
+      clientX: coordinates.clientX,
+      clientY: coordinates.clientY,
+    }]),
   };
 }
 
@@ -20,12 +43,12 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Touch start
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Touch move
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         // Touch end
         result.current.onTouchEnd();
@@ -41,11 +64,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 200, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 100, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -60,11 +83,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 140, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 140, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -79,11 +102,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 151, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 151, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -100,11 +123,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 200 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 100, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -119,11 +142,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 100, clientY: 200 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -140,12 +163,12 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move both horizontally and vertically, but vertical exceeds threshold
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 200 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 200 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -160,12 +183,12 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move horizontally more than vertically
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 150 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 150 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -180,12 +203,12 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 200 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Vertical movement is dominant
-        const touchMove = createTouchEvent('touchmove', { clientX: 120, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 120, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -203,11 +226,11 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Start within edge width
-        const touchStart = createTouchEvent('touchstart', { clientX: 15, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 15, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 150, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 150, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -223,11 +246,11 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Start outside edge width
-        const touchStart = createTouchEvent('touchstart', { clientX: 50, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 50, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -243,11 +266,11 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Start at exactly 20px (should trigger)
-        const touchStart = createTouchEvent('touchstart', { clientX: 20, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 20, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 150, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 150, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -264,11 +287,11 @@ describe('useSwipeGestures', () => {
 
       expect(() => {
         act(() => {
-          const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-          result.current.onTouchStart(touchStart as any);
+          const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+          result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-          const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-          result.current.onTouchMove(touchMove as any);
+          const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+          result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
           result.current.onTouchEnd();
         });
@@ -292,11 +315,11 @@ describe('useSwipeGestures', () => {
 
       // Test swipe right
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -316,8 +339,8 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -332,8 +355,8 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -349,22 +372,22 @@ describe('useSwipeGestures', () => {
 
       // First swipe
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
 
       // Second swipe
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -379,11 +402,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 250, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 250, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -398,11 +421,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 100, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 101, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 101, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -419,11 +442,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 200, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 100, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -438,11 +461,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 200, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 160, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 160, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -460,12 +483,12 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Start within 20px edge
-        const touchStart = createTouchEvent('touchstart', { clientX: 15, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 15, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move more than 100px (exceeds threshold)
-        const touchMove = createTouchEvent('touchmove', { clientX: 120, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 120, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -481,11 +504,11 @@ describe('useSwipeGestures', () => {
 
       act(() => {
         // Start outside 20px edge
-        const touchStart = createTouchEvent('touchstart', { clientX: 50, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 50, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 200, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });
@@ -500,11 +523,11 @@ describe('useSwipeGestures', () => {
       );
 
       act(() => {
-        const touchStart = createTouchEvent('touchstart', { clientX: 10, clientY: 100 });
-        result.current.onTouchStart(touchStart as any);
+        const touchStart = createMockTouchEvent( { clientX: 10, clientY: 100 });
+        result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createTouchEvent('touchmove', { clientX: 80, clientY: 100 });
-        result.current.onTouchMove(touchMove as any);
+        const touchMove = createMockTouchEvent( { clientX: 80, clientY: 100 });
+        result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
       });

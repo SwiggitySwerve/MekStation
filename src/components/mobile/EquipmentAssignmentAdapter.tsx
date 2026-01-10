@@ -9,7 +9,7 @@ export interface EquipmentItem {
   id: string;
   name: string;
   // Additional equipment properties
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -19,7 +19,7 @@ export interface EquipmentSlot {
   id: string;
   slotType: string;
   // Additional slot properties
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -88,7 +88,7 @@ export function EquipmentAssignmentAdapter({
   dragComponent,
   className = '',
 }: EquipmentAssignmentAdapterProps): React.ReactElement {
-  const { hasTouch, hasMouse } = useDeviceCapabilities();
+  const { hasTouch, hasMouse: _hasMouse } = useDeviceCapabilities();
   const [placementMode, setPlacementMode] = useState<PlacementModeState>({
     isActive: false,
     equipment: null,
@@ -157,13 +157,19 @@ export function EquipmentAssignmentAdapter({
       {children({
         isActive: placementMode.isActive,
         equipment: placementMode.equipment,
-        // Provide helper functions for touch mode
-        activatePlacementMode,
-        handleSlotTap,
-        cancelPlacementMode,
-      } as any)}
+      })}
     </div>
   );
+}
+
+/**
+ * Return type for usePlacementMode hook
+ */
+interface UsePlacementModeReturn {
+  isActive: boolean;
+  equipment: EquipmentItem | null;
+  activatePlacementMode: (equipment: EquipmentItem) => void;
+  cancelPlacementMode: () => void;
 }
 
 /**
@@ -174,7 +180,7 @@ export function EquipmentAssignmentAdapter({
  * const { isActive, activatePlacementMode, cancelPlacementMode } = usePlacementMode();
  * ```
  */
-export function usePlacementMode() {
+export function usePlacementMode(): UsePlacementModeReturn {
   const [placementMode, setPlacementMode] = useState<PlacementModeState>({
     isActive: false,
     equipment: null,

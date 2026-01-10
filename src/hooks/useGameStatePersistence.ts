@@ -152,7 +152,7 @@ export function useGameStatePersistence(
       // Check for conflicts by comparing with existing stored data
       const existingData = localStorage.getItem(storageKey);
       if (existingData) {
-        const stored: StoredData = JSON.parse(existingData);
+        const stored = JSON.parse(existingData) as StoredData;
         const storedTimestamp = new Date(stored.metadata.timestamp).getTime();
 
         // If existing data is newer than our initial state, we have a conflict
@@ -210,9 +210,10 @@ export function useGameStatePersistence(
         return;
       }
 
-      const parsed: StoredData = JSON.parse(storedData);
+      const parsed = JSON.parse(storedData) as StoredData;
 
       // Remove internal metadata from state before setting it
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { _lastSaved, ...cleanState } = parsed.state;
 
       // Version migration could be added here
@@ -318,11 +319,11 @@ export function useGameStatePersistence(
       return;
     }
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent): string => {
       e.preventDefault();
-      e.returnValue =
-        'You have unsaved changes. Are you sure you want to leave?';
-      return e.returnValue;
+      const message = 'You have unsaved changes. Are you sure you want to leave?';
+      e.returnValue = message;
+      return message;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);

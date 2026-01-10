@@ -140,7 +140,7 @@ describe('BottomNavBar', () => {
       // Initially structure is active
       let container = render(<BottomNavBar tabs={sampleTabs} />).container;
       let buttons = container.querySelectorAll('button');
-      let structureButton = Array.from(buttons).find((btn) =>
+      const structureButton = Array.from(buttons).find((btn) =>
         btn.textContent?.includes('Structure')
       );
       expect(structureButton).toHaveClass('text-blue-600');
