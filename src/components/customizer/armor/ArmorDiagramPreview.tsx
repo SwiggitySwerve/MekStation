@@ -225,7 +225,7 @@ export function ArmorDiagramGridPreview({
               </div>
             )}
           </div>
-          <div className="transform scale-[0.65] origin-top-left h-[340px] overflow-hidden">
+          <div className="transform scale-[0.55] origin-top-left h-[300px]">
             <ArmorDiagramPreview variant={variant} />
           </div>
         </div>
