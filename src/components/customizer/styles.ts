@@ -128,12 +128,12 @@ const layout = {
   /** Tab content container */
   tabContent: 'space-y-4 p-4',
   
-  /** Two-column grid */
-  twoColumn: 'grid grid-cols-1 lg:grid-cols-2 gap-4',
-  
+  /** Two-column grid - stacks on mobile, side-by-side on md+ */
+  twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4',
+
   /** Two-column grid with larger gap */
-  twoColumnWide: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
-  
+  twoColumnWide: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+
   /** Three-column grid */
   threeColumn: 'grid grid-cols-3 gap-3',
   
