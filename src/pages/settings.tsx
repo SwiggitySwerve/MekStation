@@ -42,6 +42,7 @@ function SettingsSection({
 
 /**
  * Toggle switch component
+ * Rectangular tactical style with proper sizing math
  */
 function Toggle({
   label,
@@ -68,18 +69,21 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`
-          relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer
-          rounded-full border-2 border-transparent
+          relative h-6 w-11 flex-shrink-0 cursor-pointer
+          rounded-md border
           transition-colors duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-800
-          ${checked ? 'bg-amber-500' : 'bg-slate-600'}
+          focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800
+          ${checked
+            ? 'bg-[var(--accent-primary)] border-[var(--accent-hover)]'
+            : 'bg-slate-700 border-slate-600 hover:bg-slate-600'
+          }
         `}
       >
         <span
           aria-hidden="true"
           className={`
-            pointer-events-none inline-block h-6 w-6
-            transform rounded-full bg-white shadow-lg ring-0
+            absolute top-1 left-1
+            h-4 w-4 rounded-sm bg-white shadow-sm
             transition-transform duration-200 ease-in-out
             ${checked ? 'translate-x-5' : 'translate-x-0'}
           `}
@@ -156,10 +160,10 @@ function AccentColorPicker({
           <button
             key={color.value}
             onClick={() => onChange(color.value)}
-            className={`w-10 h-10 rounded-lg border-2 transition-all ${
+            className={`w-10 h-10 rounded-md border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800 ${
               value === color.value
-                ? 'border-white scale-110 shadow-lg'
-                : 'border-transparent hover:border-slate-500'
+                ? 'border-white scale-110 shadow-lg ring-2 ring-white/30'
+                : 'border-transparent hover:border-slate-500 hover:scale-105'
             }`}
             style={{ backgroundColor: ACCENT_COLOR_CSS[color.value].primary }}
             aria-label={color.label}
@@ -225,9 +229,10 @@ function UIThemePicker({
               key={theme}
               onClick={() => onChange(theme)}
               className={`
-                p-3 rounded-lg border-2 text-left transition-all
+                p-3 rounded-md border-2 text-left transition-all
+                focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 focus:ring-offset-slate-800
                 ${isSelected
-                  ? 'border-amber-500 bg-amber-500/10'
+                  ? 'border-[var(--accent-primary)] bg-[var(--accent-muted)]'
                   : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
                 }
               `}

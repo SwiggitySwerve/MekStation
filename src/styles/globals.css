@@ -27,6 +27,14 @@
   --surface-base: #1e293b;      /* slate-800 */
   --surface-deep: #0f172a;      /* slate-900 */
   --surface-raised: #334155;    /* slate-700 */
+
+  /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
+  --accent-primary: #f59e0b;    /* amber-500 */
+  --accent-hover: #d97706;      /* amber-600 */
+  --accent-muted: rgba(245, 158, 11, 0.15);
+
+  /* Font Size (updated by GlobalStyleProvider) */
+  --font-size-base: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1207,4 +1215,85 @@ button:disabled {
 /* Error state for all diagram buttons */
 .diagram-btn-error {
   @apply bg-red-600 hover:bg-red-500 text-white;
+}
+
+/* ========================================
+   UI THEME CLASSES
+   ======================================== */
+
+/*
+ * Theme classes applied to <body> by GlobalStyleProvider.
+ * Use these for theme-specific style overrides.
+ */
+
+/* Default theme - clean slate design */
+.theme-default {
+  /* Base theme, no overrides needed */
+}
+
+/* Neon theme - cyberpunk with glow effects */
+.theme-neon {
+  --surface-base: #0f172a;
+  --surface-raised: #1e293b;
+}
+
+.theme-neon .card,
+.theme-neon .card-header {
+  @apply border-cyan-500/20;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+}
+
+.theme-neon input:focus,
+.theme-neon select:focus,
+.theme-neon button:focus {
+  box-shadow: 0 0 10px var(--accent-primary);
+}
+
+/* Tactical theme - military HUD style */
+.theme-tactical {
+  --surface-base: #0c1220;
+  --surface-raised: #1a2332;
+}
+
+.theme-tactical .card,
+.theme-tactical .card-header {
+  @apply border-slate-600 rounded-none;
+}
+
+.theme-tactical h1,
+.theme-tactical h2,
+.theme-tactical h3,
+.theme-tactical .section-title {
+  @apply font-mono tracking-wider uppercase;
+}
+
+/* Minimal theme - reduced visual noise */
+.theme-minimal {
+  --surface-base: #1e293b;
+  --surface-raised: #334155;
+}
+
+.theme-minimal .card,
+.theme-minimal .card-header {
+  @apply border-slate-700/50 shadow-none;
+}
+
+.theme-minimal .badge {
+  @apply border-transparent;
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+/*
+ * Applied when user enables "Reduce Motion" setting.
+ * Disables all animations and transitions.
+ */
+
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
 }
