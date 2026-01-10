@@ -12,6 +12,7 @@ import {
   AccentColor,
   FontSize,
   AnimationLevel,
+  UITheme,
   ACCENT_COLOR_CSS,
 } from '@/stores/useAppSettingsStore';
 import { ArmorDiagramGridPreview } from '@/components/customizer/armor/ArmorDiagramPreview';
@@ -62,17 +63,26 @@ function Toggle({
         )}
       </div>
       <button
+        type="button"
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-800 ${
-          checked ? 'bg-amber-500' : 'bg-slate-600'
-        }`}
+        className={`
+          relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer
+          rounded-full border-2 border-transparent
+          transition-colors duration-200 ease-in-out
+          focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-800
+          ${checked ? 'bg-amber-500' : 'bg-slate-600'}
+        `}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-            checked ? 'translate-x-[22px]' : 'translate-x-1'
-          }`}
+          aria-hidden="true"
+          className={`
+            pointer-events-none inline-block h-6 w-6
+            transform rounded-full bg-white shadow-lg ring-0
+            transition-transform duration-200 ease-in-out
+            ${checked ? 'translate-x-5' : 'translate-x-0'}
+          `}
         />
       </button>
     </div>
@@ -161,6 +171,79 @@ function AccentColorPicker({
   );
 }
 
+/**
+ * UI Theme info for display
+ */
+const UI_THEME_INFO: Record<UITheme, { name: string; description: string; preview: string }> = {
+  default: {
+    name: 'Default',
+    description: 'Clean slate design with amber accents',
+    preview: 'bg-slate-800 border-slate-700',
+  },
+  neon: {
+    name: 'Neon',
+    description: 'Cyberpunk-inspired with glow effects',
+    preview: 'bg-slate-900 border-cyan-500/30',
+  },
+  tactical: {
+    name: 'Tactical',
+    description: 'Military HUD style with monospace fonts',
+    preview: 'bg-slate-900 border-slate-600',
+  },
+  minimal: {
+    name: 'Minimal',
+    description: 'Reduced visual noise, focus on content',
+    preview: 'bg-slate-800/50 border-slate-700/50',
+  },
+};
+
+/**
+ * UI Theme picker
+ */
+function UIThemePicker({
+  value,
+  onChange,
+}: {
+  value: UITheme;
+  onChange: (theme: UITheme) => void;
+}) {
+  const themes: UITheme[] = ['default', 'neon', 'tactical', 'minimal'];
+
+  return (
+    <div>
+      <div className="text-sm font-medium text-white mb-2">UI Theme</div>
+      <div className="text-xs text-slate-400 mb-3">
+        Choose the overall visual style of the interface
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {themes.map((theme) => {
+          const info = UI_THEME_INFO[theme];
+          const isSelected = value === theme;
+
+          return (
+            <button
+              key={theme}
+              onClick={() => onChange(theme)}
+              className={`
+                p-3 rounded-lg border-2 text-left transition-all
+                ${isSelected
+                  ? 'border-amber-500 bg-amber-500/10'
+                  : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
+                }
+              `}
+            >
+              {/* Preview bar */}
+              <div className={`h-2 w-full rounded mb-2 border ${info.preview}`} />
+              <div className="text-sm font-medium text-white">{info.name}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{info.description}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 export default function SettingsPage() {
   const settings = useAppSettingsStore();
@@ -182,6 +265,11 @@ export default function SettingsPage() {
             title="Appearance"
             description="Customize colors, fonts, and visual effects"
           >
+            <UIThemePicker
+              value={settings.uiTheme}
+              onChange={settings.setUITheme}
+            />
+
             <AccentColorPicker
               value={settings.accentColor}
               onChange={settings.setAccentColor}

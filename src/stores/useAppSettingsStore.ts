@@ -18,6 +18,11 @@ export type ArmorDiagramVariant =
   | 'premium-material';
 
 /**
+ * Global UI theme variants
+ */
+export type UITheme = 'default' | 'neon' | 'tactical' | 'minimal';
+
+/**
  * Accent color options
  */
 export type AccentColor =
@@ -47,6 +52,7 @@ export interface AppSettingsState {
   fontSize: FontSize;
   animationLevel: AnimationLevel;
   compactMode: boolean;
+  uiTheme: UITheme;
 
   // Customizer preferences
   armorDiagramVariant: ArmorDiagramVariant;
@@ -66,6 +72,7 @@ export interface AppSettingsState {
   setFontSize: (size: FontSize) => void;
   setAnimationLevel: (level: AnimationLevel) => void;
   setCompactMode: (compact: boolean) => void;
+  setUITheme: (theme: UITheme) => void;
   setArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
   setShowArmorDiagramSelector: (show: boolean) => void;
   setSidebarDefaultCollapsed: (collapsed: boolean) => void;
@@ -76,12 +83,13 @@ export interface AppSettingsState {
   resetToDefaults: () => void;
 }
 
-const DEFAULT_SETTINGS: Omit<AppSettingsState, 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed' | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults'> = {
+const DEFAULT_SETTINGS: Omit<AppSettingsState, 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed' | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults'> = {
   // Appearance
   accentColor: 'amber',
   fontSize: 'medium',
   animationLevel: 'full',
   compactMode: false,
+  uiTheme: 'default',
 
   // Customizer preferences
   armorDiagramVariant: 'clean-tech',
@@ -109,6 +117,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       setFontSize: (size) => set({ fontSize: size }),
       setAnimationLevel: (level) => set({ animationLevel: level }),
       setCompactMode: (compact) => set({ compactMode: compact }),
+      setUITheme: (theme) => set({ uiTheme: theme }),
       setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
       setShowArmorDiagramSelector: (show) => set({ showArmorDiagramSelector: show }),
       setSidebarDefaultCollapsed: (collapsed) => set({ sidebarDefaultCollapsed: collapsed }),
