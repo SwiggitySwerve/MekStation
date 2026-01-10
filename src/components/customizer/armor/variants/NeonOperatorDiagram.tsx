@@ -23,10 +23,6 @@ import {
   getArmorStatusColor,
   lightenColor,
   SELECTED_COLOR,
-  FRONT_ARMOR_COLOR,
-  REAR_ARMOR_COLOR,
-  FRONT_ARMOR_LIGHT,
-  REAR_ARMOR_LIGHT,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
@@ -124,14 +120,11 @@ function NeonLocation({
   const frontPercent = frontMax > 0 ? (front / frontMax) * 100 : 0;
   const rearPercent = rearMax > 0 ? (rear / rearMax) * 100 : 0;
 
-  // Colors
-  const frontColor = isSelected ? SELECTED_COLOR : FRONT_ARMOR_COLOR;
-  const rearColor = isSelected ? SELECTED_COLOR : REAR_ARMOR_COLOR;
-  const nonTorsoColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(front, frontMax);
+  // Status-based colors for front and rear independently
+  const frontColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(front, frontMax);
+  const rearColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(rear, rearMax);
 
-  const glowColor = showRear
-    ? (isHovered ? lightenColor(frontColor, 0.2) : frontColor)
-    : (isHovered ? lightenColor(nonTorsoColor, 0.3) : nonTorsoColor);
+  const glowColor = isHovered ? lightenColor(frontColor, 0.2) : frontColor;
 
   const fillOpacity = isHovered ? 0.4 : 0.25;
 
@@ -241,11 +234,10 @@ function NeonLocation({
             y1={dividerY}
             x2={pos.x + pos.width - 6}
             y2={dividerY}
-            stroke={FRONT_ARMOR_LIGHT}
+            stroke="#64748b"
             strokeWidth={1}
             strokeDasharray="4 3"
-            opacity={0.5}
-            style={{ filter: 'url(#armor-glow)' }}
+            opacity={0.6}
           />
 
           {/* Rear section */}
@@ -460,18 +452,20 @@ export function NeonOperatorDiagram({
       {/* Legend */}
       <div className="flex justify-center items-center gap-3 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
-          <div
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: FRONT_ARMOR_COLOR, boxShadow: `0 0 6px ${FRONT_ARMOR_COLOR}` }}
-          />
-          <span className="text-slate-400">Front</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #22c55e' }} />
+          <span className="text-slate-400">75%+</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: REAR_ARMOR_COLOR, boxShadow: `0 0 6px ${REAR_ARMOR_COLOR}` }}
-          />
-          <span className="text-slate-400">Rear</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-500" style={{ boxShadow: '0 0 6px #f59e0b' }} />
+          <span className="text-slate-400">50%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-orange-500" style={{ boxShadow: '0 0 6px #f97316' }} />
+          <span className="text-slate-400">25%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px #ef4444' }} />
+          <span className="text-slate-400">&lt;25%</span>
         </div>
         <div className="w-px h-3 bg-slate-700" />
         <span className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}>

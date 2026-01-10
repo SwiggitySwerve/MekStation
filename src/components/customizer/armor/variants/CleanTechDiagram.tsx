@@ -25,8 +25,6 @@ import {
   lightenColor,
   SELECTED_COLOR,
   SELECTED_STROKE,
-  FRONT_ARMOR_COLOR,
-  REAR_ARMOR_COLOR,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
@@ -57,15 +55,9 @@ function CleanTechLocation({
   const rear = data?.rear ?? 0;
   const rearMax = data?.rearMaximum ?? 1;
 
-  // Calculate fill colors
-  // For torso locations, use distinct amber (front) and sky (rear) colors
-  // For non-torso locations, use status-based colors
-  const frontBaseColor = isSelected
-    ? SELECTED_COLOR
-    : showRear
-      ? FRONT_ARMOR_COLOR
-      : getArmorStatusColor(current, maximum);
-  const rearBaseColor = isSelected ? SELECTED_COLOR : REAR_ARMOR_COLOR;
+  // Status-based colors for front and rear independently
+  const frontBaseColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(current, maximum);
+  const rearBaseColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(rear, rearMax);
 
   const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
   const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
@@ -306,19 +298,18 @@ export function CleanTechDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-4 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: FRONT_ARMOR_COLOR }} />
-          <span className="text-slate-400">Front</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: REAR_ARMOR_COLOR }} />
-          <span className="text-slate-400">Rear</span>
-        </div>
-        <div className="w-px h-3 bg-slate-600" />
+      <div className="flex justify-center gap-3 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-green-500" />
           <span className="text-slate-400">75%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded bg-amber-500" />
+          <span className="text-slate-400">50%+</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded bg-orange-500" />
+          <span className="text-slate-400">25%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-500" />
