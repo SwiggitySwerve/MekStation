@@ -32,18 +32,19 @@ describe('TacticalHUDDiagram', () => {
     expect(screen.getByText('ARMOR DIAGNOSTIC')).toBeInTheDocument();
   });
 
-  it('should display front and rear view labels', () => {
+  it('should display front and rear labels on torso locations', () => {
     render(<TacticalHUDDiagram {...defaultProps} />);
 
-    expect(screen.getByText('[ FRONT VIEW ]')).toBeInTheDocument();
-    expect(screen.getByText('[ REAR VIEW ]')).toBeInTheDocument();
+    // Torso locations show stacked front/rear with "-F" and "-R" labels
+    expect(screen.getByText('CT-F')).toBeInTheDocument();
+    expect(screen.getByText('CT-R')).toBeInTheDocument();
   });
 
-  it('should render auto-alloc button with points', () => {
+  it('should render auto-allocate button with points', () => {
     const onAutoAllocate = jest.fn();
     render(<TacticalHUDDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    expect(screen.getByText(/AUTO-ALLOC \[\+12\]/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auto Allocate \(12 pts\)/)).toBeInTheDocument();
   });
 
   it('should call onAutoAllocate when button is clicked', async () => {
@@ -51,7 +52,7 @@ describe('TacticalHUDDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<TacticalHUDDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    await user.click(screen.getByText(/AUTO-ALLOC/i));
+    await user.click(screen.getByText(/Auto Allocate/));
     expect(onAutoAllocate).toHaveBeenCalledTimes(1);
   });
 

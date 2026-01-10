@@ -36,9 +36,7 @@ describe('PremiumMaterialDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} unallocatedPoints={55} />);
 
-    expect(screen.getByText('Auto-Allocate')).toBeInTheDocument();
-    // Use a unique unallocatedPoints value to avoid collision with armor values
-    expect(screen.getByText('55')).toBeInTheDocument();
+    expect(screen.getByText(/Auto Allocate \(55 pts\)/)).toBeInTheDocument();
   });
 
   it('should call onAutoAllocate when button is clicked', async () => {
@@ -46,16 +44,17 @@ describe('PremiumMaterialDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    await user.click(screen.getByText('Auto-Allocate'));
+    await user.click(screen.getByText(/Auto Allocate/));
     expect(onAutoAllocate).toHaveBeenCalledTimes(1);
   });
 
   it('should display legend with status indicators', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    expect(screen.getByText('Optimal')).toBeInTheDocument();
-    expect(screen.getByText('Moderate')).toBeInTheDocument();
-    expect(screen.getByText('Critical')).toBeInTheDocument();
+    expect(screen.getByText('75%+')).toBeInTheDocument();
+    expect(screen.getByText('50%+')).toBeInTheDocument();
+    expect(screen.getByText('25%+')).toBeInTheDocument();
+    expect(screen.getByText('<25%')).toBeInTheDocument();
   });
 
   it('should display instruction text', () => {
@@ -83,11 +82,11 @@ describe('PremiumMaterialDiagram', () => {
   it('should render all 8 mech locations', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    // Check for location labels
+    // Check for location labels (torso locations show "X FRONT" format)
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT')).toBeInTheDocument();
-    expect(screen.getByText('LT')).toBeInTheDocument();
-    expect(screen.getByText('RT')).toBeInTheDocument();
+    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();
@@ -97,9 +96,8 @@ describe('PremiumMaterialDiagram', () => {
   it('should display rear armor labels for torso locations', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    // Check for rear labels
-    expect(screen.getByText('CT REAR')).toBeInTheDocument();
-    expect(screen.getByText('LT REAR')).toBeInTheDocument();
-    expect(screen.getByText('RT REAR')).toBeInTheDocument();
+    // Check for rear labels (3 torso locations have REAR labels)
+    const rearLabels = screen.getAllByText('REAR');
+    expect(rearLabels.length).toBe(3);
   });
 });

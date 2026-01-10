@@ -40,6 +40,42 @@ export function getArmorStatusColor(current: number, maximum: number): string {
 }
 
 /**
+ * Standard front/rear armor distribution ratio (75/25 split)
+ */
+const FRONT_RATIO = 0.75;
+const REAR_RATIO = 0.25;
+
+/**
+ * Get status color for torso front armor based on expected capacity
+ *
+ * Uses 75/25 split as baseline - front "expected max" is 75% of total max.
+ * This ensures front armor shows green when at expected capacity,
+ * even though front has more raw points than rear.
+ *
+ * @param frontCurrent - Current front armor points
+ * @param totalMax - Total max armor for location (front + rear combined)
+ * @returns Status color
+ */
+export function getTorsoFrontStatusColor(frontCurrent: number, totalMax: number): string {
+  const expectedFrontMax = Math.round(totalMax * FRONT_RATIO);
+  return getArmorStatusColor(frontCurrent, expectedFrontMax);
+}
+
+/**
+ * Get status color for torso rear armor based on expected capacity
+ *
+ * Uses 75/25 split as baseline - rear "expected max" is 25% of total max.
+ *
+ * @param rearCurrent - Current rear armor points
+ * @param totalMax - Total max armor for location (front + rear combined)
+ * @returns Status color
+ */
+export function getTorsoRearStatusColor(rearCurrent: number, totalMax: number): string {
+  const expectedRearMax = Math.round(totalMax * REAR_RATIO);
+  return getArmorStatusColor(rearCurrent, expectedRearMax);
+}
+
+/**
  * Get status color for a torso location based on total (front + rear) armor
  * For non-torso locations, use getArmorStatusColor instead
  */

@@ -35,11 +35,11 @@ describe('CleanTechDiagram', () => {
   it('should render all 8 mech locations', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    // Check for location labels
+    // Check for location labels (torso locations show "X FRONT" format)
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT')).toBeInTheDocument();
-    expect(screen.getByText('LT')).toBeInTheDocument();
-    expect(screen.getByText('RT')).toBeInTheDocument();
+    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('CleanTechDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    expect(screen.getByText(/Auto-Allocate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
     expect(screen.getByText(/12 pts/i)).toBeInTheDocument();
   });
 
@@ -67,7 +67,7 @@ describe('CleanTechDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    await user.click(screen.getByText(/Auto-Allocate/i));
+    await user.click(screen.getByText(/Auto Allocate/i));
     expect(onAutoAllocate).toHaveBeenCalledTimes(1);
   });
 
@@ -86,8 +86,8 @@ describe('CleanTechDiagram', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
     expect(screen.getByText('75%+')).toBeInTheDocument();
-    expect(screen.getByText('50-74%')).toBeInTheDocument();
-    expect(screen.getByText('25-49%')).toBeInTheDocument();
+    expect(screen.getByText('50%+')).toBeInTheDocument();
+    expect(screen.getByText('25%+')).toBeInTheDocument();
     expect(screen.getByText('<25%')).toBeInTheDocument();
   });
 
@@ -113,7 +113,7 @@ describe('CleanTechDiagram', () => {
       />
     );
 
-    const button = screen.getByText(/Auto-Allocate/i);
+    const button = screen.getByText(/Auto Allocate/i);
     expect(button).toHaveClass('bg-red-600');
   });
 });

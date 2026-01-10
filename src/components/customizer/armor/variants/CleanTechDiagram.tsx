@@ -22,6 +22,8 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
+  getTorsoFrontStatusColor,
+  getTorsoRearStatusColor,
   lightenColor,
   SELECTED_COLOR,
   SELECTED_STROKE,
@@ -55,9 +57,19 @@ function CleanTechLocation({
   const rear = data?.rear ?? 0;
   const rearMax = data?.rearMaximum ?? 1;
 
+  // For torso locations, use expected capacity (75/25 split) as baseline
+  const expectedFrontMax = showRear ? Math.round(maximum * 0.75) : maximum;
+  const expectedRearMax = showRear ? Math.round(maximum * 0.25) : 1;
+
   // Status-based colors for front and rear independently
-  const frontBaseColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(current, maximum);
-  const rearBaseColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(rear, rearMax);
+  const frontBaseColor = isSelected
+    ? SELECTED_COLOR
+    : showRear
+      ? getTorsoFrontStatusColor(current, maximum)
+      : getArmorStatusColor(current, maximum);
+  const rearBaseColor = isSelected
+    ? SELECTED_COLOR
+    : getTorsoRearStatusColor(rear, maximum);
 
   const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
   const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
@@ -258,7 +270,7 @@ export function CleanTechDiagram({
                 : 'bg-amber-600 hover:bg-amber-500 text-white'
             }`}
           >
-            Auto-Allocate ({unallocatedPoints} pts)
+            Auto Allocate ({unallocatedPoints} pts)
           </button>
         )}
       </div>

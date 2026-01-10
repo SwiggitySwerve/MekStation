@@ -32,32 +32,21 @@ describe('NeonOperatorDiagram', () => {
     expect(screen.getByText('ARMOR STATUS')).toBeInTheDocument();
   });
 
-  it('should render front/rear toggle buttons', () => {
+  it('should render front/rear labels on torso locations', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
-    expect(screen.getByText('FRONT')).toBeInTheDocument();
-    expect(screen.getByText('REAR')).toBeInTheDocument();
-  });
-
-  it('should toggle between front and rear views', async () => {
-    const user = userEvent.setup();
-    render(<NeonOperatorDiagram {...defaultProps} />);
-
-    // Initially in front view
-    expect(screen.getByText('VIEW: FRONT')).toBeInTheDocument();
-
-    // Click rear button
-    await user.click(screen.getByText('REAR'));
-
-    // Should now show rear view
-    expect(screen.getByText('VIEW: REAR')).toBeInTheDocument();
+    // Torso locations have stacked front/rear with FRONT label
+    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
+    // Multiple REAR labels for each torso
+    const rearLabels = screen.getAllByText('REAR');
+    expect(rearLabels.length).toBe(3);
   });
 
   it('should display auto button with unallocated points', () => {
     const onAutoAllocate = jest.fn();
     render(<NeonOperatorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    expect(screen.getByText(/AUTO \[12\]/i)).toBeInTheDocument();
+    expect(screen.getByText(/Auto Allocate \(12 pts\)/)).toBeInTheDocument();
   });
 
   it('should call onAutoAllocate when button is clicked', async () => {
@@ -65,7 +54,7 @@ describe('NeonOperatorDiagram', () => {
     const onAutoAllocate = jest.fn();
     render(<NeonOperatorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
 
-    await user.click(screen.getByText(/AUTO/i));
+    await user.click(screen.getByText(/Auto Allocate/));
     expect(onAutoAllocate).toHaveBeenCalledTimes(1);
   });
 
@@ -79,10 +68,9 @@ describe('NeonOperatorDiagram', () => {
     expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
   });
 
-  it('should display system status info', () => {
+  it('should display unallocated points info', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
-    expect(screen.getByText('SYS: ONLINE')).toBeInTheDocument();
     expect(screen.getByText('UNALLOC: 12')).toBeInTheDocument();
   });
 
@@ -96,18 +84,5 @@ describe('NeonOperatorDiagram', () => {
     const { container } = render(<NeonOperatorDiagram {...defaultProps} className="custom-class" />);
 
     expect(container.firstChild).toHaveClass('custom-class');
-  });
-
-  it('should show only torso locations in rear view', async () => {
-    const user = userEvent.setup();
-    render(<NeonOperatorDiagram {...defaultProps} />);
-
-    // Switch to rear view
-    await user.click(screen.getByText('REAR'));
-
-    // Rear view should show torso locations with R suffix
-    expect(screen.getByText('CTR')).toBeInTheDocument();
-    expect(screen.getByText('LTR')).toBeInTheDocument();
-    expect(screen.getByText('RTR')).toBeInTheDocument();
   });
 });

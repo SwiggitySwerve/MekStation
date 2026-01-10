@@ -47,6 +47,30 @@ jest.mock('@/components/customizer/armor/ArmorDiagram', () => ({
   ),
 }));
 
+// Mock the variant diagrams used by ArmorTab
+jest.mock('@/components/customizer/armor/variants', () => ({
+  CleanTechDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+    <div data-testid="armor-diagram">
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+    </div>
+  ),
+  NeonOperatorDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+    <div data-testid="armor-diagram">
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+    </div>
+  ),
+  TacticalHUDDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+    <div data-testid="armor-diagram">
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+    </div>
+  ),
+  PremiumMaterialDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+    <div data-testid="armor-diagram">
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+    </div>
+  ),
+}));
+
 jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
   LocationArmorEditor: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="location-armor-editor">

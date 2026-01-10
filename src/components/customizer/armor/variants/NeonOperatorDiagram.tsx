@@ -21,6 +21,8 @@ import {
 import {
   GradientDefs,
   getArmorStatusColor,
+  getTorsoFrontStatusColor,
+  getTorsoRearStatusColor,
   lightenColor,
   SELECTED_COLOR,
 } from '../shared/ArmorFills';
@@ -117,12 +119,23 @@ function NeonLocation({
   const rear = data?.rear ?? 0;
   const rearMax = data?.rearMaximum ?? 1;
 
-  const frontPercent = frontMax > 0 ? (front / frontMax) * 100 : 0;
-  const rearPercent = rearMax > 0 ? (rear / rearMax) * 100 : 0;
+  // For torso locations, use expected capacity (75/25 split) as baseline
+  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
+  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
+
+  // Fill percentages based on expected capacity
+  const frontPercent = expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
+  const rearPercent = expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
 
   // Status-based colors for front and rear independently
-  const frontColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(front, frontMax);
-  const rearColor = isSelected ? SELECTED_COLOR : getArmorStatusColor(rear, rearMax);
+  const frontColor = isSelected
+    ? SELECTED_COLOR
+    : showRear
+      ? getTorsoFrontStatusColor(front, frontMax)
+      : getArmorStatusColor(front, frontMax);
+  const rearColor = isSelected
+    ? SELECTED_COLOR
+    : getTorsoRearStatusColor(rear, frontMax);
 
   const glowColor = isHovered ? lightenColor(frontColor, 0.2) : frontColor;
 
@@ -382,7 +395,7 @@ export function NeonOperatorDiagram({
                 : '0 0 10px rgba(34, 211, 238, 0.3)',
             }}
           >
-            AUTO [{unallocatedPoints}]
+            Auto Allocate ({unallocatedPoints} pts)
           </button>
         )}
       </div>
