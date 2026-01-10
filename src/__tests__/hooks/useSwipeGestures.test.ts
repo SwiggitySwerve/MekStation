@@ -11,8 +11,8 @@ type MockTouch = Pick<Touch, 'clientX' | 'clientY'>;
  * Creates a mock TouchList with array-like access for testing.
  * Implements the minimal interface needed by the hook.
  */
-function createMockTouchList(touches: MockTouch[]): TouchList {
-  return {
+function createMockTouchList(touches: MockTouch[]): React.TouchList {
+  const touchList = {
     length: touches.length,
     item: (index: number) => touches[index] as Touch | null,
     identifiedTouch: () => null,
@@ -25,7 +25,9 @@ function createMockTouchList(touches: MockTouch[]): TouchList {
       acc[index] = touch as Touch;
       return acc;
     }, {} as Record<number, Touch>),
-  } as TouchList;
+  };
+  // Cast to React.TouchList - this is a test mock that provides the minimal interface
+  return touchList as React.TouchList;
 }
 
 /**
@@ -39,7 +41,7 @@ function createMockTouchEvent(
     touches: createMockTouchList([{
       clientX: coordinates.clientX,
       clientY: coordinates.clientY,
-    }]) as unknown as React.TouchList,
+    }]),
   };
 }
 

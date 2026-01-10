@@ -309,7 +309,8 @@ describe('hapticFeedback', () => {
     });
 
     it('should handle undefined return from vibrate', () => {
-      mockVibrate.mockReturnValue(undefined as unknown as boolean);
+      // Use mockImplementation to return undefined without type issues
+      mockVibrate.mockImplementation(() => undefined as never);
 
       // When vibrate returns undefined, the function returns undefined
       expect(hapticFeedback.tap()).toBeUndefined();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
-import { EquipmentAssignmentAdapter, usePlacementMode, PlacementModeState, EquipmentSlot } from '../../../components/mobile/EquipmentAssignmentAdapter';
+import { EquipmentAssignmentAdapter, usePlacementMode, PlacementModeState } from '../../../components/mobile/EquipmentAssignmentAdapter';
 import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
 import * as hapticFeedback from '../../../utils/hapticFeedback';
 
