@@ -1,19 +1,20 @@
 import React from 'react';
+import { IEquipmentItem } from '../../types/equipment';
 
-export interface EquipmentItem {
-  id: string;
-  name: string;
-  type: string;
-  tonnage: number;
-  damage?: string;
+/**
+ * Extended equipment details for weapon-specific display
+ * Used to show combat stats when available
+ */
+export interface WeaponDetails {
+  damage?: number | string;
   range?: string;
   heat?: number;
-  description?: string;
-  [key: string]: any;
 }
 
 export interface EquipmentDetailProps {
-  item: EquipmentItem;
+  item: IEquipmentItem;
+  weaponDetails?: WeaponDetails;
+  description?: string;
   onBack: () => void;
   onAssign?: () => void;
   className?: string;
@@ -21,6 +22,8 @@ export interface EquipmentDetailProps {
 
 export function EquipmentDetail({
   item,
+  weaponDetails,
+  description,
   onBack,
   onAssign,
   className = '',
@@ -78,39 +81,51 @@ export function EquipmentDetail({
             </h3>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Type</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.type}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Category</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.category}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Tonnage</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.tonnage} tons</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Weight</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.weight} tons</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Critical Slots</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.criticalSlots}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Tech Base</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.techBase}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Cost</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{item.costCBills.toLocaleString()} C-Bills</span>
               </div>
             </div>
           </div>
 
-          {/* Combat stats */}
-          {(item.damage || item.range || item.heat !== undefined) && (
+          {/* Combat stats (only shown for weapons) */}
+          {weaponDetails && (weaponDetails.damage || weaponDetails.range || weaponDetails.heat !== undefined) && (
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                 Combat Stats
               </h3>
               <div className="space-y-2">
-                {item.damage && (
+                {weaponDetails.damage !== undefined && (
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Damage</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{item.damage}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{weaponDetails.damage}</span>
                   </div>
                 )}
-                {item.range && (
+                {weaponDetails.range && (
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Range</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{item.range}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{weaponDetails.range}</span>
                   </div>
                 )}
-                {item.heat !== undefined && (
+                {weaponDetails.heat !== undefined && (
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Heat</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{item.heat}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{weaponDetails.heat}</span>
                   </div>
                 )}
               </div>
@@ -118,13 +133,13 @@ export function EquipmentDetail({
           )}
 
           {/* Description */}
-          {item.description && (
+          {description && (
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                 Description
               </h3>
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                {item.description}
+                {description}
               </p>
             </div>
           )}

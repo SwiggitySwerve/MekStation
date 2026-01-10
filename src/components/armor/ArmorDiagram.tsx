@@ -1,47 +1,54 @@
 import React, { useState } from 'react';
 import { ArmorLocation } from './ArmorLocation';
+import { MechLocation } from '../../types/construction/CriticalSlotAllocation';
 
-export type ArmorLocationKey =
-  | 'head'
-  | 'centerTorso'
-  | 'leftTorso'
-  | 'rightTorso'
-  | 'leftArm'
-  | 'rightArm'
-  | 'leftLeg'
-  | 'rightLeg';
-
+/**
+ * Armor values per location for front, rear, and max armor
+ * Uses MechLocation enum from base types for consistency
+ */
 export interface ArmorData {
-  front: Record<ArmorLocationKey, number>;
-  rear: Record<ArmorLocationKey, number>;
-  max: Record<ArmorLocationKey, number>;
+  front: Record<MechLocation, number>;
+  rear: Record<MechLocation, number>;
+  max: Record<MechLocation, number>;
 }
 
 export type ArmorAllocationType = 'even' | 'front-weighted' | 'rear-weighted';
 
 export interface ArmorDiagramProps {
   armor: ArmorData;
-  onArmorChange: (location: ArmorLocationKey, value: number, facing: 'front' | 'rear') => void;
+  onArmorChange: (location: MechLocation, value: number, facing: 'front' | 'rear') => void;
   onAutoAllocate?: (type: ArmorAllocationType) => void;
   className?: string;
 }
 
-const LOCATION_LABELS: Record<ArmorLocationKey, string> = {
-  head: 'Head',
-  centerTorso: 'Center Torso',
-  leftTorso: 'Left Torso',
-  rightTorso: 'Right Torso',
-  leftArm: 'Left Arm',
-  rightArm: 'Right Arm',
-  leftLeg: 'Left Leg',
-  rightLeg: 'Right Leg',
-};
+/**
+ * All mech locations in display order
+ */
+const MECH_LOCATIONS: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+] as const;
+
+/**
+ * Locations grouped by body section for mobile display
+ */
+const LOCATION_GROUPS = {
+  torso: [MechLocation.CENTER_TORSO, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+  arms: [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
+  legs: [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
+} as const;
 
 export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className = '' }: ArmorDiagramProps): React.ReactElement {
   const [facing, setFacing] = useState<'front' | 'rear'>('front');
   const [allocationType, setAllocationType] = useState<ArmorAllocationType>('even');
 
-  const handleArmorChange = (location: ArmorLocationKey, value: number) => {
+  const handleArmorChange = (location: MechLocation, value: number) => {
     onArmorChange(location, value, facing);
   };
 
@@ -125,80 +132,80 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         {/* Head */}
         <div style={{ gridArea: 'head' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.head}
-            currentArmor={armor[facing].head}
-            maxArmor={armor.max.head}
-            onArmorChange={(value) => handleArmorChange('head', value)}
+            location={MechLocation.HEAD}
+            currentArmor={armor[facing][MechLocation.HEAD]}
+            maxArmor={armor.max[MechLocation.HEAD]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.HEAD, value)}
           />
         </div>
 
         {/* Center Torso */}
         <div style={{ gridArea: 'center-torso' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.centerTorso}
-            currentArmor={armor[facing].centerTorso}
-            maxArmor={armor.max.centerTorso}
-            onArmorChange={(value) => handleArmorChange('centerTorso', value)}
+            location={MechLocation.CENTER_TORSO}
+            currentArmor={armor[facing][MechLocation.CENTER_TORSO]}
+            maxArmor={armor.max[MechLocation.CENTER_TORSO]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.CENTER_TORSO, value)}
           />
         </div>
 
         {/* Left Torso */}
         <div style={{ gridArea: 'left-torso' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.leftTorso}
-            currentArmor={armor[facing].leftTorso}
-            maxArmor={armor.max.leftTorso}
-            onArmorChange={(value) => handleArmorChange('leftTorso', value)}
+            location={MechLocation.LEFT_TORSO}
+            currentArmor={armor[facing][MechLocation.LEFT_TORSO]}
+            maxArmor={armor.max[MechLocation.LEFT_TORSO]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_TORSO, value)}
           />
         </div>
 
         {/* Right Torso */}
         <div style={{ gridArea: 'right-torso' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.rightTorso}
-            currentArmor={armor[facing].rightTorso}
-            maxArmor={armor.max.rightTorso}
-            onArmorChange={(value) => handleArmorChange('rightTorso', value)}
+            location={MechLocation.RIGHT_TORSO}
+            currentArmor={armor[facing][MechLocation.RIGHT_TORSO]}
+            maxArmor={armor.max[MechLocation.RIGHT_TORSO]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_TORSO, value)}
           />
         </div>
 
         {/* Left Arm */}
         <div style={{ gridArea: 'left-arm' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.leftArm}
-            currentArmor={armor[facing].leftArm}
-            maxArmor={armor.max.leftArm}
-            onArmorChange={(value) => handleArmorChange('leftArm', value)}
+            location={MechLocation.LEFT_ARM}
+            currentArmor={armor[facing][MechLocation.LEFT_ARM]}
+            maxArmor={armor.max[MechLocation.LEFT_ARM]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_ARM, value)}
           />
         </div>
 
         {/* Right Arm */}
         <div style={{ gridArea: 'right-arm' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.rightArm}
-            currentArmor={armor[facing].rightArm}
-            maxArmor={armor.max.rightArm}
-            onArmorChange={(value) => handleArmorChange('rightArm', value)}
+            location={MechLocation.RIGHT_ARM}
+            currentArmor={armor[facing][MechLocation.RIGHT_ARM]}
+            maxArmor={armor.max[MechLocation.RIGHT_ARM]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_ARM, value)}
           />
         </div>
 
         {/* Left Leg */}
         <div style={{ gridArea: 'left-leg' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.leftLeg}
-            currentArmor={armor[facing].leftLeg}
-            maxArmor={armor.max.leftLeg}
-            onArmorChange={(value) => handleArmorChange('leftLeg', value)}
+            location={MechLocation.LEFT_LEG}
+            currentArmor={armor[facing][MechLocation.LEFT_LEG]}
+            maxArmor={armor.max[MechLocation.LEFT_LEG]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_LEG, value)}
           />
         </div>
 
         {/* Right Leg */}
         <div style={{ gridArea: 'right-leg' }}>
           <ArmorLocation
-            location={LOCATION_LABELS.rightLeg}
-            currentArmor={armor[facing].rightLeg}
-            maxArmor={armor.max.rightLeg}
-            onArmorChange={(value) => handleArmorChange('rightLeg', value)}
+            location={MechLocation.RIGHT_LEG}
+            currentArmor={armor[facing][MechLocation.RIGHT_LEG]}
+            maxArmor={armor.max[MechLocation.RIGHT_LEG]}
+            onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_LEG, value)}
           />
         </div>
       </div>
@@ -207,67 +214,52 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
       <div className="lg:hidden flex flex-col gap-3">
         {/* Head */}
         <ArmorLocation
-          location={LOCATION_LABELS.head}
-          currentArmor={armor[facing].head}
-          maxArmor={armor.max.head}
-          onArmorChange={(value) => handleArmorChange('head', value)}
+          location={MechLocation.HEAD}
+          currentArmor={armor[facing][MechLocation.HEAD]}
+          maxArmor={armor.max[MechLocation.HEAD]}
+          onArmorChange={(value) => handleArmorChange(MechLocation.HEAD, value)}
         />
 
         {/* Torso Section */}
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-1">Torso</h4>
-          <ArmorLocation
-            location={LOCATION_LABELS.centerTorso}
-            currentArmor={armor[facing].centerTorso}
-            maxArmor={armor.max.centerTorso}
-            onArmorChange={(value) => handleArmorChange('centerTorso', value)}
-          />
-          <ArmorLocation
-            location={LOCATION_LABELS.leftTorso}
-            currentArmor={armor[facing].leftTorso}
-            maxArmor={armor.max.leftTorso}
-            onArmorChange={(value) => handleArmorChange('leftTorso', value)}
-          />
-          <ArmorLocation
-            location={LOCATION_LABELS.rightTorso}
-            currentArmor={armor[facing].rightTorso}
-            maxArmor={armor.max.rightTorso}
-            onArmorChange={(value) => handleArmorChange('rightTorso', value)}
-          />
+          {LOCATION_GROUPS.torso.map((location) => (
+            <ArmorLocation
+              key={location}
+              location={location}
+              currentArmor={armor[facing][location]}
+              maxArmor={armor.max[location]}
+              onArmorChange={(value) => handleArmorChange(location, value)}
+            />
+          ))}
         </div>
 
         {/* Arms Section */}
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-1">Arms</h4>
-          <ArmorLocation
-            location={LOCATION_LABELS.leftArm}
-            currentArmor={armor[facing].leftArm}
-            maxArmor={armor.max.leftArm}
-            onArmorChange={(value) => handleArmorChange('leftArm', value)}
-          />
-          <ArmorLocation
-            location={LOCATION_LABELS.rightArm}
-            currentArmor={armor[facing].rightArm}
-            maxArmor={armor.max.rightArm}
-            onArmorChange={(value) => handleArmorChange('rightArm', value)}
-          />
+          {LOCATION_GROUPS.arms.map((location) => (
+            <ArmorLocation
+              key={location}
+              location={location}
+              currentArmor={armor[facing][location]}
+              maxArmor={armor.max[location]}
+              onArmorChange={(value) => handleArmorChange(location, value)}
+            />
+          ))}
         </div>
 
         {/* Legs Section */}
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-1">Legs</h4>
-          <ArmorLocation
-            location={LOCATION_LABELS.leftLeg}
-            currentArmor={armor[facing].leftLeg}
-            maxArmor={armor.max.leftLeg}
-            onArmorChange={(value) => handleArmorChange('leftLeg', value)}
-          />
-          <ArmorLocation
-            location={LOCATION_LABELS.rightLeg}
-            currentArmor={armor[facing].rightLeg}
-            maxArmor={armor.max.rightLeg}
-            onArmorChange={(value) => handleArmorChange('rightLeg', value)}
-          />
+          {LOCATION_GROUPS.legs.map((location) => (
+            <ArmorLocation
+              key={location}
+              location={location}
+              currentArmor={armor[facing][location]}
+              maxArmor={armor.max[location]}
+              onArmorChange={(value) => handleArmorChange(location, value)}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useGameStatePersistence } from '../useGameStatePersistence';
+import { useGameStatePersistence, GameState } from '../useGameStatePersistence';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -44,10 +44,13 @@ Object.defineProperty(window, 'removeEventListener', {
 
 describe('useGameStatePersistence', () => {
   const mockStorageKey = 'test-game-state';
-  const mockState = {
-    unitName: 'BattleMech',
-    tonnage: 50,
-    heat: 15,
+  const mockState: GameState = {
+    recentUnitIds: ['unit-1', 'unit-2'],
+    editorState: {
+      activeTab: 'structure',
+      selectedLocation: 'Center Torso',
+      panelState: { armor: true, equipment: false },
+    },
   };
 
   // Store original setItem to restore after tests
@@ -423,9 +426,12 @@ describe('useGameStatePersistence', () => {
       const oldTimestamp = Date.now() - 10000;
       const newTimestamp = Date.now();
 
+      const oldEditorState = { ...mockState.editorState, activeTab: 'armor' };
+      const newEditorState = { ...mockState.editorState, activeTab: 'weapons' };
+
       // Save old state
       const oldData = {
-        state: { ...mockState, tonnage: 40, _lastSaved: oldTimestamp },
+        state: { ...mockState, editorState: oldEditorState, _lastSaved: oldTimestamp },
         metadata: {
           timestamp: oldTimestamp,
           version: '1.0.0',
@@ -442,12 +448,12 @@ describe('useGameStatePersistence', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.state).toEqual({ ...mockState, tonnage: 40 });
+        expect(result.current.state).toEqual({ ...mockState, editorState: oldEditorState });
       });
 
       // Simulate external update to localStorage
       const newData = {
-        state: { ...mockState, tonnage: 45, _lastSaved: newTimestamp },
+        state: { ...mockState, editorState: newEditorState, _lastSaved: newTimestamp },
         metadata: {
           timestamp: newTimestamp,
           version: '1.0.0',
@@ -458,7 +464,7 @@ describe('useGameStatePersistence', () => {
 
       // Try to save old state
       await act(async () => {
-        result.current.setState({ ...mockState, tonnage: 42 });
+        result.current.setState({ ...mockState, editorState: { ...oldEditorState, activeTab: 'equipment' } });
       });
 
       await expect(async () => {
@@ -497,7 +503,7 @@ describe('useGameStatePersistence', () => {
 
       // Update state (should be newer than what's in localStorage)
       act(() => {
-        result.current.setState({ ...mockState, tonnage: 55 });
+        result.current.setState({ ...mockState, editorState: { ...mockState.editorState, activeTab: 'equipment' } });
       });
 
       await act(async () => {
@@ -599,7 +605,7 @@ describe('useGameStatePersistence', () => {
 
       // Saving should update version
       await act(async () => {
-        result.current.setState({ ...mockState, tonnage: 60 });
+        result.current.setState({ ...mockState, editorState: { ...mockState.editorState, activeTab: 'criticals' } });
         await result.current.save();
       });
 

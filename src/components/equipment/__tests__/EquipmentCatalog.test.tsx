@@ -1,19 +1,22 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { EquipmentCatalog } from '../EquipmentCatalog';
-import type { EquipmentItem, FilterOptions } from '../EquipmentCatalog';
+import type { FilterOptions } from '../EquipmentCatalog';
+import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
+import { TechBase } from '../../../types/enums/TechBase';
+import { RulesLevel } from '../../../types/enums/RulesLevel';
 
-const mockItems: EquipmentItem[] = [
-  { id: '1', name: 'Large Laser', type: 'Energy', tonnage: 5 },
-  { id: '2', name: 'AC/20', type: 'Ballistic', tonnage: 14 },
-  { id: '3', name: 'LRM-20', type: 'Missile', tonnage: 7 },
-  { id: '4', name: 'Medium Laser', type: 'Energy', tonnage: 1 },
-  { id: '5', name: 'Gauss Rifle', type: 'Ballistic', tonnage: 15 },
+const mockItems: IEquipmentItem[] = [
+  { id: '1', name: 'Large Laser', category: EquipmentCategory.ENERGY_WEAPON, weight: 5, criticalSlots: 2, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 100000, battleValue: 123, introductionYear: 2500 },
+  { id: '2', name: 'AC/20', category: EquipmentCategory.BALLISTIC_WEAPON, weight: 14, criticalSlots: 10, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 300000, battleValue: 178, introductionYear: 2500 },
+  { id: '3', name: 'LRM-20', category: EquipmentCategory.MISSILE_WEAPON, weight: 7, criticalSlots: 5, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 150000, battleValue: 220, introductionYear: 2400 },
+  { id: '4', name: 'Medium Laser', category: EquipmentCategory.ENERGY_WEAPON, weight: 1, criticalSlots: 1, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.INTRODUCTORY, costCBills: 40000, battleValue: 46, introductionYear: 2300 },
+  { id: '5', name: 'Gauss Rifle', category: EquipmentCategory.BALLISTIC_WEAPON, weight: 15, criticalSlots: 7, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 300000, battleValue: 321, introductionYear: 2590 },
 ];
 
 const mockFilters: FilterOptions = {
-  types: [],
-  tonnageRange: [0, 20],
+  categories: [],
+  weightRange: [0, 20],
 };
 
 describe('EquipmentCatalog', () => {
@@ -362,12 +365,12 @@ describe('EquipmentCatalog', () => {
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      const energyCheckbox = screen.getByLabelText('Energy');
+      const energyCheckbox = screen.getByLabelText(EquipmentCategory.ENERGY_WEAPON);
       fireEvent.click(energyCheckbox);
 
       expect(mockOnFilterChange).toHaveBeenCalledWith({
-        types: ['Energy'],
-        tonnageRange: [0, 20],
+        categories: [EquipmentCategory.ENERGY_WEAPON],
+        weightRange: [0, 20],
       });
     });
 
@@ -403,13 +406,9 @@ describe('EquipmentCatalog', () => {
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      const labels = screen.getAllByText('Energy', 'Ballistic', 'Missile', 'Equipment');
-      labels.forEach((label) => {
-        const labelElement = label.closest('label');
-        if (labelElement) {
-          expect(labelElement.className).toContain('min-h-[44px]');
-        }
-      });
+      // Check that filter labels have proper touch targets
+      const energyLabel = screen.getByText(EquipmentCategory.ENERGY_WEAPON).closest('label');
+      expect(energyLabel?.className).toContain('min-h-[44px]');
     });
   });
 
@@ -494,8 +493,8 @@ describe('EquipmentCatalog', () => {
 
     it('should show empty state when filters match nothing', () => {
       const filteredFilters: FilterOptions = {
-        types: ['Equipment'],
-        tonnageRange: [0, 20],
+        categories: [EquipmentCategory.ARTILLERY],  // No artillery in mock data
+        weightRange: [0, 20],
       };
 
       render(

@@ -1,17 +1,30 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EquipmentDetail } from '../EquipmentDetail';
+import { EquipmentDetail, WeaponDetails } from '../EquipmentDetail';
+import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
+import { TechBase } from '../../../types/enums/TechBase';
+import { RulesLevel } from '../../../types/enums/RulesLevel';
 
-const mockItem = {
+const mockItem: IEquipmentItem = {
   id: '1',
   name: 'Large Laser',
-  type: 'Energy',
-  tonnage: 5,
+  category: EquipmentCategory.ENERGY_WEAPON,
+  weight: 5,
+  criticalSlots: 2,
+  techBase: TechBase.INNER_SPHERE,
+  rulesLevel: RulesLevel.STANDARD,
+  costCBills: 100000,
+  battleValue: 123,
+  introductionYear: 2500,
+};
+
+const mockWeaponDetails: WeaponDetails = {
   damage: '8',
   range: 'Medium',
   heat: 8,
-  description: 'A powerful energy weapon that deals significant damage.',
 };
+
+const mockDescription = 'A powerful energy weapon that deals significant damage.';
 
 describe('EquipmentDetail', () => {
   const mockOnBack = jest.fn();
@@ -28,20 +41,20 @@ describe('EquipmentDetail', () => {
       expect(screen.getByText('Large Laser')).toBeInTheDocument();
     });
 
-    it('should display equipment type', () => {
+    it('should display equipment category', () => {
       render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
 
-      expect(screen.getByText('Energy')).toBeInTheDocument();
+      expect(screen.getByText(EquipmentCategory.ENERGY_WEAPON)).toBeInTheDocument();
     });
 
-    it('should display equipment tonnage', () => {
+    it('should display equipment weight', () => {
       render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
 
       expect(screen.getByText('5 tons')).toBeInTheDocument();
     });
 
-    it('should display combat stats', () => {
-      render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+    it('should display combat stats when weaponDetails provided', () => {
+      render(<EquipmentDetail item={mockItem} weaponDetails={mockWeaponDetails} onBack={mockOnBack} />);
 
       expect(screen.getByText('Damage')).toBeInTheDocument();
       expect(screen.getAllByText('8')).toHaveLength(2); // Appears for damage and heat
@@ -50,8 +63,8 @@ describe('EquipmentDetail', () => {
       expect(screen.getByText('Heat')).toBeInTheDocument();
     });
 
-    it('should display description', () => {
-      render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+    it('should display description when provided', () => {
+      render(<EquipmentDetail item={mockItem} description={mockDescription} onBack={mockOnBack} />);
 
       expect(screen.getByText('A powerful energy weapon that deals significant damage.')).toBeInTheDocument();
     });
@@ -203,45 +216,64 @@ describe('EquipmentDetail', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle item without combat stats', () => {
-      const itemWithoutStats = {
+    it('should handle item without combat stats (no weaponDetails)', () => {
+      const heatSinkItem: IEquipmentItem = {
         id: '2',
         name: 'Heat Sink',
-        type: 'Equipment',
-        tonnage: 1,
+        category: EquipmentCategory.MISC_EQUIPMENT,
+        weight: 1,
+        criticalSlots: 1,
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: RulesLevel.INTRODUCTORY,
+        costCBills: 2000,
+        battleValue: 0,
+        introductionYear: 2022,
       };
 
-      render(<EquipmentDetail item={itemWithoutStats} onBack={mockOnBack} />);
+      render(<EquipmentDetail item={heatSinkItem} onBack={mockOnBack} />);
 
       expect(screen.queryByText('Combat Stats')).not.toBeInTheDocument();
       expect(screen.getByText('Heat Sink')).toBeInTheDocument();
     });
 
     it('should handle item without description', () => {
-      const itemWithoutDescription = {
+      const jumpJetItem: IEquipmentItem = {
         id: '3',
         name: 'Jump Jet',
-        type: 'Equipment',
-        tonnage: 0.5,
-        damage: '-',
+        category: EquipmentCategory.MISC_EQUIPMENT,
+        weight: 0.5,
+        criticalSlots: 1,
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: RulesLevel.STANDARD,
+        costCBills: 50000,
+        battleValue: 0,
+        introductionYear: 2471,
       };
 
-      render(<EquipmentDetail item={itemWithoutDescription} onBack={mockOnBack} />);
+      // No description provided
+      render(<EquipmentDetail item={jumpJetItem} onBack={mockOnBack} />);
 
       expect(screen.queryByText('Description')).not.toBeInTheDocument();
     });
 
     it('should handle item with zero damage', () => {
-      const itemWithZeroDamage = {
+      const amsItem: IEquipmentItem = {
         id: '4',
         name: 'AMS',
-        type: 'Equipment',
-        tonnage: 0.5,
-        damage: '0',
-        description: 'Anti-missile system',
+        category: EquipmentCategory.MISC_EQUIPMENT,
+        weight: 0.5,
+        criticalSlots: 1,
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: RulesLevel.STANDARD,
+        costCBills: 100000,
+        battleValue: 32,
+        introductionYear: 2617,
+      };
+      const amsWeaponDetails: WeaponDetails = {
+        damage: 0,
       };
 
-      render(<EquipmentDetail item={itemWithZeroDamage} onBack={mockOnBack} />);
+      render(<EquipmentDetail item={amsItem} weaponDetails={amsWeaponDetails} description="Anti-missile system" onBack={mockOnBack} />);
 
       expect(screen.getByText('0')).toBeInTheDocument();
     });
@@ -249,12 +281,8 @@ describe('EquipmentDetail', () => {
     it('should handle long descriptions', () => {
       const longDescription =
         'This is a very long description that should wrap properly and remain readable. '.repeat(10);
-      const itemWithLongDescription = {
-        ...mockItem,
-        description: longDescription,
-      };
 
-      const { container } = render(<EquipmentDetail item={itemWithLongDescription} onBack={mockOnBack} />);
+      const { container } = render(<EquipmentDetail item={mockItem} description={longDescription} onBack={mockOnBack} />);
 
       // Check that description is rendered, even if truncated
       expect(screen.getByText('Description')).toBeInTheDocument();

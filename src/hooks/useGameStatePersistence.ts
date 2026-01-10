@@ -1,9 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { IBattleMech } from '../types/unit/BattleMechInterfaces';
 
+/**
+ * Game state for persistence
+ * Stores the current unit and editor state
+ */
 export interface GameState {
-  // Define the structure of your game state here
-  // This is a placeholder - adjust based on actual game state structure
-  [key: string]: any;
+  /** Currently active unit being edited */
+  currentUnit?: IBattleMech;
+  /** List of recently edited units (references by ID) */
+  recentUnitIds?: string[];
+  /** Editor UI state that should be preserved */
+  editorState?: {
+    activeTab?: string;
+    selectedLocation?: string;
+    panelState?: Record<string, boolean>;
+  };
 }
 
 export interface SaveMetadata {
@@ -11,8 +23,16 @@ export interface SaveMetadata {
   version: string;
 }
 
+/**
+ * Internal state stored in localStorage
+ * Includes _lastSaved timestamp for conflict detection
+ */
+interface InternalStoredState extends GameState {
+  _lastSaved?: number;
+}
+
 export interface StoredData {
-  state: GameState;
+  state: InternalStoredState;
   metadata: SaveMetadata;
 }
 

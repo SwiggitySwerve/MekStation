@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
+import { IEquipmentItem, EquipmentCategory } from '../../types/equipment';
 
-export interface EquipmentItem {
-  id: string;
-  name: string;
-  type: string;
-  tonnage: number;
-  [key: string]: any;
-}
-
+/**
+ * Filter options for equipment catalog
+ * Uses EquipmentCategory from base types
+ */
 export interface FilterOptions {
-  types: string[];
-  tonnageRange: [number, number];
-  [key: string]: any;
+  categories: EquipmentCategory[];
+  weightRange: [number, number];
 }
 
 export interface EquipmentCatalogProps {
-  items: EquipmentItem[];
+  items: IEquipmentItem[];
   filters: FilterOptions;
   onFilterChange: (filters: FilterOptions) => void;
-  onItemSelect: (item: EquipmentItem) => void;
+  onItemSelect: (item: IEquipmentItem) => void;
   className?: string;
 }
 
@@ -36,16 +32,16 @@ export function EquipmentCatalog({
     setSearchQuery(e.target.value);
   };
 
-  const handleItemTap = (item: EquipmentItem) => {
+  const handleItemTap = (item: IEquipmentItem) => {
     onItemSelect(item);
   };
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filters.types.length === 0 || filters.types.includes(item.type);
-    const matchesTonnage =
-      item.tonnage >= filters.tonnageRange[0] && item.tonnage <= filters.tonnageRange[1];
-    return matchesSearch && matchesType && matchesTonnage;
+    const matchesCategory = filters.categories.length === 0 || filters.categories.includes(item.category);
+    const matchesWeight =
+      item.weight >= filters.weightRange[0] && item.weight <= filters.weightRange[1];
+    return matchesSearch && matchesCategory && matchesWeight;
   });
 
   return (
@@ -124,7 +120,7 @@ export function EquipmentCatalog({
                       {item.name}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {item.type} • {item.tonnage} tons
+                      {item.category} • {item.weight} tons
                     </p>
                   </div>
                   <svg
@@ -159,6 +155,18 @@ export function EquipmentCatalog({
     </div>
   );
 }
+
+/**
+ * Equipment categories available for filtering
+ */
+const FILTER_CATEGORIES: readonly EquipmentCategory[] = [
+  EquipmentCategory.ENERGY_WEAPON,
+  EquipmentCategory.BALLISTIC_WEAPON,
+  EquipmentCategory.MISSILE_WEAPON,
+  EquipmentCategory.AMMUNITION,
+  EquipmentCategory.ELECTRONICS,
+  EquipmentCategory.MISC_EQUIPMENT,
+] as const;
 
 function FilterDrawer({
   filters,
@@ -213,23 +221,23 @@ function FilterDrawer({
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Equipment Type
+                Equipment Category
               </label>
               <div className="space-y-2">
-                {['Energy', 'Ballistic', 'Missile', 'Equipment'].map((type) => (
-                  <label key={type} className="flex items-center gap-2 min-h-[44px]">
+                {FILTER_CATEGORIES.map((category) => (
+                  <label key={category} className="flex items-center gap-2 min-h-[44px]">
                     <input
                       type="checkbox"
-                      checked={filters.types.includes(type)}
+                      checked={filters.categories.includes(category)}
                       onChange={(e) => {
-                        const newTypes = e.target.checked
-                          ? [...filters.types, type]
-                          : filters.types.filter((t) => t !== type);
-                        onFilterChange({ ...filters, types: newTypes });
+                        const newCategories = e.target.checked
+                          ? [...filters.categories, category]
+                          : filters.categories.filter((c) => c !== category);
+                        onFilterChange({ ...filters, categories: newCategories });
                       }}
                       className="w-5 h-5 rounded border-gray-300"
                     />
-                    <span className="text-sm text-gray-900 dark:text-white">{type}</span>
+                    <span className="text-sm text-gray-900 dark:text-white">{category}</span>
                   </label>
                 ))}
               </div>
