@@ -120,7 +120,7 @@ describe('LocationArmorEditor', () => {
     // Verify onChange was called (exact values vary due to intermediate calls during typing)
     expect(onChange).toHaveBeenCalled();
     // Last call should include rear value 5
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [number, number];
     expect(lastCall[1]).toBe(5); // rear should be preserved
   });
 
@@ -144,7 +144,7 @@ describe('LocationArmorEditor', () => {
     // Verify onChange was called
     expect(onChange).toHaveBeenCalled();
     // Last call should have front value 20 preserved
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [number, number];
     expect(lastCall[0]).toBe(20); // front should be preserved
   });
 

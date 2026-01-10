@@ -57,11 +57,8 @@ function CleanTechLocation({
   const rear = data?.rear ?? 0;
   const rearMax = data?.rearMaximum ?? 1;
 
-  // For torso locations, use expected capacity (75/25 split) as baseline
-  const expectedFrontMax = showRear ? Math.round(maximum * 0.75) : maximum;
-  const expectedRearMax = showRear ? Math.round(maximum * 0.25) : 1;
-
   // Status-based colors for front and rear independently
+  // For torso locations, use expected capacity (75/25 split) as baseline
   const frontBaseColor = isSelected
     ? SELECTED_COLOR
     : showRear

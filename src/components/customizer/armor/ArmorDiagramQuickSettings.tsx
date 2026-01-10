@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { useAppSettingsStore, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { DIAGRAM_VARIANT_INFO } from './ArmorDiagramPreview';
 
@@ -161,9 +162,9 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
           <div className="px-4 py-2 border-t border-slate-700 bg-slate-800/50 rounded-b-lg">
             <p className="text-xs text-slate-500">
               More options in{' '}
-              <a href="/settings" className="text-amber-400 hover:underline">
+              <Link href="/settings" className="text-amber-400 hover:underline">
                 Settings
-              </a>
+              </Link>
             </p>
           </div>
         </div>
