@@ -8,7 +8,12 @@ export interface ServiceWorkerState {
   registration: ServiceWorkerRegistration | null;
 }
 
-export function useServiceWorker() {
+export interface ServiceWorkerReturn extends ServiceWorkerState {
+  skipWaiting: () => void;
+  cacheUrls: (urls: string[]) => void;
+}
+
+export function useServiceWorker(): ServiceWorkerReturn {
   const [state, setState] = useState<ServiceWorkerState>({
     isSupported: typeof window !== 'undefined' && 'serviceWorker' in navigator,
     isInstalled: false,

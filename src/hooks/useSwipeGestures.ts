@@ -31,6 +31,15 @@ interface TouchCoordinates {
 }
 
 /**
+ * Swipe gesture handlers
+ */
+export interface SwipeGestureHandlers {
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
+}
+
+/**
  * Hook to detect swipe gestures on touch devices
  *
  * Detects horizontal and vertical swipe gestures with configurable thresholds.
@@ -57,7 +66,7 @@ interface TouchCoordinates {
  * });
  * ```
  */
-export function useSwipeGestures(config: SwipeGestureConfig = {}) {
+export function useSwipeGestures(config: SwipeGestureConfig = {}): SwipeGestureHandlers {
   const {
     onSwipeLeft,
     onSwipeRight,
@@ -174,7 +183,7 @@ export function useSwipeGestures(config: SwipeGestureConfig = {}) {
  * <div {...handlers}>Tab content</div>
  * ```
  */
-export function useTabSwipeGestures(config: Pick<SwipeGestureConfig, 'onSwipeLeft' | 'onSwipeRight'> = {}) {
+export function useTabSwipeGestures(config: Pick<SwipeGestureConfig, 'onSwipeLeft' | 'onSwipeRight'> = {}): SwipeGestureHandlers {
   return useSwipeGestures({
     ...config,
     swipeThreshold: 50,
@@ -196,7 +205,7 @@ export function useTabSwipeGestures(config: Pick<SwipeGestureConfig, 'onSwipeLef
  * <div {...handlers}>Panel content</div>
  * ```
  */
-export function useBackSwipeGesture(config: Pick<SwipeGestureConfig, 'onSwipeRight'>) {
+export function useBackSwipeGesture(config: Pick<SwipeGestureConfig, 'onSwipeRight'>): SwipeGestureHandlers {
   return useSwipeGestures({
     onSwipeRight: config.onSwipeRight,
     leftEdgeOnly: true,

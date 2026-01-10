@@ -29,6 +29,8 @@ export default [
       '**/desktop/**',
       '**/scripts/**',
       '**/.github/**',
+      '**/.worktrees/**',
+      '**/openspec/**',
     ],
   },
   

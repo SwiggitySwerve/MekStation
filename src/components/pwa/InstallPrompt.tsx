@@ -9,7 +9,7 @@ export interface InstallPromptProps {
   className?: string;
 }
 
-export function InstallPrompt({ className = '' }: InstallPromptProps) {
+export function InstallPrompt({ className = '' }: InstallPromptProps): React.ReactElement {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
