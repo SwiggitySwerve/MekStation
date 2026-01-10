@@ -32,13 +32,19 @@ test.describe('PWA Functionality', () => {
     const response = await request.get('/manifest.json');
     expect(response.ok()).toBeTruthy();
 
-    const manifest = await response.json();
+    const manifest = (await response.json()) as {
+      name?: string;
+      short_name?: string;
+      start_url?: string;
+      display?: string;
+      icons?: Array<{ src: string; sizes: string; type: string }>;
+    };
     expect(manifest.name).toBeDefined();
     expect(manifest.short_name).toBeDefined();
     expect(manifest.start_url).toBeDefined();
     expect(manifest.display).toBe('standalone');
     expect(manifest.icons).toBeDefined();
-    expect(manifest.icons.length).toBeGreaterThan(0);
+    expect(manifest.icons?.length).toBeGreaterThan(0);
   });
 
   test('should have theme-color meta tag', async ({ page }) => {
