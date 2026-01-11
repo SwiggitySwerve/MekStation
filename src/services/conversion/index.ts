@@ -1,8 +1,8 @@
 /**
  * Conversion Services
- * 
+ *
  * Central export for unit conversion and import services.
- * 
+ *
  * @module services/conversion
  */
 
@@ -12,3 +12,27 @@ export {
   type IMTFImportResult,
   type IValidationOptions,
 } from './MTFImportService';
+
+export {
+  MTFParserService,
+  getMTFParserService,
+  type IMTFParseResult,
+} from './MTFParserService';
+
+export {
+  MTFExportService,
+  getMTFExportService,
+  type IMTFExportResult,
+} from './MTFExportService';
+
+export {
+  ParityValidationService,
+  getParityValidationService,
+} from './ParityValidationService';
+
+export {
+  ParityReportWriter,
+  getParityReportWriter,
+} from './ParityReportWriter';
+
+export * from './types/ParityValidation';
