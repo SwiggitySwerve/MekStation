@@ -213,6 +213,214 @@ export const REALISTIC_SILHOUETTE: SilhouetteConfig = {
 };
 
 /**
+ * BattleMech-style silhouette with iconic mech features
+ * Inspired by classic designs: broad shoulders, cockpit visor, weapon pods
+ */
+export const BATTLEMECH_SILHOUETTE: SilhouetteConfig = {
+  viewBox: '0 0 320 420',
+  locations: {
+    [MechLocation.HEAD]: {
+      x: 125,
+      y: 0,
+      width: 70,
+      height: 50,
+      // Angular cockpit with visor and sensor dome
+      path: `
+        M 145 0
+        L 175 0
+        L 185 8
+        L 190 25
+        L 185 40
+        L 175 50
+        L 145 50
+        L 135 40
+        L 130 25
+        L 135 8
+        Z
+        M 140 18
+        L 180 18
+        L 180 35
+        L 140 35
+        Z
+      `,
+    },
+    [MechLocation.CENTER_TORSO]: {
+      x: 110,
+      y: 55,
+      width: 100,
+      height: 120,
+      // Broad armored chest with reactor housing
+      path: `
+        M 120 55
+        L 200 55
+        L 210 70
+        L 210 145
+        L 200 165
+        L 185 175
+        L 135 175
+        L 120 165
+        L 110 145
+        L 110 70
+        Z
+      `,
+    },
+    [MechLocation.LEFT_TORSO]: {
+      x: 20,
+      y: 55,
+      width: 85,
+      height: 115,
+      // Left shoulder pod with missile rack styling
+      path: `
+        M 40 55
+        L 105 55
+        L 105 160
+        L 90 175
+        L 40 175
+        L 20 155
+        L 20 75
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_TORSO]: {
+      x: 215,
+      y: 55,
+      width: 85,
+      height: 115,
+      // Right shoulder pod mirrored
+      path: `
+        M 280 55
+        L 215 55
+        L 215 160
+        L 230 175
+        L 280 175
+        L 300 155
+        L 300 75
+        Z
+      `,
+    },
+    [MechLocation.LEFT_ARM]: {
+      x: 0,
+      y: 70,
+      width: 35,
+      height: 165,
+      // Weapon arm with actuator joints
+      path: `
+        M 10 70
+        L 35 80
+        L 35 130
+        L 30 140
+        L 30 200
+        L 25 215
+        L 20 235
+        L 5 235
+        L 0 215
+        L 0 90
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_ARM]: {
+      x: 285,
+      y: 70,
+      width: 35,
+      height: 165,
+      // Mirrored weapon arm
+      path: `
+        M 310 70
+        L 285 80
+        L 285 130
+        L 290 140
+        L 290 200
+        L 295 215
+        L 300 235
+        L 315 235
+        L 320 215
+        L 320 90
+        Z
+      `,
+    },
+    [MechLocation.LEFT_LEG]: {
+      x: 55,
+      y: 180,
+      width: 70,
+      height: 180,
+      // Heavy leg with armored thigh and foot pad
+      path: `
+        M 65 180
+        L 120 180
+        L 125 200
+        L 120 260
+        L 115 280
+        L 115 340
+        L 125 360
+        L 120 375
+        L 60 375
+        L 55 360
+        L 65 340
+        L 65 280
+        L 60 260
+        L 55 200
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_LEG]: {
+      x: 195,
+      y: 180,
+      width: 70,
+      height: 180,
+      // Mirrored right leg
+      path: `
+        M 255 180
+        L 200 180
+        L 195 200
+        L 200 260
+        L 205 280
+        L 205 340
+        L 195 360
+        L 200 375
+        L 260 375
+        L 265 360
+        L 255 340
+        L 255 280
+        L 260 260
+        L 265 200
+        Z
+      `,
+    },
+  },
+  outlinePath: `
+    M 160 0
+    C 145 0, 130 8, 130 25
+    L 130 45
+    L 105 55
+    L 40 55
+    L 20 75
+    L 0 90
+    L 0 235
+    L 30 235
+    L 35 180
+    L 55 180
+    L 55 375
+    L 125 375
+    L 125 180
+    L 195 180
+    L 195 375
+    L 265 375
+    L 265 180
+    L 285 180
+    L 290 235
+    L 320 235
+    L 320 90
+    L 300 75
+    L 280 55
+    L 215 55
+    L 190 45
+    L 190 25
+    C 190 8, 175 0, 160 0
+    Z
+  `,
+};
+
+/**
  * Geometric/polygonal silhouette with angular shapes
  * Low-poly aesthetic with hexagonal influence
  */

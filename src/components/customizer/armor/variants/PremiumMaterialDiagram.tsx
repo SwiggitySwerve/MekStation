@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  REALISTIC_SILHOUETTE,
+  BATTLEMECH_SILHOUETTE,
   LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
@@ -153,14 +153,14 @@ function PremiumLocation({
   onClick,
   onHover,
 }: PremiumLocationProps): React.ReactElement {
-  const basePos = REALISTIC_SILHOUETTE.locations[location];
+  const basePos = BATTLEMECH_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
   const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
 
   // Adjust height for torso locations to fit stacked layout, offset legs down
   const TORSO_MULTIPLIER = 1.4;
-  const legOffset = REALISTIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
+  const legOffset = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
   const pos = showRear
     ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
     : isLeg
@@ -493,7 +493,7 @@ export function PremiumMaterialDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 320 490"
+          viewBox="0 0 320 520"
           className="w-full max-w-[320px] mx-auto"
           style={{ height: 'auto' }}
         >

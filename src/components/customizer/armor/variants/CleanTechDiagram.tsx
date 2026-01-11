@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  REALISTIC_SILHOUETTE,
+  BATTLEMECH_SILHOUETTE,
   LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
@@ -47,7 +47,7 @@ function CleanTechLocation({
   onClick,
   onHover,
 }: CleanTechLocationProps): React.ReactElement {
-  const pos = REALISTIC_SILHOUETTE.locations[location];
+  const pos = BATTLEMECH_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const center = getLocationCenter(pos);
   const showRear = hasTorsoRear(location);
@@ -275,8 +275,8 @@ export function CleanTechDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={REALISTIC_SILHOUETTE.viewBox}
-          className="w-full max-w-[300px] mx-auto"
+          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          className="w-full max-w-[320px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -285,8 +285,8 @@ export function CleanTechDiagram({
           <rect
             x="0"
             y="0"
-            width="300"
-            height="400"
+            width="320"
+            height="420"
             fill="url(#armor-grid)"
             opacity="0.5"
           />
