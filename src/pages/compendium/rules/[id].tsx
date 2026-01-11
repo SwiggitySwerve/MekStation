@@ -3,6 +3,7 @@
  * Displays detailed construction rules for a specific topic.
  */
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { CompendiumLayout } from '@/components/compendium';
 import type { AccentColor } from '@/components/ui';
 
@@ -253,12 +254,12 @@ export default function RuleSectionPage(): React.ReactElement {
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-text-theme-primary mb-2">Rule Section Not Found</h2>
           <p className="text-text-theme-secondary mb-4">The requested rule section does not exist.</p>
-          <a
+          <Link
             href="/compendium"
             className="text-accent hover:text-accent/80 transition-colors"
           >
             Return to Compendium
-          </a>
+          </Link>
         </div>
       </CompendiumLayout>
     );

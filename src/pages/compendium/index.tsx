@@ -3,7 +3,6 @@
  * Main entry point for equipment catalog, construction rules, and game mechanics.
  */
 import React, { useState } from 'react';
-import Link from 'next/link';
 import {
   Card,
   CategoryCard,
