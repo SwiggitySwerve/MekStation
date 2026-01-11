@@ -23,6 +23,7 @@ import {
   NeonOperatorDiagram,
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
+  MegaMekDiagram,
 } from '../armor/variants';
 import {
   calculateArmorPoints,
@@ -58,9 +59,11 @@ export function ArmorTab({
   readOnly = false,
   className = '',
 }: ArmorTabProps): React.ReactElement {
-  // Get app settings
-  const armorDiagramMode = useAppSettingsStore((s) => s.armorDiagramMode);
-  const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
+  // Get app settings - use effective getters for draft preview support
+  const getEffectiveArmorDiagramMode = useAppSettingsStore((s) => s.getEffectiveArmorDiagramMode);
+  const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
+  const armorDiagramMode = getEffectiveArmorDiagramMode();
+  const armorDiagramVariant = getEffectiveArmorDiagramVariant();
 
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
@@ -400,6 +403,15 @@ export function ArmorTab({
           )}
           {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
             <PremiumMaterialDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek' && (
+            <MegaMekDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
