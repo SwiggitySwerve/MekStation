@@ -23,6 +23,17 @@ export type ArmorDiagramVariant =
 export type UITheme = 'default' | 'neon' | 'tactical' | 'minimal';
 
 /**
+ * Mapping from UITheme to matching ArmorDiagramVariant
+ * This enables automatic synchronization of design styles across the app
+ */
+export const UI_THEME_TO_DIAGRAM_VARIANT: Record<UITheme, ArmorDiagramVariant> = {
+  'default': 'clean-tech',
+  'neon': 'neon-operator',
+  'tactical': 'tactical-hud',
+  'minimal': 'premium-material',
+};
+
+/**
  * Accent color options
  */
 export type AccentColor =
@@ -163,7 +174,11 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       setFontSize: (size) => set({ fontSize: size }),
       setAnimationLevel: (level) => set({ animationLevel: level }),
       setCompactMode: (compact) => set({ compactMode: compact }),
-      setUITheme: (theme) => set({ uiTheme: theme }),
+      // When UITheme changes, also sync the ArmorDiagramVariant to match
+      setUITheme: (theme) => set({
+        uiTheme: theme,
+        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[theme],
+      }),
 
       // Draft setters for live preview (not persisted until save)
       setDraftAccentColor: (color) => set((state) => ({
@@ -222,6 +237,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         hasUnsavedAppearance: true,
       })),
 
+      // When draft UITheme changes, also update the armorDiagramVariant for live preview
       setDraftUITheme: (theme) => set((state) => ({
         draftAppearance: {
           ...(state.draftAppearance ?? {
@@ -233,6 +249,8 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           uiTheme: theme,
         },
+        // Sync diagram variant for immediate preview
+        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[theme],
         hasUnsavedAppearance: true,
       })),
 
@@ -262,10 +280,13 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       }),
 
       // Revert draft to saved state (call when leaving settings without save)
-      revertAppearance: () => set({
+      // Also restore armorDiagramVariant to match the saved uiTheme
+      revertAppearance: () => set((state) => ({
         draftAppearance: null,
         hasUnsavedAppearance: false,
-      }),
+        // Restore diagram variant to match the saved (not draft) UI theme
+        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[state.uiTheme],
+      })),
 
       // Getters for effective appearance (draft if exists, otherwise saved)
       getEffectiveAccentColor: () => {
