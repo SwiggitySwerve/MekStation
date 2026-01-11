@@ -13,7 +13,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // Router
-import { useCustomizerRouter } from '@/hooks/useCustomizerRouter';
+import { useCustomizerRouter, CustomizerTabId, isValidTabId } from '@/hooks/useCustomizerRouter';
 
 // Stores
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
@@ -39,6 +39,8 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const activeTabId = useTabManagerStore((s) => s.activeTabId);
   const isLoading = useTabManagerStore((s) => s.isLoading);
   const selectTab = useTabManagerStore((s) => s.selectTab);
+  const setLastSubTab = useTabManagerStore((s) => s.setLastSubTab);
+  const getLastSubTab = useTabManagerStore((s) => s.getLastSubTab);
   
   // URL router - pass activeTabId as fallback for index page navigation
   // This enables tab switching even when on /customizer without unit ID in URL
@@ -58,6 +60,16 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const routerIsIndex = router.isIndex;
   const routerSyncUrl = router.syncUrl;
   const routerNavigateToIndex = router.navigateToIndex;
+
+  // Get effective tab ID: URL tab takes precedence, then stored lastSubTab, then default
+  const effectiveUnitId = routerUnitId || activeTabId;
+  const storedSubTab = effectiveUnitId ? getLastSubTab(effectiveUnitId) : undefined;
+  // Use stored sub-tab only when URL has default 'structure' (meaning no explicit tab in URL)
+  const effectiveTabId: CustomizerTabId = (
+    routerTabId !== 'structure'
+      ? routerTabId
+      : (storedSubTab && isValidTabId(storedSubTab) ? storedSubTab : routerTabId)
+  );
   
   // Trigger hydration on mount
   useEffect(() => {
@@ -186,8 +198,14 @@ export default function CustomizerWithRouter(): React.ReactElement {
           >
             {/* Unit editor with routing support */}
             <UnitEditorWithRouting
-              activeTabId={routerTabId}
-              onTabChange={router.navigateToTab}
+              activeTabId={effectiveTabId}
+              onTabChange={(tabId) => {
+                // Save the last sub-tab for this unit
+                if (activeTabId) {
+                  setLastSubTab(activeTabId, tabId);
+                }
+                router.navigateToTab(tabId);
+              }}
             />
           </UnitStoreProvider>
         </MultiUnitTabs>

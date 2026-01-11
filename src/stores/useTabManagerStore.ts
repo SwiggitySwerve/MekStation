@@ -60,6 +60,8 @@ export interface TabInfo {
   readonly tonnage: number;
   /** Tech base (cached for tab display) */
   readonly techBase: TechBase;
+  /** Last active sub-tab for this unit (structure, armor, etc.) */
+  lastSubTab?: string;
 }
 
 /**
@@ -128,9 +130,15 @@ export interface TabManagerState {
   
   /** Reorder tabs */
   reorderTabs: (fromIndex: number, toIndex: number) => void;
-  
+
   /** Add a tab directly (for loaded units with pre-existing store) */
   addTab: (tabInfo: Omit<TabInfo, 'tonnage' | 'techBase'> & { tonnage?: number; techBase?: TechBase }) => void;
+
+  /** Update the last active sub-tab for a unit */
+  setLastSubTab: (tabId: string, subTab: string) => void;
+
+  /** Get the last active sub-tab for a unit */
+  getLastSubTab: (tabId: string) => string | undefined;
   
   // ==========================================================================
   // Modal Actions
@@ -370,18 +378,32 @@ export const useTabManagerStore = create<TabManagerState>()(
         // Get unit store to fill in missing info
         const unitStore = getUnitStore(tabInfo.id);
         const unitState = unitStore?.getState();
-        
+
         const fullTabInfo: TabInfo = {
           id: tabInfo.id,
           name: tabInfo.name,
           tonnage: tabInfo.tonnage ?? unitState?.tonnage ?? 50,
           techBase: tabInfo.techBase ?? unitState?.techBase ?? TechBase.INNER_SPHERE,
         };
-        
+
         set((state) => ({
           tabs: [...state.tabs, fullTabInfo],
           activeTabId: tabInfo.id,
         }));
+      },
+
+      setLastSubTab: (tabId, subTab) => {
+        set((state) => ({
+          tabs: state.tabs.map((tab) =>
+            tab.id === tabId ? { ...tab, lastSubTab: subTab } : tab
+          ),
+        }));
+      },
+
+      getLastSubTab: (tabId) => {
+        const state = get();
+        const tab = state.tabs.find((t) => t.id === tabId);
+        return tab?.lastSubTab;
       },
       
       // =======================================================================
