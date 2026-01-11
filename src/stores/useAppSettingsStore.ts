@@ -20,7 +20,8 @@ export type ArmorDiagramVariant =
   | 'clean-tech'
   | 'neon-operator'
   | 'tactical-hud'
-  | 'premium-material';
+  | 'premium-material'
+  | 'megamek';
 
 /**
  * Global UI theme variants
@@ -71,6 +72,14 @@ export interface AppearanceSettings {
 }
 
 /**
+ * Customizer settings that support live preview with save/revert
+ */
+export interface CustomizerSettings {
+  armorDiagramMode: ArmorDiagramMode;
+  armorDiagramVariant: ArmorDiagramVariant;
+}
+
+/**
  * App settings state
  */
 export interface AppSettingsState {
@@ -89,6 +98,10 @@ export interface AppSettingsState {
   armorDiagramMode: ArmorDiagramMode;
   armorDiagramVariant: ArmorDiagramVariant;
   showArmorDiagramSelector: boolean; // UAT feature flag
+
+  // Draft customizer for live preview (not persisted)
+  draftCustomizer: CustomizerSettings | null;
+  hasUnsavedCustomizer: boolean;
 
   // UI behavior
   sidebarDefaultCollapsed: boolean;
@@ -121,6 +134,17 @@ export interface AppSettingsState {
   getEffectiveUITheme: () => UITheme;
   getEffectiveFontSize: () => FontSize;
 
+  // Draft customizer actions for live preview (requires explicit save)
+  setDraftArmorDiagramMode: (mode: ArmorDiagramMode) => void;
+  setDraftArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
+  saveCustomizer: () => void;
+  revertCustomizer: () => void;
+  initDraftCustomizer: () => void;
+
+  // Getters for effective (draft or saved) customizer
+  getEffectiveArmorDiagramMode: () => ArmorDiagramMode;
+  getEffectiveArmorDiagramVariant: () => ArmorDiagramVariant;
+
   // Other actions
   setArmorDiagramMode: (mode: ArmorDiagramMode) => void;
   setArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
@@ -139,6 +163,9 @@ type ActionKeys =
   | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
   | 'saveAppearance' | 'revertAppearance' | 'initDraftAppearance'
   | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
+  | 'setDraftArmorDiagramMode' | 'setDraftArmorDiagramVariant'
+  | 'saveCustomizer' | 'revertCustomizer' | 'initDraftCustomizer'
+  | 'getEffectiveArmorDiagramMode' | 'getEffectiveArmorDiagramVariant'
   | 'setArmorDiagramMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
   | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults';
 
@@ -158,6 +185,10 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   armorDiagramMode: 'silhouette',
   armorDiagramVariant: 'clean-tech',
   showArmorDiagramSelector: true, // Enable UAT selector by default
+
+  // Draft customizer state (not persisted)
+  draftCustomizer: null,
+  hasUnsavedCustomizer: false,
 
   // UI behavior
   sidebarDefaultCollapsed: false,
@@ -182,11 +213,8 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       setFontSize: (size) => set({ fontSize: size }),
       setAnimationLevel: (level) => set({ animationLevel: level }),
       setCompactMode: (compact) => set({ compactMode: compact }),
-      // When UITheme changes, also sync the ArmorDiagramVariant to match
-      setUITheme: (theme) => set({
-        uiTheme: theme,
-        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[theme],
-      }),
+      // UITheme changes independently of ArmorDiagramVariant
+      setUITheme: (theme) => set({ uiTheme: theme }),
 
       // Draft setters for live preview (not persisted until save)
       setDraftAccentColor: (color) => set((state) => ({
@@ -245,7 +273,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         hasUnsavedAppearance: true,
       })),
 
-      // When draft UITheme changes, also update the armorDiagramVariant for live preview
+      // Draft UITheme changes independently of ArmorDiagramVariant
       setDraftUITheme: (theme) => set((state) => ({
         draftAppearance: {
           ...(state.draftAppearance ?? {
@@ -257,8 +285,6 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           uiTheme: theme,
         },
-        // Sync diagram variant for immediate preview
-        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[theme],
         hasUnsavedAppearance: true,
       })),
 
@@ -288,13 +314,11 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       }),
 
       // Revert draft to saved state (call when leaving settings without save)
-      // Also restore armorDiagramVariant to match the saved uiTheme
-      revertAppearance: () => set((state) => ({
+      // ArmorDiagramVariant is independent and not affected by appearance revert
+      revertAppearance: () => set({
         draftAppearance: null,
         hasUnsavedAppearance: false,
-        // Restore diagram variant to match the saved (not draft) UI theme
-        armorDiagramVariant: UI_THEME_TO_DIAGRAM_VARIANT[state.uiTheme],
-      })),
+      }),
 
       // Getters for effective appearance (draft if exists, otherwise saved)
       getEffectiveAccentColor: () => {
@@ -312,6 +336,59 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         return state.draftAppearance?.fontSize ?? state.fontSize;
       },
 
+      // Draft customizer setters for live preview (not persisted until save)
+      setDraftArmorDiagramMode: (mode) => set((state) => ({
+        draftCustomizer: {
+          armorDiagramMode: mode,
+          armorDiagramVariant: state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant,
+        },
+        hasUnsavedCustomizer: true,
+      })),
+
+      setDraftArmorDiagramVariant: (variant) => set((state) => ({
+        draftCustomizer: {
+          armorDiagramMode: state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
+          armorDiagramVariant: variant,
+        },
+        hasUnsavedCustomizer: true,
+      })),
+
+      // Initialize draft customizer with current saved values (call when entering customizer settings)
+      initDraftCustomizer: () => set((state) => ({
+        draftCustomizer: {
+          armorDiagramMode: state.armorDiagramMode,
+          armorDiagramVariant: state.armorDiagramVariant,
+        },
+        hasUnsavedCustomizer: false,
+      })),
+
+      // Save draft customizer to persisted state
+      saveCustomizer: () => set((state) => {
+        if (!state.draftCustomizer) return state;
+        return {
+          armorDiagramMode: state.draftCustomizer.armorDiagramMode,
+          armorDiagramVariant: state.draftCustomizer.armorDiagramVariant,
+          hasUnsavedCustomizer: false,
+        };
+      }),
+
+      // Revert draft customizer to saved state (call when leaving customizer without save)
+      revertCustomizer: () => set({
+        draftCustomizer: null,
+        hasUnsavedCustomizer: false,
+      }),
+
+      // Getters for effective customizer (draft if exists, otherwise saved)
+      getEffectiveArmorDiagramMode: () => {
+        const state = get();
+        return state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode;
+      },
+
+      getEffectiveArmorDiagramVariant: () => {
+        const state = get();
+        return state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant;
+      },
+
       // Other settings (immediately persisted)
       setArmorDiagramMode: (mode) => set({ armorDiagramMode: mode }),
       setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
@@ -326,6 +403,8 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         ...DEFAULT_SETTINGS,
         draftAppearance: null,
         hasUnsavedAppearance: false,
+        draftCustomizer: null,
+        hasUnsavedCustomizer: false,
       }),
     }),
     {
