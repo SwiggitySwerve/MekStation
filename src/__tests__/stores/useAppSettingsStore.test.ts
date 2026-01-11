@@ -284,4 +284,108 @@ describe('useAppSettingsStore', () => {
       expect(result.current.highContrast).toBe(false);
     });
   });
+
+  describe('UITheme to ArmorDiagramVariant synchronization', () => {
+    it('should sync armorDiagramVariant when setUITheme is called', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Default should be clean-tech for default theme
+      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech');
+
+      // Change to neon theme - should auto-select neon-operator diagram
+      act(() => {
+        result.current.setUITheme('neon');
+      });
+      expect(result.current.uiTheme).toBe('neon');
+      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+
+      // Change to tactical theme - should auto-select tactical-hud diagram
+      act(() => {
+        result.current.setUITheme('tactical');
+      });
+      expect(result.current.uiTheme).toBe('tactical');
+      expect(result.current.armorDiagramVariant).toBe('tactical-hud');
+
+      // Change to minimal theme - should auto-select premium-material diagram
+      act(() => {
+        result.current.setUITheme('minimal');
+      });
+      expect(result.current.uiTheme).toBe('minimal');
+      expect(result.current.armorDiagramVariant).toBe('premium-material');
+
+      // Change back to default
+      act(() => {
+        result.current.setUITheme('default');
+      });
+      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech');
+    });
+
+    it('should sync armorDiagramVariant during draft preview with setDraftUITheme', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Initialize draft
+      act(() => {
+        result.current.initDraftAppearance();
+      });
+
+      // Change draft theme to neon - should also update diagram variant
+      act(() => {
+        result.current.setDraftUITheme('neon');
+      });
+      expect(result.current.draftAppearance?.uiTheme).toBe('neon');
+      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+
+      // Change draft theme to tactical
+      act(() => {
+        result.current.setDraftUITheme('tactical');
+      });
+      expect(result.current.draftAppearance?.uiTheme).toBe('tactical');
+      expect(result.current.armorDiagramVariant).toBe('tactical-hud');
+    });
+
+    it('should restore armorDiagramVariant when reverting appearance changes', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Verify initial state
+      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech');
+
+      // Initialize draft and change theme
+      act(() => {
+        result.current.initDraftAppearance();
+        result.current.setDraftUITheme('neon');
+      });
+
+      // Diagram variant should have changed
+      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+
+      // Revert - should restore diagram variant to match saved theme
+      act(() => {
+        result.current.revertAppearance();
+      });
+
+      expect(result.current.draftAppearance).toBeNull();
+      expect(result.current.uiTheme).toBe('default'); // Saved theme unchanged
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Restored to match saved theme
+    });
+
+    it('should allow independent armorDiagramVariant changes after theme sync', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Set theme to neon (auto-syncs diagram)
+      act(() => {
+        result.current.setUITheme('neon');
+      });
+      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+
+      // Manually override to a different diagram variant
+      act(() => {
+        result.current.setArmorDiagramVariant('clean-tech');
+      });
+      expect(result.current.armorDiagramVariant).toBe('clean-tech');
+      expect(result.current.uiTheme).toBe('neon'); // Theme unchanged
+    });
+  });
 });

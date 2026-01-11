@@ -45,6 +45,17 @@ The system SHALL provide appearance customization options.
 - **THEN** spacing and padding are reduced throughout the app
 - **AND** more information fits on screen
 
+#### Scenario: UI Theme selection
+- **WHEN** user selects a UI theme
+- **THEN** theme options are: Default, Neon, Tactical, Minimal
+- **AND** selection applies immediately (live preview)
+- **AND** selection must be saved to persist
+- **AND** armor diagram variant auto-syncs to match:
+  - Default → Clean Tech
+  - Neon → Neon Operator
+  - Tactical → Tactical HUD
+  - Minimal → Premium Material
+
 ### Requirement: Customizer Settings
 The system SHALL provide customizer-specific settings.
 
@@ -117,7 +128,8 @@ Components SHALL access settings via Zustand store.
 | fontSize | FontSize | 'medium' | Base font size |
 | animationLevel | AnimationLevel | 'full' | Animation amount |
 | compactMode | boolean | false | Reduce spacing |
-| armorDiagramVariant | ArmorDiagramVariant | 'clean-tech' | Diagram design |
+| uiTheme | UITheme | 'default' | Global UI theme (auto-syncs armor diagram) |
+| armorDiagramVariant | ArmorDiagramVariant | 'clean-tech' | Diagram design (synced from uiTheme) |
 | showArmorDiagramSelector | boolean | true | Show UAT selector |
 | sidebarDefaultCollapsed | boolean | false | Start collapsed |
 | confirmOnClose | boolean | true | Confirm unsaved |
