@@ -44,10 +44,10 @@ export default function CustomDropdown({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          w-full px-2 py-1 bg-slate-700 border border-slate-600 rounded text-sm text-slate-100
+          w-full px-2 py-1 bg-surface-raised border border-border-theme rounded text-sm text-text-theme-primary
           flex items-center justify-between
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-500 cursor-pointer'}
-          ${isOpen ? 'border-blue-500' : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-border-theme-strong cursor-pointer'}
+          ${isOpen ? 'border-accent' : ''}
           ${className}
         `}
       >
@@ -63,7 +63,7 @@ export default function CustomDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-600 rounded shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-surface-base border border-border-theme rounded shadow-lg max-h-60 overflow-auto">
           {options.map((option) => (
             <button
               key={option}
@@ -71,9 +71,9 @@ export default function CustomDropdown({
               onClick={() => handleSelect(option)}
               className={`
                 w-full px-3 py-2 text-left text-sm
-                ${option === value 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-slate-100 hover:bg-slate-700'
+                ${option === value
+                  ? 'bg-accent text-white'
+                  : 'text-text-theme-primary hover:bg-surface-raised'
                 }
               `}
             >

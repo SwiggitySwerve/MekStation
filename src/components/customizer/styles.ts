@@ -14,17 +14,17 @@
 // =============================================================================
 
 const panel = {
-  /** Main content panel - bg-slate-800 with border */
-  main: 'bg-slate-800 rounded-lg border border-slate-700 p-4',
-  
+  /** Main content panel - bg-surface-base with border */
+  main: 'bg-surface-base rounded-lg border border-border-theme-subtle p-4',
+
   /** Compact summary bar at top of tabs */
-  summary: 'bg-slate-800/50 rounded-lg border border-slate-700 px-4 py-2',
-  
+  summary: 'bg-surface-base/50 rounded-lg border border-border-theme-subtle px-4 py-2',
+
   /** Read-only notice panel */
   notice: 'bg-blue-900/30 border border-blue-700 rounded-lg p-4 text-blue-300 text-sm',
-  
+
   /** Empty state placeholder */
-  empty: 'text-center py-8 text-slate-400',
+  empty: 'text-center py-8 text-text-theme-secondary',
 } as const;
 
 // =============================================================================
@@ -34,26 +34,26 @@ const panel = {
 const text = {
   /** Section/panel title */
   sectionTitle: 'text-lg font-semibold text-white mb-4',
-  
+
   /** Form field label */
-  label: 'text-sm text-slate-400',
-  
+  label: 'text-sm text-text-theme-secondary',
+
   /** Secondary/helper text */
-  secondary: 'text-xs text-slate-500',
-  
+  secondary: 'text-xs text-text-theme-secondary',
+
   /** Stat value - white */
   value: 'font-medium text-white',
-  
-  /** Highlighted stat value - amber */
-  valueHighlight: 'font-medium text-amber-400',
-  
+
+  /** Highlighted stat value - accent */
+  valueHighlight: 'font-medium text-accent',
+
   /** Positive value - green */
   valuePositive: 'font-medium text-green-400',
-  
+
   /** Negative/error value - red */
   valueNegative: 'font-medium text-red-400',
-  
-  /** Warning value - amber */
+
+  /** Warning value - amber (kept for semantic warning indication) */
   valueWarning: 'font-medium text-amber-400',
 } as const;
 
@@ -63,20 +63,20 @@ const text = {
 
 const input = {
   /** Base input styles (without width) */
-  base: 'px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500',
-  
+  base: 'px-3 py-2 bg-surface-raised border border-border-theme rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent',
+
   /** Full-width input */
-  full: 'w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500',
-  
+  full: 'w-full px-3 py-2 bg-surface-raised border border-border-theme rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent',
+
   /** Compact input (smaller padding) */
-  compact: 'px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm',
-  
+  compact: 'px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-white text-sm',
+
   /** Full-width compact input */
-  fullCompact: 'w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm',
-  
+  fullCompact: 'w-full px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-white text-sm',
+
   /** Centered number input (for stepper controls) */
-  number: 'px-2 py-1 bg-slate-700 border border-slate-600 text-white text-sm text-center',
-  
+  number: 'px-2 py-1 bg-surface-raised border border-border-theme text-white text-sm text-center',
+
   /** Hide number input spinners - append to number inputs */
   noSpinners: '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
 } as const;
@@ -87,13 +87,13 @@ const input = {
 
 const select = {
   /** Full-width select */
-  full: 'w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500',
-  
+  full: 'w-full px-3 py-2 bg-surface-raised border border-border-theme rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-accent',
+
   /** Compact select (smaller padding) */
-  compact: 'w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm',
-  
+  compact: 'w-full px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-white text-sm',
+
   /** Inline select (no full width) */
-  inline: 'px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm',
+  inline: 'px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-white text-sm',
 } as const;
 
 // =============================================================================
@@ -102,20 +102,20 @@ const select = {
 
 const button = {
   /** Stepper button (increment/decrement) - small */
-  stepper: 'px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-sm',
-  
+  stepper: 'px-2 py-1 bg-surface-raised hover:bg-surface-raised-hover disabled:opacity-50 disabled:cursor-not-allowed rounded border border-border-theme text-white text-sm',
+
   /** Stepper button - medium */
-  stepperMd: 'px-3 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded border border-slate-600 text-white text-sm',
-  
+  stepperMd: 'px-3 py-2 bg-surface-raised hover:bg-surface-raised-hover disabled:opacity-50 disabled:cursor-not-allowed rounded border border-border-theme text-white text-sm',
+
   /** Left stepper in grouped control */
-  stepperLeft: 'px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-l border border-slate-600 text-white text-sm',
-  
+  stepperLeft: 'px-2 py-1 bg-surface-raised hover:bg-surface-raised-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-l border border-border-theme text-white text-sm',
+
   /** Right stepper in grouped control */
-  stepperRight: 'px-2 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-r border border-slate-600 text-white text-sm',
-  
+  stepperRight: 'px-2 py-1 bg-surface-raised hover:bg-surface-raised-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-r border border-border-theme text-white text-sm',
+
   /** Primary action button - blue */
   action: 'px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white text-sm font-medium transition-colors',
-  
+
   /** Full-width action button */
   actionFull: 'flex-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white text-sm font-medium transition-colors',
 } as const;
@@ -156,10 +156,10 @@ const layout = {
   statRow: 'flex items-center gap-2',
   
   /** Divider/separator */
-  divider: 'pt-3 mt-1 border-t border-slate-700',
-  
+  divider: 'pt-3 mt-1 border-t border-border-theme-subtle',
+
   /** Vertical divider */
-  dividerV: 'pl-4 border-l border-slate-600',
+  dividerV: 'pl-4 border-l border-border-theme',
 } as const;
 
 // =============================================================================

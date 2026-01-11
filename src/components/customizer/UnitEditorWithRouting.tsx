@@ -588,7 +588,7 @@ export function UnitEditorWithRouting({
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Unit Info Banner - at-a-glance stats */}
-      <div className="p-2 bg-slate-900 border-b border-slate-700">
+      <div className="p-2 bg-surface-deep border-b border-border-theme">
         <UnitInfoBanner stats={unitStats} />
       </div>
       
@@ -647,7 +647,7 @@ export function UnitEditorWithRouting({
 function PlaceholderTab({ name }: { name: string }) {
   return (
     <div className="flex-1 flex items-center justify-center p-8">
-      <div className="text-center text-slate-400">
+      <div className="text-center text-text-theme-secondary">
         <h3 className="text-xl font-bold mb-2">{name}</h3>
         <p className="text-sm">This section is under development</p>
       </div>

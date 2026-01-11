@@ -78,8 +78,8 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
         onClick={() => setIsOpen(!isOpen)}
         className={`p-1.5 rounded-lg transition-colors ${
           isOpen
-            ? 'bg-amber-500/20 text-amber-400'
-            : 'text-slate-400 hover:text-white hover:bg-slate-700'
+            ? 'bg-accent/20 text-accent'
+            : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised'
         }`}
         title="Change diagram style"
         aria-label="Diagram style settings"
@@ -110,12 +110,12 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
       {isOpen && (
         <div
           ref={popupRef}
-          className="absolute right-0 top-full mt-2 w-72 bg-slate-800 rounded-lg border border-slate-700 shadow-xl z-50"
+          className="absolute right-0 top-full mt-2 w-72 bg-surface-base rounded-lg border border-border-theme-subtle shadow-xl z-50"
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-slate-700">
+          <div className="px-4 py-3 border-b border-border-theme-subtle">
             <h4 className="text-sm font-semibold text-white">Diagram Style</h4>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-text-theme-secondary mt-0.5">
               Choose how the armor diagram looks
             </p>
           </div>
@@ -132,15 +132,15 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
                   onClick={() => handleSelectVariant(variant)}
                   className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
                     isSelected
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : 'hover:bg-slate-700 text-slate-300'
+                      ? 'bg-accent/20 text-accent'
+                      : 'hover:bg-surface-raised text-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm">{info.name}</span>
                     {isSelected && (
                       <svg
-                        className="w-4 h-4 text-amber-400"
+                        className="w-4 h-4 text-accent"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -152,17 +152,17 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
                       </svg>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">{info.description}</p>
+                  <p className="text-xs text-text-theme-secondary mt-0.5">{info.description}</p>
                 </button>
               );
             })}
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-slate-700 bg-slate-800/50 rounded-b-lg">
+          <div className="px-4 py-2 border-t border-border-theme-subtle bg-surface-base/50 rounded-b-lg">
             <p className="text-xs text-slate-500">
               More options in{' '}
-              <Link href="/settings" className="text-amber-400 hover:underline">
+              <Link href="/settings" className="text-accent hover:underline">
                 Settings
               </Link>
             </p>

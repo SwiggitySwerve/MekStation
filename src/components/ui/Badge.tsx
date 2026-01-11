@@ -51,13 +51,13 @@ const variantClasses: Record<BadgeVariant, string> = {
   blue: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
   emerald: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
   purple: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
-  amber: 'bg-amber-600/20 text-amber-400 border-amber-600/30',
+  amber: 'bg-accent/20 text-accent border-accent/30',
   orange: 'bg-orange-600/20 text-orange-400 border-orange-600/30',
   red: 'bg-red-600/20 text-red-400 border-red-600/30',
   cyan: 'bg-cyan-600/20 text-cyan-400 border-cyan-600/30',
   violet: 'bg-violet-600/20 text-violet-400 border-violet-600/30',
   yellow: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30',
-  slate: 'bg-slate-600/20 text-slate-400 border-slate-600/30',
+  slate: 'bg-surface-raised/20 text-text-theme-secondary border-border-theme-subtle/30',
   // Extended colors for weapon differentiation
   rose: 'bg-rose-600/20 text-rose-400 border-rose-600/30',
   sky: 'bg-sky-600/20 text-sky-400 border-sky-600/30',
@@ -70,9 +70,9 @@ const variantClasses: Record<BadgeVariant, string> = {
   'sky-light': 'bg-sky-500/10 text-sky-300 border-sky-400/20',
   'violet-light': 'bg-violet-500/10 text-violet-300 border-violet-400/20',
   'rose-light': 'bg-rose-500/10 text-rose-300 border-rose-400/20',
-  // Semantic aliases  
-  muted: 'bg-slate-600/50 text-slate-300 border-slate-500/30',
-  warning: 'bg-amber-600/20 text-amber-400 border-amber-600/30',
+  // Semantic aliases
+  muted: 'bg-surface-raised/50 text-text-theme-muted border-border-theme-subtle/30',
+  warning: 'bg-accent/20 text-accent border-accent/30',
   success: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
   info: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
 };

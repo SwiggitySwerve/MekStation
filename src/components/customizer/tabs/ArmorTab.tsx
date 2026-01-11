@@ -222,10 +222,10 @@ export function ArmorTab({
               <span className={cs.text.value}>{armorSlots}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l border-slate-700 sm:pl-4">
+          <div className="flex items-center gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l border-border-theme-subtle sm:pl-4">
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Tonnage:</span>
-              <span className="text-lg font-bold text-amber-400">{armorTonnage}t</span>
+              <span className="text-lg font-bold text-accent">{armorTonnage}t</span>
             </div>
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Points:</span>
@@ -324,7 +324,7 @@ export function ArmorTab({
               <div className={`${cs.layout.divider} space-y-2`}>
                 <div className={`${cs.layout.rowBetween} text-sm`}>
                   <span className={cs.text.label}>Unallocated Armor Points</span>
-                  <span className={`font-medium ${unallocatedPoints < 0 ? 'text-red-400' : unallocatedPoints > 0 ? 'text-amber-400' : 'text-green-400'}`}>
+                  <span className={`font-medium ${unallocatedPoints < 0 ? 'text-red-400' : unallocatedPoints > 0 ? 'text-accent' : 'text-green-400'}`}>
                     {unallocatedPoints}
                   </span>
                 </div>
@@ -346,7 +346,7 @@ export function ArmorTab({
                     <span className={cs.text.valueWarning}>{wastedPoints}</span>
                   </div>
                 )}
-                <div className={`${cs.layout.rowBetween} text-sm pt-2 border-t border-slate-600`}>
+                <div className={`${cs.layout.rowBetween} text-sm pt-2 border-t border-border-theme`}>
                   <span className={cs.text.label}>Points Per Ton</span>
                   <span className="font-medium text-slate-300">{pointsPerTon.toFixed(2)}</span>
                 </div>

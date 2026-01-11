@@ -369,7 +369,7 @@ export function NeonOperatorDiagram({
   ];
 
   return (
-    <div className={`bg-slate-900 rounded-lg border border-cyan-900/50 p-4 ${className}`}>
+    <div className={`bg-surface-deep rounded-lg border border-cyan-900/50 p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -466,21 +466,21 @@ export function NeonOperatorDiagram({
       <div className="flex justify-center items-center gap-3 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #22c55e' }} />
-          <span className="text-slate-400">75%+</span>
+          <span className="text-text-theme-secondary">75%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500" style={{ boxShadow: '0 0 6px #f59e0b' }} />
-          <span className="text-slate-400">50%+</span>
+          <span className="text-text-theme-secondary">50%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-500" style={{ boxShadow: '0 0 6px #f97316' }} />
-          <span className="text-slate-400">25%+</span>
+          <span className="text-text-theme-secondary">25%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px #ef4444' }} />
-          <span className="text-slate-400">&lt;25%</span>
+          <span className="text-text-theme-secondary">&lt;25%</span>
         </div>
-        <div className="w-px h-3 bg-slate-700" />
+        <div className="w-px h-3 bg-surface-raised" />
         <span className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}>
           UNALLOC: {unallocatedPoints}
         </span>

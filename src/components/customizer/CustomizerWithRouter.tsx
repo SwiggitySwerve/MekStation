@@ -143,8 +143,8 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // Show loading during initial hydration
   if (!isHydrated || isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-slate-400">Loading customizer...</div>
+      <div className="min-h-screen bg-surface-deep flex items-center justify-center">
+        <div className="text-text-theme-secondary">Loading customizer...</div>
       </div>
     );
   }
@@ -152,13 +152,13 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // Invalid unit ID in URL
   if (!routerIsValid && !routerIsIndex) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center text-slate-400 p-8">
+      <div className="min-h-screen bg-surface-deep flex items-center justify-center">
+        <div className="text-center text-text-theme-secondary p-8">
           <p className="text-lg mb-2">Invalid unit ID</p>
           <p className="text-sm mb-4">The requested unit could not be found.</p>
           <button
             onClick={routerNavigateToIndex}
-            className="px-4 py-2 bg-amber-500 text-slate-900 rounded hover:bg-amber-400 transition-colors"
+            className="px-4 py-2 bg-accent text-surface-deep rounded hover:bg-accent-hover transition-colors"
           >
             Go to Customizer
           </button>
@@ -169,7 +169,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-slate-900 flex flex-col">
+      <div className="min-h-screen bg-surface-deep flex flex-col">
         {/* Multi-unit tabs at top */}
         <MultiUnitTabs>
           {/* UnitStoreProvider - activeTab passed as prop */}
@@ -177,7 +177,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
             activeTab={activeTab}
             fallback={
               <div className="flex-1 flex items-center justify-center">
-                <div className="text-center text-slate-400 p-8">
+                <div className="text-center text-text-theme-secondary p-8">
                   <p className="text-lg mb-2">No unit selected</p>
                   <p className="text-sm">Click &quot;New Unit&quot; to create a new BattleMech</p>
                 </div>

@@ -84,9 +84,9 @@ describe('CategoryToggleBar', () => {
 
   it('should highlight Show All when active', () => {
     render(<CategoryToggleBar {...defaultProps} showAll={true} />);
-    
+
     const showAllButton = screen.getByText('Show All').closest('button');
-    expect(showAllButton).toHaveClass('bg-amber-600');
+    expect(showAllButton).toHaveClass('bg-accent');
   });
 
   it('should highlight Other when MISC_EQUIPMENT is active', () => {

@@ -93,7 +93,7 @@ export function CriticalSlotsDisplay({
     assignableSlots?.find((a) => a.location === loc)?.slots || [];
   
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 ${className}`}>
+    <div className={`bg-surface-base rounded-lg border border-border-theme ${className}`}>
       {/* Toolbar */}
       <CriticalSlotToolbar
         autoFillUnhittables={autoFillUnhittables}
@@ -101,7 +101,7 @@ export function CriticalSlotsDisplay({
         onAutoFillToggle={onAutoFillToggle}
         onPreviewToggle={onPreviewToggle}
         onAction={onToolbarAction}
-        className="border-b border-slate-700"
+        className="border-b border-border-theme"
       />
       
       {/* Grid layout - MegaMekLab style with 5 columns */}

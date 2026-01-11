@@ -51,7 +51,7 @@ export function TabBar({
   className = '',
 }: TabBarProps): React.ReactElement {
   return (
-    <div className={`flex items-center bg-slate-800 border-b border-slate-700 ${className}`}>
+    <div className={`flex items-center bg-surface-base border-b border-border-theme ${className}`}>
       {/* Tab list - scrollable on mobile */}
       <div className="flex-1 flex items-center overflow-x-auto min-w-0">
         {tabs.map((tab) => (
@@ -68,11 +68,11 @@ export function TabBar({
       </div>
 
       {/* Toolbar icons - MegaMekLab style, touch-friendly */}
-      <div className="flex-shrink-0 flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 border-l border-slate-700">
+      <div className="flex-shrink-0 flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 border-l border-border-theme">
         {/* New Unit - Document icon */}
         <button
           onClick={onNewTab}
-          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors flex items-center justify-center"
+          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-text-theme-secondary hover:text-white hover:bg-surface-raised rounded transition-colors flex items-center justify-center"
           title="Create New Unit (Ctrl+N)"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +83,7 @@ export function TabBar({
         {/* Load Unit - Folder icon */}
         <button
           onClick={onLoadUnit}
-          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors flex items-center justify-center"
+          className="p-2 sm:p-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-text-theme-secondary hover:text-white hover:bg-surface-raised rounded transition-colors flex items-center justify-center"
           title="Load Unit from Library (Ctrl+O)"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

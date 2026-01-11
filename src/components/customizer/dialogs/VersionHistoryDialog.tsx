@@ -141,7 +141,7 @@ export function VersionHistoryDialog({
       {/* Content */}
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Version list */}
-        <div className="w-1/3 border-r border-slate-700 overflow-auto">
+        <div className="w-1/3 border-r border-border-theme-subtle overflow-auto">
           {isLoading ? (
             <div className={cs.dialog.loading}>
               <svg className="w-6 h-6 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
@@ -158,11 +158,11 @@ export function VersionHistoryDialog({
               {error}
             </div>
           ) : versions.length === 0 ? (
-            <div className="p-4 text-slate-400 text-center">
+            <div className="p-4 text-text-theme-secondary text-center">
               No version history
             </div>
           ) : (
-            <div className="divide-y divide-slate-700">
+            <div className="divide-y divide-border-theme-subtle">
               {versions.map((version) => (
                 <button
                   key={version.version}
@@ -170,7 +170,7 @@ export function VersionHistoryDialog({
                   className={`w-full p-3 text-left transition-colors border-l-2 ${
                     selectedVersion === version.version
                       ? 'bg-blue-600/20 border-blue-500'
-                      : 'hover:bg-slate-700/50 border-transparent'
+                      : 'hover:bg-surface-raised/50 border-transparent'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -182,13 +182,13 @@ export function VersionHistoryDialog({
                         </span>
                       )}
                       {version.revertSource && (
-                        <span className="px-1.5 py-0.5 text-xs bg-amber-500/20 text-amber-400 rounded">
+                        <span className="px-1.5 py-0.5 text-xs bg-accent/20 text-accent rounded">
                           Reverted
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
+                  <div className="text-xs text-text-theme-secondary mt-1">
                     {formatDate(version.savedAt)}
                   </div>
                   {version.notes && (
@@ -239,7 +239,7 @@ export function VersionHistoryDialog({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-white font-medium">Version {previewData.version} Details</h4>
-                    <span className="text-sm text-slate-400">
+                    <span className="text-sm text-text-theme-secondary">
                       Saved {formatDate(previewData.savedAt)}
                     </span>
                   </div>
@@ -253,7 +253,7 @@ export function VersionHistoryDialog({
                   
                   {previewData.revertSource && (
                     <div className={cs.dialog.warningPanel}>
-                      <div className="text-amber-400 text-sm">
+                      <div className="text-accent text-sm">
                         This version was created by reverting from version {previewData.revertSource}
                       </div>
                     </div>
@@ -262,19 +262,19 @@ export function VersionHistoryDialog({
                   {/* Unit summary */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className={cs.dialog.infoPanel}>
-                      <div className="text-xs text-slate-400 mb-1">Tonnage</div>
+                      <div className="text-xs text-text-theme-secondary mb-1">Tonnage</div>
                       <div className="text-white">{tonnageStr}t</div>
                     </div>
                     <div className={cs.dialog.infoPanel}>
-                      <div className="text-xs text-slate-400 mb-1">Tech Base</div>
+                      <div className="text-xs text-text-theme-secondary mb-1">Tech Base</div>
                       <div className="text-white">{techBaseStr}</div>
                     </div>
                     <div className={cs.dialog.infoPanel}>
-                      <div className="text-xs text-slate-400 mb-1">Era</div>
+                      <div className="text-xs text-text-theme-secondary mb-1">Era</div>
                       <div className="text-white">{eraStr}</div>
                     </div>
                     <div className={cs.dialog.infoPanel}>
-                      <div className="text-xs text-slate-400 mb-1">Rules Level</div>
+                      <div className="text-xs text-text-theme-secondary mb-1">Rules Level</div>
                       <div className="text-white">{rulesLevelStr}</div>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export function VersionHistoryDialog({
                   {/* Equipment count if available */}
                   {equipmentArr && (
                     <div className={cs.dialog.infoPanel}>
-                      <div className="text-xs text-slate-400 mb-1">Equipment</div>
+                      <div className="text-xs text-text-theme-secondary mb-1">Equipment</div>
                       <div className="text-white">
                         {equipmentCount} items
                       </div>
@@ -301,7 +301,7 @@ export function VersionHistoryDialog({
       
       {/* Footer */}
       <div className={cs.dialog.footerBetween}>
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-text-theme-secondary">
           {versions.length} version{versions.length !== 1 ? 's' : ''} available
         </span>
         <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import Layout from '../components/common/Layout'
 import Sidebar from '../components/common/Sidebar'
 import { InstallPrompt } from '../components/pwa/InstallPrompt'
 import { useServiceWorker } from '../hooks/useServiceWorker'
+import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
 import { indexedDBService } from '../services/persistence/IndexedDBService'
@@ -37,19 +38,21 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   const sw = useServiceWorker();
 
   return (
-    <Layout
-      sidebarComponent={
-        <Sidebar
-          isCollapsed={isSidebarCollapsed}
-          setIsCollapsed={setIsSidebarCollapsed}
-        />
-      }
-      isSidebarCollapsed={isSidebarCollapsed}
-    >
-      <Component {...pageProps} servicesReady={servicesReady} />
+    <GlobalStyleProvider>
+      <Layout
+        sidebarComponent={
+          <Sidebar
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+          />
+        }
+        isSidebarCollapsed={isSidebarCollapsed}
+      >
+        <Component {...pageProps} servicesReady={servicesReady} />
 
-      {/* PWA Install Prompt */}
-      {sw.isSupported && <InstallPrompt />}
-    </Layout>
+        {/* PWA Install Prompt */}
+        {sw.isSupported && <InstallPrompt />}
+      </Layout>
+    </GlobalStyleProvider>
   )
 }

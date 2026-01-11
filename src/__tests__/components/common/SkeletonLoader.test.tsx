@@ -190,7 +190,7 @@ describe('SkeletonFormSection', () => {
     );
 
     const section = container.firstChild as HTMLElement;
-    expect(section).toHaveClass('bg-slate-800');
+    expect(section).toHaveClass('bg-surface-base');
     expect(section).toHaveClass('rounded-lg');
     expect(section).toHaveClass('border');
   });

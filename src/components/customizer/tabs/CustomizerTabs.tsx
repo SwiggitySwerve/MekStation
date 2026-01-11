@@ -107,8 +107,8 @@ export function CustomizerTabs({
   const handleKeyDown = useTabKeyboardNavigation(tabs, activeTab, onTabChange);
   
   return (
-    <div 
-      className={`flex bg-slate-800 border-b border-slate-700 ${className}`}
+    <div
+      className={`flex bg-surface-base border-b border-border-theme-subtle ${className}`}
       role="tablist"
       aria-label="Unit configuration tabs"
       onKeyDown={handleKeyDown}
@@ -125,10 +125,10 @@ export function CustomizerTabs({
           className={`
             flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 text-sm font-medium
             border-b-2 transition-colors
-            focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-inset
+            focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset
             ${tab.id === activeTab
-              ? 'text-amber-400 border-amber-400'
-              : 'text-slate-400 border-transparent hover:text-white hover:border-slate-500'
+              ? 'text-accent border-accent'
+              : 'text-text-theme-secondary border-transparent hover:text-white hover:border-border-theme-subtle'
             }
             ${tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             ${readOnly ? 'pointer-events-none' : ''}

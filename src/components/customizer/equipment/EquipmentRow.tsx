@@ -108,7 +108,7 @@ export const EquipmentRow = memo(function EquipmentRow({
   if (compact) {
     // Compact layout - fewer columns, MekLab-style, touch-friendly on mobile
     return (
-      <tr className="border-t border-slate-700/30 hover:bg-slate-700/30 transition-colors text-xs">
+      <tr className="border-t border-border-theme-subtle/30 hover:bg-surface-raised/30 transition-colors text-xs">
         {/* Name with category color indicator */}
         <td className="px-2 py-2 sm:py-1.5">
           <div className="flex items-center gap-1.5">
@@ -130,7 +130,7 @@ export const EquipmentRow = memo(function EquipmentRow({
         </td>
 
         {/* Range - hidden on medium screens and below */}
-        <td className="hidden md:table-cell px-2 py-2 sm:py-1.5 text-slate-400 text-center">
+        <td className="hidden md:table-cell px-2 py-2 sm:py-1.5 text-text-theme-secondary text-center">
           {formatRange(equipment)}
         </td>
 
@@ -148,7 +148,7 @@ export const EquipmentRow = memo(function EquipmentRow({
         <td className="px-2 py-2 sm:py-1.5">
           <button
             onClick={onAdd}
-            className="w-full px-2 py-1.5 sm:px-1.5 sm:py-0.5 text-xs sm:text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors min-h-[32px] sm:min-h-0"
+            className="w-full px-2 py-1.5 sm:px-1.5 sm:py-0.5 text-xs sm:text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors min-h-[32px] sm:min-h-0"
             title={`Add ${equipment.name}`}
           >
             Add
@@ -157,10 +157,10 @@ export const EquipmentRow = memo(function EquipmentRow({
       </tr>
     );
   }
-  
+
   // Standard layout
   return (
-    <tr className="border-t border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+    <tr className="border-t border-border-theme-subtle/50 hover:bg-surface-raised/30 transition-colors">
       {/* Name */}
       <td className="px-3 py-2">
         <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export const EquipmentRow = memo(function EquipmentRow({
       </td>
       
       {/* Range */}
-      <td className="px-3 py-2 text-slate-400 text-center">
+      <td className="px-3 py-2 text-text-theme-secondary text-center">
         {formatRange(equipment)}
       </td>
       
@@ -198,7 +198,7 @@ export const EquipmentRow = memo(function EquipmentRow({
       <td className="px-3 py-2">
         <button
           onClick={onAdd}
-          className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+          className="px-2 py-1 text-xs bg-accent hover:bg-accent/80 text-white rounded transition-colors"
         >
           Add
         </button>

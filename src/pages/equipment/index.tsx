@@ -170,16 +170,16 @@ export default function EquipmentListPage(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-surface-deep via-surface-deep to-surface-deep">
       <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Compact Header Row - Title + View Toggle + Search + Filter Toggle */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
           {/* Title with count badge */}
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-wide uppercase text-white">
+            <h1 className="text-xl font-bold tracking-wide uppercase text-text-theme-primary">
               Equipment
             </h1>
-            <span className="px-2 py-0.5 text-xs font-mono bg-amber-600/20 text-amber-400 rounded">
+            <span className="px-2 py-0.5 text-xs font-mono bg-accent/20 text-accent rounded">
               {filteredEquipment.length}
             </span>
           </div>
@@ -208,8 +208,8 @@ export default function EquipmentListPage(): React.ReactElement {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               showFilters || hasActiveFilters
-                ? 'bg-amber-600 text-white'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                ? 'bg-accent text-text-theme-primary'
+                : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
             }`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -226,7 +226,7 @@ export default function EquipmentListPage(): React.ReactElement {
 
         {/* Collapsible Filter Panel */}
         {showFilters && (
-          <div className="mb-4 p-3 bg-slate-800/40 border border-slate-700/50 rounded-lg animate-fadeIn">
+          <div className="mb-4 p-3 bg-surface-base/40 border border-border-theme-subtle/50 rounded-lg animate-fadeIn">
             <div className="flex flex-wrap items-center gap-3">
               <Select
                 value={filters.category}
@@ -256,7 +256,7 @@ export default function EquipmentListPage(): React.ReactElement {
                 className="w-36"
               />
               {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-slate-400 hover:text-white">
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-text-theme-secondary hover:text-text-theme-primary">
                   Clear All
                 </Button>
               )}
@@ -281,7 +281,7 @@ export default function EquipmentListPage(): React.ReactElement {
         {/* Pagination - Compact */}
         {totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-text-theme-muted">
               Page {currentPage} of {totalPages}
             </span>
             <PaginationButtons
@@ -325,28 +325,28 @@ function EquipmentGridView({ equipment }: ViewProps): React.ReactElement {
         
         return (
           <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
-            <div className="group p-3 bg-slate-800/40 border border-slate-700/50 rounded-lg hover:bg-slate-800/60 hover:border-amber-600/50 transition-all cursor-pointer">
+            <div className="group p-3 bg-surface-base/40 border border-border-theme-subtle/50 rounded-lg hover:bg-surface-base/60 hover:border-accent/50 transition-all cursor-pointer">
               {/* Header row */}
               <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="text-sm font-medium text-white leading-tight group-hover:text-amber-100 line-clamp-1">
+                <h3 className="text-sm font-medium text-text-theme-primary leading-tight group-hover:text-accent/90 line-clamp-1">
                   {eq.name}
                 </h3>
                 {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
               </div>
 
               {/* Stats row - compact inline */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mb-2">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-theme-secondary mb-2">
                 {eq.weight !== undefined && (
-                  <span><span className="text-slate-300 font-mono">{eq.weight}</span>t</span>
+                  <span><span className="text-text-theme-primary/80 font-mono">{eq.weight}</span>t</span>
                 )}
                 {eq.criticalSlots !== undefined && (
-                  <span><span className="text-slate-300 font-mono">{eq.criticalSlots}</span> slots</span>
+                  <span><span className="text-text-theme-primary/80 font-mono">{eq.criticalSlots}</span> slots</span>
                 )}
                 {eq.damage !== undefined && (
                   <span><span className="text-cyan-400 font-mono">{eq.damage}</span> dmg</span>
                 )}
                 {eq.heat !== undefined && (
-                  <span><span className="text-amber-400 font-mono">{eq.heat}</span> heat</span>
+                  <span><span className="text-accent font-mono">{eq.heat}</span> heat</span>
                 )}
               </div>
 
@@ -373,23 +373,23 @@ function EquipmentListView({ equipment }: ViewProps): React.ReactElement {
         
         return (
           <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
-            <div className="flex items-center gap-3 px-3 py-2 bg-slate-800/30 border border-transparent rounded hover:bg-slate-800/50 hover:border-slate-700/50 transition-all cursor-pointer group">
+            <div className="flex items-center gap-3 px-3 py-2 bg-surface-base/30 border border-transparent rounded hover:bg-surface-base/50 hover:border-border-theme-subtle/50 transition-all cursor-pointer group">
               {/* Category indicator bar - using centralized colors */}
               {colors && (
                 <div className={`w-0.5 h-8 rounded-full ${colors.indicatorBg}`} />
               )}
 
               {/* Name */}
-              <span className="flex-1 text-sm text-white group-hover:text-amber-100 truncate min-w-0">
+              <span className="flex-1 text-sm text-text-theme-primary group-hover:text-accent/90 truncate min-w-0">
                 {eq.name}
               </span>
 
               {/* Quick stats */}
-              <div className="hidden sm:flex items-center gap-3 text-xs text-slate-500 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-3 text-xs text-text-theme-muted flex-shrink-0">
                 {eq.weight !== undefined && <span className="font-mono">{eq.weight}t</span>}
                 {eq.criticalSlots !== undefined && <span className="font-mono">{eq.criticalSlots}sl</span>}
                 {eq.damage !== undefined && <span className="font-mono text-cyan-500">{eq.damage}d</span>}
-                {eq.heat !== undefined && <span className="font-mono text-amber-500">{eq.heat}h</span>}
+                {eq.heat !== undefined && <span className="font-mono text-accent">{eq.heat}h</span>}
               </div>
 
               {/* Badges */}
@@ -403,7 +403,7 @@ function EquipmentListView({ equipment }: ViewProps): React.ReactElement {
               </div>
 
               {/* Arrow */}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-slate-600 group-hover:text-slate-400 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-border-theme group-hover:text-text-theme-secondary flex-shrink-0">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
               </svg>
             </div>
@@ -417,32 +417,32 @@ function EquipmentListView({ equipment }: ViewProps): React.ReactElement {
 // Table View - Compact data table
 function EquipmentTableView({ equipment }: ViewProps): React.ReactElement {
   return (
-    <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg overflow-hidden">
+    <div className="bg-surface-base/30 border border-border-theme-subtle/50 rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-slate-800/60 border-b border-slate-700/50">
-              <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Type</th>
-              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Tech</th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Wt</th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Slots</th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Dmg</th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Heat</th>
+            <tr className="bg-surface-base/60 border-b border-border-theme-subtle/50">
+              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Name</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Type</th>
+              <th className="px-3 py-2 text-center text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Tech</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Wt</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Slots</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Dmg</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Heat</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-700/30">
+          <tbody className="divide-y divide-border-theme-subtle/30">
             {equipment.map((eq) => {
               const colors = getEquipmentDisplayColors(eq.category, eq.name);
-              
+
               return (
-                <tr 
+                <tr
                   key={eq.id}
-                  className="hover:bg-slate-700/20 transition-colors cursor-pointer"
+                  className="hover:bg-surface-raised/20 transition-colors cursor-pointer"
                   onClick={() => window.location.href = `/equipment/${encodeURIComponent(eq.id)}`}
                 >
                   <td className="px-3 py-2">
-                    <span className="font-medium text-white">{eq.name}</span>
+                    <span className="font-medium text-text-theme-primary">{eq.name}</span>
                   </td>
                   <td className="px-3 py-2">
                     {colors && (
@@ -454,16 +454,16 @@ function EquipmentTableView({ equipment }: ViewProps): React.ReactElement {
                   <td className="px-3 py-2 text-center">
                     {eq.techBase && <TechBaseBadge techBase={eq.techBase} />}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-300">
+                  <td className="px-3 py-2 text-right font-mono text-text-theme-primary/80">
                     {eq.weight !== undefined ? `${eq.weight}` : '-'}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-slate-300">
+                  <td className="px-3 py-2 text-right font-mono text-text-theme-primary/80">
                     {eq.criticalSlots ?? '-'}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-cyan-400">
                     {eq.damage ?? '-'}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-amber-400">
+                  <td className="px-3 py-2 text-right font-mono text-accent">
                     {eq.heat ?? '-'}
                   </td>
                 </tr>

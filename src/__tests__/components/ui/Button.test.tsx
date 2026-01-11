@@ -25,13 +25,13 @@ describe('Button', () => {
     it('should apply primary variant', () => {
       render(<Button variant="primary">Primary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-amber-600');
+      expect(button).toHaveClass('bg-accent-hover');
     });
 
     it('should apply secondary variant (default)', () => {
       render(<Button>Secondary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-slate-700');
+      expect(button).toHaveClass('bg-surface-raised');
     });
 
     it('should apply ghost variant', () => {
@@ -43,7 +43,7 @@ describe('Button', () => {
     it('should apply pagination variant', () => {
       render(<Button variant="pagination">Pagination</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-slate-800');
+      expect(button).toHaveClass('bg-surface-base');
     });
 
     it('should apply danger variant', () => {

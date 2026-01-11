@@ -146,15 +146,15 @@ export function ArmorDiagramPreview({
       {showLabel && (
         <div className="mb-2">
           <div className="text-sm font-medium text-white">{info.name}</div>
-          <div className="text-xs text-slate-400">{info.description}</div>
+          <div className="text-xs text-text-theme-secondary">{info.description}</div>
         </div>
       )}
       <div
         className={`rounded-lg overflow-hidden transition-all ${
           isSelected
-            ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-900'
+            ? 'ring-2 ring-accent ring-offset-2 ring-offset-surface-deep'
             : onClick
-            ? 'hover:ring-2 hover:ring-slate-500 hover:ring-offset-2 hover:ring-offset-slate-900'
+            ? 'hover:ring-2 hover:ring-slate-500 hover:ring-offset-2 hover:ring-offset-surface-deep'
             : ''
         }`}
       >
@@ -195,8 +195,8 @@ export function ArmorDiagramGridPreview({
           key={variant}
           className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
             selectedVariant === variant
-              ? 'border-amber-500 bg-amber-500/5'
-              : 'border-slate-700 hover:border-slate-600 bg-slate-800/30'
+              ? 'border-accent bg-accent/5'
+              : 'border-border-theme-subtle hover:border-border-theme bg-surface-base/30'
           }`}
           onClick={() => onSelectVariant(variant)}
         >
@@ -205,12 +205,12 @@ export function ArmorDiagramGridPreview({
               <div className="text-sm font-medium text-white">
                 {DIAGRAM_VARIANT_INFO[variant].name}
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-text-theme-secondary">
                 {DIAGRAM_VARIANT_INFO[variant].description}
               </div>
             </div>
             {selectedVariant === variant && (
-              <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-3 h-3 text-white"
                   fill="currentColor"
@@ -250,10 +250,10 @@ export function ArmorDiagramFeatureList({
   return (
     <div className="space-y-1">
       <div className="text-sm font-medium text-white">{info.name}</div>
-      <ul className="text-xs text-slate-400 space-y-0.5">
+      <ul className="text-xs text-text-theme-secondary space-y-0.5">
         {info.features.map((feature, i) => (
           <li key={i} className="flex items-center gap-1.5">
-            <span className="w-1 h-1 rounded-full bg-amber-500" />
+            <span className="w-1 h-1 rounded-full bg-accent" />
             {feature}
           </li>
         ))}

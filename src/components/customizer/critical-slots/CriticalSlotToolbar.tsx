@@ -43,7 +43,7 @@ export function CriticalSlotToolbar({
             type="checkbox"
             checked={autoFillUnhittables}
             onChange={onAutoFillToggle}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-800"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base"
           />
           <span>Auto Fill</span>
         </label>
@@ -53,7 +53,7 @@ export function CriticalSlotToolbar({
             type="checkbox"
             checked={showPlacementPreview}
             onChange={onPreviewToggle}
-            className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-800"
+            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base"
           />
           <span>Preview</span>
         </label>
@@ -97,7 +97,7 @@ interface ToolbarButtonProps {
 function ToolbarButton({ label, title, onClick, variant = 'default' }: ToolbarButtonProps) {
   const colorClasses = variant === 'danger'
     ? 'text-red-400 hover:text-red-300 hover:bg-red-900/30'
-    : 'text-slate-400 hover:text-white hover:bg-slate-700';
+    : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised';
   
   return (
     <button

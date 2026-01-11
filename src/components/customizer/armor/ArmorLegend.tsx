@@ -29,7 +29,7 @@ export function ArmorLegend({ className = '' }: ArmorLegendProps): React.ReactEl
       {items.map(({ color, label }) => (
         <div key={label} className="flex items-center gap-1.5">
           <div className={`w-3 h-3 rounded ${color}`} />
-          <span className="text-xs text-slate-400">{label}</span>
+          <span className="text-xs text-text-theme-secondary">{label}</span>
         </div>
       ))}
     </div>

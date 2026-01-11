@@ -159,7 +159,7 @@ describe('Layout', () => {
         </Layout>
       );
 
-      const rootDiv = container.querySelector('.bg-slate-900');
+      const rootDiv = container.querySelector('.bg-surface-deep');
       expect(rootDiv).toBeInTheDocument();
     });
 

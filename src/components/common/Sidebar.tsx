@@ -31,7 +31,7 @@ function NavSection({ title, children, isCollapsed }: NavSectionProps): ReactEle
     <div className="mb-2">
       {title && !isCollapsed && (
         <div className="px-3 py-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-text-theme-muted">
             {title}
           </span>
         </div>
@@ -53,18 +53,18 @@ function NavItem({ href, icon, label, isCollapsed, isActive }: NavItemProps): Re
           transition-all duration-150 group
           ${isCollapsed ? 'justify-center' : 'gap-3'}
           ${isActive
-            ? 'bg-amber-500/15 text-amber-400'
-            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+            ? 'bg-accent/15 text-accent'
+            : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
           }
         `}
       >
         {/* Active indicator - left border */}
         {isActive && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-amber-500 rounded-r-full" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-full" />
         )}
         
         {/* Icon */}
-        <span className={`flex-shrink-0 ${isActive ? 'text-amber-400' : 'text-slate-400 group-hover:text-white'}`}>
+        <span className={`flex-shrink-0 ${isActive ? 'text-accent' : 'text-text-theme-secondary group-hover:text-text-theme-primary'}`}>
           {icon}
         </span>
         
@@ -75,7 +75,7 @@ function NavItem({ href, icon, label, isCollapsed, isActive }: NavItemProps): Re
         
         {/* Tooltip for collapsed state */}
         {isCollapsed && (
-          <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 whitespace-nowrap border border-slate-700">
+          <div className="absolute left-full ml-2 px-2 py-1 bg-surface-base text-text-theme-primary text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 whitespace-nowrap border border-border-theme-subtle">
             {label}
           </div>
         )}
@@ -142,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   return (
     <aside
       className={`
-        bg-slate-900 border-r border-slate-800 text-white
+        bg-surface-deep border-r border-surface-base text-text-theme-primary
         transition-all duration-300 ease-in-out print:hidden
         ${isCollapsed ? 'w-16' : 'w-56'}
         fixed inset-y-0 left-0 z-30 flex flex-col
@@ -150,19 +150,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
     >
       {/* Header / Brand */}
       <div className={`
-        flex items-center h-14 border-b border-slate-800
+        flex items-center h-14 border-b border-surface-base
         ${isCollapsed ? 'justify-center px-2' : 'px-4 gap-3'}
       `}>
         {/* Logo/Icon */}
-        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
+        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
           <MekStationIcon />
         </div>
         
         {/* App name */}
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
-            <span className="text-base font-bold text-white tracking-tight">MekStation</span>
-            <span className="block text-[10px] text-slate-500 uppercase tracking-wider">BattleTech Lab</span>
+            <span className="text-base font-bold text-text-theme-primary tracking-tight">MekStation</span>
+            <span className="block text-[10px] text-text-theme-muted uppercase tracking-wider">BattleTech Lab</span>
           </div>
         )}
         
@@ -170,7 +170,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         <button
           onClick={toggleSidebar}
           className={`
-            p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50
+            p-1.5 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50
             transition-colors flex-shrink-0
             ${isCollapsed ? '' : 'ml-auto'}
           `}
@@ -194,7 +194,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         </div>
 
         {/* Divider */}
-        {!isCollapsed && <div className="mx-4 border-t border-slate-800 mb-4" />}
+        {!isCollapsed && <div className="mx-4 border-t border-surface-base mb-4" />}
 
         {/* Browse Section */}
         <NavSection title="Browse" isCollapsed={isCollapsed}>
@@ -209,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         </NavSection>
 
         {/* Divider */}
-        {!isCollapsed && <div className="mx-4 border-t border-slate-800 my-4" />}
+        {!isCollapsed && <div className="mx-4 border-t border-surface-base my-4" />}
 
         {/* Tools Section */}
         <NavSection title="Tools" isCollapsed={isCollapsed}>
@@ -224,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         </NavSection>
 
         {/* Divider */}
-        {!isCollapsed && <div className="mx-4 border-t border-slate-800 my-4" />}
+        {!isCollapsed && <div className="mx-4 border-t border-surface-base my-4" />}
 
         {/* Settings Section */}
         <NavSection isCollapsed={isCollapsed}>
@@ -241,19 +241,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
       {/* Footer */}
       <div className={`
-        border-t border-slate-800 py-3
+        border-t border-surface-base py-3
         ${isCollapsed ? 'px-2 text-center' : 'px-4'}
       `}>
         {isCollapsed ? (
           <span className="text-[10px] text-slate-600">v0.1</span>
         ) : (
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-text-theme-muted">
             <span>v0.1.0</span>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
+            <a
+              href="https://github.com"
+              target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-amber-400 transition-colors"
+              className="hover:text-accent transition-colors"
             >
               <GithubIcon />
             </a>

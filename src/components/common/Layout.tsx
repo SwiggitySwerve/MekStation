@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
 
-      <div className="flex flex-col h-screen bg-slate-900 overflow-hidden">
+      <div className="flex flex-col h-screen bg-surface-deep overflow-hidden">
         <div className="flex flex-1 overflow-hidden">
           {/* Global sidebar - fixed position component */}
           {sidebarComponent && <div className="print:hidden">{sidebarComponent}</div>}
@@ -40,13 +40,13 @@ const Layout: React.FC<LayoutProps> = ({
           <div className={`flex-1 flex ml-0 ${contentAndFooterMargin} transition-all duration-300 ease-in-out overflow-hidden`}>
             {/* Optional page-specific secondary sidebar */}
             {secondarySidebar && (
-              <aside className="w-64 bg-slate-800 border-r border-slate-700 print:hidden overflow-auto">
+              <aside className="w-64 bg-surface-base border-r border-border-theme-subtle print:hidden overflow-auto">
                 {secondarySidebar}
               </aside>
             )}
-            
+
             {/* Main content */}
-            <main className="flex-1 overflow-auto bg-slate-900">
+            <main className="flex-1 overflow-auto bg-surface-deep">
               {children}
             </main>
           </div>

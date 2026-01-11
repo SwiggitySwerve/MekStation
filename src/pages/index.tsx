@@ -117,15 +117,15 @@ export default function HomePage(): React.ReactElement {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Background grid pattern */}
+        {/* Background grid pattern - uses accent color */}
         <div className="absolute inset-0 opacity-5">
-          <div 
+          <div
             className="h-full w-full"
             style={{
-              backgroundImage: 'linear-gradient(rgba(251,191,36,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(251,191,36,0.3) 1px, transparent 1px)',
+              backgroundImage: 'linear-gradient(var(--accent-primary) 1px, transparent 1px), linear-gradient(90deg, var(--accent-primary) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -136,11 +136,11 @@ export default function HomePage(): React.ReactElement {
             {/* Title Section */}
             <div className="text-center mb-16">
               <h1 className="text-5xl sm:text-6xl font-black tracking-tight mb-4">
-                <span className="bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent">
+                <span className="text-accent">
                   MekStation
                 </span>
               </h1>
-              <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              <p className="text-text-theme-secondary text-lg max-w-2xl mx-auto">
                 Your comprehensive toolkit for browsing, building, and customizing BattleMech units.
                 Built with TechManual-accurate construction rules.
               </p>
@@ -148,25 +148,25 @@ export default function HomePage(): React.ReactElement {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-lg mx-auto mb-16">
-              <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-amber-400 mb-1">
+              <div className="bg-surface-base/50 backdrop-blur border border-border-theme-subtle rounded-xl p-6 text-center">
+                <div className="text-3xl font-bold text-accent mb-1">
                   {stats.loading ? (
-                    <span className="inline-block w-16 h-8 bg-slate-700 rounded animate-pulse" />
+                    <span className="inline-block w-16 h-8 bg-surface-raised rounded animate-pulse" />
                   ) : (
                     stats.unitCount.toLocaleString()
                   )}
                 </div>
-                <div className="text-slate-400 text-sm uppercase tracking-wide">Canonical Units</div>
+                <div className="text-text-theme-secondary text-sm uppercase tracking-wide">Canonical Units</div>
               </div>
-              <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-cyan-400 mb-1">
+              <div className="bg-surface-base/50 backdrop-blur border border-border-theme-subtle rounded-xl p-6 text-center">
+                <div className="text-3xl font-bold text-accent mb-1">
                   {stats.loading ? (
-                    <span className="inline-block w-16 h-8 bg-slate-700 rounded animate-pulse" />
+                    <span className="inline-block w-16 h-8 bg-surface-raised rounded animate-pulse" />
                   ) : (
                     stats.equipmentCount.toLocaleString()
                   )}
                 </div>
-                <div className="text-slate-400 text-sm uppercase tracking-wide">Equipment Items</div>
+                <div className="text-text-theme-secondary text-sm uppercase tracking-wide">Equipment Items</div>
               </div>
             </div>
 
@@ -174,26 +174,26 @@ export default function HomePage(): React.ReactElement {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {navigationCards.map((card) => (
                 <Link key={card.href} href={card.href}>
-                  <div className="group relative bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl p-6 h-full transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/60 hover:shadow-xl hover:shadow-amber-900/10 cursor-pointer">
+                  <div className="group relative bg-surface-base/40 backdrop-blur border border-border-theme-subtle/50 rounded-2xl p-6 h-full transition-all duration-300 hover:border-border-theme hover:bg-surface-base/60 hover:shadow-xl hover:shadow-accent/10 cursor-pointer">
                     {/* Gradient accent bar */}
                     <div className={`absolute top-0 left-6 right-6 h-1 bg-gradient-to-r ${card.accent} rounded-b-full opacity-60 group-hover:opacity-100 transition-opacity`} />
-                    
+
                     <div className="flex items-start gap-4">
                       <div className={`p-3 rounded-xl bg-gradient-to-br ${card.accent} text-white shadow-lg`}>
                         {card.icon}
                       </div>
                       <div className="flex-1 pt-1">
-                        <h3 className="text-lg font-semibold text-white group-hover:text-amber-400 transition-colors">
+                        <h3 className="text-lg font-semibold text-text-theme-primary group-hover:text-accent transition-colors">
                           {card.title}
                         </h3>
-                        <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+                        <p className="text-text-theme-secondary text-sm mt-1 leading-relaxed">
                           {card.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Arrow indicator */}
-                    <div className="absolute bottom-4 right-4 text-slate-600 group-hover:text-amber-400 transition-all group-hover:translate-x-1">
+                    <div className="absolute bottom-4 right-4 text-text-theme-muted group-hover:text-accent transition-all group-hover:translate-x-1">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                       </svg>
@@ -204,11 +204,11 @@ export default function HomePage(): React.ReactElement {
             </div>
 
             {/* Footer info */}
-            <div className="text-center mt-16 text-slate-500 text-sm">
+            <div className="text-center mt-16 text-text-theme-muted text-sm">
               <p>
                 Powered by OpenSpec-driven development
                 <span className="mx-2">•</span>
-                <span className="text-slate-600">v0.1.0</span>
+                <span className="text-text-theme-muted">v0.1.0</span>
               </p>
             </div>
           </div>

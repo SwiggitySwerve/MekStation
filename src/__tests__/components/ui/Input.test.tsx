@@ -58,7 +58,7 @@ describe('Input', () => {
 
     it('should apply amber accent by default', () => {
       render(<Input />);
-      expect(screen.getByRole('textbox')).toHaveClass('focus:border-amber-500');
+      expect(screen.getByRole('textbox')).toHaveClass('focus:border-accent');
     });
 
     it('should apply cyan accent', () => {

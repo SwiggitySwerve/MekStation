@@ -477,7 +477,7 @@ export function PremiumMaterialDiagram({
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
               isOverAllocated
                 ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30'
-                : 'bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30'
+                : 'bg-accent/20 text-accent border border-accent/50 hover:bg-accent/30'
             }`}
             style={{
               boxShadow: isOverAllocated
@@ -528,19 +528,19 @@ export function PremiumMaterialDiagram({
       <div className="flex justify-center gap-4 mt-5">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
-          <span className="text-xs text-slate-400">75%+</span>
+          <span className="text-xs text-text-theme-secondary">75%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
-          <span className="text-xs text-slate-400">50%+</span>
+          <span className="text-xs text-text-theme-secondary">50%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
-          <span className="text-xs text-slate-400">25%+</span>
+          <span className="text-xs text-text-theme-secondary">25%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
-          <span className="text-xs text-slate-400">&lt;25%</span>
+          <span className="text-xs text-text-theme-secondary">&lt;25%</span>
         </div>
       </div>
 

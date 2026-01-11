@@ -39,8 +39,8 @@ export function PageLayout({
   gradient = false,
 }: PageLayoutProps): React.ReactElement {
   const bgClasses = gradient
-    ? 'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-    : 'min-h-screen bg-slate-900';
+    ? 'min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep'
+    : 'min-h-screen bg-surface-deep';
 
   // Normalize backLink
   const normalizedBackLink = typeof backLink === 'string' 
@@ -61,7 +61,7 @@ export function PageLayout({
           onBack ? (
             <button
               onClick={onBack}
-              className="inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6"
+              className="inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6"
             >
               <BackIcon />
               {normalizedBackLink?.label || backLabel}
@@ -69,7 +69,7 @@ export function PageLayout({
           ) : normalizedBackLink && (
             <Link
               href={normalizedBackLink.href}
-              className="inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6"
+              className="inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6"
             >
               <BackIcon />
               {normalizedBackLink.label}
@@ -81,8 +81,8 @@ export function PageLayout({
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
-              {subtitle && <p className="text-slate-400">{subtitle}</p>}
+              <h1 className="text-3xl font-bold text-text-theme-primary mb-2">{title}</h1>
+              {subtitle && <p className="text-text-theme-secondary">{subtitle}</p>}
             </div>
             {headerContent}
           </div>
@@ -97,10 +97,10 @@ export function PageLayout({
 // Loading state component
 export function PageLoading({ message = 'Loading...' }: { message?: string }): React.ReactElement {
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+    <div className="min-h-screen bg-surface-deep flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-400">{message}</p>
+        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-text-theme-secondary">{message}</p>
       </div>
     </div>
   );
@@ -121,14 +121,14 @@ export function PageError({
   backLabel = 'Go Back',
 }: PageErrorProps): React.ReactElement {
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
+    <div className="min-h-screen bg-surface-deep flex items-center justify-center p-8">
       <div className="bg-red-900/20 border border-red-600/30 rounded-xl p-8 max-w-md text-center">
         <h2 className="text-xl font-semibold text-red-400 mb-2">{title}</h2>
-        <p className="text-slate-400 mb-6">{message}</p>
+        <p className="text-text-theme-secondary mb-6">{message}</p>
         {backLink && (
           <Link
             href={backLink}
-            className="inline-block bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg transition-colors"
+            className="inline-block bg-surface-raised hover:bg-border-theme text-text-theme-primary px-6 py-2 rounded-lg transition-colors"
           >
             {backLabel}
           </Link>
@@ -148,7 +148,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, message, action }: EmptyStateProps): React.ReactElement {
   return (
-    <div className="bg-slate-700/30 rounded-lg p-8 text-center text-slate-400 border border-dashed border-slate-600">
+    <div className="bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary border border-dashed border-border-theme">
       {icon && <div className="mb-3">{icon}</div>}
       <p className="font-medium">{title}</p>
       {message && <p className="text-sm mt-1">{message}</p>}

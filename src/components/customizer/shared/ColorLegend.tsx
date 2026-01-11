@@ -27,8 +27,8 @@ interface ColorSwatchProps {
 function ColorSwatch({ bgClass, label }: ColorSwatchProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-4 h-4 rounded ${bgClass} border border-slate-600`} />
-      <span className="text-xs text-slate-300">{label}</span>
+      <div className={`w-4 h-4 rounded ${bgClass} border border-border-theme-strong`} />
+      <span className="text-xs text-text-theme-primary">{label}</span>
     </div>
   );
 }
@@ -65,10 +65,10 @@ export function ColorLegend({
   ];
   
   return (
-    <div className={`bg-slate-800 rounded-lg border border-slate-700 ${className}`}>
+    <div className={`bg-surface-base rounded-lg border border-border-theme ${className}`}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-3 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2 text-sm text-text-theme-primary hover:text-white transition-colors"
       >
         <span className="font-medium">Color Legend</span>
         <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
@@ -77,10 +77,10 @@ export function ColorLegend({
       </button>
       
       {isExpanded && (
-        <div className="px-3 pb-3 space-y-4 border-t border-slate-700 pt-3">
+        <div className="px-3 pb-3 space-y-4 border-t border-border-theme pt-3">
           {/* System Components */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">
+            <h4 className="text-xs font-semibold text-text-theme-secondary uppercase mb-2">
               System Components
             </h4>
             <div className="grid grid-cols-2 gap-1">
@@ -96,7 +96,7 @@ export function ColorLegend({
           
           {/* Equipment Types */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">
+            <h4 className="text-xs font-semibold text-text-theme-secondary uppercase mb-2">
               Equipment Types
             </h4>
             <div className="grid grid-cols-2 gap-1">
@@ -112,7 +112,7 @@ export function ColorLegend({
           
           {/* Tech Base */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">
+            <h4 className="text-xs font-semibold text-text-theme-secondary uppercase mb-2">
               Tech Base
             </h4>
             <div className="grid grid-cols-2 gap-1">

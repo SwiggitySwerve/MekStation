@@ -106,7 +106,7 @@ export function CategoryToggleBar({
 
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
-      <span className="text-xs text-slate-400 mr-1">Show:</span>
+      <span className="text-xs text-text-theme-secondary mr-1">Show:</span>
       
       {/* Category toggles */}
       {CATEGORY_CONFIGS.map(({ category, label }) => {
@@ -126,7 +126,7 @@ export function CategoryToggleBar({
               px-2 py-0.5 text-xs rounded transition-colors
               ${isActive
                 ? `${colors.bg} ${colors.text} ring-1 ${colors.border}`
-                : 'bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600'
+                : 'bg-surface-raised text-text-theme-secondary hover:text-white hover:bg-surface-raised/80'
               }
             `}
             title={`${label} (Ctrl+click to multi-select)`}
@@ -142,8 +142,8 @@ export function CategoryToggleBar({
         className={`
           px-2 py-0.5 text-xs rounded transition-colors ml-1
           ${showAll
-            ? 'bg-amber-600 text-white ring-1 ring-amber-500'
-            : 'bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600'
+            ? 'bg-accent text-white ring-1 ring-accent'
+            : 'bg-surface-raised text-text-theme-secondary hover:text-white hover:bg-surface-raised/80'
           }
         `}
         title="Show all categories"
@@ -174,7 +174,7 @@ export function HideToggleBar({
 }: HideToggleBarProps): React.ReactElement {
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
-      <span className="text-xs text-slate-400 mr-1">Hide:</span>
+      <span className="text-xs text-text-theme-secondary mr-1">Hide:</span>
       
       <ToggleButton
         label="Prototype"
@@ -221,7 +221,7 @@ function ToggleButton({ label, isActive, onClick }: ToggleButtonProps) {
         px-2 py-0.5 text-xs rounded transition-colors
         ${isActive
           ? 'bg-red-900/50 text-red-300 ring-1 ring-red-700'
-          : 'bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600'
+          : 'bg-surface-raised text-text-theme-secondary hover:text-white hover:bg-surface-raised/80'
         }
       `}
       title={`${isActive ? 'Show' : 'Hide'} ${label.toLowerCase()}`}

@@ -14,8 +14,8 @@ interface StatRowProps {
 }
 
 const valueColorClasses: Record<string, string> = {
-  white: 'text-white',
-  amber: 'text-amber-400',
+  white: 'text-text-theme-primary',
+  amber: 'text-accent',
   cyan: 'text-cyan-400',
   emerald: 'text-emerald-400',
   red: 'text-red-400',
@@ -35,7 +35,7 @@ export function StatRow({
 
   return (
     <div className="flex justify-between items-center">
-      <span className="text-slate-400">{label}</span>
+      <span className="text-text-theme-secondary">{label}</span>
       <span className={valueClasses}>{value}</span>
     </div>
   );
@@ -80,7 +80,7 @@ export function StatCard({
   className = '',
 }: StatCardProps): React.ReactElement {
   return (
-    <div className={`bg-slate-800/30 border border-slate-700 rounded-xl p-6 ${className}`}>
+    <div className={`bg-surface-base/30 border border-border-theme-subtle rounded-xl p-6 ${className}`}>
       <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${titleVariantColors[variant]}`}>
         {icon}
         {title}
@@ -120,7 +120,7 @@ interface SimpleStatCardProps {
 }
 
 const simpleCardValueColors: Record<string, string> = {
-  amber: 'text-amber-400',
+  amber: 'text-accent',
   cyan: 'text-cyan-400',
   emerald: 'text-emerald-400',
   violet: 'text-violet-400',
@@ -133,15 +133,15 @@ export function SimpleStatCard({
   valueColor = 'amber',
 }: SimpleStatCardProps): React.ReactElement {
   return (
-    <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 text-center">
+    <div className="bg-surface-base/50 backdrop-blur border border-border-theme-subtle rounded-xl p-6 text-center">
       <div className={`text-3xl font-bold mb-1 ${simpleCardValueColors[valueColor]}`}>
         {loading ? (
-          <span className="inline-block w-16 h-8 bg-slate-700 rounded animate-pulse" />
+          <span className="inline-block w-16 h-8 bg-surface-raised rounded animate-pulse" />
         ) : (
           value
         )}
       </div>
-      <div className="text-slate-400 text-sm uppercase tracking-wide">{label}</div>
+      <div className="text-text-theme-secondary text-sm uppercase tracking-wide">{label}</div>
     </div>
   );
 }

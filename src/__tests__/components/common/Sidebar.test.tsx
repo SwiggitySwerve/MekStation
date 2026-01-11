@@ -205,7 +205,7 @@ describe('Sidebar', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
       const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('bg-slate-900');
+      expect(sidebar).toHaveClass('bg-surface-deep');
     });
 
     it('should be fixed positioned', () => {

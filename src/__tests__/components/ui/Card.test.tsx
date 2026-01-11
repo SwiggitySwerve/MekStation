@@ -17,26 +17,26 @@ describe('Card', () => {
     it('should apply default variant', () => {
       render(<Card>Default</Card>);
       const card = screen.getByText('Default');
-      expect(card).toHaveClass('bg-slate-800/50');
+      expect(card).toHaveClass('bg-surface-base/50');
     });
 
     it('should apply dark variant', () => {
       render(<Card variant="dark">Dark</Card>);
       const card = screen.getByText('Dark');
-      expect(card).toHaveClass('bg-slate-800/30');
+      expect(card).toHaveClass('bg-surface-base/30');
     });
 
     it('should apply header variant', () => {
       render(<Card variant="header">Header</Card>);
       const card = screen.getByText('Header');
-      expect(card).toHaveClass('bg-slate-800/50');
+      expect(card).toHaveClass('bg-surface-base/50');
     });
 
     it('should apply interactive variant', () => {
       render(<Card variant="interactive">Interactive</Card>);
       const card = screen.getByText('Interactive');
       expect(card).toHaveClass('cursor-pointer');
-      expect(card).toHaveClass('hover:border-slate-600');
+      expect(card).toHaveClass('hover:border-border-theme');
     });
 
     it('should apply gradient variant', () => {
@@ -102,12 +102,12 @@ describe('Card', () => {
 
     it('should apply white title color by default', () => {
       render(<CardSection title="White Title" />);
-      expect(screen.getByText('White Title')).toHaveClass('text-white');
+      expect(screen.getByText('White Title')).toHaveClass('text-text-theme-primary');
     });
 
     it('should apply amber title color', () => {
       render(<CardSection title="Amber Title" titleColor="amber" />);
-      expect(screen.getByText('Amber Title')).toHaveClass('text-amber-400');
+      expect(screen.getByText('Amber Title')).toHaveClass('text-accent');
     });
 
     it('should apply cyan title color', () => {
@@ -153,7 +153,7 @@ describe('Card', () => {
         </CardSection>
       );
       // Should have card styling
-      const card = container.querySelector('.bg-slate-800\\/50');
+      const card = container.querySelector('.bg-surface-base\\/50');
       expect(card).toBeInTheDocument();
     });
 

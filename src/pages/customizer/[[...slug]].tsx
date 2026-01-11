@@ -22,8 +22,8 @@ const CustomizerWithRouter = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-slate-400">Loading customizer...</div>
+      <div className="min-h-screen bg-surface-deep flex items-center justify-center">
+        <div className="text-text-theme-secondary">Loading customizer...</div>
       </div>
     ),
   }

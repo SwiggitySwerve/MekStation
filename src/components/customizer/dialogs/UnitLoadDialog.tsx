@@ -166,10 +166,10 @@ export function UnitLoadDialog({
       </div>
       
       {/* Search and filters */}
-      <div className="p-4 border-b border-slate-700 space-y-3">
+      <div className="p-4 border-b border-border-theme-subtle space-y-3">
         {/* Search input */}
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -271,20 +271,20 @@ export function UnitLoadDialog({
                       )}
                     </div>
                   </td>
-                  <td className="px-3 py-1.5 text-slate-400 text-right tabular-nums">{unit.tonnage} t</td>
-                  <td className="px-3 py-1.5 text-slate-400 text-right tabular-nums">
+                  <td className="px-3 py-1.5 text-text-theme-secondary text-right tabular-nums">{unit.tonnage} t</td>
+                  <td className="px-3 py-1.5 text-text-theme-secondary text-right tabular-nums">
                     {unit.year ?? '-'}
                   </td>
-                  <td className="px-3 py-1.5 text-slate-400">
+                  <td className="px-3 py-1.5 text-text-theme-secondary">
                     {unit.techBase === TechBase.INNER_SPHERE ? 'IS' 
                       : unit.techBase === TechBase.CLAN ? 'Clan' 
                       : 'Mix'}
                   </td>
                   <td className="px-3 py-1.5">
                     {unit.source === 'custom' ? (
-                      <span className="text-amber-400">Custom</span>
+                      <span className="text-accent">Custom</span>
                     ) : (
-                      <span className="text-slate-400">{unit.era}</span>
+                      <span className="text-text-theme-secondary">{unit.era}</span>
                     )}
                   </td>
                   <td className="px-2 py-1.5 text-right">
@@ -303,7 +303,7 @@ export function UnitLoadDialog({
       
       {/* Footer */}
       <div className={cs.dialog.footerBetween}>
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-text-theme-secondary">
           {filteredUnits.length} unit{filteredUnits.length !== 1 ? 's' : ''} found
         </span>
         <div className="flex items-center gap-2">

@@ -26,13 +26,13 @@ interface CardProps {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-slate-800/50 border border-slate-700 rounded-xl p-6',
-  dark: 'bg-slate-800/30 border border-slate-700 rounded-xl p-6',
-  header: 'bg-slate-800/50 border border-slate-700 rounded-xl p-6',
-  interactive: 'bg-slate-800/30 border border-slate-700 rounded-xl p-4 hover:border-slate-600 hover:bg-slate-800/50 transition-all cursor-pointer',
-  gradient: 'bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl p-6 transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/60 hover:shadow-xl hover:shadow-amber-900/10',
-  'accent-left': 'bg-slate-800/40 border border-slate-700/50 border-l-4 rounded-lg p-4 transition-all hover:bg-slate-800/60',
-  'accent-bottom': 'bg-slate-300 rounded-lg overflow-hidden transition-all hover:shadow-lg',
+  default: 'bg-surface-base/50 border border-border-theme-subtle rounded-xl p-6',
+  dark: 'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-6',
+  header: 'bg-surface-base/50 border border-border-theme-subtle rounded-xl p-6',
+  interactive: 'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-4 hover:border-border-theme hover:bg-surface-base/50 transition-all cursor-pointer',
+  gradient: 'bg-surface-base/40 backdrop-blur border border-border-theme-subtle/50 rounded-2xl p-6 transition-all duration-300 hover:border-border-theme hover:bg-surface-base/60 hover:shadow-xl hover:shadow-amber-900/10',
+  'accent-left': 'bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 rounded-lg p-4 transition-all hover:bg-surface-base/60',
+  'accent-bottom': 'bg-surface-raised rounded-lg overflow-hidden transition-all hover:shadow-lg',
 };
 
 // Accent color classes for left border variant
@@ -108,8 +108,8 @@ interface CardSectionProps {
 }
 
 const titleColorClasses: Record<string, string> = {
-  white: 'text-white',
-  amber: 'text-amber-400',
+  white: 'text-text-theme-primary',
+  amber: 'text-accent',
   cyan: 'text-cyan-400',
   rose: 'text-rose-400',
   emerald: 'text-emerald-400',

@@ -29,10 +29,10 @@ interface UnitInfoBannerCompactProps {
 // =============================================================================
 
 const styles = {
-  label: 'text-[9px] font-medium text-slate-500 uppercase tracking-wider',
+  label: 'text-[9px] font-medium text-text-theme-muted uppercase tracking-wider',
   value: {
-    normal: 'text-white',
-    warning: 'text-amber-400',
+    normal: 'text-text-theme-primary',
+    warning: 'text-accent',
     error: 'text-red-400',
     success: 'text-green-400',
   },
@@ -64,8 +64,8 @@ function CompactStat({ label, current, max, unit = '', status = 'normal' }: Comp
           {current}
           {unit}
         </span>
-        <span className="text-[10px] text-slate-600">/</span>
-        <span className="text-[10px] text-slate-500">
+        <span className="text-[10px] text-border-theme">/</span>
+        <span className="text-[10px] text-text-theme-muted">
           {max}
           {unit}
         </span>
@@ -119,8 +119,8 @@ export function UnitInfoBannerCompact({
   return (
     <div
       className={`
-        bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2
-        ${onExpand ? 'cursor-pointer active:bg-slate-700/90' : ''}
+        bg-surface-base/90 border border-border-theme-subtle rounded-lg px-3 py-2
+        ${onExpand ? 'cursor-pointer active:bg-surface-raised/90' : ''}
         ${className}
       `}
       onClick={onExpand}
@@ -131,16 +131,16 @@ export function UnitInfoBannerCompact({
       <div className="flex items-center justify-between gap-4">
         {/* Unit Identity - Condensed */}
         <div className="flex-shrink-0 min-w-0 flex-1">
-          <h2 className="text-sm font-bold text-white truncate">{stats.name}</h2>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+          <h2 className="text-sm font-bold text-text-theme-primary truncate">{stats.name}</h2>
+          <div className="flex items-center gap-1.5 text-[10px] text-text-theme-secondary">
             <span>{stats.tonnage}t</span>
-            <span className="text-slate-600">|</span>
+            <span className="text-border-theme">|</span>
             <span>
               {stats.walkMP}/{stats.runMP}/{stats.jumpMP}
             </span>
             {stats.validationStatus !== 'valid' && (
               <>
-                <span className="text-slate-600">|</span>
+                <span className="text-border-theme">|</span>
                 <span className="text-red-400">{stats.errorCount} err</span>
               </>
             )}
@@ -167,7 +167,7 @@ export function UnitInfoBannerCompact({
 
         {/* Expand indicator */}
         {onExpand && (
-          <div className="flex-shrink-0 text-slate-500 text-xs">
+          <div className="flex-shrink-0 text-text-theme-muted text-xs">
             <svg
               className="w-4 h-4"
               fill="none"

@@ -57,15 +57,15 @@ function SlotContextMenu({ x, y, slotName, onUnassign, onClose }: SlotContextMen
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-xl py-1 min-w-[140px]"
+      className="fixed z-50 bg-surface-base border border-border-theme rounded-lg shadow-xl py-1 min-w-[140px]"
       style={{ left: adjustedX, top: adjustedY }}
     >
-      <div className="px-3 py-1 border-b border-slate-700 text-xs text-slate-400 truncate max-w-[200px]">
+      <div className="px-3 py-1 border-b border-border-theme-subtle text-xs text-text-theme-secondary truncate max-w-[200px]">
         {slotName}
       </div>
       <button
         onClick={() => { onUnassign(); onClose(); }}
-        className="w-full text-left px-3 py-1.5 text-sm text-amber-400 hover:bg-slate-700 transition-colors"
+        className="w-full text-left px-3 py-1.5 text-sm text-accent hover:bg-surface-raised transition-colors"
       >
         Unassign
       </button>
@@ -97,7 +97,7 @@ interface SlotRowProps {
  */
 function getSlotContentClasses(slot: SlotContent): string {
   if (slot.type === 'empty') {
-    return 'bg-slate-800 border-slate-600 text-slate-500';
+    return 'bg-surface-base border-border-theme text-slate-500';
   }
   
   if (slot.type === 'system' && slot.name) {
@@ -112,7 +112,7 @@ function getSlotContentClasses(slot: SlotContent): string {
     return `${colors.bg} ${colors.border} ${colors.text}`;
   }
   
-  return 'bg-slate-700 border-slate-600 text-slate-300';
+  return 'bg-surface-raised border-border-theme text-slate-300';
 }
 
 /**
@@ -164,7 +164,7 @@ export const SlotRow = memo(function SlotRow({
   };
   
   const styleClasses = getStyleClasses();
-  const selectionClasses = isSelected ? 'ring-2 ring-amber-400' : '';
+  const selectionClasses = isSelected ? 'ring-2 ring-accent' : '';
   
   // Handle drag start (this slot is the source)
   const handleDragStart = (e: React.DragEvent) => {
@@ -240,7 +240,7 @@ export const SlotRow = memo(function SlotRow({
         aria-label={slot.name ? `Slot ${slot.index + 1}: ${slot.name}` : `Empty slot ${slot.index + 1}`}
         aria-selected={isSelected}
         className={`
-          flex items-center border border-slate-700 rounded-sm my-0.5 transition-all
+          flex items-center border border-border-theme-subtle rounded-sm my-0.5 transition-all
           focus:outline-none
           ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
           ${isDragging ? 'opacity-50' : ''}

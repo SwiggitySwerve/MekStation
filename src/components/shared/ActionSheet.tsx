@@ -170,7 +170,7 @@ export function ActionSheet({
       <div
         ref={sheetRef}
         className={`
-          w-full max-w-lg bg-slate-800 rounded-t-2xl
+          w-full max-w-lg bg-surface-base rounded-t-2xl
           transform transition-transform duration-200 ease-out
           ${isAnimating ? 'translate-y-0' : 'translate-y-full'}
         `}
@@ -180,9 +180,9 @@ export function ActionSheet({
       >
         {/* Header */}
         {(title || subtitle) && (
-          <div className="px-4 py-3 border-b border-slate-700 text-center">
+          <div className="px-4 py-3 border-b border-border-theme text-center">
             {title && <h2 className="text-base font-semibold text-white">{title}</h2>}
-            {subtitle && <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-sm text-text-theme-secondary mt-0.5">{subtitle}</p>}
           </div>
         )}
 
@@ -196,9 +196,9 @@ export function ActionSheet({
               className={`
                 w-full px-4 py-3 flex items-center gap-3
                 text-left transition-colors min-h-[48px]
-                ${action.disabled ? 'opacity-50 cursor-not-allowed' : 'active:bg-slate-700'}
+                ${action.disabled ? 'opacity-50 cursor-not-allowed' : 'active:bg-surface-raised'}
                 ${action.danger ? 'text-red-400' : 'text-white'}
-                ${index > 0 ? 'border-t border-slate-700/50' : ''}
+                ${index > 0 ? 'border-t border-border-theme/50' : ''}
               `}
             >
               {action.icon && (
@@ -212,11 +212,11 @@ export function ActionSheet({
         {/* Cancel Button */}
         {showCancel && (
           <>
-            <div className="h-2 bg-slate-900/50" />
+            <div className="h-2 bg-surface-deep/50" />
             <button
               onClick={onClose}
-              className="w-full px-4 py-3 text-center text-base font-medium text-slate-300
-                         bg-slate-800 active:bg-slate-700 transition-colors min-h-[48px]"
+              className="w-full px-4 py-3 text-center text-base font-medium text-text-theme-primary
+                         bg-surface-base active:bg-surface-raised transition-colors min-h-[48px]"
             >
               {cancelLabel}
             </button>

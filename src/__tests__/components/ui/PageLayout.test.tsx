@@ -217,7 +217,7 @@ describe('PageLayout Components', () => {
 
     it('should have empty state styling', () => {
       const { container } = render(<EmptyState title="Empty" />);
-      expect(container.firstChild).toHaveClass('bg-slate-700/30');
+      expect(container.firstChild).toHaveClass('bg-surface-raised/30');
       expect(container.firstChild).toHaveClass('border-dashed');
       expect(container.firstChild).toHaveClass('text-center');
     });

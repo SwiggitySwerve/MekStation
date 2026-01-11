@@ -1,14 +1,80 @@
 @import "tailwindcss";
 
+/*
+ * Tailwind v4 @theme block for CSS-first configuration.
+ * These define theme tokens that Tailwind needs to know about at build time
+ * so that @apply directives can use semantic utility classes.
+ *
+ * The actual values reference CSS variables which are overridden by theme classes
+ * at runtime (.theme-neon, .theme-tactical, etc.).
+ */
+@theme {
+  /* Surface colors for backgrounds (bg-surface-*) */
+  --color-surface-deep: var(--surface-deep);
+  --color-surface-base: var(--surface-base);
+  --color-surface-raised: var(--surface-raised);
+
+  /* Accent colors (bg-accent, text-accent, border-accent) */
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+
+  /* Text theme colors (text-text-theme-*) */
+  --color-text-theme-primary: var(--text-primary);
+  --color-text-theme-secondary: var(--text-secondary);
+  --color-text-theme-muted: var(--text-muted);
+
+  /* Border theme colors (border-border-theme-*) */
+  --color-border-theme-subtle: var(--border-subtle);
+  --color-border-theme: var(--border-default);
+  --color-border-theme-strong: var(--border-strong);
+}
+
 :root {
   --background: #f3f4f6;
   --foreground: #1e293b;
-  
+
   /* Global Scrollbar Theme Variables */
   --scrollbar-thumb: #d1d5db;
   --scrollbar-thumb-hover: #9ca3af;
   --scrollbar-track: #f3f4f6;
   --scrollbar-width: 8px;
+
+  /* Armor Diagram Status Colors */
+  --armor-healthy: #22c55e;
+  --armor-moderate: #f59e0b;
+  --armor-low: #f97316;
+  --armor-critical: #ef4444;
+  --armor-selected: #3b82f6;
+  --armor-selected-stroke: #60a5fa;
+
+  /* Standard Transition Durations */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+
+  /* Surface/Container Backgrounds */
+  --surface-base: #1e293b;      /* slate-800 */
+  --surface-deep: #0f172a;      /* slate-900 */
+  --surface-raised: #334155;    /* slate-700 */
+
+  /* Border Colors */
+  --border-subtle: #334155;     /* slate-700 */
+  --border-default: #475569;    /* slate-600 */
+  --border-strong: #64748b;     /* slate-500 */
+
+  /* Text Colors */
+  --text-primary: #f8fafc;      /* slate-50 */
+  --text-secondary: #94a3b8;    /* slate-400 */
+  --text-muted: #64748b;        /* slate-500 */
+
+  /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
+  --accent-primary: #f59e0b;    /* amber-500 */
+  --accent-hover: #d97706;      /* amber-600 */
+  --accent-muted: rgba(245, 158, 11, 0.15);
+
+  /* Font Size (updated by GlobalStyleProvider) */
+  --font-size-base: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -456,11 +522,11 @@ button:disabled {
 
 /* Page Layout */
 .page-container {
-  @apply min-h-screen bg-slate-900 p-6;
+  @apply min-h-screen bg-surface-deep p-6;
 }
 
 .page-container-gradient {
-  @apply min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
+  @apply min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep;
 }
 
 .page-max-width {
@@ -473,32 +539,32 @@ button:disabled {
 
 /* Cards */
 .card {
-  @apply bg-slate-800/30 border border-slate-700 rounded-xl p-6;
+  @apply bg-surface-base/30 border border-border-theme rounded-xl p-6;
 }
 
 .card-header {
-  @apply bg-slate-800/50 border border-slate-700 rounded-xl p-6;
+  @apply bg-surface-base/50 border border-border-theme rounded-xl p-6;
 }
 
 .card-interactive {
-  @apply bg-slate-800/30 border border-slate-700 rounded-xl p-4 
-         hover:border-slate-600 hover:bg-slate-800/50 transition-all cursor-pointer;
+  @apply bg-surface-base/30 border border-border-theme rounded-xl p-4
+         hover:border-border-theme-strong hover:bg-surface-base/50 transition-all cursor-pointer;
 }
 
 .card-gradient {
-  @apply bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl p-6
-         transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/60 
+  @apply bg-surface-base/40 backdrop-blur border border-border-theme/50 rounded-2xl p-6
+         transition-all duration-300 hover:border-border-theme-strong hover:bg-surface-base/60
          hover:shadow-xl hover:shadow-amber-900/10;
 }
 
 /* Inputs */
 .input-dark {
-  @apply w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 
-         text-white placeholder-slate-400 focus:outline-none transition-colors;
+  @apply w-full bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
+         text-text-theme-primary placeholder-text-theme-muted focus:outline-none transition-colors;
 }
 
 .input-dark:focus {
-  @apply border-amber-500;
+  @apply border-accent;
 }
 
 .input-dark-cyan:focus {
@@ -515,12 +581,12 @@ button:disabled {
 
 /* Selects */
 .select-dark {
-  @apply bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 
-         text-white focus:outline-none transition-colors;
+  @apply bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
+         text-text-theme-primary focus:outline-none transition-colors;
 }
 
 .select-dark:focus {
-  @apply border-amber-500;
+  @apply border-accent;
 }
 
 /* Buttons */
@@ -533,16 +599,16 @@ button:disabled {
 }
 
 .btn-secondary {
-  @apply bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300;
+  @apply bg-surface-raised hover:bg-surface-base border border-border-theme-strong text-text-theme-primary;
 }
 
 .btn-ghost {
-  @apply bg-transparent hover:bg-slate-700/50 text-slate-400 hover:text-white;
+  @apply bg-transparent hover:bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary;
 }
 
 .btn-pagination {
-  @apply px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg 
-         text-slate-400 hover:text-white hover:border-slate-600 
+  @apply px-3 py-2 bg-surface-base border border-border-theme rounded-lg
+         text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme-strong
          disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
 }
 
@@ -593,7 +659,7 @@ button:disabled {
 }
 
 .badge-slate {
-  @apply bg-slate-600/20 text-slate-400 border-slate-600/30;
+  @apply bg-surface-raised/20 text-text-theme-secondary border-border-theme/30;
 }
 
 /* Tables */
@@ -602,19 +668,19 @@ button:disabled {
 }
 
 .table-dark thead {
-  @apply bg-slate-800;
+  @apply bg-surface-base;
 }
 
 .table-dark th {
-  @apply px-6 py-4 text-left text-slate-400 text-sm uppercase tracking-wide font-medium;
+  @apply px-6 py-4 text-left text-text-theme-secondary text-sm uppercase tracking-wide font-medium;
 }
 
 .table-dark tbody {
-  @apply divide-y divide-slate-700/50;
+  @apply divide-y divide-border-theme/50;
 }
 
 .table-dark tr {
-  @apply hover:bg-slate-700/30 transition-colors;
+  @apply hover:bg-surface-raised/30 transition-colors;
 }
 
 .table-dark td {
@@ -648,7 +714,7 @@ button:disabled {
 }
 
 .stat-label {
-  @apply text-slate-400;
+  @apply text-text-theme-secondary;
 }
 
 .stat-value {
@@ -656,7 +722,7 @@ button:disabled {
 }
 
 .stat-value-highlight {
-  @apply text-white font-mono bg-slate-700/50 px-3 py-1 rounded;
+  @apply text-white font-mono bg-surface-raised/50 px-3 py-1 rounded;
 }
 
 /* Loading States */
@@ -674,17 +740,17 @@ button:disabled {
 
 /* Empty States */
 .empty-state {
-  @apply bg-slate-700/30 rounded-lg p-8 text-center text-slate-400 
-         border border-dashed border-slate-600;
+  @apply bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary
+         border border-dashed border-border-theme-strong;
 }
 
 /* Links */
 .back-link {
-  @apply inline-flex items-center text-slate-400 hover:text-amber-400 transition-colors mb-6;
+  @apply inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6;
 }
 
 .back-link-cyan {
-  @apply inline-flex items-center text-slate-400 hover:text-cyan-400 transition-colors mb-6;
+  @apply inline-flex items-center text-text-theme-secondary hover:text-cyan-400 transition-colors mb-6;
 }
 
 /* Notices/Alerts */
@@ -715,15 +781,15 @@ button:disabled {
 
 /* Dialog Structure */
 .dialog-header {
-  @apply flex items-center justify-between px-4 py-3 border-b border-slate-700;
+  @apply flex items-center justify-between px-4 py-3 border-b border-border-theme;
 }
 
 .dialog-header-title {
-  @apply text-lg font-medium text-white;
+  @apply text-lg font-medium text-text-theme-primary;
 }
 
 .dialog-header-subtitle {
-  @apply text-sm text-slate-400;
+  @apply text-sm text-text-theme-secondary;
 }
 
 .dialog-content {
@@ -731,16 +797,16 @@ button:disabled {
 }
 
 .dialog-footer {
-  @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+  @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-border-theme bg-surface-base/50;
 }
 
 .dialog-footer-between {
-  @apply flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-800/50;
+  @apply flex items-center justify-between px-4 py-3 border-t border-border-theme bg-surface-base/50;
 }
 
 /* Dialog Close Button */
 .dialog-close-btn {
-  @apply p-1 text-slate-400 hover:text-white transition-colors;
+  @apply p-1 text-text-theme-secondary hover:text-text-theme-primary transition-colors;
 }
 
 /* Dialog Buttons */
@@ -749,15 +815,15 @@ button:disabled {
 }
 
 .dialog-btn-primary:disabled {
-  @apply bg-slate-600 text-slate-400 cursor-not-allowed;
+  @apply bg-surface-raised text-text-theme-muted cursor-not-allowed;
 }
 
 .dialog-btn-secondary {
-  @apply px-4 py-2 text-sm font-medium bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-surface-raised hover:bg-surface-base text-text-theme-primary rounded transition-colors;
 }
 
 .dialog-btn-ghost {
-  @apply px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors;
+  @apply px-4 py-2 text-sm font-medium text-text-theme-primary hover:text-text-theme-primary transition-colors;
 }
 
 .dialog-btn-warning {
@@ -770,18 +836,18 @@ button:disabled {
 
 /* Dialog Inputs */
 .dialog-input {
-  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
-         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 .dialog-input-search {
-  @apply w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white 
-         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply w-full pl-10 pr-4 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 .dialog-select {
-  @apply px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-white text-sm 
-         focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply px-3 py-1.5 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
+         focus:outline-none focus:ring-2 focus:ring-accent;
 }
 
 /* Dialog Tables */
@@ -790,7 +856,7 @@ button:disabled {
 }
 
 .dialog-table-header {
-  @apply sticky top-0 bg-slate-800 border-b border-slate-600 text-slate-400 text-left;
+  @apply sticky top-0 bg-surface-base border-b border-border-theme-strong text-text-theme-secondary text-left;
 }
 
 .dialog-table-header th {
@@ -798,11 +864,11 @@ button:disabled {
 }
 
 .dialog-table-body {
-  @apply divide-y divide-slate-700/50;
+  @apply divide-y divide-border-theme/50;
 }
 
 .dialog-table-row {
-  @apply cursor-pointer transition-colors hover:bg-slate-700/30;
+  @apply cursor-pointer transition-colors hover:bg-surface-raised/30;
 }
 
 .dialog-table-row-selected {
@@ -811,7 +877,7 @@ button:disabled {
 
 /* Dialog Info Panels */
 .dialog-info-panel {
-  @apply p-3 bg-slate-700/50 rounded-lg;
+  @apply p-3 bg-surface-raised/50 rounded-lg;
 }
 
 .dialog-warning-panel {
@@ -828,21 +894,21 @@ button:disabled {
 
 /* Dialog States */
 .dialog-loading {
-  @apply flex items-center justify-center h-48 text-slate-400;
+  @apply flex items-center justify-center h-48 text-text-theme-secondary;
 }
 
 .dialog-empty {
-  @apply flex items-center justify-center h-48 text-slate-400;
+  @apply flex items-center justify-center h-48 text-text-theme-secondary;
 }
 
 .dialog-empty-icon {
-  @apply w-12 h-12 mx-auto mb-2 text-slate-600;
+  @apply w-12 h-12 mx-auto mb-2 text-text-theme-muted;
 }
 
 /* Dialog Drop Zone */
 .dialog-dropzone {
   @apply relative p-8 border-2 border-dashed rounded-lg text-center transition-colors
-         border-slate-600 hover:border-slate-500;
+         border-border-theme-strong hover:border-border-theme;
 }
 
 .dialog-dropzone-active {
@@ -871,17 +937,17 @@ button:disabled {
 }
 
 .filter-input input {
-  @apply w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white 
-         placeholder-slate-400 text-sm focus:outline-none focus:border-amber-500;
+  @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary
+         placeholder-text-theme-muted text-sm focus:outline-none focus:border-accent;
 }
 
 .filter-select {
-  @apply px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm 
-         focus:outline-none focus:border-amber-500;
+  @apply px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
+         focus:outline-none focus:border-accent;
 }
 
 .filter-clear-btn {
-  @apply px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors;
+  @apply px-3 py-2 text-sm text-text-theme-secondary hover:text-text-theme-primary transition-colors;
 }
 
 /* ========================================
@@ -895,12 +961,12 @@ button:disabled {
 
 /* Display title - spaced letters "C O M P E N D I U M" style */
 .text-display {
-  @apply text-5xl font-light tracking-[0.3em] uppercase text-center text-slate-200;
+  @apply text-5xl font-light tracking-[0.3em] uppercase text-center text-text-theme-primary;
 }
 
 /* Display title - smaller variant */
 .text-display-sm {
-  @apply text-3xl font-light tracking-[0.25em] uppercase text-center text-slate-200;
+  @apply text-3xl font-light tracking-[0.25em] uppercase text-center text-text-theme-primary;
 }
 
 /* Section header - bold uppercase like COMP/CON category headers */
@@ -915,7 +981,7 @@ button:disabled {
 
 /* Subtitle text - for descriptions under headers */
 .text-subtitle {
-  @apply text-sm text-slate-400 tracking-wide;
+  @apply text-sm text-text-theme-secondary tracking-wide;
 }
 
 /* ========================================
@@ -958,4 +1024,347 @@ button:disabled {
     width: 44px;
     height: 44px;
   }
+}
+
+/* ========================================
+   OPACITY STANDARDS
+   ======================================== */
+/*
+ * Standard opacity levels for backgrounds:
+ * - /30 - Subtle, barely visible (empty states, disabled)
+ * - /40 - Light, understated (default cards)
+ * - /50 - Standard (most common, default containers)
+ * - /60 - Emphasized (hover states, active)
+ * - /70 - Strong (selected, focused)
+ *
+ * Usage examples:
+ * - bg-surface-base/50 - Default card background
+ * - bg-surface-base/30 - Darker/deeper card variant
+ * - bg-surface-base/60 - Hover state for /50 backgrounds
+ */
+
+/* ========================================
+   ARMOR DIAGRAM STYLES
+   ======================================== */
+
+/* Status indicator dots */
+.status-dot {
+  @apply w-2.5 h-2.5 rounded-full;
+}
+
+.status-dot-healthy {
+  background-color: var(--armor-healthy);
+}
+
+.status-dot-moderate {
+  background-color: var(--armor-moderate);
+}
+
+.status-dot-low {
+  background-color: var(--armor-low);
+}
+
+.status-dot-critical {
+  background-color: var(--armor-critical);
+}
+
+.status-dot-glow {
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* Diagram containers (variant-specific) */
+.diagram-container {
+  @apply bg-surface-base rounded-lg border border-border-theme p-4;
+}
+
+.diagram-container-neon {
+  @apply bg-surface-deep rounded-lg border border-cyan-500/30 p-5;
+}
+
+.diagram-container-tactical {
+  @apply bg-surface-deep rounded-lg border border-border-theme p-4;
+}
+
+.diagram-container-premium {
+  @apply rounded-2xl border border-border-theme p-5;
+  background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-deep) 100%);
+}
+
+/* Diagram headers */
+.diagram-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.diagram-title {
+  @apply text-lg font-semibold text-white;
+}
+
+.diagram-title-neon {
+  @apply text-lg font-semibold text-cyan-400;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+.diagram-title-tactical {
+  @apply text-sm font-mono font-bold text-text-theme-primary tracking-wider;
+}
+
+/* Diagram legends */
+.diagram-legend {
+  @apply flex justify-center items-center gap-3 mt-4 text-xs;
+}
+
+.diagram-legend-item {
+  @apply flex items-center gap-1.5;
+}
+
+/* Diagram instructions */
+.diagram-instructions {
+  @apply text-xs text-text-theme-secondary text-center mt-2;
+}
+
+.diagram-instructions-neon {
+  @apply text-xs text-cyan-600/50 text-center mt-3;
+}
+
+.diagram-instructions-tactical {
+  @apply text-xs text-text-theme-muted font-mono text-center mt-3;
+}
+
+/* ========================================
+   VALUE/STAT DISPLAY STYLES
+   ======================================== */
+
+/* Value colors for StatDisplay, status bars */
+.value-positive {
+  @apply text-green-400 font-medium;
+}
+
+.value-negative {
+  @apply text-red-400 font-medium;
+}
+
+.value-warning {
+  @apply text-amber-400 font-medium;
+}
+
+.value-neutral {
+  @apply text-white font-medium;
+}
+
+.value-muted {
+  @apply text-text-theme-secondary;
+}
+
+/* Inline status indicators */
+.status-valid {
+  @apply text-green-400;
+}
+
+.status-warning {
+  @apply text-amber-400;
+}
+
+.status-error {
+  @apply text-red-400;
+}
+
+.status-info {
+  @apply text-blue-400;
+}
+
+/* ========================================
+   INTERACTIVE FOCUS STATES
+   ======================================== */
+
+/* Base focus ring style */
+.focus-ring-base {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep;
+}
+
+/* Accent-colored focus rings (for use with accent color system) */
+.focus-ring-amber {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-amber-500;
+}
+
+.focus-ring-cyan {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-cyan-500;
+}
+
+.focus-ring-emerald {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-emerald-500;
+}
+
+.focus-ring-violet {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-violet-500;
+}
+
+.focus-ring-blue {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-deep focus:ring-blue-500;
+}
+
+/* ========================================
+   HOVER STATE PATTERNS
+   ======================================== */
+
+/* Standard hover patterns documented */
+.hover-brighten {
+  @apply hover:bg-surface-base/60 hover:border-border-theme-strong;
+}
+
+.hover-lift {
+  @apply hover:-translate-y-0.5 transition-transform;
+}
+
+.hover-glow {
+  @apply hover:shadow-lg hover:shadow-amber-900/10;
+}
+
+.hover-glow-cyan {
+  @apply hover:shadow-lg hover:shadow-cyan-900/20;
+}
+
+/* ========================================
+   DIAGRAM BUTTON VARIANTS
+   ======================================== */
+
+/* Base diagram button */
+.diagram-btn {
+  @apply px-3 py-1.5 text-sm font-medium rounded transition-colors;
+}
+
+/* Clean Tech variant button */
+.diagram-btn-clean {
+  @apply bg-amber-600 hover:bg-amber-500 text-white;
+}
+
+/* Neon Operator variant button */
+.diagram-btn-neon {
+  @apply bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20;
+}
+
+/* Tactical HUD variant button */
+.diagram-btn-tactical {
+  @apply bg-transparent border border-amber-600 text-amber-400 hover:bg-amber-900/30 font-mono;
+}
+
+/* Premium Material variant button */
+.diagram-btn-premium {
+  @apply bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30 rounded-full;
+}
+
+/* Error state for all diagram buttons */
+.diagram-btn-error {
+  @apply bg-red-600 hover:bg-red-500 text-white;
+}
+
+/* ========================================
+   UI THEME CLASSES
+   ======================================== */
+
+/*
+ * Theme classes applied to <body> by GlobalStyleProvider.
+ * Use these for theme-specific style overrides.
+ */
+
+/* Default theme - clean slate design */
+.theme-default {
+  /* Base theme, uses root values */
+}
+
+/* Neon theme - cyberpunk with glow effects */
+.theme-neon {
+  /* Base CSS variables */
+  --surface-deep: #0a0a1a;
+  --surface-base: #0f172a;
+  --surface-raised: #1e293b;
+  --border-subtle: rgba(6, 182, 212, 0.3);
+  --border-default: rgba(6, 182, 212, 0.5);
+  --border-strong: rgba(6, 182, 212, 0.8);
+  --text-primary: #e0f2fe;
+  --text-secondary: #67e8f9;
+  --text-muted: #0891b2;
+
+  /* Tailwind color token overrides (used by generated utilities) */
+  --color-surface-deep: #0a0a1a;
+  --color-surface-base: #0f172a;
+  --color-surface-raised: #1e293b;
+  --color-border-theme-subtle: rgba(6, 182, 212, 0.3);
+  --color-border-theme: rgba(6, 182, 212, 0.5);
+  --color-border-theme-strong: rgba(6, 182, 212, 0.8);
+  --color-text-theme-primary: #e0f2fe;
+  --color-text-theme-secondary: #67e8f9;
+  --color-text-theme-muted: #0891b2;
+}
+
+.theme-neon input:focus,
+.theme-neon select:focus,
+.theme-neon button:focus {
+  box-shadow: 0 0 10px var(--accent-primary);
+}
+
+/* Tactical theme - military HUD style */
+.theme-tactical {
+  /* Base CSS variables */
+  --surface-deep: #0a1628;
+  --surface-base: #0c1220;
+  --surface-raised: #1a2332;
+  --border-subtle: rgba(245, 158, 11, 0.2);
+  --border-default: rgba(245, 158, 11, 0.4);
+  --border-strong: rgba(245, 158, 11, 0.6);
+  --text-primary: #fef3c7;
+  --text-secondary: #fcd34d;
+  --text-muted: #92400e;
+
+  /* Tailwind color token overrides (used by generated utilities) */
+  --color-surface-deep: #0a1628;
+  --color-surface-base: #0c1220;
+  --color-surface-raised: #1a2332;
+  --color-border-theme-subtle: rgba(245, 158, 11, 0.2);
+  --color-border-theme: rgba(245, 158, 11, 0.4);
+  --color-border-theme-strong: rgba(245, 158, 11, 0.6);
+  --color-text-theme-primary: #fef3c7;
+  --color-text-theme-secondary: #fcd34d;
+  --color-text-theme-muted: #92400e;
+}
+
+.theme-tactical h1,
+.theme-tactical h2,
+.theme-tactical h3,
+.theme-tactical .section-title {
+  @apply font-mono tracking-wider uppercase;
+}
+
+/* Minimal theme - reduced visual noise */
+.theme-minimal {
+  /* Base CSS variables */
+  --surface-deep: #0f172a;
+  --surface-base: #1e293b;
+  --surface-raised: #334155;
+  --border-subtle: rgba(51, 65, 85, 0.5);
+  --border-default: rgba(71, 85, 105, 0.5);
+  --border-strong: rgba(100, 116, 139, 0.5);
+
+  /* Tailwind color token overrides (used by generated utilities) */
+  --color-surface-deep: #0f172a;
+  --color-surface-base: #1e293b;
+  --color-surface-raised: #334155;
+  --color-border-theme-subtle: rgba(51, 65, 85, 0.5);
+  --color-border-theme: rgba(71, 85, 105, 0.5);
+  --color-border-theme-strong: rgba(100, 116, 139, 0.5);
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+/*
+ * Applied when user enables "Reduce Motion" setting.
+ * Disables all animations and transitions.
+ */
+
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
 }

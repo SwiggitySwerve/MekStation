@@ -15,7 +15,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const accentFocusClasses: Record<InputAccent, string> = {
-  amber: 'focus:border-amber-500',
+  amber: 'focus:border-accent',
   cyan: 'focus:border-cyan-500',
   emerald: 'focus:border-emerald-500',
   violet: 'focus:border-violet-500',
@@ -36,12 +36,12 @@ export function Input({
   ...props
 }: InputProps): React.ReactElement {
   const inputId = id || props.name;
-  const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 focus:outline-none transition-colors';
+  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm text-slate-400 mb-1">
+        <label htmlFor={inputId} className="block text-sm text-text-theme-secondary mb-1">
           {label}
         </label>
       )}
@@ -75,12 +75,12 @@ export function Select({
   ...props
 }: SelectProps): React.ReactElement {
   const selectId = id || props.name;
-  const baseClasses = 'w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none transition-colors';
+  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors';
 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={selectId} className="block text-sm text-slate-400 mb-1">
+        <label htmlFor={selectId} className="block text-sm text-text-theme-secondary mb-1">
           {label}
         </label>
       )}
@@ -113,7 +113,7 @@ export function SearchInput({
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-text-theme-secondary">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
       </div>
@@ -127,7 +127,7 @@ export function SearchInput({
         <button
           type="button"
           onClick={onClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-theme-secondary hover:text-text-theme-primary"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

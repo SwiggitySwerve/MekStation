@@ -135,11 +135,11 @@ const trayStyles = {
   /** Standard row height for all items */
   row: 'h-7 flex items-center',
   /** Equipment item row */
-  equipmentRow: 'px-2 h-7 flex items-center gap-1.5 transition-all group rounded-md border border-slate-700/30 my-0.5',
+  equipmentRow: 'px-2 h-7 flex items-center gap-1.5 transition-all group rounded-md border border-border-theme-subtle/30 my-0.5',
   /** Category header row */
-  categoryRow: 'px-2 h-7 bg-slate-800/50 flex items-center gap-1.5',
+  categoryRow: 'px-2 h-7 bg-surface-base/50 flex items-center gap-1.5',
   /** Section header row */
-  sectionRow: 'w-full h-7 flex items-center justify-between px-2 gap-1.5 hover:bg-slate-700/50 transition-colors bg-slate-700/30',
+  sectionRow: 'w-full h-7 flex items-center justify-between px-2 gap-1.5 hover:bg-surface-raised/50 transition-colors bg-surface-raised/30',
   
   /** Category dot indicator */
   categoryDot: 'w-2 h-2 rounded-sm',
@@ -207,11 +207,11 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-xl py-1 min-w-[160px]"
+      className="fixed z-50 bg-surface-base border border-border-theme rounded-lg shadow-xl py-1 min-w-[160px]"
       style={{ left: adjustedX, top: adjustedY }}
     >
       {/* Header */}
-      <div className={`${trayStyles.padding.header} py-1.5 border-b border-slate-700 ${trayStyles.text.primary} text-slate-400`}>
+      <div className={`${trayStyles.padding.header} py-1.5 border-b border-border-theme-subtle ${trayStyles.text.primary} text-text-theme-secondary`}>
         {item.name} ({item.criticalSlots} slot {item.criticalSlots !== 1 ? 's' : ''})
       </div>
       
@@ -220,11 +220,11 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
         <>
           <button
             onClick={() => { onUnassign(); onClose(); }}
-            className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-amber-400 hover:bg-slate-700 transition-colors`}
+            className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-accent hover:bg-surface-raised transition-colors`}
           >
             Unassign from {item.location}
           </button>
-          <div className="border-t border-slate-700 my-1" />
+          <div className="border-t border-border-theme-subtle my-1" />
         </>
       )}
       
@@ -238,7 +238,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
             <button
               key={loc.location}
               onClick={() => { onQuickAssign(loc.location); onClose(); }}
-              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-slate-700 transition-colors flex justify-between`}
+              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-surface-raised transition-colors flex justify-between`}
             >
               <span>Add to {loc.label}</span>
               <span className={`text-slate-500 ${trayStyles.text.secondary}`}>{loc.availableSlots} free</span>
@@ -305,7 +305,7 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
         ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
         ${isDragging ? 'opacity-50' : ''}
         ${isSelected
-          ? 'ring-1 ring-amber-400 ring-inset brightness-110'
+          ? 'ring-1 ring-accent ring-inset brightness-110'
           : 'hover:brightness-110'
         }
       `}
@@ -365,7 +365,7 @@ function AllocationSection({
   isExpanded, 
   onToggle, 
   children, 
-  titleColor = 'text-slate-300',
+  titleColor = 'text-text-theme-secondary',
   isDropZone = false,
   onDrop,
 }: AllocationSectionProps) {
@@ -395,8 +395,8 @@ function AllocationSection({
   };
   
   return (
-    <div 
-      className={`border-b border-slate-600 transition-all ${isDragOver ? 'ring-2 ring-amber-400 ring-inset bg-amber-900/20' : ''}`}
+    <div
+      className={`border-b border-border-theme transition-all ${isDragOver ? 'ring-2 ring-accent ring-inset bg-accent/20' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -407,7 +407,7 @@ function AllocationSection({
       >
         <span className={`${trayStyles.text.primary} font-medium ${titleColor}`}>{title}</span>
         <span className={`flex items-center ${trayStyles.gap}`}>
-          <span className={`${trayStyles.text.secondary} text-slate-400`}>({count})</span>
+          <span className={`${trayStyles.text.secondary} text-text-theme-secondary`}>({count})</span>
           <span className={`${trayStyles.text.tertiary} text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
             ▼
           </span>
@@ -440,7 +440,7 @@ function CategoryGroup({ category, items, selectedId, onSelect, onRemove, onUnas
     <div>
       <div className={trayStyles.categoryRow}>
         <span className={`${trayStyles.categoryDot} ${colors.bg}`} />
-        <span className={`${trayStyles.text.secondary} font-medium text-slate-400 uppercase tracking-wide`}>{label}</span>
+        <span className={`${trayStyles.text.secondary} font-medium text-text-theme-secondary uppercase tracking-wide`}>{label}</span>
         <span className={`${trayStyles.text.secondary} text-slate-500`}>({items.length})</span>
       </div>
       {items.map(item => (
@@ -553,17 +553,17 @@ export function GlobalLoadoutTray({
   // Collapsed state
   if (!isExpanded) {
     return (
-      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col items-center py-2 w-10 ${className}`}>
+      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col items-center py-2 w-10 ${className}`}>
         <button
           onClick={onToggleExpand}
-          className="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors p-2"
+          className="flex flex-col items-center gap-1 text-text-theme-secondary hover:text-white transition-colors p-2"
           title="Expand loadout"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
           </svg>
           {equipmentCount > 0 && (
-            <span className="bg-amber-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+            <span className="bg-accent text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
               {equipmentCount}
             </span>
           )}
@@ -576,19 +576,19 @@ export function GlobalLoadoutTray({
   // Expanded state
   return (
     <>
-      <div className={`bg-slate-800 border-l border-slate-700 flex flex-col w-full sm:w-[200px] md:w-[240px] lg:w-[260px] ${className}`}>
+      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col w-full sm:w-[200px] md:w-[240px] lg:w-[260px] ${className}`}>
         {/* Header */}
-        <div className="flex-shrink-0 border-b border-slate-600">
+        <div className="flex-shrink-0 border-b border-border-theme">
           <div className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}>
             <div className={`flex items-center ${trayStyles.gap}`}>
               <h3 className={`font-semibold text-white ${trayStyles.text.primary}`}>Loadout</h3>
-              <span className={`bg-slate-700 text-slate-300 ${trayStyles.text.secondary} rounded-full px-1.5 py-0.5`}>
+              <span className={`bg-surface-raised text-text-theme-secondary ${trayStyles.text.secondary} rounded-full px-1.5 py-0.5`}>
                 {equipmentCount}
               </span>
             </div>
             <button
               onClick={onToggleExpand}
-              className="text-slate-400 hover:text-white transition-colors p-1"
+              className="text-text-theme-secondary hover:text-white transition-colors p-1"
               title="Collapse"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -626,7 +626,7 @@ export function GlobalLoadoutTray({
                 count={unallocated.length}
                 isExpanded={unallocatedExpanded}
                 onToggle={() => setUnallocatedExpanded(!unallocatedExpanded)}
-                titleColor="text-amber-400"
+                titleColor="text-accent"
                 isDropZone={true}
                 onDrop={handleDropToUnallocated}
               >
@@ -686,11 +686,11 @@ export function GlobalLoadoutTray({
         
         {/* Selection info footer */}
         {selectedEquipmentId && (
-          <div className={`flex-shrink-0 ${trayStyles.padding.header} py-2 border-t border-slate-600 bg-slate-700/50`}>
-            <div className={`${trayStyles.text.secondary} text-slate-400`}>
+          <div className={`flex-shrink-0 ${trayStyles.padding.header} py-2 border-t border-border-theme bg-surface-raised/50`}>
+            <div className={`${trayStyles.text.secondary} text-text-theme-secondary`}>
               Selected for placement
             </div>
-            <div className={`${trayStyles.text.primary} text-amber-400 font-medium truncate`}>
+            <div className={`${trayStyles.text.primary} text-accent font-medium truncate`}>
               {equipment.find(e => e.instanceId === selectedEquipmentId)?.name}
             </div>
           </div>

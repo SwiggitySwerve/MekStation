@@ -19,7 +19,7 @@ describe('Badge', () => {
     it('should apply default variant (slate)', () => {
       render(<Badge>Default</Badge>);
       const badge = screen.getByText('Default');
-      expect(badge).toHaveClass('bg-slate-600/20');
+      expect(badge).toHaveClass('bg-surface-raised/20');
     });
 
     it('should apply blue variant', () => {
@@ -43,7 +43,7 @@ describe('Badge', () => {
     it('should apply amber variant', () => {
       render(<Badge variant="amber">Amber</Badge>);
       const badge = screen.getByText('Amber');
-      expect(badge).toHaveClass('bg-amber-600/20');
+      expect(badge).toHaveClass('bg-accent/20');
     });
 
     it('should apply orange variant', () => {
@@ -60,10 +60,10 @@ describe('Badge', () => {
 
     it('should apply semantic variants', () => {
       const { rerender } = render(<Badge variant="muted">Muted</Badge>);
-      expect(screen.getByText('Muted')).toHaveClass('bg-slate-600/50');
+      expect(screen.getByText('Muted')).toHaveClass('bg-surface-raised/50');
 
       rerender(<Badge variant="warning">Warning</Badge>);
-      expect(screen.getByText('Warning')).toHaveClass('bg-amber-600/20');
+      expect(screen.getByText('Warning')).toHaveClass('bg-accent/20');
 
       rerender(<Badge variant="success">Success</Badge>);
       expect(screen.getByText('Success')).toHaveClass('bg-emerald-600/20');
@@ -146,7 +146,7 @@ describe('Badge', () => {
     it('should render Medium with amber variant', () => {
       render(<WeightClassBadge weightClass={WeightClass.MEDIUM} />);
       const badge = screen.getByText('Medium');
-      expect(badge).toHaveClass('bg-amber-600/20');
+      expect(badge).toHaveClass('bg-accent/20');
     });
 
     it('should render Heavy with orange variant', () => {
