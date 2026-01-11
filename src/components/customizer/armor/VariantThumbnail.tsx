@@ -56,6 +56,11 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
           strokeWidth: 1.2,
           filter: undefined,
         };
+      default: {
+        // Exhaustive check - TypeScript should catch missing cases
+        const _exhaustiveCheck: never = variant;
+        return _exhaustiveCheck;
+      }
     }
   };
 
@@ -64,7 +69,9 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
   return (
     <svg
       viewBox="0 0 40 60"
-      className={`w-10 h-15 ${className}`}
+      className={`w-10 h-[60px] ${className}`}
+      aria-label={`${variant} style preview`}
+      role="img"
     >
       <defs>
         <filter id={neonGlowId} x="-50%" y="-50%" width="200%" height="200%">
