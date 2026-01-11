@@ -34,14 +34,16 @@ const SAMPLE_ARMOR_DATA: LocationArmorData[] = [
 
 /**
  * Variant metadata
+ * Note: These are independent visual styles for the armor diagram only,
+ * not related to the global UI Theme setting.
  */
 export const DIAGRAM_VARIANT_INFO: Record<
   ArmorDiagramVariant,
   { name: string; description: string; features: string[] }
 > = {
   'clean-tech': {
-    name: 'Clean Tech',
-    description: 'Maximum readability with solid colors',
+    name: 'Standard',
+    description: 'Clean design with solid colors',
     features: [
       'Realistic mech silhouette',
       'Solid gradient fills',
@@ -50,18 +52,18 @@ export const DIAGRAM_VARIANT_INFO: Record<
     ],
   },
   'neon-operator': {
-    name: 'Neon Operator',
-    description: 'Sci-fi aesthetic with glowing effects',
+    name: 'Glow Effects',
+    description: 'Sci-fi aesthetic with neon lighting',
     features: [
       'Wireframe outline',
-      'Neon glow effects',
+      'Glowing edge effects',
       'Progress ring indicators',
       'Stacked front/rear',
     ],
   },
   'tactical-hud': {
-    name: 'Tactical HUD',
-    description: 'Military feel with LED displays',
+    name: 'LED Display',
+    description: 'Military-style LED readouts',
     features: [
       'Geometric shapes',
       'LED number display',
@@ -70,8 +72,8 @@ export const DIAGRAM_VARIANT_INFO: Record<
     ],
   },
   'premium-material': {
-    name: 'Premium Material',
-    description: 'Metallic textures with 3D depth',
+    name: 'Metallic',
+    description: 'Chrome textures with 3D depth',
     features: [
       'Realistic contour',
       'Metallic textures',
