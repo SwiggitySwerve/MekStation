@@ -122,7 +122,7 @@ describe('CustomDropdown', () => {
       );
       expect(optionButton).toBeDefined();
       // The selected option should have blue background styling
-      expect(optionButton?.className).toContain('bg-blue-600');
+      expect(optionButton?.className).toContain('bg-accent');
     });
   });
 

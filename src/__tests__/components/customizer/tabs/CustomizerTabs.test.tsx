@@ -32,10 +32,10 @@ describe('CustomizerTabs', () => {
 
   it('should highlight active tab', () => {
     render(<CustomizerTabs {...defaultProps} activeTab="armor" />);
-    
+
     const armorTab = screen.getByText('Armor').closest('button');
-    expect(armorTab).toHaveClass('text-amber-400');
-    expect(armorTab).toHaveClass('border-amber-400');
+    expect(armorTab).toHaveClass('text-accent');
+    expect(armorTab).toHaveClass('border-accent');
   });
 
   it('should call onTabChange when tab is clicked', async () => {

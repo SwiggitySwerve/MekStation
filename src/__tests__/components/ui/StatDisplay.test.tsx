@@ -27,12 +27,12 @@ describe('StatDisplay Components', () => {
 
     it('should apply white color by default', () => {
       render(<StatRow label="Value" value="100" />);
-      expect(screen.getByText('100')).toHaveClass('text-white');
+      expect(screen.getByText('100')).toHaveClass('text-text-theme-primary');
     });
 
     it('should apply amber color', () => {
       render(<StatRow label="Value" value="100" valueColor="amber" />);
-      expect(screen.getByText('100')).toHaveClass('text-amber-400');
+      expect(screen.getByText('100')).toHaveClass('text-accent');
     });
 
     it('should apply cyan color', () => {
@@ -62,7 +62,7 @@ describe('StatDisplay Components', () => {
 
     it('should keep specified color when highlight is true', () => {
       render(<StatRow label="Value" value="100" highlight valueColor="amber" />);
-      expect(screen.getByText('100')).toHaveClass('text-amber-400');
+      expect(screen.getByText('100')).toHaveClass('text-accent');
     });
 
     it('should render React node as value', () => {
@@ -176,7 +176,7 @@ describe('StatDisplay Components', () => {
           <div>Content</div>
         </StatCard>
       );
-      expect(container.firstChild).toHaveClass('bg-slate-800/30');
+      expect(container.firstChild).toHaveClass('bg-surface-base/30');
       expect(container.firstChild).toHaveClass('border');
       expect(container.firstChild).toHaveClass('rounded-xl');
     });
@@ -250,7 +250,7 @@ describe('StatDisplay Components', () => {
 
     it('should apply amber color by default', () => {
       render(<SimpleStatCard value="150" label="Units" />);
-      expect(screen.getByText('150')).toHaveClass('text-amber-400');
+      expect(screen.getByText('150')).toHaveClass('text-accent');
     });
 
     it('should apply cyan color', () => {
@@ -295,7 +295,7 @@ describe('StatDisplay Components', () => {
 
     it('should have card styling', () => {
       const { container } = render(<SimpleStatCard value="150" label="Units" />);
-      expect(container.firstChild).toHaveClass('bg-slate-800/50');
+      expect(container.firstChild).toHaveClass('bg-surface-base/50');
       expect(container.firstChild).toHaveClass('rounded-xl');
       expect(container.firstChild).toHaveClass('text-center');
     });
