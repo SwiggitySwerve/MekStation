@@ -21,7 +21,8 @@ import {
   UITheme,
   ACCENT_COLOR_CSS,
 } from '@/stores/useAppSettingsStore';
-import { ArmorDiagramGridPreview, ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
+import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
+import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
 
 /**
  * Settings section wrapper
@@ -301,18 +302,21 @@ export default function SettingsPage() {
     saveAppearance();
   }, [saveAppearance]);
 
+  const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
+
   // Revert on unmount if there are unsaved changes
   useEffect(() => {
     const handleRouteChange = () => {
       // Revert appearance changes when navigating away
       revertAppearance();
+      revertCustomizer();
     };
 
     router.events.on('routeChangeStart', handleRouteChange);
     return () => {
       router.events.off('routeChangeStart', handleRouteChange);
     };
-  }, [router.events, revertAppearance]);
+  }, [router.events, revertAppearance, revertCustomizer]);
 
   return (
     <>
@@ -436,19 +440,10 @@ export default function SettingsPage() {
             {settings.armorDiagramMode === 'silhouette' && (
               <div>
                 <div className="text-sm font-medium text-text-theme-primary mb-2">Silhouette Aesthetic</div>
-                <div className="text-xs text-text-theme-secondary mb-2">
-                  Visual effects and textures for the armor diagram only
+                <div className="text-xs text-text-theme-secondary mb-3">
+                  Visual style for the armor diagram
                 </div>
-                <div className="text-xs text-amber-400/80 mb-4 flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 flex-shrink-0">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                  </svg>
-                  <span>Independent of UI Theme - changes diagram artwork only</span>
-                </div>
-                <ArmorDiagramGridPreview
-                  selectedVariant={settings.armorDiagramVariant}
-                  onSelectVariant={settings.setArmorDiagramVariant}
-                />
+                <ArmorDiagramSettings />
               </div>
             )}
 
