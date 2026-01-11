@@ -5,16 +5,17 @@ import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 
 // Mock the store
 jest.mock('@/stores/useAppSettingsStore');
+const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
 
 describe('ArmorDiagramModeSwitch', () => {
   const mockSetArmorDiagramMode = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAppSettingsStore as unknown as jest.Mock).mockReturnValue({
+    mockUseAppSettingsStore.mockReturnValue({
       armorDiagramMode: 'silhouette',
       setArmorDiagramMode: mockSetArmorDiagramMode,
-    });
+    } as ReturnType<typeof useAppSettingsStore>);
   });
 
   it('should render mode options', () => {

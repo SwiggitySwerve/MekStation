@@ -6,6 +6,7 @@ import { MechLocation } from '@/types/construction';
 
 // Mock the store
 jest.mock('@/stores/useAppSettingsStore');
+const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
 
 describe('ArmorDiagram', () => {
   const mockArmorData = [
@@ -32,9 +33,9 @@ describe('ArmorDiagram', () => {
 
   describe('mode switching', () => {
     it('should render silhouette diagram when mode is silhouette', () => {
-      (useAppSettingsStore as unknown as jest.Mock).mockReturnValue({
+      mockUseAppSettingsStore.mockReturnValue({
         armorDiagramMode: 'silhouette',
-      });
+      } as ReturnType<typeof useAppSettingsStore>);
 
       const { container } = render(<ArmorDiagram {...defaultProps} />);
 
@@ -43,9 +44,9 @@ describe('ArmorDiagram', () => {
     });
 
     it('should render schematic diagram when mode is schematic', () => {
-      (useAppSettingsStore as unknown as jest.Mock).mockReturnValue({
+      mockUseAppSettingsStore.mockReturnValue({
         armorDiagramMode: 'schematic',
-      });
+      } as ReturnType<typeof useAppSettingsStore>);
 
       render(<ArmorDiagram {...defaultProps} />);
 
@@ -55,11 +56,9 @@ describe('ArmorDiagram', () => {
     });
 
     it('should pass props to schematic diagram correctly', () => {
-      (useAppSettingsStore as unknown as jest.Mock).mockReturnValue({
+      mockUseAppSettingsStore.mockReturnValue({
         armorDiagramMode: 'schematic',
-      });
-
-      render(<ArmorDiagram {...defaultProps} selectedLocation={MechLocation.HEAD} />);
+      } as ReturnType<typeof useAppSettingsStore>);
 
       // Check that the selected location has the selected styling
       const { container } = render(<ArmorDiagram {...defaultProps} selectedLocation={MechLocation.HEAD} />);
