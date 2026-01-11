@@ -17,6 +17,7 @@ import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorTyp
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { LocationArmorData } from '../armor/ArmorDiagram';
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
+import { SchematicDiagram } from '@/components/armor/schematic';
 import {
   CleanTechDiagram,
   NeonOperatorDiagram,
@@ -58,6 +59,7 @@ export function ArmorTab({
   className = '',
 }: ArmorTabProps): React.ReactElement {
   // Get app settings
+  const armorDiagramMode = useAppSettingsStore((s) => s.armorDiagramMode);
   const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
 
   // Get unit state from context
@@ -357,7 +359,19 @@ export function ArmorTab({
 
         {/* RIGHT: Armor Diagram */}
         <div className="space-y-4">
-          {armorDiagramVariant === 'clean-tech' && (
+          {/* Schematic Mode */}
+          {armorDiagramMode === 'schematic' && (
+            <SchematicDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+
+          {/* Silhouette Mode - render based on variant */}
+          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'clean-tech' && (
             <CleanTechDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -366,7 +380,7 @@ export function ArmorTab({
               onAutoAllocate={handleAutoAllocate}
             />
           )}
-          {armorDiagramVariant === 'neon-operator' && (
+          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'neon-operator' && (
             <NeonOperatorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -375,7 +389,7 @@ export function ArmorTab({
               onAutoAllocate={handleAutoAllocate}
             />
           )}
-          {armorDiagramVariant === 'tactical-hud' && (
+          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'tactical-hud' && (
             <TacticalHUDDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -384,7 +398,7 @@ export function ArmorTab({
               onAutoAllocate={handleAutoAllocate}
             />
           )}
-          {armorDiagramVariant === 'premium-material' && (
+          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
             <PremiumMaterialDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}

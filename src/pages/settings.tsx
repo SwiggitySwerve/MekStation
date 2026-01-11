@@ -21,8 +21,7 @@ import {
   UITheme,
   ACCENT_COLOR_CSS,
 } from '@/stores/useAppSettingsStore';
-import { ArmorDiagramGridPreview } from '@/components/customizer/armor/ArmorDiagramPreview';
-import { ArmorDiagramModeSwitch } from '@/components/armor/ArmorDiagramModeSwitch';
+import { ArmorDiagramGridPreview, ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
 
 /**
  * Settings section wrapper
@@ -427,7 +426,10 @@ export default function SettingsPage() {
               <div className="text-xs text-text-theme-secondary mb-3">
                 Choose between schematic grid or silhouette SVG display
               </div>
-              <ArmorDiagramModeSwitch />
+              <ArmorDiagramModePreview
+                selectedMode={settings.armorDiagramMode}
+                onSelectMode={settings.setArmorDiagramMode}
+              />
             </div>
 
             {/* Armor Diagram Variant (only visible for silhouette mode) */}
