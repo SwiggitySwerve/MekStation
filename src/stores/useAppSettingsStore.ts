@@ -29,17 +29,6 @@ export type ArmorDiagramVariant =
 export type UITheme = 'default' | 'neon' | 'tactical' | 'minimal';
 
 /**
- * Mapping from UITheme to matching ArmorDiagramVariant
- * This enables automatic synchronization of design styles across the app
- */
-export const UI_THEME_TO_DIAGRAM_VARIANT: Record<UITheme, ArmorDiagramVariant> = {
-  'default': 'clean-tech',
-  'neon': 'neon-operator',
-  'tactical': 'tactical-hud',
-  'minimal': 'premium-material',
-};
-
-/**
  * Accent color options
  */
 export type AccentColor =
