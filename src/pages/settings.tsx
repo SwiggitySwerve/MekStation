@@ -22,6 +22,7 @@ import {
   ACCENT_COLOR_CSS,
 } from '@/stores/useAppSettingsStore';
 import { ArmorDiagramGridPreview } from '@/components/customizer/armor/ArmorDiagramPreview';
+import { ArmorDiagramModeSwitch } from '@/components/armor/ArmorDiagramModeSwitch';
 
 /**
  * Settings section wrapper
@@ -420,16 +421,28 @@ export default function SettingsPage() {
             title="Customizer"
             description="Configure the mech customizer interface"
           >
+            {/* Armor Diagram Mode */}
             <div>
-              <div className="text-sm font-medium text-white mb-2">Armor Diagram Style</div>
-              <div className="text-xs text-slate-400 mb-4">
-                Choose the visual style for the armor allocation diagram. Changes apply immediately.
+              <div className="text-sm font-medium text-text-theme-primary mb-2">Armor Diagram Mode</div>
+              <div className="text-xs text-text-theme-secondary mb-3">
+                Choose between schematic grid or silhouette SVG display
               </div>
-              <ArmorDiagramGridPreview
-                selectedVariant={settings.armorDiagramVariant}
-                onSelectVariant={settings.setArmorDiagramVariant}
-              />
+              <ArmorDiagramModeSwitch />
             </div>
+
+            {/* Armor Diagram Variant (only visible for silhouette mode) */}
+            {settings.armorDiagramMode === 'silhouette' && (
+              <div>
+                <div className="text-sm font-medium text-text-theme-primary mb-2">Silhouette Style</div>
+                <div className="text-xs text-text-theme-secondary mb-4">
+                  Choose the visual style for the silhouette armor diagram
+                </div>
+                <ArmorDiagramGridPreview
+                  selectedVariant={settings.armorDiagramVariant}
+                  onSelectVariant={settings.setArmorDiagramVariant}
+                />
+              </div>
+            )}
 
             <Toggle
               label="Show Design Selector (UAT)"
