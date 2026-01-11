@@ -1,12 +1,11 @@
 /**
- * Equipment Detail Page
+ * Equipment Detail Page (Compendium Section)
  * Displays full specifications for a single equipment item.
  */
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
 import {
-  PageLayout,
   PageLoading,
   PageError,
   Card,
@@ -18,6 +17,7 @@ import {
   StatCard,
   StatGrid,
 } from '@/components/ui';
+import { CompendiumLayout } from '@/components/compendium';
 
 interface EquipmentData {
   id: string;
@@ -28,7 +28,7 @@ interface EquipmentData {
   weight?: number;
   criticalSlots?: number;
   costCBills?: number;
-  
+
   // Weapon-specific
   damage?: number;
   heat?: number;
@@ -38,12 +38,12 @@ interface EquipmentData {
   longRange?: number;
   extremeRange?: number;
   ammoPerTon?: number;
-  
+
   // Temporal
   introductionYear?: number;
   extinctionYear?: number;
   reintroductionYear?: number;
-  
+
   // Additional
   description?: string;
   specialRules?: string[];
@@ -70,7 +70,7 @@ const categoryLabels: Record<string, string> = {
 export default function EquipmentDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [equipment, setEquipment] = useState<EquipmentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export default function EquipmentDetailPage(): React.ReactElement {
       try {
         const response = await fetch(`/api/equipment?id=${encodeURIComponent(id as string)}`);
         const data = await response.json() as { success: boolean; data?: EquipmentData; error?: string };
-        
+
         if (data.success && data.data) {
           setEquipment(data.data);
         } else {
@@ -107,7 +107,7 @@ export default function EquipmentDetailPage(): React.ReactElement {
       <PageError
         title="Equipment Not Found"
         message={error || 'The requested equipment could not be found.'}
-        backLink="/equipment"
+        backLink="/compendium/equipment"
         backLabel="Back to Equipment"
       />
     );
@@ -116,32 +116,30 @@ export default function EquipmentDetailPage(): React.ReactElement {
   const isWeapon = equipment.category?.includes('WEAPON');
   const hasRangeData = equipment.shortRange || equipment.mediumRange || equipment.longRange;
 
+  // Header with category badges
+  const headerActions = (
+    <div className="flex flex-wrap gap-2">
+      {equipment.category && (
+        <Badge variant="cyan">
+          {categoryLabels[equipment.category] || equipment.category.replace(/_/g, ' ')}
+        </Badge>
+      )}
+      {equipment.techBase && <TechBaseBadge techBase={equipment.techBase} />}
+      {equipment.rulesLevel && (
+        <Badge variant="muted">{equipment.rulesLevel.replace(/_/g, ' ')}</Badge>
+      )}
+    </div>
+  );
+
   return (
-    <PageLayout
+    <CompendiumLayout
       title={equipment.name}
-      backLink="/equipment"
-      backLabel="Back to Equipment"
-      maxWidth="narrow"
+      breadcrumbs={[
+        { label: 'Equipment', href: '/compendium/equipment' },
+        { label: equipment.name },
+      ]}
+      headerActions={headerActions}
     >
-      {/* Header Card */}
-      <Card className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">{equipment.name}</h1>
-            <div className="flex flex-wrap gap-3 text-sm">
-              {equipment.category && (
-                <Badge variant="cyan">
-                  {categoryLabels[equipment.category] || equipment.category.replace(/_/g, ' ')}
-                </Badge>
-              )}
-              {equipment.techBase && <TechBaseBadge techBase={equipment.techBase} />}
-              {equipment.rulesLevel && (
-                <Badge variant="muted">{equipment.rulesLevel.replace(/_/g, ' ')}</Badge>
-              )}
-            </div>
-          </div>
-        </div>
-      </Card>
 
       {/* Basic Stats */}
       <StatGrid cols={2} className="mb-6">
@@ -155,10 +153,10 @@ export default function EquipmentDetailPage(): React.ReactElement {
               <StatRow label="Critical Slots" value={equipment.criticalSlots} />
             )}
             {equipment.costCBills !== undefined && (
-              <StatRow 
-                label="Cost (C-Bills)" 
-                value={equipment.costCBills.toLocaleString()} 
-                highlight 
+              <StatRow
+                label="Cost (C-Bills)"
+                value={equipment.costCBills.toLocaleString()}
+                highlight
               />
             )}
             {equipment.battleValue !== undefined && (
@@ -242,10 +240,10 @@ export default function EquipmentDetailPage(): React.ReactElement {
       {equipment.description && (
         <Card variant="dark">
           <CardSection title="Description" />
-          <p className="text-slate-300 leading-relaxed">{equipment.description}</p>
+          <p className="text-text-theme-secondary leading-relaxed">{equipment.description}</p>
         </Card>
       )}
-    </PageLayout>
+    </CompendiumLayout>
   );
 }
 

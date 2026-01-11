@@ -71,7 +71,6 @@ describe('Sidebar', () => {
 
       expect(screen.getByText('Dashboard')).toBeInTheDocument();
       expect(screen.getByText('Units')).toBeInTheDocument();
-      expect(screen.getByText('Equipment')).toBeInTheDocument();
       expect(screen.getByText('Compendium')).toBeInTheDocument();
       expect(screen.getByText('Customizer')).toBeInTheDocument();
       expect(screen.getByText('Compare')).toBeInTheDocument();
@@ -155,13 +154,6 @@ describe('Sidebar', () => {
 
       const unitsLink = screen.getByText('Units').closest('a');
       expect(unitsLink).toHaveAttribute('href', '/units');
-    });
-
-    it('should have correct href for Equipment', () => {
-      render(<Sidebar {...defaultProps} />);
-
-      const equipmentLink = screen.getByText('Equipment').closest('a');
-      expect(equipmentLink).toHaveAttribute('href', '/equipment');
     });
 
     it('should have correct href for Compendium', () => {

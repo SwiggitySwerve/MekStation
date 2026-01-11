@@ -1,8 +1,8 @@
 /**
- * Equipment Browser Page
+ * Equipment Browser Page (Compendium Section)
  * Browse and search the equipment catalog with filtering and multiple view modes.
  * Inspired by COMP/CON's efficient, compact UI layout.
- * 
+ *
  * Uses centralized colors from @/utils/colors/equipmentColors.ts
  */
 import Link from 'next/link';
@@ -10,8 +10,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
-import { 
-  PageLoading, 
+import {
+  PageLoading,
   PageError,
   Badge,
   TechBaseBadge,
@@ -23,7 +23,8 @@ import {
   ViewModeToggle,
 } from '@/components/ui';
 import type { ViewMode } from '@/components/ui';
-import { 
+import { CompendiumLayout } from '@/components/compendium';
+import {
   EQUIPMENT_CATEGORY_COLORS,
   getCategoryColors,
   getAmmoColors,
@@ -58,7 +59,7 @@ export default function EquipmentListPage(): React.ReactElement {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -66,10 +67,10 @@ export default function EquipmentListPage(): React.ReactElement {
     techBase: '',
     rulesLevel: '',
   });
-  
+
   const hasActiveFilters = filters.category || filters.techBase || filters.rulesLevel;
   const activeFilterCount = [filters.category, filters.techBase, filters.rulesLevel].filter(Boolean).length;
-  
+
   // Build select options from centralized color config
   const categoryOptions = Object.values(EquipmentCategory).map(cat => ({
     value: cat,
@@ -80,7 +81,7 @@ export default function EquipmentListPage(): React.ReactElement {
     value: tb,
     label: tb,
   }));
-  
+
   const rulesLevelOptions = Object.values(RulesLevel).map(rl => ({
     value: rl,
     label: rl,
@@ -92,7 +93,7 @@ export default function EquipmentListPage(): React.ReactElement {
       try {
         const response = await fetch('/api/equipment/catalog');
         const data = await response.json() as { success: boolean; data?: EquipmentEntry[]; error?: string };
-        
+
         if (data.success) {
           setEquipment(data.data || []);
           setFilteredEquipment(data.data || []);
@@ -163,66 +164,61 @@ export default function EquipmentListPage(): React.ReactElement {
       <PageError
         title="Error Loading Equipment"
         message={error}
-        backLink="/"
-        backLabel="Go Home"
+        backLink="/compendium"
+        backLabel="Back to Compendium"
       />
     );
   }
 
+  // Header actions for the layout
+  const headerActions = (
+    <div className="flex items-center gap-3">
+      {/* View Mode Toggle */}
+      <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+
+      {/* Search */}
+      <div className="w-64">
+        <Input
+          type="text"
+          placeholder="Search..."
+          value={filters.search}
+          onChange={(e) => handleFilterChange('search', e.target.value)}
+          accent="amber"
+          aria-label="Search equipment"
+          className="!py-1.5 text-sm"
+        />
+      </div>
+
+      {/* Filter Toggle Button */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+          showFilters || hasActiveFilters
+            ? 'bg-accent text-text-theme-primary'
+            : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+        </svg>
+        Filters
+        {activeFilterCount > 0 && (
+          <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-surface-deep via-surface-deep to-surface-deep">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        {/* Compact Header Row - Title + View Toggle + Search + Filter Toggle */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          {/* Title with count badge */}
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-wide uppercase text-text-theme-primary">
-              Equipment
-            </h1>
-            <span className="px-2 py-0.5 text-xs font-mono bg-accent/20 text-accent rounded">
-              {filteredEquipment.length}
-            </span>
-          </div>
-
-          {/* View Mode Toggle */}
-          <ViewModeToggle mode={viewMode} onChange={setViewMode} className="ml-2" />
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Search - always visible */}
-          <div className="w-64">
-            <Input
-              type="text"
-              placeholder="Search..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              accent="amber"
-              aria-label="Search equipment"
-              className="!py-1.5 text-sm"
-            />
-          </div>
-
-          {/* Filter Toggle Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              showFilters || hasActiveFilters
-                ? 'bg-accent text-text-theme-primary'
-                : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-            </svg>
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
+    <CompendiumLayout
+      title="Equipment Catalog"
+      subtitle={`${filteredEquipment.length} items`}
+      breadcrumbs={[{ label: 'Equipment' }]}
+      headerActions={headerActions}
+      maxWidth="wide"
+    >
 
         {/* Collapsible Filter Panel */}
         {showFilters && (
@@ -291,8 +287,7 @@ export default function EquipmentListPage(): React.ReactElement {
             />
           </div>
         )}
-      </div>
-    </div>
+    </CompendiumLayout>
   );
 }
 
@@ -307,12 +302,12 @@ interface ViewProps {
 // Helper to get colors for an equipment item (handles ammo sub-types)
 function getEquipmentDisplayColors(category: EquipmentCategory | undefined, name: string) {
   if (!category) return null;
-  
+
   // For ammunition, use name-based detection for missile vs ballistic
   if (category === EquipmentCategory.AMMUNITION) {
     return getAmmoColors(name);
   }
-  
+
   return getCategoryColors(category);
 }
 
@@ -322,9 +317,9 @@ function EquipmentGridView({ equipment }: ViewProps): React.ReactElement {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {equipment.map((eq) => {
         const colors = getEquipmentDisplayColors(eq.category, eq.name);
-        
+
         return (
-          <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
+          <Link key={eq.id} href={`/compendium/equipment/${encodeURIComponent(eq.id)}`}>
             <div className="group p-3 bg-surface-base/40 border border-border-theme-subtle/50 rounded-lg hover:bg-surface-base/60 hover:border-accent/50 transition-all cursor-pointer">
               {/* Header row */}
               <div className="flex items-start justify-between gap-2 mb-2">
@@ -370,9 +365,9 @@ function EquipmentListView({ equipment }: ViewProps): React.ReactElement {
     <div className="space-y-1">
       {equipment.map((eq) => {
         const colors = getEquipmentDisplayColors(eq.category, eq.name);
-        
+
         return (
-          <Link key={eq.id} href={`/equipment/${encodeURIComponent(eq.id)}`}>
+          <Link key={eq.id} href={`/compendium/equipment/${encodeURIComponent(eq.id)}`}>
             <div className="flex items-center gap-3 px-3 py-2 bg-surface-base/30 border border-transparent rounded hover:bg-surface-base/50 hover:border-border-theme-subtle/50 transition-all cursor-pointer group">
               {/* Category indicator bar - using centralized colors */}
               {colors && (
@@ -439,7 +434,7 @@ function EquipmentTableView({ equipment }: ViewProps): React.ReactElement {
                 <tr
                   key={eq.id}
                   className="hover:bg-surface-raised/20 transition-colors cursor-pointer"
-                  onClick={() => window.location.href = `/equipment/${encodeURIComponent(eq.id)}`}
+                  onClick={() => window.location.href = `/compendium/equipment/${encodeURIComponent(eq.id)}`}
                 >
                   <td className="px-3 py-2">
                     <span className="font-medium text-text-theme-primary">{eq.name}</span>
