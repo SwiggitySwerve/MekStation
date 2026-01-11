@@ -13,8 +13,10 @@ import {
   NeonOperatorDiagram,
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
+  MegaMekDiagram,
 } from './variants';
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { SchematicDiagram } from '@/components/armor/schematic';
+import { ArmorDiagramVariant, ArmorDiagramMode } from '@/stores/useAppSettingsStore';
 
 /**
  * Sample armor data for preview
@@ -33,14 +35,16 @@ const SAMPLE_ARMOR_DATA: LocationArmorData[] = [
 
 /**
  * Variant metadata
+ * Note: These are independent visual styles for the armor diagram only,
+ * not related to the global UI Theme setting.
  */
 export const DIAGRAM_VARIANT_INFO: Record<
   ArmorDiagramVariant,
   { name: string; description: string; features: string[] }
 > = {
   'clean-tech': {
-    name: 'Clean Tech',
-    description: 'Maximum readability with solid colors',
+    name: 'Standard',
+    description: 'Clean design with solid colors',
     features: [
       'Realistic mech silhouette',
       'Solid gradient fills',
@@ -49,18 +53,18 @@ export const DIAGRAM_VARIANT_INFO: Record<
     ],
   },
   'neon-operator': {
-    name: 'Neon Operator',
-    description: 'Sci-fi aesthetic with glowing effects',
+    name: 'Glow Effects',
+    description: 'Sci-fi aesthetic with neon lighting',
     features: [
       'Wireframe outline',
-      'Neon glow effects',
+      'Glowing edge effects',
       'Progress ring indicators',
       'Stacked front/rear',
     ],
   },
   'tactical-hud': {
-    name: 'Tactical HUD',
-    description: 'Military feel with LED displays',
+    name: 'LED Display',
+    description: 'Military-style LED readouts',
     features: [
       'Geometric shapes',
       'LED number display',
@@ -69,13 +73,23 @@ export const DIAGRAM_VARIANT_INFO: Record<
     ],
   },
   'premium-material': {
-    name: 'Premium Material',
-    description: 'Metallic textures with 3D depth',
+    name: 'Metallic',
+    description: 'Chrome textures with 3D depth',
     features: [
       'Realistic contour',
       'Metallic textures',
       'Circular badges',
       'Stacked front/rear',
+    ],
+  },
+  'megamek': {
+    name: 'MegaMek Classic',
+    description: 'Authentic record sheet style',
+    features: [
+      'PDF record sheet proportions',
+      'Layered shadow/fill/outline',
+      'Hand actuator details',
+      'Knee joint articulation',
     ],
   },
 };
@@ -131,6 +145,8 @@ export function ArmorDiagramPreview({
         return <TacticalHUDDiagram {...diagramProps} />;
       case 'premium-material':
         return <PremiumMaterialDiagram {...diagramProps} />;
+      case 'megamek':
+        return <MegaMekDiagram {...diagramProps} />;
       default:
         return <CleanTechDiagram {...diagramProps} />;
     }
@@ -186,6 +202,7 @@ export function ArmorDiagramGridPreview({
     'neon-operator',
     'tactical-hud',
     'premium-material',
+    'megamek',
   ];
 
   return (
@@ -258,6 +275,127 @@ export function ArmorDiagramFeatureList({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/**
+ * Mode metadata
+ */
+export const DIAGRAM_MODE_INFO: Record<
+  ArmorDiagramMode,
+  { name: string; description: string; features: string[] }
+> = {
+  schematic: {
+    name: 'Schematic',
+    description: 'Grid-based layout with anatomical positioning',
+    features: [
+      'CSS grid layout',
+      'Color-coded health bars',
+      'Front/rear split display',
+      'Desktop and mobile layouts',
+    ],
+  },
+  silhouette: {
+    name: 'Silhouette',
+    description: 'SVG mech outline with visual styling',
+    features: [
+      'Realistic mech silhouette',
+      'Multiple style variants',
+      'Interactive hover states',
+      'Visual armor fill indicators',
+    ],
+  },
+};
+
+interface ArmorDiagramModePreviewProps {
+  /** Currently selected mode */
+  selectedMode: ArmorDiagramMode;
+  /** Callback when a mode is selected */
+  onSelectMode: (mode: ArmorDiagramMode) => void;
+  /** Optional: className */
+  className?: string;
+}
+
+/**
+ * Side-by-side mode preview for selection
+ */
+export function ArmorDiagramModePreview({
+  selectedMode,
+  onSelectMode,
+  className = '',
+}: ArmorDiagramModePreviewProps): React.ReactElement {
+  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(null);
+  const modes: ArmorDiagramMode[] = ['schematic', 'silhouette'];
+
+  const handleLocationClick = (location: MechLocation) => {
+    setSelectedLocation((prev) => (prev === location ? null : location));
+  };
+
+  return (
+    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>
+      {modes.map((mode) => {
+        const info = DIAGRAM_MODE_INFO[mode];
+        const isSelected = selectedMode === mode;
+
+        return (
+          <div
+            key={mode}
+            className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
+              isSelected
+                ? 'border-accent bg-accent/5'
+                : 'border-border-theme-subtle hover:border-border-theme bg-surface-base/30'
+            }`}
+            onClick={() => onSelectMode(mode)}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-sm font-medium text-text-theme-primary">
+                  {info.name}
+                </div>
+                <div className="text-xs text-text-theme-secondary">
+                  {info.description}
+                </div>
+              </div>
+              {isSelected && (
+                <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {/* Preview container */}
+            <div className="relative h-[280px] overflow-hidden">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 origin-top scale-50">
+                {mode === 'schematic' ? (
+                  <SchematicDiagram
+                    armorData={SAMPLE_ARMOR_DATA}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={12}
+                    onLocationClick={handleLocationClick}
+                  />
+                ) : (
+                  <CleanTechDiagram
+                    armorData={SAMPLE_ARMOR_DATA}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={12}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

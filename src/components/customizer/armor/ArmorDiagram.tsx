@@ -1,8 +1,9 @@
 /**
  * Armor Diagram Component
- * 
+ *
  * SVG-based interactive armor visualization for BattleMechs.
- * 
+ * Supports two display modes: Schematic (CSS grid) and Silhouette (SVG).
+ *
  * @spec openspec/specs/armor-diagram/spec.md
  */
 
@@ -10,6 +11,8 @@ import React, { useState } from 'react';
 import { ArmorLocation } from './ArmorLocation';
 import { ArmorLegend } from './ArmorLegend';
 import { MechLocation } from '@/types/construction';
+import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { SchematicDiagram } from '@/components/armor/schematic';
 
 /**
  * Armor allocation data for a single location
@@ -38,7 +41,8 @@ export interface ArmorDiagramProps {
 }
 
 /**
- * SVG Mech armor diagram with interactive locations
+ * Armor diagram with mode switching support.
+ * Renders either Schematic (CSS grid) or Silhouette (SVG) based on settings.
  */
 export function ArmorDiagram({
   armorData,
@@ -49,13 +53,29 @@ export function ArmorDiagram({
   className = '',
 }: ArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
-  
+  const { armorDiagramMode } = useAppSettingsStore();
+
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-  
+
   const isOverAllocated = unallocatedPoints < 0;
-  
+
+  // Schematic mode: Use CSS grid-based diagram
+  if (armorDiagramMode === 'schematic') {
+    return (
+      <SchematicDiagram
+        armorData={armorData}
+        selectedLocation={selectedLocation}
+        unallocatedPoints={unallocatedPoints}
+        onLocationClick={onLocationClick}
+        onAutoAllocate={onAutoAllocate}
+        className={className}
+      />
+    );
+  }
+
+  // Silhouette mode: Use SVG-based diagram
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}

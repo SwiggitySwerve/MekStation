@@ -503,6 +503,38 @@ describe('useTabManagerStore', () => {
   });
   
   // ===========================================================================
+  // Sub-tab Persistence
+  // ===========================================================================
+  describe('Sub-tab Persistence', () => {
+    it('should set and get last active sub-tab', () => {
+      let tabId = '';
+      act(() => {
+        tabId = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0]);
+      });
+
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'armor');
+      });
+
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('armor');
+      expect(useTabManagerStore.getState().tabs[0].lastSubTab).toBe('armor');
+    });
+
+    it('should return undefined for non-existent sub-tab', () => {
+      let tabId = '';
+      act(() => {
+        tabId = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0]);
+      });
+
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBeUndefined();
+    });
+
+    it('should return undefined for non-existent tab', () => {
+      expect(useTabManagerStore.getState().getLastSubTab('non-existent')).toBeUndefined();
+    });
+  });
+  
+  // ===========================================================================
   // Tab Manager Only Stores Tab Metadata
   // ===========================================================================
   describe('Tab Manager Data Separation', () => {

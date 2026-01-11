@@ -15,3 +15,6 @@ export type { TacticalHUDDiagramProps } from './TacticalHUDDiagram';
 
 export { PremiumMaterialDiagram } from './PremiumMaterialDiagram';
 export type { PremiumMaterialDiagramProps } from './PremiumMaterialDiagram';
+
+export { MegaMekDiagram } from './MegaMekDiagram';
+export type { MegaMekDiagramProps } from './MegaMekDiagram';

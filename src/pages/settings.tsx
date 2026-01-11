@@ -21,7 +21,8 @@ import {
   UITheme,
   ACCENT_COLOR_CSS,
 } from '@/stores/useAppSettingsStore';
-import { ArmorDiagramGridPreview } from '@/components/customizer/armor/ArmorDiagramPreview';
+import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
+import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
 
 /**
  * Settings section wrapper
@@ -301,18 +302,21 @@ export default function SettingsPage() {
     saveAppearance();
   }, [saveAppearance]);
 
+  const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
+
   // Revert on unmount if there are unsaved changes
   useEffect(() => {
     const handleRouteChange = () => {
       // Revert appearance changes when navigating away
       revertAppearance();
+      revertCustomizer();
     };
 
     router.events.on('routeChangeStart', handleRouteChange);
     return () => {
       router.events.off('routeChangeStart', handleRouteChange);
     };
-  }, [router.events, revertAppearance]);
+  }, [router.events, revertAppearance, revertCustomizer]);
 
   return (
     <>
@@ -420,16 +424,28 @@ export default function SettingsPage() {
             title="Customizer"
             description="Configure the mech customizer interface"
           >
+            {/* Armor Diagram Mode */}
             <div>
-              <div className="text-sm font-medium text-white mb-2">Armor Diagram Style</div>
-              <div className="text-xs text-slate-400 mb-4">
-                Choose the visual style for the armor allocation diagram. Changes apply immediately.
+              <div className="text-sm font-medium text-text-theme-primary mb-2">Armor Diagram Mode</div>
+              <div className="text-xs text-text-theme-secondary mb-3">
+                Choose between schematic grid or silhouette SVG display
               </div>
-              <ArmorDiagramGridPreview
-                selectedVariant={settings.armorDiagramVariant}
-                onSelectVariant={settings.setArmorDiagramVariant}
+              <ArmorDiagramModePreview
+                selectedMode={settings.armorDiagramMode}
+                onSelectMode={settings.setArmorDiagramMode}
               />
             </div>
+
+            {/* Armor Diagram Variant (only visible for silhouette mode) */}
+            {settings.armorDiagramMode === 'silhouette' && (
+              <div>
+                <div className="text-sm font-medium text-text-theme-primary mb-2">Silhouette Aesthetic</div>
+                <div className="text-xs text-text-theme-secondary mb-3">
+                  Visual style for the armor diagram
+                </div>
+                <ArmorDiagramSettings />
+              </div>
+            )}
 
             <Toggle
               label="Show Design Selector (UAT)"

@@ -13,7 +13,7 @@ import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  REALISTIC_SILHOUETTE,
+  BATTLEMECH_SILHOUETTE,
   LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
@@ -89,7 +89,7 @@ interface NeonLocationProps {
 
 // Calculate leg offset based on torso height expansion
 const TORSO_HEIGHT_MULTIPLIER = 1.4;
-const LEG_Y_OFFSET = REALISTIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_HEIGHT_MULTIPLIER - 1);
+const LEG_Y_OFFSET = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_HEIGHT_MULTIPLIER - 1);
 
 function isLegLocation(location: MechLocation): boolean {
   return location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
@@ -103,7 +103,7 @@ function NeonLocation({
   onClick,
   onHover,
 }: NeonLocationProps): React.ReactElement {
-  const basePos = REALISTIC_SILHOUETTE.locations[location];
+  const basePos = BATTLEMECH_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
 
@@ -403,8 +403,8 @@ export function NeonOperatorDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 300 480"
-          className="w-full max-w-[300px] mx-auto"
+          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -413,16 +413,16 @@ export function NeonOperatorDiagram({
           <rect
             x="0"
             y="0"
-            width="300"
-            height="440"
+            width="200"
+            height="280"
             fill="url(#armor-scanlines)"
             opacity="0.3"
           />
 
           {/* Wireframe outline */}
-          {REALISTIC_SILHOUETTE.outlinePath && (
+          {BATTLEMECH_SILHOUETTE.outlinePath && (
             <path
-              d={REALISTIC_SILHOUETTE.outlinePath}
+              d={BATTLEMECH_SILHOUETTE.outlinePath}
               fill="none"
               stroke="rgba(34, 211, 238, 0.2)"
               strokeWidth="1"
@@ -447,8 +447,8 @@ export function NeonOperatorDiagram({
           {hoveredLocation && (
             <g className="pointer-events-none">
               <circle
-                cx={getLocationCenter(REALISTIC_SILHOUETTE.locations[hoveredLocation]).x}
-                cy={getLocationCenter(REALISTIC_SILHOUETTE.locations[hoveredLocation]).y}
+                cx={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]).x}
+                cy={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]).y}
                 r={40}
                 fill="none"
                 stroke="rgba(34, 211, 238, 0.3)"

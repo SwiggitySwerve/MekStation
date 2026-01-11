@@ -64,6 +64,8 @@ describe('MultiUnitTabs', () => {
     closeNewTabModal: jest.fn(),
     getActiveTab: jest.fn(() => mockTab),
     setLoading: jest.fn(),
+    setLastSubTab: jest.fn(),
+    getLastSubTab: jest.fn(),
   };
 
   beforeEach(() => {

@@ -1,36 +1,32 @@
 /**
- * Clean Tech Armor Diagram
+ * MegaMek Armor Diagram
  *
- * Design Philosophy: Maximum readability and usability
- * - Realistic mech contour silhouette
- * - Solid gradient fills based on armor status
- * - Plain bold numbers for armor values
- * - Color + small text for capacity indication
- * - Stacked front/rear display
- * - Simple border highlight on interaction
+ * Design Philosophy: Authentic MegaMek record sheet appearance
+ * - Layered rendering: shadow → fill → outline for depth
+ * - Detailed mech silhouette with hand actuators and knee joints
+ * - Classic record sheet proportions and styling
+ * - Clean, professional appearance matching PDF output
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
+  MEGAMEK_SILHOUETTE,
   LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
-  GradientDefs,
   getArmorStatusColor,
   getTorsoFrontStatusColor,
   getTorsoRearStatusColor,
   lightenColor,
   SELECTED_COLOR,
-  SELECTED_STROKE,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
-interface CleanTechLocationProps {
+interface MegaMekLocationProps {
   location: MechLocation;
   data?: LocationArmorData;
   isSelected: boolean;
@@ -39,15 +35,15 @@ interface CleanTechLocationProps {
   onHover: (hovered: boolean) => void;
 }
 
-function CleanTechLocation({
+function MegaMekLocation({
   location,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: CleanTechLocationProps): React.ReactElement {
-  const pos = BATTLEMECH_SILHOUETTE.locations[location];
+}: MegaMekLocationProps): React.ReactElement {
+  const pos = MEGAMEK_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
   const center = getLocationCenter(pos);
   const showRear = hasTorsoRear(location);
@@ -58,7 +54,6 @@ function CleanTechLocation({
   const rearMax = data?.rearMaximum ?? 1;
 
   // Status-based colors for front and rear independently
-  // For torso locations, use expected capacity (75/25 split) as baseline
   const frontBaseColor = isSelected
     ? SELECTED_COLOR
     : showRear
@@ -68,17 +63,15 @@ function CleanTechLocation({
     ? SELECTED_COLOR
     : getTorsoRearStatusColor(rear, maximum);
 
-  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
-  const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
-  const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
-  const strokeWidth = isSelected ? 2.5 : 1;
+  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.1) : frontBaseColor;
+  const shadowColor = '#1a1a1a';
+  const outlineColor = isSelected ? '#fbbf24' : '#000000';
+  const outlineWidth = isSelected ? 2 : 1.2;
 
-  // Split positions for front/rear - adjusted for divider
-  const dividerHeight = showRear ? 2 : 0;
+  // Split heights for front/rear display
   const frontHeight = showRear ? pos.height * 0.65 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
+  const rearHeight = showRear ? pos.height * 0.35 : 0;
   const dividerY = pos.y + frontHeight;
-  const rearY = dividerY + dividerHeight;
 
   return (
     <g
@@ -99,17 +92,25 @@ function CleanTechLocation({
       onFocus={() => onHover(true)}
       onBlur={() => onHover(false)}
     >
-      {/* Front armor section */}
+      {/* Layer 1: Shadow (offset for depth) */}
+      {pos.path && (
+        <path
+          d={pos.path}
+          fill={shadowColor}
+          stroke="none"
+          className="pointer-events-none"
+          transform="translate(2, 2)"
+          opacity={0.3}
+        />
+      )}
+
+      {/* Layer 2: Fill */}
       {pos.path ? (
         <path
           d={pos.path}
           fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
+          stroke="none"
           className="transition-all duration-150"
-          style={{
-            clipPath: showRear ? `inset(0 0 ${rearHeight}px 0)` : undefined,
-          }}
         />
       ) : (
         <rect
@@ -117,29 +118,69 @@ function CleanTechLocation({
           y={pos.y}
           width={pos.width}
           height={frontHeight}
-          rx={6}
+          rx={4}
           fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
           className="transition-all duration-150"
         />
       )}
 
-      {/* Front armor value - large bold number */}
+      {/* Layer 3: Outline */}
+      {pos.path ? (
+        <path
+          d={pos.path}
+          fill="none"
+          stroke={outlineColor}
+          strokeWidth={outlineWidth}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          className="transition-all duration-150"
+        />
+      ) : (
+        <rect
+          x={pos.x}
+          y={pos.y}
+          width={pos.width}
+          height={frontHeight}
+          rx={4}
+          fill="none"
+          stroke={outlineColor}
+          strokeWidth={outlineWidth}
+        />
+      )}
+
+      {/* Detail lines for mechanical look */}
+      {/* Detail lines removed for cleaner MegaMek style */}
+
+      {/* Front armor section labels and values */}
       <text
         x={center.x}
-        y={pos.y + frontHeight / 2 + 5}
+        y={showRear ? pos.y + 14 : pos.y + 14}
+        textAnchor="middle"
+        className="fill-white/80 font-semibold pointer-events-none"
+        style={{
+          fontSize: showRear ? '9px' : '10px',
+          textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+        }}
+      >
+        {showRear ? `${label} FRONT` : label}
+      </text>
+
+      <text
+        x={center.x}
+        y={showRear ? pos.y + frontHeight / 2 + 8 : pos.y + pos.height / 2 + 10}
         textAnchor="middle"
         className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: pos.width < 40 ? '14px' : '18px' }}
+        style={{
+          fontSize: pos.width < 40 ? '16px' : '20px',
+          textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+        }}
       >
         {current}
       </text>
 
-      {/* Capacity text */}
       <text
         x={center.x}
-        y={pos.y + frontHeight / 2 + 18}
+        y={showRear ? pos.y + frontHeight / 2 + 22 : pos.y + pos.height / 2 + 24}
         textAnchor="middle"
         className="fill-white/60 pointer-events-none"
         style={{ fontSize: '9px' }}
@@ -147,53 +188,54 @@ function CleanTechLocation({
         / {maximum}
       </text>
 
-      {/* Location label */}
-      <text
-        x={center.x}
-        y={pos.y + 12}
-        textAnchor="middle"
-        className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: showRear ? '8px' : '10px' }}
-      >
-        {showRear ? `${label} FRONT` : label}
-      </text>
-
-      {/* Divider line between front and rear */}
-      {showRear && (
-        <line
-          x1={pos.x + 4}
-          y1={dividerY + 1}
-          x2={pos.x + pos.width - 4}
-          y2={dividerY + 1}
-          stroke="#334155"
-          strokeWidth={1}
-          strokeDasharray="3 2"
-          className="pointer-events-none"
-        />
-      )}
-
       {/* Rear armor section for torsos */}
       {showRear && (
         <>
+          {/* Rear divider line */}
+          <line
+            x1={pos.x + 8}
+            y1={dividerY}
+            x2={pos.x + pos.width - 8}
+            y2={dividerY}
+            stroke="#475569"
+            strokeWidth={1}
+            strokeDasharray="4 2"
+            className="pointer-events-none"
+          />
+
+          {/* Rear fill overlay */}
           <rect
             x={pos.x}
-            y={rearY}
+            y={dividerY}
             width={pos.width}
             height={rearHeight}
-            rx={6}
-            fill={rearFillColor}
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
+            rx={4}
+            fill={isHovered ? lightenColor(rearBaseColor, 0.1) : rearBaseColor}
             className="transition-all duration-150"
+          />
+
+          {/* Rear outline */}
+          <rect
+            x={pos.x}
+            y={dividerY}
+            width={pos.width}
+            height={rearHeight}
+            rx={4}
+            fill="none"
+            stroke={outlineColor}
+            strokeWidth={outlineWidth}
           />
 
           {/* Rear label */}
           <text
             x={center.x}
-            y={rearY + 11}
+            y={dividerY + 12}
             textAnchor="middle"
             className="fill-white/80 font-semibold pointer-events-none"
-            style={{ fontSize: '8px' }}
+            style={{
+              fontSize: '8px',
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+            }}
           >
             REAR
           </text>
@@ -201,10 +243,13 @@ function CleanTechLocation({
           {/* Rear armor value */}
           <text
             x={center.x}
-            y={rearY + rearHeight / 2 + 6}
+            y={dividerY + rearHeight / 2 + 8}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '14px' }}
+            style={{
+              fontSize: '16px',
+              textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+            }}
           >
             {rear}
           </text>
@@ -214,7 +259,7 @@ function CleanTechLocation({
   );
 }
 
-export interface CleanTechDiagramProps {
+export interface MegaMekDiagramProps {
   armorData: LocationArmorData[];
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
@@ -223,14 +268,14 @@ export interface CleanTechDiagramProps {
   className?: string;
 }
 
-export function CleanTechDiagram({
+export function MegaMekDiagram({
   armorData,
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
   onAutoAllocate,
   className = '',
-}: CleanTechDiagramProps): React.ReactElement {
+}: MegaMekDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
@@ -255,7 +300,7 @@ export function CleanTechDiagram({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
+          <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
           <ArmorDiagramQuickSettings />
         </div>
         {onAutoAllocate && (
@@ -264,7 +309,7 @@ export function CleanTechDiagram({
             className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
               isOverAllocated
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-accent hover:bg-accent text-white'
+                : 'bg-accent hover:bg-accent-hover text-white'
             }`}
           >
             Auto Allocate ({unallocatedPoints} pts)
@@ -275,25 +320,46 @@ export function CleanTechDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          viewBox={MEGAMEK_SILHOUETTE.viewBox}
           className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
-          <GradientDefs />
+          <defs>
+            {/* Grid pattern for background */}
+            <pattern id="megamek-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+              <path
+                d="M 10 0 L 0 0 0 10"
+                fill="none"
+                stroke="rgba(255,255,255,0.03)"
+                strokeWidth="0.5"
+              />
+            </pattern>
+          </defs>
 
-          {/* Background grid pattern */}
+          {/* Background */}
           <rect
             x="0"
             y="0"
             width="200"
-            height="280"
-            fill="url(#armor-grid)"
-            opacity="0.5"
+            height="320"
+            fill="url(#megamek-grid)"
           />
+
+          {/* Mech outline (faint wireframe) */}
+          {MEGAMEK_SILHOUETTE.outlinePath && (
+            <path
+              d={MEGAMEK_SILHOUETTE.outlinePath}
+              fill="none"
+              stroke="rgba(100, 116, 139, 0.15)"
+              strokeWidth="1"
+              strokeDasharray="6 3"
+              className="pointer-events-none"
+            />
+          )}
 
           {/* Render all locations */}
           {locations.map((loc) => (
-            <CleanTechLocation
+            <MegaMekLocation
               key={loc}
               location={loc}
               data={getArmorData(loc)}

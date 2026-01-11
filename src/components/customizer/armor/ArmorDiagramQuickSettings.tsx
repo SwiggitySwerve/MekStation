@@ -22,8 +22,11 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
   const popupRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
-  const setArmorDiagramVariant = useAppSettingsStore((s) => s.setArmorDiagramVariant);
+  // Use effective getter for draft preview support
+  const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
+  const armorDiagramVariant = getEffectiveArmorDiagramVariant();
+  // Use draft setter to update draft (not persisted value directly)
+  const setDraftArmorDiagramVariant = useAppSettingsStore((s) => s.setDraftArmorDiagramVariant);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -63,10 +66,11 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
     'neon-operator',
     'tactical-hud',
     'premium-material',
+    'megamek',
   ];
 
   const handleSelectVariant = (variant: ArmorDiagramVariant) => {
-    setArmorDiagramVariant(variant);
+    setDraftArmorDiagramVariant(variant);
     setIsOpen(false);
   };
 

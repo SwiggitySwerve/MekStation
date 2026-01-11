@@ -293,36 +293,29 @@ describe('useAppSettingsStore', () => {
       expect(result.current.uiTheme).toBe('default');
       expect(result.current.armorDiagramVariant).toBe('clean-tech');
 
-      // Change to neon theme - should auto-select neon-operator diagram
+      // Change to neon theme - armor diagram should NOT change (independent)
       act(() => {
         result.current.setUITheme('neon');
       });
       expect(result.current.uiTheme).toBe('neon');
-      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Unchanged
 
-      // Change to tactical theme - should auto-select tactical-hud diagram
+      // Change to tactical theme - armor diagram should still be unchanged
       act(() => {
         result.current.setUITheme('tactical');
       });
       expect(result.current.uiTheme).toBe('tactical');
-      expect(result.current.armorDiagramVariant).toBe('tactical-hud');
-
-      // Change to minimal theme - should auto-select premium-material diagram
-      act(() => {
-        result.current.setUITheme('minimal');
-      });
-      expect(result.current.uiTheme).toBe('minimal');
-      expect(result.current.armorDiagramVariant).toBe('premium-material');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Still unchanged
 
       // Change back to default
       act(() => {
         result.current.setUITheme('default');
       });
       expect(result.current.uiTheme).toBe('default');
-      expect(result.current.armorDiagramVariant).toBe('clean-tech');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Still unchanged
     });
 
-    it('should sync armorDiagramVariant during draft preview with setDraftUITheme', () => {
+    it('should NOT sync armorDiagramVariant during draft preview with setDraftUITheme', () => {
       const { result } = renderHook(() => useAppSettingsStore());
 
       // Initialize draft
@@ -330,62 +323,255 @@ describe('useAppSettingsStore', () => {
         result.current.initDraftAppearance();
       });
 
-      // Change draft theme to neon - should also update diagram variant
+      // Change draft theme to neon - armor diagram should NOT change
       act(() => {
         result.current.setDraftUITheme('neon');
       });
       expect(result.current.draftAppearance?.uiTheme).toBe('neon');
-      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Unchanged
 
-      // Change draft theme to tactical
+      // Change draft theme to tactical - armor diagram still unchanged
       act(() => {
         result.current.setDraftUITheme('tactical');
       });
       expect(result.current.draftAppearance?.uiTheme).toBe('tactical');
-      expect(result.current.armorDiagramVariant).toBe('tactical-hud');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Still unchanged
     });
 
-    it('should restore armorDiagramVariant when reverting appearance changes', () => {
+    it('should preserve armorDiagramVariant when reverting appearance changes', () => {
       const { result } = renderHook(() => useAppSettingsStore());
 
       // Verify initial state
       expect(result.current.uiTheme).toBe('default');
       expect(result.current.armorDiagramVariant).toBe('clean-tech');
 
+      // Change armor diagram variant independently
+      act(() => {
+        result.current.setArmorDiagramVariant('neon-operator');
+      });
+      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+
       // Initialize draft and change theme
       act(() => {
         result.current.initDraftAppearance();
-        result.current.setDraftUITheme('neon');
+        result.current.setDraftUITheme('tactical');
       });
 
-      // Diagram variant should have changed
+      // Diagram variant should still be neon-operator (unchanged by theme)
       expect(result.current.armorDiagramVariant).toBe('neon-operator');
 
-      // Revert - should restore diagram variant to match saved theme
+      // Revert - armor diagram variant should be preserved
       act(() => {
         result.current.revertAppearance();
       });
 
       expect(result.current.draftAppearance).toBeNull();
       expect(result.current.uiTheme).toBe('default'); // Saved theme unchanged
-      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Restored to match saved theme
+      expect(result.current.armorDiagramVariant).toBe('neon-operator'); // Preserved
     });
 
-    it('should allow independent armorDiagramVariant changes after theme sync', () => {
+    it('should allow fully independent armorDiagramVariant changes', () => {
       const { result } = renderHook(() => useAppSettingsStore());
 
-      // Set theme to neon (auto-syncs diagram)
+      // Set armor diagram to megamek
+      act(() => {
+        result.current.setArmorDiagramVariant('megamek');
+      });
+      expect(result.current.armorDiagramVariant).toBe('megamek');
+      expect(result.current.uiTheme).toBe('default'); // Theme unchanged
+
+      // Change theme - diagram should NOT change
       act(() => {
         result.current.setUITheme('neon');
       });
-      expect(result.current.armorDiagramVariant).toBe('neon-operator');
+      expect(result.current.armorDiagramVariant).toBe('megamek'); // Still megamek
+      expect(result.current.uiTheme).toBe('neon');
+    });
+  });
 
-      // Manually override to a different diagram variant
+  describe('Customizer draft/save system', () => {
+    it('should initialize draft with current values', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
       act(() => {
-        result.current.setArmorDiagramVariant('clean-tech');
+        result.current.initDraftCustomizer();
       });
-      expect(result.current.armorDiagramVariant).toBe('clean-tech');
-      expect(result.current.uiTheme).toBe('neon'); // Theme unchanged
+
+      expect(result.current.draftCustomizer).toEqual({
+        armorDiagramMode: 'silhouette',
+        armorDiagramVariant: 'clean-tech',
+      });
+      expect(result.current.hasUnsavedCustomizer).toBe(false);
+    });
+
+    it('should update draft without persisting', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramVariant('megamek');
+      });
+
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('megamek');
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Not persisted
+      expect(result.current.hasUnsavedCustomizer).toBe(true);
+    });
+
+    it('should persist on save', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramVariant('megamek');
+        result.current.saveCustomizer();
+      });
+
+      expect(result.current.armorDiagramVariant).toBe('megamek');
+      expect(result.current.hasUnsavedCustomizer).toBe(false);
+    });
+
+    it('should revert on revertCustomizer', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramVariant('megamek');
+        result.current.revertCustomizer();
+      });
+
+      expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Original
+      expect(result.current.draftCustomizer).toBeNull();
+    });
+
+    it('getEffectiveArmorDiagramVariant returns draft when present', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramVariant('tactical-hud');
+      });
+
+      expect(result.current.getEffectiveArmorDiagramVariant()).toBe('tactical-hud');
+    });
+
+    it('getEffectiveArmorDiagramVariant returns saved when no draft', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Set a saved value
+      act(() => {
+        result.current.setArmorDiagramVariant('neon-operator');
+      });
+
+      // Without initializing draft, should return saved value
+      expect(result.current.getEffectiveArmorDiagramVariant()).toBe('neon-operator');
+    });
+
+    it('should update draft armor diagram mode without persisting', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramMode('schematic');
+      });
+
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
+      expect(result.current.armorDiagramMode).toBe('silhouette'); // Not persisted
+      expect(result.current.hasUnsavedCustomizer).toBe(true);
+    });
+
+    it('getEffectiveArmorDiagramMode returns draft when present', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramMode('schematic');
+      });
+
+      expect(result.current.getEffectiveArmorDiagramMode()).toBe('schematic');
+    });
+
+    it('getEffectiveArmorDiagramMode returns saved when no draft', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Set a saved value
+      act(() => {
+        result.current.setArmorDiagramMode('schematic');
+      });
+
+      // Without initializing draft, should return saved value
+      expect(result.current.getEffectiveArmorDiagramMode()).toBe('schematic');
+    });
+
+    it('should preserve both mode and variant when setting only one', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramMode('schematic');
+      });
+
+      // Variant should be preserved from initial state
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('clean-tech');
+
+      act(() => {
+        result.current.setDraftArmorDiagramVariant('megamek');
+      });
+
+      // Mode should be preserved from draft
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('megamek');
+    });
+
+    it('should save both mode and variant together', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramMode('schematic');
+        result.current.setDraftArmorDiagramVariant('megamek');
+        result.current.saveCustomizer();
+      });
+
+      expect(result.current.armorDiagramMode).toBe('schematic');
+      expect(result.current.armorDiagramVariant).toBe('megamek');
+      expect(result.current.hasUnsavedCustomizer).toBe(false);
+    });
+
+    it('should reset draft customizer state on resetToDefaults', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      act(() => {
+        result.current.initDraftCustomizer();
+        result.current.setDraftArmorDiagramVariant('megamek');
+      });
+
+      expect(result.current.draftCustomizer).not.toBeNull();
+      expect(result.current.hasUnsavedCustomizer).toBe(true);
+
+      act(() => {
+        result.current.resetToDefaults();
+      });
+
+      expect(result.current.draftCustomizer).toBeNull();
+      expect(result.current.hasUnsavedCustomizer).toBe(false);
+    });
+
+    it('saveCustomizer should do nothing when draftCustomizer is null', () => {
+      const { result } = renderHook(() => useAppSettingsStore());
+
+      // Set a custom value first
+      act(() => {
+        result.current.setArmorDiagramVariant('megamek');
+      });
+
+      // Call saveCustomizer without initializing draft
+      act(() => {
+        result.current.saveCustomizer();
+      });
+
+      // Should not change anything
+      expect(result.current.armorDiagramVariant).toBe('megamek');
     });
   });
 });
