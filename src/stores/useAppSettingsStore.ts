@@ -9,6 +9,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 /**
+ * Armor diagram display mode
+ */
+export type ArmorDiagramMode = 'schematic' | 'silhouette';
+
+/**
  * Armor diagram design variants
  */
 export type ArmorDiagramVariant =
@@ -81,6 +86,7 @@ export interface AppSettingsState {
   hasUnsavedAppearance: boolean;
 
   // Customizer preferences
+  armorDiagramMode: ArmorDiagramMode;
   armorDiagramVariant: ArmorDiagramVariant;
   showArmorDiagramSelector: boolean; // UAT feature flag
 
@@ -116,6 +122,7 @@ export interface AppSettingsState {
   getEffectiveFontSize: () => FontSize;
 
   // Other actions
+  setArmorDiagramMode: (mode: ArmorDiagramMode) => void;
   setArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
   setShowArmorDiagramSelector: (show: boolean) => void;
   setSidebarDefaultCollapsed: (collapsed: boolean) => void;
@@ -132,7 +139,7 @@ type ActionKeys =
   | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
   | 'saveAppearance' | 'revertAppearance' | 'initDraftAppearance'
   | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
-  | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
+  | 'setArmorDiagramMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
   | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults';
 
 const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
@@ -148,6 +155,7 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   hasUnsavedAppearance: false,
 
   // Customizer preferences
+  armorDiagramMode: 'silhouette',
   armorDiagramVariant: 'clean-tech',
   showArmorDiagramSelector: true, // Enable UAT selector by default
 
@@ -305,6 +313,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       },
 
       // Other settings (immediately persisted)
+      setArmorDiagramMode: (mode) => set({ armorDiagramMode: mode }),
       setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
       setShowArmorDiagramSelector: (show) => set({ showArmorDiagramSelector: show }),
       setSidebarDefaultCollapsed: (collapsed) => set({ sidebarDefaultCollapsed: collapsed }),
@@ -328,6 +337,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         animationLevel: state.animationLevel,
         compactMode: state.compactMode,
         uiTheme: state.uiTheme,
+        armorDiagramMode: state.armorDiagramMode,
         armorDiagramVariant: state.armorDiagramVariant,
         showArmorDiagramSelector: state.showArmorDiagramSelector,
         sidebarDefaultCollapsed: state.sidebarDefaultCollapsed,
