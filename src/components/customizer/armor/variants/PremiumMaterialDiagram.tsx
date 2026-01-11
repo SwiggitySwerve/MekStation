@@ -493,18 +493,18 @@ export function PremiumMaterialDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 320 520"
-          className="w-full max-w-[320px] mx-auto"
+          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
 
           {/* Ambient glow behind mech */}
           <ellipse
-            cx="160"
-            cy="200"
-            rx="120"
-            ry="160"
+            cx="100"
+            cy="140"
+            rx="80"
+            ry="110"
             fill="url(#armor-gradient-selected)"
             opacity="0.03"
           />

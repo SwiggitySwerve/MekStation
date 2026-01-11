@@ -213,209 +213,204 @@ export const REALISTIC_SILHOUETTE: SilhouetteConfig = {
 };
 
 /**
- * BattleMech-style silhouette with iconic mech features
- * Inspired by classic designs: broad shoulders, cockpit visor, weapon pods
+ * BattleMech-style silhouette with proper MegaMek-like proportions
+ * Based on classic record sheet armor diagram layout
  */
 export const BATTLEMECH_SILHOUETTE: SilhouetteConfig = {
-  viewBox: '0 0 320 420',
+  viewBox: '0 0 200 280',
   locations: {
     [MechLocation.HEAD]: {
-      x: 125,
+      x: 75,
       y: 0,
-      width: 70,
-      height: 50,
-      // Angular cockpit with visor and sensor dome
+      width: 50,
+      height: 32,
+      // Cockpit-style head
       path: `
-        M 145 0
-        L 175 0
-        L 185 8
-        L 190 25
-        L 185 40
-        L 175 50
-        L 145 50
-        L 135 40
-        L 130 25
-        L 135 8
-        Z
-        M 140 18
-        L 180 18
-        L 180 35
-        L 140 35
+        M 82 2
+        L 118 2
+        L 122 8
+        L 122 26
+        L 118 32
+        L 82 32
+        L 78 26
+        L 78 8
         Z
       `,
     },
     [MechLocation.CENTER_TORSO]: {
-      x: 110,
-      y: 55,
-      width: 100,
-      height: 120,
-      // Broad armored chest with reactor housing
+      x: 72,
+      y: 36,
+      width: 56,
+      height: 80,
+      // Central torso - reactor housing
       path: `
-        M 120 55
-        L 200 55
-        L 210 70
-        L 210 145
-        L 200 165
-        L 185 175
-        L 135 175
-        L 120 165
-        L 110 145
-        L 110 70
+        M 76 36
+        L 124 36
+        L 128 44
+        L 128 108
+        L 124 116
+        L 76 116
+        L 72 108
+        L 72 44
         Z
       `,
     },
     [MechLocation.LEFT_TORSO]: {
-      x: 20,
-      y: 55,
-      width: 85,
-      height: 115,
-      // Left shoulder pod with missile rack styling
+      x: 30,
+      y: 38,
+      width: 40,
+      height: 78,
+      // Left side torso
       path: `
-        M 40 55
-        L 105 55
-        L 105 160
-        L 90 175
-        L 40 175
-        L 20 155
-        L 20 75
+        M 34 42
+        L 70 38
+        L 70 116
+        L 58 116
+        L 34 112
+        L 30 104
+        L 30 50
         Z
       `,
     },
     [MechLocation.RIGHT_TORSO]: {
-      x: 215,
-      y: 55,
-      width: 85,
-      height: 115,
-      // Right shoulder pod mirrored
+      x: 130,
+      y: 38,
+      width: 40,
+      height: 78,
+      // Right side torso (mirrored)
       path: `
-        M 280 55
-        L 215 55
-        L 215 160
-        L 230 175
-        L 280 175
-        L 300 155
-        L 300 75
+        M 166 42
+        L 130 38
+        L 130 116
+        L 142 116
+        L 166 112
+        L 170 104
+        L 170 50
         Z
       `,
     },
     [MechLocation.LEFT_ARM]: {
-      x: 0,
-      y: 70,
-      width: 35,
-      height: 165,
-      // Weapon arm with actuator joints
+      x: 2,
+      y: 42,
+      width: 26,
+      height: 100,
+      // Left arm with actuator segments
       path: `
-        M 10 70
-        L 35 80
-        L 35 130
-        L 30 140
-        L 30 200
-        L 25 215
-        L 20 235
-        L 5 235
-        L 0 215
-        L 0 90
+        M 8 46
+        L 26 42
+        L 26 68
+        L 22 74
+        L 22 84
+        L 26 90
+        L 26 130
+        L 22 138
+        L 14 142
+        L 8 142
+        L 2 134
+        L 2 54
         Z
       `,
     },
     [MechLocation.RIGHT_ARM]: {
-      x: 285,
-      y: 70,
-      width: 35,
-      height: 165,
-      // Mirrored weapon arm
+      x: 172,
+      y: 42,
+      width: 26,
+      height: 100,
+      // Right arm (mirrored)
       path: `
-        M 310 70
-        L 285 80
-        L 285 130
-        L 290 140
-        L 290 200
-        L 295 215
-        L 300 235
-        L 315 235
-        L 320 215
-        L 320 90
+        M 192 46
+        L 174 42
+        L 174 68
+        L 178 74
+        L 178 84
+        L 174 90
+        L 174 130
+        L 178 138
+        L 186 142
+        L 192 142
+        L 198 134
+        L 198 54
         Z
       `,
     },
     [MechLocation.LEFT_LEG]: {
-      x: 55,
-      y: 180,
-      width: 70,
-      height: 180,
-      // Heavy leg with armored thigh and foot pad
+      x: 42,
+      y: 120,
+      width: 46,
+      height: 110,
+      // Left leg with knee joint
       path: `
-        M 65 180
-        L 120 180
-        L 125 200
-        L 120 260
-        L 115 280
-        L 115 340
-        L 125 360
-        L 120 375
-        L 60 375
-        L 55 360
-        L 65 340
-        L 65 280
-        L 60 260
-        L 55 200
+        M 46 120
+        L 84 120
+        L 88 132
+        L 86 168
+        L 82 178
+        L 82 212
+        L 88 224
+        L 84 232
+        L 46 232
+        L 42 224
+        L 48 212
+        L 48 178
+        L 44 168
+        L 42 132
         Z
       `,
     },
     [MechLocation.RIGHT_LEG]: {
-      x: 195,
-      y: 180,
-      width: 70,
-      height: 180,
-      // Mirrored right leg
+      x: 112,
+      y: 120,
+      width: 46,
+      height: 110,
+      // Right leg (mirrored)
       path: `
-        M 255 180
-        L 200 180
-        L 195 200
-        L 200 260
-        L 205 280
-        L 205 340
-        L 195 360
-        L 200 375
-        L 260 375
-        L 265 360
-        L 255 340
-        L 255 280
-        L 260 260
-        L 265 200
+        M 154 120
+        L 116 120
+        L 112 132
+        L 114 168
+        L 118 178
+        L 118 212
+        L 112 224
+        L 116 232
+        L 154 232
+        L 158 224
+        L 152 212
+        L 152 178
+        L 156 168
+        L 158 132
         Z
       `,
     },
   },
   outlinePath: `
-    M 160 0
-    C 145 0, 130 8, 130 25
-    L 130 45
-    L 105 55
-    L 40 55
-    L 20 75
-    L 0 90
-    L 0 235
-    L 30 235
-    L 35 180
-    L 55 180
-    L 55 375
-    L 125 375
-    L 125 180
-    L 195 180
-    L 195 375
-    L 265 375
-    L 265 180
-    L 285 180
-    L 290 235
-    L 320 235
-    L 320 90
-    L 300 75
-    L 280 55
-    L 215 55
-    L 190 45
-    L 190 25
-    C 190 8, 175 0, 160 0
+    M 100 0
+    C 85 0, 78 4, 78 12
+    L 78 32
+    L 70 36
+    L 30 42
+    L 26 42
+    L 2 54
+    L 2 142
+    L 26 142
+    L 30 120
+    L 42 120
+    L 42 232
+    L 88 232
+    L 88 120
+    L 112 120
+    L 112 232
+    L 158 232
+    L 158 120
+    L 170 120
+    L 174 142
+    L 198 142
+    L 198 54
+    L 174 42
+    L 170 42
+    L 130 36
+    L 122 32
+    L 122 12
+    C 122 4, 115 0, 100 0
     Z
   `,
 };

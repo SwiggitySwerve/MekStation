@@ -403,8 +403,8 @@ export function NeonOperatorDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox="0 0 320 520"
-          className="w-full max-w-[320px] mx-auto"
+          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -413,8 +413,8 @@ export function NeonOperatorDiagram({
           <rect
             x="0"
             y="0"
-            width="320"
-            height="520"
+            width="200"
+            height="280"
             fill="url(#armor-scanlines)"
             opacity="0.3"
           />
