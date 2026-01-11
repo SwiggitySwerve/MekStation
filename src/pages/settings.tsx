@@ -218,7 +218,7 @@ function UIThemePicker({
   value: UITheme;
   onChange: (theme: UITheme) => void;
 }) {
-  const themes: UITheme[] = ['default', 'neon', 'tactical', 'minimal'];
+  const themes: UITheme[] = ['default', 'minimal', 'neon', 'tactical'];
 
   return (
     <div>
