@@ -65,11 +65,11 @@ function createMegaMekLabUnit(overrides: Partial<MegaMekLabUnit> = {}): MegaMekL
       { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-'] },
       { location: 'Left Leg', slots: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-'] },
       { location: 'Right Leg', slots: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-'] },
-      { location: 'Left Arm', slots: Array(12).fill('-Empty-') },
-      { location: 'Right Arm', slots: Array(12).fill('-Empty-') },
-      { location: 'Left Torso', slots: Array(12).fill('-Empty-') },
-      { location: 'Right Torso', slots: Array(12).fill('-Empty-') },
-      { location: 'Center Torso', slots: Array(12).fill('-Empty-') },
+      { location: 'Left Arm', slots: Array<string>(12).fill('-Empty-') },
+      { location: 'Right Arm', slots: Array<string>(12).fill('-Empty-') },
+      { location: 'Left Torso', slots: Array<string>(12).fill('-Empty-') },
+      { location: 'Right Torso', slots: Array<string>(12).fill('-Empty-') },
+      { location: 'Center Torso', slots: Array<string>(12).fill('-Empty-') },
     ],
     ...overrides,
   };
@@ -228,8 +228,10 @@ describe('UnitFormatConverter', () => {
 
     it('should handle numeric walk/jump MP', () => {
       const source = createMegaMekLabUnit({
-        walk_mp: 4 as unknown as string,
-        jump_mp: 2 as unknown as string,
+        // @ts-expect-error - testing with numeric values as source data can be numbers
+        walk_mp: 4,
+        // @ts-expect-error - testing with numeric values as source data can be numbers
+        jump_mp: 2,
       });
 
       const result = converter.convert(source);
@@ -427,7 +429,8 @@ describe('UnitFormatConverter', () => {
     });
 
     it('should handle conversion errors gracefully', () => {
-      const source = null as unknown as MegaMekLabUnit;
+      // @ts-expect-error - testing with null to validate error handling
+      const source: MegaMekLabUnit = null;
 
       const result = converter.convert(source);
 
@@ -453,9 +456,10 @@ describe('UnitFormatConverter', () => {
     });
 
     it('should track successful and failed conversions', () => {
-      const units = [
+      const units: MegaMekLabUnit[] = [
         createMegaMekLabUnit(),
-        null as unknown as MegaMekLabUnit, // Will fail
+        // @ts-expect-error - testing with null to validate error handling
+        null, // Will fail
         createMegaMekLabUnit(),
       ];
 

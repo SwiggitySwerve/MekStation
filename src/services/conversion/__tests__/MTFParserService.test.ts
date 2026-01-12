@@ -104,7 +104,8 @@ era:2755
     });
 
     it('should handle parse exceptions', () => {
-      const mtf = null as unknown as string;
+      // @ts-expect-error - testing with null to validate error handling
+      const mtf: string = null;
 
       const result = service.parse(mtf);
 

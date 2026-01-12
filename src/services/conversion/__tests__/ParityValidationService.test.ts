@@ -57,7 +57,8 @@ describe('ParityValidationService', () => {
 
     // Get fresh service instance
     // Note: Using type assertion to access private static for testing
-    (ParityValidationService as unknown as { instance: null }).instance = null;
+    // @ts-expect-error - accessing private static for testing
+    ParityValidationService.instance = null;
     service = getParityValidationService();
   });
 
@@ -342,10 +343,11 @@ techbase:Mixed`;
     it('should validate all MTF files in directory', async () => {
       // Setup mock directory structure
       mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readdirSync.mockReturnValue([
-        { name: 'Atlas_AS7-D.mtf', isDirectory: () => false },
-        { name: 'Locust_LCT-1V.mtf', isDirectory: () => false },
-      ] as unknown as fs.Dirent[]);
+      const mockDirents: fs.Dirent[] = [
+        { name: 'Atlas_AS7-D.mtf', isDirectory: () => false } as fs.Dirent,
+        { name: 'Locust_LCT-1V.mtf', isDirectory: () => false } as fs.Dirent,
+      ];
+      mockedFs.readdirSync.mockReturnValue(mockDirents);
 
       mockedFs.readFileSync.mockReturnValue('chassis:Test\nmodel:T-1');
       mockedFs.mkdirSync.mockReturnValue(undefined);
@@ -371,9 +373,10 @@ techbase:Mixed`;
 
     it('should call progress callback', async () => {
       mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readdirSync.mockReturnValue([
-        { name: 'Atlas.mtf', isDirectory: () => false },
-      ] as unknown as fs.Dirent[]);
+      const mockDirents: fs.Dirent[] = [
+        { name: 'Atlas.mtf', isDirectory: () => false } as fs.Dirent,
+      ];
+      mockedFs.readdirSync.mockReturnValue(mockDirents);
 
       mockedFs.readFileSync.mockReturnValue('chassis:Atlas\nmodel:AS7-D');
       mockedFs.mkdirSync.mockReturnValue(undefined);
@@ -400,10 +403,11 @@ techbase:Mixed`;
 
     it('should apply unit filter', async () => {
       mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readdirSync.mockReturnValue([
-        { name: 'Atlas.mtf', isDirectory: () => false },
-        { name: 'Locust.mtf', isDirectory: () => false },
-      ] as unknown as fs.Dirent[]);
+      const mockDirents: fs.Dirent[] = [
+        { name: 'Atlas.mtf', isDirectory: () => false } as fs.Dirent,
+        { name: 'Locust.mtf', isDirectory: () => false } as fs.Dirent,
+      ];
+      mockedFs.readdirSync.mockReturnValue(mockDirents);
 
       mockedFs.readFileSync.mockReturnValue('chassis:Test\nmodel:T-1');
       mockedFs.mkdirSync.mockReturnValue(undefined);
@@ -429,11 +433,12 @@ techbase:Mixed`;
 
     it('should calculate summary correctly', async () => {
       mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readdirSync.mockReturnValue([
-        { name: 'passed.mtf', isDirectory: () => false },
-        { name: 'issues.mtf', isDirectory: () => false },
-        { name: 'error.mtf', isDirectory: () => false },
-      ] as unknown as fs.Dirent[]);
+      const mockDirents: fs.Dirent[] = [
+        { name: 'passed.mtf', isDirectory: () => false } as fs.Dirent,
+        { name: 'issues.mtf', isDirectory: () => false } as fs.Dirent,
+        { name: 'error.mtf', isDirectory: () => false } as fs.Dirent,
+      ];
+      mockedFs.readdirSync.mockReturnValue(mockDirents);
 
       let callCount = 0;
       mockedFs.readFileSync.mockImplementation(() => {

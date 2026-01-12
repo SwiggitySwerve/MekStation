@@ -6,12 +6,16 @@
  * @spec openspec/specs/mtf-parity-validation/spec.md
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import { ParityReportWriter, getParityReportWriter } from '@/services/conversion/ParityReportWriter';
 import {
   IUnitValidationResult,
   IValidationSummary,
   IValidationManifest,
-  IManifestEntry,
   IUnitIssueReport,
   DiscrepancyCategory,
 } from '@/services/conversion/types/ParityValidation';

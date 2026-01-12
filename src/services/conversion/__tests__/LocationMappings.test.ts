@@ -227,9 +227,9 @@ describe('LocationMappings', () => {
         { location: 'Right Leg', slots: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-'] },
         { location: 'Left Arm', slots: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-'] },
         { location: 'Right Arm', slots: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-'] },
-        { location: 'Left Torso', slots: Array(12).fill('-Empty-') },
-        { location: 'Right Torso', slots: Array(12).fill('-Empty-') },
-        { location: 'Center Torso', slots: Array(12).fill('-Empty-') },
+        { location: 'Left Torso', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Right Torso', slots: Array<string>(12).fill('-Empty-') },
+        { location: 'Center Torso', slots: Array<string>(12).fill('-Empty-') },
       ];
 
       const result = parseCriticalSlots(entries);
@@ -247,28 +247,28 @@ describe('LocationMappings', () => {
 
     it('should parse combined format (single entry with all slots)', () => {
       // Simulates MegaMekLab combined format: 96 slots (8 locations × 12 slots padded)
-      const allSlots = [
+      const allSlots: string[] = [
         // Head (6 actual, padded to 12)
         'Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-',
-        ...Array(6).fill('-Empty-'),
+        ...Array<string>(6).fill('-Empty-'),
         // Left Leg (6 actual, padded to 12)
         'Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-',
-        ...Array(6).fill('-Empty-'),
+        ...Array<string>(6).fill('-Empty-'),
         // Right Leg
         'Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-',
-        ...Array(6).fill('-Empty-'),
+        ...Array<string>(6).fill('-Empty-'),
         // Left Arm (12)
         'Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator',
-        ...Array(8).fill('-Empty-'),
+        ...Array<string>(8).fill('-Empty-'),
         // Right Arm (12)
         'Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator',
-        ...Array(8).fill('-Empty-'),
+        ...Array<string>(8).fill('-Empty-'),
         // Left Torso (12)
-        ...Array(12).fill('-Empty-'),
+        ...Array<string>(12).fill('-Empty-'),
         // Right Torso (12)
-        ...Array(12).fill('-Empty-'),
+        ...Array<string>(12).fill('-Empty-'),
         // Center Torso (12)
-        ...Array(12).fill('-Empty-'),
+        ...Array<string>(12).fill('-Empty-'),
       ];
 
       const entries: SourceCriticalEntry[] = [

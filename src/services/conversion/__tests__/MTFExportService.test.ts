@@ -117,7 +117,7 @@ describe('MTFExportService', () => {
 
     it('should include mul id if present', () => {
       const unit = createMinimalUnit() as ISerializedUnit & { mulId: number };
-      (unit as any).mulId = 12345;
+      unit.mulId = 12345;
       const result = service.export(unit);
 
       expect(result.content).toContain('mul id:12345');
@@ -125,7 +125,7 @@ describe('MTFExportService', () => {
 
     it('should include role if present', () => {
       const unit = createMinimalUnit() as ISerializedUnit & { role: string };
-      (unit as any).role = 'Brawler';
+      unit.role = 'Brawler';
       const result = service.export(unit);
 
       expect(result.content).toContain('role:Brawler');
@@ -133,7 +133,7 @@ describe('MTFExportService', () => {
 
     it('should include source if present', () => {
       const unit = createMinimalUnit() as ISerializedUnit & { source: string };
-      (unit as any).source = 'TRO:3025';
+      unit.source = 'TRO:3025';
       const result = service.export(unit);
 
       expect(result.content).toContain('source:TRO:3025');
@@ -170,7 +170,8 @@ describe('MTFExportService', () => {
 
     it('should handle export errors gracefully', () => {
       // Create a unit with problematic data that might cause an error
-      const badUnit = null as any;
+      // @ts-expect-error - testing with null to validate error handling
+      const badUnit: ISerializedUnit = null;
       const result = service.export(badUnit);
 
       expect(result.success).toBe(false);
@@ -814,8 +815,9 @@ describe('MTFExportService', () => {
     });
 
     it('should handle equipment with unknown location names', () => {
+      const customLocation: string = 'CUSTOM_LOCATION';
       const unit = createMinimalUnit({
-        equipment: [{ id: 'medium-laser', location: 'CUSTOM_LOCATION' as any }],
+        equipment: [{ id: 'medium-laser', location: customLocation }],
       });
       const result = service.export(unit);
 
@@ -966,7 +968,7 @@ describe('MTFExportService', () => {
           HEAD: ['Sensors'],
           LEFT_ARM: ['Shoulder'],
           // Missing RIGHT_ARM, LEFT_TORSO, RIGHT_TORSO, CENTER_TORSO, LEFT_LEG, RIGHT_LEG
-        } as any,
+        } as Partial<Record<string, (string | null)[]>>,
       });
       const result = service.export(unit);
 
@@ -976,17 +978,17 @@ describe('MTFExportService', () => {
     });
 
     it('should handle exactly 12 slots without adding padding', () => {
-      const fullSlots = Array(12).fill('Equipment');
+      const fullSlots: (string | null)[] = Array<string>(12).fill('Equipment');
       const unit = createMinimalUnit({
         criticalSlots: {
-          HEAD: [],
+          HEAD: [] as (string | null)[],
           LEFT_ARM: fullSlots,
-          RIGHT_ARM: [],
-          LEFT_TORSO: [],
-          RIGHT_TORSO: [],
-          CENTER_TORSO: [],
-          LEFT_LEG: [],
-          RIGHT_LEG: [],
+          RIGHT_ARM: [] as (string | null)[],
+          LEFT_TORSO: [] as (string | null)[],
+          RIGHT_TORSO: [] as (string | null)[],
+          CENTER_TORSO: [] as (string | null)[],
+          LEFT_LEG: [] as (string | null)[],
+          RIGHT_LEG: [] as (string | null)[],
         },
       });
       const result = service.export(unit);
@@ -1024,8 +1026,8 @@ describe('MTFExportService', () => {
     });
 
     it('should omit quirks section when undefined', () => {
-      const unit = createMinimalUnit();
-      delete (unit as any).quirks;
+      const unit = createMinimalUnit() as ISerializedUnit & { quirks?: string[] };
+      delete unit.quirks;
       const result = service.export(unit);
 
       expect(result.content).not.toContain('quirk:');
@@ -1150,8 +1152,8 @@ describe('MTFExportService', () => {
     });
 
     it('should omit fluff section when undefined', () => {
-      const unit = createMinimalUnit();
-      delete (unit as any).fluff;
+      const unit = createMinimalUnit() as ISerializedUnit & { fluff?: ISerializedFluff };
+      delete unit.fluff;
       const result = service.export(unit);
 
       expect(result.content).not.toContain('overview:');

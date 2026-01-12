@@ -75,14 +75,14 @@ function createValidSerializedUnit(overrides: Partial<ISerializedUnit> = {}): IS
       { id: 'medium-laser', location: 'LEFT_ARM' },
     ],
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', null],
-      CENTER_TORSO: Array(12).fill(null),
-      LEFT_TORSO: Array(12).fill(null),
-      RIGHT_TORSO: Array(12).fill(null),
-      LEFT_ARM: Array(12).fill(null),
-      RIGHT_ARM: Array(12).fill(null),
-      LEFT_LEG: Array(6).fill(null),
-      RIGHT_LEG: Array(6).fill(null),
+      HEAD: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', null] as (string | null)[],
+      CENTER_TORSO: Array<string | null>(12).fill(null),
+      LEFT_TORSO: Array<string | null>(12).fill(null),
+      RIGHT_TORSO: Array<string | null>(12).fill(null),
+      LEFT_ARM: Array<string | null>(12).fill(null),
+      RIGHT_ARM: Array<string | null>(12).fill(null),
+      LEFT_LEG: Array<string | null>(6).fill(null),
+      RIGHT_LEG: Array<string | null>(6).fill(null),
     },
     ...overrides,
   } as ISerializedUnit;
@@ -93,7 +93,8 @@ describe('MTFImportService', () => {
 
   beforeEach(() => {
     // Reset singleton
-    (MTFImportService as unknown as { instance: null }).instance = null;
+    // @ts-expect-error - accessing private static for testing
+    MTFImportService.instance = null;
     service = getMTFImportService();
   });
 
@@ -134,7 +135,8 @@ describe('MTFImportService', () => {
     });
 
     it('should report missing required fields', () => {
-      const unit = createValidSerializedUnit({ id: undefined as unknown as string });
+      // @ts-expect-error - testing with undefined id to validate error handling
+      const unit = createValidSerializedUnit({ id: undefined });
       const result = service.importFromJSON(unit);
 
       expect(result.errors.some(e => e.includes('id'))).toBe(true);
@@ -210,7 +212,7 @@ describe('MTFImportService', () => {
     it('should validate critical slot counts', () => {
       const unit = createValidSerializedUnit({
         criticalSlots: {
-          HEAD: Array(10).fill(null), // Should be 6
+          HEAD: Array<string | null>(10).fill(null), // Should be 6
         },
       });
 
@@ -222,7 +224,7 @@ describe('MTFImportService', () => {
     it('should not validate critical slots when disabled', () => {
       const unit = createValidSerializedUnit({
         criticalSlots: {
-          HEAD: Array(10).fill(null),
+          HEAD: Array<string | null>(10).fill(null),
         },
       });
 
@@ -232,7 +234,8 @@ describe('MTFImportService', () => {
     });
 
     it('should fail in strict mode with required field errors', () => {
-      const unit = createValidSerializedUnit({ id: undefined as unknown as string });
+      // @ts-expect-error - testing with undefined id to validate error handling
+      const unit = createValidSerializedUnit({ id: undefined });
 
       const result = service.importFromJSON(unit, { strictMode: true });
 
