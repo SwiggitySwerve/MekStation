@@ -20,6 +20,10 @@ import {
   LAMStructureArmorRule,
   LAMLandingGearRule,
   LAMAvionicsRule,
+  TripodCenterLegRule,
+  TripodLegEquipmentRule,
+  TripodTotalSlotsRule,
+  TripodLegArmorBalanceRule,
   getConfigurationValidationRules,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -492,10 +496,220 @@ describe('ConfigurationValidationRules', () => {
     });
   });
 
+  // ============================================================================
+  // TRIPOD VALIDATION RULES
+  // ============================================================================
+
+  describe('TripodCenterLegRule', () => {
+    it('should pass when tripod has center leg in armor allocation', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        armorAllocation: {
+          [MechLocation.CENTER_LEG]: 30,
+          [MechLocation.LEFT_LEG]: 30,
+          [MechLocation.RIGHT_LEG]: 30,
+        },
+      });
+
+      const result = TripodCenterLegRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when tripod has center leg in critical slots', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.CENTER_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator'],
+        },
+      });
+
+      const result = TripodCenterLegRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when tripod is missing center leg location', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        armorAllocation: {
+          [MechLocation.LEFT_LEG]: 30,
+          [MechLocation.RIGHT_LEG]: 30,
+        },
+        criticalSlots: {
+          [MechLocation.LEFT_LEG]: ['Hip', 'Upper Leg Actuator'],
+          [MechLocation.RIGHT_LEG]: ['Hip', 'Upper Leg Actuator'],
+        },
+      });
+
+      const result = TripodCenterLegRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors[0].message).toContain('Center Leg');
+    });
+
+    it('should only apply to tripod mechs', () => {
+      expect(
+        TripodCenterLegRule.canValidate?.(createContext({ configuration: 'Biped' }))
+      ).toBe(false);
+      expect(
+        TripodCenterLegRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('TripodLegEquipmentRule', () => {
+    it('should pass when no leg-spanning equipment is present', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.LEFT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+          [MechLocation.RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+          [MechLocation.CENTER_LEG]: ['Hip', 'Upper Leg Actuator', null],
+        },
+      });
+
+      const result = TripodLegEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when tracks are in all three legs', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.LEFT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.RIGHT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.CENTER_LEG]: ['Hip', 'Tracks', null],
+        },
+      });
+
+      const result = TripodLegEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when tracks are only in some legs', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.LEFT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.RIGHT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.CENTER_LEG]: ['Hip', null, null],
+        },
+      });
+
+      const result = TripodLegEquipmentRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors[0].message).toContain('Tracks');
+      expect(result.errors[0].message).toContain('all three legs');
+    });
+
+    it('should fail when talons are only in some legs', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.LEFT_LEG]: ['Hip', 'Talons', null],
+          [MechLocation.RIGHT_LEG]: ['Hip', null, null],
+          [MechLocation.CENTER_LEG]: ['Hip', null, null],
+        },
+      });
+
+      const result = TripodLegEquipmentRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors[0].message).toContain('Talons');
+    });
+
+    it('should only apply to tripod mechs', () => {
+      expect(
+        TripodLegEquipmentRule.canValidate?.(createContext({ configuration: 'Biped' }))
+      ).toBe(false);
+      expect(
+        TripodLegEquipmentRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('TripodTotalSlotsRule', () => {
+    it('should pass when within slot limit', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        criticalSlots: {
+          [MechLocation.HEAD]: ['Life Support', 'Sensors', null, null, null, null],
+          [MechLocation.CENTER_TORSO]: ['Engine', 'Engine', null, null, null, null],
+        },
+      });
+
+      const result = TripodTotalSlotsRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should only apply to tripod mechs', () => {
+      expect(
+        TripodTotalSlotsRule.canValidate?.(createContext({ configuration: 'Biped' }))
+      ).toBe(false);
+      expect(
+        TripodTotalSlotsRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('TripodLegArmorBalanceRule', () => {
+    it('should pass when leg armor is balanced', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        armorAllocation: {
+          [MechLocation.LEFT_LEG]: 30,
+          [MechLocation.RIGHT_LEG]: 30,
+          [MechLocation.CENTER_LEG]: 30,
+        },
+      });
+
+      const result = TripodLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should warn when leg armor varies significantly', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        armorAllocation: {
+          [MechLocation.LEFT_LEG]: 40,
+          [MechLocation.RIGHT_LEG]: 40,
+          [MechLocation.CENTER_LEG]: 15,
+        },
+      });
+
+      const result = TripodLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true); // Warnings don't fail validation
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0].message).toContain('varies significantly');
+    });
+
+    it('should warn when center leg has less armor than side legs', () => {
+      const context = createContext({
+        configuration: 'Tripod',
+        armorAllocation: {
+          [MechLocation.LEFT_LEG]: 40,
+          [MechLocation.RIGHT_LEG]: 40,
+          [MechLocation.CENTER_LEG]: 25,
+        },
+      });
+
+      const result = TripodLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings.some(w => w.message.includes('Center leg'))).toBe(true);
+    });
+
+    it('should only apply to tripod mechs', () => {
+      expect(
+        TripodLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Biped' }))
+      ).toBe(false);
+      expect(
+        TripodLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+      ).toBe(true);
+    });
+  });
+
   describe('getConfigurationValidationRules', () => {
     it('should return all configuration validation rules', () => {
       const rules = getConfigurationValidationRules();
-      expect(rules.length).toBeGreaterThanOrEqual(11);
+      expect(rules.length).toBeGreaterThanOrEqual(15);
       expect(rules.map((r) => r.id)).toContain('configuration.quad.no_arms');
       expect(rules.map((r) => r.id)).toContain('configuration.quad.leg_count');
       expect(rules.map((r) => r.id)).toContain('configuration.valid_locations');
@@ -505,6 +719,11 @@ describe('ConfigurationValidationRules', () => {
       expect(rules.map((r) => r.id)).toContain('configuration.lam.structure_armor');
       expect(rules.map((r) => r.id)).toContain('configuration.lam.landing_gear');
       expect(rules.map((r) => r.id)).toContain('configuration.lam.avionics');
+      // Tripod rules
+      expect(rules.map((r) => r.id)).toContain('configuration.tripod.center_leg');
+      expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_equipment');
+      expect(rules.map((r) => r.id)).toContain('configuration.tripod.total_slots');
+      expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_armor_balance');
     });
   });
 });
