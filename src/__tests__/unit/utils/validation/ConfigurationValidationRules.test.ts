@@ -29,6 +29,7 @@ import {
   QuadVeeTotalSlotsRule,
   QuadVeeLegArmorBalanceRule,
   getConfigurationValidationRules,
+  registerConfigurationRules,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { IValidationContext } from '@/types/validation/rules/ValidationRuleInterfaces';
@@ -931,6 +932,430 @@ describe('ConfigurationValidationRules', () => {
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.tracks');
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.total_slots');
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.leg_armor_balance');
+    });
+  });
+
+  describe('registerConfigurationRules', () => {
+    it('should register all configuration rules with a registry', () => {
+      const registeredRules: string[] = [];
+      const mockRegistry = {
+        register: jest.fn((rule: { id: string }) => {
+          registeredRules.push(rule.id);
+        }),
+      };
+
+      registerConfigurationRules(mockRegistry);
+
+      expect(mockRegistry.register).toHaveBeenCalled();
+      expect(registeredRules.length).toBeGreaterThanOrEqual(19);
+      expect(registeredRules).toContain('configuration.quad.no_arms');
+      expect(registeredRules).toContain('configuration.lam.max_tonnage');
+      expect(registeredRules).toContain('configuration.tripod.center_leg');
+      expect(registeredRules).toContain('configuration.quadvee.conversion_equipment');
+    });
+  });
+
+  // Additional branch coverage tests
+  describe('Edge cases and branch coverage', () => {
+    describe('QuadNoArmsRule - no equipment', () => {
+      it('should pass when equipment is undefined', () => {
+        const context = createContext({
+          configuration: 'Quad',
+          // equipment is undefined
+        });
+
+        const result = QuadNoArmsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+    });
+
+    describe('QuadLegCountRule - missing legs', () => {
+      it('should fail when quad leg is missing from armor allocation', () => {
+        const context = createContext({
+          configuration: 'Quad',
+          armorAllocation: {
+            [MechLocation.FRONT_LEFT_LEG]: 20,
+            [MechLocation.FRONT_RIGHT_LEG]: 20,
+            [MechLocation.REAR_LEFT_LEG]: 20,
+            // Missing REAR_RIGHT_LEG
+          },
+        });
+
+        const result = QuadLegCountRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('missing');
+      });
+    });
+
+    describe('QuadTotalSlotsRule - exceeding slots', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'Quad',
+          // criticalSlots is undefined
+        });
+
+        const result = QuadTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when critical slots exceed quad maximum', () => {
+        // Quad max is 66: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 66
+        // Fill all locations to capacity = 6 + 36 + 24 = 66, then add 1 more
+        const context = createContext({
+          configuration: 'Quad',
+          criticalSlots: {
+            [MechLocation.HEAD]: Array(6).fill('Equipment'),           // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),  // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),    // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),   // 12
+            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'),// 6
+            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),  // 6
+            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'), // 7 (1 over) = 67 total
+          },
+        });
+
+        const result = QuadTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('exceed');
+      });
+    });
+
+    describe('ValidLocationsRule - invalid locations', () => {
+      it('should pass when equipment is undefined', () => {
+        const context = createContext({
+          configuration: 'Biped',
+          // equipment is undefined
+        });
+
+        const result = ValidLocationsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when biped has equipment in quad leg locations', () => {
+        const context = createContext({
+          configuration: 'Biped',
+          equipment: [
+            { name: 'Medium Laser', location: MechLocation.FRONT_LEFT_LEG },
+          ],
+        });
+
+        const result = ValidLocationsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('not valid');
+      });
+
+      it('should fail when quad has equipment in biped arm locations', () => {
+        const context = createContext({
+          configuration: 'Quad',
+          equipment: [
+            { name: 'Medium Laser', location: MechLocation.LEFT_ARM },
+          ],
+        });
+
+        const result = ValidLocationsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('not valid');
+      });
+    });
+
+    describe('LAMStructureArmorRule - non-standard equipment', () => {
+      it('should pass when no structure or armor specified', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          // No structure or armor specified
+        });
+
+        const result = LAMStructureArmorRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail with non-standard structure', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          structure: { type: 'Endo Steel' },
+        });
+
+        const result = LAMStructureArmorRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Endo Steel');
+      });
+
+      it('should fail with non-standard armor', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          armor: { type: 'Ferro-Fibrous' },
+        });
+
+        const result = LAMStructureArmorRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Ferro-Fibrous');
+      });
+    });
+
+    describe('LAMLandingGearRule - missing landing gear', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          // criticalSlots is undefined
+        });
+
+        const result = LAMLandingGearRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when landing gear is missing', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          criticalSlots: {
+            [MechLocation.CENTER_TORSO]: ['Engine', 'Engine', 'Gyro'],
+          },
+        });
+
+        const result = LAMLandingGearRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Landing Gear');
+      });
+    });
+
+    describe('LAMAvionicsRule - missing avionics', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          // criticalSlots is undefined
+        });
+
+        const result = LAMAvionicsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when avionics is missing', () => {
+        const context = createContext({
+          configuration: 'LAM',
+          criticalSlots: {
+            [MechLocation.HEAD]: ['Life Support', 'Sensors', 'Cockpit'],
+          },
+        });
+
+        const result = LAMAvionicsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Avionics');
+      });
+    });
+
+    describe('TripodCenterLegRule - missing center leg', () => {
+      it('should fail when center leg armor is missing', () => {
+        const context = createContext({
+          configuration: 'Tripod',
+          armorAllocation: {
+            [MechLocation.LEFT_LEG]: 20,
+            [MechLocation.RIGHT_LEG]: 20,
+            // Missing CENTER_LEG
+          },
+        });
+
+        const result = TripodCenterLegRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Center Leg');
+      });
+    });
+
+    describe('TripodTotalSlotsRule - exceeding slots', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'Tripod',
+          // criticalSlots is undefined
+        });
+
+        const result = TripodTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when critical slots exceed tripod maximum', () => {
+        // Tripod max is 84: 6 (head) + 12*3 (torsos) + 12*2 (arms) + 6*3 (legs) = 6 + 36 + 24 + 18 = 84
+        // Fill to capacity then add 1 more
+        const context = createContext({
+          configuration: 'Tripod',
+          criticalSlots: {
+            [MechLocation.HEAD]: Array(6).fill('Equipment'),          // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),   // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),  // 12
+            [MechLocation.LEFT_ARM]: Array(12).fill('Equipment'),     // 12
+            [MechLocation.RIGHT_ARM]: Array(12).fill('Equipment'),    // 12
+            [MechLocation.LEFT_LEG]: Array(6).fill('Equipment'),      // 6
+            [MechLocation.RIGHT_LEG]: Array(6).fill('Equipment'),     // 6
+            [MechLocation.CENTER_LEG]: Array(7).fill('Equipment'),    // 7 (1 over) = 85 total
+          },
+        });
+
+        const result = TripodTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('exceed');
+      });
+    });
+
+    describe('QuadVeeConversionEquipmentRule - missing conversion equipment', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          // criticalSlots is undefined
+        });
+
+        const result = QuadVeeConversionEquipmentRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when conversion equipment is missing from legs', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          criticalSlots: {
+            [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Upper Leg Actuator'],
+            [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator'],
+            [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Upper Leg Actuator'],
+            [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator'],
+          },
+        });
+
+        const result = QuadVeeConversionEquipmentRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('conversion equipment');
+      });
+    });
+
+    describe('QuadVeeTracksRule - incomplete tracks', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          // criticalSlots is undefined
+        });
+
+        const result = QuadVeeTracksRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when tracks are only in some legs', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          criticalSlots: {
+            [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Tracks'],
+            [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Tracks'],
+            [MechLocation.REAR_LEFT_LEG]: ['Hip'],
+            [MechLocation.REAR_RIGHT_LEG]: ['Hip'],
+          },
+        });
+
+        const result = QuadVeeTracksRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('all four legs');
+      });
+    });
+
+    describe('QuadVeeTotalSlotsRule - exceeding slots', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          // criticalSlots is undefined
+        });
+
+        const result = QuadVeeTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when critical slots exceed quadvee maximum', () => {
+        // QuadVee max is 90: 6 (head) + 12*3 (torsos) + 12*4 (legs) = 6 + 36 + 48 = 90
+        // Fill to capacity then add 1 more
+        const context = createContext({
+          configuration: 'QuadVee',
+          criticalSlots: {
+            [MechLocation.HEAD]: Array(6).fill('Equipment'),              // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),     // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),       // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),      // 12
+            [MechLocation.FRONT_LEFT_LEG]: Array(12).fill('Equipment'),   // 12
+            [MechLocation.FRONT_RIGHT_LEG]: Array(12).fill('Equipment'),  // 12
+            [MechLocation.REAR_LEFT_LEG]: Array(12).fill('Equipment'),    // 12
+            [MechLocation.REAR_RIGHT_LEG]: Array(13).fill('Equipment'),   // 13 (1 over) = 91 total
+          },
+        });
+
+        const result = QuadVeeTotalSlotsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('exceed');
+      });
+    });
+
+    describe('QuadVeeLegArmorBalanceRule - no armor allocation', () => {
+      it('should pass when armorAllocation is undefined', () => {
+        const context = createContext({
+          configuration: 'QuadVee',
+          // armorAllocation is undefined
+        });
+
+        const result = QuadVeeLegArmorBalanceRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+    });
+
+    describe('TripodLegArmorBalanceRule - no armor allocation', () => {
+      it('should pass when armorAllocation is undefined', () => {
+        const context = createContext({
+          configuration: 'Tripod',
+          // armorAllocation is undefined
+        });
+
+        const result = TripodLegArmorBalanceRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+    });
+
+    describe('QuadLegArmorBalanceRule - no armor allocation', () => {
+      it('should pass when armorAllocation is undefined', () => {
+        const context = createContext({
+          configuration: 'Quad',
+          // armorAllocation is undefined
+        });
+
+        const result = QuadLegArmorBalanceRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+    });
+
+    describe('TripodLegEquipmentRule - no critical slots', () => {
+      it('should pass when criticalSlots is undefined', () => {
+        const context = createContext({
+          configuration: 'Tripod',
+          // criticalSlots is undefined
+        });
+
+        const result = TripodLegEquipmentRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+    });
+
+    describe('BipedNoQuadLegsRule - equipment in quad locations', () => {
+      it('should pass when equipment is undefined', () => {
+        const context = createContext({
+          configuration: 'Biped',
+          // equipment is undefined
+        });
+
+        const result = BipedNoQuadLegsRule.validate(context);
+        expect(result.passed).toBe(true);
+      });
+
+      it('should fail when biped has equipment in front leg', () => {
+        const context = createContext({
+          configuration: 'Biped',
+          equipment: [
+            { name: 'Medium Laser', location: MechLocation.FRONT_LEFT_LEG },
+          ],
+        });
+
+        const result = BipedNoQuadLegsRule.validate(context);
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].message).toContain('Front Left Leg');
+      });
     });
   });
 });
