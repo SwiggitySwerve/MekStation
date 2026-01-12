@@ -963,13 +963,13 @@ describe('MTFExportService', () => {
     });
 
     it('should handle missing locations in criticalSlots object', () => {
-      const unit = createMinimalUnit({
-        criticalSlots: {
-          HEAD: ['Sensors'],
-          LEFT_ARM: ['Shoulder'],
-          // Missing RIGHT_ARM, LEFT_TORSO, RIGHT_TORSO, CENTER_TORSO, LEFT_LEG, RIGHT_LEG
-        } as Partial<Record<string, (string | null)[]>>,
-      });
+      const unit = createMinimalUnit();
+      // Override with incomplete criticals to test handling of missing locations
+      (unit as { criticalSlots: Record<string, (string | null)[]> }).criticalSlots = {
+        HEAD: ['Sensors'],
+        LEFT_ARM: ['Shoulder'],
+        // Missing RIGHT_ARM, LEFT_TORSO, RIGHT_TORSO, CENTER_TORSO, LEFT_LEG, RIGHT_LEG
+      };
       const result = service.export(unit);
 
       expect(result.success).toBe(true);

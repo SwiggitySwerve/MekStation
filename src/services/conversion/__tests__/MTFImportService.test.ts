@@ -135,8 +135,8 @@ describe('MTFImportService', () => {
     });
 
     it('should report missing required fields', () => {
-      // @ts-expect-error - testing with undefined id to validate error handling
-      const unit = createValidSerializedUnit({ id: undefined });
+      const undefinedId: string = undefined!;
+      const unit = createValidSerializedUnit({ id: undefinedId });
       const result = service.importFromJSON(unit);
 
       expect(result.errors.some(e => e.includes('id'))).toBe(true);
@@ -234,8 +234,8 @@ describe('MTFImportService', () => {
     });
 
     it('should fail in strict mode with required field errors', () => {
-      // @ts-expect-error - testing with undefined id to validate error handling
-      const unit = createValidSerializedUnit({ id: undefined });
+      const undefinedId: string = undefined!;
+      const unit = createValidSerializedUnit({ id: undefinedId });
 
       const result = service.importFromJSON(unit, { strictMode: true });
 

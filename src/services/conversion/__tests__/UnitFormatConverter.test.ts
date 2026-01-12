@@ -228,9 +228,7 @@ describe('UnitFormatConverter', () => {
 
     it('should handle numeric walk/jump MP', () => {
       const source = createMegaMekLabUnit({
-        // @ts-expect-error - testing with numeric values as source data can be numbers
         walk_mp: 4,
-        // @ts-expect-error - testing with numeric values as source data can be numbers
         jump_mp: 2,
       });
 

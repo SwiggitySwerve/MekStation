@@ -996,7 +996,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const issueCall = mockWriteFileSync.mock.calls.find(
-        call => call[0].includes('issues')
+        call => String(call[0]).includes('issues')
       );
       const issueJson = issueCall![1] as string;
 
