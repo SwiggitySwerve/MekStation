@@ -24,6 +24,10 @@ import {
   TripodLegEquipmentRule,
   TripodTotalSlotsRule,
   TripodLegArmorBalanceRule,
+  QuadVeeConversionEquipmentRule,
+  QuadVeeTracksRule,
+  QuadVeeTotalSlotsRule,
+  QuadVeeLegArmorBalanceRule,
   getConfigurationValidationRules,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -706,10 +710,208 @@ describe('ConfigurationValidationRules', () => {
     });
   });
 
+  // ============================================================================
+  // QUADVEE VALIDATION RULES
+  // ============================================================================
+
+  describe('QuadVeeConversionEquipmentRule', () => {
+    it('should pass when conversion equipment is in all four legs', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Conversion Equipment', null],
+          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Conversion Equipment', null],
+          [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Conversion Equipment', null],
+          [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Conversion Equipment', null],
+        },
+      });
+
+      const result = QuadVeeConversionEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when conversion equipment is missing from some legs', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Conversion Equipment', null],
+          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Conversion Equipment', null],
+          [MechLocation.REAR_LEFT_LEG]: ['Hip', null, null],
+          [MechLocation.REAR_RIGHT_LEG]: ['Hip', null, null],
+        },
+      });
+
+      const result = QuadVeeConversionEquipmentRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors[0].message).toContain('Rear Left Leg');
+    });
+
+    it('should warn when no critical slot data available', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+      });
+
+      const result = QuadVeeConversionEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings[0].message).toContain('Cannot verify');
+    });
+
+    it('should only apply to quadvee mechs', () => {
+      expect(
+        QuadVeeConversionEquipmentRule.canValidate?.(createContext({ configuration: 'Quad' }))
+      ).toBe(false);
+      expect(
+        QuadVeeConversionEquipmentRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('QuadVeeTracksRule', () => {
+    it('should pass when no tracks are present', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+          [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+          [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', null],
+        },
+      });
+
+      const result = QuadVeeTracksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when tracks are in all four legs', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Tracks', null],
+        },
+      });
+
+      const result = QuadVeeTracksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when tracks are only in some legs', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Tracks', null],
+          [MechLocation.REAR_LEFT_LEG]: ['Hip', null, null],
+          [MechLocation.REAR_RIGHT_LEG]: ['Hip', null, null],
+        },
+      });
+
+      const result = QuadVeeTracksRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors[0].message).toContain('all four legs');
+    });
+
+    it('should only apply to quadvee mechs', () => {
+      expect(
+        QuadVeeTracksRule.canValidate?.(createContext({ configuration: 'Quad' }))
+      ).toBe(false);
+      expect(
+        QuadVeeTracksRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('QuadVeeTotalSlotsRule', () => {
+    it('should pass when within slot limit', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        criticalSlots: {
+          [MechLocation.HEAD]: ['Life Support', 'Sensors', null, null, null, null],
+          [MechLocation.CENTER_TORSO]: ['Engine', 'Engine', null, null, null, null],
+        },
+      });
+
+      const result = QuadVeeTotalSlotsRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should only apply to quadvee mechs', () => {
+      expect(
+        QuadVeeTotalSlotsRule.canValidate?.(createContext({ configuration: 'Quad' }))
+      ).toBe(false);
+      expect(
+        QuadVeeTotalSlotsRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+      ).toBe(true);
+    });
+  });
+
+  describe('QuadVeeLegArmorBalanceRule', () => {
+    it('should pass when leg armor is balanced', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        armorAllocation: {
+          [MechLocation.FRONT_LEFT_LEG]: 30,
+          [MechLocation.FRONT_RIGHT_LEG]: 30,
+          [MechLocation.REAR_LEFT_LEG]: 30,
+          [MechLocation.REAR_RIGHT_LEG]: 30,
+        },
+      });
+
+      const result = QuadVeeLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should warn when leg armor varies significantly', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        armorAllocation: {
+          [MechLocation.FRONT_LEFT_LEG]: 40,
+          [MechLocation.FRONT_RIGHT_LEG]: 40,
+          [MechLocation.REAR_LEFT_LEG]: 15,
+          [MechLocation.REAR_RIGHT_LEG]: 15,
+        },
+      });
+
+      const result = QuadVeeLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true); // Warnings don't fail validation
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0].message).toContain('varies significantly');
+    });
+
+    it('should warn when front/rear armor is unbalanced', () => {
+      const context = createContext({
+        configuration: 'QuadVee',
+        armorAllocation: {
+          [MechLocation.FRONT_LEFT_LEG]: 40,
+          [MechLocation.FRONT_RIGHT_LEG]: 40,
+          [MechLocation.REAR_LEFT_LEG]: 15,
+          [MechLocation.REAR_RIGHT_LEG]: 15,
+        },
+      });
+
+      const result = QuadVeeLegArmorBalanceRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings.some(w => w.message.includes('Front and rear'))).toBe(true);
+    });
+
+    it('should only apply to quadvee mechs', () => {
+      expect(
+        QuadVeeLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Quad' }))
+      ).toBe(false);
+      expect(
+        QuadVeeLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+      ).toBe(true);
+    });
+  });
+
   describe('getConfigurationValidationRules', () => {
     it('should return all configuration validation rules', () => {
       const rules = getConfigurationValidationRules();
-      expect(rules.length).toBeGreaterThanOrEqual(15);
+      expect(rules.length).toBeGreaterThanOrEqual(19);
       expect(rules.map((r) => r.id)).toContain('configuration.quad.no_arms');
       expect(rules.map((r) => r.id)).toContain('configuration.quad.leg_count');
       expect(rules.map((r) => r.id)).toContain('configuration.valid_locations');
@@ -724,6 +926,11 @@ describe('ConfigurationValidationRules', () => {
       expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_equipment');
       expect(rules.map((r) => r.id)).toContain('configuration.tripod.total_slots');
       expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_armor_balance');
+      // QuadVee rules
+      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.conversion_equipment');
+      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.tracks');
+      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.total_slots');
+      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.leg_armor_balance');
     });
   });
 });

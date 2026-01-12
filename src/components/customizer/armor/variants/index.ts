@@ -27,3 +27,6 @@ export type { LAMArmorDiagramProps } from './LAMArmorDiagram';
 
 export { TripodArmorDiagram } from './TripodArmorDiagram';
 export type { TripodArmorDiagramProps } from './TripodArmorDiagram';
+
+export { QuadVeeArmorDiagram } from './QuadVeeArmorDiagram';
+export type { QuadVeeArmorDiagramProps } from './QuadVeeArmorDiagram';

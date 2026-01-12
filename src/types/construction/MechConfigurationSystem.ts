@@ -129,6 +129,34 @@ export enum QuadVeeMode {
 }
 
 /**
+ * QuadVee mode definition
+ */
+export interface IQuadVeeModeDefinition {
+  readonly mode: QuadVeeMode;
+  readonly displayName: string;
+  readonly movementType: 'ground' | 'tracked';
+  readonly description: string;
+}
+
+/**
+ * QuadVee mode definitions
+ */
+export const QUADVEE_MODES: readonly IQuadVeeModeDefinition[] = [
+  {
+    mode: QuadVeeMode.MECH,
+    displayName: 'Mech Mode',
+    movementType: 'ground',
+    description: 'Standard quad mech movement with legs',
+  },
+  {
+    mode: QuadVeeMode.VEHICLE,
+    displayName: 'Vehicle Mode',
+    movementType: 'tracked',
+    description: 'Tracked vehicle movement with wheels/treads',
+  },
+];
+
+/**
  * Complete mech configuration definition
  */
 export interface IMechConfigurationDefinition {
@@ -591,6 +619,35 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
 };
 
 /**
+ * QuadVee required equipment definitions
+ * Conversion Equipment: Required in each leg for transformation
+ */
+export const QUADVEE_EQUIPMENT = {
+  CONVERSION_EQUIPMENT: {
+    id: 'conversion-equipment',
+    name: 'Conversion Equipment',
+    slots: 1,
+    locations: [
+      MechLocation.FRONT_LEFT_LEG,
+      MechLocation.FRONT_RIGHT_LEG,
+      MechLocation.REAR_LEFT_LEG,
+      MechLocation.REAR_RIGHT_LEG,
+    ],
+  },
+  TRACKS: {
+    id: 'tracks',
+    name: 'Tracks',
+    slots: 1,
+    locations: [
+      MechLocation.FRONT_LEFT_LEG,
+      MechLocation.FRONT_RIGHT_LEG,
+      MechLocation.REAR_LEFT_LEG,
+      MechLocation.REAR_RIGHT_LEG,
+    ],
+  },
+} as const;
+
+/**
  * QuadVee mech configuration definition
  */
 export const QUADVEE_CONFIGURATION: IMechConfigurationDefinition = {
@@ -611,9 +668,9 @@ export const QUADVEE_CONFIGURATION: IMechConfigurationDefinition = {
   prohibitedEquipment: [],
   baseMovementModifier: 0,
   requiredEquipment: [
-    { equipmentId: 'conversion-equipment', locations: [MechLocation.CENTER_TORSO] },
+    { equipmentId: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.id, locations: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.locations },
   ],
-  diagramComponentName: 'QuadArmorDiagram',
+  diagramComponentName: 'QuadVeeArmorDiagram',
 };
 
 // =============================================================================
@@ -732,6 +789,27 @@ class MechConfigurationRegistry {
   getFighterArmorMapping(type: MechConfiguration): Readonly<Record<MechLocation, MechLocation>> | undefined {
     const fighterMode = this.getModeDefinition(type, LAMMode.FIGHTER);
     return fighterMode?.armorLocationMapping;
+  }
+
+  /**
+   * Check if configuration is a QuadVee
+   */
+  isQuadVeeConfiguration(type: MechConfiguration): boolean {
+    return type === MechConfiguration.QUADVEE;
+  }
+
+  /**
+   * Get QuadVee mode definitions
+   */
+  getQuadVeeModes(): readonly IQuadVeeModeDefinition[] {
+    return QUADVEE_MODES;
+  }
+
+  /**
+   * Get QuadVee mode definition by mode value
+   */
+  getQuadVeeModeDefinition(mode: QuadVeeMode): IQuadVeeModeDefinition | undefined {
+    return QUADVEE_MODES.find(m => m.mode === mode);
   }
 
   /**
