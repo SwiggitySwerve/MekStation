@@ -112,3 +112,6 @@ assets/c__Users_*
 # Playwright
 playwright-report/
 test-results/
+
+# Parity validation output
+validation-output/
