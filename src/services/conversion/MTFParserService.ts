@@ -199,10 +199,22 @@ export class MTFParserService {
     mulId?: number;
     role?: string;
     source?: string;
+    clanname?: string;
   } {
+    const chassis = this.parseField(lines, 'chassis') || '';
+    const model = this.parseField(lines, 'model');
+    const clanname = this.parseField(lines, 'clanname');
+
+    // Handle empty model field - use clanname or chassis variant as fallback
+    // Some Clan mechs have format: chassis:Baboon, clanname:Howler, model: (empty)
+    let effectiveModel = model || '';
+    if (!effectiveModel && clanname) {
+      effectiveModel = clanname;
+    }
+
     return {
-      chassis: this.parseField(lines, 'chassis') || '',
-      model: this.parseField(lines, 'model') || '',
+      chassis,
+      model: effectiveModel,
       config: this.parseField(lines, 'Config') || 'Biped',
       techBase: this.parseField(lines, 'techbase') || 'Inner Sphere',
       year: parseInt(this.parseField(lines, 'era') || '3025', 10),
@@ -210,6 +222,7 @@ export class MTFParserService {
       mulId: parseInt(this.parseField(lines, 'mul id') || '0', 10) || undefined,
       role: this.parseField(lines, 'role') || undefined,
       source: this.parseField(lines, 'source') || undefined,
+      clanname,
     };
   }
 
