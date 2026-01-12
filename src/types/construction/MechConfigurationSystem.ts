@@ -491,12 +491,33 @@ export const TRIPOD_CONFIGURATION: IMechConfigurationDefinition = {
 };
 
 /**
+ * LAM equipment definitions
+ * Landing Gear: 3 slots total (1 each in CT, LT, RT)
+ * Avionics: 3 slots total (1 each in HD, LT, RT)
+ */
+export const LAM_EQUIPMENT = {
+  LANDING_GEAR: {
+    id: 'landing-gear',
+    name: 'Landing Gear',
+    slots: 1,
+    locations: [MechLocation.CENTER_TORSO, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+  },
+  AVIONICS: {
+    id: 'avionics',
+    name: 'Avionics',
+    slots: 1,
+    locations: [MechLocation.HEAD, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+  },
+} as const;
+
+/**
  * LAM mech configuration definition
+ * LAMs are limited to 55 tons max and cannot use XL engines, Endo Steel, or Ferro-Fibrous armor
  */
 export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
   id: MechConfiguration.LAM,
   displayName: 'Land-Air Mech',
-  description: 'Transformable BattleMech capable of flight',
+  description: 'Transformable BattleMech capable of flight (max 55 tons)',
   locations: [
     createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
     createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
@@ -508,7 +529,15 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
     createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
   ],
   mountingRules: [],
-  prohibitedEquipment: [],
+  prohibitedEquipment: [
+    'endo-steel',
+    'endo-steel-clan',
+    'ferro-fibrous',
+    'ferro-fibrous-clan',
+    'light-ferro-fibrous',
+    'heavy-ferro-fibrous',
+    'stealth-armor',
+  ],
   baseMovementModifier: 0,
   modes: [
     {
@@ -553,8 +582,10 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
     },
   ],
   requiredEquipment: [
-    { equipmentId: 'landing-gear', locations: [MechLocation.CENTER_TORSO] },
-    { equipmentId: 'avionics', locations: [MechLocation.HEAD] },
+    // Landing Gear: 1 slot each in CT, LT, RT
+    { equipmentId: LAM_EQUIPMENT.LANDING_GEAR.id, locations: LAM_EQUIPMENT.LANDING_GEAR.locations },
+    // Avionics: 1 slot each in HD, LT, RT
+    { equipmentId: LAM_EQUIPMENT.AVIONICS.id, locations: LAM_EQUIPMENT.AVIONICS.locations },
   ],
   diagramComponentName: 'LAMArmorDiagram',
 };
@@ -671,6 +702,60 @@ class MechConfigurationRegistry {
    */
   isTransformingConfiguration(type: MechConfiguration): boolean {
     return type === MechConfiguration.LAM || type === MechConfiguration.QUADVEE;
+  }
+
+  /**
+   * Check if configuration is a LAM
+   */
+  isLAMConfiguration(type: MechConfiguration): boolean {
+    return type === MechConfiguration.LAM;
+  }
+
+  /**
+   * Get available modes for a configuration (LAM or QuadVee)
+   */
+  getModes(type: MechConfiguration): readonly ILAMModeDefinition[] | undefined {
+    return this.getConfiguration(type).modes;
+  }
+
+  /**
+   * Get mode definition by mode value
+   */
+  getModeDefinition(type: MechConfiguration, mode: LAMMode): ILAMModeDefinition | undefined {
+    const modes = this.getModes(type);
+    return modes?.find(m => m.mode === mode);
+  }
+
+  /**
+   * Get fighter mode armor location mapping for LAM
+   */
+  getFighterArmorMapping(type: MechConfiguration): Readonly<Record<MechLocation, MechLocation>> | undefined {
+    const fighterMode = this.getModeDefinition(type, LAMMode.FIGHTER);
+    return fighterMode?.armorLocationMapping;
+  }
+
+  /**
+   * Get required equipment for a configuration
+   */
+  getRequiredEquipment(type: MechConfiguration): readonly { equipmentId: string; locations: readonly MechLocation[] }[] {
+    return this.getConfiguration(type).requiredEquipment ?? [];
+  }
+
+  /**
+   * Get prohibited equipment for a configuration
+   */
+  getProhibitedEquipment(type: MechConfiguration): readonly string[] {
+    return this.getConfiguration(type).prohibitedEquipment;
+  }
+
+  /**
+   * Get max tonnage for a configuration (55 for LAM, undefined for unlimited)
+   */
+  getMaxTonnage(type: MechConfiguration): number | undefined {
+    if (type === MechConfiguration.LAM) {
+      return 55;
+    }
+    return undefined; // No limit for other configurations
   }
 }
 

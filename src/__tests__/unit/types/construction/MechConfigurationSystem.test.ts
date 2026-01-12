@@ -20,6 +20,8 @@ import {
   TRIPOD_CONFIGURATION,
   LAM_CONFIGURATION,
   QUADVEE_CONFIGURATION,
+  LAM_EQUIPMENT,
+  LAMMode,
   configurationRegistry,
   getLocationsForConfig,
   isValidLocationForConfig,
@@ -159,6 +161,59 @@ describe('MechConfigurationSystem', () => {
         expect(LAM_CONFIGURATION.id).toBe(MechConfiguration.LAM);
         expect(LAM_CONFIGURATION.displayName).toBe('Land-Air Mech');
       });
+
+      it('should have 8 biped locations', () => {
+        expect(LAM_CONFIGURATION.locations).toHaveLength(8);
+        expect(LAM_CONFIGURATION.locations.map(l => l.id)).toContain(MechLocation.HEAD);
+        expect(LAM_CONFIGURATION.locations.map(l => l.id)).toContain(MechLocation.LEFT_ARM);
+        expect(LAM_CONFIGURATION.locations.map(l => l.id)).toContain(MechLocation.LEFT_LEG);
+      });
+
+      it('should have three operating modes', () => {
+        expect(LAM_CONFIGURATION.modes).toHaveLength(3);
+        expect(LAM_CONFIGURATION.modes?.map(m => m.mode)).toContain(LAMMode.MECH);
+        expect(LAM_CONFIGURATION.modes?.map(m => m.mode)).toContain(LAMMode.AIRMECH);
+        expect(LAM_CONFIGURATION.modes?.map(m => m.mode)).toContain(LAMMode.FIGHTER);
+      });
+
+      it('should have fighter mode armor location mapping', () => {
+        const fighterMode = LAM_CONFIGURATION.modes?.find(m => m.mode === LAMMode.FIGHTER);
+        expect(fighterMode?.armorLocationMapping).toBeDefined();
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.HEAD]).toBe(MechLocation.NOSE);
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.CENTER_TORSO]).toBe(MechLocation.FUSELAGE);
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.LEFT_TORSO]).toBe(MechLocation.LEFT_WING);
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.RIGHT_TORSO]).toBe(MechLocation.RIGHT_WING);
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.LEFT_LEG]).toBe(MechLocation.AFT);
+        expect(fighterMode?.armorLocationMapping?.[MechLocation.RIGHT_LEG]).toBe(MechLocation.AFT);
+      });
+
+      it('should have required equipment for Landing Gear and Avionics', () => {
+        expect(LAM_CONFIGURATION.requiredEquipment).toBeDefined();
+        expect(LAM_CONFIGURATION.requiredEquipment).toHaveLength(2);
+
+        const landingGear = LAM_CONFIGURATION.requiredEquipment?.find(e => e.equipmentId === 'landing-gear');
+        expect(landingGear).toBeDefined();
+        expect(landingGear?.locations).toContain(MechLocation.CENTER_TORSO);
+        expect(landingGear?.locations).toContain(MechLocation.LEFT_TORSO);
+        expect(landingGear?.locations).toContain(MechLocation.RIGHT_TORSO);
+
+        const avionics = LAM_CONFIGURATION.requiredEquipment?.find(e => e.equipmentId === 'avionics');
+        expect(avionics).toBeDefined();
+        expect(avionics?.locations).toContain(MechLocation.HEAD);
+        expect(avionics?.locations).toContain(MechLocation.LEFT_TORSO);
+        expect(avionics?.locations).toContain(MechLocation.RIGHT_TORSO);
+      });
+
+      it('should have prohibited equipment list', () => {
+        expect(LAM_CONFIGURATION.prohibitedEquipment).toBeDefined();
+        expect(LAM_CONFIGURATION.prohibitedEquipment).toContain('endo-steel');
+        expect(LAM_CONFIGURATION.prohibitedEquipment).toContain('ferro-fibrous');
+        expect(LAM_CONFIGURATION.prohibitedEquipment).toContain('stealth-armor');
+      });
+
+      it('should specify LAMArmorDiagram as the diagram component', () => {
+        expect(LAM_CONFIGURATION.diagramComponentName).toBe('LAMArmorDiagram');
+      });
     });
 
     describe('QUADVEE_CONFIGURATION', () => {
@@ -206,6 +261,90 @@ describe('MechConfigurationSystem', () => {
       expect(
         configurationRegistry.isQuadConfiguration(MechConfiguration.BIPED)
       ).toBe(false);
+    });
+
+    it('should correctly identify LAM configurations', () => {
+      expect(
+        configurationRegistry.isLAMConfiguration(MechConfiguration.LAM)
+      ).toBe(true);
+      expect(
+        configurationRegistry.isLAMConfiguration(MechConfiguration.BIPED)
+      ).toBe(false);
+      expect(
+        configurationRegistry.isLAMConfiguration(MechConfiguration.QUAD)
+      ).toBe(false);
+    });
+
+    it('should correctly identify transforming configurations', () => {
+      expect(
+        configurationRegistry.isTransformingConfiguration(MechConfiguration.LAM)
+      ).toBe(true);
+      expect(
+        configurationRegistry.isTransformingConfiguration(MechConfiguration.QUADVEE)
+      ).toBe(true);
+      expect(
+        configurationRegistry.isTransformingConfiguration(MechConfiguration.BIPED)
+      ).toBe(false);
+      expect(
+        configurationRegistry.isTransformingConfiguration(MechConfiguration.QUAD)
+      ).toBe(false);
+    });
+
+    it('should return LAM modes', () => {
+      const modes = configurationRegistry.getModes(MechConfiguration.LAM);
+      expect(modes).toHaveLength(3);
+      expect(modes?.map(m => m.mode)).toEqual([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER]);
+    });
+
+    it('should return undefined modes for non-transforming configs', () => {
+      const modes = configurationRegistry.getModes(MechConfiguration.BIPED);
+      expect(modes).toBeUndefined();
+    });
+
+    it('should return fighter armor mapping for LAM', () => {
+      const mapping = configurationRegistry.getFighterArmorMapping(MechConfiguration.LAM);
+      expect(mapping).toBeDefined();
+      expect(mapping?.[MechLocation.HEAD]).toBe(MechLocation.NOSE);
+      expect(mapping?.[MechLocation.CENTER_TORSO]).toBe(MechLocation.FUSELAGE);
+    });
+
+    it('should return max tonnage for LAM (55 tons)', () => {
+      const maxTonnage = configurationRegistry.getMaxTonnage(MechConfiguration.LAM);
+      expect(maxTonnage).toBe(55);
+    });
+
+    it('should return undefined max tonnage for non-LAM configs', () => {
+      expect(configurationRegistry.getMaxTonnage(MechConfiguration.BIPED)).toBeUndefined();
+      expect(configurationRegistry.getMaxTonnage(MechConfiguration.QUAD)).toBeUndefined();
+    });
+
+    it('should return required equipment for LAM', () => {
+      const requiredEquip = configurationRegistry.getRequiredEquipment(MechConfiguration.LAM);
+      expect(requiredEquip).toHaveLength(2);
+      expect(requiredEquip.some(e => e.equipmentId === 'landing-gear')).toBe(true);
+      expect(requiredEquip.some(e => e.equipmentId === 'avionics')).toBe(true);
+    });
+
+    it('should return prohibited equipment for LAM', () => {
+      const prohibitedEquip = configurationRegistry.getProhibitedEquipment(MechConfiguration.LAM);
+      expect(prohibitedEquip).toContain('endo-steel');
+      expect(prohibitedEquip).toContain('ferro-fibrous');
+    });
+  });
+
+  describe('LAM Equipment Constants', () => {
+    it('should define Landing Gear equipment', () => {
+      expect(LAM_EQUIPMENT.LANDING_GEAR.id).toBe('landing-gear');
+      expect(LAM_EQUIPMENT.LANDING_GEAR.name).toBe('Landing Gear');
+      expect(LAM_EQUIPMENT.LANDING_GEAR.slots).toBe(1);
+      expect(LAM_EQUIPMENT.LANDING_GEAR.locations).toHaveLength(3);
+    });
+
+    it('should define Avionics equipment', () => {
+      expect(LAM_EQUIPMENT.AVIONICS.id).toBe('avionics');
+      expect(LAM_EQUIPMENT.AVIONICS.name).toBe('Avionics');
+      expect(LAM_EQUIPMENT.AVIONICS.slots).toBe(1);
+      expect(LAM_EQUIPMENT.AVIONICS.locations).toHaveLength(3);
     });
   });
 

@@ -472,7 +472,13 @@ const MEGAMEKLAB_TYPE_MAP: Record<string, string> = {
   'ISJumpJet': 'jump-jet',
   'CLJumpJet': 'clan-jump-jet',
   'ImprovedJumpJet': 'improved-jump-jet',
-  
+
+  // LAM Equipment
+  'LandingGear': 'landing-gear',
+  'Landing Gear': 'landing-gear',
+  'Avionics': 'avionics',
+  'ISAvionics': 'avionics',
+
   // CASE
   'CASE': 'case',
   'ISCASE': 'case',

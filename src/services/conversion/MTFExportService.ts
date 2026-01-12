@@ -362,6 +362,9 @@ export class MTFExportService {
       'machine-gun': 'Machine Gun',
       'flamer': 'Flamer',
       'gauss-rifle': 'Gauss Rifle',
+      // LAM Equipment
+      'landing-gear': 'Landing Gear',
+      'avionics': 'Avionics',
     };
 
     if (nameMap[id]) {

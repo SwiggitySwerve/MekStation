@@ -21,3 +21,6 @@ export type { MegaMekDiagramProps } from './MegaMekDiagram';
 
 export { QuadArmorDiagram } from './QuadArmorDiagram';
 export type { QuadArmorDiagramProps } from './QuadArmorDiagram';
+
+export { LAMArmorDiagram } from './LAMArmorDiagram';
+export type { LAMArmorDiagramProps } from './LAMArmorDiagram';
