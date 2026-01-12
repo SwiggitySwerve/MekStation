@@ -34,10 +34,10 @@ import { IValidationContext } from '@/types/validation/rules/ValidationRuleInter
 // Test Helpers
 // ============================================================================
 
-const createValidationContext = (unit: Record<string, unknown>): IValidationContext => ({
-  unit,
-  equipment: [],
+const createValidationContext = (unit: ISerializedUnit): IValidationContext => ({
+  unit: unit as unknown,
   options: {},
+  cache: new Map(),
 });
 
 /**
@@ -423,6 +423,7 @@ describe('Configuration Validation Rules Integration', () => {
 
     it('should fail when tripod missing center leg', () => {
       const unit = createTripodMech({
+        // Validation rules check armorAllocation at top level
         armorAllocation: {
           [MechLocation.HEAD]: 9,
           [MechLocation.LEFT_LEG]: 24,
@@ -434,7 +435,8 @@ describe('Configuration Validation Rules Integration', () => {
           [MechLocation.RIGHT_LEG]: ['Hip', 'Upper Leg Actuator'],
           // Missing CENTER_LEG
         },
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       const context = createValidationContext(unit);
 
       const result = TripodCenterLegRule.validate(context);

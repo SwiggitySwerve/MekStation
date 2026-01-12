@@ -36,8 +36,8 @@ import { IValidationContext } from '@/types/validation/rules/ValidationRuleInter
 describe('ConfigurationValidationRules', () => {
   const createContext = (unit: Record<string, unknown>): IValidationContext => ({
     unit,
-    equipment: [],
     options: {},
+    cache: new Map(),
   });
 
   describe('QuadNoArmsRule', () => {
