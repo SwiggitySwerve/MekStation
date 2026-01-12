@@ -179,6 +179,19 @@ describe('ValueMappings', () => {
       expect(mapEngineType('compact fusion')).toBe(EngineType.COMPACT);
     });
 
+    it('should fuzzy match ICE/combustion engines', () => {
+      expect(mapEngineType('internal combustion type')).toBe(EngineType.ICE);
+      expect(mapEngineType('some ice engine')).toBe(EngineType.ICE);
+    });
+
+    it('should fuzzy match fuel cell engines', () => {
+      expect(mapEngineType('some fuel cell type')).toBe(EngineType.FUEL_CELL);
+    });
+
+    it('should fuzzy match fission engines', () => {
+      expect(mapEngineType('some fission type')).toBe(EngineType.FISSION);
+    });
+
     it('should default to STANDARD for unknown', () => {
       expect(mapEngineType('Unknown')).toBe(EngineType.STANDARD);
     });
@@ -215,6 +228,22 @@ describe('ValueMappings', () => {
       expect(mapStructureType('Industrial')).toBe(InternalStructureType.INDUSTRIAL);
     });
 
+    it('should fuzzy match endo-composite structure', () => {
+      expect(mapStructureType('some endo composite type')).toBe(InternalStructureType.ENDO_COMPOSITE);
+    });
+
+    it('should fuzzy match reinforced structure', () => {
+      expect(mapStructureType('some reinforced type')).toBe(InternalStructureType.REINFORCED);
+    });
+
+    it('should fuzzy match composite structure', () => {
+      expect(mapStructureType('some composite type')).toBe(InternalStructureType.COMPOSITE);
+    });
+
+    it('should fuzzy match industrial structure', () => {
+      expect(mapStructureType('some industrial type')).toBe(InternalStructureType.INDUSTRIAL);
+    });
+
     it('should default to STANDARD for unknown', () => {
       expect(mapStructureType('Unknown')).toBe(InternalStructureType.STANDARD);
     });
@@ -246,6 +275,14 @@ describe('ValueMappings', () => {
     it('should map other heat sink types', () => {
       expect(mapHeatSinkType('Compact')).toBe(HeatSinkType.COMPACT);
       expect(mapHeatSinkType('Laser')).toBe(HeatSinkType.LASER);
+    });
+
+    it('should fuzzy match laser heat sinks', () => {
+      expect(mapHeatSinkType('some laser heat sink')).toBe(HeatSinkType.LASER);
+    });
+
+    it('should fuzzy match compact heat sinks', () => {
+      expect(mapHeatSinkType('some compact heat sink')).toBe(HeatSinkType.COMPACT);
     });
 
     it('should default to SINGLE for unknown', () => {
@@ -284,6 +321,31 @@ describe('ValueMappings', () => {
       expect(mapArmorType('Hardened')).toBe(ArmorTypeEnum.HARDENED);
     });
 
+    it('should fuzzy match stealth armor', () => {
+      expect(mapArmorType('some stealth armor')).toBe(ArmorTypeEnum.STEALTH);
+    });
+
+    it('should fuzzy match reactive armor', () => {
+      expect(mapArmorType('some reactive armor')).toBe(ArmorTypeEnum.REACTIVE);
+    });
+
+    it('should fuzzy match reflective armor', () => {
+      expect(mapArmorType('some reflective armor')).toBe(ArmorTypeEnum.REFLECTIVE);
+      expect(mapArmorType('laser-reflective type')).toBe(ArmorTypeEnum.REFLECTIVE);
+    });
+
+    it('should fuzzy match hardened armor', () => {
+      expect(mapArmorType('some hardened armor')).toBe(ArmorTypeEnum.HARDENED);
+    });
+
+    it('should fuzzy match heavy ferro armor', () => {
+      expect(mapArmorType('some heavy ferro armor')).toBe(ArmorTypeEnum.HEAVY_FERRO);
+    });
+
+    it('should fuzzy match light ferro armor', () => {
+      expect(mapArmorType('some light ferro armor')).toBe(ArmorTypeEnum.LIGHT_FERRO);
+    });
+
     it('should default to STANDARD for unknown', () => {
       expect(mapArmorType('Unknown')).toBe(ArmorTypeEnum.STANDARD);
     });
@@ -306,6 +368,11 @@ describe('ValueMappings', () => {
     it('should use fuzzy matching', () => {
       expect(mapGyroType('some compact gyro')).toBe(GyroType.COMPACT);
       expect(mapGyroType('heavy duty type')).toBe(GyroType.HEAVY_DUTY);
+    });
+
+    it('should fuzzy match XL gyro', () => {
+      expect(mapGyroType('some xl gyro')).toBe(GyroType.XL);
+      expect(mapGyroType('extra-light gyro')).toBe(GyroType.XL);
     });
 
     it('should default to STANDARD for unknown', () => {
@@ -331,6 +398,23 @@ describe('ValueMappings', () => {
     it('should use fuzzy matching', () => {
       expect(mapCockpitType('small cockpit')).toBe(CockpitType.SMALL);
       expect(mapCockpitType('torso mounted')).toBe(CockpitType.TORSO_MOUNTED);
+    });
+
+    it('should fuzzy match command console', () => {
+      expect(mapCockpitType('command console type')).toBe(CockpitType.COMMAND_CONSOLE);
+    });
+
+    it('should fuzzy match industrial cockpit', () => {
+      expect(mapCockpitType('industrial cockpit type')).toBe(CockpitType.INDUSTRIAL);
+    });
+
+    it('should fuzzy match primitive cockpit', () => {
+      expect(mapCockpitType('primitive cockpit type')).toBe(CockpitType.PRIMITIVE);
+    });
+
+    it('should fuzzy match superheavy cockpit', () => {
+      expect(mapCockpitType('superheavy cockpit type')).toBe(CockpitType.SUPER_HEAVY);
+      expect(mapCockpitType('super-heavy cockpit')).toBe(CockpitType.SUPER_HEAVY);
     });
 
     it('should default to STANDARD for unknown', () => {
@@ -359,6 +443,10 @@ describe('ValueMappings', () => {
       expect(mapMechConfiguration('quad mech')).toBe(MechConfiguration.QUAD);
       expect(mapMechConfiguration('tripod omni')).toBe(MechConfiguration.TRIPOD);
       expect(mapMechConfiguration('quad vee type')).toBe(MechConfiguration.QUADVEE);
+    });
+
+    it('should fuzzy match LAM configuration', () => {
+      expect(mapMechConfiguration('some lam type')).toBe(MechConfiguration.LAM);
     });
 
     it('should default to BIPED for unknown', () => {
