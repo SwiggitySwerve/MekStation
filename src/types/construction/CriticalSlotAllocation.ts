@@ -8,30 +8,84 @@
 
 /**
  * Mech locations for critical slot allocation
+ *
+ * Includes all locations across all mech configurations:
+ * - Biped: HEAD, CT, LT, RT, LA, RA, LL, RL (8 locations)
+ * - Quad: HEAD, CT, LT, RT, FLL, FRL, RLL, RRL (8 locations)
+ * - Tripod: HEAD, CT, LT, RT, LA, RA, LL, RL, CL (9 locations)
+ * - LAM Mech: Same as Biped
+ * - LAM Fighter: NOSE, LW, RW, AFT, FUSELAGE (5 locations, for armor mapping)
+ *
+ * @spec openspec/specs/mech-configuration-system/spec.md
  */
 export enum MechLocation {
+  // Universal locations (all configurations)
   HEAD = 'Head',
   CENTER_TORSO = 'Center Torso',
   LEFT_TORSO = 'Left Torso',
   RIGHT_TORSO = 'Right Torso',
+
+  // Biped/Tripod/LAM arm locations
   LEFT_ARM = 'Left Arm',
   RIGHT_ARM = 'Right Arm',
+
+  // Biped/Tripod/LAM leg locations
   LEFT_LEG = 'Left Leg',
   RIGHT_LEG = 'Right Leg',
+
+  // Tripod-specific location
+  CENTER_LEG = 'Center Leg',
+
+  // Quad/QuadVee-specific locations
+  FRONT_LEFT_LEG = 'Front Left Leg',
+  FRONT_RIGHT_LEG = 'Front Right Leg',
+  REAR_LEFT_LEG = 'Rear Left Leg',
+  REAR_RIGHT_LEG = 'Rear Right Leg',
+
+  // LAM Fighter mode locations (for armor mapping)
+  NOSE = 'Nose',
+  LEFT_WING = 'Left Wing',
+  RIGHT_WING = 'Right Wing',
+  AFT = 'Aft',
+  FUSELAGE = 'Fuselage',
 }
 
 /**
  * Critical slot counts per location
+ *
+ * Note: Quad legs have 12 slots (same as arms in biped).
+ * LAM fighter locations are for armor mapping only, not critical slots.
  */
 export const LOCATION_SLOT_COUNTS: Readonly<Record<MechLocation, number>> = {
+  // Universal locations
   [MechLocation.HEAD]: 6,
   [MechLocation.CENTER_TORSO]: 12,
   [MechLocation.LEFT_TORSO]: 12,
   [MechLocation.RIGHT_TORSO]: 12,
+
+  // Biped/Tripod/LAM arm locations
   [MechLocation.LEFT_ARM]: 12,
   [MechLocation.RIGHT_ARM]: 12,
+
+  // Biped/Tripod/LAM leg locations (6 slots)
   [MechLocation.LEFT_LEG]: 6,
   [MechLocation.RIGHT_LEG]: 6,
+
+  // Tripod center leg
+  [MechLocation.CENTER_LEG]: 6,
+
+  // Quad/QuadVee leg locations (12 slots each)
+  [MechLocation.FRONT_LEFT_LEG]: 12,
+  [MechLocation.FRONT_RIGHT_LEG]: 12,
+  [MechLocation.REAR_LEFT_LEG]: 12,
+  [MechLocation.REAR_RIGHT_LEG]: 12,
+
+  // LAM Fighter mode locations (not used for critical slots, 0 by convention)
+  [MechLocation.NOSE]: 0,
+  [MechLocation.LEFT_WING]: 0,
+  [MechLocation.RIGHT_WING]: 0,
+  [MechLocation.AFT]: 0,
+  [MechLocation.FUSELAGE]: 0,
 };
 
 /**

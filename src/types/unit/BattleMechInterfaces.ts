@@ -91,7 +91,7 @@ export interface IGyroConfiguration {
  */
 export interface IStructureConfiguration {
   readonly type: InternalStructureType;
-  readonly points: Record<MechLocation, number>;
+  readonly points: Partial<Record<MechLocation, number>>;
 }
 
 /**

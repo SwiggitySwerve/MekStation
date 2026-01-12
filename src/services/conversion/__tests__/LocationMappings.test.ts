@@ -60,6 +60,24 @@ describe('LocationMappings', () => {
       expect(mapLocation('RL')).toBe(MechLocation.RIGHT_LEG);
     });
 
+    it('should map quad mech leg locations', () => {
+      expect(mapLocation('Front Left Leg')).toBe(MechLocation.FRONT_LEFT_LEG);
+      expect(mapLocation('FLL')).toBe(MechLocation.FRONT_LEFT_LEG);
+      expect(mapLocation('FrontLeftLeg')).toBe(MechLocation.FRONT_LEFT_LEG);
+
+      expect(mapLocation('Front Right Leg')).toBe(MechLocation.FRONT_RIGHT_LEG);
+      expect(mapLocation('FRL')).toBe(MechLocation.FRONT_RIGHT_LEG);
+      expect(mapLocation('FrontRightLeg')).toBe(MechLocation.FRONT_RIGHT_LEG);
+
+      expect(mapLocation('Rear Left Leg')).toBe(MechLocation.REAR_LEFT_LEG);
+      expect(mapLocation('RLL')).toBe(MechLocation.REAR_LEFT_LEG);
+      expect(mapLocation('RearLeftLeg')).toBe(MechLocation.REAR_LEFT_LEG);
+
+      expect(mapLocation('Rear Right Leg')).toBe(MechLocation.REAR_RIGHT_LEG);
+      expect(mapLocation('RRL')).toBe(MechLocation.REAR_RIGHT_LEG);
+      expect(mapLocation('RearRightLeg')).toBe(MechLocation.REAR_RIGHT_LEG);
+    });
+
     it('should return undefined for unknown locations', () => {
       expect(mapLocation('Unknown')).toBeUndefined();
       expect(mapLocation('')).toBeUndefined();
@@ -113,6 +131,29 @@ describe('LocationMappings', () => {
       expect(parseLocation('head section')?.location).toBe(MechLocation.HEAD);
       expect(parseLocation('left arm mount')?.location).toBe(MechLocation.LEFT_ARM);
       expect(parseLocation('right leg area')?.location).toBe(MechLocation.RIGHT_LEG);
+    });
+
+    it('should fuzzy match torso locations', () => {
+      expect(parseLocation('center torso area')?.location).toBe(MechLocation.CENTER_TORSO);
+      expect(parseLocation('left torso section')?.location).toBe(MechLocation.LEFT_TORSO);
+      expect(parseLocation('right torso bay')?.location).toBe(MechLocation.RIGHT_TORSO);
+    });
+
+    it('should fuzzy match arm locations', () => {
+      expect(parseLocation('left arm hardpoint')?.location).toBe(MechLocation.LEFT_ARM);
+      expect(parseLocation('right arm hardpoint')?.location).toBe(MechLocation.RIGHT_ARM);
+    });
+
+    it('should fuzzy match quad leg locations', () => {
+      expect(parseLocation('front left leg section')?.location).toBe(MechLocation.FRONT_LEFT_LEG);
+      expect(parseLocation('front right leg section')?.location).toBe(MechLocation.FRONT_RIGHT_LEG);
+      expect(parseLocation('rear left leg section')?.location).toBe(MechLocation.REAR_LEFT_LEG);
+      expect(parseLocation('rear right leg section')?.location).toBe(MechLocation.REAR_RIGHT_LEG);
+    });
+
+    it('should fuzzy match biped leg locations', () => {
+      expect(parseLocation('left leg section')?.location).toBe(MechLocation.LEFT_LEG);
+      expect(parseLocation('right leg bay')?.location).toBe(MechLocation.RIGHT_LEG);
     });
 
     it('should return undefined for invalid locations', () => {
@@ -288,6 +329,48 @@ describe('LocationMappings', () => {
       const entries: SourceCriticalEntry[] = [];
       const result = parseCriticalSlots(entries);
       expect(result.length).toBe(0);
+    });
+
+    it('should handle partial format (some locations separate)', () => {
+      // Less than 8 entries but multiple locations
+      const entries: SourceCriticalEntry[] = [
+        { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-'] },
+        { location: 'Left Arm', slots: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-'] },
+        { location: 'Right Arm', slots: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-'] },
+      ];
+
+      const result = parseCriticalSlots(entries);
+
+      expect(result.length).toBe(3);
+      expect(result.find(r => r.location === MechLocation.HEAD)).toBeDefined();
+      expect(result.find(r => r.location === MechLocation.LEFT_ARM)).toBeDefined();
+      expect(result.find(r => r.location === MechLocation.RIGHT_ARM)).toBeDefined();
+    });
+
+    it('should skip duplicate locations in partial format', () => {
+      const entries: SourceCriticalEntry[] = [
+        { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-'] },
+        { location: 'Head', slots: ['Different', 'Slots', 'Here'] }, // Duplicate should be skipped
+      ];
+
+      const result = parseCriticalSlots(entries);
+
+      // Should only have one Head entry
+      const headEntries = result.filter(r => r.location === MechLocation.HEAD);
+      expect(headEntries.length).toBe(1);
+      expect(headEntries[0].slots[0]).toBe('Life Support');
+    });
+
+    it('should skip entries with invalid locations in partial format', () => {
+      const entries: SourceCriticalEntry[] = [
+        { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-'] },
+        { location: 'InvalidLocation', slots: ['Should', 'Be', 'Skipped'] },
+      ];
+
+      const result = parseCriticalSlots(entries);
+
+      expect(result.length).toBe(1);
+      expect(result[0].location).toBe(MechLocation.HEAD);
     });
   });
 

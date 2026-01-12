@@ -523,7 +523,7 @@ export class UnitFactoryService {
   /**
    * Build structure points map
    */
-  private buildStructurePoints(tonnage: number): Record<MechLocation, number> {
+  private buildStructurePoints(tonnage: number): Partial<Record<MechLocation, number>> {
     return {
       [MechLocation.HEAD]: getStructurePoints(MechLocation.HEAD, tonnage),
       [MechLocation.CENTER_TORSO]: getStructurePoints(MechLocation.CENTER_TORSO, tonnage),

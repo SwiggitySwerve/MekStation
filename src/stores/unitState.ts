@@ -36,6 +36,8 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
  * Stores armor points assigned to each location (front and rear for torsos)
  */
 export interface IArmorAllocation {
+  /** Index signature allowing any MechLocation key */
+  [key: string]: number;
   /** Head armor points */
   [MechLocation.HEAD]: number;
   /** Center Torso front armor points */

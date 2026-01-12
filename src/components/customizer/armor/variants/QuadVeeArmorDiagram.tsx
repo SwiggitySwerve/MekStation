@@ -1,21 +1,20 @@
 /**
- * Clean Tech Armor Diagram
+ * QuadVee Armor Diagram
  *
- * Design Philosophy: Maximum readability and usability
- * - Realistic mech contour silhouette
- * - Solid gradient fills based on armor status
- * - Plain bold numbers for armor values
- * - Color + small text for capacity indication
- * - Stacked front/rear display
- * - Simple border highlight on interaction
+ * Design Philosophy: Transformable quad mech visualization
+ * - Mode toggle between Mech (quad legs) and Vehicle (tracked) modes
+ * - Same 8 locations as standard quad in both modes
+ * - Different silhouette representation per mode
+ * - Status colors and interaction patterns consistent with other diagrams
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
+import { QuadVeeMode, QUADVEE_MODES } from '@/types/construction/MechConfigurationSystem';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
-  LOCATION_LABELS,
+  QUAD_SILHOUETTE,
+  QUAD_LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
@@ -30,25 +29,27 @@ import {
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
-interface CleanTechLocationProps {
+interface QuadVeeLocationProps {
   location: MechLocation;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  mode: QuadVeeMode;
 }
 
-function CleanTechLocation({
+function QuadVeeLocation({
   location,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: CleanTechLocationProps): React.ReactElement | null {
-  const pos = BATTLEMECH_SILHOUETTE.locations[location];
-  const label = LOCATION_LABELS[location];
+  mode,
+}: QuadVeeLocationProps): React.ReactElement | null {
+  const pos = QUAD_SILHOUETTE.locations[location];
+  const label = QUAD_LOCATION_LABELS[location];
 
   // Skip rendering if this location is not defined in this silhouette
   if (!pos) return null;
@@ -62,7 +63,6 @@ function CleanTechLocation({
   const rearMax = data?.rearMaximum ?? 1;
 
   // Status-based colors for front and rear independently
-  // For torso locations, use expected capacity (75/25 split) as baseline
   const frontBaseColor = isSelected
     ? SELECTED_COLOR
     : showRear
@@ -83,6 +83,14 @@ function CleanTechLocation({
   const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
   const dividerY = pos.y + frontHeight;
   const rearY = dividerY + dividerHeight;
+
+  // Vehicle mode: add visual indication (wheels/treads)
+  const isLeg = [
+    MechLocation.FRONT_LEFT_LEG,
+    MechLocation.FRONT_RIGHT_LEG,
+    MechLocation.REAR_LEFT_LEG,
+    MechLocation.REAR_RIGHT_LEG,
+  ].includes(location);
 
   return (
     <g
@@ -129,13 +137,42 @@ function CleanTechLocation({
         />
       )}
 
+      {/* Vehicle mode: wheel/tread indicator on legs */}
+      {mode === QuadVeeMode.VEHICLE && isLeg && (
+        <>
+          {/* Track indicator */}
+          <rect
+            x={pos.x + 2}
+            y={pos.y + pos.height - 18}
+            width={pos.width - 4}
+            height={14}
+            rx={4}
+            fill="#374151"
+            stroke="#6B7280"
+            strokeWidth={1}
+            className="pointer-events-none"
+          />
+          {/* Track ridges */}
+          <line
+            x1={pos.x + 6}
+            y1={pos.y + pos.height - 11}
+            x2={pos.x + pos.width - 6}
+            y2={pos.y + pos.height - 11}
+            stroke="#6B7280"
+            strokeWidth={1}
+            strokeDasharray="4 2"
+            className="pointer-events-none"
+          />
+        </>
+      )}
+
       {/* Front armor value - large bold number */}
       <text
         x={center.x}
         y={pos.y + frontHeight / 2 + 5}
         textAnchor="middle"
         className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: pos.width < 40 ? '14px' : '18px' }}
+        style={{ fontSize: pos.width < 40 ? '12px' : '16px' }}
       >
         {current}
       </text>
@@ -143,10 +180,10 @@ function CleanTechLocation({
       {/* Capacity text */}
       <text
         x={center.x}
-        y={pos.y + frontHeight / 2 + 18}
+        y={pos.y + frontHeight / 2 + 16}
         textAnchor="middle"
         className="fill-white/60 pointer-events-none"
-        style={{ fontSize: '9px' }}
+        style={{ fontSize: '8px' }}
       >
         / {maximum}
       </text>
@@ -157,7 +194,7 @@ function CleanTechLocation({
         y={pos.y + 12}
         textAnchor="middle"
         className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: showRear ? '8px' : '10px' }}
+        style={{ fontSize: showRear ? '8px' : '9px' }}
       >
         {showRear ? `${label} FRONT` : label}
       </text>
@@ -208,7 +245,7 @@ function CleanTechLocation({
             y={rearY + rearHeight / 2 + 6}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '14px' }}
+            style={{ fontSize: '12px' }}
           >
             {rear}
           </text>
@@ -218,24 +255,48 @@ function CleanTechLocation({
   );
 }
 
-export interface CleanTechDiagramProps {
+export interface QuadVeeArmorDiagramProps {
   armorData: LocationArmorData[];
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   onAutoAllocate?: () => void;
   className?: string;
+  initialMode?: QuadVeeMode;
+  onModeChange?: (mode: QuadVeeMode) => void;
 }
 
-export function CleanTechDiagram({
+/**
+ * QuadVee mech locations in display order
+ */
+const QUADVEE_LOCATIONS: MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+];
+
+export function QuadVeeArmorDiagram({
   armorData,
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
   onAutoAllocate,
   className = '',
-}: CleanTechDiagramProps): React.ReactElement {
+  initialMode = QuadVeeMode.MECH,
+  onModeChange,
+}: QuadVeeArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [currentMode, setCurrentMode] = useState<QuadVeeMode>(initialMode);
+
+  const handleModeChange = (mode: QuadVeeMode) => {
+    setCurrentMode(mode);
+    onModeChange?.(mode);
+  };
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
@@ -243,23 +304,12 @@ export function CleanTechDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
-
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
+          <h3 className="text-lg font-semibold text-white">QuadVee Armor Allocation</h3>
           <ArmorDiagramQuickSettings />
         </div>
         {onAutoAllocate && (
@@ -276,11 +326,38 @@ export function CleanTechDiagram({
         )}
       </div>
 
+      {/* Mode Toggle */}
+      <div className="flex justify-center mb-4">
+        <div className="inline-flex rounded-lg bg-surface-elevated p-1 gap-1">
+          {QUADVEE_MODES.map((modeDefinition) => (
+            <button
+              key={modeDefinition.mode}
+              onClick={() => handleModeChange(modeDefinition.mode)}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                currentMode === modeDefinition.mode
+                  ? 'bg-accent text-white'
+                  : 'text-text-theme-secondary hover:text-white hover:bg-surface-base'
+              }`}
+              title={modeDefinition.description}
+            >
+              {modeDefinition.displayName}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mode Description */}
+      <p className="text-xs text-text-theme-secondary text-center mb-3">
+        {currentMode === QuadVeeMode.MECH
+          ? 'Mech Mode: Standard quad mech movement'
+          : 'Vehicle Mode: Tracked vehicle movement'}
+      </p>
+
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          viewBox={QUAD_SILHOUETTE.viewBox}
+          className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -289,15 +366,15 @@ export function CleanTechDiagram({
           <rect
             x="0"
             y="0"
-            width="200"
+            width="300"
             height="280"
             fill="url(#armor-grid)"
             opacity="0.5"
           />
 
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <CleanTechLocation
+          {/* Render all QuadVee locations */}
+          {QUADVEE_LOCATIONS.map((loc) => (
+            <QuadVeeLocation
               key={loc}
               location={loc}
               data={getArmorData(loc)}
@@ -305,6 +382,7 @@ export function CleanTechDiagram({
               isHovered={hoveredLocation === loc}
               onClick={() => onLocationClick(loc)}
               onHover={(h) => setHoveredLocation(h ? loc : null)}
+              mode={currentMode}
             />
           ))}
         </svg>
@@ -327,6 +405,16 @@ export function CleanTechDiagram({
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-500" />
           <span className="text-text-theme-secondary">&lt;25%</span>
+        </div>
+      </div>
+
+      {/* Location Key */}
+      <div className="mt-3 pt-3 border-t border-border-theme-subtle">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+          <div>FLL = Front Left Leg</div>
+          <div>FRL = Front Right Leg</div>
+          <div>RLL = Rear Left Leg</div>
+          <div>RRL = Rear Right Leg</div>
         </div>
       </div>
 

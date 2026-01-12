@@ -55,15 +55,30 @@ export const MECH_LOCATIONS_ORDERED: readonly MechLocation[] = [
 ] as const;
 
 /**
- * Short labels for locations
+ * Short labels for locations (all configurations)
  */
 export const LOCATION_SHORT_LABELS: Record<MechLocation, string> = {
+  // Universal
   [MechLocation.HEAD]: 'HD',
   [MechLocation.CENTER_TORSO]: 'CT',
   [MechLocation.LEFT_TORSO]: 'LT',
   [MechLocation.RIGHT_TORSO]: 'RT',
+  // Biped/Tripod/LAM
   [MechLocation.LEFT_ARM]: 'LA',
   [MechLocation.RIGHT_ARM]: 'RA',
   [MechLocation.LEFT_LEG]: 'LL',
   [MechLocation.RIGHT_LEG]: 'RL',
+  // Tripod
+  [MechLocation.CENTER_LEG]: 'CL',
+  // Quad/QuadVee
+  [MechLocation.FRONT_LEFT_LEG]: 'FLL',
+  [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
+  [MechLocation.REAR_LEFT_LEG]: 'RLL',
+  [MechLocation.REAR_RIGHT_LEG]: 'RRL',
+  // LAM Fighter
+  [MechLocation.NOSE]: 'NOS',
+  [MechLocation.LEFT_WING]: 'LW',
+  [MechLocation.RIGHT_WING]: 'RW',
+  [MechLocation.AFT]: 'AFT',
+  [MechLocation.FUSELAGE]: 'FUS',
 };

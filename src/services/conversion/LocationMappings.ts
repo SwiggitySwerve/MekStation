@@ -7,7 +7,7 @@
  * @spec unit-json.plan.md
  */
 
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { IArmorAllocation } from '@/types/construction/ComponentInterfaces';
 
 // ============================================================================
@@ -16,47 +16,68 @@ import { IArmorAllocation } from '@/types/construction/ComponentInterfaces';
 
 /**
  * Map of all possible location name variations to MechLocation enum
+ * Supports both biped and quad configurations
  */
 const LOCATION_MAP: Record<string, MechLocation> = {
   // Head
   'Head': MechLocation.HEAD,
   'HD': MechLocation.HEAD,
   'H': MechLocation.HEAD,
-  
+
   // Center Torso
   'Center Torso': MechLocation.CENTER_TORSO,
   'CT': MechLocation.CENTER_TORSO,
   'CenterTorso': MechLocation.CENTER_TORSO,
-  
+
   // Left Torso
   'Left Torso': MechLocation.LEFT_TORSO,
   'LT': MechLocation.LEFT_TORSO,
   'LeftTorso': MechLocation.LEFT_TORSO,
-  
+
   // Right Torso
   'Right Torso': MechLocation.RIGHT_TORSO,
   'RT': MechLocation.RIGHT_TORSO,
   'RightTorso': MechLocation.RIGHT_TORSO,
-  
-  // Left Arm
+
+  // Left Arm (Biped)
   'Left Arm': MechLocation.LEFT_ARM,
   'LA': MechLocation.LEFT_ARM,
   'LeftArm': MechLocation.LEFT_ARM,
-  
-  // Right Arm
+
+  // Right Arm (Biped)
   'Right Arm': MechLocation.RIGHT_ARM,
   'RA': MechLocation.RIGHT_ARM,
   'RightArm': MechLocation.RIGHT_ARM,
-  
-  // Left Leg
+
+  // Left Leg (Biped)
   'Left Leg': MechLocation.LEFT_LEG,
   'LL': MechLocation.LEFT_LEG,
   'LeftLeg': MechLocation.LEFT_LEG,
-  
-  // Right Leg
+
+  // Right Leg (Biped)
   'Right Leg': MechLocation.RIGHT_LEG,
   'RL': MechLocation.RIGHT_LEG,
   'RightLeg': MechLocation.RIGHT_LEG,
+
+  // Front Left Leg (Quad)
+  'Front Left Leg': MechLocation.FRONT_LEFT_LEG,
+  'FLL': MechLocation.FRONT_LEFT_LEG,
+  'FrontLeftLeg': MechLocation.FRONT_LEFT_LEG,
+
+  // Front Right Leg (Quad)
+  'Front Right Leg': MechLocation.FRONT_RIGHT_LEG,
+  'FRL': MechLocation.FRONT_RIGHT_LEG,
+  'FrontRightLeg': MechLocation.FRONT_RIGHT_LEG,
+
+  // Rear Left Leg (Quad)
+  'Rear Left Leg': MechLocation.REAR_LEFT_LEG,
+  'RLL': MechLocation.REAR_LEFT_LEG,
+  'RearLeftLeg': MechLocation.REAR_LEFT_LEG,
+
+  // Rear Right Leg (Quad)
+  'Rear Right Leg': MechLocation.REAR_RIGHT_LEG,
+  'RRL': MechLocation.REAR_RIGHT_LEG,
+  'RearRightLeg': MechLocation.REAR_RIGHT_LEG,
 };
 
 /**
@@ -132,39 +153,57 @@ export function parseLocation(source: string): ParsedLocation | undefined {
   
   // Fuzzy matching
   const lowerSource = normalized.toLowerCase();
-  
+
   if (lowerSource.includes('head')) {
     return { location: MechLocation.HEAD, isRear: false };
   }
-  
+
   if (lowerSource.includes('center') && lowerSource.includes('torso')) {
     return { location: MechLocation.CENTER_TORSO, isRear: false };
   }
-  
+
   if (lowerSource.includes('left') && lowerSource.includes('torso')) {
     return { location: MechLocation.LEFT_TORSO, isRear: false };
   }
-  
+
   if (lowerSource.includes('right') && lowerSource.includes('torso')) {
     return { location: MechLocation.RIGHT_TORSO, isRear: false };
   }
-  
+
   if (lowerSource.includes('left') && lowerSource.includes('arm')) {
     return { location: MechLocation.LEFT_ARM, isRear: false };
   }
-  
+
   if (lowerSource.includes('right') && lowerSource.includes('arm')) {
     return { location: MechLocation.RIGHT_ARM, isRear: false };
   }
-  
+
+  // Quad leg locations (check front/rear before generic legs)
+  if (lowerSource.includes('front') && lowerSource.includes('left') && lowerSource.includes('leg')) {
+    return { location: MechLocation.FRONT_LEFT_LEG, isRear: false };
+  }
+
+  if (lowerSource.includes('front') && lowerSource.includes('right') && lowerSource.includes('leg')) {
+    return { location: MechLocation.FRONT_RIGHT_LEG, isRear: false };
+  }
+
+  if (lowerSource.includes('rear') && lowerSource.includes('left') && lowerSource.includes('leg')) {
+    return { location: MechLocation.REAR_LEFT_LEG, isRear: false };
+  }
+
+  if (lowerSource.includes('rear') && lowerSource.includes('right') && lowerSource.includes('leg')) {
+    return { location: MechLocation.REAR_RIGHT_LEG, isRear: false };
+  }
+
+  // Biped leg locations (generic left/right leg)
   if (lowerSource.includes('left') && lowerSource.includes('leg')) {
     return { location: MechLocation.LEFT_LEG, isRear: false };
   }
-  
+
   if (lowerSource.includes('right') && lowerSource.includes('leg')) {
     return { location: MechLocation.RIGHT_LEG, isRear: false };
   }
-  
+
   return undefined;
 }
 
@@ -323,18 +362,65 @@ export const LOCATION_SLOT_ORDER: readonly MechLocation[] = [
 ];
 
 /**
- * Slot counts per location for biped mechs
+ * Biped mech locations for slot extraction
  */
-export const BIPED_SLOT_COUNTS: Record<MechLocation, number> = {
-  [MechLocation.HEAD]: 6,
-  [MechLocation.CENTER_TORSO]: 12,
-  [MechLocation.LEFT_TORSO]: 12,
-  [MechLocation.RIGHT_TORSO]: 12,
-  [MechLocation.LEFT_ARM]: 12,
-  [MechLocation.RIGHT_ARM]: 12,
-  [MechLocation.LEFT_LEG]: 6,
-  [MechLocation.RIGHT_LEG]: 6,
-};
+const BIPED_LOCATIONS = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+] as const;
+
+/**
+ * Quad mech locations for slot extraction
+ */
+const QUAD_LOCATIONS = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+] as const;
+
+/**
+ * Slot counts per location for biped mechs
+ *
+ * @deprecated Use LOCATION_SLOT_COUNTS from CriticalSlotAllocation instead
+ */
+export const BIPED_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.fromEntries(
+  BIPED_LOCATIONS.map(loc => [loc, LOCATION_SLOT_COUNTS[loc]])
+) as Partial<Record<MechLocation, number>>;
+
+/**
+ * Slot counts per location for quad mechs
+ *
+ * Note: Quad legs have 12 slots each (same as biped arms).
+ * @deprecated Use LOCATION_SLOT_COUNTS from CriticalSlotAllocation instead
+ */
+export const QUAD_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.fromEntries(
+  QUAD_LOCATIONS.map(loc => [loc, LOCATION_SLOT_COUNTS[loc]])
+) as Partial<Record<MechLocation, number>>;
+
+/**
+ * Order of locations in MegaMekLab's combined criticals array for quad mechs
+ */
+export const QUAD_LOCATION_SLOT_ORDER: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.CENTER_TORSO,
+];
 
 /**
  * Padded slot counts - MegaMekLab converter pads all locations to 12 slots
@@ -378,7 +464,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
       if (location) {
         result.push({
           location,
-          slots: entry.slots.slice(0, BIPED_SLOT_COUNTS[location]),
+          slots: entry.slots.slice(0, LOCATION_SLOT_COUNTS[location]),
         });
       }
     }
@@ -393,7 +479,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
     
     // Split by padded slot count (12 per location)
     for (const location of LOCATION_SLOT_ORDER) {
-      const actualSlotCount = BIPED_SLOT_COUNTS[location];
+      const actualSlotCount = LOCATION_SLOT_COUNTS[location] ?? 0;
       // Take only the actual slot count for this location (not the padded amount)
       const locationSlots = allSlots.slice(offset, offset + actualSlotCount);
       
@@ -421,7 +507,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
       processedLocations.add(location);
       result.push({
         location,
-        slots: entry.slots.slice(0, BIPED_SLOT_COUNTS[location]),
+        slots: entry.slots.slice(0, LOCATION_SLOT_COUNTS[location]),
       });
     }
   }

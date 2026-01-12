@@ -23,7 +23,7 @@ export interface LocationPosition {
  */
 export interface SilhouetteConfig {
   viewBox: string;
-  locations: Record<MechLocation, LocationPosition>;
+  locations: Partial<Record<MechLocation, LocationPosition>>;
   /** Optional outline path for wireframe style */
   outlinePath?: string;
 }
@@ -770,9 +770,311 @@ export function getTorsoSplit(
 }
 
 /**
- * Location labels
+ * Quad Mech silhouette - four-legged configuration
+ * Used for QuadMechs with four legs instead of arms
  */
-export const LOCATION_LABELS: Record<MechLocation, string> = {
+export const QUAD_SILHOUETTE: SilhouetteConfig = {
+  viewBox: '0 0 300 280',
+  locations: {
+    [MechLocation.HEAD]: {
+      x: 115,
+      y: 0,
+      width: 70,
+      height: 45,
+      path: `
+        M 150 0
+        L 175 10
+        L 185 25
+        L 185 40
+        L 165 45
+        L 135 45
+        L 115 40
+        L 115 25
+        L 125 10
+        Z
+      `,
+    },
+    [MechLocation.CENTER_TORSO]: {
+      x: 95,
+      y: 50,
+      width: 110,
+      height: 90,
+      path: `
+        M 110 50
+        L 190 50
+        L 205 65
+        L 205 125
+        L 190 140
+        L 110 140
+        L 95 125
+        L 95 65
+        Z
+      `,
+    },
+    [MechLocation.LEFT_TORSO]: {
+      x: 45,
+      y: 55,
+      width: 48,
+      height: 85,
+      path: `
+        M 93 55
+        L 93 135
+        L 65 140
+        L 45 130
+        L 45 70
+        L 55 55
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_TORSO]: {
+      x: 207,
+      y: 55,
+      width: 48,
+      height: 85,
+      path: `
+        M 207 55
+        L 207 135
+        L 235 140
+        L 255 130
+        L 255 70
+        L 245 55
+        Z
+      `,
+    },
+    [MechLocation.FRONT_LEFT_LEG]: {
+      x: 10,
+      y: 45,
+      width: 35,
+      height: 115,
+      path: `
+        M 35 45
+        L 45 55
+        L 45 95
+        L 40 105
+        L 40 145
+        L 35 160
+        L 15 160
+        L 10 150
+        L 10 95
+        L 15 80
+        L 15 55
+        L 25 45
+        Z
+      `,
+    },
+    [MechLocation.FRONT_RIGHT_LEG]: {
+      x: 255,
+      y: 45,
+      width: 35,
+      height: 115,
+      path: `
+        M 265 45
+        L 255 55
+        L 255 95
+        L 260 105
+        L 260 145
+        L 265 160
+        L 285 160
+        L 290 150
+        L 290 95
+        L 285 80
+        L 285 55
+        L 275 45
+        Z
+      `,
+    },
+    [MechLocation.REAR_LEFT_LEG]: {
+      x: 55,
+      y: 145,
+      width: 40,
+      height: 125,
+      path: `
+        M 75 145
+        L 95 155
+        L 95 200
+        L 90 215
+        L 90 255
+        L 85 270
+        L 60 270
+        L 55 260
+        L 55 205
+        L 60 185
+        L 60 155
+        L 65 145
+        Z
+      `,
+    },
+    [MechLocation.REAR_RIGHT_LEG]: {
+      x: 205,
+      y: 145,
+      width: 40,
+      height: 125,
+      path: `
+        M 225 145
+        L 205 155
+        L 205 200
+        L 210 215
+        L 210 255
+        L 215 270
+        L 240 270
+        L 245 260
+        L 245 205
+        L 240 185
+        L 240 155
+        L 235 145
+        Z
+      `,
+    },
+  },
+  outlinePath: `
+    M 150 0
+    L 175 10
+    L 185 25
+    L 185 50
+    L 245 55
+    L 285 55
+    L 290 95
+    L 290 160
+    L 265 160
+    L 255 145
+    L 255 140
+    L 245 270
+    L 215 270
+    L 205 200
+    L 205 155
+    L 110 155
+    L 95 200
+    L 85 270
+    L 55 270
+    L 45 140
+    L 35 145
+    L 10 160
+    L 10 95
+    L 15 55
+    L 55 55
+    L 115 50
+    L 115 25
+    L 125 10
+    Z
+  `,
+};
+
+/**
+ * LAM Fighter Mode silhouette - aerospace fighter configuration
+ * Shows the transformed LAM with Nose, Wings, Aft, and Fuselage
+ */
+export const FIGHTER_SILHOUETTE: SilhouetteConfig = {
+  viewBox: '0 0 300 280',
+  locations: {
+    [MechLocation.NOSE]: {
+      x: 115,
+      y: 0,
+      width: 70,
+      height: 60,
+      path: `
+        M 150 0
+        L 175 15
+        L 185 35
+        L 180 60
+        L 120 60
+        L 115 35
+        L 125 15
+        Z
+      `,
+    },
+    [MechLocation.FUSELAGE]: {
+      x: 105,
+      y: 65,
+      width: 90,
+      height: 150,
+      path: `
+        M 120 65
+        L 180 65
+        L 185 80
+        L 185 200
+        L 175 215
+        L 125 215
+        L 115 200
+        L 115 80
+        Z
+      `,
+    },
+    [MechLocation.LEFT_WING]: {
+      x: 5,
+      y: 70,
+      width: 105,
+      height: 100,
+      path: `
+        M 110 70
+        L 110 140
+        L 70 165
+        L 5 145
+        L 5 120
+        L 50 85
+        L 90 70
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_WING]: {
+      x: 190,
+      y: 70,
+      width: 105,
+      height: 100,
+      path: `
+        M 190 70
+        L 190 140
+        L 230 165
+        L 295 145
+        L 295 120
+        L 250 85
+        L 210 70
+        Z
+      `,
+    },
+    [MechLocation.AFT]: {
+      x: 115,
+      y: 220,
+      width: 70,
+      height: 55,
+      path: `
+        M 125 220
+        L 175 220
+        L 180 235
+        L 185 270
+        L 170 275
+        L 130 275
+        L 115 270
+        L 120 235
+        Z
+      `,
+    },
+  },
+  outlinePath: `
+    M 150 0
+    L 175 15
+    L 185 35
+    L 185 70
+    L 295 120
+    L 295 145
+    L 185 200
+    L 185 270
+    L 170 275
+    L 130 275
+    L 115 270
+    L 115 200
+    L 5 145
+    L 5 120
+    L 115 70
+    L 115 35
+    L 125 15
+    Z
+  `,
+};
+
+/**
+ * Location labels for biped mechs
+ */
+export const LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
   [MechLocation.HEAD]: 'HD',
   [MechLocation.CENTER_TORSO]: 'CT',
   [MechLocation.LEFT_TORSO]: 'LT',
@@ -781,6 +1083,252 @@ export const LOCATION_LABELS: Record<MechLocation, string> = {
   [MechLocation.RIGHT_ARM]: 'RA',
   [MechLocation.LEFT_LEG]: 'LL',
   [MechLocation.RIGHT_LEG]: 'RL',
+};
+
+/**
+ * Location labels for quad mechs
+ */
+export const QUAD_LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
+  [MechLocation.HEAD]: 'HD',
+  [MechLocation.CENTER_TORSO]: 'CT',
+  [MechLocation.LEFT_TORSO]: 'LT',
+  [MechLocation.RIGHT_TORSO]: 'RT',
+  [MechLocation.FRONT_LEFT_LEG]: 'FLL',
+  [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
+  [MechLocation.REAR_LEFT_LEG]: 'RLL',
+  [MechLocation.REAR_RIGHT_LEG]: 'RRL',
+};
+
+/**
+ * Location labels for LAM fighter mode
+ */
+export const FIGHTER_LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
+  [MechLocation.NOSE]: 'NOS',
+  [MechLocation.FUSELAGE]: 'FUS',
+  [MechLocation.LEFT_WING]: 'LW',
+  [MechLocation.RIGHT_WING]: 'RW',
+  [MechLocation.AFT]: 'AFT',
+};
+
+/**
+ * Tripod Mech silhouette - three-legged configuration with arms
+ * Standard biped upper body with three legs (left, right, center)
+ */
+export const TRIPOD_SILHOUETTE: SilhouetteConfig = {
+  viewBox: '0 0 300 380',
+  locations: {
+    [MechLocation.HEAD]: {
+      x: 120,
+      y: 5,
+      width: 60,
+      height: 50,
+      path: `
+        M 135 5
+        C 125 5, 120 15, 120 25
+        L 120 45
+        C 120 50, 125 55, 135 55
+        L 165 55
+        C 175 55, 180 50, 180 45
+        L 180 25
+        C 180 15, 175 5, 165 5
+        Z
+      `,
+    },
+    [MechLocation.CENTER_TORSO]: {
+      x: 100,
+      y: 60,
+      width: 100,
+      height: 100,
+      path: `
+        M 115 60
+        L 185 60
+        C 195 60, 200 70, 200 80
+        L 200 140
+        C 200 150, 195 160, 185 160
+        L 115 160
+        C 105 160, 100 150, 100 140
+        L 100 80
+        C 100 70, 105 60, 115 60
+        Z
+      `,
+    },
+    [MechLocation.LEFT_TORSO]: {
+      x: 30,
+      y: 70,
+      width: 65,
+      height: 90,
+      path: `
+        M 45 70
+        L 95 70
+        L 95 150
+        C 95 155, 90 160, 85 160
+        L 45 160
+        C 35 160, 30 155, 30 145
+        L 30 85
+        C 30 75, 35 70, 45 70
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_TORSO]: {
+      x: 205,
+      y: 70,
+      width: 65,
+      height: 90,
+      path: `
+        M 255 70
+        L 205 70
+        L 205 150
+        C 205 155, 210 160, 215 160
+        L 255 160
+        C 265 160, 270 155, 270 145
+        L 270 85
+        C 270 75, 265 70, 255 70
+        Z
+      `,
+    },
+    [MechLocation.LEFT_ARM]: {
+      x: 0,
+      y: 75,
+      width: 28,
+      height: 130,
+      path: `
+        M 8 75
+        L 25 75
+        C 28 75, 28 80, 28 85
+        L 28 185
+        C 28 195, 25 205, 20 205
+        L 8 205
+        C 3 205, 0 195, 0 185
+        L 0 85
+        C 0 80, 3 75, 8 75
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_ARM]: {
+      x: 272,
+      y: 75,
+      width: 28,
+      height: 130,
+      path: `
+        M 292 75
+        L 275 75
+        C 272 75, 272 80, 272 85
+        L 272 185
+        C 272 195, 275 205, 280 205
+        L 292 205
+        C 297 205, 300 195, 300 185
+        L 300 85
+        C 300 80, 297 75, 292 75
+        Z
+      `,
+    },
+    [MechLocation.LEFT_LEG]: {
+      x: 40,
+      y: 170,
+      width: 50,
+      height: 130,
+      path: `
+        M 50 170
+        L 85 170
+        C 90 170, 90 175, 90 180
+        L 90 280
+        C 90 290, 85 300, 75 300
+        L 55 300
+        C 45 300, 40 290, 40 280
+        L 40 180
+        C 40 175, 45 170, 50 170
+        Z
+      `,
+    },
+    [MechLocation.RIGHT_LEG]: {
+      x: 210,
+      y: 170,
+      width: 50,
+      height: 130,
+      path: `
+        M 250 170
+        L 215 170
+        C 210 170, 210 175, 210 180
+        L 210 280
+        C 210 290, 215 300, 225 300
+        L 245 300
+        C 255 300, 260 290, 260 280
+        L 260 180
+        C 260 175, 255 170, 250 170
+        Z
+      `,
+    },
+    [MechLocation.CENTER_LEG]: {
+      x: 125,
+      y: 165,
+      width: 50,
+      height: 145,
+      path: `
+        M 135 165
+        L 165 165
+        C 172 165, 175 172, 175 180
+        L 175 290
+        C 175 302, 168 310, 158 310
+        L 142 310
+        C 132 310, 125 302, 125 290
+        L 125 180
+        C 125 172, 128 165, 135 165
+        Z
+      `,
+    },
+  },
+  outlinePath: `
+    M 150 5
+    C 130 5, 120 20, 120 35
+    L 120 50
+    L 95 60
+    L 30 70
+    L 0 80
+    L 0 205
+    L 28 205
+    L 28 75
+    L 95 70
+    L 95 160
+    L 40 170
+    L 40 300
+    L 90 300
+    L 90 170
+    L 125 165
+    L 125 310
+    L 175 310
+    L 175 165
+    L 210 170
+    L 210 300
+    L 260 300
+    L 260 170
+    L 205 160
+    L 205 70
+    L 272 75
+    L 272 205
+    L 300 205
+    L 300 80
+    L 270 70
+    L 205 60
+    L 180 50
+    L 180 35
+    C 180 20, 170 5, 150 5
+    Z
+  `,
+};
+
+/**
+ * Location labels for tripod mechs
+ */
+export const TRIPOD_LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
+  [MechLocation.HEAD]: 'HD',
+  [MechLocation.CENTER_TORSO]: 'CT',
+  [MechLocation.LEFT_TORSO]: 'LT',
+  [MechLocation.RIGHT_TORSO]: 'RT',
+  [MechLocation.LEFT_ARM]: 'LA',
+  [MechLocation.RIGHT_ARM]: 'RA',
+  [MechLocation.LEFT_LEG]: 'LL',
+  [MechLocation.RIGHT_LEG]: 'RL',
+  [MechLocation.CENTER_LEG]: 'CL',
 };
 
 /**

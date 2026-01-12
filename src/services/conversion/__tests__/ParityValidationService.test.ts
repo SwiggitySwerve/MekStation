@@ -501,5 +501,669 @@ techbase:Mixed`;
       expect(results.length).toBe(0);
       expect(summary.unitsValidated).toBe(0);
     });
+
+    it('should recurse into subdirectories', async () => {
+      mockedFs.existsSync.mockReturnValue(true);
+      (mockedFs.readdirSync as jest.Mock)
+        .mockReturnValueOnce([
+          { name: 'subdir', isDirectory: () => true },
+          { name: 'root.mtf', isDirectory: () => false },
+        ])
+        .mockReturnValueOnce([
+          { name: 'nested.mtf', isDirectory: () => false },
+        ]);
+
+      mockedFs.readFileSync.mockReturnValue('chassis:Test\nmodel:T-1');
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Test', model: 'T-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: 'chassis:Test\nmodel:T-1',
+      });
+
+      const { results } = await service.validateAll({
+        mmDataPath: '/mm-data',
+        outputPath: '/output',
+      });
+
+      expect(results.length).toBe(2);
+    });
+  });
+
+  describe('techbase normalization', () => {
+    it('should normalize Clan techbase', () => {
+      const originalMtf = `chassis:Timber Wolf
+model:Prime
+techbase:Clan`;
+
+      const generatedMtf = `chassis:Timber Wolf
+model:Prime
+techbase:Clan`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Timber Wolf', model: 'Prime' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+    });
+
+    it('should normalize Inner Sphere techbase', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+techbase:Inner Sphere`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+techbase:IS`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+    });
+
+    it('should normalize Mixed (Clan Chassis) techbase', () => {
+      const originalMtf = `chassis:Timber Wolf
+model:C
+techbase:Mixed (Clan Chassis)`;
+
+      const generatedMtf = `chassis:Timber Wolf
+model:C
+techbase:Mixed`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Timber Wolf', model: 'C' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+    });
+  });
+
+  describe('critical slot comparison', () => {
+    it('should detect slot count mismatch', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator
+Hand Actuator
+Medium Laser
+-Empty-`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Medium Laser`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.SLOT_COUNT_MISMATCH)).toBe(true);
+    });
+
+    it('should detect missing actuator', () => {
+      // Use non-trailing empty slot so normalizeSlots doesn't strip it
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator
+Hand Actuator
+Medium Laser`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator
+-Empty-
+Medium Laser`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.MISSING_ACTUATOR)).toBe(true);
+    });
+
+    it('should detect extra actuator', () => {
+      // Use non-trailing actuator so normalizeSlots comparison works
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+-Empty-
+Medium Laser`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Hand Actuator
+Medium Laser`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.EXTRA_ACTUATOR)).toBe(true);
+    });
+
+    it('should detect actuator slot mismatch', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Hand Actuator`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.SLOT_MISMATCH)).toBe(true);
+    });
+
+    it('should detect non-actuator slot mismatch', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Medium Laser`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Large Laser`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i =>
+        i.category === DiscrepancyCategory.SLOT_MISMATCH &&
+        i.expected === 'Medium Laser'
+      )).toBe(true);
+    });
+
+    it('should handle section break in critical slots', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+weapons:1 Medium Laser`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Arm:
+Shoulder
+Upper Arm Actuator
+weapons:1 Medium Laser`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      // weapons: line should be treated as section break, not slot content
+      expect(result.status).toBe('PASSED');
+    });
+
+    it('should handle quad mech locations', () => {
+      const originalMtf = `chassis:Barghest
+model:BGS-1T
+Front Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Rear Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator`;
+
+      const generatedMtf = `chassis:Barghest
+model:BGS-1T
+Front Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Rear Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Barghest', model: 'BGS-1T' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.status).toBe('PASSED');
+    });
+
+    it('should handle tripod mech center leg', () => {
+      const originalMtf = `chassis:Ares
+model:ARS-V1
+Center Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator`;
+
+      const generatedMtf = `chassis:Ares
+model:ARS-V1
+Center Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Ares', model: 'ARS-V1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.status).toBe('PASSED');
+    });
+  });
+
+  describe('quirk comparison', () => {
+    it('should detect extra quirk in generated', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+quirk:battle_fists_la`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+quirk:battle_fists_la
+quirk:battle_fists_ra`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i =>
+        i.category === DiscrepancyCategory.QUIRK_MISMATCH &&
+        i.actual === 'battle_fists_ra'
+      )).toBe(true);
+    });
+  });
+
+  describe('getRelativePath', () => {
+    it('should handle path without meks directory', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: originalMtf,
+      });
+
+      // Use a path without 'meks' in it
+      const result = service.validateUnit('/other/path/test.mtf', '/output');
+      expect(result.generatedPath).toContain('test.mtf');
+    });
+  });
+
+  describe('git commit parsing', () => {
+    it('should handle ref: style HEAD', async () => {
+      mockedFs.existsSync.mockReturnValue(true);
+      (mockedFs.readdirSync as jest.Mock).mockReturnValue([
+        { name: 'test.mtf', isDirectory: () => false },
+      ]);
+      mockedFs.readFileSync
+        .mockReturnValueOnce('chassis:Test\nmodel:T-1') // MTF file
+        .mockReturnValueOnce('ref: refs/heads/master\n') // HEAD file
+        .mockReturnValueOnce('abc1234567890\n'); // ref file
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Test', model: 'T-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: 'chassis:Test\nmodel:T-1',
+      });
+
+      const { summary } = await service.validateAll({
+        mmDataPath: '/mm-data',
+        outputPath: '/output',
+      });
+
+      expect(summary.mmDataCommit).toBe('abc1234');
+    });
+
+    it('should handle detached HEAD', async () => {
+      mockedFs.existsSync.mockReturnValue(true);
+      (mockedFs.readdirSync as jest.Mock).mockReturnValue([
+        { name: 'test.mtf', isDirectory: () => false },
+      ]);
+      mockedFs.readFileSync
+        .mockReturnValueOnce('chassis:Test\nmodel:T-1')
+        .mockReturnValueOnce('def5678901234567\n'); // Direct commit hash
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Test', model: 'T-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: 'chassis:Test\nmodel:T-1',
+      });
+
+      const { summary } = await service.validateAll({
+        mmDataPath: '/mm-data',
+        outputPath: '/output',
+      });
+
+      expect(summary.mmDataCommit).toBe('def5678');
+    });
+
+    it('should handle git read error gracefully', async () => {
+      mockedFs.existsSync.mockReturnValue(true);
+      (mockedFs.readdirSync as jest.Mock).mockReturnValue([
+        { name: 'test.mtf', isDirectory: () => false },
+      ]);
+      let readCount = 0;
+      mockedFs.readFileSync.mockImplementation(() => {
+        readCount++;
+        if (readCount === 1) return 'chassis:Test\nmodel:T-1';
+        throw new Error('Git file not found');
+      });
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Test', model: 'T-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: 'chassis:Test\nmodel:T-1',
+      });
+
+      const { summary } = await service.validateAll({
+        mmDataPath: '/mm-data',
+        outputPath: '/output',
+      });
+
+      expect(summary.mmDataCommit).toBeUndefined();
+    });
+  });
+
+  describe('engine normalization', () => {
+    it('should normalize engine strings with tech base markers', () => {
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+engine:300 Fusion Engine(IS)`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+engine:300 Fusion Engine`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+    });
+
+    it('should normalize ICE engine variants', () => {
+      const originalMtf = `chassis:Scorpion
+model:SCR-1
+engine:100 I.C.E.`;
+
+      const generatedMtf = `chassis:Scorpion
+model:SCR-1
+engine:100 ICE`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Scorpion', model: 'SCR-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+    });
+
+    it('should normalize Fuel Cell engine variants', () => {
+      const originalMtf = `chassis:Test
+model:FC-1
+engine:100 Fuel-Cell`;
+
+      const generatedMtf = `chassis:Test
+model:FC-1
+engine:100 Fuel Cell`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Test', model: 'FC-1' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+    });
+  });
+
+  describe('leg actuators', () => {
+    it('should recognize leg actuators', () => {
+      // Add equipment after actuator so trailing -Empty- isn't stripped
+      const originalMtf = `chassis:Atlas
+model:AS7-D
+Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Heat Sink`;
+
+      const generatedMtf = `chassis:Atlas
+model:AS7-D
+Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+-Empty-
+Heat Sink`;
+
+      mockedFs.readFileSync.mockReturnValue(originalMtf);
+      mockedFs.mkdirSync.mockReturnValue(undefined);
+      mockedFs.writeFileSync.mockReturnValue(undefined);
+
+      mockParser.parse.mockReturnValue({
+        success: true,
+        unit: { id: 'test', chassis: 'Atlas', model: 'AS7-D' },
+      });
+      mockExporter.export.mockReturnValue({
+        success: true,
+        content: generatedMtf,
+      });
+
+      const result = service.validateUnit('/test/meks/test.mtf', '/output');
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.MISSING_ACTUATOR)).toBe(true);
+    });
   });
 });

@@ -19,9 +19,9 @@ export interface IMTFExportResult {
 }
 
 /**
- * Location order for MTF output (matches MegaMek convention)
+ * Location order for MTF output by configuration (matches MegaMek convention)
  */
-const LOCATION_ORDER = [
+const BIPED_LOCATION_ORDER = [
   'LEFT_ARM',
   'RIGHT_ARM',
   'LEFT_TORSO',
@@ -32,10 +32,34 @@ const LOCATION_ORDER = [
   'RIGHT_LEG',
 ];
 
+const QUAD_LOCATION_ORDER = [
+  'FRONT_LEFT_LEG',
+  'FRONT_RIGHT_LEG',
+  'LEFT_TORSO',
+  'RIGHT_TORSO',
+  'CENTER_TORSO',
+  'HEAD',
+  'REAR_LEFT_LEG',
+  'REAR_RIGHT_LEG',
+];
+
+const TRIPOD_LOCATION_ORDER = [
+  'LEFT_ARM',
+  'RIGHT_ARM',
+  'LEFT_TORSO',
+  'RIGHT_TORSO',
+  'CENTER_TORSO',
+  'HEAD',
+  'LEFT_LEG',
+  'RIGHT_LEG',
+  'CENTER_LEG',
+];
+
 /**
  * Location display names for MTF format
  */
 const LOCATION_NAMES: Record<string, string> = {
+  // Biped locations
   LEFT_ARM: 'Left Arm',
   RIGHT_ARM: 'Right Arm',
   LEFT_TORSO: 'Left Torso',
@@ -44,6 +68,13 @@ const LOCATION_NAMES: Record<string, string> = {
   HEAD: 'Head',
   LEFT_LEG: 'Left Leg',
   RIGHT_LEG: 'Right Leg',
+  // Quad locations
+  FRONT_LEFT_LEG: 'Front Left Leg',
+  FRONT_RIGHT_LEG: 'Front Right Leg',
+  REAR_LEFT_LEG: 'Rear Left Leg',
+  REAR_RIGHT_LEG: 'Rear Right Leg',
+  // Tripod locations
+  CENTER_LEG: 'Center Leg',
 };
 
 /**
@@ -140,7 +171,7 @@ export class MTFExportService {
 
       // Armor
       lines.push(`armor:${this.formatArmorType(unit.armor.type)}`);
-      this.writeArmorValues(lines, unit.armor.allocation);
+      this.writeArmorValues(lines, unit.armor.allocation, unit.configuration);
       lines.push('');
 
       // Weapons
@@ -153,9 +184,11 @@ export class MTFExportService {
       }
       lines.push('');
 
-      // Critical slots (always 12 slots per location to match MegaMek format)
+      // Critical slots - determine location order based on configuration
+      // MegaMek pads all locations to 12 slots for consistency
       const MTF_SLOTS_PER_LOCATION = 12;
-      for (const location of LOCATION_ORDER) {
+      const locationOrder = this.getLocationOrder(unit.configuration);
+      for (const location of locationOrder) {
         lines.push(`${LOCATION_NAMES[location]}:`);
         const slots = unit.criticalSlots[location] || [];
         // Output actual slots
@@ -166,7 +199,7 @@ export class MTFExportService {
             lines.push(slot);
           }
         }
-        // Pad to 12 slots
+        // Pad to 12 slots for MTF format compatibility
         for (let i = slots.length; i < MTF_SLOTS_PER_LOCATION; i++) {
           lines.push('-Empty-');
         }
@@ -293,19 +326,83 @@ export class MTFExportService {
   }
 
   /**
+   * Get location order based on configuration
+   */
+  private getLocationOrder(configuration: string): string[] {
+    const config = configuration.toUpperCase();
+    // Handle variations like "Quad", "Quad Omnimech", "QuadVee"
+    if (config.startsWith('QUAD') || config === 'QUADVEE') {
+      return QUAD_LOCATION_ORDER;
+    }
+    // Handle "Tripod" and variations
+    if (config.startsWith('TRIPOD')) {
+      return TRIPOD_LOCATION_ORDER;
+    }
+    // Biped, LAM, and others use biped order
+    return BIPED_LOCATION_ORDER;
+  }
+
+  /**
+   * Get slot count for a location
+   */
+  private getSlotCount(location: string): number {
+    const slotCounts: Record<string, number> = {
+      HEAD: 6,
+      CENTER_TORSO: 12,
+      LEFT_TORSO: 12,
+      RIGHT_TORSO: 12,
+      LEFT_ARM: 12,
+      RIGHT_ARM: 12,
+      LEFT_LEG: 6,
+      RIGHT_LEG: 6,
+      FRONT_LEFT_LEG: 6,
+      FRONT_RIGHT_LEG: 6,
+      REAR_LEFT_LEG: 6,
+      REAR_RIGHT_LEG: 6,
+      CENTER_LEG: 6,
+    };
+    return slotCounts[location] || 12;
+  }
+
+  /**
    * Write armor values in MTF format
    */
-  private writeArmorValues(lines: string[], allocation: Record<string, number | { front: number; rear: number }>): void {
-    const fieldMap: Record<string, string> = {
-      LEFT_ARM: 'LA armor',
-      RIGHT_ARM: 'RA armor',
-      LEFT_TORSO: 'LT armor',
-      RIGHT_TORSO: 'RT armor',
-      CENTER_TORSO: 'CT armor',
-      HEAD: 'HD armor',
-      LEFT_LEG: 'LL armor',
-      RIGHT_LEG: 'RL armor',
-    };
+  private writeArmorValues(
+    lines: string[],
+    allocation: Record<string, number | { front: number; rear: number }>,
+    configuration: string
+  ): void {
+    const config = configuration.toUpperCase();
+    // Handle variations like "Quad", "Quad Omnimech", "QuadVee"
+    const isQuad = config.startsWith('QUAD') || config === 'QUADVEE';
+
+    // Define armor field mappings based on configuration
+    const fieldMap: Record<string, string> = isQuad
+      ? {
+          FRONT_LEFT_LEG: 'FLL armor',
+          FRONT_RIGHT_LEG: 'FRL armor',
+          LEFT_TORSO: 'LT armor',
+          RIGHT_TORSO: 'RT armor',
+          CENTER_TORSO: 'CT armor',
+          HEAD: 'HD armor',
+          REAR_LEFT_LEG: 'RLL armor',
+          REAR_RIGHT_LEG: 'RRL armor',
+        }
+      : {
+          LEFT_ARM: 'LA armor',
+          RIGHT_ARM: 'RA armor',
+          LEFT_TORSO: 'LT armor',
+          RIGHT_TORSO: 'RT armor',
+          CENTER_TORSO: 'CT armor',
+          HEAD: 'HD armor',
+          LEFT_LEG: 'LL armor',
+          RIGHT_LEG: 'RL armor',
+        };
+
+    // Add center leg for tripod
+    if (config.startsWith('TRIPOD')) {
+      fieldMap['CENTER_LEG'] = 'CL armor';
+    }
 
     // Write front armor
     for (const [location, field] of Object.entries(fieldMap)) {
@@ -362,6 +459,9 @@ export class MTFExportService {
       'machine-gun': 'Machine Gun',
       'flamer': 'Flamer',
       'gauss-rifle': 'Gauss Rifle',
+      // LAM Equipment
+      'landing-gear': 'Landing Gear',
+      'avionics': 'Avionics',
     };
 
     if (nameMap[id]) {

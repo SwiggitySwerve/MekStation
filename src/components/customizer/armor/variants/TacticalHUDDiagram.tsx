@@ -157,15 +157,19 @@ function TacticalLocation({
   isHovered,
   onClick,
   onHover,
-}: TacticalLocationProps): React.ReactElement {
+}: TacticalLocationProps): React.ReactElement | null {
   const basePos = GEOMETRIC_SILHOUETTE.locations[location];
+
+  // Skip rendering if this location is not defined in this silhouette
+  if (!basePos) return null;
+
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
   const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
 
   // Adjust height for torso locations to fit stacked layout, offset legs down
   const TORSO_MULTIPLIER = 1.5;
-  const legOffset = GEOMETRIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_MULTIPLIER - 1);
+  const legOffset = GEOMETRIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO]!.height * (TORSO_MULTIPLIER - 1);
   const pos = showRear
     ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
     : isLeg

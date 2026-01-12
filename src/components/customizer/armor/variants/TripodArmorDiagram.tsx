@@ -1,32 +1,34 @@
 /**
- * MegaMek Armor Diagram
+ * Tripod Armor Diagram
  *
- * Design Philosophy: Authentic MegaMek record sheet appearance
- * - Layered rendering: shadow → fill → outline for depth
- * - Detailed mech silhouette with hand actuators and knee joints
- * - Classic record sheet proportions and styling
- * - Clean, professional appearance matching PDF output
+ * Design Philosophy: Three-legged mech with standard biped upper body
+ * - Standard biped locations (HD, CT, LT, RT, LA, RA, LL, RL)
+ * - Plus Center Leg (CL) for the third leg
+ * - Torsos have front/rear armor sections
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
+import { TRIPOD_LOCATIONS } from '@/types/construction/MechConfigurationSystem';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  MEGAMEK_SILHOUETTE,
-  LOCATION_LABELS,
+  TRIPOD_SILHOUETTE,
+  TRIPOD_LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
+  GradientDefs,
   getArmorStatusColor,
   getTorsoFrontStatusColor,
   getTorsoRearStatusColor,
   lightenColor,
   SELECTED_COLOR,
+  SELECTED_STROKE,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
-interface MegaMekLocationProps {
+interface TripodLocationProps {
   location: MechLocation;
   data?: LocationArmorData;
   isSelected: boolean;
@@ -35,18 +37,18 @@ interface MegaMekLocationProps {
   onHover: (hovered: boolean) => void;
 }
 
-function MegaMekLocation({
+function TripodLocation({
   location,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: MegaMekLocationProps): React.ReactElement | null {
-  const pos = MEGAMEK_SILHOUETTE.locations[location];
-  const label = LOCATION_LABELS[location];
+}: TripodLocationProps): React.ReactElement | null {
+  const pos = TRIPOD_SILHOUETTE.locations[location];
+  const label = TRIPOD_LOCATION_LABELS[location];
 
-  // Skip rendering if this location is not defined in this silhouette
+  // Skip rendering if this location is not defined
   if (!pos) return null;
 
   const center = getLocationCenter(pos);
@@ -67,15 +69,17 @@ function MegaMekLocation({
     ? SELECTED_COLOR
     : getTorsoRearStatusColor(rear, maximum);
 
-  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.1) : frontBaseColor;
-  const shadowColor = '#1a1a1a';
-  const outlineColor = isSelected ? '#fbbf24' : '#000000';
-  const outlineWidth = isSelected ? 2 : 1.2;
+  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
+  const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
+  const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
+  const strokeWidth = isSelected ? 2.5 : 1;
 
-  // Split heights for front/rear display
+  // Split positions for front/rear - adjusted for divider
+  const dividerHeight = showRear ? 2 : 0;
   const frontHeight = showRear ? pos.height * 0.65 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.35 : 0;
+  const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
   const dividerY = pos.y + frontHeight;
+  const rearY = dividerY + dividerHeight;
 
   return (
     <g
@@ -96,25 +100,17 @@ function MegaMekLocation({
       onFocus={() => onHover(true)}
       onBlur={() => onHover(false)}
     >
-      {/* Layer 1: Shadow (offset for depth) */}
-      {pos.path && (
-        <path
-          d={pos.path}
-          fill={shadowColor}
-          stroke="none"
-          className="pointer-events-none"
-          transform="translate(2, 2)"
-          opacity={0.3}
-        />
-      )}
-
-      {/* Layer 2: Fill */}
+      {/* Front armor section */}
       {pos.path ? (
         <path
           d={pos.path}
           fill={fillColor}
-          stroke="none"
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
           className="transition-all duration-150"
+          style={{
+            clipPath: showRear ? `inset(0 0 ${rearHeight}px 0)` : undefined,
+          }}
         />
       ) : (
         <rect
@@ -122,124 +118,83 @@ function MegaMekLocation({
           y={pos.y}
           width={pos.width}
           height={frontHeight}
-          rx={4}
+          rx={6}
           fill={fillColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
           className="transition-all duration-150"
         />
       )}
 
-      {/* Layer 3: Outline */}
-      {pos.path ? (
-        <path
-          d={pos.path}
-          fill="none"
-          stroke={outlineColor}
-          strokeWidth={outlineWidth}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          className="transition-all duration-150"
-        />
-      ) : (
-        <rect
-          x={pos.x}
-          y={pos.y}
-          width={pos.width}
-          height={frontHeight}
-          rx={4}
-          fill="none"
-          stroke={outlineColor}
-          strokeWidth={outlineWidth}
-        />
-      )}
-
-      {/* Detail lines for mechanical look */}
-      {/* Detail lines removed for cleaner MegaMek style */}
-
-      {/* Front armor section labels and values */}
+      {/* Front armor value - large bold number */}
       <text
         x={center.x}
-        y={showRear ? pos.y + 14 : pos.y + 14}
-        textAnchor="middle"
-        className="fill-white/80 font-semibold pointer-events-none"
-        style={{
-          fontSize: showRear ? '9px' : '10px',
-          textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-        }}
-      >
-        {showRear ? `${label} FRONT` : label}
-      </text>
-
-      <text
-        x={center.x}
-        y={showRear ? pos.y + frontHeight / 2 + 8 : pos.y + pos.height / 2 + 10}
+        y={pos.y + frontHeight / 2 + 5}
         textAnchor="middle"
         className="fill-white font-bold pointer-events-none"
-        style={{
-          fontSize: pos.width < 40 ? '16px' : '20px',
-          textShadow: '0 1px 3px rgba(0,0,0,0.9)',
-        }}
+        style={{ fontSize: pos.width < 40 ? '12px' : '16px' }}
       >
         {current}
       </text>
 
+      {/* Capacity text */}
       <text
         x={center.x}
-        y={showRear ? pos.y + frontHeight / 2 + 22 : pos.y + pos.height / 2 + 24}
+        y={pos.y + frontHeight / 2 + 16}
         textAnchor="middle"
         className="fill-white/60 pointer-events-none"
-        style={{ fontSize: '9px' }}
+        style={{ fontSize: '8px' }}
       >
         / {maximum}
       </text>
 
+      {/* Location label */}
+      <text
+        x={center.x}
+        y={pos.y + 12}
+        textAnchor="middle"
+        className="fill-white/80 font-semibold pointer-events-none"
+        style={{ fontSize: showRear ? '8px' : '9px' }}
+      >
+        {showRear ? `${label} FRONT` : label}
+      </text>
+
+      {/* Divider line between front and rear */}
+      {showRear && (
+        <line
+          x1={pos.x + 4}
+          y1={dividerY + 1}
+          x2={pos.x + pos.width - 4}
+          y2={dividerY + 1}
+          stroke="#334155"
+          strokeWidth={1}
+          strokeDasharray="3 2"
+          className="pointer-events-none"
+        />
+      )}
+
       {/* Rear armor section for torsos */}
       {showRear && (
         <>
-          {/* Rear divider line */}
-          <line
-            x1={pos.x + 8}
-            y1={dividerY}
-            x2={pos.x + pos.width - 8}
-            y2={dividerY}
-            stroke="#475569"
-            strokeWidth={1}
-            strokeDasharray="4 2"
-            className="pointer-events-none"
-          />
-
-          {/* Rear fill overlay */}
           <rect
             x={pos.x}
-            y={dividerY}
+            y={rearY}
             width={pos.width}
             height={rearHeight}
-            rx={4}
-            fill={isHovered ? lightenColor(rearBaseColor, 0.1) : rearBaseColor}
+            rx={6}
+            fill={rearFillColor}
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
             className="transition-all duration-150"
-          />
-
-          {/* Rear outline */}
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearHeight}
-            rx={4}
-            fill="none"
-            stroke={outlineColor}
-            strokeWidth={outlineWidth}
           />
 
           {/* Rear label */}
           <text
             x={center.x}
-            y={dividerY + 12}
+            y={rearY + 11}
             textAnchor="middle"
             className="fill-white/80 font-semibold pointer-events-none"
-            style={{
-              fontSize: '8px',
-              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-            }}
+            style={{ fontSize: '8px' }}
           >
             REAR
           </text>
@@ -247,13 +202,10 @@ function MegaMekLocation({
           {/* Rear armor value */}
           <text
             x={center.x}
-            y={dividerY + rearHeight / 2 + 8}
+            y={rearY + rearHeight / 2 + 6}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
-            style={{
-              fontSize: '16px',
-              textShadow: '0 1px 3px rgba(0,0,0,0.9)',
-            }}
+            style={{ fontSize: '12px' }}
           >
             {rear}
           </text>
@@ -263,7 +215,7 @@ function MegaMekLocation({
   );
 }
 
-export interface MegaMekDiagramProps {
+export interface TripodArmorDiagramProps {
   armorData: LocationArmorData[];
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
@@ -272,14 +224,14 @@ export interface MegaMekDiagramProps {
   className?: string;
 }
 
-export function MegaMekDiagram({
+export function TripodArmorDiagram({
   armorData,
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
   onAutoAllocate,
   className = '',
-}: MegaMekDiagramProps): React.ReactElement {
+}: TripodArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
@@ -288,23 +240,12 @@ export function MegaMekDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
-
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
+          <h3 className="text-lg font-semibold text-white">Tripod Armor Allocation</h3>
           <ArmorDiagramQuickSettings />
         </div>
         {onAutoAllocate && (
@@ -313,7 +254,7 @@ export function MegaMekDiagram({
             className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
               isOverAllocated
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-accent hover:bg-accent-hover text-white'
+                : 'bg-accent hover:bg-accent text-white'
             }`}
           >
             Auto Allocate ({unallocatedPoints} pts)
@@ -324,46 +265,25 @@ export function MegaMekDiagram({
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={MEGAMEK_SILHOUETTE.viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          viewBox={TRIPOD_SILHOUETTE.viewBox}
+          className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >
-          <defs>
-            {/* Grid pattern for background */}
-            <pattern id="megamek-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path
-                d="M 10 0 L 0 0 0 10"
-                fill="none"
-                stroke="rgba(255,255,255,0.03)"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
+          <GradientDefs />
 
-          {/* Background */}
+          {/* Background grid pattern */}
           <rect
             x="0"
             y="0"
-            width="200"
-            height="320"
-            fill="url(#megamek-grid)"
+            width="300"
+            height="380"
+            fill="url(#armor-grid)"
+            opacity="0.5"
           />
 
-          {/* Mech outline (faint wireframe) */}
-          {MEGAMEK_SILHOUETTE.outlinePath && (
-            <path
-              d={MEGAMEK_SILHOUETTE.outlinePath}
-              fill="none"
-              stroke="rgba(100, 116, 139, 0.15)"
-              strokeWidth="1"
-              strokeDasharray="6 3"
-              className="pointer-events-none"
-            />
-          )}
-
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <MegaMekLocation
+          {/* Render all tripod locations */}
+          {TRIPOD_LOCATIONS.map((loc) => (
+            <TripodLocation
               key={loc}
               location={loc}
               data={getArmorData(loc)}
@@ -393,6 +313,18 @@ export function MegaMekDiagram({
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-500" />
           <span className="text-text-theme-secondary">&lt;25%</span>
+        </div>
+      </div>
+
+      {/* Location Key */}
+      <div className="mt-3 pt-3 border-t border-border-theme-subtle">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+          <div>HD = Head</div>
+          <div>CT = Center Torso</div>
+          <div>LT/RT = Left/Right Torso</div>
+          <div>LA/RA = Left/Right Arm</div>
+          <div>LL/RL = Left/Right Leg</div>
+          <div>CL = Center Leg</div>
         </div>
       </div>
 

@@ -242,8 +242,17 @@ export class ParityValidationService {
     this.compareField('walk mp', originalMap, generatedMap, issues, DiscrepancyCategory.MOVEMENT_MISMATCH);
     this.compareField('jump mp', originalMap, generatedMap, issues, DiscrepancyCategory.MOVEMENT_MISMATCH);
 
-    // Compare armor values
-    const armorFields = ['LA armor', 'RA armor', 'LT armor', 'RT armor', 'CT armor', 'HD armor', 'LL armor', 'RL armor', 'RTL armor', 'RTR armor', 'RTC armor'];
+    // Compare armor values (biped, quad, and tripod configurations)
+    const armorFields = [
+      // Biped locations
+      'LA armor', 'RA armor', 'LT armor', 'RT armor', 'CT armor', 'HD armor', 'LL armor', 'RL armor',
+      // Quad locations
+      'FLL armor', 'FRL armor', 'RLL armor', 'RRL armor',
+      // Tripod locations
+      'CL armor',
+      // Rear torso armor (all configurations)
+      'RTL armor', 'RTR armor', 'RTC armor',
+    ];
     for (const field of armorFields) {
       this.compareField(field, originalMap, generatedMap, issues, DiscrepancyCategory.ARMOR_MISMATCH);
     }
@@ -429,6 +438,7 @@ export class ParityValidationService {
     let currentLocation: string | null = null;
 
     const locationHeaders: Record<string, string> = {
+      // Biped locations
       'Left Arm:': 'LEFT_ARM',
       'Right Arm:': 'RIGHT_ARM',
       'Left Torso:': 'LEFT_TORSO',
@@ -437,6 +447,13 @@ export class ParityValidationService {
       'Head:': 'HEAD',
       'Left Leg:': 'LEFT_LEG',
       'Right Leg:': 'RIGHT_LEG',
+      // Quad locations
+      'Front Left Leg:': 'FRONT_LEFT_LEG',
+      'Front Right Leg:': 'FRONT_RIGHT_LEG',
+      'Rear Left Leg:': 'REAR_LEFT_LEG',
+      'Rear Right Leg:': 'REAR_RIGHT_LEG',
+      // Tripod locations
+      'Center Leg:': 'CENTER_LEG',
     };
 
     for (const line of lines) {

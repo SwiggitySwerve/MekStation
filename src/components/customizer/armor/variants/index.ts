@@ -18,3 +18,15 @@ export type { PremiumMaterialDiagramProps } from './PremiumMaterialDiagram';
 
 export { MegaMekDiagram } from './MegaMekDiagram';
 export type { MegaMekDiagramProps } from './MegaMekDiagram';
+
+export { QuadArmorDiagram } from './QuadArmorDiagram';
+export type { QuadArmorDiagramProps } from './QuadArmorDiagram';
+
+export { LAMArmorDiagram } from './LAMArmorDiagram';
+export type { LAMArmorDiagramProps } from './LAMArmorDiagram';
+
+export { TripodArmorDiagram } from './TripodArmorDiagram';
+export type { TripodArmorDiagramProps } from './TripodArmorDiagram';
+
+export { QuadVeeArmorDiagram } from './QuadVeeArmorDiagram';
+export type { QuadVeeArmorDiagramProps } from './QuadVeeArmorDiagram';

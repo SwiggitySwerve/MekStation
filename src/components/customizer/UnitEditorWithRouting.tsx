@@ -453,7 +453,7 @@ export function UnitEditorWithRouting({
     const locations: AvailableLocation[] = [];
     
     // Location labels for display
-    const locationLabels: Record<MechLocation, string> = {
+    const locationLabels: Partial<Record<MechLocation, string>> = {
       [MechLocation.HEAD]: 'Head',
       [MechLocation.CENTER_TORSO]: 'Center Torso',
       [MechLocation.LEFT_TORSO]: 'Left Torso',
@@ -472,7 +472,7 @@ export function UnitEditorWithRouting({
         // Location is forbidden for this equipment type
         locations.push({
           location: loc,
-          label: locationLabels[loc],
+          label: locationLabels[loc] ?? loc,
           availableSlots: 0,
           canFit: false,
         });
@@ -516,7 +516,7 @@ export function UnitEditorWithRouting({
       
       locations.push({
         location: loc,
-        label: locationLabels[loc],
+        label: locationLabels[loc] ?? loc,
         availableSlots,
         canFit: maxContiguous >= slotsNeeded,
       });

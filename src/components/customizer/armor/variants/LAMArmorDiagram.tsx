@@ -1,21 +1,26 @@
 /**
- * Clean Tech Armor Diagram
+ * LAM (Land-Air Mech) Armor Diagram
  *
- * Design Philosophy: Maximum readability and usability
- * - Realistic mech contour silhouette
- * - Solid gradient fills based on armor status
- * - Plain bold numbers for armor values
- * - Color + small text for capacity indication
- * - Stacked front/rear display
- * - Simple border highlight on interaction
+ * Design Philosophy: Mode-switchable visualization for transformable mechs
+ * - Mech mode uses standard biped silhouette
+ * - AirMech mode shows hybrid view
+ * - Fighter mode shows aerospace silhouette with mapped armor values
+ * - Mode toggle allows viewing armor allocation in different configurations
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
+import {
+  LAMMode,
+  LAM_CONFIGURATION,
+  configurationRegistry,
+} from '@/types/construction/MechConfigurationSystem';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
+  REALISTIC_SILHOUETTE,
+  FIGHTER_SILHOUETTE,
   LOCATION_LABELS,
+  FIGHTER_LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
@@ -30,31 +35,37 @@ import {
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
-interface CleanTechLocationProps {
+interface LAMLocationProps {
   location: MechLocation;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  isFighterMode: boolean;
 }
 
-function CleanTechLocation({
+function LAMLocation({
   location,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: CleanTechLocationProps): React.ReactElement | null {
-  const pos = BATTLEMECH_SILHOUETTE.locations[location];
-  const label = LOCATION_LABELS[location];
+  isFighterMode,
+}: LAMLocationProps): React.ReactElement | null {
+  const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
+  const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
+
+  const pos = silhouette.locations[location];
+  const label = labels[location];
 
   // Skip rendering if this location is not defined in this silhouette
   if (!pos) return null;
 
   const center = getLocationCenter(pos);
-  const showRear = hasTorsoRear(location);
+  // Fighter mode doesn't have rear armor on individual locations
+  const showRear = !isFighterMode && hasTorsoRear(location);
 
   const current = data?.current ?? 0;
   const maximum = data?.maximum ?? 1;
@@ -62,7 +73,6 @@ function CleanTechLocation({
   const rearMax = data?.rearMaximum ?? 1;
 
   // Status-based colors for front and rear independently
-  // For torso locations, use expected capacity (75/25 split) as baseline
   const frontBaseColor = isSelected
     ? SELECTED_COLOR
     : showRear
@@ -135,7 +145,7 @@ function CleanTechLocation({
         y={pos.y + frontHeight / 2 + 5}
         textAnchor="middle"
         className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: pos.width < 40 ? '14px' : '18px' }}
+        style={{ fontSize: pos.width < 40 ? '12px' : '16px' }}
       >
         {current}
       </text>
@@ -143,10 +153,10 @@ function CleanTechLocation({
       {/* Capacity text */}
       <text
         x={center.x}
-        y={pos.y + frontHeight / 2 + 18}
+        y={pos.y + frontHeight / 2 + 16}
         textAnchor="middle"
         className="fill-white/60 pointer-events-none"
-        style={{ fontSize: '9px' }}
+        style={{ fontSize: '8px' }}
       >
         / {maximum}
       </text>
@@ -157,7 +167,7 @@ function CleanTechLocation({
         y={pos.y + 12}
         textAnchor="middle"
         className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: showRear ? '8px' : '10px' }}
+        style={{ fontSize: showRear ? '8px' : '9px' }}
       >
         {showRear ? `${label} FRONT` : label}
       </text>
@@ -208,7 +218,7 @@ function CleanTechLocation({
             y={rearY + rearHeight / 2 + 6}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '14px' }}
+            style={{ fontSize: '12px' }}
           >
             {rear}
           </text>
@@ -218,7 +228,7 @@ function CleanTechLocation({
   );
 }
 
-export interface CleanTechDiagramProps {
+export interface LAMArmorDiagramProps {
   armorData: LocationArmorData[];
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
@@ -227,42 +237,123 @@ export interface CleanTechDiagramProps {
   className?: string;
 }
 
-export function CleanTechDiagram({
+/**
+ * Biped mech locations for LAM Mech mode
+ */
+const MECH_LOCATIONS: MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+];
+
+/**
+ * Fighter locations for LAM Fighter mode
+ */
+const FIGHTER_LOCATIONS: MechLocation[] = [
+  MechLocation.NOSE,
+  MechLocation.FUSELAGE,
+  MechLocation.LEFT_WING,
+  MechLocation.RIGHT_WING,
+  MechLocation.AFT,
+];
+
+/**
+ * Calculate fighter mode armor values from mech mode armor
+ * Uses the armor location mapping from LAM configuration
+ */
+function calculateFighterArmor(
+  mechArmorData: LocationArmorData[]
+): LocationArmorData[] {
+  const armorMapping = configurationRegistry.getFighterArmorMapping(
+    LAM_CONFIGURATION.id
+  );
+
+  if (!armorMapping) {
+    return [];
+  }
+
+  // Create a map of mech armor data for quick lookup
+  const mechArmorMap = new Map<MechLocation, LocationArmorData>();
+  for (const data of mechArmorData) {
+    mechArmorMap.set(data.location, data);
+  }
+
+  // Calculate fighter armor by summing mapped mech locations
+  const fighterArmor: Map<MechLocation, LocationArmorData> = new Map();
+
+  // Initialize fighter locations
+  for (const fighterLoc of FIGHTER_LOCATIONS) {
+    fighterArmor.set(fighterLoc, {
+      location: fighterLoc,
+      current: 0,
+      maximum: 0,
+    });
+  }
+
+  // Sum armor from mech locations to fighter locations
+  for (const mechLoc of MECH_LOCATIONS) {
+    const fighterLoc = armorMapping[mechLoc];
+    if (!fighterLoc || !FIGHTER_LOCATIONS.includes(fighterLoc)) continue;
+
+    const mechData = mechArmorMap.get(mechLoc);
+    if (!mechData) continue;
+
+    const fighterData = fighterArmor.get(fighterLoc)!;
+
+    // Add front armor + rear armor to the fighter location
+    const totalMechArmor = mechData.current + (mechData.rear ?? 0);
+    const totalMechMax = mechData.maximum + (mechData.rearMaximum ?? 0);
+
+    fighterArmor.set(fighterLoc, {
+      location: fighterLoc,
+      current: fighterData.current + totalMechArmor,
+      maximum: fighterData.maximum + totalMechMax,
+    });
+  }
+
+  return Array.from(fighterArmor.values());
+}
+
+export function LAMArmorDiagram({
   armorData,
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
   onAutoAllocate,
   className = '',
-}: CleanTechDiagramProps): React.ReactElement {
+}: LAMArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [currentMode, setCurrentMode] = useState<LAMMode>(LAMMode.MECH);
+
+  const isFighterMode = currentMode === LAMMode.FIGHTER;
+
+  // Get locations and armor data based on current mode
+  const displayLocations = isFighterMode ? FIGHTER_LOCATIONS : MECH_LOCATIONS;
+  const displayArmorData = isFighterMode
+    ? calculateFighterArmor(armorData)
+    : armorData;
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
-    return armorData.find((d) => d.location === location);
+    return displayArmorData.find((d) => d.location === location);
   };
 
   const isOverAllocated = unallocatedPoints < 0;
-
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
+  const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
 
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
+          <h3 className="text-lg font-semibold text-white">LAM Armor Allocation</h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
+        {onAutoAllocate && !isFighterMode && (
           <button
             onClick={onAutoAllocate}
             className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
@@ -276,11 +367,37 @@ export function CleanTechDiagram({
         )}
       </div>
 
+      {/* Mode Toggle */}
+      <div className="flex justify-center mb-4">
+        <div className="inline-flex rounded-lg bg-surface-subtle p-1">
+          {([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER] as LAMMode[]).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setCurrentMode(mode)}
+              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                currentMode === mode
+                  ? 'bg-accent text-white'
+                  : 'text-text-theme-secondary hover:text-white'
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mode Description */}
+      {isFighterMode && (
+        <div className="text-center text-xs text-text-theme-secondary mb-3">
+          Fighter mode armor is calculated from Mech mode allocation
+        </div>
+      )}
+
       {/* Diagram */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          viewBox={silhouette.viewBox}
+          className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -289,22 +406,23 @@ export function CleanTechDiagram({
           <rect
             x="0"
             y="0"
-            width="200"
+            width="300"
             height="280"
             fill="url(#armor-grid)"
             opacity="0.5"
           />
 
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <CleanTechLocation
+          {/* Render all locations for current mode */}
+          {displayLocations.map((loc) => (
+            <LAMLocation
               key={loc}
               location={loc}
               data={getArmorData(loc)}
               isSelected={selectedLocation === loc}
               isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
+              onClick={() => !isFighterMode && onLocationClick(loc)}
               onHover={(h) => setHoveredLocation(h ? loc : null)}
+              isFighterMode={isFighterMode}
             />
           ))}
         </svg>
@@ -330,9 +448,32 @@ export function CleanTechDiagram({
         </div>
       </div>
 
+      {/* Location Key */}
+      <div className="mt-3 pt-3 border-t border-border-theme-subtle">
+        {isFighterMode ? (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+            <div>NOS = Nose</div>
+            <div>FUS = Fuselage</div>
+            <div>LW = Left Wing</div>
+            <div>RW = Right Wing</div>
+            <div>AFT = Aft</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+            <div>HD = Head</div>
+            <div>CT = Center Torso</div>
+            <div>LT/RT = Left/Right Torso</div>
+            <div>LA/RA = Left/Right Arm</div>
+            <div>LL/RL = Left/Right Leg</div>
+          </div>
+        )}
+      </div>
+
       {/* Instructions */}
       <p className="text-xs text-text-theme-secondary text-center mt-2">
-        Click a location to edit armor values
+        {isFighterMode
+          ? 'Switch to Mech mode to edit armor values'
+          : 'Click a location to edit armor values'}
       </p>
     </div>
   );
