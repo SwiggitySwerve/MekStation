@@ -46,9 +46,13 @@ function CleanTechLocation({
   isHovered,
   onClick,
   onHover,
-}: CleanTechLocationProps): React.ReactElement {
+}: CleanTechLocationProps): React.ReactElement | null {
   const pos = BATTLEMECH_SILHOUETTE.locations[location];
   const label = LOCATION_LABELS[location];
+
+  // Skip rendering if this location is not defined in this silhouette
+  if (!pos) return null;
+
   const center = getLocationCenter(pos);
   const showRear = hasTorsoRear(location);
 

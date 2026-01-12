@@ -12,6 +12,7 @@ export * from './ArmorType';
 export * from './CockpitType';
 export * from './ComponentInterfaces';
 export * from './CriticalSlotAllocation';
+export * from './MechConfigurationSystem';
 export * from './MovementEnhancement';
 export * from './TechBaseConfiguration';
 

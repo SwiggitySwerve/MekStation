@@ -18,3 +18,6 @@ export type { PremiumMaterialDiagramProps } from './PremiumMaterialDiagram';
 
 export { MegaMekDiagram } from './MegaMekDiagram';
 export type { MegaMekDiagramProps } from './MegaMekDiagram';
+
+export { QuadArmorDiagram } from './QuadArmorDiagram';
+export type { QuadArmorDiagramProps } from './QuadArmorDiagram';

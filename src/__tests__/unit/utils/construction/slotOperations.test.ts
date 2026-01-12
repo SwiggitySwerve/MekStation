@@ -8,6 +8,7 @@ import {
   sortEquipmentBySize,
 } from '@/utils/construction/slotOperations';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
+import { BIPED_LOCATIONS } from '@/types/construction/MechConfigurationSystem';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -228,12 +229,13 @@ describe('slotOperations', () => {
         GyroType.STANDARD
       );
 
-      const expectedCapacity = Object.values(MechLocation).reduce<Record<MechLocation, number>>(
+      // Only check biped locations since fillUnhittableSlots only works with biped mechs
+      const expectedCapacity = BIPED_LOCATIONS.reduce<Partial<Record<MechLocation, number>>>(
         (acc, location) => {
-          acc[location] = capacityForLocation(location as MechLocation);
+          acc[location] = capacityForLocation(location);
           return acc;
         },
-        {} as Record<MechLocation, number>
+        {}
       );
 
       const countByLocation = result.assignments.reduce<Record<MechLocation, number>>((acc, assignment) => {

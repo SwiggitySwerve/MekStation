@@ -480,7 +480,7 @@ function mapArmorAllocation(
 type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
 type TechHint = 'clan' | 'is';
 
-const CRITICAL_SLOTS_LOCATION_KEYS: Readonly<Record<MechLocation, string>> = {
+const CRITICAL_SLOTS_LOCATION_KEYS: Partial<Readonly<Record<MechLocation, string>>> = {
   [MechLocation.HEAD]: 'HEAD',
   [MechLocation.CENTER_TORSO]: 'CENTER_TORSO',
   [MechLocation.LEFT_TORSO]: 'LEFT_TORSO',
@@ -728,7 +728,7 @@ function mapEquipment(
   return equipment.map((item) => {
     const location = mapMechLocation(item.location);
     const locationCriticalSlots = unitCriticalSlots
-      ? (location ? unitCriticalSlots[CRITICAL_SLOTS_LOCATION_KEYS[location]] : unitCriticalSlots[item.location])
+      ? (location ? unitCriticalSlots[CRITICAL_SLOTS_LOCATION_KEYS[location] ?? ''] : unitCriticalSlots[item.location])
       : undefined;
     
     // Look up equipment using multiple resolution strategies

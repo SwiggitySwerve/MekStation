@@ -20,8 +20,10 @@ export interface IMTFParseResult {
 
 /**
  * Location header patterns in MTF files
+ * Supports both biped and quad configurations
  */
 const LOCATION_HEADERS: Record<string, string> = {
+  // Biped locations
   'Left Arm:': 'LEFT_ARM',
   'Right Arm:': 'RIGHT_ARM',
   'Left Torso:': 'LEFT_TORSO',
@@ -30,12 +32,18 @@ const LOCATION_HEADERS: Record<string, string> = {
   'Head:': 'HEAD',
   'Left Leg:': 'LEFT_LEG',
   'Right Leg:': 'RIGHT_LEG',
+  // Quad locations
+  'Front Left Leg:': 'FRONT_LEFT_LEG',
+  'Front Right Leg:': 'FRONT_RIGHT_LEG',
+  'Rear Left Leg:': 'REAR_LEFT_LEG',
+  'Rear Right Leg:': 'REAR_RIGHT_LEG',
 };
 
 /**
- * Slot counts per location for biped mechs
+ * Slot counts per location for all mech configurations
  */
 const SLOT_COUNTS: Record<string, number> = {
+  // Biped locations
   HEAD: 6,
   CENTER_TORSO: 12,
   LEFT_TORSO: 12,
@@ -44,6 +52,11 @@ const SLOT_COUNTS: Record<string, number> = {
   RIGHT_ARM: 12,
   LEFT_LEG: 6,
   RIGHT_LEG: 6,
+  // Quad locations (12 slots each for legs)
+  FRONT_LEFT_LEG: 6,
+  FRONT_RIGHT_LEG: 6,
+  REAR_LEFT_LEG: 6,
+  REAR_RIGHT_LEG: 6,
 };
 
 /**
@@ -267,8 +280,9 @@ export class MTFParserService {
 
     const allocation: Record<string, number | { front: number; rear: number }> = {};
 
-    // Parse per-location armor values
+    // Parse per-location armor values (biped and quad)
     const armorFields: Record<string, string> = {
+      // Biped locations
       'LA armor': 'LEFT_ARM',
       'RA armor': 'RIGHT_ARM',
       'LT armor': 'LEFT_TORSO',
@@ -280,6 +294,11 @@ export class MTFParserService {
       'RTL armor': 'LEFT_TORSO_REAR',
       'RTR armor': 'RIGHT_TORSO_REAR',
       'RTC armor': 'CENTER_TORSO_REAR',
+      // Quad leg locations
+      'FLL armor': 'FRONT_LEFT_LEG',
+      'FRL armor': 'FRONT_RIGHT_LEG',
+      'RLL armor': 'REAR_LEFT_LEG',
+      'RRL armor': 'REAR_RIGHT_LEG',
     };
 
     const frontValues: Record<string, number> = {};
@@ -507,9 +526,11 @@ export class MTFParserService {
 
   /**
    * Normalize location name to enum format
+   * Supports both biped and quad locations
    */
   private normalizeLocation(location: string): string {
     const locationMap: Record<string, string> = {
+      // Biped locations
       'Left Arm': 'LEFT_ARM',
       'Right Arm': 'RIGHT_ARM',
       'Left Torso': 'LEFT_TORSO',
@@ -518,6 +539,11 @@ export class MTFParserService {
       'Head': 'HEAD',
       'Left Leg': 'LEFT_LEG',
       'Right Leg': 'RIGHT_LEG',
+      // Quad locations
+      'Front Left Leg': 'FRONT_LEFT_LEG',
+      'Front Right Leg': 'FRONT_RIGHT_LEG',
+      'Rear Left Leg': 'REAR_LEFT_LEG',
+      'Rear Right Leg': 'REAR_RIGHT_LEG',
     };
 
     return locationMap[location] || location.toUpperCase().replace(/\s+/g, '_');

@@ -7,9 +7,9 @@ import { MechLocation } from '../../types/construction/CriticalSlotAllocation';
  * Uses MechLocation enum from base types for consistency
  */
 export interface ArmorData {
-  front: Record<MechLocation, number>;
-  rear: Record<MechLocation, number>;
-  max: Record<MechLocation, number>;
+  front: Partial<Record<MechLocation, number>>;
+  rear: Partial<Record<MechLocation, number>>;
+  max: Partial<Record<MechLocation, number>>;
 }
 
 export type ArmorAllocationType = 'even' | 'front-weighted' | 'rear-weighted';
@@ -133,8 +133,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'head' }}>
           <ArmorLocation
             location={MechLocation.HEAD}
-            currentArmor={armor[facing][MechLocation.HEAD]}
-            maxArmor={armor.max[MechLocation.HEAD]}
+            currentArmor={armor[facing][MechLocation.HEAD] ?? 0}
+            maxArmor={armor.max[MechLocation.HEAD] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.HEAD, value)}
           />
         </div>
@@ -143,8 +143,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'center-torso' }}>
           <ArmorLocation
             location={MechLocation.CENTER_TORSO}
-            currentArmor={armor[facing][MechLocation.CENTER_TORSO]}
-            maxArmor={armor.max[MechLocation.CENTER_TORSO]}
+            currentArmor={armor[facing][MechLocation.CENTER_TORSO] ?? 0}
+            maxArmor={armor.max[MechLocation.CENTER_TORSO] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.CENTER_TORSO, value)}
           />
         </div>
@@ -153,8 +153,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'left-torso' }}>
           <ArmorLocation
             location={MechLocation.LEFT_TORSO}
-            currentArmor={armor[facing][MechLocation.LEFT_TORSO]}
-            maxArmor={armor.max[MechLocation.LEFT_TORSO]}
+            currentArmor={armor[facing][MechLocation.LEFT_TORSO] ?? 0}
+            maxArmor={armor.max[MechLocation.LEFT_TORSO] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_TORSO, value)}
           />
         </div>
@@ -163,8 +163,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'right-torso' }}>
           <ArmorLocation
             location={MechLocation.RIGHT_TORSO}
-            currentArmor={armor[facing][MechLocation.RIGHT_TORSO]}
-            maxArmor={armor.max[MechLocation.RIGHT_TORSO]}
+            currentArmor={armor[facing][MechLocation.RIGHT_TORSO] ?? 0}
+            maxArmor={armor.max[MechLocation.RIGHT_TORSO] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_TORSO, value)}
           />
         </div>
@@ -173,8 +173,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'left-arm' }}>
           <ArmorLocation
             location={MechLocation.LEFT_ARM}
-            currentArmor={armor[facing][MechLocation.LEFT_ARM]}
-            maxArmor={armor.max[MechLocation.LEFT_ARM]}
+            currentArmor={armor[facing][MechLocation.LEFT_ARM] ?? 0}
+            maxArmor={armor.max[MechLocation.LEFT_ARM] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_ARM, value)}
           />
         </div>
@@ -183,8 +183,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'right-arm' }}>
           <ArmorLocation
             location={MechLocation.RIGHT_ARM}
-            currentArmor={armor[facing][MechLocation.RIGHT_ARM]}
-            maxArmor={armor.max[MechLocation.RIGHT_ARM]}
+            currentArmor={armor[facing][MechLocation.RIGHT_ARM] ?? 0}
+            maxArmor={armor.max[MechLocation.RIGHT_ARM] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_ARM, value)}
           />
         </div>
@@ -193,8 +193,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'left-leg' }}>
           <ArmorLocation
             location={MechLocation.LEFT_LEG}
-            currentArmor={armor[facing][MechLocation.LEFT_LEG]}
-            maxArmor={armor.max[MechLocation.LEFT_LEG]}
+            currentArmor={armor[facing][MechLocation.LEFT_LEG] ?? 0}
+            maxArmor={armor.max[MechLocation.LEFT_LEG] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.LEFT_LEG, value)}
           />
         </div>
@@ -203,8 +203,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         <div style={{ gridArea: 'right-leg' }}>
           <ArmorLocation
             location={MechLocation.RIGHT_LEG}
-            currentArmor={armor[facing][MechLocation.RIGHT_LEG]}
-            maxArmor={armor.max[MechLocation.RIGHT_LEG]}
+            currentArmor={armor[facing][MechLocation.RIGHT_LEG] ?? 0}
+            maxArmor={armor.max[MechLocation.RIGHT_LEG] ?? 0}
             onArmorChange={(value) => handleArmorChange(MechLocation.RIGHT_LEG, value)}
           />
         </div>
@@ -215,8 +215,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
         {/* Head */}
         <ArmorLocation
           location={MechLocation.HEAD}
-          currentArmor={armor[facing][MechLocation.HEAD]}
-          maxArmor={armor.max[MechLocation.HEAD]}
+          currentArmor={armor[facing][MechLocation.HEAD] ?? 0}
+          maxArmor={armor.max[MechLocation.HEAD] ?? 0}
           onArmorChange={(value) => handleArmorChange(MechLocation.HEAD, value)}
         />
 
@@ -227,8 +227,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
             <ArmorLocation
               key={location}
               location={location}
-              currentArmor={armor[facing][location]}
-              maxArmor={armor.max[location]}
+              currentArmor={armor[facing][location] ?? 0}
+              maxArmor={armor.max[location] ?? 0}
               onArmorChange={(value) => handleArmorChange(location, value)}
             />
           ))}
@@ -241,8 +241,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
             <ArmorLocation
               key={location}
               location={location}
-              currentArmor={armor[facing][location]}
-              maxArmor={armor.max[location]}
+              currentArmor={armor[facing][location] ?? 0}
+              maxArmor={armor.max[location] ?? 0}
               onArmorChange={(value) => handleArmorChange(location, value)}
             />
           ))}
@@ -255,8 +255,8 @@ export function ArmorDiagram({ armor, onArmorChange, onAutoAllocate, className =
             <ArmorLocation
               key={location}
               location={location}
-              currentArmor={armor[facing][location]}
-              maxArmor={armor.max[location]}
+              currentArmor={armor[facing][location] ?? 0}
+              maxArmor={armor.max[location] ?? 0}
               onArmorChange={(value) => handleArmorChange(location, value)}
             />
           ))}

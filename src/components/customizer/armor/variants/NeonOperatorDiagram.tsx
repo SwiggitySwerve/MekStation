@@ -89,7 +89,7 @@ interface NeonLocationProps {
 
 // Calculate leg offset based on torso height expansion
 const TORSO_HEIGHT_MULTIPLIER = 1.4;
-const LEG_Y_OFFSET = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO].height * (TORSO_HEIGHT_MULTIPLIER - 1);
+const LEG_Y_OFFSET = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO]!.height * (TORSO_HEIGHT_MULTIPLIER - 1);
 
 function isLegLocation(location: MechLocation): boolean {
   return location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
@@ -102,8 +102,11 @@ function NeonLocation({
   isHovered,
   onClick,
   onHover,
-}: NeonLocationProps): React.ReactElement {
+}: NeonLocationProps): React.ReactElement | null {
   const basePos = BATTLEMECH_SILHOUETTE.locations[location];
+
+  // Skip rendering if this location is not defined in this silhouette
+  if (!basePos) return null;
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
 
@@ -444,11 +447,11 @@ export function NeonOperatorDiagram({
           ))}
 
           {/* Targeting reticle on hovered */}
-          {hoveredLocation && (
+          {hoveredLocation && BATTLEMECH_SILHOUETTE.locations[hoveredLocation] && (
             <g className="pointer-events-none">
               <circle
-                cx={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]).x}
-                cy={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]).y}
+                cx={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]!).x}
+                cy={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]!).y}
                 r={40}
                 fill="none"
                 stroke="rgba(34, 211, 238, 0.3)"
