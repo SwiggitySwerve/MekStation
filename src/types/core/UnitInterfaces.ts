@@ -39,14 +39,7 @@ export interface MountedBattleArmor {
   troopers: number;
 }
 
-export enum LAMMode {
-  MECH = 'BattleMech',
-  AIRMECH = 'AirMech',
-  FIGHTER = 'Fighter',
-}
-
-export enum QuadVeeMode {
-  MECH = 'Mech',
-  VEHICLE = 'Vehicle',
-}
+// LAMMode and QuadVeeMode enums are defined in MechConfigurationSystem.ts
+// Re-export them here for backward compatibility if needed
+export { LAMMode, QuadVeeMode } from '../construction/MechConfigurationSystem';
 

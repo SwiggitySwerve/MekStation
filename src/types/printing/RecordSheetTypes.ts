@@ -7,6 +7,7 @@
  */
 
 import { MechLocation } from '../construction/CriticalSlotAllocation';
+import { LOCATION_ABBREVIATION_MAP, BIPED_LOCATION_VALUES } from '../construction/MechConfigurationSystem';
 
 /**
  * Paper size options for PDF generation
@@ -209,32 +210,22 @@ export interface IRect {
 }
 
 /**
- * Location abbreviation mapping
+ * Location abbreviation mapping (biped locations only for record sheets)
+ *
+ * @see LOCATION_ABBREVIATION_MAP in MechConfigurationSystem for full mapping
  */
-export const LOCATION_ABBREVIATIONS: Record<string, string> = {
-  [MechLocation.HEAD]: 'HD',
-  [MechLocation.CENTER_TORSO]: 'CT',
-  [MechLocation.LEFT_TORSO]: 'LT',
-  [MechLocation.RIGHT_TORSO]: 'RT',
-  [MechLocation.LEFT_ARM]: 'LA',
-  [MechLocation.RIGHT_ARM]: 'RA',
-  [MechLocation.LEFT_LEG]: 'LL',
-  [MechLocation.RIGHT_LEG]: 'RL',
-};
+export const LOCATION_ABBREVIATIONS: Record<string, string> = Object.fromEntries(
+  BIPED_LOCATION_VALUES.map(loc => [loc, LOCATION_ABBREVIATION_MAP[loc]])
+);
 
 /**
- * Location display names
+ * Location display names (biped locations only for record sheets)
+ *
+ * Note: MechLocation enum values are already display names (e.g., 'Left Arm')
  */
-export const LOCATION_NAMES: Record<string, string> = {
-  [MechLocation.HEAD]: 'Head',
-  [MechLocation.CENTER_TORSO]: 'Center Torso',
-  [MechLocation.LEFT_TORSO]: 'Left Torso',
-  [MechLocation.RIGHT_TORSO]: 'Right Torso',
-  [MechLocation.LEFT_ARM]: 'Left Arm',
-  [MechLocation.RIGHT_ARM]: 'Right Arm',
-  [MechLocation.LEFT_LEG]: 'Left Leg',
-  [MechLocation.RIGHT_LEG]: 'Right Leg',
-};
+export const LOCATION_NAMES: Record<string, string> = Object.fromEntries(
+  BIPED_LOCATION_VALUES.map(loc => [loc, loc])
+);
 
 /**
  * Options for PDF export

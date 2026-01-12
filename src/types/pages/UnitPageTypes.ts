@@ -58,7 +58,7 @@ export interface IUnitDetails {
   movement?: IMovementConfig;
   equipment?: IMountedEquipmentEntry[];
   quirks?: string[];
-  metadata?: IUnitMetadata;
+  metadata?: IPageUnitMetadata;
 }
 
 /**
@@ -128,9 +128,12 @@ export interface IMountedEquipmentEntry {
 }
 
 /**
- * Unit metadata
+ * Lightweight unit metadata for page display
+ *
+ * Note: This is a simplified subset of IUnitMetadata from BattleMechInterfaces.
+ * Use this for page-level display; use the full IUnitMetadata for unit data.
  */
-export interface IUnitMetadata {
+export interface IPageUnitMetadata {
   chassis?: string;
   model?: string;
   role?: string;

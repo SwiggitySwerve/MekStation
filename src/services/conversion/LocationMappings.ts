@@ -7,7 +7,7 @@
  * @spec unit-json.plan.md
  */
 
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { IArmorAllocation } from '@/types/construction/ComponentInterfaces';
 
 // ============================================================================
@@ -362,32 +362,51 @@ export const LOCATION_SLOT_ORDER: readonly MechLocation[] = [
 ];
 
 /**
- * Slot counts per location for biped mechs
+ * Biped mech locations for slot extraction
  */
-export const BIPED_SLOT_COUNTS: Partial<Record<MechLocation, number>> = {
-  [MechLocation.HEAD]: 6,
-  [MechLocation.CENTER_TORSO]: 12,
-  [MechLocation.LEFT_TORSO]: 12,
-  [MechLocation.RIGHT_TORSO]: 12,
-  [MechLocation.LEFT_ARM]: 12,
-  [MechLocation.RIGHT_ARM]: 12,
-  [MechLocation.LEFT_LEG]: 6,
-  [MechLocation.RIGHT_LEG]: 6,
-};
+const BIPED_LOCATIONS = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+] as const;
+
+/**
+ * Quad mech locations for slot extraction
+ */
+const QUAD_LOCATIONS = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+] as const;
+
+/**
+ * Slot counts per location for biped mechs
+ *
+ * @deprecated Use LOCATION_SLOT_COUNTS from CriticalSlotAllocation instead
+ */
+export const BIPED_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.fromEntries(
+  BIPED_LOCATIONS.map(loc => [loc, LOCATION_SLOT_COUNTS[loc]])
+) as Partial<Record<MechLocation, number>>;
 
 /**
  * Slot counts per location for quad mechs
+ *
+ * Note: Quad legs have 12 slots each (same as biped arms).
+ * @deprecated Use LOCATION_SLOT_COUNTS from CriticalSlotAllocation instead
  */
-export const QUAD_SLOT_COUNTS: Partial<Record<MechLocation, number>> = {
-  [MechLocation.HEAD]: 6,
-  [MechLocation.CENTER_TORSO]: 12,
-  [MechLocation.LEFT_TORSO]: 12,
-  [MechLocation.RIGHT_TORSO]: 12,
-  [MechLocation.FRONT_LEFT_LEG]: 6,
-  [MechLocation.FRONT_RIGHT_LEG]: 6,
-  [MechLocation.REAR_LEFT_LEG]: 6,
-  [MechLocation.REAR_RIGHT_LEG]: 6,
-};
+export const QUAD_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.fromEntries(
+  QUAD_LOCATIONS.map(loc => [loc, LOCATION_SLOT_COUNTS[loc]])
+) as Partial<Record<MechLocation, number>>;
 
 /**
  * Order of locations in MegaMekLab's combined criticals array for quad mechs
@@ -445,7 +464,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
       if (location) {
         result.push({
           location,
-          slots: entry.slots.slice(0, BIPED_SLOT_COUNTS[location]),
+          slots: entry.slots.slice(0, LOCATION_SLOT_COUNTS[location]),
         });
       }
     }
@@ -460,7 +479,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
     
     // Split by padded slot count (12 per location)
     for (const location of LOCATION_SLOT_ORDER) {
-      const actualSlotCount = BIPED_SLOT_COUNTS[location] ?? 0;
+      const actualSlotCount = LOCATION_SLOT_COUNTS[location] ?? 0;
       // Take only the actual slot count for this location (not the padded amount)
       const locationSlots = allSlots.slice(offset, offset + actualSlotCount);
       
@@ -488,7 +507,7 @@ export function parseCriticalSlots(entries: SourceCriticalEntry[]): ParsedCritic
       processedLocations.add(location);
       result.push({
         location,
-        slots: entry.slots.slice(0, BIPED_SLOT_COUNTS[location]),
+        slots: entry.slots.slice(0, LOCATION_SLOT_COUNTS[location]),
       });
     }
   }

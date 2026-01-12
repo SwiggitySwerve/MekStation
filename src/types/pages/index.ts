@@ -14,7 +14,7 @@ export {
   type IHeatSinkConfig,
   type IMovementConfig,
   type IMountedEquipmentEntry,
-  type IUnitMetadata,
+  type IPageUnitMetadata,
   type IUnitFilterState,
   isArmorFrontRear,
   calculateTotalArmor,

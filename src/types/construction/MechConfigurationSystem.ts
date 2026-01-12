@@ -294,30 +294,37 @@ export function getLocationDisplayName(location: MechLocation): string {
 }
 
 /**
+ * Canonical location abbreviations for all mech locations
+ *
+ * Includes all configurations: biped, quad, tripod, and LAM fighter mode.
+ * Use this as the single source of truth for location abbreviations.
+ */
+export const LOCATION_ABBREVIATION_MAP: Readonly<Record<MechLocation, string>> = {
+  [MechLocation.HEAD]: 'HD',
+  [MechLocation.CENTER_TORSO]: 'CT',
+  [MechLocation.LEFT_TORSO]: 'LT',
+  [MechLocation.RIGHT_TORSO]: 'RT',
+  [MechLocation.LEFT_ARM]: 'LA',
+  [MechLocation.RIGHT_ARM]: 'RA',
+  [MechLocation.LEFT_LEG]: 'LL',
+  [MechLocation.RIGHT_LEG]: 'RL',
+  [MechLocation.CENTER_LEG]: 'CL',
+  [MechLocation.FRONT_LEFT_LEG]: 'FLL',
+  [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
+  [MechLocation.REAR_LEFT_LEG]: 'RLL',
+  [MechLocation.REAR_RIGHT_LEG]: 'RRL',
+  [MechLocation.NOSE]: 'NOS',
+  [MechLocation.LEFT_WING]: 'LW',
+  [MechLocation.RIGHT_WING]: 'RW',
+  [MechLocation.AFT]: 'AFT',
+  [MechLocation.FUSELAGE]: 'FUS',
+};
+
+/**
  * Get the short abbreviation for a location (used in MTF format)
  */
 export function getLocationAbbreviation(location: MechLocation): string {
-  const abbreviations: Record<MechLocation, string> = {
-    [MechLocation.HEAD]: 'HD',
-    [MechLocation.CENTER_TORSO]: 'CT',
-    [MechLocation.LEFT_TORSO]: 'LT',
-    [MechLocation.RIGHT_TORSO]: 'RT',
-    [MechLocation.LEFT_ARM]: 'LA',
-    [MechLocation.RIGHT_ARM]: 'RA',
-    [MechLocation.LEFT_LEG]: 'LL',
-    [MechLocation.RIGHT_LEG]: 'RL',
-    [MechLocation.CENTER_LEG]: 'CL',
-    [MechLocation.FRONT_LEFT_LEG]: 'FLL',
-    [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
-    [MechLocation.REAR_LEFT_LEG]: 'RLL',
-    [MechLocation.REAR_RIGHT_LEG]: 'RRL',
-    [MechLocation.NOSE]: 'NOS',
-    [MechLocation.LEFT_WING]: 'LW',
-    [MechLocation.RIGHT_WING]: 'RW',
-    [MechLocation.AFT]: 'AFT',
-    [MechLocation.FUSELAGE]: 'FUS',
-  };
-  return abbreviations[location] || location;
+  return LOCATION_ABBREVIATION_MAP[location] || location;
 }
 
 /**
