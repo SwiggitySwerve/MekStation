@@ -102,6 +102,10 @@ jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
   ),
 }));
 
+jest.mock('@/components/customizer/armor/DiagramStyleSelector', () => ({
+  DiagramStyleSelector: () => <div data-testid="diagram-style-selector" />,
+}));
+
 describe('ArmorTab', () => {
   const mockStoreValues = {
     tonnage: 50,
@@ -178,6 +182,12 @@ describe('ArmorTab', () => {
     render(<ArmorTab />);
     
     expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
+  });
+
+  it('should render diagram style selector', () => {
+    render(<ArmorTab />);
+    
+    expect(screen.getByTestId('diagram-style-selector')).toBeInTheDocument();
   });
 
   it('should render in read-only mode', () => {

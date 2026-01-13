@@ -30,6 +30,7 @@ import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
 import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
 import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
 import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
+import { DiagramStyleSelector } from '../armor/DiagramStyleSelector';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,
@@ -350,7 +351,10 @@ export function ArmorTab({
 
         {/* RIGHT: Armor Diagram - Configuration-aware */}
         <div className="space-y-4" data-testid="armor-diagram">
-          {/* Non-biped configurations use their own dedicated diagrams */}
+          <div className="flex justify-end">
+            <DiagramStyleSelector />
+          </div>
+          
           {configuration === MechConfiguration.QUAD && (
             <QuadArmorDiagram
               armorData={armorData}
