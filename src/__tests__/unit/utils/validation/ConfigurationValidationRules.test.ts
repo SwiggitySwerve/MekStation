@@ -1214,8 +1214,8 @@ describe('ConfigurationValidationRules', () => {
       });
 
       it('should fail when critical slots exceed quad maximum', () => {
-        // Quad max is 90: 6 (head) + 12*3 (torsos) + 12*4 (quad legs) = 6 + 36 + 48 = 90
-        // Fill all locations to capacity = 90, then add 1 more = 91 total
+        // Quad max is 66: 6 (head) + 12*3 (torsos) + 6*4 (quad legs) = 6 + 36 + 24 = 66
+        // Fill all locations to capacity = 66, then add 1 more = 67 total
         const context = createContext({
           configuration: 'Quad',
           criticalSlots: {
@@ -1223,10 +1223,10 @@ describe('ConfigurationValidationRules', () => {
             [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),   // 12
             [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),     // 12
             [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),    // 12
-            [MechLocation.FRONT_LEFT_LEG]: Array(12).fill('Equipment'), // 12
-            [MechLocation.FRONT_RIGHT_LEG]: Array(12).fill('Equipment'),// 12
-            [MechLocation.REAR_LEFT_LEG]: Array(12).fill('Equipment'),  // 12
-            [MechLocation.REAR_RIGHT_LEG]: Array(13).fill('Equipment'), // 13 (1 over) = 91 total
+            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'),  // 6
+            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),   // 6
+            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'),  // 7 (1 over) = 67 total
           },
         });
 
@@ -1478,7 +1478,7 @@ describe('ConfigurationValidationRules', () => {
       });
 
       it('should fail when critical slots exceed quadvee maximum', () => {
-        // QuadVee max is 90: 6 (head) + 12*3 (torsos) + 12*4 (legs) = 6 + 36 + 48 = 90
+        // QuadVee max is 66: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 6 + 36 + 24 = 66
         // Fill to capacity then add 1 more
         const context = createContext({
           configuration: 'QuadVee',
@@ -1487,10 +1487,10 @@ describe('ConfigurationValidationRules', () => {
             [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),     // 12
             [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),       // 12
             [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),      // 12
-            [MechLocation.FRONT_LEFT_LEG]: Array(12).fill('Equipment'),   // 12
-            [MechLocation.FRONT_RIGHT_LEG]: Array(12).fill('Equipment'),  // 12
-            [MechLocation.REAR_LEFT_LEG]: Array(12).fill('Equipment'),    // 12
-            [MechLocation.REAR_RIGHT_LEG]: Array(13).fill('Equipment'),   // 13 (1 over) = 91 total
+            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'),    // 6
+            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'),   // 6
+            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),     // 6
+            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'),    // 7 (1 over) = 67 total
           },
         });
 

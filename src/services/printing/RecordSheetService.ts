@@ -888,7 +888,7 @@ export class RecordSheetService {
       }
     }
 
-    // Quad Legs - Actuators (12 slots, only first 4 are fixed actuators)
+    // Quad Legs - Actuators (6 slots, same as biped legs: 4 actuators + 2 empty)
     if (
       location === MechLocation.FRONT_LEFT_LEG ||
       location === MechLocation.FRONT_RIGHT_LEG ||
@@ -900,6 +900,7 @@ export class RecordSheetService {
         case 1: return 'Upper Leg Actuator';
         case 2: return 'Lower Leg Actuator';
         case 3: return 'Foot Actuator';
+        // Slots 4 and 5 are empty (Roll Again)
       }
     }
 

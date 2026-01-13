@@ -351,10 +351,10 @@ export function getLocationSlotCount(location: MechLocation, config: MechConfigu
     return 6;
   }
 
-  // Quad legs have 12 slots (same as arms in biped)
+  // Quad legs have 6 slots (same as biped legs - 4 actuators + 2 empty)
   if ([MechLocation.FRONT_LEFT_LEG, MechLocation.FRONT_RIGHT_LEG,
        MechLocation.REAR_LEFT_LEG, MechLocation.REAR_RIGHT_LEG].includes(location)) {
-    return 12;
+    return 6;
   }
 
   return 0;
