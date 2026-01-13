@@ -1,6 +1,6 @@
 # App Settings Specification
 
-## Overview
+## Purpose
 
 The app settings system provides user-configurable preferences for appearance, behavior, and accessibility. Settings are persisted to localStorage and apply immediately across the application.
 

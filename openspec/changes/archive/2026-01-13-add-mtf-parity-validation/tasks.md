@@ -21,7 +21,7 @@
 - [x] 2.8 Implement actuator detection (hand/lower arm presence)
 - [x] 2.9 Implement quirks parsing
 - [x] 2.10 Implement fluff text parsing (overview, capabilities, history, etc.)
-- [ ] 2.11 Add unit tests for MTFParserService (deferred - validation working)
+- [x] 2.11 Add unit tests for MTFParserService (172 tests in MTFParserService.test.ts)
 
 ## 3. MTF Export Service
 
@@ -35,7 +35,7 @@
 - [x] 3.8 Implement equipment ID to MTF name mapping (reverse of import)
 - [x] 3.9 Implement quirks section generation
 - [x] 3.10 Implement fluff text section generation
-- [ ] 3.11 Add unit tests for MTFExportService (deferred - validation working)
+- [x] 3.11 Add unit tests for MTFExportService (134 tests in MTFExportService.test.ts)
 
 ## 4. Parity Validation Service
 
@@ -45,7 +45,7 @@
 - [x] 4.4 Implement discrepancy categorization
 - [x] 4.5 Implement suggestion generation per category
 - [x] 4.6 Implement `validateAll(options)` method with unit discovery
-- [ ] 4.7 Add unit tests for ParityValidationService (deferred - validation working)
+- [x] 4.7 Add unit tests for ParityValidationService (tests in ParityValidationService.test.ts)
 
 ## 5. Report Writer
 
@@ -119,5 +119,11 @@ Units with errors:   0
 
 ### Known Gaps
 
-- Unit tests partially deferred (608 tests passing, core functionality covered)
 - Equipment name reverse-mapping has good coverage but may need expansion for rare equipment
+
+### Test Coverage
+
+- MTFParserService: 172 tests
+- MTFExportService: 134 tests
+- ParityValidationService: tests for core functionality
+- Total: 306+ tests passing

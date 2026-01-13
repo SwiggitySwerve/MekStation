@@ -159,7 +159,7 @@ The UI SHALL provide OmniMech-specific controls when `isOmni: true`.
 
 ### Requirement: Clan Name (Reporting Name)
 
-OmniMechs MAY have a Clan reporting name.
+The system SHALL support optional Clan reporting names for OmniMechs.
 
 **Rationale**: Clan OmniMechs often have Inner Sphere reporting names (e.g., "Mad Cat" for "Timber Wolf").
 

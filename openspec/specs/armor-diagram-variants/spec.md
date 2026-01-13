@@ -1,6 +1,6 @@
 # Armor Diagram Variants Specification
 
-## Overview
+## Purpose
 
 The armor diagram in the customizer supports multiple visual design variants. Users can choose their preferred style from the settings page, and the selection persists across sessions.
 
