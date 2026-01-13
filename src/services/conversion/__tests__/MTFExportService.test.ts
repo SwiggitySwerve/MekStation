@@ -7,9 +7,10 @@
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
-// CRITICAL: Unmock this module to ensure we test the real implementation
+// CRITICAL: Unmock these modules to ensure we test the real implementation
 // ParityValidationService.test.ts mocks MTFExportService, so we must explicitly unmock it here
 jest.unmock('@/services/conversion/MTFExportService');
+jest.unmock('@/services/conversion/MTFParserService');
 
 import { MTFExportService, getMTFExportService, IMTFExportResult } from '@/services/conversion/MTFExportService';
 import { MTFParserService } from '@/services/conversion/MTFParserService';
@@ -1587,7 +1588,8 @@ describe('MTFExportService', () => {
   // OmniMech Round-Trip Tests
   // ============================================================================
   describe('OmniMech Round-Trip', () => {
-    const parser = new MTFParserService();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const parser: MTFParserService = new MTFParserService();
 
     it('should preserve isOmni flag through export and re-parse', () => {
       const unit: ISerializedUnit = {
@@ -1646,9 +1648,10 @@ describe('MTFExportService', () => {
       const parseResult = parser.parse(exportResult.content!);
       expect(parseResult.success).toBe(true);
       expect(parseResult.unit).toBeDefined();
+      const parsedUnit = parseResult.unit!;
 
       // Verify isOmni is preserved
-      expect(parseResult.unit!.isOmni).toBe(true);
+      expect(parsedUnit.isOmni).toBe(true);
     });
 
     it('should preserve isOmniPodMounted through export and re-parse', () => {
@@ -1708,9 +1711,10 @@ describe('MTFExportService', () => {
       const parseResult = parser.parse(exportResult.content!);
       expect(parseResult.success).toBe(true);
       expect(parseResult.unit).toBeDefined();
+      const parsedUnit = parseResult.unit!;
 
       // Verify equipment isOmniPodMounted is preserved
-      const equipment = parseResult.unit!.equipment || [];
+      const equipment = parsedUnit.equipment ?? [];
 
       // Note: Parser normalizes equipment IDs to lowercase-with-dashes
       const podMountedLaser = equipment.find(e => e.id.includes('er-large-laser'));
@@ -1775,9 +1779,10 @@ describe('MTFExportService', () => {
       const parseResult = parser.parse(exportResult.content!);
       expect(parseResult.success).toBe(true);
       expect(parseResult.unit).toBeDefined();
+      const parsedUnit = parseResult.unit!;
 
       // Verify baseChassisHeatSinks is preserved
-      expect(parseResult.unit!.baseChassisHeatSinks).toBe(15);
+      expect(parsedUnit.baseChassisHeatSinks).toBe(15);
     });
   });
 
@@ -1785,7 +1790,8 @@ describe('MTFExportService', () => {
   // OmniMech Variant Workflow Tests
   // ============================================================================
   describe('OmniMech Variant Workflow', () => {
-    const parser = new MTFParserService();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const parser: MTFParserService = new MTFParserService();
 
     it('should support variant switching workflow: Prime -> reset -> A variant', () => {
       // Step 1: Start with Prime variant (has pod equipment)
@@ -1886,12 +1892,13 @@ describe('MTFExportService', () => {
       const parseResult = parser.parse(exportResult.content!);
       expect(parseResult.success).toBe(true);
       expect(parseResult.unit).toBeDefined();
+      const parsedUnit = parseResult.unit!;
 
       // Verify model is A
-      expect(parseResult.unit!.model).toBe('A');
+      expect(parsedUnit.model).toBe('A');
 
       // Verify equipment count and pod status
-      const equipment = parseResult.unit!.equipment || [];
+      const equipment = parsedUnit.equipment ?? [];
       expect(equipment.length).toBe(6); // 1 fixed + 5 pod
 
       // Find fixed targeting computer
@@ -1959,24 +1966,28 @@ describe('MTFExportService', () => {
 
       const parse1 = parser.parse(export1.content!);
       expect(parse1.success).toBe(true);
+      expect(parse1.unit).toBeDefined();
+      const unit1 = parse1.unit!;
 
       // Verify first parse preserved OmniMech fields
-      expect(parse1.unit!.isOmni).toBe(true);
-      expect(parse1.unit!.baseChassisHeatSinks).toBe(10);
+      expect(unit1.isOmni).toBe(true);
+      expect(unit1.baseChassisHeatSinks).toBe(10);
 
       // Second export/parse cycle
-      const export2 = service.export(parse1.unit as ISerializedUnit);
+      const export2 = service.export(unit1 as ISerializedUnit);
       expect(export2.success).toBe(true);
 
       const parse2 = parser.parse(export2.content!);
       expect(parse2.success).toBe(true);
+      expect(parse2.unit).toBeDefined();
+      const unit2 = parse2.unit!;
 
       // Verify OmniMech fields still preserved after double round-trip
-      expect(parse2.unit!.isOmni).toBe(true);
-      expect(parse2.unit!.baseChassisHeatSinks).toBe(10);
+      expect(unit2.isOmni).toBe(true);
+      expect(unit2.baseChassisHeatSinks).toBe(10);
 
       // Verify fixed equipment preserved
-      const fixedEquip = parse2.unit!.equipment?.find(e => !e.isOmniPodMounted);
+      const fixedEquip = unit2.equipment?.find(e => !e.isOmniPodMounted);
       expect(fixedEquip).toBeDefined();
       expect(fixedEquip!.id).toContain('er-medium-laser');
     });
