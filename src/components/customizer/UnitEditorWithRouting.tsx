@@ -172,6 +172,7 @@ export function UnitEditorWithRouting({
   const chassis = useUnitStore((s) => s.chassis);
   const model = useUnitStore((s) => s.model);
   const tonnage = useUnitStore((s) => s.tonnage);
+  const configuration = useUnitStore((s) => s.configuration);
   const techBase = useUnitStore((s) => s.techBase);
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
@@ -200,12 +201,12 @@ export function UnitEditorWithRouting({
   
   // Calculate armor stats for display
   const allocatedArmorPoints = useMemo(
-    () => getTotalAllocatedArmor(armorAllocation),
-    [armorAllocation]
+    () => getTotalAllocatedArmor(armorAllocation, configuration),
+    [armorAllocation, configuration]
   );
   const maxArmorPoints = useMemo(
-    () => getMaxTotalArmor(tonnage),
-    [tonnage]
+    () => getMaxTotalArmor(tonnage, configuration),
+    [tonnage, configuration]
   );
   
   // Memoize component selections to avoid breaking hook memoization

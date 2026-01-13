@@ -8,6 +8,7 @@ import {
   calculateOptimalArmorAllocation,
   getMaxTotalArmor,
 } from '@/utils/construction/armorCalculations';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 describe('calculateOptimalArmorAllocation', () => {
   describe('MegaMekLab distribution matching', () => {
@@ -241,6 +242,175 @@ describe('calculateOptimalArmorAllocation', () => {
       expect(result.leftTorsoRear).toBe(0);
       expect(result.rightTorsoRear).toBe(0);
     });
+  });
+});
+
+describe('calculateOptimalArmorAllocation - Quad Configuration', () => {
+  describe('location allocation', () => {
+    it('should allocate to quad-specific leg locations', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.QUAD);
+      
+      expect(result.frontLeftLeg).toBeGreaterThan(0);
+      expect(result.frontRightLeg).toBeGreaterThan(0);
+      expect(result.rearLeftLeg).toBeGreaterThan(0);
+      expect(result.rearRightLeg).toBeGreaterThan(0);
+      
+      expect(result.leftArm).toBe(0);
+      expect(result.rightArm).toBe(0);
+      expect(result.leftLeg).toBe(0);
+      expect(result.rightLeg).toBe(0);
+    });
+
+    it('should maintain symmetry for quad legs', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.QUAD);
+      
+      expect(result.frontLeftLeg).toBe(result.frontRightLeg);
+      expect(result.rearLeftLeg).toBe(result.rearRightLeg);
+    });
+
+    it('should allocate head and torsos like biped', () => {
+      const result = calculateOptimalArmorAllocation(100, 50, MechConfiguration.QUAD);
+      
+      expect(result.head).toBeGreaterThan(0);
+      expect(result.centerTorsoFront).toBeGreaterThan(0);
+      expect(result.leftTorsoFront).toBe(result.rightTorsoFront);
+    });
+  });
+
+  describe('no unallocated points', () => {
+    it('should have 0 unallocated when points < max armor', () => {
+      const testCases = [32, 64, 96, 128, 160];
+      
+      for (const points of testCases) {
+        const result = calculateOptimalArmorAllocation(points, 50, MechConfiguration.QUAD);
+        expect(result.unallocated).toBe(0);
+        expect(result.totalAllocated).toBe(points);
+      }
+    });
+  });
+
+  describe('max armor calculation', () => {
+    it('should calculate correct max armor for quad', () => {
+      const maxArmor = getMaxTotalArmor(50, MechConfiguration.QUAD);
+      const result = calculateOptimalArmorAllocation(maxArmor, 50, MechConfiguration.QUAD);
+      
+      expect(result.totalAllocated).toBe(maxArmor);
+      expect(result.unallocated).toBe(0);
+    });
+  });
+});
+
+describe('calculateOptimalArmorAllocation - Tripod Configuration', () => {
+  describe('location allocation', () => {
+    it('should allocate to tripod-specific center leg', () => {
+      const result = calculateOptimalArmorAllocation(180, 50, MechConfiguration.TRIPOD);
+      
+      expect(result.centerLeg).toBeGreaterThan(0);
+      expect(result.leftLeg).toBeGreaterThan(0);
+      expect(result.rightLeg).toBeGreaterThan(0);
+      expect(result.leftArm).toBeGreaterThan(0);
+      expect(result.rightArm).toBeGreaterThan(0);
+      
+      expect(result.frontLeftLeg).toBe(0);
+      expect(result.frontRightLeg).toBe(0);
+    });
+
+    it('should maintain symmetry for legs and arms', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.TRIPOD);
+      
+      expect(result.leftLeg).toBe(result.rightLeg);
+      expect(result.leftArm).toBe(result.rightArm);
+    });
+  });
+
+  describe('no unallocated points', () => {
+    it('should have 0 unallocated when points < max armor', () => {
+      const testCases = [32, 64, 96, 128, 160];
+      
+      for (const points of testCases) {
+        const result = calculateOptimalArmorAllocation(points, 50, MechConfiguration.TRIPOD);
+        expect(result.unallocated).toBe(0);
+        expect(result.totalAllocated).toBe(points);
+      }
+    });
+  });
+
+  describe('max armor calculation', () => {
+    it('should calculate correct max armor for tripod (higher than biped)', () => {
+      const bipedMax = getMaxTotalArmor(50, MechConfiguration.BIPED);
+      const tripodMax = getMaxTotalArmor(50, MechConfiguration.TRIPOD);
+      
+      expect(tripodMax).toBeGreaterThan(bipedMax);
+      
+      const result = calculateOptimalArmorAllocation(tripodMax, 50, MechConfiguration.TRIPOD);
+      expect(result.totalAllocated).toBe(tripodMax);
+      expect(result.unallocated).toBe(0);
+    });
+  });
+});
+
+describe('calculateOptimalArmorAllocation - LAM Configuration', () => {
+  describe('location allocation', () => {
+    it('should allocate like biped for LAM mech mode', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.LAM);
+      
+      expect(result.leftArm).toBeGreaterThan(0);
+      expect(result.rightArm).toBeGreaterThan(0);
+      expect(result.leftLeg).toBeGreaterThan(0);
+      expect(result.rightLeg).toBeGreaterThan(0);
+      
+      expect(result.centerLeg).toBe(0);
+      expect(result.frontLeftLeg).toBe(0);
+    });
+
+    it('should maintain symmetry like biped', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.LAM);
+      
+      expect(result.leftArm).toBe(result.rightArm);
+      expect(result.leftLeg).toBe(result.rightLeg);
+      expect(result.leftTorsoFront).toBe(result.rightTorsoFront);
+    });
+  });
+});
+
+describe('calculateOptimalArmorAllocation - QuadVee Configuration', () => {
+  describe('location allocation', () => {
+    it('should allocate like quad', () => {
+      const result = calculateOptimalArmorAllocation(150, 50, MechConfiguration.QUADVEE);
+      
+      expect(result.frontLeftLeg).toBeGreaterThan(0);
+      expect(result.frontRightLeg).toBeGreaterThan(0);
+      expect(result.rearLeftLeg).toBeGreaterThan(0);
+      expect(result.rearRightLeg).toBeGreaterThan(0);
+      
+      expect(result.leftArm).toBe(0);
+      expect(result.rightArm).toBe(0);
+    });
+  });
+
+  describe('max armor calculation', () => {
+    it('should have same max as quad', () => {
+      const quadMax = getMaxTotalArmor(50, MechConfiguration.QUAD);
+      const quadveeMax = getMaxTotalArmor(50, MechConfiguration.QUADVEE);
+      
+      expect(quadveeMax).toBe(quadMax);
+    });
+  });
+});
+
+describe('getMaxTotalArmor - configuration support', () => {
+  it('should return different max armor for different configurations', () => {
+    const biped = getMaxTotalArmor(50, MechConfiguration.BIPED);
+    const tripod = getMaxTotalArmor(50, MechConfiguration.TRIPOD);
+    
+    expect(tripod).toBeGreaterThan(biped);
+  });
+
+  it('should default to biped when no configuration specified', () => {
+    const defaultMax = getMaxTotalArmor(50);
+    const bipedMax = getMaxTotalArmor(50, MechConfiguration.BIPED);
+    
+    expect(defaultMax).toBe(bipedMax);
   });
 });
 

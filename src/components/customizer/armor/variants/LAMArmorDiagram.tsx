@@ -1,13 +1,3 @@
-/**
- * LAM (Land-Air Mech) Armor Diagram
- *
- * Design Philosophy: Mode-switchable visualization for transformable mechs
- * - Mech mode uses standard biped silhouette
- * - AirMech mode shows hybrid view
- * - Fighter mode shows aerospace silhouette with mapped armor values
- * - Mode toggle allows viewing armor allocation in different configurations
- */
-
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import {
@@ -15,6 +5,7 @@ import {
   LAM_CONFIGURATION,
   configurationRegistry,
 } from '@/types/construction/MechConfigurationSystem';
+import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
   REALISTIC_SILHOUETTE,
@@ -24,209 +15,15 @@ import {
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
-import {
-  GradientDefs,
-  getArmorStatusColor,
-  getTorsoFrontStatusColor,
-  getTorsoRearStatusColor,
-  lightenColor,
-  SELECTED_COLOR,
-  SELECTED_STROKE,
-} from '../shared/ArmorFills';
+import { GradientDefs } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-
-interface LAMLocationProps {
-  location: MechLocation;
-  data?: LocationArmorData;
-  isSelected: boolean;
-  isHovered: boolean;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
-  isFighterMode: boolean;
-}
-
-function LAMLocation({
-  location,
-  data,
-  isSelected,
-  isHovered,
-  onClick,
-  onHover,
-  isFighterMode,
-}: LAMLocationProps): React.ReactElement | null {
-  const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
-  const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
-
-  const pos = silhouette.locations[location];
-  const label = labels[location];
-
-  // Skip rendering if this location is not defined in this silhouette
-  if (!pos) return null;
-
-  const center = getLocationCenter(pos);
-  // Fighter mode doesn't have rear armor on individual locations
-  const showRear = !isFighterMode && hasTorsoRear(location);
-
-  const current = data?.current ?? 0;
-  const maximum = data?.maximum ?? 1;
-  const rear = data?.rear ?? 0;
-  const rearMax = data?.rearMaximum ?? 1;
-
-  // Status-based colors for front and rear independently
-  const frontBaseColor = isSelected
-    ? SELECTED_COLOR
-    : showRear
-      ? getTorsoFrontStatusColor(current, maximum)
-      : getArmorStatusColor(current, maximum);
-  const rearBaseColor = isSelected
-    ? SELECTED_COLOR
-    : getTorsoRearStatusColor(rear, maximum);
-
-  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
-  const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
-  const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
-  const strokeWidth = isSelected ? 2.5 : 1;
-
-  // Split positions for front/rear - adjusted for divider
-  const dividerHeight = showRear ? 2 : 0;
-  const frontHeight = showRear ? pos.height * 0.65 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
-  const dividerY = pos.y + frontHeight;
-  const rearY = dividerY + dividerHeight;
-
-  return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${current} of ${maximum}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-    >
-      {/* Front armor section */}
-      {pos.path ? (
-        <path
-          d={pos.path}
-          fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          className="transition-all duration-150"
-          style={{
-            clipPath: showRear ? `inset(0 0 ${rearHeight}px 0)` : undefined,
-          }}
-        />
-      ) : (
-        <rect
-          x={pos.x}
-          y={pos.y}
-          width={pos.width}
-          height={frontHeight}
-          rx={6}
-          fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          className="transition-all duration-150"
-        />
-      )}
-
-      {/* Front armor value - large bold number */}
-      <text
-        x={center.x}
-        y={pos.y + frontHeight / 2 + 5}
-        textAnchor="middle"
-        className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: pos.width < 40 ? '12px' : '16px' }}
-      >
-        {current}
-      </text>
-
-      {/* Capacity text */}
-      <text
-        x={center.x}
-        y={pos.y + frontHeight / 2 + 16}
-        textAnchor="middle"
-        className="fill-white/60 pointer-events-none"
-        style={{ fontSize: '8px' }}
-      >
-        / {maximum}
-      </text>
-
-      {/* Location label */}
-      <text
-        x={center.x}
-        y={pos.y + 12}
-        textAnchor="middle"
-        className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: showRear ? '8px' : '9px' }}
-      >
-        {showRear ? `${label} FRONT` : label}
-      </text>
-
-      {/* Divider line between front and rear */}
-      {showRear && (
-        <line
-          x1={pos.x + 4}
-          y1={dividerY + 1}
-          x2={pos.x + pos.width - 4}
-          y2={dividerY + 1}
-          stroke="#334155"
-          strokeWidth={1}
-          strokeDasharray="3 2"
-          className="pointer-events-none"
-        />
-      )}
-
-      {/* Rear armor section for torsos */}
-      {showRear && (
-        <>
-          <rect
-            x={pos.x}
-            y={rearY}
-            width={pos.width}
-            height={rearHeight}
-            rx={6}
-            fill={rearFillColor}
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            className="transition-all duration-150"
-          />
-
-          {/* Rear label */}
-          <text
-            x={center.x}
-            y={rearY + 11}
-            textAnchor="middle"
-            className="fill-white/80 font-semibold pointer-events-none"
-            style={{ fontSize: '8px' }}
-          >
-            REAR
-          </text>
-
-          {/* Rear armor value */}
-          <text
-            x={center.x}
-            y={rearY + rearHeight / 2 + 6}
-            textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '12px' }}
-          >
-            {rear}
-          </text>
-        </>
-      )}
-    </g>
-  );
-}
+import {
+  getVariantStyle,
+  VariantLegend,
+  VariantSVGDecorations,
+  TargetingReticle,
+} from '../shared/VariantStyles';
+import { VariantLocation } from '../shared/VariantLocationRenderer';
 
 export interface LAMArmorDiagramProps {
   armorData: LocationArmorData[];
@@ -235,11 +32,9 @@ export interface LAMArmorDiagramProps {
   onLocationClick: (location: MechLocation) => void;
   onAutoAllocate?: () => void;
   className?: string;
+  variant?: ArmorDiagramVariant;
 }
 
-/**
- * Biped mech locations for LAM Mech mode
- */
 const MECH_LOCATIONS: MechLocation[] = [
   MechLocation.HEAD,
   MechLocation.CENTER_TORSO,
@@ -251,9 +46,6 @@ const MECH_LOCATIONS: MechLocation[] = [
   MechLocation.RIGHT_LEG,
 ];
 
-/**
- * Fighter locations for LAM Fighter mode
- */
 const FIGHTER_LOCATIONS: MechLocation[] = [
   MechLocation.NOSE,
   MechLocation.FUSELAGE,
@@ -262,10 +54,6 @@ const FIGHTER_LOCATIONS: MechLocation[] = [
   MechLocation.AFT,
 ];
 
-/**
- * Calculate fighter mode armor values from mech mode armor
- * Uses the armor location mapping from LAM configuration
- */
 function calculateFighterArmor(
   mechArmorData: LocationArmorData[]
 ): LocationArmorData[] {
@@ -277,16 +65,13 @@ function calculateFighterArmor(
     return [];
   }
 
-  // Create a map of mech armor data for quick lookup
   const mechArmorMap = new Map<MechLocation, LocationArmorData>();
   for (const data of mechArmorData) {
     mechArmorMap.set(data.location, data);
   }
 
-  // Calculate fighter armor by summing mapped mech locations
   const fighterArmor: Map<MechLocation, LocationArmorData> = new Map();
 
-  // Initialize fighter locations
   for (const fighterLoc of FIGHTER_LOCATIONS) {
     fighterArmor.set(fighterLoc, {
       location: fighterLoc,
@@ -295,7 +80,6 @@ function calculateFighterArmor(
     });
   }
 
-  // Sum armor from mech locations to fighter locations
   for (const mechLoc of MECH_LOCATIONS) {
     const fighterLoc = armorMapping[mechLoc];
     if (!fighterLoc || !FIGHTER_LOCATIONS.includes(fighterLoc)) continue;
@@ -305,7 +89,6 @@ function calculateFighterArmor(
 
     const fighterData = fighterArmor.get(fighterLoc)!;
 
-    // Add front armor + rear armor to the fighter location
     const totalMechArmor = mechData.current + (mechData.rear ?? 0);
     const totalMechMax = mechData.maximum + (mechData.rearMaximum ?? 0);
 
@@ -326,13 +109,14 @@ export function LAMArmorDiagram({
   onLocationClick,
   onAutoAllocate,
   className = '',
+  variant = 'clean-tech',
 }: LAMArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
   const [currentMode, setCurrentMode] = useState<LAMMode>(LAMMode.MECH);
+  const style = getVariantStyle(variant);
 
   const isFighterMode = currentMode === LAMMode.FIGHTER;
 
-  // Get locations and armor data based on current mode
   const displayLocations = isFighterMode ? FIGHTER_LOCATIONS : MECH_LOCATIONS;
   const displayArmorData = isFighterMode
     ? calculateFighterArmor(armorData)
@@ -344,30 +128,32 @@ export function LAMArmorDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
   const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
+  const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
+
+  const hoveredPos = hoveredLocation ? silhouette.locations[hoveredLocation] : null;
 
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
-      {/* Header */}
+    <div className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-white">LAM Armor Allocation</h3>
+          <h3 className={style.headerTextClass} style={style.headerTextStyle}>
+            LAM Armor Allocation
+          </h3>
           <ArmorDiagramQuickSettings />
         </div>
         {onAutoAllocate && !isFighterMode && (
           <button
             onClick={onAutoAllocate}
             className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-accent hover:bg-accent text-white'
+              isOverAllocated ? style.buttonOverClass : style.buttonNormalClass
             }`}
+            style={isOverAllocated ? style.buttonOverStyle : style.buttonNormalStyle}
           >
             Auto Allocate ({unallocatedPoints} pts)
           </button>
         )}
       </div>
 
-      {/* Mode Toggle */}
       <div className="flex justify-center mb-4">
         <div className="inline-flex rounded-lg bg-surface-subtle p-1">
           {([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER] as LAMMode[]).map((mode) => (
@@ -386,14 +172,12 @@ export function LAMArmorDiagram({
         </div>
       </div>
 
-      {/* Mode Description */}
       {isFighterMode && (
         <div className="text-center text-xs text-text-theme-secondary mb-3">
           Fighter mode armor is calculated from Mech mode allocation
         </div>
       )}
 
-      {/* Diagram */}
       <div className="relative">
         <svg
           viewBox={silhouette.viewBox}
@@ -402,53 +186,49 @@ export function LAMArmorDiagram({
         >
           <GradientDefs />
 
-          {/* Background grid pattern */}
-          <rect
-            x="0"
-            y="0"
-            width="300"
-            height="280"
-            fill="url(#armor-grid)"
-            opacity="0.5"
-          />
+          <VariantSVGDecorations variant={variant} width={300} height={280} />
 
-          {/* Render all locations for current mode */}
-          {displayLocations.map((loc) => (
-            <LAMLocation
-              key={loc}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => !isFighterMode && onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-              isFighterMode={isFighterMode}
+          {displayLocations.map((loc) => {
+            const pos = silhouette.locations[loc];
+            if (!pos) return null;
+            const data = getArmorData(loc);
+            const label = labels[loc] ?? loc;
+            const showRear = !isFighterMode && hasTorsoRear(loc);
+
+            return (
+              <VariantLocation
+                key={loc}
+                location={loc}
+                label={label}
+                pos={pos}
+                data={{
+                  current: data?.current ?? 0,
+                  maximum: data?.maximum ?? 1,
+                  rear: data?.rear ?? 0,
+                  rearMaximum: data?.rearMaximum ?? 1,
+                }}
+                showRear={showRear}
+                isSelected={selectedLocation === loc}
+                isHovered={hoveredLocation === loc}
+                variant={variant}
+                onClick={() => !isFighterMode && onLocationClick(loc)}
+                onHover={(h) => setHoveredLocation(h ? loc : null)}
+              />
+            );
+          })}
+
+          {style.showTargetingReticle && hoveredPos && (
+            <TargetingReticle
+              cx={getLocationCenter(hoveredPos).x}
+              cy={getLocationCenter(hoveredPos).y}
+              visible={true}
             />
-          ))}
+          )}
         </svg>
       </div>
 
-      {/* Legend */}
-      <div className="flex justify-center gap-3 mt-4 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-green-500" />
-          <span className="text-text-theme-secondary">75%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-amber-500" />
-          <span className="text-text-theme-secondary">50%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-orange-500" />
-          <span className="text-text-theme-secondary">25%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span className="text-text-theme-secondary">&lt;25%</span>
-        </div>
-      </div>
+      <VariantLegend variant={variant} unallocatedPoints={unallocatedPoints} />
 
-      {/* Location Key */}
       <div className="mt-3 pt-3 border-t border-border-theme-subtle">
         {isFighterMode ? (
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
@@ -469,11 +249,10 @@ export function LAMArmorDiagram({
         )}
       </div>
 
-      {/* Instructions */}
-      <p className="text-xs text-text-theme-secondary text-center mt-2">
+      <p className={style.instructionsClass}>
         {isFighterMode
           ? 'Switch to Mech mode to edit armor values'
-          : 'Click a location to edit armor values'}
+          : style.instructionsText}
       </p>
     </div>
   );

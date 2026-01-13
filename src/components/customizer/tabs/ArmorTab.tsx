@@ -99,10 +99,10 @@ export function ArmorTab({
     [armorTonnage, armorType]
   );
   const allocatedPoints = useMemo(
-    () => getTotalAllocatedArmor(armorAllocation),
-    [armorAllocation]
+    () => getTotalAllocatedArmor(armorAllocation, configuration),
+    [armorAllocation, configuration]
   );
-  const maxTotalArmor = useMemo(() => getMaxTotalArmor(tonnage), [tonnage]);
+  const maxTotalArmor = useMemo(() => getMaxTotalArmor(tonnage, configuration), [tonnage, configuration]);
   const armorSlots = useMemo(() => getArmorCriticalSlots(armorType), [armorType]);
   
   // Calculate max useful tonnage (ceiling to half-ton of max points / points per ton)
@@ -358,6 +358,7 @@ export function ArmorTab({
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
               onAutoAllocate={handleAutoAllocate}
+              variant={armorDiagramVariant}
             />
           )}
           {configuration === MechConfiguration.TRIPOD && (
@@ -367,6 +368,7 @@ export function ArmorTab({
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
               onAutoAllocate={handleAutoAllocate}
+              variant={armorDiagramVariant}
             />
           )}
           {configuration === MechConfiguration.LAM && (
@@ -376,6 +378,7 @@ export function ArmorTab({
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
               onAutoAllocate={handleAutoAllocate}
+              variant={armorDiagramVariant}
             />
           )}
           {configuration === MechConfiguration.QUADVEE && (
@@ -385,6 +388,7 @@ export function ArmorTab({
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
               onAutoAllocate={handleAutoAllocate}
+              variant={armorDiagramVariant}
             />
           )}
 
