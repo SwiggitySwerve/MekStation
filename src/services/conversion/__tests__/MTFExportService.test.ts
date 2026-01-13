@@ -1588,8 +1588,7 @@ describe('MTFExportService', () => {
   // OmniMech Round-Trip Tests
   // ============================================================================
   describe('OmniMech Round-Trip', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const parser: MTFParserService = new MTFParserService();
+    const parser = MTFParserService.getInstance();
 
     it('should preserve isOmni flag through export and re-parse', () => {
       const unit: ISerializedUnit = {
@@ -1790,8 +1789,7 @@ describe('MTFExportService', () => {
   // OmniMech Variant Workflow Tests
   // ============================================================================
   describe('OmniMech Variant Workflow', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const parser: MTFParserService = new MTFParserService();
+    const parser = MTFParserService.getInstance();
 
     it('should support variant switching workflow: Prime -> reset -> A variant', () => {
       // Step 1: Start with Prime variant (has pod equipment)
