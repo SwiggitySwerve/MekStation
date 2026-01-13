@@ -222,12 +222,13 @@
 - [x] Biped PDF record sheet renders with dynamic pips
 - [x] Biped critical slots render correctly (8 locations)
 
-### Quad Support (In Progress)
+### Quad Support (Complete)
 - [x] Quad leg slot counts fixed (6 slots each)
 - [x] Quad locations added to extractCriticals/extractArmor
-- [ ] Quad armor diagram works with MegaMek Classic variant
-- [ ] Quad PDF record sheet renders with all 4 leg locations
-- [ ] Quad critical slots render correctly (8 locations)
+- [x] Quad armor text IDs added (FLL, FRL, RLL, RRL -> textArmor_*)
+- [x] Quad structure text IDs added (FLL, FRL, RLL, RRL -> textIS_*)
+- [x] Quad PDF record sheet renders with all 4 leg locations (verified: armor 21 each)
+- [x] Quad critical slots render correctly (8 locations: 6 slots each leg)
 
 ### Tripod Support (Pending)
 - [x] Tripod center leg location support in service layer
