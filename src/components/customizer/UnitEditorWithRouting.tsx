@@ -186,6 +186,7 @@ export function UnitEditorWithRouting({
   const armorTonnage = useUnitStore((s) => s.armorTonnage);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   const equipment = useUnitStore((s) => s.equipment);
+  const isOmni = useUnitStore((s) => s.isOmni);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
   const enhancement = useUnitStore((s) => s.enhancement);
@@ -413,6 +414,7 @@ export function UnitEditorWithRouting({
         isAllocated: !!item.location,
         location: item.location,
         isRemovable: item.isRemovable,
+        isOmniPodMounted: item.isOmniPodMounted,
       };
     });
   }, [equipment]);
@@ -634,6 +636,7 @@ export function UnitEditorWithRouting({
           onUnassignEquipment={handleUnassignEquipment}
           onQuickAssign={handleQuickAssign}
           availableLocations={availableLocations}
+          isOmni={isOmni}
         />
       </div>
     </div>

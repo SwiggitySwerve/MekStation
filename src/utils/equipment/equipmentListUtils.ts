@@ -225,6 +225,7 @@ export function createJumpJetEquipmentList(
       isRearMounted: false,
       linkedAmmoId: undefined,
       isRemovable: false,
+      isOmniPodMounted: false,
     });
   }
   return result;
@@ -272,6 +273,7 @@ export function createInternalStructureEquipmentList(
       isRearMounted: false,
       linkedAmmoId: undefined,
       isRemovable: false,
+      isOmniPodMounted: false,
     });
   }
   return result;
@@ -322,11 +324,12 @@ export function createArmorEquipmentList(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: false,
+        isOmniPodMounted: false,
       });
     }
     return result;
   }
-  
+
   // Other armor types: individual 1-slot items
   const slotCount = armorDef.criticalSlots;
   for (let i = 0; i < slotCount; i++) {
@@ -344,6 +347,7 @@ export function createArmorEquipmentList(
       isRearMounted: false,
       linkedAmmoId: undefined,
       isRemovable: false,
+      isOmniPodMounted: false,
     });
   }
   return result;
@@ -495,6 +499,7 @@ export function createHeatSinkEquipmentList(
       isRearMounted: false,
       linkedAmmoId: undefined,
       isRemovable: false,
+      isOmniPodMounted: false,
     });
   }
   return result;
@@ -732,11 +737,12 @@ export function createEnhancementEquipmentList(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: false,
+        isOmniPodMounted: false,
       });
     }
     return result;
   }
-  
+
   // MASC and Supercharger are single items
   return [{
     instanceId: generateUnitId(),
@@ -752,6 +758,7 @@ export function createEnhancementEquipmentList(
     isRearMounted: false,
     linkedAmmoId: undefined,
     isRemovable: false,
+    isOmniPodMounted: false,
   }];
 }
 
@@ -938,6 +945,7 @@ export function createTargetingComputerEquipmentList(
     isRearMounted: false,
     linkedAmmoId: undefined,
     isRemovable: true, // Targeting computer can be removed from loadout
+    isOmniPodMounted: false,
   }];
 }
 

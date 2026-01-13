@@ -45,6 +45,7 @@ describe('useEquipmentCalculations', () => {
     isRearMounted: false,
     linkedAmmoId: undefined,
     isRemovable: true,
+    isOmniPodMounted: false,
     ...overrides,
   });
 
@@ -104,6 +105,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
         {
           instanceId: '2',
@@ -119,6 +121,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
         {
           instanceId: '3',
@@ -134,6 +137,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
         {
           instanceId: '4',
@@ -149,6 +153,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
         {
           instanceId: '5',
@@ -164,6 +169,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
         {
           instanceId: '6',
@@ -179,6 +185,7 @@ describe('useEquipmentCalculations', () => {
           isRearMounted: false,
           linkedAmmoId: undefined,
           isRemovable: true,
+          isOmniPodMounted: false,
         },
       ];
       
