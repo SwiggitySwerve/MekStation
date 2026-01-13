@@ -288,6 +288,8 @@ export function RecordSheetPreview({
           frontRightLeg: armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0,
           rearLeftLeg: armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0,
           rearRightLeg: armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0,
+          // Tripod-specific location
+          centerLeg: armorAllocation[MechLocation.CENTER_LEG] ?? 0,
         },
       },
       heatSinks: {
