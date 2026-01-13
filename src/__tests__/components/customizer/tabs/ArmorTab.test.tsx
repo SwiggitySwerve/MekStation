@@ -5,6 +5,7 @@ import { ArmorTab } from '@/components/customizer/tabs/ArmorTab';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { ArmorDiagramProps } from '@/components/customizer/armor/ArmorDiagram';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 
 // Mock dependencies
 jest.mock('@/stores/useUnitStore', () => ({
@@ -50,25 +51,47 @@ jest.mock('@/components/customizer/armor/ArmorDiagram', () => ({
 // Mock the variant diagrams used by ArmorTab
 jest.mock('@/components/customizer/armor/variants', () => ({
   CleanTechDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
-    <div data-testid="armor-diagram">
+    <div data-testid="clean-tech-diagram">
       <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
     </div>
   ),
   NeonOperatorDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
-    <div data-testid="armor-diagram">
+    <div data-testid="neon-operator-diagram">
       <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
     </div>
   ),
   TacticalHUDDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
-    <div data-testid="armor-diagram">
+    <div data-testid="tactical-hud-diagram">
       <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
     </div>
   ),
   PremiumMaterialDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
-    <div data-testid="armor-diagram">
+    <div data-testid="premium-material-diagram">
       <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
     </div>
   ),
+  MegaMekDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+    <div data-testid="megamek-diagram">
+      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+    </div>
+  ),
+}));
+
+// Mock exotic mech diagrams
+jest.mock('@/components/customizer/armor/variants/QuadArmorDiagram', () => ({
+  QuadArmorDiagram: () => <div data-testid="quad-armor-diagram" />,
+}));
+
+jest.mock('@/components/customizer/armor/variants/TripodArmorDiagram', () => ({
+  TripodArmorDiagram: () => <div data-testid="tripod-armor-diagram" />,
+}));
+
+jest.mock('@/components/customizer/armor/variants/LAMArmorDiagram', () => ({
+  LAMArmorDiagram: () => <div data-testid="lam-armor-diagram" />,
+}));
+
+jest.mock('@/components/customizer/armor/variants/QuadVeeArmorDiagram', () => ({
+  QuadVeeArmorDiagram: () => <div data-testid="quadvee-armor-diagram" />,
 }));
 
 jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
@@ -82,6 +105,7 @@ jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
 describe('ArmorTab', () => {
   const mockStoreValues = {
     tonnage: 50,
+    configuration: MechConfiguration.BIPED,
     componentTechBases: {},
     armorType: 'Standard',
     armorTonnage: 10,
