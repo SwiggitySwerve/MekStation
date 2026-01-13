@@ -1214,19 +1214,19 @@ describe('ConfigurationValidationRules', () => {
       });
 
       it('should fail when critical slots exceed quad maximum', () => {
-        // Quad max is 66: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 66
-        // Fill all locations to capacity = 6 + 36 + 24 = 66, then add 1 more
+        // Quad max is 90: 6 (head) + 12*3 (torsos) + 12*4 (quad legs) = 6 + 36 + 48 = 90
+        // Fill all locations to capacity = 90, then add 1 more = 91 total
         const context = createContext({
           configuration: 'Quad',
           criticalSlots: {
-            [MechLocation.HEAD]: Array(6).fill('Equipment'),           // 6
-            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),  // 12
-            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),    // 12
-            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),   // 12
-            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'), // 6
-            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'),// 6
-            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),  // 6
-            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'), // 7 (1 over) = 67 total
+            [MechLocation.HEAD]: Array(6).fill('Equipment'),            // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),   // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),     // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),    // 12
+            [MechLocation.FRONT_LEFT_LEG]: Array(12).fill('Equipment'), // 12
+            [MechLocation.FRONT_RIGHT_LEG]: Array(12).fill('Equipment'),// 12
+            [MechLocation.REAR_LEFT_LEG]: Array(12).fill('Equipment'),  // 12
+            [MechLocation.REAR_RIGHT_LEG]: Array(13).fill('Equipment'), // 13 (1 over) = 91 total
           },
         });
 

@@ -14,7 +14,7 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
+import { MechLocation, LOCATION_SLOT_COUNTS } from '../../../types/construction/CriticalSlotAllocation';
 import {
   MechConfiguration,
   QUAD_LOCATIONS,
@@ -242,8 +242,19 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
       return pass(this.id);
     }
 
-    // Quad mechs: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 6 + 36 + 24 = 66 slots
-    const maxSlots = 66;
+    // Quad mechs: 6 (head) + 12*3 (torsos) + 12*4 (quad legs) = 6 + 36 + 48 = 90 slots
+    // Calculate dynamically from canonical source
+    const quadLocations = [
+      MechLocation.HEAD,
+      MechLocation.CENTER_TORSO,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+      MechLocation.FRONT_LEFT_LEG,
+      MechLocation.FRONT_RIGHT_LEG,
+      MechLocation.REAR_LEFT_LEG,
+      MechLocation.REAR_RIGHT_LEG,
+    ];
+    const maxSlots = quadLocations.reduce((sum, loc) => sum + LOCATION_SLOT_COUNTS[loc], 0);
     let usedSlots = 0;
 
     for (const [_location, slots] of Object.entries(criticalSlots)) {

@@ -15,6 +15,7 @@ import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration, getLocationsForConfig, hasRearArmor } from '@/types/construction/MechConfigurationSystem';
 import { LocationArmorData } from '../armor/ArmorDiagram';
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
 import { SchematicDiagram } from '@/components/armor/schematic';
@@ -25,6 +26,10 @@ import {
   PremiumMaterialDiagram,
   MegaMekDiagram,
 } from '../armor/variants';
+import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
+import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
+import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
+import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,
@@ -67,6 +72,7 @@ export function ArmorTab({
 
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
+  const configuration = useUnitStore((s) => s.configuration);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const armorType = useUnitStore((s) => s.armorType);
   const armorTonnage = useUnitStore((s) => s.armorTonnage);
@@ -119,61 +125,43 @@ export function ArmorTab({
   // Convert allocation to diagram format
   // For torso locations, maximum represents the total max for front+rear combined
   // rearMaximum represents how much of the total max can still go to rear
+  // Uses getLocationsForConfig to get configuration-specific locations
   const armorData: LocationArmorData[] = useMemo(() => {
-    const ctMax = getMaxArmorForLocation(tonnage, MechLocation.CENTER_TORSO);
-    const ltMax = getMaxArmorForLocation(tonnage, MechLocation.LEFT_TORSO);
-    const rtMax = getMaxArmorForLocation(tonnage, MechLocation.RIGHT_TORSO);
+    const locations = getLocationsForConfig(configuration);
 
-    return [
-      {
-        location: MechLocation.HEAD,
-        current: armorAllocation[MechLocation.HEAD],
-        maximum: getMaxArmorForLocation(tonnage, MechLocation.HEAD),
-      },
-      {
-        location: MechLocation.CENTER_TORSO,
-        current: armorAllocation[MechLocation.CENTER_TORSO],
-        maximum: ctMax,
-        rear: armorAllocation.centerTorsoRear,
-        // Rear can take whatever is left from the total max after front
-        rearMaximum: ctMax - armorAllocation[MechLocation.CENTER_TORSO],
-      },
-      {
-        location: MechLocation.LEFT_TORSO,
-        current: armorAllocation[MechLocation.LEFT_TORSO],
-        maximum: ltMax,
-        rear: armorAllocation.leftTorsoRear,
-        rearMaximum: ltMax - armorAllocation[MechLocation.LEFT_TORSO],
-      },
-      {
-        location: MechLocation.RIGHT_TORSO,
-        current: armorAllocation[MechLocation.RIGHT_TORSO],
-        maximum: rtMax,
-        rear: armorAllocation.rightTorsoRear,
-        rearMaximum: rtMax - armorAllocation[MechLocation.RIGHT_TORSO],
-      },
-      {
-        location: MechLocation.LEFT_ARM,
-        current: armorAllocation[MechLocation.LEFT_ARM],
-        maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_ARM),
-      },
-      {
-        location: MechLocation.RIGHT_ARM,
-        current: armorAllocation[MechLocation.RIGHT_ARM],
-        maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_ARM),
-      },
-      {
-        location: MechLocation.LEFT_LEG,
-        current: armorAllocation[MechLocation.LEFT_LEG],
-        maximum: getMaxArmorForLocation(tonnage, MechLocation.LEFT_LEG),
-      },
-      {
-        location: MechLocation.RIGHT_LEG,
-        current: armorAllocation[MechLocation.RIGHT_LEG],
-        maximum: getMaxArmorForLocation(tonnage, MechLocation.RIGHT_LEG),
-      },
-    ];
-  }, [tonnage, armorAllocation]);
+    // Helper to get rear armor value for a torso location
+    const getRearValue = (location: MechLocation): number | undefined => {
+      if (!hasRearArmor(location)) return undefined;
+      switch (location) {
+        case MechLocation.CENTER_TORSO:
+          return armorAllocation.centerTorsoRear;
+        case MechLocation.LEFT_TORSO:
+          return armorAllocation.leftTorsoRear;
+        case MechLocation.RIGHT_TORSO:
+          return armorAllocation.rightTorsoRear;
+        default:
+          return undefined;
+      }
+    };
+
+    return locations.map((location) => {
+      const maxArmor = getMaxArmorForLocation(tonnage, location);
+      const hasRear = hasRearArmor(location);
+      const rear = getRearValue(location);
+
+      return {
+        location,
+        current: armorAllocation[location] ?? 0,
+        maximum: maxArmor,
+        ...(hasRear && rear !== undefined
+          ? {
+              rear,
+              rearMaximum: maxArmor - (armorAllocation[location] ?? 0),
+            }
+          : {}),
+      };
+    });
+  }, [tonnage, configuration, armorAllocation]);
   
   // Get selected location data
   const selectedLocationData = useMemo(() => {
@@ -360,11 +348,38 @@ export function ArmorTab({
           </div>
         </div>
 
-        {/* RIGHT: Armor Diagram */}
-        <div className="space-y-4">
-          {/* Schematic Mode */}
-          {armorDiagramMode === 'schematic' && (
-            <SchematicDiagram
+        {/* RIGHT: Armor Diagram - Configuration-aware */}
+        <div className="space-y-4" data-testid="armor-diagram">
+          {/* Non-biped configurations use their own dedicated diagrams */}
+          {configuration === MechConfiguration.QUAD && (
+            <QuadArmorDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {configuration === MechConfiguration.TRIPOD && (
+            <TripodArmorDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {configuration === MechConfiguration.LAM && (
+            <LAMArmorDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              onAutoAllocate={handleAutoAllocate}
+            />
+          )}
+          {configuration === MechConfiguration.QUADVEE && (
+            <QuadVeeArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
@@ -373,51 +388,67 @@ export function ArmorTab({
             />
           )}
 
-          {/* Silhouette Mode - render based on variant */}
-          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'clean-tech' && (
-            <CleanTechDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
-            />
-          )}
-          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'neon-operator' && (
-            <NeonOperatorDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
-            />
-          )}
-          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'tactical-hud' && (
-            <TacticalHUDDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
-            />
-          )}
-          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
-            <PremiumMaterialDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
-            />
-          )}
-          {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek' && (
-            <MegaMekDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
-            />
+          {/* Biped configuration uses variant-based diagrams */}
+          {configuration === MechConfiguration.BIPED && (
+            <>
+              {/* Schematic Mode */}
+              {armorDiagramMode === 'schematic' && (
+                <SchematicDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+
+              {/* Silhouette Mode - render based on variant */}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'clean-tech' && (
+                <CleanTechDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'neon-operator' && (
+                <NeonOperatorDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'tactical-hud' && (
+                <TacticalHUDDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
+                <PremiumMaterialDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek' && (
+                <MegaMekDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  onAutoAllocate={handleAutoAllocate}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

@@ -14,6 +14,7 @@ import {
 } from '@/stores/unitState';
 import { TechBase } from '@/types/enums/TechBase';
 import { TechBaseMode, TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
+import { MechConfiguration, LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -584,17 +585,174 @@ describe('Unit Store', () => {
     
     it('should reset mixed settings when switching back to non-mixed', () => {
       const store = createISTestStore();
-      
+
       // Switch to mixed and set varied tech bases
       store.getState().setTechBaseMode(TechBaseMode.MIXED);
       store.getState().setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
       store.getState().setComponentTechBase(TechBaseComponent.ARMOR, TechBase.CLAN);
-      
+
       // Switch to Clan (non-mixed)
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
-      
+
       // All should be Clan now
       expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
+    });
+  });
+
+  // ===========================================================================
+  // LAM Mode Actions Tests
+  // ===========================================================================
+  describe('setLAMMode()', () => {
+    it('should update LAM mode when configuration is LAM', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.LAM });
+
+      store.getState().setLAMMode(LAMMode.AIRMECH);
+
+      expect(store.getState().lamMode).toBe(LAMMode.AIRMECH);
+    });
+
+    it('should set LAM mode to FIGHTER', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.LAM });
+
+      store.getState().setLAMMode(LAMMode.FIGHTER);
+
+      expect(store.getState().lamMode).toBe(LAMMode.FIGHTER);
+    });
+
+    it('should not update LAM mode when configuration is not LAM', () => {
+      const store = createTestStore();
+      // Default configuration is BIPED
+
+      store.getState().setLAMMode(LAMMode.AIRMECH);
+
+      // Should remain at default MECH mode
+      expect(store.getState().lamMode).toBe(LAMMode.MECH);
+    });
+
+    it('should not update LAM mode for QUAD configuration', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.QUAD });
+
+      store.getState().setLAMMode(LAMMode.FIGHTER);
+
+      expect(store.getState().lamMode).toBe(LAMMode.MECH);
+    });
+
+    it('should mark as modified when changing LAM mode', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.LAM });
+      store.getState().markModified(false);
+
+      store.getState().setLAMMode(LAMMode.AIRMECH);
+
+      expect(store.getState().isModified).toBe(true);
+    });
+
+    it('should update lastModifiedAt when changing LAM mode', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.LAM });
+
+      const later = Date.now() + 1000;
+      jest.spyOn(Date, 'now').mockReturnValue(later);
+
+      store.getState().setLAMMode(LAMMode.FIGHTER);
+
+      expect(store.getState().lastModifiedAt).toBe(later);
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  // ===========================================================================
+  // QuadVee Mode Actions Tests
+  // ===========================================================================
+  describe('setQuadVeeMode()', () => {
+    it('should update QuadVee mode when configuration is QuadVee', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.QUADVEE });
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      expect(store.getState().quadVeeMode).toBe(QuadVeeMode.VEHICLE);
+    });
+
+    it('should not update QuadVee mode when configuration is not QuadVee', () => {
+      const store = createTestStore();
+      // Default configuration is BIPED
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      // Should remain at default MECH mode
+      expect(store.getState().quadVeeMode).toBe(QuadVeeMode.MECH);
+    });
+
+    it('should not update QuadVee mode for QUAD configuration', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.QUAD });
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      expect(store.getState().quadVeeMode).toBe(QuadVeeMode.MECH);
+    });
+
+    it('should not update QuadVee mode for LAM configuration', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.LAM });
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      expect(store.getState().quadVeeMode).toBe(QuadVeeMode.MECH);
+    });
+
+    it('should mark as modified when changing QuadVee mode', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.QUADVEE });
+      store.getState().markModified(false);
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      expect(store.getState().isModified).toBe(true);
+    });
+
+    it('should update lastModifiedAt when changing QuadVee mode', () => {
+      const store = createTestStore();
+      store.setState({ configuration: MechConfiguration.QUADVEE });
+
+      const later = Date.now() + 1000;
+      jest.spyOn(Date, 'now').mockReturnValue(later);
+
+      store.getState().setQuadVeeMode(QuadVeeMode.VEHICLE);
+
+      expect(store.getState().lastModifiedAt).toBe(later);
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  // ===========================================================================
+  // Mode Switching Default State Tests
+  // ===========================================================================
+  describe('Mode Switching Default State', () => {
+    it('should default LAM mode to MECH', () => {
+      const state = createDefaultUnitState({
+        name: 'Test LAM',
+        tonnage: 55,
+        techBase: TechBase.INNER_SPHERE,
+      });
+
+      expect(state.lamMode).toBe(LAMMode.MECH);
+    });
+
+    it('should default QuadVee mode to MECH', () => {
+      const state = createDefaultUnitState({
+        name: 'Test QuadVee',
+        tonnage: 60,
+        techBase: TechBase.CLAN,
+      });
+
+      expect(state.quadVeeMode).toBe(QuadVeeMode.MECH);
     });
   });
 });

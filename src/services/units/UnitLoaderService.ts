@@ -35,6 +35,7 @@ import {
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
 
 // =============================================================================
 // Types
@@ -992,6 +993,8 @@ export class UnitLoaderService {
       // Configuration
       unitType: (serialized.unitType as UnitType) || 'BattleMech',
       configuration: (serialized.configuration as MechConfiguration) || 'Biped',
+      lamMode: LAMMode.MECH, // Default to Mech mode
+      quadVeeMode: QuadVeeMode.MECH, // Default to Mech mode
       isOmni: serialized.isOmni ?? false,
       baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1, // -1 = not set, use engine integral heat sinks
       techBaseMode,

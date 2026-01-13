@@ -10,6 +10,7 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
+import { LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
 import {
   TechBaseMode,
   IComponentTechBases,
@@ -311,7 +312,13 @@ export interface UnitState {
   
   /** Mech configuration (Biped, Quad, etc.) */
   configuration: MechConfiguration;
-  
+
+  /** Current LAM operating mode (only relevant for LAM configuration) */
+  lamMode: LAMMode;
+
+  /** Current QuadVee operating mode (only relevant for QuadVee configuration) */
+  quadVeeMode: QuadVeeMode;
+
   /** Whether this is an OmniMech */
   isOmni: boolean;
 
@@ -417,6 +424,12 @@ setMulId: (mulId: string) => void;
   setTonnage: (tonnage: number) => void;
   setConfiguration: (configuration: MechConfiguration) => void;
   setIsOmni: (isOmni: boolean) => void;
+
+  // Mode switching (for transforming units)
+  /** Set LAM operating mode (only applies to LAM configuration) */
+  setLAMMode: (mode: LAMMode) => void;
+  /** Set QuadVee operating mode (only applies to QuadVee configuration) */
+  setQuadVeeMode: (mode: QuadVeeMode) => void;
 
   // OmniMech-specific
   /** Set the number of heat sinks fixed to the base chassis */
@@ -524,6 +537,8 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     // Configuration
     unitType: UnitType.BATTLEMECH,
     configuration: MechConfiguration.BIPED,
+    lamMode: LAMMode.MECH, // Default to Mech mode for LAMs
+    quadVeeMode: QuadVeeMode.MECH, // Default to Mech mode for QuadVees
     isOmni: false,
     baseChassisHeatSinks: -1, // -1 = not set, use engine integral heat sinks
     techBaseMode,
