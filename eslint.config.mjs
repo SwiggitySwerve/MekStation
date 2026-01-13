@@ -31,6 +31,11 @@ export default [
       '**/.github/**',
       '**/.worktrees/**',
       '**/openspec/**',
+      '**/.storybook/**',
+      '**/storybook-static/**',
+      '**/*.stories.tsx',
+      '**/*.stories.ts',
+      '**/src/docs/**',
     ],
   },
   
