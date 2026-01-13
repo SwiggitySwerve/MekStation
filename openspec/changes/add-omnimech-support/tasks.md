@@ -62,10 +62,12 @@
 - [x] Add confirmation dialog before clearing pod equipment
 - [x] Only visible when `isOmni === true`
 
-### 3.4 Equipment Tray Updates
-- [ ] Show "(fixed)" indicator for fixed equipment
-- [ ] Optionally show "(pod)" indicator for pod equipment
-- [ ] Prevent drag/removal of fixed equipment when in OmniMech mode
+### 3.4 Critical Slots Display Updates
+- [x] Show "(Fixed)" indicator for fixed equipment in critical slots
+- [x] Show "(Pod)" indicator for pod equipment in critical slots
+- [x] Prevent drag/removal of fixed equipment when in OmniMech mode
+- [x] Apply visual distinction (60% opacity) for fixed equipment
+- [x] Show fixed/pod indicators in GlobalLoadoutTray (equipment list)
 
 ## Phase 4: Validation Rules - COMPLETED
 
