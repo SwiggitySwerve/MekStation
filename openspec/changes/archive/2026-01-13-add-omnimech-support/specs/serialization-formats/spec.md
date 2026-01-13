@@ -1,6 +1,6 @@
 # Serialization Formats Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: MTF Parser OmniMech Fields
 

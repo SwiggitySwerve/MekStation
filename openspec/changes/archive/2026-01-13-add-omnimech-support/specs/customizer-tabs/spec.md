@@ -1,6 +1,6 @@
 # Customizer Tabs Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: OmniMech Checkbox Control
 

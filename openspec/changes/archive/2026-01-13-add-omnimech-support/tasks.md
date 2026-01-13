@@ -100,7 +100,7 @@
 - [x] Test variant workflow: load Prime → reset chassis → configure A variant (MTFExportService variant workflow tests)
 
 ### 5.3 Archive Change
-- [ ] Run `openspec archive add-omnimech-support` after deployment
+- [x] Run `openspec archive add-omnimech-support` after deployment
 
 ## Dependencies
 

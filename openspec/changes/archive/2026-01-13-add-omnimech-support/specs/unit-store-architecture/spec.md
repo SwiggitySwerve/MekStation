@@ -1,6 +1,6 @@
 # Unit Store Architecture Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: OmniMech State Fields
 
