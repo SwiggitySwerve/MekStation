@@ -10,14 +10,7 @@ import {
   SELECTED_COLOR,
   SELECTED_STROKE,
 } from './ArmorFills';
-
-export interface LocationPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  path?: string;
-}
+import { LocationPosition } from './MechSilhouette';
 
 export interface LocationArmorValues {
   current: number;
