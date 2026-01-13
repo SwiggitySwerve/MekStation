@@ -232,12 +232,16 @@
 - [x] Quad critical slots render correctly (8 locations: 6 slots each leg)
 - [ ] Quad armor diagram works with MegaMek Classic variant (customizer)
 
-### Tripod Support (Verified)
+### Tripod Support (Verified Complete)
 - [x] Tripod center leg location support in service layer
 - [x] Tripod armor text IDs added (CL -> textArmor_CL)
 - [x] Tripod structure text IDs added (CL -> textIS_CL)
+- [x] Tripod centerLeg added to IArmorAllocation interface
+- [x] Tripod extractArmor includes center leg location
+- [x] Tripod extractStructure includes center leg location
 - [x] Tripod PDF record sheet loads mek_tripod_default.svg (verified)
 - [x] Tripod critical slots render correctly (9 locations: 3 legs @ 6 slots each)
+- [x] Tripod center leg armor/structure pips render correctly
 - [ ] Tripod armor diagram works with MegaMek Classic variant (customizer)
 
 ### LAM Support (Verified)
