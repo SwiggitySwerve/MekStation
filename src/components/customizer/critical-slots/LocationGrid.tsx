@@ -48,6 +48,8 @@ interface LocationGridProps {
   onEquipmentDragStart?: (equipmentId: string) => void;
   /** Use compact layout */
   compact?: boolean;
+  /** Whether the unit is an OmniMech */
+  isOmni?: boolean;
   /** Additional CSS classes */
   className?: string;
 }
@@ -65,6 +67,7 @@ export function LocationGrid({
   onEquipmentRemove,
   onEquipmentDragStart,
   compact = false,
+  isOmni = false,
   className = '',
 }: LocationGridProps): React.ReactElement {
   const slotCount = LOCATION_SLOT_COUNTS[location];
@@ -97,6 +100,7 @@ export function LocationGrid({
             isAssignable={assignableSlots.includes(slot.index)}
             isSelected={!!(selectedEquipmentId && slot.equipmentId === selectedEquipmentId)}
             compact={compact}
+            isOmni={isOmni}
             onClick={() => onSlotClick(slot.index)}
             onDrop={(equipmentId) => onEquipmentDrop(slot.index, equipmentId)}
             onRemove={() => onEquipmentRemove(slot.index)}

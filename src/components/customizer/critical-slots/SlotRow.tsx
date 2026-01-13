@@ -82,6 +82,8 @@ interface SlotRowProps {
   isSelected: boolean;
   /** Use compact display */
   compact?: boolean;
+  /** Whether the unit is an OmniMech (affects fixed equipment behavior) */
+  isOmni?: boolean;
   /** Click handler */
   onClick: () => void;
   /** Drop handler */
@@ -124,6 +126,7 @@ export const SlotRow = memo(function SlotRow({
   isAssignable,
   isSelected,
   compact = false,
+  isOmni = false,
   onClick,
   onDrop,
   onRemove,
@@ -132,14 +135,21 @@ export const SlotRow = memo(function SlotRow({
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-  
+
+  // Check if this is fixed equipment on an OmniMech (cannot be removed)
+  const isFixedOnOmni = isOmni && slot.type === 'equipment' && slot.isOmniPodMounted === false;
+
   // Check if this slot has equipment that can be unassigned
   // Equipment and system types can be unassigned (moved back to unallocated)
   // Only truly fixed items (like cockpit, gyro) cannot be unassigned
-  const canUnassign = slot.type === 'equipment' || 
-    (slot.type === 'system' && slot.equipmentId); // System with equipment ID can be unassigned
-  
+  // On OmniMechs, fixed equipment (isOmniPodMounted === false) also cannot be unassigned
+  const canUnassign = !isFixedOnOmni && (
+    slot.type === 'equipment' ||
+    (slot.type === 'system' && slot.equipmentId) // System with equipment ID can be unassigned
+  );
+
   // Slots with equipment can be dragged to other locations or back to tray
+  // Fixed equipment on OmniMechs cannot be dragged
   const canDrag = !!(slot.equipmentId && canUnassign);
   
   // Determine styling classes - assignable/drag states override content classes
@@ -220,12 +230,18 @@ export const SlotRow = memo(function SlotRow({
     }
   };
   
-  // Determine display name
+  // Determine display name with OmniMech postfix
   let displayName: string;
   if (slot.type === 'empty') {
     displayName = '- Empty -';
   } else if (slot.name) {
-    displayName = slot.name;
+    // Add (Pod) or (Fixed) postfix for OmniMech equipment
+    if (isOmni && slot.type === 'equipment') {
+      const postfix = slot.isOmniPodMounted ? ' (Pod)' : ' (Fixed)';
+      displayName = slot.name + postfix;
+    } else {
+      displayName = slot.name;
+    }
   } else {
     // Continuation of multi-slot equipment - show empty or continuation marker
     displayName = '';
@@ -242,8 +258,8 @@ export const SlotRow = memo(function SlotRow({
         className={`
           flex items-center border border-border-theme-subtle rounded-sm my-0.5 transition-all
           focus:outline-none
-          ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
-          ${isDragging ? 'opacity-50' : ''}
+          ${canDrag ? 'cursor-grab active:cursor-grabbing' : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'}
+          ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''}
           ${isAssignable ? 'focus:ring-1 focus:ring-green-400 focus:ring-inset' : ''}
           ${styleClasses}
           ${selectionClasses}
@@ -268,7 +284,11 @@ export const SlotRow = memo(function SlotRow({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        title={canDrag ? 'Drag to move, double-click or right-click to unassign' : (canUnassign ? 'Double-click or right-click to unassign' : undefined)}
+        title={isFixedOnOmni
+          ? 'Fixed equipment - part of OmniMech base chassis'
+          : canDrag
+            ? 'Drag to move, double-click or right-click to unassign'
+            : (canUnassign ? 'Double-click or right-click to unassign' : undefined)}
       >
         <span className="truncate flex-1">{displayName}</span>
       </div>
