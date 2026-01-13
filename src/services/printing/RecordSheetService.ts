@@ -96,6 +96,8 @@ interface IUnitConfig {
       frontRightLeg?: number;
       rearLeftLeg?: number;
       rearRightLeg?: number;
+      // Tripod-specific location (optional)
+      centerLeg?: number;
     };
   };
   heatSinks: {
@@ -401,8 +403,42 @@ export class RecordSheetService {
           maximum: structurePoints.leg * 2,
         },
       ];
+    } else if (mechType === 'tripod') {
+      // Tripod - arms + 3 legs (left, right, center)
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          current: armor.allocation.leftArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          current: armor.allocation.rightArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          current: armor.allocation.leftLeg,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          current: armor.allocation.rightLeg,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.CENTER_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.CENTER_LEG],
+          current: armor.allocation.centerLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+      ];
     } else {
-      // Biped, LAM, tripod, quadvee - standard arm/leg locations
+      // Biped, LAM, quadvee - standard arm/leg locations
       limbLocations = [
         {
           location: LOCATION_NAMES[MechLocation.LEFT_ARM],
@@ -501,8 +537,37 @@ export class RecordSheetService {
           points: structurePoints.leg,
         },
       ];
+    } else if (mechType === 'tripod') {
+      // Tripod - arms + 3 legs (left, right, center)
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          points: structurePoints.leg,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          points: structurePoints.leg,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.CENTER_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.CENTER_LEG],
+          points: structurePoints.leg,
+        },
+      ];
     } else {
-      // Biped, LAM, tripod, quadvee - standard arm/leg locations
+      // Biped, LAM, quadvee - standard arm/leg locations
       limbLocations = [
         {
           location: LOCATION_NAMES[MechLocation.LEFT_ARM],

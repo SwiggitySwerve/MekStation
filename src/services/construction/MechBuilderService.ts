@@ -73,6 +73,8 @@ export interface IArmorAllocation {
   readonly frontRightLeg?: number;
   readonly rearLeftLeg?: number;
   readonly rearRightLeg?: number;
+  // Tripod-specific location (optional)
+  readonly centerLeg?: number;
 }
 
 /**
