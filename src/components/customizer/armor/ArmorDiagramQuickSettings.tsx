@@ -14,6 +14,7 @@ const VARIANT_LABELS: Record<ArmorDiagramVariant, string> = {
   'tactical-hud': 'Tactical',
   'premium-material': 'Premium',
   'megamek': 'MegaMek',
+  'megamek-classic': 'MM Classic',
 };
 
 const VARIANTS: ArmorDiagramVariant[] = [
@@ -22,6 +23,7 @@ const VARIANTS: ArmorDiagramVariant[] = [
   'tactical-hud',
   'premium-material',
   'megamek',
+  'megamek-classic',
 ];
 
 interface QuickSettingsProps {

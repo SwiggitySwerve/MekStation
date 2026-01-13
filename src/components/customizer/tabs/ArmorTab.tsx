@@ -25,6 +25,7 @@ import {
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
   MegaMekDiagram,
+  MegaMekClassicDiagram,
 } from '../armor/variants';
 import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
 import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
@@ -363,7 +364,17 @@ export function ArmorTab({
 
         {/* RIGHT: Armor Diagram - Configuration-aware */}
         <div className="space-y-4" data-testid="armor-diagram">
-          {configuration === MechConfiguration.QUAD && (
+          {/* QUAD configuration */}
+          {configuration === MechConfiguration.QUAD && armorDiagramVariant === 'megamek-classic' && (
+            <MegaMekClassicDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              configuration={configuration}
+            />
+          )}
+          {configuration === MechConfiguration.QUAD && armorDiagramVariant !== 'megamek-classic' && (
             <QuadArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -372,7 +383,18 @@ export function ArmorTab({
               variant={armorDiagramVariant}
             />
           )}
-          {configuration === MechConfiguration.TRIPOD && (
+
+          {/* TRIPOD configuration */}
+          {configuration === MechConfiguration.TRIPOD && armorDiagramVariant === 'megamek-classic' && (
+            <MegaMekClassicDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              configuration={configuration}
+            />
+          )}
+          {configuration === MechConfiguration.TRIPOD && armorDiagramVariant !== 'megamek-classic' && (
             <TripodArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -381,7 +403,18 @@ export function ArmorTab({
               variant={armorDiagramVariant}
             />
           )}
-          {configuration === MechConfiguration.LAM && (
+
+          {/* LAM configuration */}
+          {configuration === MechConfiguration.LAM && armorDiagramVariant === 'megamek-classic' && (
+            <MegaMekClassicDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              configuration={configuration}
+            />
+          )}
+          {configuration === MechConfiguration.LAM && armorDiagramVariant !== 'megamek-classic' && (
             <LAMArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -390,7 +423,18 @@ export function ArmorTab({
               variant={armorDiagramVariant}
             />
           )}
-          {configuration === MechConfiguration.QUADVEE && (
+
+          {/* QUADVEE configuration */}
+          {configuration === MechConfiguration.QUADVEE && armorDiagramVariant === 'megamek-classic' && (
+            <MegaMekClassicDiagram
+              armorData={armorData}
+              selectedLocation={selectedLocation}
+              unallocatedPoints={pointsDelta}
+              onLocationClick={handleLocationClick}
+              configuration={configuration}
+            />
+          )}
+          {configuration === MechConfiguration.QUADVEE && armorDiagramVariant !== 'megamek-classic' && (
             <QuadVeeArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -451,6 +495,15 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
+                />
+              )}
+              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek-classic' && (
+                <MegaMekClassicDiagram
+                  armorData={armorData}
+                  selectedLocation={selectedLocation}
+                  unallocatedPoints={pointsDelta}
+                  onLocationClick={handleLocationClick}
+                  configuration={configuration}
                 />
               )}
             </>

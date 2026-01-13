@@ -124,6 +124,11 @@ export function RecordSheetPreview({
         rightArm: armorAllocation[MechLocation.RIGHT_ARM],
         leftLeg: armorAllocation[MechLocation.LEFT_LEG],
         rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
+        // Quad-specific locations
+        frontLeftLeg: armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0,
+        frontRightLeg: armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0,
+        rearLeftLeg: armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0,
+        rearRightLeg: armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0,
       };
 
       // Convert ALL equipment to IEquipmentSlot format for BV calculation
@@ -272,6 +277,11 @@ export function RecordSheetPreview({
           rightArm: armorAllocation[MechLocation.RIGHT_ARM],
           leftLeg: armorAllocation[MechLocation.LEFT_LEG],
           rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
+          // Quad-specific locations
+          frontLeftLeg: armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0,
+          frontRightLeg: armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0,
+          rearLeftLeg: armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0,
+          rearRightLeg: armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0,
         },
       },
       heatSinks: {

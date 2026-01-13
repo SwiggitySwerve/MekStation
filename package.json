@@ -33,6 +33,7 @@
     "extract:equipment": "npx ts-node -P scripts/tsconfig.json -r tsconfig-paths/register scripts/data-migration/extract-equipment-to-json.ts",
     "convert:mtf": "python scripts/megameklab-conversion/mtf_converter.py",
     "convert:mtf:cli": "npx ts-node -P scripts/tsconfig.json scripts/data-migration/convert-mtf-files.ts",
+    "sync:mm-data": "bash scripts/sync-mm-data-assets.sh",
     "validate:parity": "npx tsx scripts/validate-parity.ts",
     "validate:refactor": "npm run test && npm run lint && npm run build",
     "analyze:files": "./scripts/monitor-file-sizes.sh",

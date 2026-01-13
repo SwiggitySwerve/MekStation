@@ -14,6 +14,7 @@ import {
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
   MegaMekDiagram,
+  MegaMekClassicDiagram,
 } from './variants';
 import { SchematicDiagram } from '@/components/armor/schematic';
 import { ArmorDiagramVariant, ArmorDiagramMode } from '@/stores/useAppSettingsStore';
@@ -83,13 +84,23 @@ export const DIAGRAM_VARIANT_INFO: Record<
     ],
   },
   'megamek': {
-    name: 'MegaMek Classic',
+    name: 'MegaMek',
     description: 'Authentic record sheet style',
     features: [
       'PDF record sheet proportions',
       'Layered shadow/fill/outline',
       'Hand actuator details',
       'Knee joint articulation',
+    ],
+  },
+  'megamek-classic': {
+    name: 'MegaMek Classic',
+    description: 'Uses mm-data pip assets',
+    features: [
+      'Authentic MegaMekLab pips',
+      'Multi-config support',
+      'Exact visual parity',
+      'All mech types',
     ],
   },
 };
@@ -147,6 +158,8 @@ export function ArmorDiagramPreview({
         return <PremiumMaterialDiagram {...diagramProps} />;
       case 'megamek':
         return <MegaMekDiagram {...diagramProps} />;
+      case 'megamek-classic':
+        return <MegaMekClassicDiagram {...diagramProps} />;
       default:
         return <CleanTechDiagram {...diagramProps} />;
     }
@@ -203,6 +216,7 @@ export function ArmorDiagramGridPreview({
     'tactical-hud',
     'premium-material',
     'megamek',
+    'megamek-classic',
   ];
 
   return (

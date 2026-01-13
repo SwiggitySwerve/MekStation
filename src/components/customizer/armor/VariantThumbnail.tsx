@@ -56,8 +56,14 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
           strokeWidth: 1.2,
           filter: undefined,
         };
+      case 'megamek-classic':
+        return {
+          fill: '#ffffff',
+          stroke: '#000',
+          strokeWidth: 1.5,
+          filter: undefined,
+        };
       default: {
-        // Exhaustive check - TypeScript should catch missing cases
         const _exhaustiveCheck: never = variant;
         return _exhaustiveCheck;
       }

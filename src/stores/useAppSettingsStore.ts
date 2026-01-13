@@ -21,7 +21,8 @@ export type ArmorDiagramVariant =
   | 'neon-operator'
   | 'tactical-hud'
   | 'premium-material'
-  | 'megamek';
+  | 'megamek'
+  | 'megamek-classic';
 
 /**
  * Global UI theme variants
