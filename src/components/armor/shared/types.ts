@@ -20,7 +20,6 @@ export interface ArmorDiagramBaseProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
 }
 
@@ -82,3 +81,6 @@ export const LOCATION_SHORT_LABELS: Record<MechLocation, string> = {
   [MechLocation.AFT]: 'AFT',
   [MechLocation.FUSELAGE]: 'FUS',
 };
+
+// Re-export UI components from separate TSX file
+export { ArmorStatusLegend, ArmorDiagramInstructions } from './ArmorStatusLegend';

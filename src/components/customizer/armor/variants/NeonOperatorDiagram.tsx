@@ -340,7 +340,6 @@ export interface NeonOperatorDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
 }
 
@@ -349,7 +348,6 @@ export function NeonOperatorDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
 }: NeonOperatorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
@@ -357,8 +355,6 @@ export function NeonOperatorDiagram({
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const locations: MechLocation[] = [
     MechLocation.HEAD,
@@ -384,23 +380,6 @@ export function NeonOperatorDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded border transition-all ${
-              isOverAllocated
-                ? 'border-red-500 text-red-400 hover:bg-red-500/20'
-                : 'border-cyan-500 text-cyan-400 hover:bg-cyan-500/20'
-            }`}
-            style={{
-              boxShadow: isOverAllocated
-                ? '0 0 10px rgba(239, 68, 68, 0.3)'
-                : '0 0 10px rgba(34, 211, 238, 0.3)',
-            }}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       {/* Diagram */}

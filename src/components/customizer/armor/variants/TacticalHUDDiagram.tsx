@@ -409,7 +409,6 @@ export interface TacticalHUDDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
 }
 
@@ -418,7 +417,6 @@ export function TacticalHUDDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
 }: TacticalHUDDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
@@ -451,18 +449,6 @@ export function TacticalHUDDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-2 py-1 text-xs font-mono font-bold rounded border transition-colors ${
-              isOverAllocated
-                ? 'border-red-600 text-red-400 hover:bg-red-900/30'
-                : 'border-amber-600 text-amber-400 hover:bg-amber-900/30'
-            }`}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       {/* Diagram */}

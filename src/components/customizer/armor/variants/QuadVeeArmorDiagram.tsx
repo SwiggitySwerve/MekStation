@@ -24,7 +24,6 @@ export interface QuadVeeArmorDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
   initialMode?: QuadVeeMode;
   onModeChange?: (mode: QuadVeeMode) => void;
@@ -47,7 +46,6 @@ export function QuadVeeArmorDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
   initialMode = QuadVeeMode.MECH,
   onModeChange,
@@ -66,8 +64,6 @@ export function QuadVeeArmorDiagram({
     return armorData.find((d) => d.location === location);
   };
 
-  const isOverAllocated = unallocatedPoints < 0;
-
   const hoveredPos = hoveredLocation ? QUAD_SILHOUETTE.locations[hoveredLocation] : null;
 
   return (
@@ -79,17 +75,6 @@ export function QuadVeeArmorDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated ? style.buttonOverClass : style.buttonNormalClass
-            }`}
-            style={isOverAllocated ? style.buttonOverStyle : style.buttonNormalStyle}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       <div className="flex justify-center mb-4">

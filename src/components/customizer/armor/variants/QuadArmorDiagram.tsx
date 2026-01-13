@@ -23,7 +23,6 @@ export interface QuadArmorDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
   variant?: ArmorDiagramVariant;
 }
@@ -44,7 +43,6 @@ export function QuadArmorDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
   variant = 'clean-tech',
 }: QuadArmorDiagramProps): React.ReactElement {
@@ -54,8 +52,6 @@ export function QuadArmorDiagram({
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const hoveredPos = hoveredLocation ? QUAD_SILHOUETTE.locations[hoveredLocation] : null;
 
@@ -68,17 +64,6 @@ export function QuadArmorDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated ? style.buttonOverClass : style.buttonNormalClass
-            }`}
-            style={isOverAllocated ? style.buttonOverStyle : style.buttonNormalStyle}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       <div className="relative">

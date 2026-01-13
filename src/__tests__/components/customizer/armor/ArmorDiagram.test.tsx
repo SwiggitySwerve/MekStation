@@ -67,28 +67,8 @@ describe('ArmorDiagram', () => {
     expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
   });
 
-  it('should display auto-allocate button when onAutoAllocate is provided', () => {
-    render(<ArmorDiagram {...defaultProps} onAutoAllocate={jest.fn()} />);
-    
-    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
-  });
-
-  it('should call onAutoAllocate when button is clicked', async () => {
-    const user = userEvent.setup();
-    const onAutoAllocate = jest.fn();
-    render(<ArmorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-    
-    const autoAllocateButton = screen.getByText(/Auto Allocate/i);
-    await user.click(autoAllocateButton);
-    
-    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
-  });
-
-  it('should display unallocated points in button', () => {
-    render(<ArmorDiagram {...defaultProps} unallocatedPoints={10} onAutoAllocate={jest.fn()} />);
-    
-    expect(screen.getByText(/10 pts/i)).toBeInTheDocument();
-  });
+  // Note: Auto-allocate button was moved to ArmorTab.tsx
+  // These tests are no longer needed here
 
   it('should apply custom className', () => {
     const { container } = render(<ArmorDiagram {...defaultProps} className="custom-class" />);

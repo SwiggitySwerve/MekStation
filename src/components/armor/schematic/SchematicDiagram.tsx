@@ -1,6 +1,11 @@
 import React from 'react';
 import { MechLocation } from '@/types/construction';
-import { ArmorDiagramBaseProps, LocationArmorData } from '../shared/types';
+import {
+  ArmorDiagramBaseProps,
+  LocationArmorData,
+  ArmorStatusLegend,
+  ArmorDiagramInstructions,
+} from '../shared/types';
 import { SchematicLocation } from './SchematicLocation';
 
 /**
@@ -12,16 +17,12 @@ import { SchematicLocation } from './SchematicLocation';
 export function SchematicDiagram({
   armorData,
   selectedLocation,
-  unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
-}: ArmorDiagramBaseProps): React.ReactElement {
+}: Omit<ArmorDiagramBaseProps, 'unallocatedPoints' | 'onAutoAllocate'>): React.ReactElement {
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const renderLocation = (location: MechLocation) => {
     const data = getArmorData(location);
@@ -43,19 +44,7 @@ export function SchematicDiagram({
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-accent hover:bg-accent-hover text-white'
-            }`}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
+        <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
       </div>
 
       {/* Anatomically Correct Grid Layout */}
@@ -120,30 +109,8 @@ export function SchematicDiagram({
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex justify-center gap-3 mt-4 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-green-500" />
-          <span className="text-text-theme-secondary">75%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-amber-500" />
-          <span className="text-text-theme-secondary">50%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-orange-500" />
-          <span className="text-text-theme-secondary">25%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span className="text-text-theme-secondary">&lt;25%</span>
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <p className="text-xs text-text-theme-secondary text-center mt-2">
-        Click a location to edit armor values
-      </p>
+      <ArmorStatusLegend />
+      <ArmorDiagramInstructions />
     </div>
   );
 }

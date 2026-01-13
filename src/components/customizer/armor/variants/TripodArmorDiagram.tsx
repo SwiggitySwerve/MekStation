@@ -24,7 +24,6 @@ export interface TripodArmorDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
   variant?: ArmorDiagramVariant;
 }
@@ -34,7 +33,6 @@ export function TripodArmorDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
   variant = 'clean-tech',
 }: TripodArmorDiagramProps): React.ReactElement {
@@ -44,8 +42,6 @@ export function TripodArmorDiagram({
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const hoveredPos = hoveredLocation ? TRIPOD_SILHOUETTE.locations[hoveredLocation] : null;
 
@@ -58,17 +54,6 @@ export function TripodArmorDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated ? style.buttonOverClass : style.buttonNormalClass
-            }`}
-            style={isOverAllocated ? style.buttonOverStyle : style.buttonNormalStyle}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       <div className="relative">

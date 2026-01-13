@@ -30,7 +30,6 @@ export interface LAMArmorDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
   variant?: ArmorDiagramVariant;
 }
@@ -107,7 +106,6 @@ export function LAMArmorDiagram({
   selectedLocation,
   unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
   variant = 'clean-tech',
 }: LAMArmorDiagramProps): React.ReactElement {
@@ -126,7 +124,6 @@ export function LAMArmorDiagram({
     return displayArmorData.find((d) => d.location === location);
   };
 
-  const isOverAllocated = unallocatedPoints < 0;
   const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
   const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
 
@@ -141,17 +138,6 @@ export function LAMArmorDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && !isFighterMode && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated ? style.buttonOverClass : style.buttonNormalClass
-            }`}
-            style={isOverAllocated ? style.buttonOverStyle : style.buttonNormalStyle}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       <div className="flex justify-center mb-4">

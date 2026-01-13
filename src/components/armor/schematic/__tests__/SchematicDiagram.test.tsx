@@ -18,7 +18,6 @@ describe('SchematicDiagram', () => {
   const defaultProps = {
     armorData: mockArmorData,
     selectedLocation: null,
-    unallocatedPoints: 12,
     onLocationClick: jest.fn(),
   };
 
@@ -61,8 +60,5 @@ describe('SchematicDiagram', () => {
     expect(selectedButton).toBeInTheDocument();
   });
 
-  it('should render auto-allocate button when handler provided', () => {
-    render(<SchematicDiagram {...defaultProps} onAutoAllocate={jest.fn()} />);
-    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
-  });
+  // Note: Auto-allocate button was moved to ArmorTab.tsx
 });

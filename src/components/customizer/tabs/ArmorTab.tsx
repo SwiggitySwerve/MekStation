@@ -303,13 +303,26 @@ export function ArmorTab({
               </div>
               
               {/* Quick Actions */}
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={handleMaximize}
                   disabled={readOnly || armorTonnage >= maxUsefulTonnage}
                   className={cs.button.actionFull}
                 >
                   Maximize Tonnage
+                </button>
+                <button
+                  onClick={handleAutoAllocate}
+                  disabled={readOnly}
+                  className={`${cs.button.actionFull} ${
+                    unallocatedPoints < 0 
+                      ? 'bg-red-600 hover:bg-red-500' 
+                      : unallocatedPoints > 0 
+                        ? 'bg-amber-600 hover:bg-amber-500' 
+                        : 'bg-green-600 hover:bg-green-500'
+                  }`}
+                >
+                  Auto Allocate ({pointsDelta > 0 ? '+' : ''}{pointsDelta} pts)
                 </button>
               </div>
               
@@ -356,7 +369,6 @@ export function ArmorTab({
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
               variant={armorDiagramVariant}
             />
           )}
@@ -366,7 +378,6 @@ export function ArmorTab({
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
               variant={armorDiagramVariant}
             />
           )}
@@ -376,7 +387,6 @@ export function ArmorTab({
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
               variant={armorDiagramVariant}
             />
           )}
@@ -386,7 +396,6 @@ export function ArmorTab({
               selectedLocation={selectedLocation}
               unallocatedPoints={pointsDelta}
               onLocationClick={handleLocationClick}
-              onAutoAllocate={handleAutoAllocate}
               variant={armorDiagramVariant}
             />
           )}
@@ -399,9 +408,7 @@ export function ArmorTab({
                 <SchematicDiagram
                   armorData={armorData}
                   selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
 
@@ -412,7 +419,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
               {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'neon-operator' && (
@@ -421,7 +427,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
               {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'tactical-hud' && (
@@ -430,7 +435,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
               {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
@@ -439,7 +443,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
               {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek' && (
@@ -448,7 +451,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                  onAutoAllocate={handleAutoAllocate}
                 />
               )}
             </>

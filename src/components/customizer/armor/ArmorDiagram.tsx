@@ -34,8 +34,6 @@ export interface ArmorDiagramProps {
   unallocatedPoints: number;
   /** Called when a location is clicked */
   onLocationClick: (location: MechLocation) => void;
-  /** Called when auto-allocate is clicked */
-  onAutoAllocate?: () => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -47,9 +45,7 @@ export interface ArmorDiagramProps {
 export function ArmorDiagram({
   armorData,
   selectedLocation,
-  unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
 }: ArmorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
@@ -59,17 +55,13 @@ export function ArmorDiagram({
     return armorData.find((d) => d.location === location);
   };
 
-  const isOverAllocated = unallocatedPoints < 0;
-
   // Schematic mode: Use CSS grid-based diagram
   if (armorDiagramMode === 'schematic') {
     return (
       <SchematicDiagram
         armorData={armorData}
         selectedLocation={selectedLocation}
-        unallocatedPoints={unallocatedPoints}
         onLocationClick={onLocationClick}
-        onAutoAllocate={onAutoAllocate}
         className={className}
       />
     );
@@ -80,19 +72,7 @@ export function ArmorDiagram({
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-amber-600 hover:bg-amber-500 text-white'
-            }`}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
+        <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
       </div>
       
       {/* Diagram */}

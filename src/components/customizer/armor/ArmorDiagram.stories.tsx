@@ -17,7 +17,6 @@ const meta: Meta<typeof ArmorDiagram> = {
   },
   args: {
     onLocationClick: fn(),
-    onAutoAllocate: fn(),
   },
 };
 export default meta;
@@ -84,11 +83,6 @@ export const Interactive: Story = {
     const [armorData, setArmorData] = useState(partialArmorData);
     const [unallocatedPoints, setUnallocatedPoints] = useState(85);
 
-    const handleAutoAllocate = () => {
-      setArmorData(mockArmorData);
-      setUnallocatedPoints(0);
-    };
-
     return (
       <div className="max-w-2xl">
         <ArmorDiagram
@@ -96,12 +90,10 @@ export const Interactive: Story = {
           selectedLocation={selectedLocation}
           unallocatedPoints={unallocatedPoints}
           onLocationClick={setSelectedLocation}
-          onAutoAllocate={handleAutoAllocate}
         />
         {selectedLocation && (
           <div className="mt-4 p-4 bg-surface-base rounded border border-border-theme">
             <p className="text-white">Selected: {selectedLocation}</p>
-            <p className="text-slate-400 text-sm">Click Auto Allocate to fill all armor</p>
           </div>
         )}
       </div>
@@ -121,14 +113,5 @@ export const SchematicMode: Story = {
         armorDiagramMode: 'schematic',
       },
     },
-  },
-};
-
-export const NoAutoAllocate: Story = {
-  args: {
-    armorData: mockArmorData,
-    selectedLocation: null,
-    unallocatedPoints: 50,
-    onAutoAllocate: undefined,
   },
 };
