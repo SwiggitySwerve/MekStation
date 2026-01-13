@@ -1,5 +1,17 @@
 # record-sheet-export Specification Delta
 
+## Summary of Implemented Features
+
+This specification documents the complete implementation of multi-configuration record sheet support,
+including dynamic pip generation using the ArmorPipLayout algorithm ported from MegaMekLab.
+
+### Key Accomplishments:
+1. **ArmorPipLayout Algorithm**: Full port of MegaMekLab's Java ArmorPipLayout to TypeScript
+2. **Dynamic Pip Generation**: All mech types now use dynamic pip generation via bounding rectangles
+3. **Configuration-Aware Extraction**: extractArmor, extractStructure, extractCriticals handle all 5 mech types
+4. **Text ID Mappings**: Complete mappings for armor/structure text labels for all locations
+5. **Slot Count Corrections**: Fixed quad/quadvee/tripod leg slots from 12 to 6
+
 ## MODIFIED Requirements
 
 ### Requirement: SVG Template Rendering (from record-sheet-export)
@@ -94,3 +106,97 @@ The system SHALL support both US Letter and A4 paper sizes for record sheet expo
 - **WHEN** record sheet template loads
 - **THEN** load from `templates_us/` for US Letter
 - **OR** load from `templates_iso/` for A4
+
+### Requirement: ArmorPipLayout Algorithm
+
+The system SHALL use the ArmorPipLayout algorithm to dynamically generate armor and structure pips within defined bounding rectangles.
+
+**Rationale**: Port of MegaMekLab's proven algorithm ensures accurate pip positioning matching official record sheets.
+
+**Priority**: Critical
+
+#### Scenario: Dynamic pip generation from bounding rects
+- **GIVEN** an SVG group containing one or more `<rect>` elements
+- **WHEN** `ArmorPipLayout.addPips(svgDoc, group, pipCount)` is called
+- **THEN** generate `pipCount` circle elements within the bounding rectangle area
+- **AND** pips are distributed evenly across rows
+- **AND** pip size is calculated from average rect height
+- **AND** pips are appended as children of the group element
+
+#### Scenario: Multi-section pip layout
+- **GIVEN** a group with `style="mml-multisection:true"` attribute
+- **WHEN** pips are generated
+- **THEN** distribute pips proportionally across child groups based on area
+- **AND** each child group receives appropriate share of total pips
+
+#### Scenario: Gap handling in pip regions
+- **GIVEN** a rect element with `style="mml-gap:left,right"` attribute
+- **WHEN** pips are generated for that row
+- **THEN** exclude the gap region from pip placement
+- **AND** split row into left and right sections around gap
+
+### Requirement: Text Label ID Mappings
+
+The system SHALL map location abbreviations to template text element IDs for all mech configurations.
+
+**Rationale**: Enables displaying armor/structure point values next to each location in the template.
+
+**Priority**: High
+
+#### Scenario: Armor text ID resolution
+- **GIVEN** location abbreviation and mech type
+- **WHEN** rendering armor values
+- **THEN** resolve text element ID using ARMOR_TEXT_IDS mapping:
+  - Biped: HD, CT, CTR, LT, LTR, RT, RTR, LA, RA, LL, RL → textArmor_*
+  - Quad: FLL, FRL, RLL, RRL → textArmor_*
+  - Tripod: CL → textArmor_CL
+
+#### Scenario: Structure text ID resolution
+- **GIVEN** location abbreviation and mech type
+- **WHEN** rendering structure values
+- **THEN** resolve text element ID using STRUCTURE_TEXT_IDS mapping:
+  - All locations map to textIS_* format
+  - Quad: FLL, FRL, RLL, RRL → textIS_*
+  - Tripod: CL → textIS_CL
+
+### Requirement: Critical Slot Configuration Awareness
+
+The system SHALL extract critical slot data based on mech configuration type.
+
+**Rationale**: Different mech types have different location sets and slot counts.
+
+**Priority**: Critical
+
+#### Scenario: Quad critical slot extraction
+- **GIVEN** a QUAD configuration mech
+- **WHEN** extractCriticals is called
+- **THEN** include HEAD, CT, LT, RT, FLL, FRL, RLL, RRL locations
+- **AND** each leg location has 6 slots with Hip, Upper/Lower Leg Actuator, Foot Actuator
+
+#### Scenario: Tripod critical slot extraction
+- **GIVEN** a TRIPOD configuration mech
+- **WHEN** extractCriticals is called
+- **THEN** include HEAD, CT, LT, RT, LA, RA, LL, RL, CL locations
+- **AND** center leg has 6 slots with standard leg actuators
+
+#### Scenario: Slot count by location
+- **WHEN** determining slot count for a location
+- **THEN** HEAD has 6 slots
+- **AND** all torsos have 12 slots
+- **AND** all arms have 12 slots
+- **AND** all legs (biped, quad, tripod) have 6 slots
+
+### Requirement: Armor Allocation Interface
+
+The system SHALL support armor allocation for all mech configuration types.
+
+**Rationale**: Different configurations have different limb locations requiring allocation support.
+
+**Priority**: Critical
+
+#### Scenario: IArmorAllocation interface completeness
+- **WHEN** allocating armor to a mech
+- **THEN** interface SHALL include standard locations (head, centerTorso, etc.)
+- **AND** interface SHALL include quad locations (frontLeftLeg, frontRightLeg, rearLeftLeg, rearRightLeg)
+- **AND** interface SHALL include tripod location (centerLeg)
+- **AND** optional locations use TypeScript optional property syntax (?:)

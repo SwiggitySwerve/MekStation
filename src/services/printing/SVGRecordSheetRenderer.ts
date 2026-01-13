@@ -419,22 +419,22 @@ export class SVGRecordSheetRenderer {
 
     if (usePremadePips) {
       // Biped: Load pre-made pip SVG files
-      let armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.CANON_ARMOR_PIPS);
-      
-      if (!armorPipsGroup) {
-        armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
-      }
-      if (!armorPipsGroup) {
-        console.warn('Could not find canonArmorPips or armorPips group in template');
-        const rootGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
-        rootGroup.setAttribute('id', 'armor-pips-generated');
-        rootGroup.setAttribute('transform', 'matrix(0.975,0,0,0.975,-390.621,-44.241)');
-        this.svgRoot.appendChild(rootGroup);
-        await this.loadAllArmorPips(rootGroup, armor);
-        return;
-      }
+    let armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.CANON_ARMOR_PIPS);
+    
+    if (!armorPipsGroup) {
+      armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
+    }
+    if (!armorPipsGroup) {
+      console.warn('Could not find canonArmorPips or armorPips group in template');
+      const rootGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
+      rootGroup.setAttribute('id', 'armor-pips-generated');
+      rootGroup.setAttribute('transform', 'matrix(0.975,0,0,0.975,-390.621,-44.241)');
+      this.svgRoot.appendChild(rootGroup);
+      await this.loadAllArmorPips(rootGroup, armor);
+      return;
+    }
 
-      await this.loadAllArmorPips(armorPipsGroup, armor);
+    await this.loadAllArmorPips(armorPipsGroup, armor);
     } else {
       // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
       await this.generateDynamicArmorPips(armor, mechType || 'quad');
@@ -468,22 +468,22 @@ export class SVGRecordSheetRenderer {
 
     if (usePremadePips) {
       // Biped: Load pre-made structure pip SVG files
-      let structurePipsGroup: Element | null = this.svgDoc.getElementById(ELEMENT_IDS.CANON_STRUCTURE_PIPS);
-      
-      if (!structurePipsGroup) {
-        const templatePips = this.svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
-        if (templatePips) {
-          templatePips.setAttribute('visibility', 'hidden');
-        }
-        
-        const newGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
-        newGroup.setAttribute('id', 'structure-pips-loaded');
-        newGroup.setAttribute('transform', 'matrix(0.971,0,0,0.971,-378.511,-376.966)');
-        this.svgRoot.appendChild(newGroup);
-        structurePipsGroup = newGroup;
+    let structurePipsGroup: Element | null = this.svgDoc.getElementById(ELEMENT_IDS.CANON_STRUCTURE_PIPS);
+    
+    if (!structurePipsGroup) {
+      const templatePips = this.svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
+      if (templatePips) {
+        templatePips.setAttribute('visibility', 'hidden');
       }
+      
+      const newGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
+      newGroup.setAttribute('id', 'structure-pips-loaded');
+      newGroup.setAttribute('transform', 'matrix(0.971,0,0,0.971,-378.511,-376.966)');
+      this.svgRoot.appendChild(newGroup);
+      structurePipsGroup = newGroup;
+    }
 
-      await this.loadAllStructurePips(structurePipsGroup, structure.locations, tonnage);
+    await this.loadAllStructurePips(structurePipsGroup, structure.locations, tonnage);
     } else {
       // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
       this.generateDynamicStructurePips(structure, mechType || 'quad');
