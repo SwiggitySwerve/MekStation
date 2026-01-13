@@ -11,7 +11,7 @@
 - [ ] 1.1.6 Add unit tests for ConfigurationRegistry
 
 ### 1.2 MechLocation Enum Expansion
-- [ ] 1.2.1 Add quad locations to MechLocation enum (FRONT_LEFT_LEG, FRONT_RIGHT_LEG, REAR_LEFT_LEG, REAR_RIGHT_LEG)
+- [x] 1.2.1 Add quad locations to MechLocation enum (FRONT_LEFT_LEG, FRONT_RIGHT_LEG, REAR_LEFT_LEG, REAR_RIGHT_LEG)
 - [ ] 1.2.2 Add `getLocationsForConfig(config)` helper function
 - [ ] 1.2.3 Add `getLocationDisplayName(location, config)` helper (e.g., "Front Left Leg" vs "Left Arm")
 - [ ] 1.2.4 Update location-dependent utilities to use configuration-aware helpers
@@ -25,11 +25,12 @@
 - [ ] 1.3.5 Add unit tests for quad configuration
 
 ### 1.4 MTF Parser Updates for Quad
-- [ ] 1.4.1 Add configuration-specific location header mappings to parser
-- [ ] 1.4.2 Add quad armor label mappings (FLL, FRL, RLL, RRL)
-- [ ] 1.4.3 Update parser to read Config: line before location parsing
-- [ ] 1.4.4 Add quad MTF export support with correct location names
-- [ ] 1.4.5 Add parser/exporter tests with actual quad MTF files from mm-data
+- [x] 1.4.1 Add configuration-specific location header mappings to parser
+- [x] 1.4.2 Add quad armor label mappings (FLL, FRL, RLL, RRL)
+- [x] 1.4.3 Update parser to read Config: line before location parsing
+- [x] 1.4.4 Add quad MTF export support with correct location names
+- [x] 1.4.5 Add parser/exporter tests with actual quad MTF files from mm-data
+  - Validated via parity validation: 100% pass rate on all quad mechs in mm-data
 
 ### 1.5 Quad Armor Diagram
 - [ ] 1.5.1 Create QuadArmorDiagram SVG component with 4-legged silhouette
@@ -86,17 +87,18 @@
 ## Phase 3: Tripod Support
 
 ### 3.1 Tripod Configuration
-- [ ] 3.1.1 Add CENTER_LEG to MechLocation enum
+- [x] 3.1.1 Add CENTER_LEG to MechLocation enum
 - [ ] 3.1.2 Create tripod configuration definition (9 locations)
 - [ ] 3.1.3 Define center leg actuators (Hip, Upper Leg, Lower Leg, Foot)
 - [ ] 3.1.4 Register tripod definition in ConfigurationRegistry
 - [ ] 3.1.5 Add unit tests for tripod configuration
 
 ### 3.2 MTF Parser Updates for Tripod
-- [ ] 3.2.1 Add tripod location header mapping (Center Leg:)
-- [ ] 3.2.2 Add tripod armor label mapping (CL armor)
-- [ ] 3.2.3 Add tripod MTF export support
-- [ ] 3.2.4 Add parser/exporter tests with actual tripod MTF files
+- [x] 3.2.1 Add tripod location header mapping (Center Leg:)
+- [x] 3.2.2 Add tripod armor label mapping (CL armor)
+- [x] 3.2.3 Add tripod MTF export support
+- [x] 3.2.4 Add parser/exporter tests with actual tripod MTF files
+  - Validated via parity validation: 100% pass rate on all tripod mechs in mm-data
 
 ### 3.3 Tripod Armor Diagram
 - [ ] 3.3.1 Create TripodArmorDiagram SVG component

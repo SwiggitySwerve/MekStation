@@ -73,36 +73,51 @@
 - [x] 8.2 Run validation on 3039u era (~229 units) to identify common issues
 - [x] 8.3 Document initial findings and known gaps
 
-## Initial Findings (3039u Era - 229 Units)
+## Final Results (Full BattleMech Corpus - 4227 Units)
 
-**Top Issues Identified:**
+**Validation Status: 100% PASS RATE**
 
-1. **SLOT_COUNT_MISMATCH (681 occurrences) - FIXED**
-   - Original MTF files pad all locations to 12 slots
-   - Our exporter was outputting actual slot counts (6 for head/legs)
-   - Fix: Added padding to 12 slots per location in MTFExportService
+```
+Units validated:     4227
+Units passed:        4227 (100.0%)
+Units with issues:   0
+Units with errors:   0
+```
 
-2. **ENGINE_MISMATCH (160 occurrences) - FIXED**
-   - mm-data has inconsistent formats: "Fusion Engine" vs "Fusion Engine(IS)"
-   - Fix: Added normalizeEngineString() to treat both formats as equivalent
+### Issues Resolved
 
-**Current Results (After Fixes):**
-- Units validated: 229
-- Units passed: 226 (98.7%)
-- Units with issues: 3 (all Quad mechs)
+| Issue | Root Cause | Fix | Units Fixed |
+|-------|-----------|-----|-------------|
+| SLOT_COUNT_MISMATCH | MTF pads to 12 slots | Added padding in MTFExportService | ~681 |
+| ENGINE_MISMATCH | Inconsistent formats | Added normalizeEngineString() | ~160 |
+| PARSE_ERROR (121) | Empty model field required | Only require chassis in parser | 121 |
+| ARMOR_MISMATCH (51) | Missing CL armor for tripods | Added `'CL armor': 'CENTER_LEG'` mapping | 11 tripods |
+| ARMOR_MISMATCH (40) | Patchwork armor format | Extract numeric value from `Type:Value` format | 5 units |
+| SLOT_COUNT_MISMATCH (11) | Missing CENTER_LEG location | Added `'Center Leg:': 'CENTER_LEG'` header | 11 tripods |
+| HEADER_MISMATCH (12) | Clanname used as model fallback | Preserve original empty model field | 12 Clan mechs |
 
-**Remaining Issues - Quad Mech Support:**
-The 3 remaining failures are Quad mechs (Goliath, Scorpion x2) which require:
-- Different location names: `Front Left Leg:`, `Rear Left Leg:` etc.
-- Different armor codes: `FLL`, `FRL`, `RLL`, `RRL`
-- No arm locations
+### Exotic Mech Support Added
 
-**Known Gaps:**
-- Unit tests deferred for initial implementation
-- Quad mech support not yet implemented
-- Equipment name reverse-mapping needs expansion for full coverage
+**Quad Mechs:**
+- Parser: Location headers `Front Left Leg:`, `Rear Left Leg:`, etc.
+- Parser: Armor fields `FLL armor`, `FRL armor`, `RLL armor`, `RRL armor`
+- Exporter: Correct location names and armor labels
 
-**Next Steps:**
-1. Add Quad mech support to parser and exporter
-2. Expand validation to full BattleMech corpus
-3. Add unit tests for edge cases discovered
+**Tripod Mechs:**
+- Parser: Location header `Center Leg:`
+- Parser: Armor field `CL armor`
+- Exporter: Correct location names and armor labels
+- Slot count: `CENTER_LEG: 6`
+
+**Patchwork Armor:**
+- Parser: Extracts numeric value from `ArmorType:Value` format
+- Validator: Normalizes armor values for comparison
+
+**Clan Dual-Names:**
+- Parser: Preserves empty model when `clanname:` is present
+- Exporter: Outputs empty `model:` with separate `clanname:` field
+
+### Known Gaps
+
+- Unit tests partially deferred (608 tests passing, core functionality covered)
+- Equipment name reverse-mapping has good coverage but may need expansion for rare equipment

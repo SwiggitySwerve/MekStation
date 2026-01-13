@@ -37,6 +37,8 @@ const LOCATION_HEADERS: Record<string, string> = {
   'Front Right Leg:': 'FRONT_RIGHT_LEG',
   'Rear Left Leg:': 'REAR_LEFT_LEG',
   'Rear Right Leg:': 'REAR_RIGHT_LEG',
+  // Tripod locations
+  'Center Leg:': 'CENTER_LEG',
 };
 
 /**
@@ -57,6 +59,8 @@ const SLOT_COUNTS: Record<string, number> = {
   FRONT_RIGHT_LEG: 6,
   REAR_LEFT_LEG: 6,
   REAR_RIGHT_LEG: 6,
+  // Tripod locations
+  CENTER_LEG: 6,
 };
 
 /**
@@ -86,8 +90,9 @@ export class MTFParserService {
 
       // Parse header fields
       const header = this.parseHeader(lines);
-      if (!header.chassis || !header.model) {
-        errors.push('Missing required fields: chassis or model');
+      // Only chassis is required - model can be empty (many MTF files have `model:` with no value)
+      if (!header.chassis) {
+        errors.push('Missing required field: chassis');
         return { success: false, errors, warnings };
       }
 
@@ -217,13 +222,6 @@ export class MTFParserService {
     const clanname = this.parseField(lines, 'clanname');
     const config = this.parseField(lines, 'Config') || 'Biped';
 
-    // Handle empty model field - use clanname or chassis variant as fallback
-    // Some Clan mechs have format: chassis:Baboon, clanname:Howler, model: (empty)
-    let effectiveModel = model || '';
-    if (!effectiveModel && clanname) {
-      effectiveModel = clanname;
-    }
-
     // Detect OmniMech from Config field (e.g., "Biped Omnimech", "Quad Omnimech")
     const isOmni = config.toLowerCase().includes('omnimech');
 
@@ -233,7 +231,7 @@ export class MTFParserService {
 
     return {
       chassis,
-      model: effectiveModel,
+      model: model || '',
       config,
       techBase: this.parseField(lines, 'techbase') || 'Inner Sphere',
       year: parseInt(this.parseField(lines, 'era') || '3025', 10),
@@ -333,6 +331,8 @@ export class MTFParserService {
       'FRL armor': 'FRONT_RIGHT_LEG',
       'RLL armor': 'REAR_LEFT_LEG',
       'RRL armor': 'REAR_RIGHT_LEG',
+      // Tripod center leg
+      'CL armor': 'CENTER_LEG',
     };
 
     const frontValues: Record<string, number> = {};
@@ -341,7 +341,15 @@ export class MTFParserService {
     for (const [field, location] of Object.entries(armorFields)) {
       const value = this.parseField(lines, field);
       if (value) {
-        const numValue = parseInt(value, 10);
+        // Handle patchwork armor format: "ArmorType:Value" or just "Value"
+        let numValue: number;
+        if (value.includes(':')) {
+          // Patchwork format: "Reactive(Inner Sphere):26" - extract last part
+          const parts = value.split(':');
+          numValue = parseInt(parts[parts.length - 1], 10);
+        } else {
+          numValue = parseInt(value, 10);
+        }
         if (location.endsWith('_REAR')) {
           const baseLocation = location.replace('_REAR', '');
           rearValues[baseLocation] = numValue;

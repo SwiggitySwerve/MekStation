@@ -86,21 +86,24 @@ era:2755
       const result = service.parse(mtf);
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing required fields: chassis or model');
+      expect(result.errors).toContain('Missing required field: chassis');
     });
 
-    it('should fail when model is missing', () => {
+    it('should succeed when model is missing (model is optional)', () => {
       const mtf = `
 chassis:Atlas
 Config:Biped
 techbase:Inner Sphere
 era:2755
+mass:100
 `;
 
       const result = service.parse(mtf);
 
-      expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing required fields: chassis or model');
+      // Model is optional - many MTF files have empty model field
+      expect(result.success).toBe(true);
+      expect(result.unit?.chassis).toBe('Atlas');
+      expect(result.unit?.model).toBe('');
     });
 
     it('should handle parse exceptions', () => {
@@ -1595,14 +1598,14 @@ mass:100
       const result = service.parse('');
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing required fields: chassis or model');
+      expect(result.errors).toContain('Missing required field: chassis');
     });
 
     it('should handle whitespace-only content', () => {
       const result = service.parse('   \n   \n   ');
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing required fields: chassis or model');
+      expect(result.errors).toContain('Missing required field: chassis');
     });
 
     it('should handle malformed field lines', () => {
@@ -2035,7 +2038,7 @@ mass:75
       expect(result.unit?.clanName).toBe('Timber Wolf');
     });
 
-    it('should use clanname as model fallback when model is empty', () => {
+    it('should preserve empty model when clanname is present (for parity)', () => {
       const mtf = `
 chassis:Baboon
 clanname:Howler
@@ -2049,7 +2052,8 @@ mass:20
       const result = service.parse(mtf);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.model).toBe('Howler');
+      // Model should remain empty for MTF parity (clanname is stored separately)
+      expect(result.unit?.model).toBe('');
       expect(result.unit?.clanName).toBe('Howler');
     });
 
