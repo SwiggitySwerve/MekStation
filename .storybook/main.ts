@@ -1,11 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const config: StorybookConfig = {
   stories: [
@@ -30,12 +26,12 @@ const config: StorybookConfig = {
       plugins: [tailwindcss()],
       resolve: {
         alias: {
-          '@': resolve(__dirname, '../src'),
-          'next/link': resolve(__dirname, './mocks/next-link.tsx'),
-          'next/head': resolve(__dirname, './mocks/next-head.tsx'),
-          'next/router': resolve(__dirname, './mocks/next-router.tsx'),
-          'next/navigation': resolve(__dirname, './mocks/next-router.tsx'),
-          '@/hooks/useDeviceCapabilities': resolve(__dirname, './mocks/useDeviceCapabilities.tsx'),
+          '@': resolve(process.cwd(), 'src'),
+          'next/link': resolve(process.cwd(), '.storybook/mocks/next-link.tsx'),
+          'next/head': resolve(process.cwd(), '.storybook/mocks/next-head.tsx'),
+          'next/router': resolve(process.cwd(), '.storybook/mocks/next-router.tsx'),
+          'next/navigation': resolve(process.cwd(), '.storybook/mocks/next-router.tsx'),
+          '@/hooks/useDeviceCapabilities': resolve(process.cwd(), '.storybook/mocks/useDeviceCapabilities.tsx'),
         },
       },
       css: {
