@@ -96,7 +96,7 @@
 
 ### 5.2 Testing
 - [x] Add integration tests loading real OmniMech MTF files (MTFParserService tests)
-- [ ] Test round-trip: load OmniMech → edit → save → reload
+- [x] Test round-trip: load OmniMech → edit → save → reload (MTFExportService round-trip tests)
 - [ ] Test variant workflow: load Prime → reset chassis → configure A variant
 
 ### 5.3 Archive Change

@@ -12,6 +12,7 @@
 jest.unmock('@/services/conversion/MTFExportService');
 
 import { MTFExportService, getMTFExportService, IMTFExportResult } from '@/services/conversion/MTFExportService';
+import { MTFParserService } from '@/services/conversion/MTFParserService';
 import { ISerializedUnit, ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 describe('MTFExportService', () => {
@@ -1487,6 +1488,296 @@ describe('MTFExportService', () => {
 
       expect(result.success).toBe(true);
       expect(result.content).toContain('model:TST-1A/B');
+    });
+  });
+
+  // ============================================================================
+  // OmniMech Export Tests
+  // ============================================================================
+  describe('OmniMech Export', () => {
+    const createOmniMechUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+      id: 'mad-cat-prime',
+      chassis: 'Mad Cat',
+      model: 'Prime',
+      unitType: 'BattleMech',
+      configuration: 'BIPED',
+      techBase: 'CLAN',
+      rulesLevel: 'STANDARD',
+      era: 'Clan Invasion',
+      year: 3049,
+      tonnage: 75,
+      isOmni: true,
+      baseChassisHeatSinks: 12,
+      engine: { type: 'XL', rating: 375 },
+      gyro: { type: 'STANDARD' },
+      cockpit: 'Standard',
+      structure: { type: 'ENDO_STEEL' },
+      armor: {
+        type: 'FERRO_FIBROUS',
+        allocation: {
+          HEAD: 9,
+          CENTER_TORSO: { front: 36, rear: 11 },
+          LEFT_TORSO: { front: 24, rear: 8 },
+          RIGHT_TORSO: { front: 24, rear: 8 },
+          LEFT_ARM: 24,
+          RIGHT_ARM: 24,
+          LEFT_LEG: 32,
+          RIGHT_LEG: 32,
+        },
+      },
+      heatSinks: { type: 'DOUBLE', count: 12 },
+      movement: { walk: 5, jump: 0 },
+      equipment: [
+        { id: 'ER Large Laser', location: 'Left Arm', isOmniPodMounted: true },
+        { id: 'ER Large Laser', location: 'Right Arm', isOmniPodMounted: true },
+        { id: 'LRM 20', location: 'Left Torso', isOmniPodMounted: true },
+        { id: 'LRM 20', location: 'Right Torso', isOmniPodMounted: true },
+        { id: 'Medium Pulse Laser', location: 'Center Torso', isOmniPodMounted: false },
+      ],
+      criticalSlots: {
+        HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+        LEFT_ARM: [],
+        RIGHT_ARM: [],
+        LEFT_TORSO: [],
+        RIGHT_TORSO: [],
+        CENTER_TORSO: [],
+        LEFT_LEG: [],
+        RIGHT_LEG: [],
+      },
+      ...overrides,
+    });
+
+    it('should export OmniMech with Config:Biped Omnimech', () => {
+      const unit = createOmniMechUnit();
+      const result = service.export(unit);
+
+      expect(result.success).toBe(true);
+      expect(result.content).toContain('Config:Biped Omnimech');
+    });
+
+    it('should export base chassis heat sinks for OmniMech', () => {
+      const unit = createOmniMechUnit();
+      const result = service.export(unit);
+
+      expect(result.success).toBe(true);
+      expect(result.content).toContain('Base Chassis Heat Sinks:12');
+    });
+
+    it('should add (omnipod) suffix to pod-mounted equipment', () => {
+      const unit = createOmniMechUnit();
+      const result = service.export(unit);
+
+      expect(result.success).toBe(true);
+      expect(result.content).toContain('ER Large Laser (omnipod), Left Arm');
+      expect(result.content).toContain('LRM 20 (omnipod), Left Torso');
+    });
+
+    it('should NOT add (omnipod) suffix to fixed equipment', () => {
+      const unit = createOmniMechUnit();
+      const result = service.export(unit);
+
+      expect(result.success).toBe(true);
+      // Fixed equipment should not have (omnipod)
+      expect(result.content).toContain('Medium Pulse Laser, Center Torso');
+      expect(result.content).not.toContain('Medium Pulse Laser (omnipod)');
+    });
+  });
+
+  // ============================================================================
+  // OmniMech Round-Trip Tests
+  // ============================================================================
+  describe('OmniMech Round-Trip', () => {
+    const parser = new MTFParserService();
+
+    it('should preserve isOmni flag through export and re-parse', () => {
+      const unit: ISerializedUnit = {
+        id: 'test-omni',
+        chassis: 'Test OmniMech',
+        model: 'Prime',
+        unitType: 'BattleMech',
+        configuration: 'BIPED',
+        techBase: 'CLAN',
+        rulesLevel: 'STANDARD',
+        era: 'Clan Invasion',
+        year: 3050,
+        tonnage: 50,
+        isOmni: true,
+        baseChassisHeatSinks: 10,
+        engine: { type: 'XL', rating: 250 },
+        gyro: { type: 'STANDARD' },
+        cockpit: 'Standard',
+        structure: { type: 'ENDO_STEEL' },
+        armor: {
+          type: 'STANDARD',
+          allocation: {
+            HEAD: 9,
+            CENTER_TORSO: { front: 20, rear: 10 },
+            LEFT_TORSO: { front: 16, rear: 8 },
+            RIGHT_TORSO: { front: 16, rear: 8 },
+            LEFT_ARM: 12,
+            RIGHT_ARM: 12,
+            LEFT_LEG: 16,
+            RIGHT_LEG: 16,
+          },
+        },
+        heatSinks: { type: 'DOUBLE', count: 10 },
+        movement: { walk: 5, jump: 0 },
+        equipment: [
+          { id: 'ER Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
+          { id: 'ER Medium Laser', location: 'Right Arm', isOmniPodMounted: true },
+        ],
+        criticalSlots: {
+          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          LEFT_ARM: [],
+          RIGHT_ARM: [],
+          LEFT_TORSO: [],
+          RIGHT_TORSO: [],
+          CENTER_TORSO: [],
+          LEFT_LEG: [],
+          RIGHT_LEG: [],
+        },
+      };
+
+      // Export to MTF
+      const exportResult = service.export(unit);
+      expect(exportResult.success).toBe(true);
+
+      // Parse the exported MTF
+      const parseResult = parser.parse(exportResult.content!);
+      expect(parseResult.success).toBe(true);
+      expect(parseResult.unit).toBeDefined();
+
+      // Verify isOmni is preserved
+      expect(parseResult.unit!.isOmni).toBe(true);
+    });
+
+    it('should preserve isOmniPodMounted through export and re-parse', () => {
+      const unit: ISerializedUnit = {
+        id: 'test-omni-pod',
+        chassis: 'Test OmniMech',
+        model: 'A',
+        unitType: 'BattleMech',
+        configuration: 'BIPED',
+        techBase: 'CLAN',
+        rulesLevel: 'STANDARD',
+        era: 'Clan Invasion',
+        year: 3050,
+        tonnage: 50,
+        isOmni: true,
+        baseChassisHeatSinks: 10,
+        engine: { type: 'XL', rating: 250 },
+        gyro: { type: 'STANDARD' },
+        cockpit: 'Standard',
+        structure: { type: 'STANDARD' },
+        armor: {
+          type: 'STANDARD',
+          allocation: {
+            HEAD: 9,
+            CENTER_TORSO: { front: 20, rear: 10 },
+            LEFT_TORSO: { front: 16, rear: 8 },
+            RIGHT_TORSO: { front: 16, rear: 8 },
+            LEFT_ARM: 12,
+            RIGHT_ARM: 12,
+            LEFT_LEG: 16,
+            RIGHT_LEG: 16,
+          },
+        },
+        heatSinks: { type: 'DOUBLE', count: 10 },
+        movement: { walk: 5, jump: 0 },
+        equipment: [
+          { id: 'ER Large Laser', location: 'Left Arm', isOmniPodMounted: true },
+          { id: 'Medium Pulse Laser', location: 'Center Torso', isOmniPodMounted: false },
+        ],
+        criticalSlots: {
+          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          LEFT_ARM: [],
+          RIGHT_ARM: [],
+          LEFT_TORSO: [],
+          RIGHT_TORSO: [],
+          CENTER_TORSO: [],
+          LEFT_LEG: [],
+          RIGHT_LEG: [],
+        },
+      };
+
+      // Export to MTF
+      const exportResult = service.export(unit);
+      expect(exportResult.success).toBe(true);
+
+      // Parse the exported MTF
+      const parseResult = parser.parse(exportResult.content!);
+      expect(parseResult.success).toBe(true);
+      expect(parseResult.unit).toBeDefined();
+
+      // Verify equipment isOmniPodMounted is preserved
+      const equipment = parseResult.unit!.equipment || [];
+
+      // Note: Parser normalizes equipment IDs to lowercase-with-dashes
+      const podMountedLaser = equipment.find(e => e.id.includes('er-large-laser'));
+      const fixedLaser = equipment.find(e => e.id.includes('medium-pulse-laser'));
+
+      expect(podMountedLaser?.isOmniPodMounted).toBe(true);
+      // Fixed equipment should not have isOmniPodMounted or it should be false/undefined
+      expect(fixedLaser?.isOmniPodMounted).toBeFalsy();
+    });
+
+    it('should preserve baseChassisHeatSinks through export and re-parse', () => {
+      const unit: ISerializedUnit = {
+        id: 'test-omni-hs',
+        chassis: 'Test OmniMech',
+        model: 'Prime',
+        unitType: 'BattleMech',
+        configuration: 'BIPED',
+        techBase: 'CLAN',
+        rulesLevel: 'STANDARD',
+        era: 'Clan Invasion',
+        year: 3050,
+        tonnage: 75,
+        isOmni: true,
+        baseChassisHeatSinks: 15,
+        engine: { type: 'XL', rating: 375 },
+        gyro: { type: 'STANDARD' },
+        cockpit: 'Standard',
+        structure: { type: 'STANDARD' },
+        armor: {
+          type: 'STANDARD',
+          allocation: {
+            HEAD: 9,
+            CENTER_TORSO: { front: 20, rear: 10 },
+            LEFT_TORSO: { front: 16, rear: 8 },
+            RIGHT_TORSO: { front: 16, rear: 8 },
+            LEFT_ARM: 12,
+            RIGHT_ARM: 12,
+            LEFT_LEG: 16,
+            RIGHT_LEG: 16,
+          },
+        },
+        heatSinks: { type: 'DOUBLE', count: 15 },
+        movement: { walk: 5, jump: 0 },
+        equipment: [],
+        criticalSlots: {
+          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          LEFT_ARM: [],
+          RIGHT_ARM: [],
+          LEFT_TORSO: [],
+          RIGHT_TORSO: [],
+          CENTER_TORSO: [],
+          LEFT_LEG: [],
+          RIGHT_LEG: [],
+        },
+      };
+
+      // Export to MTF
+      const exportResult = service.export(unit);
+      expect(exportResult.success).toBe(true);
+
+      // Parse the exported MTF
+      const parseResult = parser.parse(exportResult.content!);
+      expect(parseResult.success).toBe(true);
+      expect(parseResult.unit).toBeDefined();
+
+      // Verify baseChassisHeatSinks is preserved
+      expect(parseResult.unit!.baseChassisHeatSinks).toBe(15);
     });
   });
 });
