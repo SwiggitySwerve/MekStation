@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DiagramStyleSelector } from '@/components/customizer/armor/DiagramStyleSelector';
+import { ArmorDiagramQuickSettings } from '@/components/customizer/armor/ArmorDiagramQuickSettings';
 import { useAppSettingsStore, AppSettingsState, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 
 jest.mock('@/stores/useAppSettingsStore', () => ({
@@ -17,7 +17,7 @@ function createMockState(variant: ArmorDiagramVariant, setFn: jest.Mock): Partia
   };
 }
 
-describe('DiagramStyleSelector', () => {
+describe('ArmorDiagramQuickSettings', () => {
   const mockSetArmorDiagramVariant = jest.fn();
 
   beforeEach(() => {
@@ -28,29 +28,29 @@ describe('DiagramStyleSelector', () => {
     });
   });
 
-  it('renders current variant name', () => {
-    render(<DiagramStyleSelector />);
+  it('renders current variant name with style label', () => {
+    render(<ArmorDiagramQuickSettings />);
+    expect(screen.getByText('Style:')).toBeInTheDocument();
     expect(screen.getByText('Clean Tech')).toBeInTheDocument();
   });
 
   it('opens dropdown on click', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
-    
+
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getAllByRole('option')).toHaveLength(5);
   });
 
   it('displays all variant options in dropdown', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
-    
+
     const options = screen.getAllByRole('option');
-    expect(options).toHaveLength(5);
     expect(options[0]).toHaveTextContent('Clean Tech');
     expect(options[1]).toHaveTextContent('Neon');
     expect(options[2]).toHaveTextContent('Tactical');
@@ -60,23 +60,23 @@ describe('DiagramStyleSelector', () => {
 
   it('calls setArmorDiagramVariant when option selected', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
-    await user.click(screen.getByText('Neon'));
-    
+    await user.click(screen.getByRole('option', { name: 'Neon' }));
+
     expect(mockSetArmorDiagramVariant).toHaveBeenCalledWith('neon-operator');
   });
 
   it('closes dropdown after selection', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    
-    await user.click(screen.getByText('Tactical'));
-    
+
+    await user.click(screen.getByRole('option', { name: 'Tactical' }));
+
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
@@ -84,37 +84,37 @@ describe('DiagramStyleSelector', () => {
     const user = userEvent.setup();
     render(
       <div>
-        <DiagramStyleSelector />
+        <ArmorDiagramQuickSettings />
         <button data-testid="outside">Outside</button>
       </div>
     );
-    
+
     await user.click(screen.getByRole('button', { expanded: false }));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    
+
     fireEvent.mouseDown(screen.getByTestId('outside'));
-    
+
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('closes dropdown on escape key', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    
+
     await user.keyboard('{Escape}');
-    
+
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('shows checkmark on selected variant', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
-    
+
     const cleanTechOption = screen.getByRole('option', { selected: true });
     expect(cleanTechOption).toHaveTextContent('Clean Tech');
   });
@@ -125,17 +125,17 @@ describe('DiagramStyleSelector', () => {
       return selector(state as AppSettingsState);
     });
 
-    render(<DiagramStyleSelector />);
+    render(<ArmorDiagramQuickSettings />);
     expect(screen.getByText('Tactical')).toBeInTheDocument();
   });
 
-  it('persists changes immediately (syncs with settings)', async () => {
+  it('persists changes immediately', async () => {
     const user = userEvent.setup();
-    render(<DiagramStyleSelector />);
-    
+    render(<ArmorDiagramQuickSettings />);
+
     await user.click(screen.getByRole('button', { expanded: false }));
-    await user.click(screen.getByText('MegaMek'));
-    
+    await user.click(screen.getByRole('option', { name: 'MegaMek' }));
+
     expect(mockSetArmorDiagramVariant).toHaveBeenCalledWith('megamek');
     expect(mockSetArmorDiagramVariant).toHaveBeenCalledTimes(1);
   });
