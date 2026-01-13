@@ -38,6 +38,15 @@ npm --prefix desktop run release:publish-update-metadata -- --tag vX.Y.Z
 If you are using a fork or custom hosting, set:
 - `MEKSTATION_UPDATE_FEED_BASE_URL` (defaults to `https://swiggityswerve.github.io/MekStation/updates`)
 
+## Storybook
+
+Component library and design system documentation:
+
+```bash
+npm run storybook        # Start dev server at http://localhost:6006
+npm run storybook:build  # Build static output to storybook-static/
+```
+
 ## Key Docs
 
 - Overview & deep-dive: `docs/overview.md`

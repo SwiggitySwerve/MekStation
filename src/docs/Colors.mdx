@@ -1,0 +1,291 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+
+<Meta title="Design System/Colors" />
+
+# Color System
+
+MekStation uses a semantic color system built on CSS custom properties with Tailwind CSS integration.
+Colors are organized into categories based on their purpose.
+
+## Surface Colors
+
+Used for backgrounds and container elements. These create the layered depth of the dark theme.
+
+<ColorPalette>
+  <ColorItem
+    title="Surface Deep"
+    subtitle="bg-surface-deep"
+    colors={{ 'Deep': '#0f172a' }}
+  />
+  <ColorItem
+    title="Surface Base"
+    subtitle="bg-surface-base"
+    colors={{ 'Base': '#1e293b' }}
+  />
+  <ColorItem
+    title="Surface Raised"
+    subtitle="bg-surface-raised"
+    colors={{ 'Raised': '#334155' }}
+  />
+</ColorPalette>
+
+## Accent Colors
+
+The primary accent color system. Default is amber, but can be changed via user settings.
+
+<ColorPalette>
+  <ColorItem
+    title="Accent Primary"
+    subtitle="bg-accent / text-accent"
+    colors={{ 'Primary': '#f59e0b' }}
+  />
+  <ColorItem
+    title="Accent Hover"
+    subtitle="bg-accent-hover"
+    colors={{ 'Hover': '#d97706' }}
+  />
+  <ColorItem
+    title="Accent Muted"
+    subtitle="bg-accent-muted"
+    colors={{ 'Muted': 'rgba(245, 158, 11, 0.15)' }}
+  />
+</ColorPalette>
+
+## Text Colors
+
+Hierarchical text colors for content readability.
+
+<ColorPalette>
+  <ColorItem
+    title="Text Primary"
+    subtitle="text-text-theme-primary"
+    colors={{ 'Primary': '#f8fafc' }}
+  />
+  <ColorItem
+    title="Text Secondary"
+    subtitle="text-text-theme-secondary"
+    colors={{ 'Secondary': '#94a3b8' }}
+  />
+  <ColorItem
+    title="Text Muted"
+    subtitle="text-text-theme-muted"
+    colors={{ 'Muted': '#64748b' }}
+  />
+</ColorPalette>
+
+## Border Colors
+
+Border colors for subtle to strong visual separation.
+
+<ColorPalette>
+  <ColorItem
+    title="Border Subtle"
+    subtitle="border-border-theme-subtle"
+    colors={{ 'Subtle': '#334155' }}
+  />
+  <ColorItem
+    title="Border Default"
+    subtitle="border-border-theme"
+    colors={{ 'Default': '#475569' }}
+  />
+  <ColorItem
+    title="Border Strong"
+    subtitle="border-border-theme-strong"
+    colors={{ 'Strong': '#64748b' }}
+  />
+</ColorPalette>
+
+## System Slot Colors
+
+Colors for BattleMech system component slots in the critical allocation display.
+
+<ColorPalette>
+  <ColorItem
+    title="Engine"
+    subtitle="slot-engine"
+    colors={{ 'Engine': 'rgb(234, 88, 12)' }}
+  />
+  <ColorItem
+    title="Gyro"
+    subtitle="slot-gyro"
+    colors={{ 'Gyro': 'rgb(147, 51, 234)' }}
+  />
+  <ColorItem
+    title="Actuator"
+    subtitle="slot-actuator"
+    colors={{ 'Actuator': 'rgb(37, 99, 235)' }}
+  />
+  <ColorItem
+    title="Cockpit"
+    subtitle="slot-cockpit"
+    colors={{ 'Cockpit': 'rgb(202, 138, 4)' }}
+  />
+  <ColorItem
+    title="Empty"
+    subtitle="slot-empty"
+    colors={{ 'Empty': 'rgb(75, 85, 99)' }}
+  />
+</ColorPalette>
+
+## Equipment Type Colors
+
+Colors for different equipment categories.
+
+<ColorPalette>
+  <ColorItem
+    title="Weapons"
+    subtitle="equipment-weapon"
+    colors={{ 'Weapon': 'rgb(185, 28, 28)' }}
+  />
+  <ColorItem
+    title="Ammunition"
+    subtitle="equipment-ammo"
+    colors={{ 'Ammo': 'rgb(194, 65, 12)' }}
+  />
+  <ColorItem
+    title="Heat Sinks"
+    subtitle="equipment-heatsink"
+    colors={{ 'Heatsink': 'rgb(14, 116, 144)' }}
+  />
+  <ColorItem
+    title="Electronics"
+    subtitle="equipment-electronics"
+    colors={{ 'Electronics': 'rgb(29, 78, 216)' }}
+  />
+  <ColorItem
+    title="Miscellaneous"
+    subtitle="equipment-misc"
+    colors={{ 'Misc': 'rgb(51, 65, 85)' }}
+  />
+</ColorPalette>
+
+## Tech Base Colors
+
+Colors indicating technology origins.
+
+<ColorPalette>
+  <ColorItem
+    title="Inner Sphere"
+    subtitle="tech-is"
+    colors={{ 'IS': 'rgb(96, 165, 250)' }}
+  />
+  <ColorItem
+    title="Clan"
+    subtitle="tech-clan"
+    colors={{ 'Clan': 'rgb(74, 222, 128)' }}
+  />
+  <ColorItem
+    title="Mixed Tech"
+    subtitle="tech-mixed"
+    colors={{ 'Mixed': 'rgb(192, 132, 252)' }}
+  />
+</ColorPalette>
+
+## Validation Colors
+
+Status indication colors for form validation and system status.
+
+<ColorPalette>
+  <ColorItem
+    title="Valid"
+    subtitle="validation-valid"
+    colors={{ 'Valid': 'rgb(34, 197, 94)' }}
+  />
+  <ColorItem
+    title="Warning"
+    subtitle="validation-warning"
+    colors={{ 'Warning': 'rgb(234, 179, 8)' }}
+  />
+  <ColorItem
+    title="Error"
+    subtitle="validation-error"
+    colors={{ 'Error': 'rgb(239, 68, 68)' }}
+  />
+</ColorPalette>
+
+## Armor Status Colors
+
+Colors for armor diagram health indicators.
+
+<ColorPalette>
+  <ColorItem
+    title="Healthy"
+    subtitle="armor-healthy"
+    colors={{ 'Healthy': 'rgb(34, 197, 94)' }}
+  />
+  <ColorItem
+    title="Moderate"
+    subtitle="armor-moderate"
+    colors={{ 'Moderate': 'rgb(245, 158, 11)' }}
+  />
+  <ColorItem
+    title="Low"
+    subtitle="armor-low"
+    colors={{ 'Low': 'rgb(249, 115, 22)' }}
+  />
+  <ColorItem
+    title="Critical"
+    subtitle="armor-critical"
+    colors={{ 'Critical': 'rgb(239, 68, 68)' }}
+  />
+  <ColorItem
+    title="Selected"
+    subtitle="armor-selected"
+    colors={{ 'Selected': 'rgb(59, 130, 246)' }}
+  />
+</ColorPalette>
+
+## UI Accent Variants
+
+Additional accent colors for UI variety.
+
+<ColorPalette>
+  <ColorItem
+    title="Amber"
+    subtitle="ui-accent-amber"
+    colors={{ 'Amber': 'rgb(245, 158, 11)' }}
+  />
+  <ColorItem
+    title="Cyan"
+    subtitle="ui-accent-cyan"
+    colors={{ 'Cyan': 'rgb(6, 182, 212)' }}
+  />
+  <ColorItem
+    title="Emerald"
+    subtitle="ui-accent-emerald"
+    colors={{ 'Emerald': 'rgb(16, 185, 129)' }}
+  />
+  <ColorItem
+    title="Violet"
+    subtitle="ui-accent-violet"
+    colors={{ 'Violet': 'rgb(139, 92, 246)' }}
+  />
+  <ColorItem
+    title="Rose"
+    subtitle="ui-accent-rose"
+    colors={{ 'Rose': 'rgb(244, 63, 94)' }}
+  />
+  <ColorItem
+    title="Blue"
+    subtitle="ui-accent-blue"
+    colors={{ 'Blue': 'rgb(59, 130, 246)' }}
+  />
+</ColorPalette>
+
+## Usage Guidelines
+
+### Layering
+Use surface colors to create depth:
+- `surface-deep` for the deepest background
+- `surface-base` for cards and containers
+- `surface-raised` for elevated elements (hover states, dropdowns)
+
+### Text Hierarchy
+- **Primary**: Main content, headings
+- **Secondary**: Supporting text, labels
+- **Muted**: Placeholders, disabled states
+
+### Borders
+- **Subtle**: Dividers, subtle separation
+- **Default**: Standard borders
+- **Strong**: Emphasis, focused elements
