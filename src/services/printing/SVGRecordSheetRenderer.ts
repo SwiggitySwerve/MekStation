@@ -85,6 +85,8 @@ const ARMOR_TEXT_IDS: Record<string, string> = {
   'FRL': 'textArmor_FRL',
   'RLL': 'textArmor_RLL',
   'RRL': 'textArmor_RRL',
+  // Tripod center leg
+  'CL': 'textArmor_CL',
 };
 
 // Structure text label IDs (for displaying IS point values)
@@ -102,6 +104,8 @@ const STRUCTURE_TEXT_IDS: Record<string, string> = {
   'FRL': 'textIS_FRL',
   'RLL': 'textIS_RLL',
   'RRL': 'textIS_RRL',
+  // Tripod center leg
+  'CL': 'textIS_CL',
 };
 
 // Structure pip group IDs (embedded pip templates in SVG) - Biped
