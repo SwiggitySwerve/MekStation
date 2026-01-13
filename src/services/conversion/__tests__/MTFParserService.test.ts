@@ -908,6 +908,370 @@ Hip
       expect(result.unit?.criticalSlots.LEFT_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.RIGHT_LEG).toBeDefined();
     });
+
+    // ========================================================================
+    // Exotic Mech Configurations - Quad
+    // ========================================================================
+    it('should parse Quad mech configuration with quad leg locations', () => {
+      const mtf = `
+chassis:Goliath
+model:GOL-1H
+Config:Quad
+techbase:Inner Sphere
+era:2652
+mass:80
+
+Front Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+
+Front Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+
+Rear Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+
+Rear Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.chassis).toBe('Goliath');
+      expect(result.unit?.configuration).toBe('Quad');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.FRONT_RIGHT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.REAR_LEFT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.REAR_RIGHT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[0]).toBe('Hip');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[1]).toBe('Upper Leg Actuator');
+    });
+
+    it('should parse Quad mech armor with quad leg armor labels', () => {
+      const mtf = `
+chassis:Goliath
+model:GOL-1H
+Config:Quad
+techbase:Inner Sphere
+era:2652
+mass:80
+armor:Standard(Inner Sphere)
+HD armor:9
+CT armor:38
+LT armor:26
+RT armor:26
+FLL armor:28
+FRL armor:28
+RLL armor:26
+RRL armor:26
+RTC armor:12
+RTL armor:8
+RTR armor:8
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.armor.allocation.FRONT_LEFT_LEG).toBe(28);
+      expect(result.unit?.armor.allocation.FRONT_RIGHT_LEG).toBe(28);
+      expect(result.unit?.armor.allocation.REAR_LEFT_LEG).toBe(26);
+      expect(result.unit?.armor.allocation.REAR_RIGHT_LEG).toBe(26);
+    });
+
+    // ========================================================================
+    // Exotic Mech Configurations - LAM
+    // ========================================================================
+    it('should parse LAM mech configuration', () => {
+      const mtf = `
+chassis:Phoenix Hawk LAM
+model:PHX-HK1
+Config:LAM
+techbase:Inner Sphere
+era:2680
+mass:50
+engine:250 Fusion Engine
+heat sinks:10 Single
+
+Head:
+Life Support
+Sensors
+Cockpit
+Avionics
+Sensors
+Life Support
+
+Center Torso:
+Fusion Engine
+Fusion Engine
+Fusion Engine
+Gyro
+Gyro
+Gyro
+Gyro
+Fusion Engine
+Fusion Engine
+Fusion Engine
+Landing Gear
+-Empty-
+
+Left Torso:
+Landing Gear
+Avionics
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Right Torso:
+Landing Gear
+Avionics
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.chassis).toBe('Phoenix Hawk LAM');
+      expect(result.unit?.configuration).toBe('LAM');
+      expect(result.unit?.tonnage).toBe(50);
+      // LAM has biped locations
+      expect(result.unit?.criticalSlots.HEAD).toBeDefined();
+      expect(result.unit?.criticalSlots.CENTER_TORSO).toBeDefined();
+      // Check for LAM-specific equipment
+      expect(result.unit?.criticalSlots.HEAD?.[3]).toBe('Avionics');
+      expect(result.unit?.criticalSlots.CENTER_TORSO?.[10]).toBe('Landing Gear');
+      expect(result.unit?.criticalSlots.LEFT_TORSO?.[0]).toBe('Landing Gear');
+      expect(result.unit?.criticalSlots.LEFT_TORSO?.[1]).toBe('Avionics');
+    });
+
+    // ========================================================================
+    // Exotic Mech Configurations - Tripod
+    // ========================================================================
+    it('should parse Tripod mech configuration with center leg', () => {
+      const mtf = `
+chassis:Ares
+model:ARS-V1
+Config:Tripod
+techbase:Inner Sphere
+era:3135
+mass:135
+
+Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+
+Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+
+Center Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+-Empty-
+-Empty-
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.chassis).toBe('Ares');
+      expect(result.unit?.configuration).toBe('Tripod');
+      expect(result.unit?.criticalSlots.LEFT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.RIGHT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.CENTER_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.CENTER_LEG?.[0]).toBe('Hip');
+      expect(result.unit?.criticalSlots.CENTER_LEG?.[1]).toBe('Upper Leg Actuator');
+    });
+
+    it('should parse Tripod armor with center leg armor', () => {
+      const mtf = `
+chassis:Ares
+model:ARS-V1
+Config:Tripod
+techbase:Inner Sphere
+era:3135
+mass:135
+armor:Standard(Inner Sphere)
+HD armor:9
+CT armor:60
+LT armor:44
+RT armor:44
+LA armor:32
+RA armor:32
+LL armor:40
+RL armor:40
+CL armor:40
+RTC armor:20
+RTL armor:14
+RTR armor:14
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.armor.allocation.CENTER_LEG).toBe(40);
+      expect(result.unit?.armor.allocation.LEFT_LEG).toBe(40);
+      expect(result.unit?.armor.allocation.RIGHT_LEG).toBe(40);
+    });
+
+    // ========================================================================
+    // Exotic Mech Configurations - QuadVee
+    // ========================================================================
+    it('should parse QuadVee mech configuration', () => {
+      const mtf = `
+chassis:Arion
+model:Standard
+Config:QuadVee
+techbase:Clan
+era:3136
+mass:35
+
+Front Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Conversion Equipment
+Tracks
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Front Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Conversion Equipment
+Tracks
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Rear Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Conversion Equipment
+Tracks
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Rear Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Conversion Equipment
+Tracks
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.chassis).toBe('Arion');
+      expect(result.unit?.configuration).toBe('QuadVee');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.FRONT_RIGHT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.REAR_LEFT_LEG).toBeDefined();
+      expect(result.unit?.criticalSlots.REAR_RIGHT_LEG).toBeDefined();
+      // Check for QuadVee-specific equipment
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[4]).toBe('Conversion Equipment');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[5]).toBe('Tracks');
+    });
+
+    it('should parse QuadVee armor with quad leg armor labels', () => {
+      const mtf = `
+chassis:Arion
+model:Standard
+Config:QuadVee
+techbase:Clan
+era:3136
+mass:35
+armor:Ferro-Fibrous(Clan)
+HD armor:9
+CT armor:12
+LT armor:10
+RT armor:10
+FLL armor:12
+FRL armor:12
+RLL armor:12
+RRL armor:12
+RTC armor:4
+RTL armor:4
+RTR armor:4
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.success).toBe(true);
+      expect(result.unit?.armor.allocation.FRONT_LEFT_LEG).toBe(12);
+      expect(result.unit?.armor.allocation.FRONT_RIGHT_LEG).toBe(12);
+      expect(result.unit?.armor.allocation.REAR_LEFT_LEG).toBe(12);
+      expect(result.unit?.armor.allocation.REAR_RIGHT_LEG).toBe(12);
+    });
   });
 
   // ============================================================================

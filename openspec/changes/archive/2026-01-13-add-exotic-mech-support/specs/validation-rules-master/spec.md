@@ -1,6 +1,6 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: Validation Rule Registration
+### Requirement: Validation Rule Registration with Configuration Filter
 The system SHALL register all validation rules with configuration applicability.
 
 #### Scenario: Rule registration with configuration filter
@@ -13,8 +13,6 @@ The system SHALL register all validation rules with configuration applicability.
 - **THEN** validator SHALL filter rules by unit's configuration
 - **AND** only rules where appliesTo includes unit configuration SHALL execute
 - **AND** rules with empty appliesTo SHALL always execute
-
-## ADDED Requirements
 
 ### Requirement: Quad-Specific Validation Rules
 The system SHALL validate quad mech construction rules.

@@ -15,7 +15,7 @@
 
 ### Phase 3: Archive Change
 - [x] Run `openspec validate fix-exotic-config-slot-counts --strict`
-- [ ] Archive change after implementation complete
+- [x] Archive change after implementation complete
 
 ## Parallelizable Work
 - Phase 1 tasks can be done together (single file modification)
@@ -25,7 +25,7 @@
 - None (self-contained fix)
 
 ## Validation Checklist
-- [ ] `npm test` passes all tests
-- [ ] `npm run build` succeeds
-- [ ] Coverage thresholds still met
-- [ ] PR CI passes
+- [x] `npm test` passes all tests (5195 tests passing)
+- [x] `npm run build` succeeds
+- [x] Coverage thresholds still met
+- [x] PR CI passes

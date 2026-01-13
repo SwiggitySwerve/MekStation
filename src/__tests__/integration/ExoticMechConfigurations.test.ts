@@ -705,10 +705,254 @@ describe('Biped Configuration Regression', () => {
     });
     const context = createValidationContext(unit);
 
-    // Biped should not trigger exotic configuration rules
     expect(QuadNoArmsRule.canValidate?.(context)).toBe(false);
     expect(LAMMaxTonnageRule.canValidate?.(context)).toBe(false);
     expect(TripodCenterLegRule.canValidate?.(context)).toBe(false);
     expect(QuadVeeConversionEquipmentRule.canValidate?.(context)).toBe(false);
+  });
+});
+
+describe('Phase 5: End-to-End Integration Tests', () => {
+  describe('5.1 Round-Trip Export/Import', () => {
+    describe('5.1.1 Quad Mech JSON Round-Trip', () => {
+      it('should preserve quad configuration through JSON serialization', () => {
+        const quadUnit = createQuadMech();
+        const serialized = JSON.stringify(quadUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.configuration).toBe('QUAD');
+        expect(deserialized.armor.allocation.FRONT_LEFT_LEG).toBe(16);
+        expect(deserialized.armor.allocation.REAR_RIGHT_LEG).toBe(16);
+        expect(deserialized.criticalSlots.FRONT_LEFT_LEG).toBeDefined();
+      });
+
+      it('should maintain quad armor allocation integrity', () => {
+        const quadUnit = createQuadMech();
+        const serialized = JSON.stringify(quadUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        const originalArmor = quadUnit.armor.allocation;
+        const deserializedArmor = deserialized.armor.allocation;
+
+        expect(deserializedArmor.HEAD).toBe(originalArmor.HEAD);
+        expect(deserializedArmor.FRONT_LEFT_LEG).toBe(originalArmor.FRONT_LEFT_LEG);
+        expect(deserializedArmor.FRONT_RIGHT_LEG).toBe(originalArmor.FRONT_RIGHT_LEG);
+        expect(deserializedArmor.REAR_LEFT_LEG).toBe(originalArmor.REAR_LEFT_LEG);
+        expect(deserializedArmor.REAR_RIGHT_LEG).toBe(originalArmor.REAR_RIGHT_LEG);
+      });
+    });
+
+    describe('5.1.3 LAM Mech JSON Round-Trip', () => {
+      it('should preserve LAM configuration through JSON serialization', () => {
+        const lamUnit = createLAMMech();
+        const serialized = JSON.stringify(lamUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.configuration).toBe('LAM');
+        expect(deserialized.tonnage).toBe(55);
+        expect(deserialized.criticalSlots.HEAD).toContain('Avionics');
+        expect(deserialized.criticalSlots.CENTER_TORSO).toContain('Landing Gear');
+      });
+
+      it('should preserve LAM required equipment locations', () => {
+        const lamUnit = createLAMMech();
+        const serialized = JSON.stringify(lamUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.criticalSlots.LEFT_TORSO).toContain('Landing Gear');
+        expect(deserialized.criticalSlots.RIGHT_TORSO).toContain('Landing Gear');
+        expect(deserialized.criticalSlots.LEFT_TORSO).toContain('Avionics');
+        expect(deserialized.criticalSlots.RIGHT_TORSO).toContain('Avionics');
+      });
+    });
+
+    describe('5.1.4 LAM Mode Preservation', () => {
+      it('should preserve biped locations in mech mode', () => {
+        const lamUnit = createLAMMech();
+        const locations = getLocationsForConfig(MechConfiguration.LAM);
+
+        expect(locations).toContain(MechLocation.LEFT_ARM);
+        expect(locations).toContain(MechLocation.RIGHT_ARM);
+        expect(locations).toContain(MechLocation.LEFT_LEG);
+        expect(locations).toContain(MechLocation.RIGHT_LEG);
+      });
+
+      it('should have fighter armor mapping available', () => {
+        const mapping = configurationRegistry.getFighterArmorMapping(MechConfiguration.LAM);
+
+        expect(mapping).toBeDefined();
+        expect(mapping?.[MechLocation.HEAD]).toBe(MechLocation.NOSE);
+        expect(mapping?.[MechLocation.CENTER_TORSO]).toBe(MechLocation.FUSELAGE);
+        expect(mapping?.[MechLocation.LEFT_TORSO]).toBe(MechLocation.LEFT_WING);
+        expect(mapping?.[MechLocation.RIGHT_TORSO]).toBe(MechLocation.RIGHT_WING);
+      });
+    });
+
+    describe('5.1.5 Tripod Round-Trip', () => {
+      it('should preserve tripod configuration through JSON serialization', () => {
+        const tripodUnit = createTripodMech();
+        const serialized = JSON.stringify(tripodUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.configuration).toBe('TRIPOD');
+        expect(deserialized.criticalSlots[MechLocation.CENTER_LEG]).toBeDefined();
+      });
+
+      it('should preserve center leg armor allocation', () => {
+        const tripodUnit = createTripodMech();
+        const serialized = JSON.stringify(tripodUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.armor.allocation.CENTER_LEG).toBe(24);
+      });
+
+      it('should maintain tripod critical slot integrity', () => {
+        const tripodUnit = createTripodMech();
+        const centerLegSlots = tripodUnit.criticalSlots[MechLocation.CENTER_LEG];
+
+        expect(centerLegSlots).toBeDefined();
+        expect(centerLegSlots?.[0]).toBe('Hip');
+        expect(centerLegSlots?.[1]).toBe('Upper Leg Actuator');
+      });
+    });
+
+    describe('5.1.6 QuadVee Round-Trip', () => {
+      it('should preserve QuadVee configuration through JSON serialization', () => {
+        const quadVeeUnit = createQuadVeeMech();
+        const serialized = JSON.stringify(quadVeeUnit);
+        const deserialized = JSON.parse(serialized) as ISerializedUnit;
+
+        expect(deserialized.configuration).toBe('QUADVEE');
+        expect(deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG]).toContain('Conversion Equipment');
+        expect(deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG]).toContain('Tracks');
+      });
+
+      it('should preserve QuadVee conversion equipment in all legs', () => {
+        const quadVeeUnit = createQuadVeeMech();
+        const legs = [
+          MechLocation.FRONT_LEFT_LEG,
+          MechLocation.FRONT_RIGHT_LEG,
+          MechLocation.REAR_LEFT_LEG,
+          MechLocation.REAR_RIGHT_LEG,
+        ];
+
+        for (const leg of legs) {
+          expect(quadVeeUnit.criticalSlots[leg]).toContain('Conversion Equipment');
+          expect(quadVeeUnit.criticalSlots[leg]).toContain('Tracks');
+        }
+      });
+    });
+  });
+
+  describe('5.2 Migration Verification', () => {
+    describe('5.2.1 Existing Biped Units', () => {
+      it('should load biped units with correct configuration', () => {
+        const bipedUnit = createMinimalUnit('BIPED');
+
+        expect(bipedUnit.configuration).toBe('BIPED');
+        expect(bipedUnit.unitType).toBe('BattleMech');
+      });
+
+      it('should have all 8 biped locations available', () => {
+        const locations = BIPED_LOCATIONS;
+
+        expect(locations).toHaveLength(8);
+        expect(locations).toContain(MechLocation.HEAD);
+        expect(locations).toContain(MechLocation.CENTER_TORSO);
+        expect(locations).toContain(MechLocation.LEFT_TORSO);
+        expect(locations).toContain(MechLocation.RIGHT_TORSO);
+        expect(locations).toContain(MechLocation.LEFT_ARM);
+        expect(locations).toContain(MechLocation.RIGHT_ARM);
+        expect(locations).toContain(MechLocation.LEFT_LEG);
+        expect(locations).toContain(MechLocation.RIGHT_LEG);
+      });
+    });
+
+    describe('5.2.2 Biped Functionality Regression', () => {
+      it('should not apply exotic rules to biped units', () => {
+        const bipedUnit = createMinimalUnit('BIPED', {
+          equipment: [
+            { id: 'medium-laser', location: MechLocation.LEFT_ARM },
+            { id: 'medium-laser', location: MechLocation.RIGHT_ARM },
+          ],
+        });
+        const context = createValidationContext(bipedUnit);
+
+        expect(QuadNoArmsRule.canValidate?.(context)).toBe(false);
+        expect(LAMMaxTonnageRule.canValidate?.(context)).toBe(false);
+        expect(TripodCenterLegRule.canValidate?.(context)).toBe(false);
+        expect(QuadVeeConversionEquipmentRule.canValidate?.(context)).toBe(false);
+      });
+
+      it('should allow arm equipment on biped', () => {
+        const bipedUnit = createMinimalUnit('BIPED', {
+          equipment: [
+            { id: 'medium-laser', location: MechLocation.LEFT_ARM },
+            { id: 'ppc', location: MechLocation.RIGHT_ARM },
+          ],
+        });
+
+        expect(bipedUnit.equipment).toHaveLength(2);
+        expect(bipedUnit.equipment[0].location).toBe(MechLocation.LEFT_ARM);
+        expect(bipedUnit.equipment[1].location).toBe(MechLocation.RIGHT_ARM);
+      });
+    });
+
+    describe('5.2.3 Full Validation Suite', () => {
+      it('should return all configuration validation rules', () => {
+        const rules = getConfigurationValidationRules();
+
+        expect(rules.length).toBeGreaterThanOrEqual(19);
+      });
+
+      it('should have rules for all exotic configurations', () => {
+        const rules = getConfigurationValidationRules();
+        const ruleIds = rules.map(r => r.id);
+
+        expect(ruleIds).toContain('configuration.quad.no_arms');
+        expect(ruleIds).toContain('configuration.quad.leg_count');
+        expect(ruleIds).toContain('configuration.lam.max_tonnage');
+        expect(ruleIds).toContain('configuration.tripod.center_leg');
+        expect(ruleIds).toContain('configuration.quadvee.conversion_equipment');
+      });
+
+      it('should validate quad mech correctly', () => {
+        const quadUnit = createQuadMech();
+        const context = createValidationContext(quadUnit);
+
+        const noArmsResult = QuadNoArmsRule.validate(context);
+        const legCountResult = QuadLegCountRule.validate(context);
+
+        expect(noArmsResult.passed).toBe(true);
+        expect(legCountResult.passed).toBe(true);
+      });
+
+      it('should validate LAM mech correctly', () => {
+        const lamUnit = createLAMMech();
+        const context = createValidationContext(lamUnit);
+
+        const tonnageResult = LAMMaxTonnageRule.validate(context);
+
+        expect(tonnageResult.passed).toBe(true);
+      });
+
+      it('should validate tripod mech correctly', () => {
+        const tripodUnit = createTripodMech();
+        const context = createValidationContext(tripodUnit);
+
+        const centerLegResult = TripodCenterLegRule.validate(context);
+
+        expect(centerLegResult.passed).toBe(true);
+      });
+
+      it('should validate QuadVee mech correctly', () => {
+        const quadVeeUnit = createQuadVeeMech();
+        const context = createValidationContext(quadVeeUnit);
+
+        const conversionResult = QuadVeeConversionEquipmentRule.validate(context);
+
+        expect(conversionResult.passed).toBe(true);
+      });
+    });
   });
 });

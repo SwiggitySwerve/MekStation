@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: MTF Location Headers
 The system SHALL parse and export configuration-specific location headers in MTF format.
@@ -61,8 +61,6 @@ The system SHALL parse and export configuration-specific armor labels in MTF for
 #### Scenario: Tripod armor export
 - **WHEN** exporting TRIPOD mech armor to MTF
 - **THEN** armor labels SHALL include "CL armor:" for CENTER_LEG
-
-## ADDED Requirements
 
 ### Requirement: Configuration Detection
 The system SHALL detect mech configuration from MTF content before parsing locations.
