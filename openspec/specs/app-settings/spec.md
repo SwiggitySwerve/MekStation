@@ -3,9 +3,7 @@
 ## Purpose
 
 The app settings system provides user-configurable preferences for appearance, behavior, and accessibility. Settings are persisted to localStorage and apply immediately across the application.
-
 ## Requirements
-
 ### Requirement: Settings Page
 The system SHALL provide a dedicated settings page accessible from the sidebar.
 
@@ -14,6 +12,14 @@ The system SHALL provide a dedicated settings page accessible from the sidebar.
 - **THEN** the settings page is displayed at /settings
 - **AND** settings are organized into logical sections
 - **AND** current values are pre-populated from stored preferences
+
+#### Scenario: Toggle component display
+- **WHEN** toggle controls are rendered
+- **THEN** they display with rectangular tactical styling
+- **AND** track is 24px tall by 44px wide with rounded-md corners
+- **AND** knob is 16px square with rounded-sm corners
+- **AND** knob is vertically centered in track
+- **AND** checked state uses accent color from CSS variable
 
 ### Requirement: Appearance Settings
 The system SHALL provide appearance customization options.
@@ -28,7 +34,17 @@ The system SHALL provide appearance customization options.
   - Violet
   - Blue
 - **AND** clicking a color applies it immediately
-- **AND** selection is visually indicated
+- **AND** selection is visually indicated using the accent color itself
+
+#### Scenario: UI theme selection
+- **WHEN** user views appearance settings
+- **THEN** 4 UI theme options are displayed in a 2x2 grid:
+  - Default (clean slate design)
+  - Neon (cyberpunk with glow effects)
+  - Tactical (military HUD style)
+  - Minimal (reduced visual noise)
+- **AND** selecting a theme applies it immediately
+- **AND** selection indicator uses accent color
 
 #### Scenario: Font size selection
 - **WHEN** user selects font size
@@ -44,17 +60,6 @@ The system SHALL provide appearance customization options.
 - **WHEN** user enables compact mode
 - **THEN** spacing and padding are reduced throughout the app
 - **AND** more information fits on screen
-
-#### Scenario: UI Theme selection
-- **WHEN** user selects a UI theme
-- **THEN** theme options are: Default, Neon, Tactical, Minimal
-- **AND** selection applies immediately (live preview)
-- **AND** selection must be saved to persist
-- **AND** armor diagram variant auto-syncs to match:
-  - Default → Clean Tech
-  - Neon → Neon Operator
-  - Tactical → Tactical HUD
-  - Minimal → Premium Material
 
 ### Requirement: Customizer Settings
 The system SHALL provide customizer-specific settings.
@@ -119,6 +124,46 @@ Components SHALL access settings via Zustand store.
 - **THEN** it uses `useAppSettingsStore` hook
 - **AND** component re-renders when setting changes
 - **AND** no prop drilling is required
+
+### Requirement: Global Style Application
+The system SHALL apply user settings to CSS custom properties on the document root.
+
+#### Scenario: Accent color application
+- **WHEN** user selects an accent color
+- **THEN** `--accent-primary` CSS variable is set to the color's primary value
+- **AND** `--accent-hover` is set to the darker hover variant
+- **AND** `--accent-muted` is set to the 15% opacity variant
+- **AND** changes apply immediately without page reload
+
+#### Scenario: UI theme application
+- **WHEN** user selects a UI theme
+- **THEN** `theme-{name}` class is applied to document body
+- **AND** previous theme class is removed
+- **AND** theme-specific CSS rules take effect
+
+#### Scenario: Font size application
+- **WHEN** user selects a font size
+- **THEN** `--font-size-base` CSS variable is updated
+- **AND** components using the variable reflect the change
+
+#### Scenario: Reduced motion application
+- **WHEN** user enables reduce motion
+- **THEN** `reduce-motion` class is applied to document body
+- **AND** animations are disabled via CSS
+
+### Requirement: GlobalStyleProvider Component
+The system SHALL provide a GlobalStyleProvider component that connects settings to styles.
+
+#### Scenario: Provider initialization
+- **WHEN** app loads
+- **THEN** GlobalStyleProvider reads current settings from store
+- **AND** applies all CSS variables to document root
+- **AND** applies theme class to body
+
+#### Scenario: Provider reactivity
+- **WHEN** any relevant setting changes
+- **THEN** provider updates CSS variables within same render cycle
+- **AND** no page reload is required
 
 ## Settings Schema
 
