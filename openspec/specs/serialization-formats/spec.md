@@ -37,6 +37,13 @@ The system SHALL define a complete JSON schema for unit serialization.
 - **THEN** it MAY contain:
   - `variant` - Optional variant name for custom builds
 
+#### Scenario: OmniMech-specific fields
+- **GIVEN** an ISerializedUnit object for an OmniMech
+- **THEN** it MAY contain:
+  - `isOmni` - Boolean true if unit is an OmniMech
+  - `baseChassisHeatSinks` - Number of heat sinks fixed to base chassis (-1 for auto)
+  - `clanName` - Optional Clan reporting name (e.g., "Mad Cat" for Timber Wolf)
+
 ---
 
 ### Requirement: Serialized Engine Format
@@ -182,6 +189,7 @@ The system SHALL define equipment serialization format with location references.
   - `slots` - Array of specific slot indices if non-contiguous
   - `isRearMounted` - Boolean true if weapon faces rear
   - `linkedAmmo` - ID of linked ammunition bin
+  - `isOmniPodMounted` - Boolean true if pod-mounted on OmniMech (false = fixed to chassis)
 
 ---
 

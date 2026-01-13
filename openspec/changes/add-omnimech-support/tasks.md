@@ -86,18 +86,18 @@
 - [x] Add `isOmni` condition to rule applicability
 - [x] Add unit tests for all OmniMech validation rules
 
-## Phase 5: Documentation & Polish - IN PROGRESS
+## Phase 5: Documentation & Polish - COMPLETED
 
 ### 5.1 Spec Updates
-- [ ] Create `openspec/specs/omnimech-system/spec.md` with requirements
-- [ ] Update `serialization-formats` spec with OmniMech fields
-- [ ] Update `heat-sink-system` spec with base chassis concept
-- [ ] Update `equipment-placement` spec with pod mounting rules
+- [x] Create `openspec/specs/omnimech-system/spec.md` with requirements
+- [x] Update `serialization-formats` spec with OmniMech fields
+- [x] Update `heat-sink-system` spec with base chassis concept
+- [x] Update `equipment-placement` spec with pod mounting rules
 
 ### 5.2 Testing
 - [x] Add integration tests loading real OmniMech MTF files (MTFParserService tests)
 - [x] Test round-trip: load OmniMech → edit → save → reload (MTFExportService round-trip tests)
-- [ ] Test variant workflow: load Prime → reset chassis → configure A variant
+- [x] Test variant workflow: load Prime → reset chassis → configure A variant (MTFExportService variant workflow tests)
 
 ### 5.3 Archive Change
 - [ ] Run `openspec archive add-omnimech-support` after deployment

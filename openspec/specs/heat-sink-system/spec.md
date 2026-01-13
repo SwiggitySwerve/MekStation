@@ -71,3 +71,29 @@ Heat sinks exceeding engine integral capacity SHALL appear as equipment items.
 - **AND** items SHALL NOT show remove button
 - **AND** heat sink management SHALL occur via Structure tab only
 
+### Requirement: OmniMech Base Chassis Heat Sinks
+OmniMechs SHALL track base chassis heat sinks separately from total heat sinks.
+
+#### Scenario: Base chassis heat sink count
+- **GIVEN** an OmniMech unit
+- **WHEN** `baseChassisHeatSinks` is set to a positive value
+- **THEN** that number of heat sinks SHALL be considered fixed to the chassis
+- **AND** fixed heat sinks SHALL NOT count against pod space
+
+#### Scenario: Auto-calculate mode
+- **GIVEN** an OmniMech with `baseChassisHeatSinks: -1`
+- **THEN** the system SHALL auto-calculate base chassis heat sinks
+- **AND** typically this equals engine integral capacity
+
+#### Scenario: Base chassis heat sinks validation
+- **GIVEN** an OmniMech with `baseChassisHeatSinks` greater than total heat sinks
+- **WHEN** validating configuration
+- **THEN** validation error SHALL be raised
+- **AND** message SHALL indicate base cannot exceed total
+
+#### Scenario: Base chassis heat sinks UI
+- **GIVEN** an OmniMech on the Structure tab
+- **THEN** "Base Chassis Heat Sinks" spinner SHALL be displayed
+- **AND** minimum value SHALL be -1 (auto)
+- **AND** maximum value SHALL be total heat sink count
+
