@@ -226,11 +226,22 @@ export interface IBattleMechBuilder {
 
 /**
  * OmniMech-specific interface extending BattleMech
+ *
+ * OmniMechs have a base chassis with fixed components and modular pod space
+ * where equipment can be swapped between configurations.
  */
 export interface IOmniMech extends IBattleMech {
+  /** Configuration variant name (e.g., "Prime", "A", "B", "C") */
   readonly baseConfiguration: string;
+  /** Clan reporting name (e.g., "Timber Wolf" for Mad Cat) */
+  readonly clanName?: string;
+  /** Number of heat sinks fixed to the base chassis */
+  readonly baseChassisHeatSinks: number;
+  /** Available pod space per location (total slots minus fixed equipment) */
   readonly podSpace: Record<MechLocation, number>;
+  /** Equipment fixed to the base chassis (cannot be removed) */
   readonly fixedEquipment: readonly IMountedEquipment[];
+  /** Equipment mounted in pods (can be swapped between configurations) */
   readonly podEquipment: readonly IMountedEquipment[];
 }
 

@@ -28,6 +28,9 @@ import {
   QuadVeeTracksRule,
   QuadVeeTotalSlotsRule,
   QuadVeeLegArmorBalanceRule,
+  OmniMechBaseHeatSinksRule,
+  OmniMechBaseHeatSinksValidRule,
+  OmniMechFixedEquipmentRule,
   getConfigurationValidationRules,
   registerConfigurationRules,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
@@ -909,10 +912,216 @@ describe('ConfigurationValidationRules', () => {
     });
   });
 
+  // ============================================================================
+  // OMNIMECH VALIDATION RULES
+  // ============================================================================
+
+  describe('OmniMechBaseHeatSinksRule', () => {
+    it('should pass when base heat sinks is -1 (auto)', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: -1,
+        heatSinkCount: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks is undefined', () => {
+      const context = createContext({
+        isOmni: true,
+        heatSinkCount: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks is less than total', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: 5,
+        heatSinkCount: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks equals total', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: 10,
+        heatSinkCount: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when base heat sinks exceeds total', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: 15,
+        heatSinkCount: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('cannot exceed');
+    });
+
+    it('should only apply to OmniMechs', () => {
+      expect(
+        OmniMechBaseHeatSinksRule.canValidate?.(createContext({ isOmni: false }))
+      ).toBe(false);
+      expect(
+        OmniMechBaseHeatSinksRule.canValidate?.(createContext({ isOmni: true }))
+      ).toBe(true);
+    });
+  });
+
+  describe('OmniMechBaseHeatSinksValidRule', () => {
+    it('should pass when base heat sinks is -1 (auto)', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: -1,
+      });
+
+      const result = OmniMechBaseHeatSinksValidRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks is undefined', () => {
+      const context = createContext({
+        isOmni: true,
+      });
+
+      const result = OmniMechBaseHeatSinksValidRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks is 0', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: 0,
+      });
+
+      const result = OmniMechBaseHeatSinksValidRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when base heat sinks is positive', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: 10,
+      });
+
+      const result = OmniMechBaseHeatSinksValidRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should fail when base heat sinks is negative (not -1)', () => {
+      const context = createContext({
+        isOmni: true,
+        baseChassisHeatSinks: -5,
+      });
+
+      const result = OmniMechBaseHeatSinksValidRule.validate(context);
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('cannot be negative');
+    });
+
+    it('should only apply to OmniMechs', () => {
+      expect(
+        OmniMechBaseHeatSinksValidRule.canValidate?.(createContext({ isOmni: false }))
+      ).toBe(false);
+      expect(
+        OmniMechBaseHeatSinksValidRule.canValidate?.(createContext({ isOmni: true }))
+      ).toBe(true);
+    });
+  });
+
+  describe('OmniMechFixedEquipmentRule', () => {
+    it('should pass when no equipment is present', () => {
+      const context = createContext({
+        isOmni: true,
+      });
+
+      const result = OmniMechFixedEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when equipment array is empty', () => {
+      const context = createContext({
+        isOmni: true,
+        equipment: [],
+      });
+
+      const result = OmniMechFixedEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass when some equipment is fixed (not pod-mounted)', () => {
+      const context = createContext({
+        isOmni: true,
+        equipment: [
+          { name: 'Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
+          { name: 'ER Large Laser', location: 'Right Torso', isOmniPodMounted: false },
+        ],
+      });
+
+      const result = OmniMechFixedEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should pass with only fixed equipment', () => {
+      const context = createContext({
+        isOmni: true,
+        equipment: [
+          { name: 'Medium Laser', location: 'Left Arm' },  // No isOmniPodMounted = fixed
+          { name: 'ER Large Laser', location: 'Right Torso' },
+        ],
+      });
+
+      const result = OmniMechFixedEquipmentRule.validate(context);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should warn when all equipment is pod-mounted', () => {
+      const context = createContext({
+        isOmni: true,
+        equipment: [
+          { name: 'Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
+          { name: 'ER Large Laser', location: 'Right Torso', isOmniPodMounted: true },
+        ],
+      });
+
+      const result = OmniMechFixedEquipmentRule.validate(context);
+      expect(result.passed).toBe(true); // Just a warning, doesn't fail
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings[0].message).toContain('no fixed');
+    });
+
+    it('should only apply to OmniMechs', () => {
+      expect(
+        OmniMechFixedEquipmentRule.canValidate?.(createContext({ isOmni: false }))
+      ).toBe(false);
+      expect(
+        OmniMechFixedEquipmentRule.canValidate?.(createContext({ isOmni: true }))
+      ).toBe(true);
+    });
+  });
+
   describe('getConfigurationValidationRules', () => {
     it('should return all configuration validation rules', () => {
       const rules = getConfigurationValidationRules();
-      expect(rules.length).toBeGreaterThanOrEqual(19);
+      expect(rules.length).toBeGreaterThanOrEqual(22);
       expect(rules.map((r) => r.id)).toContain('configuration.quad.no_arms');
       expect(rules.map((r) => r.id)).toContain('configuration.quad.leg_count');
       expect(rules.map((r) => r.id)).toContain('configuration.valid_locations');
@@ -932,6 +1141,10 @@ describe('ConfigurationValidationRules', () => {
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.tracks');
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.total_slots');
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.leg_armor_balance');
+      // OmniMech rules
+      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.base_heat_sinks');
+      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.base_heat_sinks_valid');
+      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.fixed_equipment');
     });
   });
 
@@ -947,11 +1160,13 @@ describe('ConfigurationValidationRules', () => {
       registerConfigurationRules(mockRegistry);
 
       expect(mockRegistry.register).toHaveBeenCalled();
-      expect(registeredRules.length).toBeGreaterThanOrEqual(19);
+      expect(registeredRules.length).toBeGreaterThanOrEqual(22);
       expect(registeredRules).toContain('configuration.quad.no_arms');
       expect(registeredRules).toContain('configuration.lam.max_tonnage');
       expect(registeredRules).toContain('configuration.tripod.center_leg');
       expect(registeredRules).toContain('configuration.quadvee.conversion_equipment');
+      expect(registeredRules).toContain('configuration.omnimech.base_heat_sinks');
+      expect(registeredRules).toContain('configuration.omnimech.fixed_equipment');
     });
   });
 

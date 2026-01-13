@@ -258,7 +258,47 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           isModified: true,
           lastModifiedAt: Date.now(),
         }),
-        
+
+        // =================================================================
+        // OmniMech Actions
+        // =================================================================
+
+        setBaseChassisHeatSinks: (count) => set({
+          baseChassisHeatSinks: count,
+          isModified: true,
+          lastModifiedAt: Date.now(),
+        }),
+
+        resetChassis: () => set((state) => {
+          // Only affects OmniMechs - remove all pod-mounted equipment
+          if (!state.isOmni) {
+            return state;
+          }
+
+          // Filter out pod-mounted equipment, keep fixed equipment
+          const fixedEquipment = state.equipment.filter(eq => !eq.isOmniPodMounted);
+
+          return {
+            equipment: fixedEquipment,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
+        }),
+
+        setEquipmentPodMounted: (instanceId, isPodMounted) => set((state) => {
+          const equipment = state.equipment.map(eq =>
+            eq.instanceId === instanceId
+              ? { ...eq, isOmniPodMounted: isPodMounted }
+              : eq
+          );
+
+          return {
+            equipment,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
+        }),
+
         // =================================================================
         // Tech Base Actions
         // =================================================================
@@ -892,6 +932,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           unitType: state.unitType,
           configuration: state.configuration,
           isOmni: state.isOmni,
+          baseChassisHeatSinks: state.baseChassisHeatSinks,
           techBaseMode: state.techBaseMode,
           componentTechBases: state.componentTechBases,
           selectionMemory: state.selectionMemory,

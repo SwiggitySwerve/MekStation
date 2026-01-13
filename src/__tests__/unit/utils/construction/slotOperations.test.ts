@@ -30,6 +30,7 @@ const createEquipment = (overrides: Partial<IMountedEquipmentInstance>): IMounte
   slots: undefined,
   isRearMounted: false,
   isRemovable: false,
+  isOmniPodMounted: false,
   ...overrides,
 });
 

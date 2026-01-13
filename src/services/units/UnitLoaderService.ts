@@ -762,6 +762,7 @@ function mapEquipment(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: true, // User-added equipment is removable
+        isOmniPodMounted: false, // TODO: detect from MTF omnipod marker
       };
     } else {
       // Not found - create placeholder with unknown equipment
@@ -780,6 +781,7 @@ function mapEquipment(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: true, // User-added equipment is removable
+        isOmniPodMounted: false, // TODO: detect from MTF omnipod marker
       };
     }
   });
@@ -986,6 +988,7 @@ export class UnitLoaderService {
       unitType: (serialized.unitType as UnitType) || 'BattleMech',
       configuration: (serialized.configuration as MechConfiguration) || 'Biped',
       isOmni: false, // TODO: detect from unit data
+      baseChassisHeatSinks: -1, // -1 = not set, use engine integral heat sinks
       techBaseMode,
       componentTechBases: createDefaultComponentTechBases(techBase),
       selectionMemory: createEmptySelectionMemory(),
