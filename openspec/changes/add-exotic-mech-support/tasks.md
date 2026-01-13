@@ -2,20 +2,19 @@
 
 ## Progress Summary
 
-**Status: ~79/95 tasks complete (~83%)**
+**Status: ~81/95 tasks complete (~85%)**
 
 | Phase | Complete | Total | % |
 |-------|----------|-------|---|
 | 1. Foundation + Quad | 30/31 | 31 | 97% |
-| 2. LAM Support | 15/20 | 20 | 75% |
+| 2. LAM Support | 17/20 | 20 | 85% |
 | 3. Tripod Support | 10/12 | 12 | 83% |
 | 4. QuadVee Support | 10/13 | 13 | 77% |
 | 5. Integration Testing | 0/9 | 9 | 0% |
 
 **Remaining Work:**
-- Mode switching in unit store (2.1.5)
-- Various unit tests for configurations
-- Visual regression tests for diagrams
+- Various unit tests for configurations (2.2.5, 2.5.4, 3.1.5, 3.4.2, 4.2.3, 4.3.4)
+- Visual regression tests for diagrams (1.5.6, 2.4.5, 3.3.4, 4.4.4)
 - End-to-end integration tests (Phase 5)
 
 ---
@@ -100,8 +99,15 @@
   - Mode definitions include movementType for each mode
 - [x] 2.1.4 Implement fighter mode armor location mapping (Mech → Fighter)
   - FIGHTER_SILHOUETTE defines Nose, Fuselage, Wings, Aft locations
-- [ ] 2.1.5 Add mode switching logic to unit store
-- [ ] 2.1.6 Add unit tests for LAM mode system
+- [x] 2.1.5 Add mode switching logic to unit store
+  - Added lamMode and quadVeeMode to UnitState interface
+  - Implemented setLAMMode() and setQuadVeeMode() actions
+  - Mode changes only apply when configuration matches (LAM or QUADVEE)
+  - Updated UnitLoaderService to include mode defaults
+- [x] 2.1.6 Add unit tests for LAM mode system
+  - 12 tests for setLAMMode() and setQuadVeeMode() in useUnitStore.test.ts
+  - Tests guard clauses for invalid configurations
+  - Tests modification tracking and timestamps
 
 ### 2.2 LAM Configuration Definition
 - [x] 2.2.1 Create LAM configuration definition (biped locations + special equipment)

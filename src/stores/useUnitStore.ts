@@ -52,6 +52,7 @@ import {
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration, LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,
@@ -257,6 +258,34 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           isOmni,
           isModified: true,
           lastModifiedAt: Date.now(),
+        }),
+
+        // =================================================================
+        // Mode Switching Actions (for transforming units)
+        // =================================================================
+
+        setLAMMode: (lamMode) => set((state) => {
+          // Only applies to LAM configuration
+          if (state.configuration !== MechConfiguration.LAM) {
+            return state;
+          }
+          return {
+            lamMode,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
+        }),
+
+        setQuadVeeMode: (quadVeeMode) => set((state) => {
+          // Only applies to QuadVee configuration
+          if (state.configuration !== MechConfiguration.QUADVEE) {
+            return state;
+          }
+          return {
+            quadVeeMode,
+            isModified: true,
+            lastModifiedAt: Date.now(),
+          };
         }),
 
         // =================================================================
@@ -931,6 +960,8 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           techBase: state.techBase,
           unitType: state.unitType,
           configuration: state.configuration,
+          lamMode: state.lamMode,
+          quadVeeMode: state.quadVeeMode,
           isOmni: state.isOmni,
           baseChassisHeatSinks: state.baseChassisHeatSinks,
           techBaseMode: state.techBaseMode,
