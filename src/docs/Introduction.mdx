@@ -1,0 +1,112 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Introduction" />
+
+# MekStation Design System
+
+Welcome to the MekStation component library and design system documentation.
+
+## Overview
+
+MekStation is a BattleTech unit construction app built with:
+- **Next.js 16** + **React 19** + **TypeScript 5.8**
+- **Tailwind CSS 4** for styling
+- **Zustand** for state management
+- **react-dnd** for drag-and-drop interactions
+
+## Design Tokens
+
+Our design system is built on a consistent set of tokens:
+
+| Token Category | Description |
+|----------------|-------------|
+| [Colors](/docs/design-system-colors--docs) | Surface, text, border, and semantic colors |
+| [Typography](/docs/design-system-typography--docs) | Font families, sizes, and weights |
+| [Spacing](/docs/design-system-spacing--docs) | Margin, padding, and gap values |
+
+## Component Categories
+
+### UI Components
+Core reusable components that form the building blocks:
+- **Button** - Action triggers with multiple variants
+- **Card** - Content containers with various styles
+- **Badge** - Status indicators and labels
+- **Input** - Form inputs and controls
+
+### Customizer Components
+Domain-specific components for the mech builder:
+- **Dialogs** - Modal overlays for confirmations and forms
+- **Equipment** - Equipment browser and filters
+- **Critical Slots** - Slot assignment and display
+- **Shared** - Common customizer utilities
+
+### Gameplay Components
+Components for the gameplay interface:
+- **AmmoCounter** - Ammunition tracking
+- **HeatTracker** - Heat management display
+- **ArmorPip** - Armor visualization
+
+## Getting Started
+
+### Running Storybook
+
+```bash
+npm run storybook        # Start dev server on port 6006
+npm run storybook:build  # Build static site
+```
+
+### Creating New Stories
+
+Stories are co-located with their components:
+
+```
+src/components/ui/
+  Button.tsx
+  Button.stories.tsx    # Stories file
+  Button.test.tsx       # Tests (optional)
+```
+
+### Story Template
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { YourComponent } from './YourComponent';
+
+const meta: Meta<typeof YourComponent> = {
+  title: 'Category/YourComponent',
+  component: YourComponent,
+  tags: ['autodocs'],
+};
+export default meta;
+
+type Story = StoryObj<typeof YourComponent>;
+
+export const Default: Story = {
+  args: {
+    // default props
+  },
+};
+```
+
+## Theming
+
+MekStation uses CSS custom properties for theming, defined in `globals.css`.
+The design system supports a dark theme optimized for gaming interfaces.
+
+### Key Surface Colors
+
+| Variable | Usage |
+|----------|-------|
+| `--color-surface-deep` | Deepest background layer |
+| `--color-surface-base` | Main content background |
+| `--color-surface-raised` | Elevated elements |
+| `--color-surface-overlay` | Modal backdrops |
+
+### Semantic Colors
+
+| Variable | Usage |
+|----------|-------|
+| `--color-accent` | Primary actions, highlights |
+| `--color-success` | Valid states, confirmations |
+| `--color-warning` | Caution states |
+| `--color-error` | Error states, destructive actions |

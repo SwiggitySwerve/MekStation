@@ -115,3 +115,6 @@ test-results/
 
 # Parity validation output
 validation-output/
+
+# Storybook
+storybook-static/

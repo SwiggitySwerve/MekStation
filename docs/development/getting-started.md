@@ -45,12 +45,32 @@ megamek-web/
 ## Key Commands
 
 ```bash
-npm run dev       # Start development server
-npm run build     # Build for production
-npm run lint      # Run ESLint
-npm run test      # Run tests
-npx tsc --noEmit  # Type check without building
+npm run dev             # Start development server
+npm run build           # Build for production
+npm run lint            # Run ESLint
+npm run test            # Run tests
+npx tsc --noEmit        # Type check without building
+npm run storybook       # Start Storybook dev server
+npm run storybook:build # Build Storybook for production
 ```
+
+## Storybook
+
+Storybook provides an isolated environment for developing and testing UI components.
+
+```bash
+# Start Storybook development server (opens at http://localhost:6006)
+npm run storybook
+```
+
+### What's in Storybook
+
+- **UI Components**: Button, Card, Badge, Input, StatDisplay, etc.
+- **Common Components**: ControlledInput, ErrorBoundary, Pagination
+- **Armor Components**: ArmorLocation with interactive controls
+- **Gameplay Components**: AmmoCounter, HeatTracker, ArmorPip
+- **Shared Components**: Toast notifications, ActionSheet
+- **Design System Docs**: Colors, Typography, Spacing reference
 
 ## Development URLs
 
