@@ -380,7 +380,6 @@ export function ArmorDiagramModePreview({
                   <SchematicDiagram
                     armorData={SAMPLE_ARMOR_DATA}
                     selectedLocation={selectedLocation}
-                    unallocatedPoints={12}
                     onLocationClick={handleLocationClick}
                   />
                 ) : (

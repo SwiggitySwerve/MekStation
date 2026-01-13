@@ -102,6 +102,8 @@ jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
   ),
 }));
 
+
+
 describe('ArmorTab', () => {
   const mockStoreValues = {
     tonnage: 50,

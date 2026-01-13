@@ -28,7 +28,8 @@ import {
   SELECTED_COLOR,
   SELECTED_STROKE,
 } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { DiagramHeader } from '../shared/DiagramHeader';
+import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared/ArmorStatusLegend';
 
 interface CleanTechLocationProps {
   location: MechLocation;
@@ -223,16 +224,13 @@ export interface CleanTechDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
 }
 
 export function CleanTechDiagram({
   armorData,
   selectedLocation,
-  unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
 }: CleanTechDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
@@ -240,8 +238,6 @@ export function CleanTechDiagram({
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const locations: MechLocation[] = [
     MechLocation.HEAD,
@@ -256,25 +252,7 @@ export function CleanTechDiagram({
 
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-white">Armor Allocation</h3>
-          <ArmorDiagramQuickSettings />
-        </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-              isOverAllocated
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-accent hover:bg-accent text-white'
-            }`}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
-      </div>
+      <DiagramHeader title="Armor Allocation" />
 
       {/* Diagram */}
       <div className="relative">
@@ -310,30 +288,8 @@ export function CleanTechDiagram({
         </svg>
       </div>
 
-      {/* Legend */}
-      <div className="flex justify-center gap-3 mt-4 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-green-500" />
-          <span className="text-text-theme-secondary">75%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-amber-500" />
-          <span className="text-text-theme-secondary">50%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-orange-500" />
-          <span className="text-text-theme-secondary">25%+</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span className="text-text-theme-secondary">&lt;25%</span>
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <p className="text-xs text-text-theme-secondary text-center mt-2">
-        Click a location to edit armor values
-      </p>
+      <ArmorStatusLegend />
+      <ArmorDiagramInstructions />
     </div>
   );
 }

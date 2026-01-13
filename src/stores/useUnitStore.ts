@@ -745,12 +745,10 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         
         autoAllocateArmor: () => set((state) => {
           const availablePoints = calculateArmorPoints(state.armorTonnage, state.armorType);
-          
-          // Use the optimal allocation algorithm
-          // Priority: 1) Max head, 2) Weighted distribution, 3) Even remainder distribution
-          const allocation = calculateOptimalArmorAllocation(availablePoints, state.tonnage);
+          const allocation = calculateOptimalArmorAllocation(availablePoints, state.tonnage, state.configuration);
           
           const newAllocation: IArmorAllocation = {
+            ...createEmptyArmorAllocation(),
             [MechLocation.HEAD]: allocation.head,
             [MechLocation.CENTER_TORSO]: allocation.centerTorsoFront,
             centerTorsoRear: allocation.centerTorsoRear,
@@ -762,6 +760,11 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
             [MechLocation.RIGHT_ARM]: allocation.rightArm,
             [MechLocation.LEFT_LEG]: allocation.leftLeg,
             [MechLocation.RIGHT_LEG]: allocation.rightLeg,
+            [MechLocation.CENTER_LEG]: allocation.centerLeg,
+            [MechLocation.FRONT_LEFT_LEG]: allocation.frontLeftLeg,
+            [MechLocation.FRONT_RIGHT_LEG]: allocation.frontRightLeg,
+            [MechLocation.REAR_LEFT_LEG]: allocation.rearLeftLeg,
+            [MechLocation.REAR_RIGHT_LEG]: allocation.rearRightLeg,
           };
           
           return {
@@ -772,12 +775,9 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         }),
         
         maximizeArmor: () => set((state) => {
-          // Calculate max armor points needed for the mech
-          const maxTotalArmor = getMaxTotalArmor(state.tonnage);
+          const maxTotalArmor = getMaxTotalArmor(state.tonnage, state.configuration);
           const armorDef = getArmorDefinition(state.armorType);
           const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-          
-          // Calculate tonnage needed for max armor
           const tonnageNeeded = ceilToHalfTon(maxTotalArmor / pointsPerTon);
           
           return {

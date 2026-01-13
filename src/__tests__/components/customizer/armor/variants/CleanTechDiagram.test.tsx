@@ -54,22 +54,7 @@ describe('CleanTechDiagram', () => {
     expect(screen.getByText('35')).toBeInTheDocument(); // CT front
   });
 
-  it('should render auto-allocate button when onAutoAllocate is provided', () => {
-    const onAutoAllocate = jest.fn();
-    render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-
-    expect(screen.getByText(/Auto Allocate/i)).toBeInTheDocument();
-    expect(screen.getByText(/12 pts/i)).toBeInTheDocument();
-  });
-
-  it('should call onAutoAllocate when button is clicked', async () => {
-    const user = userEvent.setup();
-    const onAutoAllocate = jest.fn();
-    render(<CleanTechDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-
-    await user.click(screen.getByText(/Auto Allocate/i));
-    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
-  });
+  // Note: Auto-allocate button was moved to ArmorTab.tsx
 
   it('should call onLocationClick when a location is clicked', async () => {
     const user = userEvent.setup();
@@ -103,17 +88,5 @@ describe('CleanTechDiagram', () => {
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
-  it('should show red button when over-allocated', () => {
-    const onAutoAllocate = jest.fn();
-    render(
-      <CleanTechDiagram
-        {...defaultProps}
-        unallocatedPoints={-5}
-        onAutoAllocate={onAutoAllocate}
-      />
-    );
-
-    const button = screen.getByText(/Auto Allocate/i);
-    expect(button).toHaveClass('bg-red-600');
-  });
+  // Note: Over-allocation button styling test moved to ArmorTab.test.tsx
 });

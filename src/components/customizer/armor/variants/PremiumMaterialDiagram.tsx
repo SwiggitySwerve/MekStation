@@ -428,16 +428,13 @@ export interface PremiumMaterialDiagramProps {
   selectedLocation: MechLocation | null;
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
-  onAutoAllocate?: () => void;
   className?: string;
 }
 
 export function PremiumMaterialDiagram({
   armorData,
   selectedLocation,
-  unallocatedPoints,
   onLocationClick,
-  onAutoAllocate,
   className = '',
 }: PremiumMaterialDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
@@ -445,8 +442,6 @@ export function PremiumMaterialDiagram({
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
-
-  const isOverAllocated = unallocatedPoints < 0;
 
   const locations: MechLocation[] = [
     MechLocation.HEAD,
@@ -475,23 +470,6 @@ export function PremiumMaterialDiagram({
           </h3>
           <ArmorDiagramQuickSettings />
         </div>
-        {onAutoAllocate && (
-          <button
-            onClick={onAutoAllocate}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-              isOverAllocated
-                ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30'
-                : 'bg-accent/20 text-accent border border-accent/50 hover:bg-accent/30'
-            }`}
-            style={{
-              boxShadow: isOverAllocated
-                ? '0 0 20px rgba(239, 68, 68, 0.1)'
-                : '0 0 20px rgba(245, 158, 11, 0.1)',
-            }}
-          >
-            Auto Allocate ({unallocatedPoints} pts)
-          </button>
-        )}
       </div>
 
       {/* Diagram */}

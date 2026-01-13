@@ -32,21 +32,7 @@ describe('PremiumMaterialDiagram', () => {
     expect(screen.getByText('Armor Configuration')).toBeInTheDocument();
   });
 
-  it('should render auto-allocate button with points', () => {
-    const onAutoAllocate = jest.fn();
-    render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} unallocatedPoints={55} />);
-
-    expect(screen.getByText(/Auto Allocate \(55 pts\)/)).toBeInTheDocument();
-  });
-
-  it('should call onAutoAllocate when button is clicked', async () => {
-    const user = userEvent.setup();
-    const onAutoAllocate = jest.fn();
-    render(<PremiumMaterialDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-
-    await user.click(screen.getByText(/Auto Allocate/));
-    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
-  });
+  // Note: Auto-allocate button was moved to ArmorTab.tsx
 
   it('should display legend with status indicators', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);

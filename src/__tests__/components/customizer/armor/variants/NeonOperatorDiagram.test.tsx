@@ -42,21 +42,7 @@ describe('NeonOperatorDiagram', () => {
     expect(rearLabels.length).toBe(3);
   });
 
-  it('should display auto button with unallocated points', () => {
-    const onAutoAllocate = jest.fn();
-    render(<NeonOperatorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-
-    expect(screen.getByText(/Auto Allocate \(12 pts\)/)).toBeInTheDocument();
-  });
-
-  it('should call onAutoAllocate when button is clicked', async () => {
-    const user = userEvent.setup();
-    const onAutoAllocate = jest.fn();
-    render(<NeonOperatorDiagram {...defaultProps} onAutoAllocate={onAutoAllocate} />);
-
-    await user.click(screen.getByText(/Auto Allocate/));
-    expect(onAutoAllocate).toHaveBeenCalledTimes(1);
-  });
+  // Note: Auto-allocate button was moved to ArmorTab.tsx
 
   it('should call onLocationClick when a location is clicked', async () => {
     const user = userEvent.setup();

@@ -9,6 +9,8 @@
 import { ArmorTypeEnum, getArmorDefinition } from '../../types/construction/ArmorType';
 import { getStructurePoints } from '../../types/construction/InternalStructureType';
 import { ceilToHalfTon } from '../physical/weightUtils';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import { MechLocation, getLocationsForConfig, hasRearArmor } from '@/types/construction/MechConfigurationSystem';
 
 /**
  * Maximum armor points for head location
@@ -37,22 +39,22 @@ export function getMaxArmorForLocation(tonnage: number, location: string): numbe
 }
 
 /**
- * Calculate maximum total armor points for a mech
+ * Calculate maximum total armor points for a mech based on configuration
  * 
  * @param tonnage - Unit tonnage
+ * @param configuration - Mech configuration (Biped, Quad, Tripod, LAM, QuadVee)
  * @returns Maximum total armor points
  */
-export function getMaxTotalArmor(tonnage: number): number {
-  return (
-    MAX_HEAD_ARMOR +
-    getMaxArmorForLocation(tonnage, 'centerTorso') +
-    getMaxArmorForLocation(tonnage, 'leftTorso') +
-    getMaxArmorForLocation(tonnage, 'rightTorso') +
-    getMaxArmorForLocation(tonnage, 'leftArm') +
-    getMaxArmorForLocation(tonnage, 'rightArm') +
-    getMaxArmorForLocation(tonnage, 'leftLeg') +
-    getMaxArmorForLocation(tonnage, 'rightLeg')
-  );
+export function getMaxTotalArmor(tonnage: number, configuration?: MechConfiguration): number {
+  const config = configuration ?? MechConfiguration.BIPED;
+  const locations = getLocationsForConfig(config);
+  
+  let total = 0;
+  for (const location of locations) {
+    total += getMaxArmorForLocation(tonnage, location);
+  }
+  
+  return total;
 }
 
 /**
@@ -161,9 +163,10 @@ export function getRecommendedArmorDistribution(): Record<string, number> {
 }
 
 /**
- * Complete armor allocation result
+ * Complete armor allocation result - supports all mech configurations
  */
 export interface ArmorAllocationResult {
+  // Universal locations
   head: number;
   centerTorsoFront: number;
   centerTorsoRear: number;
@@ -171,36 +174,53 @@ export interface ArmorAllocationResult {
   leftTorsoRear: number;
   rightTorsoFront: number;
   rightTorsoRear: number;
+  // Biped/Tripod/LAM locations
   leftArm: number;
   rightArm: number;
   leftLeg: number;
   rightLeg: number;
+  // Tripod-specific
+  centerLeg: number;
+  // Quad/QuadVee-specific
+  frontLeftLeg: number;
+  frontRightLeg: number;
+  rearLeftLeg: number;
+  rearRightLeg: number;
+  // Totals
   totalAllocated: number;
   unallocated: number;
 }
 
 /**
- * Calculate optimal armor allocation matching MegaMekLab's distribution
+ * Calculate optimal armor allocation for any mech configuration
  * 
  * Simplified 3-phase algorithm:
  * 1. Initial spread: Head gets 25%, body proportional to max capacity
- * 2. Symmetric remainder: Distribute to symmetric pairs first (torsos, legs, arms)
- * 3. Apply splits: Front/rear for torsos
- * 
- * Target distributions (50-ton mech):
- * - 32 pts: Head=8, CT=3+1, LT/RT=5, LA/RA=2, LL/RL=3
- * - 152 pts: Head=9, CT=22+7, LT/RT=17+5, LA/RA=14, LL/RL=21
- * - 169 pts: Head=9, CT=24+8, LT/RT=18+6, LA/RA=16, LL/RL=24
+ * 2. Symmetric remainder: Distribute to symmetric pairs first
+ * 3. Apply splits: Front/rear for torsos (75% front / 25% rear)
  * 
  * @param availablePoints - Total armor points to distribute
  * @param tonnage - Mech tonnage (determines max per location)
- * @returns Optimal armor allocation
+ * @param configuration - Mech configuration (defaults to Biped)
+ * @returns Optimal armor allocation for the configuration
  */
 export function calculateOptimalArmorAllocation(
   availablePoints: number,
-  tonnage: number
+  tonnage: number,
+  configuration?: MechConfiguration
 ): ArmorAllocationResult {
-  // Get max armor for each location
+  const config = configuration ?? MechConfiguration.BIPED;
+  
+  if (config === MechConfiguration.QUAD || config === MechConfiguration.QUADVEE) {
+    return calculateQuadArmorAllocation(availablePoints, tonnage);
+  } else if (config === MechConfiguration.TRIPOD) {
+    return calculateTripodArmorAllocation(availablePoints, tonnage);
+  } else {
+    return calculateBipedArmorAllocation(availablePoints, tonnage);
+  }
+}
+
+function calculateBipedArmorAllocation(availablePoints: number, tonnage: number): ArmorAllocationResult {
   const maxHead = MAX_HEAD_ARMOR;
   const maxCT = getMaxArmorForLocation(tonnage, 'centerTorso');
   const maxLT = getMaxArmorForLocation(tonnage, 'leftTorso');
@@ -209,75 +229,37 @@ export function calculateOptimalArmorAllocation(
   
   const maxBodyArmor = maxCT + (maxLT * 2) + (maxLA * 2) + (maxLL * 2);
   const maxTotalArmor = maxHead + maxBodyArmor;
-  
-  // Cap at max
   const points = Math.min(availablePoints, maxTotalArmor);
   
-  // ===========================================================================
-  // PHASE 1: Initial proportional spread
-  // ===========================================================================
-  
-  // Head gets ~25% weight, capped at 9
   let head = Math.min(Math.floor(points * 0.25), maxHead);
-  
-  // Body gets the rest, distributed proportionally to max capacity
   const bodyPoints = points - head;
   
   let ct = Math.floor(bodyPoints * maxCT / maxBodyArmor);
   let lt = Math.floor(bodyPoints * maxLT / maxBodyArmor);
-  let rt = lt; // Symmetric
+  let rt = lt;
   let la = Math.floor(bodyPoints * maxLA / maxBodyArmor);
-  let ra = la; // Symmetric
+  let ra = la;
   let ll = Math.floor(bodyPoints * maxLL / maxBodyArmor);
-  let rl = ll; // Symmetric
-  
-  // ===========================================================================
-  // PHASE 2: Symmetric remainder distribution
-  // ===========================================================================
+  let rl = ll;
   
   let allocated = head + ct + lt + rt + la + ra + ll + rl;
   let remaining = points - allocated;
   
-  // Simple priority loop - symmetric pairs first
   while (remaining > 0) {
-    // Try symmetric pairs (need 2 points)
-    if (remaining >= 2 && lt < maxLT && rt < maxLT) {
-      lt++; rt++; remaining -= 2; continue;
-    }
-    if (remaining >= 2 && ll < maxLL && rl < maxLL) {
-      ll++; rl++; remaining -= 2; continue;
-    }
-    if (remaining >= 2 && la < maxLA && ra < maxLA) {
-      la++; ra++; remaining -= 2; continue;
-    }
-    
-    // Single locations for odd remainder
-    if (remaining >= 1 && ct < maxCT) {
-      ct++; remaining--; continue;
-    }
-    if (remaining >= 1 && head < maxHead) {
-      head++; remaining--; continue;
-    }
-    
-    // Safety: if nothing can be allocated, break
+    if (remaining >= 2 && lt < maxLT && rt < maxLT) { lt++; rt++; remaining -= 2; continue; }
+    if (remaining >= 2 && ll < maxLL && rl < maxLL) { ll++; rl++; remaining -= 2; continue; }
+    if (remaining >= 2 && la < maxLA && ra < maxLA) { la++; ra++; remaining -= 2; continue; }
+    if (remaining >= 1 && ct < maxCT) { ct++; remaining--; continue; }
+    if (remaining >= 1 && head < maxHead) { head++; remaining--; continue; }
     break;
   }
   
-  // ===========================================================================
-  // PHASE 3: Apply front/rear splits to torsos (75% front / 25% rear)
-  // ===========================================================================
-  
-  // Standard BattleTech balanced split: 75% front, 25% rear
   const REAR_RATIO = 0.25;
-  
-  // CT: 25% rear
   const ctRear = Math.round(ct * REAR_RATIO);
   const ctFront = ct - ctRear;
   
-  // Side torsos: 25% rear if > 40% capacity, otherwise all front
   let ltRear = 0, ltFront = lt;
   let rtRear = 0, rtFront = rt;
-  
   if (lt > maxLT * 0.4) {
     ltRear = Math.round(lt * REAR_RATIO);
     ltFront = lt - ltRear;
@@ -287,22 +269,7 @@ export function calculateOptimalArmorAllocation(
   
   allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + la + ra + ll + rl;
   
-  return createAllocationResult(
-    head, ctFront, ctRear, ltFront, ltRear, rtFront, rtRear,
-    la, ra, ll, rl, allocated, availablePoints - allocated
-  );
-}
-
-/**
- * Helper to create allocation result object
- */
-function createAllocationResult(
-  head: number, ctFront: number, ctRear: number,
-  ltFront: number, ltRear: number, rtFront: number, rtRear: number,
-  laArmor: number, raArmor: number, llArmor: number, rlArmor: number,
-  totalAllocated: number, unallocated: number
-): ArmorAllocationResult {
-  return {
+  return createEmptyAllocationResult({
     head,
     centerTorsoFront: ctFront,
     centerTorsoRear: ctRear,
@@ -310,12 +277,172 @@ function createAllocationResult(
     leftTorsoRear: ltRear,
     rightTorsoFront: rtFront,
     rightTorsoRear: rtRear,
-    leftArm: laArmor,
-    rightArm: raArmor,
-    leftLeg: llArmor,
-    rightLeg: rlArmor,
-    totalAllocated,
-    unallocated,
+    leftArm: la,
+    rightArm: ra,
+    leftLeg: ll,
+    rightLeg: rl,
+    totalAllocated: allocated,
+    unallocated: availablePoints - allocated,
+  });
+}
+
+function calculateQuadArmorAllocation(availablePoints: number, tonnage: number): ArmorAllocationResult {
+  const maxHead = MAX_HEAD_ARMOR;
+  const maxCT = getMaxArmorForLocation(tonnage, 'centerTorso');
+  const maxLT = getMaxArmorForLocation(tonnage, 'leftTorso');
+  const maxFLL = getMaxArmorForLocation(tonnage, MechLocation.FRONT_LEFT_LEG);
+  const maxRLL = getMaxArmorForLocation(tonnage, MechLocation.REAR_LEFT_LEG);
+  
+  const maxBodyArmor = maxCT + (maxLT * 2) + (maxFLL * 2) + (maxRLL * 2);
+  const maxTotalArmor = maxHead + maxBodyArmor;
+  const points = Math.min(availablePoints, maxTotalArmor);
+  
+  let head = Math.min(Math.floor(points * 0.25), maxHead);
+  const bodyPoints = points - head;
+  
+  let ct = Math.floor(bodyPoints * maxCT / maxBodyArmor);
+  let lt = Math.floor(bodyPoints * maxLT / maxBodyArmor);
+  let rt = lt;
+  let fll = Math.floor(bodyPoints * maxFLL / maxBodyArmor);
+  let frl = fll;
+  let rll = Math.floor(bodyPoints * maxRLL / maxBodyArmor);
+  let rrl = rll;
+  
+  let allocated = head + ct + lt + rt + fll + frl + rll + rrl;
+  let remaining = points - allocated;
+  
+  while (remaining > 0) {
+    if (remaining >= 2 && lt < maxLT && rt < maxLT) { lt++; rt++; remaining -= 2; continue; }
+    if (remaining >= 2 && fll < maxFLL && frl < maxFLL) { fll++; frl++; remaining -= 2; continue; }
+    if (remaining >= 2 && rll < maxRLL && rrl < maxRLL) { rll++; rrl++; remaining -= 2; continue; }
+    if (remaining >= 1 && ct < maxCT) { ct++; remaining--; continue; }
+    if (remaining >= 1 && head < maxHead) { head++; remaining--; continue; }
+    break;
+  }
+  
+  const REAR_RATIO = 0.25;
+  const ctRear = Math.round(ct * REAR_RATIO);
+  const ctFront = ct - ctRear;
+  
+  let ltRear = 0, ltFront = lt;
+  let rtRear = 0, rtFront = rt;
+  if (lt > maxLT * 0.4) {
+    ltRear = Math.round(lt * REAR_RATIO);
+    ltFront = lt - ltRear;
+    rtRear = ltRear;
+    rtFront = rt - rtRear;
+  }
+  
+  allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + fll + frl + rll + rrl;
+  
+  return createEmptyAllocationResult({
+    head,
+    centerTorsoFront: ctFront,
+    centerTorsoRear: ctRear,
+    leftTorsoFront: ltFront,
+    leftTorsoRear: ltRear,
+    rightTorsoFront: rtFront,
+    rightTorsoRear: rtRear,
+    frontLeftLeg: fll,
+    frontRightLeg: frl,
+    rearLeftLeg: rll,
+    rearRightLeg: rrl,
+    totalAllocated: allocated,
+    unallocated: availablePoints - allocated,
+  });
+}
+
+function calculateTripodArmorAllocation(availablePoints: number, tonnage: number): ArmorAllocationResult {
+  const maxHead = MAX_HEAD_ARMOR;
+  const maxCT = getMaxArmorForLocation(tonnage, 'centerTorso');
+  const maxLT = getMaxArmorForLocation(tonnage, 'leftTorso');
+  const maxLA = getMaxArmorForLocation(tonnage, 'leftArm');
+  const maxLL = getMaxArmorForLocation(tonnage, 'leftLeg');
+  const maxCL = getMaxArmorForLocation(tonnage, MechLocation.CENTER_LEG);
+  
+  const maxBodyArmor = maxCT + (maxLT * 2) + (maxLA * 2) + (maxLL * 2) + maxCL;
+  const maxTotalArmor = maxHead + maxBodyArmor;
+  const points = Math.min(availablePoints, maxTotalArmor);
+  
+  let head = Math.min(Math.floor(points * 0.25), maxHead);
+  const bodyPoints = points - head;
+  
+  let ct = Math.floor(bodyPoints * maxCT / maxBodyArmor);
+  let lt = Math.floor(bodyPoints * maxLT / maxBodyArmor);
+  let rt = lt;
+  let la = Math.floor(bodyPoints * maxLA / maxBodyArmor);
+  let ra = la;
+  let ll = Math.floor(bodyPoints * maxLL / maxBodyArmor);
+  let rl = ll;
+  let cl = Math.floor(bodyPoints * maxCL / maxBodyArmor);
+  
+  let allocated = head + ct + lt + rt + la + ra + ll + rl + cl;
+  let remaining = points - allocated;
+  
+  while (remaining > 0) {
+    if (remaining >= 2 && lt < maxLT && rt < maxLT) { lt++; rt++; remaining -= 2; continue; }
+    if (remaining >= 2 && ll < maxLL && rl < maxLL) { ll++; rl++; remaining -= 2; continue; }
+    if (remaining >= 2 && la < maxLA && ra < maxLA) { la++; ra++; remaining -= 2; continue; }
+    if (remaining >= 1 && cl < maxCL) { cl++; remaining--; continue; }
+    if (remaining >= 1 && ct < maxCT) { ct++; remaining--; continue; }
+    if (remaining >= 1 && head < maxHead) { head++; remaining--; continue; }
+    break;
+  }
+  
+  const REAR_RATIO = 0.25;
+  const ctRear = Math.round(ct * REAR_RATIO);
+  const ctFront = ct - ctRear;
+  
+  let ltRear = 0, ltFront = lt;
+  let rtRear = 0, rtFront = rt;
+  if (lt > maxLT * 0.4) {
+    ltRear = Math.round(lt * REAR_RATIO);
+    ltFront = lt - ltRear;
+    rtRear = ltRear;
+    rtFront = rt - rtRear;
+  }
+  
+  allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + la + ra + ll + rl + cl;
+  
+  return createEmptyAllocationResult({
+    head,
+    centerTorsoFront: ctFront,
+    centerTorsoRear: ctRear,
+    leftTorsoFront: ltFront,
+    leftTorsoRear: ltRear,
+    rightTorsoFront: rtFront,
+    rightTorsoRear: rtRear,
+    leftArm: la,
+    rightArm: ra,
+    leftLeg: ll,
+    rightLeg: rl,
+    centerLeg: cl,
+    totalAllocated: allocated,
+    unallocated: availablePoints - allocated,
+  });
+}
+
+function createEmptyAllocationResult(overrides: Partial<ArmorAllocationResult> = {}): ArmorAllocationResult {
+  return {
+    head: 0,
+    centerTorsoFront: 0,
+    centerTorsoRear: 0,
+    leftTorsoFront: 0,
+    leftTorsoRear: 0,
+    rightTorsoFront: 0,
+    rightTorsoRear: 0,
+    leftArm: 0,
+    rightArm: 0,
+    leftLeg: 0,
+    rightLeg: 0,
+    centerLeg: 0,
+    frontLeftLeg: 0,
+    frontRightLeg: 0,
+    rearLeftLeg: 0,
+    rearRightLeg: 0,
+    totalAllocated: 0,
+    unallocated: 0,
+    ...overrides,
   };
 }
 
