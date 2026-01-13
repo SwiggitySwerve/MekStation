@@ -16,6 +16,7 @@ import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EquipmentCategory } from '@/types/equipment';
 import { TechBase } from '@/types/enums/TechBase';
+import { usePreviewValidation, ValidationSeverity } from '@/hooks/useUnitValidation';
 
 // =============================================================================
 // Types
@@ -105,6 +106,9 @@ export function RecordSheetPreview({
   // Calculate movement
   const walkMP = engineRating > 0 ? Math.floor(engineRating / tonnage) : 0;
   const runMP = Math.ceil(walkMP * 1.5);
+
+  // Get validation issues for preview context
+  const validation = usePreviewValidation();
 
   /**
    * Calculate Battle Value and Cost using the calculation service
@@ -351,6 +355,79 @@ export function RecordSheetPreview({
         height: '100%',
       }}
     >
+      {/* Validation Issues Banner */}
+      {validation.issues.length > 0 && (
+        <div
+          style={{
+            backgroundColor: validation.errorCount > 0 
+              ? 'rgba(239, 68, 68, 0.15)' 
+              : 'rgba(234, 179, 8, 0.15)',
+            borderBottom: `1px solid ${validation.errorCount > 0 
+              ? 'rgba(239, 68, 68, 0.3)' 
+              : 'rgba(234, 179, 8, 0.3)'}`,
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+          }}
+        >
+          <span style={{ 
+            color: validation.errorCount > 0 ? '#ef4444' : '#eab308', 
+            fontSize: '16px',
+            marginTop: '2px',
+          }}>
+            {validation.errorCount > 0 ? '⛔' : '⚠'}
+          </span>
+          <div style={{ flex: 1 }}>
+            <div style={{ 
+              color: validation.errorCount > 0 ? '#ef4444' : '#eab308', 
+              fontWeight: 600, 
+              fontSize: '13px',
+              marginBottom: '4px',
+            }}>
+              {validation.errorCount > 0 ? 'Configuration Error' : 'Preview Warning'}
+              {validation.issues.length > 1 ? 's' : ''}
+              {validation.errorCount > 0 && validation.warningCount > 0 && 
+                ` (${validation.errorCount} error${validation.errorCount > 1 ? 's' : ''}, ${validation.warningCount} warning${validation.warningCount > 1 ? 's' : ''})`
+              }
+            </div>
+            <ul style={{ 
+              margin: 0, 
+              padding: '0 0 0 16px',
+              fontSize: '12px',
+            }}>
+              {validation.issues.map((issue) => (
+                <li 
+                  key={issue.id} 
+                  style={{ 
+                    marginBottom: '4px',
+                    color: issue.severity === ValidationSeverity.ERROR 
+                      ? 'rgba(239, 68, 68, 0.9)' 
+                      : issue.severity === ValidationSeverity.WARNING
+                        ? 'rgba(234, 179, 8, 0.9)'
+                        : 'rgba(156, 163, 175, 0.9)',
+                  }}
+                >
+                  <strong>{issue.message}</strong>
+                  {issue.details && (
+                    <span style={{ opacity: 0.8 }}> — {issue.details}</span>
+                  )}
+                  {issue.fix && (
+                    <div style={{ 
+                      fontSize: '11px', 
+                      opacity: 0.7,
+                      marginTop: '2px',
+                    }}>
+                      Fix: {issue.fix}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* Preview Area */}
       <div 
         ref={containerRef}

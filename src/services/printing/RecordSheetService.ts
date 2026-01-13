@@ -753,18 +753,13 @@ export class RecordSheetService {
 
   /**
    * Extract critical slots data with fixed equipment (engine, gyro, actuators, etc.)
+   * Configuration-aware: returns appropriate locations for biped, quad, tripod, etc.
    */
   private extractCriticals(unit: IUnitConfig): readonly ILocationCriticals[] {
-    const locations: MechLocation[] = [
-      MechLocation.HEAD,
-      MechLocation.CENTER_TORSO,
-      MechLocation.LEFT_TORSO,
-      MechLocation.RIGHT_TORSO,
-      MechLocation.LEFT_ARM,
-      MechLocation.RIGHT_ARM,
-      MechLocation.LEFT_LEG,
-      MechLocation.RIGHT_LEG,
-    ];
+    const mechType = this.getMechType(unit.configuration);
+    
+    // Get locations based on mech configuration
+    const locations = this.getCriticalLocationsForMechType(mechType);
 
     // Calculate engine slot requirements
     const engineSlots = this.getEngineSlots(unit.engine.type, unit.engine.rating);
@@ -883,8 +878,23 @@ export class RecordSheetService {
       }
     }
 
-    // Legs - Actuators
-    if (location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG) {
+    // Biped/Tripod Legs - Actuators (6 slots)
+    if (location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG || location === MechLocation.CENTER_LEG) {
+      switch (slotIndex) {
+        case 0: return 'Hip';
+        case 1: return 'Upper Leg Actuator';
+        case 2: return 'Lower Leg Actuator';
+        case 3: return 'Foot Actuator';
+      }
+    }
+
+    // Quad Legs - Actuators (12 slots, only first 4 are fixed actuators)
+    if (
+      location === MechLocation.FRONT_LEFT_LEG ||
+      location === MechLocation.FRONT_RIGHT_LEG ||
+      location === MechLocation.REAR_LEFT_LEG ||
+      location === MechLocation.REAR_RIGHT_LEG
+    ) {
       switch (slotIndex) {
         case 0: return 'Hip';
         case 1: return 'Upper Leg Actuator';
@@ -968,6 +978,51 @@ export class RecordSheetService {
     if (config.includes('lam')) return 'lam';
     if (config.includes('quadvee')) return 'quadvee';
     return 'biped';
+  }
+
+  /**
+   * Get the critical slot locations for a specific mech type
+   */
+  private getCriticalLocationsForMechType(mechType: string): MechLocation[] {
+    switch (mechType) {
+      case 'quad':
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.FRONT_LEFT_LEG,
+          MechLocation.FRONT_RIGHT_LEG,
+          MechLocation.REAR_LEFT_LEG,
+          MechLocation.REAR_RIGHT_LEG,
+        ];
+      case 'tripod':
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.LEFT_ARM,
+          MechLocation.RIGHT_ARM,
+          MechLocation.LEFT_LEG,
+          MechLocation.RIGHT_LEG,
+          MechLocation.CENTER_LEG,
+        ];
+      case 'biped':
+      case 'lam':
+      case 'quadvee':
+      default:
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.LEFT_ARM,
+          MechLocation.RIGHT_ARM,
+          MechLocation.LEFT_LEG,
+          MechLocation.RIGHT_LEG,
+        ];
+    }
   }
 
   /**

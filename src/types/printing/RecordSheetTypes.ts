@@ -7,7 +7,7 @@
  */
 
 import { MechLocation } from '../construction/CriticalSlotAllocation';
-import { LOCATION_ABBREVIATION_MAP, BIPED_LOCATION_VALUES } from '../construction/MechConfigurationSystem';
+import { LOCATION_ABBREVIATION_MAP } from '../construction/MechConfigurationSystem';
 
 /**
  * Paper size options for PDF generation
@@ -210,21 +210,46 @@ export interface IRect {
 }
 
 /**
- * Location abbreviation mapping (biped locations only for record sheets)
+ * All mech locations for abbreviation mapping
+ * Includes biped, quad, tripod, and aerospace locations
+ */
+const ALL_MECH_LOCATIONS: MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+  MechLocation.CENTER_LEG,       // Tripod
+  MechLocation.FRONT_LEFT_LEG,   // Quad
+  MechLocation.FRONT_RIGHT_LEG,  // Quad
+  MechLocation.REAR_LEFT_LEG,    // Quad
+  MechLocation.REAR_RIGHT_LEG,   // Quad
+  MechLocation.NOSE,             // LAM/Aerospace
+  MechLocation.LEFT_WING,        // LAM/Aerospace
+  MechLocation.RIGHT_WING,       // LAM/Aerospace
+  MechLocation.AFT,              // LAM/Aerospace
+  MechLocation.FUSELAGE,         // LAM/Aerospace
+];
+
+/**
+ * Location abbreviation mapping (all mech types for record sheets)
  *
  * @see LOCATION_ABBREVIATION_MAP in MechConfigurationSystem for full mapping
  */
 export const LOCATION_ABBREVIATIONS: Record<string, string> = Object.fromEntries(
-  BIPED_LOCATION_VALUES.map(loc => [loc, LOCATION_ABBREVIATION_MAP[loc]])
+  ALL_MECH_LOCATIONS.map(loc => [loc, LOCATION_ABBREVIATION_MAP[loc]])
 );
 
 /**
- * Location display names (biped locations only for record sheets)
+ * Location display names (all mech types for record sheets)
  *
  * Note: MechLocation enum values are already display names (e.g., 'Left Arm')
  */
 export const LOCATION_NAMES: Record<string, string> = Object.fromEntries(
-  BIPED_LOCATION_VALUES.map(loc => [loc, loc])
+  ALL_MECH_LOCATIONS.map(loc => [loc, loc])
 );
 
 /**

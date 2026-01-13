@@ -130,11 +130,35 @@
 
 ## Phase 5: Polish and Integration [Week 5]
 
+### 5.0 ArmorPipLayout Algorithm Port
+- [x] Port MegaMekLab's ArmorPipLayout.java to TypeScript
+- [x] Implement Bounds class for rectangle math
+- [x] Implement shape-aware pip layout algorithm
+- [x] Add gap support via mml-gap style attribute
+- [x] Add multi-section layout support
+- [x] Integrate ArmorPipLayout into SVGRecordSheetRenderer
+- [x] Remove old simple grid-based pip generation
+- [x] **Verify**: Pips generate correctly for all mech configurations
+
 ### 5.1 Preview Tab Fixes
-- [ ] Verify loadout tray hidden on Preview tab (already done)
-- [ ] Ensure Preview tab uses correct template per configuration
+- [x] Verify loadout tray hidden on Preview tab (already done)
+- [x] Ensure Preview tab uses correct template per configuration
+- [x] Create centralized useUnitValidation hook with categories and contexts
+- [x] Add validation warnings banner using usePreviewValidation hook
+- [x] Show errors (red) vs warnings (yellow) with severity styling
+- [x] Include fix suggestions in validation messages
 - [ ] Test zoom controls work with all templates
 - [ ] **Verify**: Preview tab shows correct record sheet for each config
+
+### 5.1b Fix Non-Biped Critical Slots and Armor Locations
+- [x] Update extractCriticals to be configuration-aware
+- [x] Add getCriticalLocationsForMechType helper method
+- [x] Update LOCATION_ABBREVIATIONS and LOCATION_NAMES to include all mech locations
+- [x] Add fixed slot content for quad leg actuators (FLL, FRL, RLL, RRL)
+- [x] Add fixed slot content for tripod center leg (CL)
+- [ ] Test critical slots render correctly for quad mechs
+- [ ] Test critical slots render correctly for tripod mechs
+- [ ] **Verify**: All leg locations appear in PDF preview for non-biped configs
 
 ### 5.2 Documentation Update
 - [ ] Update armor-diagram spec with MegaMek Classic variant
