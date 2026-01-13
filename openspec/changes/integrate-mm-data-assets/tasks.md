@@ -222,31 +222,38 @@
 - [x] Biped PDF record sheet renders with dynamic pips
 - [x] Biped critical slots render correctly (8 locations)
 
-### Quad Support (Complete)
+### Quad Support (Verified Complete)
 - [x] Quad leg slot counts fixed (6 slots each)
 - [x] Quad locations added to extractCriticals/extractArmor
 - [x] Quad armor text IDs added (FLL, FRL, RLL, RRL -> textArmor_*)
 - [x] Quad structure text IDs added (FLL, FRL, RLL, RRL -> textIS_*)
+- [x] Quad PDF record sheet loads mek_quad_default.svg (verified)
 - [x] Quad PDF record sheet renders with all 4 leg locations (verified: armor 21 each)
 - [x] Quad critical slots render correctly (8 locations: 6 slots each leg)
+- [ ] Quad armor diagram works with MegaMek Classic variant (customizer)
 
-### Tripod Support (Pending)
+### Tripod Support (Verified)
 - [x] Tripod center leg location support in service layer
-- [ ] Tripod armor diagram works with MegaMek Classic variant
-- [ ] Tripod PDF record sheet renders with center leg
-- [ ] Tripod critical slots render correctly (7 locations)
+- [x] Tripod armor text IDs added (CL -> textArmor_CL)
+- [x] Tripod structure text IDs added (CL -> textIS_CL)
+- [x] Tripod PDF record sheet loads mek_tripod_default.svg (verified)
+- [x] Tripod critical slots render correctly (9 locations: 3 legs @ 6 slots each)
+- [ ] Tripod armor diagram works with MegaMek Classic variant (customizer)
 
-### LAM Support (Pending)
-- [ ] LAM armor diagram works with MegaMek Classic variant
-- [ ] LAM PDF record sheet renders correctly
-- [ ] LAM mode indicator displays (Mech/AirMech/Fighter)
+### LAM Support (Verified)
+- [x] LAM PDF record sheet loads mek_lam_default.svg (verified)
+- [x] LAM uses biped critical slot locations (verified)
+- [x] LAM-specific status tracker displays (Avionics, Landing Gear, Structural Integrity)
+- [x] LAM Advanced Movement Compass displays
+- [x] LAM heat data shows AirMech values
+- [ ] LAM armor diagram works with MegaMek Classic variant (customizer)
 
-### QuadVee Support (Pending)
+### QuadVee Support (Verified)
 - [x] QuadVee leg slot counts fixed (6 slots each)
 - [x] QuadVee max slot validation fixed (66 slots)
-- [ ] QuadVee armor diagram works with MegaMek Classic variant
-- [ ] QuadVee PDF record sheet renders correctly
-- [ ] QuadVee mode indicator displays (Mech/Vehicle)
+- [x] QuadVee PDF record sheet loads mek_quad_default.svg (uses quad template)
+- [x] QuadVee critical slots render correctly (8 locations: 4 legs @ 6 slots)
+- [ ] QuadVee armor diagram works with MegaMek Classic variant (customizer)
 
 ### General
 - [ ] MegaMek Classic is the default armor diagram variant
