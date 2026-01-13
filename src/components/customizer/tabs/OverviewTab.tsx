@@ -76,6 +76,11 @@ export function OverviewTab({
   const setRulesLevel = useUnitStore((s) => s.setRulesLevel);
   const setTechBaseMode = useUnitStore((s) => s.setTechBaseMode);
   const setComponentTechBase = useUnitStore((s) => s.setComponentTechBase);
+
+  // OmniMech state and actions
+  const isOmni = useUnitStore((s) => s.isOmni);
+  const setIsOmni = useUnitStore((s) => s.setIsOmni);
+  const resetChassis = useUnitStore((s) => s.resetChassis);
   
   // Get tab manager action
   const renameTab = useTabManagerStore((s) => s.renameTab);
@@ -119,6 +124,16 @@ export function OverviewTab({
   const handleRulesLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRulesLevel(e.target.value as RulesLevel);
   }, [setRulesLevel]);
+
+  const handleOmniMechChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsOmni(e.target.checked);
+  }, [setIsOmni]);
+
+  const handleResetChassis = useCallback(() => {
+    if (window.confirm('Reset to base chassis configuration? This will remove all pod-mounted equipment.')) {
+      resetChassis();
+    }
+  }, [resetChassis]);
 
   // Handler for global mode change
   const handleModeChange = useCallback((newMode: TechBaseMode) => {
@@ -260,6 +275,33 @@ export function OverviewTab({
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* OmniMech Toggle */}
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              type="checkbox"
+              id="omniMech"
+              checked={isOmni}
+              onChange={handleOmniMechChange}
+              disabled={readOnly}
+              className="w-4 h-4 rounded border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent"
+            />
+            <label htmlFor="omniMech" className={cs.text.label}>
+              OmniMech
+            </label>
+            <span className={cs.text.secondary}>
+              (Modular equipment pods)
+            </span>
+            {isOmni && !readOnly && (
+              <button
+                type="button"
+                onClick={handleResetChassis}
+                className="ml-4 px-3 py-1 text-sm rounded border border-border-theme-subtle bg-surface-deep hover:bg-surface-default text-content-secondary hover:text-content-primary transition-colors"
+              >
+                Reset Chassis
+              </button>
+            )}
           </div>
         </div>
       </div>

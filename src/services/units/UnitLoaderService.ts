@@ -86,6 +86,7 @@ export interface ISerializedUnit {
   readonly equipment?: ReadonlyArray<{
     readonly id: string;
     readonly location: string;
+    readonly isOmniPodMounted?: boolean;
   }>;
   /**
    * Optional critical slot grid from import sources (e.g., MegaMek).
@@ -93,6 +94,10 @@ export interface ISerializedUnit {
    */
   readonly criticalSlots?: Readonly<Record<string, ReadonlyArray<string | null>>>;
   readonly mulId?: number;
+  /** Whether this unit is an OmniMech */
+  readonly isOmni?: boolean;
+  /** Base chassis heat sinks for OmniMechs (-1 = auto-calculate) */
+  readonly baseChassisHeatSinks?: number;
   readonly [key: string]: unknown;
 }
 
@@ -716,7 +721,7 @@ function resolveEquipmentId(
  * Uses multiple resolution strategies including ID normalization and aliasing.
  */
 function mapEquipment(
-  equipment: ReadonlyArray<{ id: string; location: string }> | undefined,
+  equipment: ReadonlyArray<{ id: string; location: string; isOmniPodMounted?: boolean }> | undefined,
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   unitCriticalSlots: UnitCriticalSlots | undefined
@@ -762,6 +767,7 @@ function mapEquipment(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: true, // User-added equipment is removable
+        isOmniPodMounted: item.isOmniPodMounted ?? false,
       };
     } else {
       // Not found - create placeholder with unknown equipment
@@ -780,6 +786,7 @@ function mapEquipment(
         isRearMounted: false,
         linkedAmmoId: undefined,
         isRemovable: true, // User-added equipment is removable
+        isOmniPodMounted: item.isOmniPodMounted ?? false,
       };
     }
   });
@@ -985,7 +992,8 @@ export class UnitLoaderService {
       // Configuration
       unitType: (serialized.unitType as UnitType) || 'BattleMech',
       configuration: (serialized.configuration as MechConfiguration) || 'Biped',
-      isOmni: false, // TODO: detect from unit data
+      isOmni: serialized.isOmni ?? false,
+      baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1, // -1 = not set, use engine integral heat sinks
       techBaseMode,
       componentTechBases: createDefaultComponentTechBases(techBase),
       selectionMemory: createEmptySelectionMemory(),

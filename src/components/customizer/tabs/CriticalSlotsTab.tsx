@@ -206,7 +206,7 @@ function buildLocationSlots(
 }
 
 function createEquipmentSlot(
-  index: number, 
+  index: number,
   data: { equipment: IMountedEquipmentInstance; position: 'first' | 'middle' | 'last' | 'only' }
 ): SlotContent {
   const { equipment, position } = data;
@@ -219,6 +219,7 @@ function createEquipmentSlot(
     isLastSlot: position === 'last' || position === 'only',
     totalSlots: equipment.criticalSlots,
     isRemovable: equipment.isRemovable,
+    isOmniPodMounted: equipment.isOmniPodMounted,
   };
 }
 
@@ -309,6 +310,7 @@ export function CriticalSlotsTab({
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
+  const isOmni = useUnitStore((s) => s.isOmni);
   const updateEquipmentLocation = useUnitStore((s) => s.updateEquipmentLocation);
   const bulkUpdateEquipmentLocations = useUnitStore((s) => s.bulkUpdateEquipmentLocations);
   const clearEquipmentLocation = useUnitStore((s) => s.clearEquipmentLocation);
@@ -578,6 +580,7 @@ export function CriticalSlotsTab({
       data={getLocationData(location)}
       selectedEquipmentId={selectedEquipmentId || undefined}
       assignableSlots={getAssignableSlots(location)}
+      isOmni={isOmni}
       onSlotClick={(i) => handleSlotClick(location, i)}
       onEquipmentDrop={(i, e) => handleEquipmentDrop(location, i, e)}
       onEquipmentRemove={(i) => handleEquipmentRemove(location, i)}

@@ -67,6 +67,11 @@ export interface ISerializedUnit {
   // Optional
   readonly quirks?: string[];
   readonly fluff?: ISerializedFluff;
+
+  // OmniMech-specific
+  readonly isOmni?: boolean;
+  readonly baseChassisHeatSinks?: number;
+  readonly clanName?: string;
 }
 
 /**
@@ -126,6 +131,7 @@ export interface ISerializedEquipment {
   readonly slots?: number[];
   readonly isRearMounted?: boolean;
   readonly linkedAmmo?: string;
+  readonly isOmniPodMounted?: boolean;
 }
 
 /**

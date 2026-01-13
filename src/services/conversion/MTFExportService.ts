@@ -124,13 +124,19 @@ export class MTFExportService {
       lines.push(`chassis:${unit.chassis}`);
       lines.push(`model:${unit.model}`);
 
+      // Clan name (for OmniMechs and Clan units)
+      if (unit.clanName) {
+        lines.push(`clanname:${unit.clanName}`);
+      }
+
       // Extended fields (if present)
       const extendedUnit = unit as ISerializedUnit & { mulId?: number; role?: string; source?: string };
       if (extendedUnit.mulId) {
         lines.push(`mul id:${extendedUnit.mulId}`);
       }
 
-      lines.push(`Config:${this.formatConfig(unit.configuration)}`);
+      // Config includes "Omnimech" suffix for OmniMechs
+      lines.push(`Config:${this.formatConfig(unit.configuration, unit.isOmni)}`);
       lines.push(`techbase:${this.formatTechBase(unit.techBase)}`);
       lines.push(`era:${unit.year}`);
 
@@ -165,6 +171,10 @@ export class MTFExportService {
 
       // Heat sinks and movement
       lines.push(`heat sinks:${unit.heatSinks.count} ${this.formatHeatSinkType(unit.heatSinks.type)}`);
+      // Base Chassis Heat Sinks (OmniMech-specific)
+      if (unit.isOmni && unit.baseChassisHeatSinks !== undefined) {
+        lines.push(`Base Chassis Heat Sinks:${unit.baseChassisHeatSinks}`);
+      }
       lines.push(`walk mp:${unit.movement.walk}`);
       lines.push(`jump mp:${unit.movement.jump}`);
       lines.push('');
@@ -178,7 +188,11 @@ export class MTFExportService {
       const weaponCount = unit.equipment.length;
       lines.push(`Weapons:${weaponCount}`);
       for (const eq of unit.equipment) {
-        const name = this.formatEquipmentName(eq.id);
+        let name = this.formatEquipmentName(eq.id);
+        // Add (omnipod) suffix for pod-mounted equipment
+        if (eq.isOmniPodMounted) {
+          name = `${name} (omnipod)`;
+        }
         const location = LOCATION_NAMES[eq.location] || eq.location;
         lines.push(`${name}, ${location}`);
       }
@@ -226,8 +240,9 @@ export class MTFExportService {
 
   /**
    * Format configuration for MTF
+   * For OmniMechs, appends "Omnimech" suffix
    */
-  private formatConfig(config: string): string {
+  private formatConfig(config: string, isOmni?: boolean): string {
     const configMap: Record<string, string> = {
       BIPED: 'Biped',
       QUAD: 'Quad',
@@ -235,7 +250,12 @@ export class MTFExportService {
       LAM: 'LAM',
       QUADVEE: 'QuadVee',
     };
-    return configMap[config] || config;
+    const baseConfig = configMap[config] || config;
+    // Append "Omnimech" for OmniMech units
+    if (isOmni) {
+      return `${baseConfig} Omnimech`;
+    }
+    return baseConfig;
   }
 
   /**

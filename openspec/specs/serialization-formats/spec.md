@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines JSON serialization formats for saving, loading, and exchanging BattleMech unit data. Includes the ISerializedUnit schema used for data interchange and the ISerializedUnitEnvelope wrapper for file storage.
-
 ## Requirements
-
 ### Requirement: Serialized Unit Schema
 
 The system SHALL define a complete JSON schema for unit serialization.
@@ -36,6 +34,13 @@ The system SHALL define a complete JSON schema for unit serialization.
 - **GIVEN** an ISerializedUnit object
 - **THEN** it MAY contain:
   - `variant` - Optional variant name for custom builds
+
+#### Scenario: OmniMech-specific fields
+- **GIVEN** an ISerializedUnit object for an OmniMech
+- **THEN** it MAY contain:
+  - `isOmni` - Boolean true if unit is an OmniMech
+  - `baseChassisHeatSinks` - Number of heat sinks fixed to base chassis (-1 for auto)
+  - `clanName` - Optional Clan reporting name (e.g., "Mad Cat" for Timber Wolf)
 
 ---
 
@@ -182,6 +187,7 @@ The system SHALL define equipment serialization format with location references.
   - `slots` - Array of specific slot indices if non-contiguous
   - `isRearMounted` - Boolean true if weapon faces rear
   - `linkedAmmo` - ID of linked ammunition bin
+  - `isOmniPodMounted` - Boolean true if pod-mounted on OmniMech (false = fixed to chassis)
 
 ---
 
@@ -347,3 +353,103 @@ The system SHALL use consistent location string values.
   - "REAR_RIGHT_LEG"
 
 ---
+
+### Requirement: MTF Parser OmniMech Fields
+
+The MTF parser SHALL support OmniMech-specific fields.
+
+#### Scenario: Parse Base Chassis Heat Sinks field
+
+- **Given** an MTF file containing `Base Chassis Heat Sinks:15`
+- **When** the file is parsed
+- **Then** the result includes `baseChassisHeatSinks: 15`
+
+#### Scenario: Parse clanname field
+
+- **Given** an MTF file containing `clanname:Timber Wolf`
+- **When** the file is parsed
+- **Then** the result includes `clanName: "Timber Wolf"`
+
+#### Scenario: Parse omnipod equipment marker
+
+- **Given** an MTF equipment line `CLERLargeLaser (omnipod)`
+- **When** the line is parsed
+- **Then** the equipment name is `CLERLargeLaser`
+- **And** `isOmniPodMounted` is `true`
+
+#### Scenario: Parse equipment without omnipod marker
+
+- **Given** an MTF equipment line `CLDoubleHeatSink`
+- **And** the unit is an OmniMech
+- **When** the line is parsed
+- **Then** the equipment name is `CLDoubleHeatSink`
+- **And** `isOmniPodMounted` is `false`
+
+---
+
+### Requirement: MTF Exporter OmniMech Fields
+
+The MTF exporter SHALL output OmniMech-specific fields when applicable.
+
+#### Scenario: Export Base Chassis Heat Sinks
+
+- **Given** an OmniMech unit with `baseChassisHeatSinks: 12`
+- **When** the unit is exported to MTF
+- **Then** the output contains the line `Base Chassis Heat Sinks:12`
+- **And** the line appears after `Heat Sinks:` line
+
+#### Scenario: Export clanname
+
+- **Given** an OmniMech unit with `clanName: "Dire Wolf"`
+- **When** the unit is exported to MTF
+- **Then** the output contains the line `clanname:Dire Wolf`
+- **And** the line appears after the `chassis:` line
+
+#### Scenario: Export pod equipment with marker
+
+- **Given** an OmniMech unit with equipment `{ name: "ER Large Laser", isOmniPodMounted: true }`
+- **When** the unit is exported to MTF
+- **Then** the equipment line is `CLERLargeLaser (omnipod)`
+
+#### Scenario: Export fixed equipment without marker
+
+- **Given** an OmniMech unit with equipment `{ name: "Double Heat Sink", isOmniPodMounted: false }`
+- **When** the unit is exported to MTF
+- **Then** the equipment line is `CLDoubleHeatSink` (no omnipod suffix)
+
+#### Scenario: Do not export OmniMech fields for standard mechs
+
+- **Given** a standard BattleMech (not OmniMech)
+- **When** the unit is exported to MTF
+- **Then** the output does NOT contain `Base Chassis Heat Sinks:` line
+- **And** the output does NOT contain `clanname:` line
+- **And** equipment lines do NOT have `(omnipod)` suffix
+
+### Requirement: MTF Format Export
+
+The system SHALL support exporting ISerializedUnit to MegaMekLab .mtf format.
+
+**Rationale**: Enables round-trip validation and compatibility with MegaMek ecosystem for data verification.
+
+**Priority**: High
+
+#### Scenario: MTF export
+- **WHEN** exporting to .mtf format
+- **THEN** system SHALL generate MegaMekLab-compatible text format
+- **AND** system SHALL map canonical equipment IDs to MTF names
+- **AND** system SHALL format critical slots per MegaMek conventions
+- **AND** system SHALL include all structural component fields
+
+#### Scenario: MTF equipment naming
+- **GIVEN** ISerializedUnit with equipment ID "medium-laser"
+- **WHEN** exporting to MTF format
+- **THEN** equipment SHALL appear as "Medium Laser" in output
+- **AND** ammunition SHALL use "IS Ammo" or "Clan Ammo" prefixes as appropriate
+
+#### Scenario: MTF location formatting
+- **GIVEN** ISerializedUnit with critical slot assignments
+- **WHEN** exporting to MTF format
+- **THEN** each location section SHALL list slots in order
+- **AND** empty slots SHALL be represented as "-Empty-"
+- **AND** location headers SHALL match MegaMek format (e.g., "Left Arm:")
+

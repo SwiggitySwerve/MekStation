@@ -26,6 +26,8 @@ export interface LoadoutEquipmentItem {
   isAllocated: boolean;
   location?: string;
   isRemovable: boolean;
+  /** Whether this is pod-mounted equipment on an OmniMech (false = fixed) */
+  isOmniPodMounted?: boolean;
 }
 
 /** Location with available slot info for context menu */
@@ -53,6 +55,8 @@ interface GlobalLoadoutTrayProps {
   onQuickAssign?: (instanceId: string, location: MechLocation) => void;
   /** Available locations with slot info for the currently selected equipment */
   availableLocations?: AvailableLocation[];
+  /** Whether this is an OmniMech (shows Pod/Fixed indicators) */
+  isOmni?: boolean;
   className?: string;
 }
 
@@ -264,18 +268,23 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
 interface EquipmentItemProps {
   item: LoadoutEquipmentItem;
   isSelected: boolean;
+  isOmni?: boolean;
   onSelect: () => void;
   onRemove: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
   onUnassign?: () => void;
 }
 
-function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, onUnassign: _onUnassign }: EquipmentItemProps) {
+function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, onContextMenu, onUnassign: _onUnassign }: EquipmentItemProps) {
   const colors = getCategoryColorsLegacy(item.category);
   const [isDragging, setIsDragging] = useState(false);
-  
+
+  // Check if this is fixed equipment on an OmniMech
+  const isFixedOnOmni = isOmni && item.isOmniPodMounted === false;
+
   // Unallocated items can be dragged to critical slots
-  const canDrag = !item.isAllocated;
+  // Fixed equipment on OmniMechs cannot be dragged
+  const canDrag = !item.isAllocated && !isFixedOnOmni;
   
   const handleDragStart = (e: React.DragEvent) => {
     if (!canDrag) {
@@ -293,6 +302,18 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
     setIsDragging(false);
   };
   
+  // Compute display name with OmniMech postfix
+  const displayName = isOmni
+    ? `${item.name} ${item.isOmniPodMounted ? '(Pod)' : '(Fixed)'}`
+    : item.name;
+
+  // Compute tooltip
+  const tooltip = isFixedOnOmni
+    ? 'Fixed equipment - part of OmniMech base chassis'
+    : canDrag
+      ? 'Drag to critical slot or click to select'
+      : 'Right-click to unassign';
+
   // Unified inline single-line layout for both allocated and unallocated items
   return (
     <div
@@ -302,8 +323,8 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
       className={`
         ${trayStyles.equipmentRow}
         ${colors.bg}
-        ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
-        ${isDragging ? 'opacity-50' : ''}
+        ${canDrag ? 'cursor-grab active:cursor-grabbing' : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''}
         ${isSelected
           ? 'ring-1 ring-accent ring-inset brightness-110'
           : 'hover:brightness-110'
@@ -311,12 +332,12 @@ function EquipmentItem({ item, isSelected, onSelect, onRemove, onContextMenu, on
       `}
       onClick={onSelect}
       onContextMenu={onContextMenu}
-      title={canDrag ? 'Drag to critical slot or click to select' : 'Right-click to unassign'}
+      title={tooltip}
     >
       <div className={`flex items-center ${trayStyles.gap} w-full`}>
-        {/* Name */}
+        {/* Name with OmniMech postfix */}
         <span className={`truncate flex-1 text-white ${trayStyles.text.primary} drop-shadow-sm`}>
-          {item.name}
+          {displayName}
         </span>
         {/* Info + action inline */}
         <span className={`text-white/50 ${trayStyles.text.secondary} whitespace-nowrap`}>
@@ -426,16 +447,17 @@ interface CategoryGroupProps {
   category: EquipmentCategory;
   items: LoadoutEquipmentItem[];
   selectedId?: string | null;
+  isOmni?: boolean;
   onSelect: (id: string | null) => void;
   onRemove: (id: string) => void;
   onUnassign?: (id: string) => void;
   onContextMenu: (e: React.MouseEvent, item: LoadoutEquipmentItem) => void;
 }
 
-function CategoryGroup({ category, items, selectedId, onSelect, onRemove, onUnassign, onContextMenu }: CategoryGroupProps) {
+function CategoryGroup({ category, items, selectedId, isOmni = false, onSelect, onRemove, onUnassign, onContextMenu }: CategoryGroupProps) {
   const colors = getCategoryColorsLegacy(category);
   const label = CATEGORY_LABELS[category] || category;
-  
+
   return (
     <div>
       <div className={trayStyles.categoryRow}>
@@ -446,6 +468,7 @@ function CategoryGroup({ category, items, selectedId, onSelect, onRemove, onUnas
       {items.map(item => (
         <EquipmentItem
           key={item.instanceId}
+          isOmni={isOmni}
           item={item}
           isSelected={selectedId === item.instanceId}
           onSelect={() => onSelect(selectedId === item.instanceId ? null : item.instanceId)}
@@ -474,6 +497,7 @@ export function GlobalLoadoutTray({
   onUnassignEquipment,
   onQuickAssign,
   availableLocations = [],
+  isOmni = false,
   className = '',
 }: GlobalLoadoutTrayProps): React.ReactElement {
   // Section expansion state
@@ -644,6 +668,7 @@ export function GlobalLoadoutTray({
                         category={category}
                         items={items}
                         selectedId={selectedEquipmentId}
+                        isOmni={isOmni}
                         onSelect={handleSelect}
                         onRemove={onRemoveEquipment}
                         onContextMenu={handleContextMenu}
@@ -671,6 +696,7 @@ export function GlobalLoadoutTray({
                         category={category}
                         items={items}
                         selectedId={selectedEquipmentId}
+                        isOmni={isOmni}
                         onSelect={handleSelect}
                         onRemove={onRemoveEquipment}
                         onUnassign={handleUnassign}

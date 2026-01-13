@@ -31,6 +31,8 @@ export interface SlotContent {
   totalSlots?: number;
   /** Can be removed */
   isRemovable?: boolean;
+  /** Whether this is pod-mounted equipment on an OmniMech (false = fixed to chassis) */
+  isOmniPodMounted?: boolean;
 }
 
 /**

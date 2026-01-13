@@ -146,7 +146,7 @@ export function createEmptySelectionMemory(): ISelectionMemory {
 
 /**
  * Mounted equipment instance on a unit
- * 
+ *
  * Each instance represents a single piece of equipment added to the unit.
  * Multiple instances of the same equipment type can exist (e.g., 4 Medium Lasers).
  */
@@ -175,13 +175,20 @@ export interface IMountedEquipmentInstance {
   readonly isRearMounted: boolean;
   /** Linked ammunition instance ID (for weapons that use ammo) */
   readonly linkedAmmoId?: string;
-  /** 
+  /**
    * Whether this equipment can be removed via the loadout tray.
-   * Configuration components (Endo Steel, Ferro-Fibrous, Jump Jets, etc.) 
+   * Configuration components (Endo Steel, Ferro-Fibrous, Jump Jets, etc.)
    * are managed via their respective tabs and cannot be removed directly.
    * Defaults to true for user-added equipment.
    */
   readonly isRemovable: boolean;
+  /**
+   * Whether this equipment is pod-mounted on an OmniMech.
+   * Pod-mounted equipment can be swapped between configurations.
+   * Fixed equipment (isOmniPodMounted: false) is part of the base chassis.
+   * Only relevant when the unit's isOmni flag is true.
+   */
+  readonly isOmniPodMounted: boolean;
 }
 
 /**
@@ -189,11 +196,13 @@ export interface IMountedEquipmentInstance {
  * @param item The equipment definition
  * @param instanceId Unique instance identifier
  * @param isRemovable Whether the equipment can be removed via the loadout tray (default: true)
+ * @param isOmniPodMounted Whether the equipment is pod-mounted on an OmniMech (default: false)
  */
 export function createMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
-  isRemovable: boolean = true
+  isRemovable: boolean = true,
+  isOmniPodMounted: boolean = false
 ): IMountedEquipmentInstance {
   return {
     instanceId,
@@ -209,6 +218,7 @@ export function createMountedEquipment(
     isRearMounted: false,
     linkedAmmoId: undefined,
     isRemovable,
+    isOmniPodMounted,
   };
 }
 
@@ -304,7 +314,15 @@ export interface UnitState {
   
   /** Whether this is an OmniMech */
   isOmni: boolean;
-  
+
+  /**
+   * Number of heat sinks permanently fixed to the OmniMech chassis.
+   * These cannot be removed when switching configurations.
+   * Only relevant when isOmni is true.
+   * -1 indicates not set (use engine integral heat sinks as default).
+   */
+  baseChassisHeatSinks: number;
+
   /** Tech base mode: inner_sphere, clan, or mixed */
   techBaseMode: TechBaseMode;
   
@@ -399,7 +417,15 @@ setMulId: (mulId: string) => void;
   setTonnage: (tonnage: number) => void;
   setConfiguration: (configuration: MechConfiguration) => void;
   setIsOmni: (isOmni: boolean) => void;
-  
+
+  // OmniMech-specific
+  /** Set the number of heat sinks fixed to the base chassis */
+  setBaseChassisHeatSinks: (count: number) => void;
+  /** Remove all pod-mounted equipment, preserving fixed equipment */
+  resetChassis: () => void;
+  /** Set whether a specific equipment instance is pod-mounted */
+  setEquipmentPodMounted: (instanceId: string, isPodMounted: boolean) => void;
+
   // Tech base
   setTechBaseMode: (mode: TechBaseMode) => void;
   setComponentTechBase: (component: keyof IComponentTechBases, techBase: TechBase) => void;
@@ -499,6 +525,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     unitType: UnitType.BATTLEMECH,
     configuration: MechConfiguration.BIPED,
     isOmni: false,
+    baseChassisHeatSinks: -1, // -1 = not set, use engine integral heat sinks
     techBaseMode,
     componentTechBases: createDefaultComponentTechBases(options.techBase),
     selectionMemory: createEmptySelectionMemory(),

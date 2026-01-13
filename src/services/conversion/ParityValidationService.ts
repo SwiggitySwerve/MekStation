@@ -305,6 +305,12 @@ export class ParityValidationService {
       generatedValue = this.normalizeTechBaseString(generatedValue);
     }
 
+    // Normalize armor values for comparison (handles patchwork armor format)
+    if (category === DiscrepancyCategory.ARMOR_MISMATCH) {
+      originalValue = this.normalizeArmorValue(originalValue);
+      generatedValue = this.normalizeArmorValue(generatedValue);
+    }
+
     if (originalValue !== generatedValue) {
       issues.push({
         category,
@@ -354,6 +360,20 @@ export class ParityValidationService {
     if (lower.includes('clan')) return 'clan';
     if (lower.includes('inner sphere') || lower === 'is') return 'inner sphere';
     return lower.trim();
+  }
+
+  /**
+   * Normalize armor value for comparison
+   * Handles patchwork armor format: "ArmorType:Value" -> "Value"
+   */
+  private normalizeArmorValue(value: string | undefined): string | undefined {
+    if (!value) return value;
+    // Patchwork armor format: "Reactive(Inner Sphere):26" -> "26"
+    if (value.includes(':')) {
+      const parts = value.split(':');
+      return parts[parts.length - 1].trim();
+    }
+    return value.trim();
   }
 
   /**

@@ -122,6 +122,10 @@ export function StructureTab({
   const enhancement = useUnitStore((s) => s.enhancement);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
+
+  // OmniMech-specific state
+  const isOmni = useUnitStore((s) => s.isOmni);
+  const baseChassisHeatSinks = useUnitStore((s) => s.baseChassisHeatSinks);
   
   // Get actions from context
   const setTonnage = useUnitStore((s) => s.setTonnage);
@@ -136,6 +140,7 @@ export function StructureTab({
   const setEnhancement = useUnitStore((s) => s.setEnhancement);
   const setJumpMP = useUnitStore((s) => s.setJumpMP);
   const setJumpJetType = useUnitStore((s) => s.setJumpJetType);
+  const setBaseChassisHeatSinks = useUnitStore((s) => s.setBaseChassisHeatSinks);
   
   // Get filtered options based on tech base
   const { filteredOptions } = useTechBaseSync(componentTechBases);
@@ -239,6 +244,13 @@ export function StructureTab({
     const clampedCount = Math.max(10, newCount);
     setHeatSinkCount(clampedCount);
   }, [setHeatSinkCount]);
+
+  const handleBaseChassisHeatSinksChange = useCallback((newCount: number) => {
+    // Base chassis heat sinks: minimum 1, maximum is heatSinkCount
+    // -1 means "use engine integral capacity" (default)
+    const clampedCount = Math.max(-1, Math.min(heatSinkCount, newCount));
+    setBaseChassisHeatSinks(clampedCount);
+  }, [setBaseChassisHeatSinks, heatSinkCount]);
   
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
@@ -480,6 +492,59 @@ export function StructureTab({
                   <div className="text-[10px] text-text-theme-muted">Dissipation</div>
                 </div>
               </div>
+
+              {/* Base Chassis Heat Sinks (OmniMech only) */}
+              {isOmni && (
+                <div className="mt-3 pt-3 border-t border-border-theme-subtle">
+                  <div className={cs.layout.rowBetween}>
+                    <label className={cs.text.label}>Base Chassis Heat Sinks</label>
+                    <span className={cs.text.secondary}>
+                      {baseChassisHeatSinks === -1 ? 'Auto' : `${baseChassisHeatSinks} fixed`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      onClick={() => handleBaseChassisHeatSinksChange(-1)}
+                      disabled={readOnly}
+                      className={`px-2 py-1 text-xs rounded ${
+                        baseChassisHeatSinks === -1
+                          ? 'bg-accent text-white'
+                          : 'bg-surface-deep text-text-theme-muted hover:bg-surface-hover'
+                      }`}
+                    >
+                      Auto
+                    </button>
+                    <div className="flex items-center flex-1">
+                      <button
+                        onClick={() => handleBaseChassisHeatSinksChange((baseChassisHeatSinks === -1 ? calculations.integralHeatSinks : baseChassisHeatSinks) - 1)}
+                        disabled={readOnly || baseChassisHeatSinks <= 1}
+                        className={cs.button.stepperLeft}
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={baseChassisHeatSinks === -1 ? calculations.integralHeatSinks : baseChassisHeatSinks}
+                        onChange={(e) => handleBaseChassisHeatSinksChange(parseInt(e.target.value, 10) || 10)}
+                        disabled={readOnly}
+                        min={1}
+                        max={heatSinkCount}
+                        className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
+                      />
+                      <button
+                        onClick={() => handleBaseChassisHeatSinksChange((baseChassisHeatSinks === -1 ? calculations.integralHeatSinks : baseChassisHeatSinks) + 1)}
+                        disabled={readOnly || (baseChassisHeatSinks !== -1 && baseChassisHeatSinks >= heatSinkCount)}
+                        className={cs.button.stepperRight}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-text-theme-muted mt-1">
+                    Heat sinks permanently fixed to the base chassis (cannot be pod-mounted)
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

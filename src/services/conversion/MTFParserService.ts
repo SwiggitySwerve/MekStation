@@ -37,6 +37,8 @@ const LOCATION_HEADERS: Record<string, string> = {
   'Front Right Leg:': 'FRONT_RIGHT_LEG',
   'Rear Left Leg:': 'REAR_LEFT_LEG',
   'Rear Right Leg:': 'REAR_RIGHT_LEG',
+  // Tripod locations
+  'Center Leg:': 'CENTER_LEG',
 };
 
 /**
@@ -57,6 +59,8 @@ const SLOT_COUNTS: Record<string, number> = {
   FRONT_RIGHT_LEG: 6,
   REAR_LEFT_LEG: 6,
   REAR_RIGHT_LEG: 6,
+  // Tripod locations
+  CENTER_LEG: 6,
 };
 
 /**
@@ -86,8 +90,9 @@ export class MTFParserService {
 
       // Parse header fields
       const header = this.parseHeader(lines);
-      if (!header.chassis || !header.model) {
-        errors.push('Missing required fields: chassis or model');
+      // Only chassis is required - model can be empty (many MTF files have `model:` with no value)
+      if (!header.chassis) {
+        errors.push('Missing required field: chassis');
         return { success: false, errors, warnings };
       }
 
@@ -131,12 +136,17 @@ export class MTFParserService {
       // Map rules level
       const rulesLevel = this.mapRulesLevel(header.rulesLevel);
 
+      // Normalize configuration to remove "Omnimech" suffix for base config
+      const baseConfig = header.config
+        .replace(/\s*omnimech\s*/i, '')
+        .trim() || 'Biped';
+
       const unit: ISerializedUnit = {
         id,
         chassis: header.chassis,
         model: header.model,
         unitType: 'BattleMech',
-        configuration: header.config || 'Biped',
+        configuration: baseConfig,
         techBase,
         rulesLevel,
         era,
@@ -169,6 +179,10 @@ export class MTFParserService {
         criticalSlots,
         quirks: quirks.length > 0 ? quirks : undefined,
         fluff: Object.keys(fluff).length > 0 ? fluff : undefined,
+        // OmniMech-specific fields
+        isOmni: header.isOmni || undefined,
+        baseChassisHeatSinks: header.baseChassisHeatSinks,
+        clanName: header.clanname,
       };
 
       // Add extra fields for round-trip
@@ -200,22 +214,25 @@ export class MTFParserService {
     role?: string;
     source?: string;
     clanname?: string;
+    isOmni: boolean;
+    baseChassisHeatSinks?: number;
   } {
     const chassis = this.parseField(lines, 'chassis') || '';
     const model = this.parseField(lines, 'model');
     const clanname = this.parseField(lines, 'clanname');
+    const config = this.parseField(lines, 'Config') || 'Biped';
 
-    // Handle empty model field - use clanname or chassis variant as fallback
-    // Some Clan mechs have format: chassis:Baboon, clanname:Howler, model: (empty)
-    let effectiveModel = model || '';
-    if (!effectiveModel && clanname) {
-      effectiveModel = clanname;
-    }
+    // Detect OmniMech from Config field (e.g., "Biped Omnimech", "Quad Omnimech")
+    const isOmni = config.toLowerCase().includes('omnimech');
+
+    // Parse Base Chassis Heat Sinks (only present for OmniMechs)
+    const baseHSField = this.parseField(lines, 'Base Chassis Heat Sinks');
+    const baseChassisHeatSinks = baseHSField ? parseInt(baseHSField, 10) : undefined;
 
     return {
       chassis,
-      model: effectiveModel,
-      config: this.parseField(lines, 'Config') || 'Biped',
+      model: model || '',
+      config,
       techBase: this.parseField(lines, 'techbase') || 'Inner Sphere',
       year: parseInt(this.parseField(lines, 'era') || '3025', 10),
       rulesLevel: this.parseField(lines, 'rules level') || '2',
@@ -223,6 +240,8 @@ export class MTFParserService {
       role: this.parseField(lines, 'role') || undefined,
       source: this.parseField(lines, 'source') || undefined,
       clanname,
+      isOmni,
+      baseChassisHeatSinks,
     };
   }
 
@@ -312,6 +331,8 @@ export class MTFParserService {
       'FRL armor': 'FRONT_RIGHT_LEG',
       'RLL armor': 'REAR_LEFT_LEG',
       'RRL armor': 'REAR_RIGHT_LEG',
+      // Tripod center leg
+      'CL armor': 'CENTER_LEG',
     };
 
     const frontValues: Record<string, number> = {};
@@ -320,7 +341,15 @@ export class MTFParserService {
     for (const [field, location] of Object.entries(armorFields)) {
       const value = this.parseField(lines, field);
       if (value) {
-        const numValue = parseInt(value, 10);
+        // Handle patchwork armor format: "ArmorType:Value" or just "Value"
+        let numValue: number;
+        if (value.includes(':')) {
+          // Patchwork format: "Reactive(Inner Sphere):26" - extract last part
+          const parts = value.split(':');
+          numValue = parseInt(parts[parts.length - 1], 10);
+        } else {
+          numValue = parseInt(value, 10);
+        }
         if (location.endsWith('_REAR')) {
           const baseLocation = location.replace('_REAR', '');
           rearValues[baseLocation] = numValue;
@@ -347,9 +376,10 @@ export class MTFParserService {
 
   /**
    * Parse weapons list
+   * Handles (omnipod) suffix for OmniMech pod-mounted equipment
    */
-  private parseWeapons(lines: string[]): Array<{ id: string; location: string }> {
-    const weapons: Array<{ id: string; location: string }> = [];
+  private parseWeapons(lines: string[]): Array<{ id: string; location: string; isOmniPodMounted?: boolean }> {
+    const weapons: Array<{ id: string; location: string; isOmniPodMounted?: boolean }> = [];
 
     // Find "Weapons:" section
     let inWeaponsSection = false;
@@ -371,15 +401,22 @@ export class MTFParserService {
           break;
         }
 
-        // Parse weapon line: "Medium Laser, Left Arm" or "LRM 20, Left Torso"
+        // Parse weapon line: "Medium Laser, Left Arm" or "LRM 20 (omnipod), Left Torso"
         const match = line.match(/^(.+),\s*(.+)$/);
         if (match) {
-          const weaponName = match[1].trim();
+          let weaponName = match[1].trim();
           const location = this.normalizeLocation(match[2].trim());
+
+          // Check for (omnipod) suffix
+          const isOmniPodMounted = weaponName.toLowerCase().includes('(omnipod)');
+          if (isOmniPodMounted) {
+            weaponName = weaponName.replace(/\s*\(omnipod\)\s*/i, '').trim();
+          }
 
           weapons.push({
             id: this.normalizeEquipmentId(weaponName),
             location,
+            ...(isOmniPodMounted && { isOmniPodMounted: true }),
           });
         }
       }
