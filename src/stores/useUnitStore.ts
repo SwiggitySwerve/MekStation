@@ -633,8 +633,14 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           const nonArmorEquipment = filterOutArmorSlots(state.equipment);
           const armorEquipment = createArmorEquipmentList(type);
           
+          const maxTotalArmor = getMaxTotalArmor(state.tonnage, state.configuration);
+          const newPointsPerTon = getArmorDefinition(type)?.pointsPerTon ?? 16;
+          const maxUsefulTonnage = ceilToHalfTon(maxTotalArmor / newPointsPerTon);
+          const cappedTonnage = Math.min(state.armorTonnage, maxUsefulTonnage);
+          
           return {
             armorType: type,
+            armorTonnage: cappedTonnage,
             equipment: [...nonArmorEquipment, ...armorEquipment],
             isModified: true,
             lastModifiedAt: Date.now(),

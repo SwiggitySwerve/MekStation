@@ -420,14 +420,10 @@ export class CalculationService implements ICalculationService {
     const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_CAPACITY_DOUBLE : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipated = mech.heatSinkCount * heatSinkCapacity;
 
-    // Calculate heat generated from weapons
     const registry = getEquipmentRegistry();
     
-    // If registry isn't initialized, trigger initialization and return default
     if (!registry.isReady()) {
-      registry.initialize().catch(() => {
-        // Initialization error handled silently - will retry on next call
-      });
+      registry.initialize().catch(() => {});
       return {
         heatGenerated: 0,
         heatDissipated,
@@ -436,19 +432,28 @@ export class CalculationService implements ICalculationService {
       };
     }
     
-    let heatGenerated = 0;
+    let weaponHeat = 0;
     
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (result.found && result.equipment && 'heat' in result.equipment) {
         const heat = (result.equipment as { heat: number }).heat;
-        heatGenerated += heat;
+        weaponHeat += heat;
       }
     }
-    // #endregion
 
-    // Alpha strike heat = total heat from firing all weapons
-    const alphaStrikeHeat = heatGenerated;
+    const jumpJetIds = ['jump-jet', 'jump-jet-light', 'jump-jet-medium', 'jump-jet-heavy', 
+                        'improved-jump-jet', 'improved-jump-jet-light', 'improved-jump-jet-medium', 'improved-jump-jet-heavy'];
+    const jumpMP = mech.equipment.filter(eq => 
+      jumpJetIds.some(id => eq.equipmentId.toLowerCase().includes(id.toLowerCase()))
+    ).length;
+
+    const runningHeat = 2;
+    const jumpingHeat = jumpMP;
+    const movementHeat = Math.max(runningHeat, jumpingHeat);
+
+    const alphaStrikeHeat = weaponHeat;
+    const heatGenerated = weaponHeat + movementHeat;
 
     return {
       heatGenerated,

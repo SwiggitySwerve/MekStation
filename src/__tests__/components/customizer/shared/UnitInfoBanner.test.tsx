@@ -51,19 +51,19 @@ describe('UnitInfoBanner', () => {
     const stats = createStats({ walkMP: 4, runMP: 6, jumpMP: 3 });
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('W')).toBeInTheDocument();
-    expect(screen.getByText('R')).toBeInTheDocument();
-    expect(screen.getByText('J')).toBeInTheDocument();
+    expect(screen.getByText('Walk')).toBeInTheDocument();
+    expect(screen.getByText('Run')).toBeInTheDocument();
+    expect(screen.getByText('Jump')).toBeInTheDocument();
     expect(screen.getByText('4')).toBeInTheDocument();
     expect(screen.getByText('6')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('should display max run MP as R+ when enhancement is active', () => {
+  it('should display max run MP as Run+ when enhancement is active', () => {
     const stats = createStats({ runMP: 5, maxRunMP: 10 });
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('R+')).toBeInTheDocument();
+    expect(screen.getByText('Run+')).toBeInTheDocument();
     expect(screen.getByText('10')).toBeInTheDocument();
   });
 
@@ -71,7 +71,7 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('WT')).toBeInTheDocument();
+    expect(screen.getByText('Weight')).toBeInTheDocument();
     expect(screen.getByText(/50.0/)).toBeInTheDocument();
   });
 
@@ -79,7 +79,7 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('ARM')).toBeInTheDocument();
+    expect(screen.getByText('Armor')).toBeInTheDocument();
     expect(screen.getByText('200')).toBeInTheDocument();
     expect(screen.getByText('307')).toBeInTheDocument();
   });
@@ -88,7 +88,7 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('SLOTS')).toBeInTheDocument();
+    expect(screen.getByText('Slots')).toBeInTheDocument();
     expect(screen.getByText('40')).toBeInTheDocument();
     expect(screen.getByText('78')).toBeInTheDocument();
   });
@@ -97,8 +97,8 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('HEAT')).toBeInTheDocument();
-    const heatLabel = screen.getByText('HEAT');
+    expect(screen.getByText('Heat')).toBeInTheDocument();
+    const heatLabel = screen.getByText('Heat');
     const heatContainer = heatLabel.closest('div');
     expect(heatContainer).toHaveTextContent('20');
     expect(heatContainer).toHaveTextContent('30');
@@ -108,7 +108,7 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('TON')).toBeInTheDocument();
+    expect(screen.getByText('Tonnage')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
   });
 
@@ -116,7 +116,7 @@ describe('UnitInfoBanner', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
     
-    expect(screen.getByText('ENG')).toBeInTheDocument();
+    expect(screen.getByText('Engine')).toBeInTheDocument();
     expect(screen.getByText('300')).toBeInTheDocument();
   });
 

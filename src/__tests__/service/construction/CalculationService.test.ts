@@ -332,9 +332,147 @@ describe('CalculationService', () => {
 
       const profile = service.calculateHeatProfile(mech);
       
-      expect(profile.heatGenerated).toBe(0);
+      expect(profile.heatGenerated).toBe(2);
       expect(profile.heatDissipated).toBe(10);
-      expect(profile.netHeat).toBe(-10); // Heat neutral (can dissipate all heat)
+      expect(profile.netHeat).toBe(-8);
+    });
+
+    it('should use running heat (2) when jump jets < 3', () => {
+      const mech = {
+        id: 'test',
+        chassis: 'Test',
+        variant: 'T',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+        engineType: EngineType.STANDARD,
+        engineRating: 200,
+        walkMP: 4,
+        structureType: InternalStructureType.STANDARD,
+        gyroType: GyroType.STANDARD,
+        cockpitType: CockpitType.STANDARD,
+        armorType: ArmorTypeEnum.STANDARD,
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
+        heatSinkType: HeatSinkType.SINGLE,
+        heatSinkCount: 10,
+        equipment: [
+          { equipmentId: 'jump-jet', location: 'LT', slotIndex: 0 },
+          { equipmentId: 'jump-jet', location: 'RT', slotIndex: 0 },
+        ],
+        isDirty: false,
+      } as IEditableMech;
+
+      const profile = service.calculateHeatProfile(mech);
+      
+      expect(profile.heatGenerated).toBe(2);
+    });
+
+    it('should use jump heat when jump jets >= 3', () => {
+      const mech = {
+        id: 'test',
+        chassis: 'Test',
+        variant: 'T',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+        engineType: EngineType.STANDARD,
+        engineRating: 200,
+        walkMP: 4,
+        structureType: InternalStructureType.STANDARD,
+        gyroType: GyroType.STANDARD,
+        cockpitType: CockpitType.STANDARD,
+        armorType: ArmorTypeEnum.STANDARD,
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
+        heatSinkType: HeatSinkType.SINGLE,
+        heatSinkCount: 10,
+        equipment: [
+          { equipmentId: 'jump-jet', location: 'LT', slotIndex: 0 },
+          { equipmentId: 'jump-jet', location: 'LT', slotIndex: 1 },
+          { equipmentId: 'jump-jet', location: 'RT', slotIndex: 0 },
+          { equipmentId: 'jump-jet', location: 'RT', slotIndex: 1 },
+        ],
+        isDirty: false,
+      } as IEditableMech;
+
+      const profile = service.calculateHeatProfile(mech);
+      
+      expect(profile.heatGenerated).toBe(4);
+    });
+
+    it('should combine jump heat with movement when jump > 2', () => {
+      const mech = {
+        id: 'test',
+        chassis: 'Test',
+        variant: 'T',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+        engineType: EngineType.STANDARD,
+        engineRating: 200,
+        walkMP: 4,
+        structureType: InternalStructureType.STANDARD,
+        gyroType: GyroType.STANDARD,
+        cockpitType: CockpitType.STANDARD,
+        armorType: ArmorTypeEnum.STANDARD,
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
+        heatSinkType: HeatSinkType.SINGLE,
+        heatSinkCount: 10,
+        equipment: [
+          { equipmentId: 'jump-jet', location: 'LT', slotIndex: 0 },
+          { equipmentId: 'jump-jet', location: 'LT', slotIndex: 1 },
+          { equipmentId: 'jump-jet', location: 'RT', slotIndex: 0 },
+          { equipmentId: 'jump-jet', location: 'RT', slotIndex: 1 },
+          { equipmentId: 'jump-jet', location: 'CT', slotIndex: 0 },
+        ],
+        isDirty: false,
+      } as IEditableMech;
+
+      const profile = service.calculateHeatProfile(mech);
+      
+      expect(profile.heatGenerated).toBe(5);
+      expect(profile.alphaStrikeHeat).toBe(0);
+    });
+
+    it('should track alpha strike heat separately from movement heat', () => {
+      const mech = {
+        id: 'test',
+        chassis: 'Test',
+        variant: 'T',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+        engineType: EngineType.STANDARD,
+        engineRating: 200,
+        walkMP: 4,
+        structureType: InternalStructureType.STANDARD,
+        gyroType: GyroType.STANDARD,
+        cockpitType: CockpitType.STANDARD,
+        armorType: ArmorTypeEnum.STANDARD,
+        armorAllocation: {
+          head: 0, centerTorso: 0, centerTorsoRear: 0,
+          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
+          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+        },
+        heatSinkType: HeatSinkType.DOUBLE_IS,
+        heatSinkCount: 12,
+        equipment: [],
+        isDirty: false,
+      } as IEditableMech;
+
+      const profile = service.calculateHeatProfile(mech);
+      
+      expect(profile.alphaStrikeHeat).toBe(0);
+      expect(profile.heatGenerated).toBe(2);
+      expect(profile.heatDissipated).toBe(24);
+      expect(profile.netHeat).toBe(-22);
     });
   });
 
