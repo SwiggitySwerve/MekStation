@@ -28,34 +28,49 @@ export function calculateRunMP(walkMP: number): number {
   return Math.ceil(walkMP * 1.5);
 }
 
-/**
- * Calculate sprint MP from walk MP (with MASC/Supercharger)
- * 
- * sprintMP = floor(walkMP × 2)
- * 
- * @param walkMP - Walking movement points
- * @returns Sprint MP
- */
-export function calculateSprintMP(walkMP: number): number {
-  if (walkMP <= 0) {
-    return 0;
-  }
-  return Math.floor(walkMP * 2);
+// =============================================================================
+// Movement Enhancement System
+// =============================================================================
+
+export interface MovementModifiers {
+  /** Bonus added to base 1.5x run multiplier (e.g., MASC adds 0.5 for 2.0x total) */
+  runMultiplierBonus: number;
+  /** Flat MP added after multiplication (e.g., TSM adds +1) */
+  flatMPBonus: number;
 }
 
-/**
- * Calculate combined sprint MP with MASC and Supercharger
- * 
- * combinedSprintMP = floor(walkMP × 2.5)
- * 
- * @param walkMP - Walking movement points
- * @returns Combined sprint MP
- */
-export function calculateCombinedSprintMP(walkMP: number): number {
-  if (walkMP <= 0) {
-    return 0;
+export const MOVEMENT_ENHANCEMENT_MODIFIERS: Record<string, MovementModifiers> = {
+  'masc': { runMultiplierBonus: 0.5, flatMPBonus: 0 },
+  'supercharger': { runMultiplierBonus: 0.5, flatMPBonus: 0 },
+  'tsm': { runMultiplierBonus: 0, flatMPBonus: 1 },
+  'triple strength myomer': { runMultiplierBonus: 0, flatMPBonus: 1 },
+};
+
+export function getMovementModifiersFromEquipment(equipmentNames: string[]): MovementModifiers {
+  const result: MovementModifiers = { runMultiplierBonus: 0, flatMPBonus: 0 };
+  const matched = new Set<string>();
+  
+  for (const name of equipmentNames) {
+    const nameNormalized = name.toLowerCase().replace(/-/g, ' ');
+    for (const [key, modifiers] of Object.entries(MOVEMENT_ENHANCEMENT_MODIFIERS)) {
+      if (nameNormalized.includes(key) && !matched.has(key)) {
+        matched.add(key);
+        result.runMultiplierBonus += modifiers.runMultiplierBonus;
+        result.flatMPBonus += modifiers.flatMPBonus;
+      }
+    }
   }
-  return Math.floor(walkMP * 2.5);
+  
+  return result;
+}
+
+export function calculateMaxRunMPWithModifiers(walkMP: number, modifiers: MovementModifiers): number | undefined {
+  if (walkMP <= 0) return 0;
+  if (modifiers.runMultiplierBonus === 0 && modifiers.flatMPBonus === 0) {
+    return undefined;
+  }
+  const totalMultiplier = 1.5 + modifiers.runMultiplierBonus;
+  return Math.floor(walkMP * totalMultiplier) + modifiers.flatMPBonus;
 }
 
 /**
@@ -214,43 +229,20 @@ export function validateJumpConfiguration(
 }
 
 /**
- * Calculate the maximum run/sprint MP when an enhancement is active
- * 
- * - MASC: Sprint = Walk × 2
- * - Supercharger: Sprint = Walk × 2
- * - TSM: Enhanced Run = Base Run + 1
- *        (+2 Walk from TSM, -1 from heat penalty at 9+ heat = net +1 Run MP)
- * - MASC + Supercharger: Sprint = Walk × 2.5
- * 
- * @param walkMP - Base walking movement points
- * @param enhancement - Active movement enhancement name (or null)
- * @param hasBoth - Whether both MASC and Supercharger are equipped
- * @returns Maximum run MP when enhancement is active, or undefined if no enhancement
+ * @deprecated Use getMovementModifiersFromEquipment + calculateMaxRunMPWithModifiers instead
  */
 export function calculateEnhancedMaxRunMP(
   walkMP: number,
   enhancement: string | null | undefined,
   hasBoth: boolean = false
 ): number | undefined {
-  if (!enhancement) return undefined;
+  if (!enhancement && !hasBoth) return undefined;
   
-  if (hasBoth) {
-    return calculateCombinedSprintMP(walkMP);
-  }
+  const equipmentNames = hasBoth 
+    ? ['masc', 'supercharger'] 
+    : enhancement ? [enhancement] : [];
   
-  // Normalize enhancement name for comparison
-  const enhancementLower = enhancement.toLowerCase();
-  
-  if (enhancementLower === 'masc' || enhancementLower === 'supercharger') {
-    return calculateSprintMP(walkMP);
-  }
-  
-  if (enhancementLower.includes('triple') || enhancementLower === 'tsm') {
-    // TSM: +2 Walk MP at 9+ heat, but -1 from heat penalty = net +1 Run MP
-    const baseRunMP = calculateRunMP(walkMP);
-    return baseRunMP + 1;
-  }
-  
-  return undefined;
+  const modifiers = getMovementModifiersFromEquipment(equipmentNames);
+  return calculateMaxRunMPWithModifiers(walkMP, modifiers);
 }
 
