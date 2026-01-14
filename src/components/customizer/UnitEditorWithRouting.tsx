@@ -34,7 +34,8 @@ import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
-import { GlobalLoadoutTray, LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
+import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
+import type { LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
 
 // Equipment
 import { EquipmentCategory } from '@/types/equipment';
@@ -615,9 +616,9 @@ export function UnitEditorWithRouting({
           </div>
         </div>
         
-        {/* Right side: Global Loadout Tray (hidden on Preview tab) */}
+        {/* Loadout Tray: Desktop sidebar / Mobile bottom sheet (hidden on Preview tab) */}
         {activeTabId !== 'preview' && (
-          <GlobalLoadoutTray
+          <ResponsiveLoadoutTray
             equipment={loadoutEquipment}
             equipmentCount={equipment.length}
             onRemoveEquipment={handleRemoveEquipment}

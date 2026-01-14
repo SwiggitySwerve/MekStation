@@ -9,7 +9,9 @@
 
 export { EquipmentBrowser } from './EquipmentBrowser';
 export { GlobalLoadoutTray } from './GlobalLoadoutTray';
-export type { LoadoutEquipmentItem } from './GlobalLoadoutTray';
+export { BottomSheetTray } from './BottomSheetTray';
+export { ResponsiveLoadoutTray } from './ResponsiveLoadoutTray';
+export type { LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
 export { EquipmentRow } from './EquipmentRow';
 export { EquipmentFilters } from './EquipmentFilters';
 export { CategoryToggleBar, HideToggleBar } from './CategoryToggleBar';

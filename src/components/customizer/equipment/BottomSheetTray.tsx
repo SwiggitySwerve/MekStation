@@ -13,7 +13,8 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
-import type { LoadoutEquipmentItem } from './GlobalLoadoutTray';
+import type { LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
+import { MechLocation } from '@/types/construction';
 
 // =============================================================================
 // Types
@@ -23,21 +24,16 @@ import type { LoadoutEquipmentItem } from './GlobalLoadoutTray';
 export type SheetState = 'collapsed' | 'half' | 'expanded';
 
 interface BottomSheetTrayProps {
-  /** Equipment items to display */
   equipment: LoadoutEquipmentItem[];
-  /** Total equipment count */
   equipmentCount: number;
-  /** Called when equipment is removed */
   onRemoveEquipment: (instanceId: string) => void;
-  /** Called when removing all equipment */
   onRemoveAllEquipment: () => void;
-  /** Currently selected equipment ID */
   selectedEquipmentId?: string | null;
-  /** Called when equipment is selected */
   onSelectEquipment?: (instanceId: string | null) => void;
-  /** Called when equipment is unassigned */
   onUnassignEquipment?: (instanceId: string) => void;
-  /** Additional CSS classes */
+  onQuickAssign?: (instanceId: string, location: MechLocation) => void;
+  availableLocations?: AvailableLocation[];
+  isOmni?: boolean;
   className?: string;
 }
 
@@ -184,12 +180,17 @@ function DragHandle({ onDragStart, onDragMove, onDragEnd }: DragHandleProps) {
 interface SheetEquipmentItemProps {
   item: LoadoutEquipmentItem;
   isSelected: boolean;
+  isOmni?: boolean;
   onSelect: () => void;
   onRemove: () => void;
 }
 
-function SheetEquipmentItem({ item, isSelected, onSelect, onRemove }: SheetEquipmentItemProps) {
+function SheetEquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove }: SheetEquipmentItemProps) {
   const colors = getCategoryColorsLegacy(item.category);
+  const isFixedOnOmni = isOmni && item.isOmniPodMounted === false;
+  const displayName = isOmni
+    ? `${item.name} ${item.isOmniPodMounted ? '(Pod)' : '(Fixed)'}`
+    : item.name;
 
   return (
     <div
@@ -197,11 +198,12 @@ function SheetEquipmentItem({ item, isSelected, onSelect, onRemove }: SheetEquip
         px-3 py-2 flex items-center gap-2 rounded-lg border border-border-theme-subtle/50
         ${colors.bg}
         ${isSelected ? 'ring-2 ring-accent ring-inset' : ''}
+        ${isFixedOnOmni ? 'opacity-60' : ''}
         active:brightness-110 transition-all min-h-[44px]
       `}
       onClick={onSelect}
     >
-      <span className="flex-1 text-sm text-white truncate">{item.name}</span>
+      <span className="flex-1 text-sm text-white truncate">{displayName}</span>
       <span className="text-xs text-white/60 whitespace-nowrap">
         {item.weight}t | {item.criticalSlots}cr
         {item.isAllocated && item.location && (
@@ -235,6 +237,9 @@ export function BottomSheetTray({
   selectedEquipmentId,
   onSelectEquipment,
   onUnassignEquipment,
+  onQuickAssign: _onQuickAssign,
+  availableLocations: _availableLocations,
+  isOmni = false,
   className = '',
 }: BottomSheetTrayProps): React.ReactElement {
   const [sheetState, setSheetState] = useState<SheetState>('collapsed');
@@ -445,6 +450,7 @@ export function BottomSheetTray({
                                 key={item.instanceId}
                                 item={item}
                                 isSelected={selectedEquipmentId === item.instanceId}
+                                isOmni={isOmni}
                                 onSelect={() => handleSelect(item.instanceId)}
                                 onRemove={() => onRemoveEquipment(item.instanceId)}
                               />
@@ -468,6 +474,7 @@ export function BottomSheetTray({
                           key={item.instanceId}
                           item={item}
                           isSelected={selectedEquipmentId === item.instanceId}
+                          isOmni={isOmni}
                           onSelect={() => handleSelect(item.instanceId)}
                           onRemove={() => onRemoveEquipment(item.instanceId)}
                         />

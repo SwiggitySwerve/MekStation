@@ -109,12 +109,12 @@ function CapacityStat({ label, current, max, unit = '', status = 'normal' }: Cap
   return (
     <div className="flex flex-col items-center gap-0.5">
       <span className={styles.label}>{label}</span>
-      <div className="flex items-baseline gap-1">
-        <span className={`text-lg font-bold ${valueColor}`}>
+      <div className="flex items-baseline gap-0.5 sm:gap-1">
+        <span className={`text-sm sm:text-lg font-bold ${valueColor}`}>
           {current}{unit}
         </span>
-        <span className={styles.muted}>/</span>
-        <span className={`text-sm ${styles.muted}`}>
+        <span className={`text-xs sm:text-base ${styles.muted}`}>/</span>
+        <span className={`text-xs sm:text-sm ${styles.muted}`}>
           {max}{unit}
         </span>
       </div>
@@ -137,7 +137,7 @@ function SimpleStat({ label, value, status = 'normal' }: SimpleStatProps) {
   return (
     <div className="flex flex-col items-center gap-0.5">
       <span className={styles.label}>{label}</span>
-      <span className={`text-lg font-bold ${valueColor}`}>{value}</span>
+      <span className={`text-sm sm:text-lg font-bold ${valueColor}`}>{value}</span>
     </div>
   );
 }
@@ -158,16 +158,17 @@ function MovementStat({ walkMP, runMP, jumpMP, maxRunMP }: MovementStatProps) {
   
   return (
     <div className="flex flex-col items-center gap-0.5">
-      <span className={styles.label}>WALK / RUN / JUMP</span>
-      <div className="flex items-baseline gap-1">
-        <span className="text-lg font-bold text-white">{walkMP}</span>
-        <span className={styles.muted}>/</span>
-        <span className="text-lg font-bold text-white">{runMP}</span>
+      <span className={`${styles.label} hidden sm:block`}>WALK / RUN / JUMP</span>
+      <span className={`${styles.label} sm:hidden`}>W/R/J</span>
+      <div className="flex items-baseline gap-0.5 sm:gap-1">
+        <span className="text-sm sm:text-lg font-bold text-white">{walkMP}</span>
+        <span className={`text-xs sm:text-base ${styles.muted}`}>/</span>
+        <span className="text-sm sm:text-lg font-bold text-white">{runMP}</span>
         {hasEnhancement && (
-          <span className="text-lg font-bold text-white">[{maxRunMP}]</span>
+          <span className="text-sm sm:text-lg font-bold text-white">[{maxRunMP}]</span>
         )}
-        <span className={styles.muted}>/</span>
-        <span className="text-lg font-bold text-white">{jumpMP}</span>
+        <span className={`text-xs sm:text-base ${styles.muted}`}>/</span>
+        <span className="text-sm sm:text-lg font-bold text-white">{jumpMP}</span>
       </div>
     </div>
   );
@@ -203,12 +204,12 @@ export function UnitInfoBanner({
       {/* Responsive container - stack on mobile, flex row on larger screens */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch">
         {/* Section 1: Identity + Validation - full width on mobile */}
-        <div className="w-full sm:w-auto px-4 py-2 border-b sm:border-r border-border-theme-subtle">
-          <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-white whitespace-nowrap">{stats.name}</h2>
-              <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                <span className="text-sm text-text-theme-secondary">{stats.tonnage} tons</span>
+        <div className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 border-b sm:border-r border-border-theme-subtle">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base sm:text-lg font-bold text-white truncate">{stats.name}</h2>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
+                <span className="text-xs sm:text-sm text-text-theme-secondary">{stats.tonnage}t</span>
                 <TechBaseBadge techBaseMode={stats.techBaseMode} />
                 <ValidationBadge 
                   status={stats.validationStatus}
@@ -221,7 +222,7 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 2: Movement Stats */}
-        <div className="px-4 py-2 flex items-center justify-center gap-4 border-b sm:border-b-0 sm:border-r border-border-theme-subtle">
+        <div className="px-3 sm:px-4 py-1.5 sm:py-2 flex items-center justify-center gap-2 sm:gap-4 border-b sm:border-b-0 sm:border-r border-border-theme-subtle">
           <MovementStat 
             walkMP={stats.walkMP} 
             runMP={stats.runMP} 
@@ -231,7 +232,7 @@ export function UnitInfoBanner({
         </div>
         
         {/* Section 3: Capacity Stats - grows to fill available space, wraps on mobile */}
-        <div className="flex-1 px-4 py-2 flex flex-wrap items-center justify-around gap-2 border-b sm:border-b-0 sm:border-r border-border-theme-subtle min-w-0 sm:min-w-[380px]">
+        <div className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 flex flex-wrap items-center justify-around gap-1 sm:gap-2 border-b sm:border-b-0 sm:border-r border-border-theme-subtle min-w-0">
           <SimpleStat 
             label="BV"
             value={stats.battleValue?.toLocaleString() ?? '-'}
