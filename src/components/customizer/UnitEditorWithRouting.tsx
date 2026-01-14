@@ -18,6 +18,7 @@ import { getTotalAllocatedArmor } from '@/stores/unitState';
 // Hooks
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
+import { useUnitValidation } from '@/hooks/useUnitValidation';
 import { CustomizerTabId, VALID_TAB_IDS } from '@/hooks/useCustomizerRouter';
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { usePersistedState, STORAGE_KEYS } from '@/hooks/usePersistedState';
@@ -204,6 +205,9 @@ export function UnitEditorWithRouting({
   // Calculate equipment totals
   const equipmentCalcs = useEquipmentCalculations(equipment);
   
+  // Get validation status
+  const validationResult = useUnitValidation();
+  
   // Calculate armor stats for display
   const allocatedArmorPoints = useMemo(
     () => getTotalAllocatedArmor(armorAllocation, configuration),
@@ -370,28 +374,36 @@ export function UnitEditorWithRouting({
     return techBaseMode;
   }, [techBaseMode, componentTechBases]);
 
-  const unitStats: UnitStats = useMemo(() => ({
-    name: unitName,
-    tonnage,
-    techBaseMode: effectiveTechBaseMode,
-    engineRating,
-    walkMP: calculations.walkMP,
-    runMP: calculations.runMP,
-    jumpMP: calculations.jumpMP,
-    maxRunMP,
-    weightUsed: totalWeight,
-    weightRemaining: tonnage - totalWeight,
-    armorPoints: allocatedArmorPoints,
-    maxArmorPoints: maxArmorPoints,
-    criticalSlotsUsed: totalSlotsUsed,
-    criticalSlotsTotal: 78,
-    heatGenerated: heatProfile.heatGenerated,
-    heatDissipation: heatProfile.heatDissipated,
-    battleValue,
-    validationStatus: 'valid' as ValidationStatus, // TODO: Get from validation
-    errorCount: 0,
-    warningCount: 0,
-  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue]);
+  const unitStats: UnitStats = useMemo(() => {
+    const validationStatus: ValidationStatus = validationResult.errorCount > 0
+      ? 'error'
+      : validationResult.warningCount > 0
+        ? 'warning'
+        : 'valid';
+    
+    return {
+      name: unitName,
+      tonnage,
+      techBaseMode: effectiveTechBaseMode,
+      engineRating,
+      walkMP: calculations.walkMP,
+      runMP: calculations.runMP,
+      jumpMP: calculations.jumpMP,
+      maxRunMP,
+      weightUsed: totalWeight,
+      weightRemaining: tonnage - totalWeight,
+      armorPoints: allocatedArmorPoints,
+      maxArmorPoints: maxArmorPoints,
+      criticalSlotsUsed: totalSlotsUsed,
+      criticalSlotsTotal: 78,
+      heatGenerated: heatProfile.heatGenerated,
+      heatDissipation: heatProfile.heatDissipated,
+      battleValue,
+      validationStatus,
+      errorCount: validationResult.errorCount,
+      warningCount: validationResult.warningCount,
+    };
+  }, [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue, validationResult]);
   
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)
@@ -429,7 +441,7 @@ export function UnitEditorWithRouting({
   // Toggle tray expansion
   const handleToggleTray = useCallback(() => {
     setIsTrayExpanded((prev) => !prev);
-  }, []);
+  }, [setIsTrayExpanded]);
   
   // Handle equipment selection for slot assignment
   const handleSelectEquipment = useCallback((id: string | null) => {

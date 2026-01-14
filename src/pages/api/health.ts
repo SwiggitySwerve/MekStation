@@ -87,8 +87,8 @@ export default function handler(
     res.setHeader('Pragma', 'no-cache');
     
     res.status(statusCode).json(response);
-  } catch {
-    // If we can't even check health, we're definitely unhealthy
+  } catch (error) {
+    console.error('[Health API] Health check failed:', error);
     const errorResponse: IHealthResponse = {
       status: 'unhealthy',
       timestamp: new Date().toISOString(),

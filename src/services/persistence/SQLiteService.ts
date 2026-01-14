@@ -215,7 +215,8 @@ export class SQLiteService implements ISQLiteService {
       `).get() as { version: number | null } | undefined;
 
       return result?.version ?? 0;
-    } catch {
+    } catch (error) {
+      console.error('[SQLiteService] Failed to get current migration version:', error);
       return 0;
     }
   }

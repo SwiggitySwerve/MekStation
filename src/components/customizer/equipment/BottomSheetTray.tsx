@@ -68,7 +68,7 @@ const CATEGORY_ORDER: EquipmentCategory[] = [
 ];
 
 // Short category labels for compact display
-const CATEGORY_SHORT: Record<EquipmentCategory, string> = {
+const _CATEGORY_SHORT: Record<EquipmentCategory, string> = {
   [EquipmentCategory.ENERGY_WEAPON]: 'E',
   [EquipmentCategory.BALLISTIC_WEAPON]: 'B',
   [EquipmentCategory.MISSILE_WEAPON]: 'M',
