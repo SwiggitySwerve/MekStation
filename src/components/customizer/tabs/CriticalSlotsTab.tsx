@@ -637,27 +637,26 @@ export function CriticalSlotsTab({
         </div>
       )}
       
-      {/* Mobile stacked 3-column layout */}
+      {/* Mobile stacked 3-column layout - CT positioned higher like reference */}
       <div className="flex-1 p-1 overflow-auto md:hidden">
-        <div className="flex flex-col gap-1 items-center">
-          {/* Row 1: Arms + Head */}
-          <div className="flex gap-1 justify-center">
+        <div className="flex gap-1 justify-center items-start">
+          {/* Left column: Left Arm + Left Torso + Left Leg */}
+          <div className="flex flex-col gap-1" style={{ marginTop: '80px' }}>
             {renderLocation(MechLocation.LEFT_ARM)}
-            {renderLocation(MechLocation.HEAD)}
-            {renderLocation(MechLocation.RIGHT_ARM)}
-          </div>
-          
-          {/* Row 2: Torsos */}
-          <div className="flex gap-1 justify-center">
             {renderLocation(MechLocation.LEFT_TORSO)}
-            {renderLocation(MechLocation.CENTER_TORSO)}
-            {renderLocation(MechLocation.RIGHT_TORSO)}
+            {renderLocation(MechLocation.LEFT_LEG)}
           </div>
           
-          {/* Row 3: Legs */}
-          <div className="flex gap-1 justify-center">
-            {renderLocation(MechLocation.LEFT_LEG)}
-            <div className="w-24 sm:w-32" /> {/* Spacer for center */}
+          {/* Center column: Head + Center Torso (no extra margin, starts at top) */}
+          <div className="flex flex-col gap-1">
+            {renderLocation(MechLocation.HEAD)}
+            {renderLocation(MechLocation.CENTER_TORSO)}
+          </div>
+          
+          {/* Right column: Right Arm + Right Torso + Right Leg */}
+          <div className="flex flex-col gap-1" style={{ marginTop: '80px' }}>
+            {renderLocation(MechLocation.RIGHT_ARM)}
+            {renderLocation(MechLocation.RIGHT_TORSO)}
             {renderLocation(MechLocation.RIGHT_LEG)}
           </div>
         </div>
