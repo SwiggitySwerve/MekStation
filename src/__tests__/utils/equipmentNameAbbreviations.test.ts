@@ -49,10 +49,11 @@ describe('abbreviateEquipmentName', () => {
     expect(abbreviateEquipmentName('Beagle Active Probe')).toBe('BAP');
   });
 
-  it('should NOT abbreviate structure types (keep full names)', () => {
-    // Endo Steel and Ferro-Fibrous should remain as-is for clarity
+  it('should handle structure types appropriately', () => {
+    // Endo Steel stays full, Ferro-Fibrous abbreviated to Ferro-Fib
     expect(abbreviateEquipmentName('Endo Steel')).toBe('Endo Steel');
-    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe('Ferro-Fibrous Armor');
+    expect(abbreviateEquipmentName('Ferro-Fibrous')).toBe('Ferro-Fib');
+    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe('Ferro-Fib Armor');
   });
 
   it('should handle multiple abbreviations in one name', () => {
