@@ -127,16 +127,18 @@ export function EquipmentBrowser({
                   currentColumn={sortColumn}
                   direction={sortDirection}
                   onSort={setSort}
+                  className="pl-1.5"
                 />
-                <th className="hidden sm:table-cell px-1 py-1">Dmg</th>
-                <th className="hidden sm:table-cell px-1 py-1">Heat</th>
-                <th className="hidden md:table-cell px-1 py-1">Range</th>
+                <th className="px-1 py-1 text-center w-20 sm:w-24">Range</th>
+                <th className="px-1 py-1 text-center w-10 sm:w-12">Dmg</th>
+                <th className="px-1 py-1 text-center w-8 sm:w-10">Heat</th>
                 <SortableHeader
                   label="Wt"
                   column="weight"
                   currentColumn={sortColumn}
                   direction={sortDirection}
                   onSort={setSort}
+                  className="text-center w-12"
                 />
                 <SortableHeader
                   label="Crit"
@@ -144,8 +146,9 @@ export function EquipmentBrowser({
                   currentColumn={sortColumn}
                   direction={sortDirection}
                   onSort={setSort}
+                  className="text-center w-10"
                 />
-                <th className="px-1 py-1 w-10 sm:w-12"></th>
+                <th className="px-1 py-1 w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -218,6 +221,7 @@ interface SortableHeaderProps {
   currentColumn: SortColumn;
   direction: 'asc' | 'desc';
   onSort: (column: SortColumn) => void;
+  className?: string;
 }
 
 function SortableHeader({
@@ -226,15 +230,16 @@ function SortableHeader({
   currentColumn,
   direction,
   onSort,
+  className = '',
 }: SortableHeaderProps) {
   const isActive = column === currentColumn;
   
   return (
     <th
-      className="px-1.5 py-1 cursor-pointer hover:text-white transition-colors"
+      className={`px-1 py-1 cursor-pointer hover:text-white transition-colors ${className}`}
       onClick={() => onSort(column)}
     >
-      <span className="flex items-center gap-0.5">
+      <span className="flex items-center gap-0.5 justify-inherit">
         {label}
         {isActive && (
           <span className="text-accent text-[8px]">

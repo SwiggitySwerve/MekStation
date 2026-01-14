@@ -6,9 +6,10 @@
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
-import React, { memo } from 'react';
-import { IEquipmentItem, EquipmentCategory, getAllWeapons, IWeapon } from '@/types/equipment';
+import React, { memo, useMemo } from 'react';
+import { IEquipmentItem, EquipmentCategory, IWeapon } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 interface EquipmentRowProps {
   /** Equipment item data */
@@ -20,32 +21,36 @@ interface EquipmentRowProps {
 }
 
 /**
- * Get weapon data from equipment item if it's a weapon
+ * Check if category is a weapon category
  */
-function getWeaponData(equipment: IEquipmentItem): IWeapon | null {
-  // Check if equipment is a weapon category
-  const isWeaponCategory = 
-    equipment.category === EquipmentCategory.ENERGY_WEAPON ||
-    equipment.category === EquipmentCategory.BALLISTIC_WEAPON ||
-    equipment.category === EquipmentCategory.MISSILE_WEAPON ||
-    equipment.category === EquipmentCategory.ARTILLERY ||
-    equipment.category === EquipmentCategory.CAPITAL_WEAPON ||
-    equipment.category === EquipmentCategory.PHYSICAL_WEAPON;
-  
-  if (!isWeaponCategory) {
+function isWeaponCategory(category: EquipmentCategory): boolean {
+  return (
+    category === EquipmentCategory.ENERGY_WEAPON ||
+    category === EquipmentCategory.BALLISTIC_WEAPON ||
+    category === EquipmentCategory.MISSILE_WEAPON ||
+    category === EquipmentCategory.ARTILLERY ||
+    category === EquipmentCategory.CAPITAL_WEAPON ||
+    category === EquipmentCategory.PHYSICAL_WEAPON
+  );
+}
+
+/**
+ * Get weapon data from equipment item if it's a weapon
+ * Uses equipmentLookupService which loads from JSON
+ */
+function getWeaponData(equipment: IEquipmentItem, allWeapons: readonly IWeapon[]): IWeapon | null {
+  if (!isWeaponCategory(equipment.category)) {
     return null;
   }
   
-  // Look up weapon by ID
-  const weapons = getAllWeapons();
-  return weapons.find(w => w.id === equipment.id) ?? null;
+  // Look up weapon by ID from loaded weapons
+  return allWeapons.find(w => w.id === equipment.id) ?? null;
 }
 
 /**
  * Format range display (short/medium/long)
  */
-function formatRange(equipment: IEquipmentItem): string {
-  const weapon = getWeaponData(equipment);
+function formatRange(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
@@ -67,8 +72,7 @@ function formatRange(equipment: IEquipmentItem): string {
 /**
  * Get damage display
  */
-function formatDamage(equipment: IEquipmentItem): string {
-  const weapon = getWeaponData(equipment);
+function formatDamage(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
@@ -82,8 +86,7 @@ function formatDamage(equipment: IEquipmentItem): string {
 /**
  * Get heat display
  */
-function formatHeat(equipment: IEquipmentItem): string {
-  const weapon = getWeaponData(equipment);
+function formatHeat(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
@@ -105,6 +108,16 @@ export const EquipmentRow = memo(function EquipmentRow({
 }: EquipmentRowProps) {
   const colors = getCategoryColorsLegacy(equipment.category);
   
+  // Get all weapons from lookup service (memoized to avoid re-fetching)
+  const allWeapons = useMemo(() => {
+    return equipmentLookupService.getAllWeapons();
+  }, []);
+  
+  // Look up weapon data for this equipment
+  const weaponData = useMemo(() => {
+    return getWeaponData(equipment, allWeapons);
+  }, [equipment, allWeapons]);
+  
   if (compact) {
     return (
       <tr className="border-t border-border-theme-subtle/20 hover:bg-surface-raised/30 transition-colors text-[11px]">
@@ -116,25 +129,25 @@ export const EquipmentRow = memo(function EquipmentRow({
             </span>
           </div>
         </td>
-        <td className="hidden sm:table-cell px-1 py-0.5 text-slate-300 text-center">
-          {formatDamage(equipment)}
+        <td className="px-1 py-0.5 text-text-theme-secondary text-center w-20 sm:w-24 text-[10px] tabular-nums">
+          {formatRange(weaponData)}
         </td>
-        <td className="hidden sm:table-cell px-1 py-0.5 text-slate-300 text-center">
-          {formatHeat(equipment)}
+        <td className="px-1 py-0.5 text-slate-300 text-center w-10 sm:w-12">
+          {formatDamage(weaponData)}
         </td>
-        <td className="hidden md:table-cell px-1 py-0.5 text-text-theme-secondary text-center">
-          {formatRange(equipment)}
+        <td className="px-1 py-0.5 text-slate-300 text-center w-8 sm:w-10">
+          {formatHeat(weaponData)}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-right tabular-nums">
+        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums w-12">
           {equipment.weight}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums">
+        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums w-10">
           {equipment.criticalSlots}
         </td>
-        <td className="px-1 py-0.5">
+        <td className="px-1 py-0.5 w-10">
           <button
             onClick={onAdd}
-            className="w-full px-1 py-0 text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors"
+            className="w-full px-1 py-0.5 text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors font-medium"
             title={`Add ${equipment.name}`}
           >
             +
@@ -155,23 +168,23 @@ export const EquipmentRow = memo(function EquipmentRow({
         </div>
       </td>
       
+      {/* Range */}
+      <td className="px-3 py-2 text-text-theme-secondary text-center">
+        {formatRange(weaponData)}
+      </td>
+      
       {/* Damage */}
       <td className="px-3 py-2 text-slate-300 text-center">
-        {formatDamage(equipment)}
+        {formatDamage(weaponData)}
       </td>
       
       {/* Heat */}
       <td className="px-3 py-2 text-slate-300 text-center">
-        {formatHeat(equipment)}
-      </td>
-      
-      {/* Range */}
-      <td className="px-3 py-2 text-text-theme-secondary text-center">
-        {formatRange(equipment)}
+        {formatHeat(weaponData)}
       </td>
       
       {/* Weight */}
-      <td className="px-3 py-2 text-slate-300 text-right">
+      <td className="px-3 py-2 text-slate-300 text-center">
         {equipment.weight}t
       </td>
       
