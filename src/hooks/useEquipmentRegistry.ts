@@ -38,7 +38,9 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
       setInitAttempted(true);
       registry.initialize()
         .then(() => setIsReady(true))
-        .catch(console.error);
+        .catch(() => {
+          // Initialization failed - will retry on next mount
+        });
     }
   }, [initAttempted]);
 

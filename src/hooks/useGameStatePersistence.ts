@@ -213,7 +213,6 @@ export function useGameStatePersistence(
       const parsed = JSON.parse(storedData) as StoredData;
 
       // Remove internal metadata from state before setting it
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { _lastSaved, ...cleanState } = parsed.state;
 
       // Version migration could be added here
