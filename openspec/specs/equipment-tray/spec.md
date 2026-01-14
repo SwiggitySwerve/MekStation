@@ -51,18 +51,43 @@ Each equipment item SHALL display key information in a compact, color-coded form
 - **AND** stats are separated by bullet characters
 
 ### Requirement: Equipment Removal
-The Equipment Tray SHALL allow users to remove equipment by double-clicking items.
 
-#### Scenario: Removable equipment
-- **WHEN** user double-clicks a weapon or equipment item
-- **THEN** item is removed from unit
+The Equipment Tray SHALL allow users to remove equipment using a click-to-confirm pattern.
+
+#### Scenario: Single item removal with confirmation
+
+- **WHEN** user clicks the remove (X) button on a removable equipment item
+- **THEN** button displays confirmation indicator (?)
+- **AND** clicking again within 3 seconds removes the item
 - **AND** item disappears from tray
 - **AND** statistics update immediately
 
+#### Scenario: Confirmation timeout
+
+- **WHEN** user clicks the remove button showing confirmation indicator
+- **AND** 3 seconds pass without a second click
+- **THEN** confirmation state resets to normal remove button
+- **AND** item remains in tray
+
+#### Scenario: Confirmation cancel on blur
+
+- **WHEN** confirmation indicator is showing
+- **AND** user clicks elsewhere in the interface
+- **THEN** confirmation state resets to normal remove button
+
 #### Scenario: Non-removable configuration components
-- **WHEN** user double-clicks a configuration component
-- **THEN** removal is blocked
+
+- **WHEN** user views a configuration component (engine, gyro, structure, armor type)
+- **THEN** remove button is NOT displayed
 - **AND** tooltip shows which tab manages that component
+
+#### Scenario: Fixed OmniMech equipment
+
+- **WHEN** unit is an OmniMech
+- **AND** equipment is marked as fixed (not pod-mounted)
+- **THEN** remove button is NOT displayed
+- **AND** item shows "(Fixed)" suffix
+- **AND** opacity is reduced to indicate non-removable status
 
 ### Requirement: Hide Structural Toggle
 The Equipment Tray SHALL provide option to hide structural components.
