@@ -11,8 +11,7 @@
  */
 
 import { SVGRecordSheetRenderer } from '@/services/printing/SVGRecordSheetRenderer';
-import { PaperSize } from '@/types/printing';
-import { IRecordSheetData } from '@/services/printing/RecordSheetService';
+import { IRecordSheetData } from '@/types/printing';
 
 // Mock fetch for SVG template loading
 global.fetch = jest.fn();
@@ -125,6 +124,7 @@ const createMockArmorData = (mechType: string): IRecordSheetData['armor'] => {
   if (mechType === 'biped' || mechType === 'lam') {
     return {
       type: 'Standard',
+      totalPoints: 168,
       locations: [
         ...baseLocations,
         { location: 'Left Arm', abbreviation: 'LA', current: 13, maximum: 16 },
@@ -136,6 +136,7 @@ const createMockArmorData = (mechType: string): IRecordSheetData['armor'] => {
   } else if (mechType === 'quad' || mechType === 'quadvee') {
     return {
       type: 'Standard',
+      totalPoints: 168,
       locations: [
         ...baseLocations,
         { location: 'Front Left Leg', abbreviation: 'FLL', current: 21, maximum: 24 },
@@ -147,6 +148,7 @@ const createMockArmorData = (mechType: string): IRecordSheetData['armor'] => {
   } else if (mechType === 'tripod') {
     return {
       type: 'Standard',
+      totalPoints: 188,
       locations: [
         ...baseLocations,
         { location: 'Left Arm', abbreviation: 'LA', current: 13, maximum: 16 },
@@ -158,7 +160,7 @@ const createMockArmorData = (mechType: string): IRecordSheetData['armor'] => {
     };
   }
 
-  return { type: 'Standard', locations: baseLocations };
+  return { type: 'Standard', totalPoints: 79, locations: baseLocations };
 };
 
 describe('SVGRecordSheetRenderer', () => {
@@ -174,7 +176,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
 
       // Verify fetch was called and template was loaded
       expect(global.fetch).toHaveBeenCalled();
@@ -184,7 +186,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('quad');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.LETTER, 'quad');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_quad_default.svg');
 
       // Verify fetch was called
       expect(global.fetch).toHaveBeenCalled();
@@ -194,7 +196,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('tripod');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.LETTER, 'tripod');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_tripod_default.svg');
 
       // Verify fetch was called
       expect(global.fetch).toHaveBeenCalled();
@@ -204,7 +206,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.LETTER, 'lam');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_lam_default.svg');
 
       // LAM template should be loaded (fetch was called)
       expect(global.fetch).toHaveBeenCalled();
@@ -214,7 +216,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
 
       // Just verify fetch was called with the letter paper size
       expect(global.fetch).toHaveBeenCalled();
@@ -224,7 +226,7 @@ describe('SVGRecordSheetRenderer', () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
 
-      await renderer.loadTemplate(PaperSize.A4, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_iso/mek_biped_default.svg');
 
       // The implementation may use 'a4' directly or 'templates_iso'
       // Just verify fetch was called
@@ -236,7 +238,7 @@ describe('SVGRecordSheetRenderer', () => {
         Promise.resolve({ ok: false, status: 404 })
       );
 
-      await expect(renderer.loadTemplate(PaperSize.LETTER, 'biped')).rejects.toThrow();
+      await expect(renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg')).rejects.toThrow();
     });
   });
 
@@ -244,11 +246,12 @@ describe('SVGRecordSheetRenderer', () => {
     beforeEach(async () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
     });
 
     it('should fill armor pips for all biped locations', async () => {
-      const armorData = createMockArmorData('biped');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
 
@@ -257,7 +260,8 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should set armor text values', async () => {
-      const armorData = createMockArmorData('biped');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
 
@@ -271,12 +275,13 @@ describe('SVGRecordSheetRenderer', () => {
     beforeEach(async () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
     });
 
     it('should fill structure pips for all biped locations', async () => {
       const structureData: IRecordSheetData['structure'] = {
         type: 'Standard',
+        totalPoints: 83,
         locations: [
           { location: 'Head', abbreviation: 'HD', points: 3 },
           { location: 'Center Torso', abbreviation: 'CT', points: 16 },
@@ -299,7 +304,7 @@ describe('SVGRecordSheetRenderer', () => {
     beforeEach(async () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
     });
 
     it('should fill header data', () => {
@@ -311,28 +316,35 @@ describe('SVGRecordSheetRenderer', () => {
           tonnage: 100,
           techBase: 'Inner Sphere',
           rulesLevel: 'Standard',
+          era: '3025',
           role: 'Juggernaut',
           battleValue: 1897,
           cost: 9626000,
-          engineType: '300 Fusion',
         },
         movement: {
           walkMP: 3,
           runMP: 5,
           jumpMP: 0,
+          hasMASC: false,
+          hasTSM: false,
+          hasSupercharger: false,
         },
         armor: {
           type: 'Standard',
+          totalPoints: 0,
           locations: [],
         },
         structure: {
           type: 'Standard',
+          totalPoints: 0,
           locations: [],
         },
         heatSinks: {
           type: 'Single',
           count: 10,
-          engineIntegrated: 10,
+          capacity: 10,
+          integrated: 10,
+          external: 0,
         },
         equipment: [],
         criticals: [],
@@ -358,7 +370,7 @@ describe('SVGRecordSheetRenderer', () => {
     it('should return serialized SVG document', async () => {
       const mockSvg = createMockTemplate('biped');
       (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-      await renderer.loadTemplate(PaperSize.LETTER, 'biped');
+      await renderer.loadTemplate('/record-sheets/templates_us/mek_biped_default.svg');
 
       const svgString = renderer.getSVGString();
 
@@ -378,9 +390,10 @@ describe('SVGRecordSheetRenderer', () => {
       it('should use quad pip group IDs', async () => {
         const mockSvg = createMockTemplate('quad');
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-        await renderer.loadTemplate(PaperSize.LETTER, 'quad');
+        await renderer.loadTemplate('/record-sheets/templates_us/mek_quad_default.svg');
 
-        const armorData = createMockArmorData('quad');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const armorData: IRecordSheetData['armor'] = createMockArmorData('quad');
         await renderer.fillArmorPips(armorData, 'quad');
 
         // Verifies quad locations FLL, FRL, RLL, RRL are processed
@@ -391,9 +404,10 @@ describe('SVGRecordSheetRenderer', () => {
       it('should use tripod pip group IDs including center leg', async () => {
         const mockSvg = createMockTemplate('tripod');
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-        await renderer.loadTemplate(PaperSize.LETTER, 'tripod');
+        await renderer.loadTemplate('/record-sheets/templates_us/mek_tripod_default.svg');
 
-        const armorData = createMockArmorData('tripod');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const armorData: IRecordSheetData['armor'] = createMockArmorData('tripod');
         await renderer.fillArmorPips(armorData, 'tripod');
 
         // Verifies CL location is processed
@@ -402,10 +416,11 @@ describe('SVGRecordSheetRenderer', () => {
       it('should generate pips for center leg when armor allocated', async () => {
         const mockSvg = createMockTemplate('tripod');
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-        await renderer.loadTemplate(PaperSize.LETTER, 'tripod');
+        await renderer.loadTemplate('/record-sheets/templates_us/mek_tripod_default.svg');
 
         const armorData: IRecordSheetData['armor'] = {
           type: 'Standard',
+          totalPoints: 20,
           locations: [
             { location: 'Center Leg', abbreviation: 'CL', current: 20, maximum: 24 },
           ],
@@ -421,9 +436,10 @@ describe('SVGRecordSheetRenderer', () => {
       it('should use biped locations for LAM', async () => {
         const mockSvg = createMockTemplate('biped');
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-        await renderer.loadTemplate(PaperSize.LETTER, 'lam');
+        await renderer.loadTemplate('/record-sheets/templates_us/mek_lam_default.svg');
 
-        const armorData = createMockArmorData('lam');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const armorData: IRecordSheetData['armor'] = createMockArmorData('lam');
         await renderer.fillArmorPips(armorData, 'lam');
 
         // LAM uses biped pip group IDs
@@ -434,9 +450,10 @@ describe('SVGRecordSheetRenderer', () => {
       it('should use quad locations for QuadVee', async () => {
         const mockSvg = createMockTemplate('quad');
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
-        await renderer.loadTemplate(PaperSize.LETTER, 'quadvee');
+        await renderer.loadTemplate('/record-sheets/templates_us/mek_quad_default.svg');
 
-        const armorData = createMockArmorData('quadvee');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const armorData: IRecordSheetData['armor'] = createMockArmorData('quadvee');
         await renderer.fillArmorPips(armorData, 'quadvee');
 
         // QuadVee uses quad pip group IDs
