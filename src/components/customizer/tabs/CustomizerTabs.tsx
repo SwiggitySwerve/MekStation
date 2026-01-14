@@ -108,7 +108,7 @@ export function CustomizerTabs({
   
   return (
     <div
-      className={`flex bg-surface-base border-b border-border-theme-subtle ${className}`}
+      className={`flex overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme bg-surface-base border-b border-border-theme-subtle ${className}`}
       role="tablist"
       aria-label="Unit configuration tabs"
       onKeyDown={handleKeyDown}
@@ -123,8 +123,8 @@ export function CustomizerTabs({
           onClick={() => !tab.disabled && onTabChange(tab.id)}
           disabled={tab.disabled}
           className={`
-            flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 text-sm font-medium
-            border-b-2 transition-colors
+            flex-shrink-0 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 text-sm font-medium
+            border-b-2 transition-colors whitespace-nowrap
             focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset
             ${tab.id === activeTab
               ? 'text-accent border-accent'

@@ -270,22 +270,25 @@ function CriticalSlotsToolbar({
   `;
   
   return (
-    <div className="flex items-center gap-2 p-3 bg-surface-base border-b border-border-theme-subtle">
+    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-surface-base border-b border-border-theme-subtle overflow-x-auto">
       <button onClick={onAutoFillToggle} disabled={readOnly} className={toggleBtnClass(autoFillUnhittables)}>
-        Auto Fill Unhittables
+        <span className="hidden sm:inline">Auto Fill Unhittables</span>
+        <span className="sm:hidden">Fill</span>
       </button>
       <button onClick={onAutoCompactToggle} disabled={readOnly} className={toggleBtnClass(autoCompact)}>
-        Auto Compact
+        <span className="hidden sm:inline">Auto Compact</span>
+        <span className="sm:hidden">Compact</span>
       </button>
       <button onClick={onAutoSortToggle} disabled={readOnly} className={toggleBtnClass(autoSort)}>
-        Auto Sort
+        <span className="hidden sm:inline">Auto Sort</span>
+        <span className="sm:hidden">Sort</span>
       </button>
       
-      <div className="w-px h-6 bg-border-theme mx-2" />
+      <div className="hidden sm:block w-px h-6 bg-border-theme mx-2" />
       
-      <button onClick={onFill} disabled={readOnly} className={actionBtnClass}>Fill</button>
-      <button onClick={onCompact} disabled={readOnly} className={actionBtnClass}>Compact</button>
-      <button onClick={onSort} disabled={readOnly} className={actionBtnClass}>Sort</button>
+      <button onClick={onFill} disabled={readOnly} className={`hidden sm:block ${actionBtnClass}`}>Fill</button>
+      <button onClick={onCompact} disabled={readOnly} className={`hidden sm:block ${actionBtnClass}`}>Compact</button>
+      <button onClick={onSort} disabled={readOnly} className={`hidden sm:block ${actionBtnClass}`}>Sort</button>
       
       <div className="flex-1" />
       
@@ -606,8 +609,8 @@ export function CriticalSlotsTab({
       />
       
       {/* Mech diagram - MegaMekLab-style 5-column layout */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="flex gap-3 items-start justify-center">
+      <div className="flex-1 p-2 sm:p-4 overflow-auto">
+        <div className="flex gap-2 sm:gap-3 items-start justify-start sm:justify-center min-w-max">
           {/* Column 1: Left Arm (offset down to align with torso body) */}
           <div className="flex flex-col" style={{ marginTop: '136px' }}>
             {renderLocation(MechLocation.LEFT_ARM)}
