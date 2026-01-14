@@ -24,15 +24,26 @@ import { MechLocation } from '@/types/construction';
 
 export interface LoadoutEquipmentItem {
   instanceId: string;
+  equipmentId: string;
   name: string;
   category: EquipmentCategory;
   weight: number;
   criticalSlots: number;
+  heat?: number;
+  damage?: number | string;
+  ranges?: {
+    minimum: number;
+    short: number;
+    medium: number;
+    long: number;
+  };
   isAllocated: boolean;
   location?: string;
   isRemovable: boolean;
   /** Whether this is pod-mounted equipment on an OmniMech (false = fixed) */
   isOmniPodMounted?: boolean;
+  /** Whether this weapon is compatible with a Targeting Computer */
+  targetingComputerCompatible?: boolean;
 }
 
 /** Location with available slot info for context menu */

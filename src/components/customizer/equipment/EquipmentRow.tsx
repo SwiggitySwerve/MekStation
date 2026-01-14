@@ -106,52 +106,38 @@ export const EquipmentRow = memo(function EquipmentRow({
   const colors = getCategoryColorsLegacy(equipment.category);
   
   if (compact) {
-    // Compact layout - fewer columns, MekLab-style, touch-friendly on mobile
     return (
-      <tr className="border-t border-border-theme-subtle/30 hover:bg-surface-raised/30 transition-colors text-xs">
-        {/* Name with category color indicator */}
-        <td className="px-2 py-2 sm:py-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-sm flex-shrink-0 ${colors.bg}`} />
+      <tr className="border-t border-border-theme-subtle/20 hover:bg-surface-raised/30 transition-colors text-[11px]">
+        <td className="px-1.5 py-0.5">
+          <div className="flex items-center gap-1">
+            <span className={`w-1 h-1 rounded-sm flex-shrink-0 ${colors.bg}`} />
             <span className="text-white truncate" title={equipment.name}>
               {equipment.name}
             </span>
           </div>
         </td>
-
-        {/* Damage - hidden on small screens */}
-        <td className="hidden sm:table-cell px-2 py-2 sm:py-1.5 text-slate-300 text-center">
+        <td className="hidden sm:table-cell px-1 py-0.5 text-slate-300 text-center">
           {formatDamage(equipment)}
         </td>
-
-        {/* Heat - hidden on small screens */}
-        <td className="hidden sm:table-cell px-2 py-2 sm:py-1.5 text-slate-300 text-center">
+        <td className="hidden sm:table-cell px-1 py-0.5 text-slate-300 text-center">
           {formatHeat(equipment)}
         </td>
-
-        {/* Range - hidden on medium screens and below */}
-        <td className="hidden md:table-cell px-2 py-2 sm:py-1.5 text-text-theme-secondary text-center">
+        <td className="hidden md:table-cell px-1 py-0.5 text-text-theme-secondary text-center">
           {formatRange(equipment)}
         </td>
-
-        {/* Weight */}
-        <td className="px-2 py-2 sm:py-1.5 text-slate-300 text-right">
+        <td className="px-1 py-0.5 text-slate-300 text-right tabular-nums">
           {equipment.weight}
         </td>
-
-        {/* Critical Slots */}
-        <td className="px-2 py-2 sm:py-1.5 text-slate-300 text-center">
+        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums">
           {equipment.criticalSlots}
         </td>
-
-        {/* Add button - larger touch target on mobile */}
-        <td className="px-2 py-2 sm:py-1.5">
+        <td className="px-1 py-0.5">
           <button
             onClick={onAdd}
-            className="w-full px-2 py-1.5 sm:px-1.5 sm:py-0.5 text-xs sm:text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors min-h-[32px] sm:min-h-0"
+            className="w-full px-1 py-0 text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors"
             title={`Add ${equipment.name}`}
           >
-            Add
+            +
           </button>
         </td>
       </tr>

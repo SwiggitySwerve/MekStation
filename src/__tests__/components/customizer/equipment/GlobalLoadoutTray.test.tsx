@@ -8,6 +8,7 @@ import { MechLocation } from '@/types/construction';
 describe('GlobalLoadoutTray', () => {
   const createEquipment = (overrides?: Partial<LoadoutEquipmentItem>): LoadoutEquipmentItem => ({
     instanceId: 'equip-1',
+    equipmentId: 'medium-laser',
     name: 'Medium Laser',
     category: EquipmentCategory.ENERGY_WEAPON,
     weight: 1,

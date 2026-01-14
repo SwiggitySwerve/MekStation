@@ -22,6 +22,7 @@ import React from 'react';
 import { GlobalLoadoutTray, LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
 import { BottomSheetTray } from './BottomSheetTray';
 import { MechLocation } from '@/types/construction';
+import type { MobileLoadoutStats } from '../mobile';
 
 // =============================================================================
 // Types
@@ -50,8 +51,12 @@ export interface ResponsiveLoadoutTrayProps {
   onQuickAssign?: (instanceId: string, location: MechLocation) => void;
   /** Available locations with slot info for context menu */
   availableLocations?: AvailableLocation[];
+  /** Function to get available locations for any equipment item */
+  getAvailableLocationsForEquipment?: (instanceId: string) => AvailableLocation[];
   /** Whether this is an OmniMech */
   isOmni?: boolean;
+  /** Unit stats for mobile status bar */
+  mobileStats?: MobileLoadoutStats;
 }
 
 // =============================================================================
@@ -79,7 +84,9 @@ export function ResponsiveLoadoutTray({
   onUnassignEquipment,
   onQuickAssign,
   availableLocations = [],
+  getAvailableLocationsForEquipment,
   isOmni = false,
+  mobileStats,
 }: ResponsiveLoadoutTrayProps): React.ReactElement {
   // No auto-collapse behavior - state is persisted and only changed by user interaction
   
@@ -115,7 +122,9 @@ export function ResponsiveLoadoutTray({
           onUnassignEquipment={onUnassignEquipment}
           onQuickAssign={onQuickAssign}
           availableLocations={availableLocations}
+          getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
           isOmni={isOmni}
+          stats={mobileStats}
         />
       </div>
     </>
