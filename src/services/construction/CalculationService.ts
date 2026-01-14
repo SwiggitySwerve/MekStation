@@ -17,6 +17,29 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { getDefensiveSpeedFactor, getOffensiveSpeedFactor } from '@/types/validation/BattleValue';
+import {
+  COCKPIT_COST_STANDARD,
+  COCKPIT_COST_SMALL,
+  COCKPIT_COST_COMMAND_CONSOLE,
+  STRUCTURE_COST_BASE,
+  STRUCTURE_COST_MULTIPLIER_STANDARD,
+  STRUCTURE_COST_MULTIPLIER_ENDO_STEEL,
+  STRUCTURE_COST_MULTIPLIER_ENDO_COMPOSITE,
+  ENGINE_COST_BASE,
+  GYRO_COST_BASE,
+  ARMOR_COST_BASE,
+  ARMOR_COST_MULTIPLIER_STANDARD,
+  ARMOR_COST_MULTIPLIER_FERRO_FIBROUS,
+  ARMOR_COST_MULTIPLIER_STEALTH,
+  ARMOR_COST_MULTIPLIER_REACTIVE,
+  ARMOR_COST_MULTIPLIER_REFLECTIVE,
+  HEAT_SINK_COST_SINGLE,
+  HEAT_SINK_COST_DOUBLE,
+  HEAT_SINK_CAPACITY_SINGLE,
+  HEAT_SINK_CAPACITY_DOUBLE,
+  ENGINE_INTEGRAL_HEAT_SINK_DIVISOR,
+  MECH_CONSTRUCTION_MULTIPLIER,
+} from './constructionConstants';
 
 // =============================================================================
 // TYPE-SAFE HELPER FUNCTIONS
@@ -83,60 +106,54 @@ function getGyroCostMultiplier(gyroType: GyroType | string): number {
  * Get cockpit cost based on cockpit type
  */
 function getCockpitCost(cockpitType: CockpitType | string): number {
-  // Check enum values first
-  if (cockpitType === CockpitType.SMALL) return 175000;
-  if (cockpitType === CockpitType.COMMAND_CONSOLE) return 500000;
+  if (cockpitType === CockpitType.SMALL) return COCKPIT_COST_SMALL;
+  if (cockpitType === CockpitType.COMMAND_CONSOLE) return COCKPIT_COST_COMMAND_CONSOLE;
   
-  // Check legacy string values
   if (typeof cockpitType === 'string') {
     const typeStr = cockpitType.toLowerCase();
-    if (typeStr.includes('small')) return 175000;
-    if (typeStr.includes('command')) return 500000;
+    if (typeStr.includes('small')) return COCKPIT_COST_SMALL;
+    if (typeStr.includes('command')) return COCKPIT_COST_COMMAND_CONSOLE;
   }
   
-  return 200000;
+  return COCKPIT_COST_STANDARD;
 }
 
 /**
  * Get structure cost multiplier based on structure type
  */
 function getStructureCostMultiplier(structureType: InternalStructureType | string): number {
-  // Check enum values first
   if (structureType === InternalStructureType.ENDO_STEEL_IS || 
-      structureType === InternalStructureType.ENDO_STEEL_CLAN) return 2.0;
-  if (structureType === InternalStructureType.ENDO_COMPOSITE) return 1.5;
+      structureType === InternalStructureType.ENDO_STEEL_CLAN) return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
+  if (structureType === InternalStructureType.ENDO_COMPOSITE) return STRUCTURE_COST_MULTIPLIER_ENDO_COMPOSITE;
   
-  // Check legacy string values
   if (typeof structureType === 'string') {
-    if (structureType.toLowerCase().includes('endo')) return 2.0;
+    if (structureType.toLowerCase().includes('endo')) return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
   }
   
-  return 1.0;
+  return STRUCTURE_COST_MULTIPLIER_STANDARD;
 }
 
 /**
  * Get armor cost multiplier based on armor type
  */
 function getArmorCostMultiplier(armorType: ArmorTypeEnum | string): number {
-  // Check enum values first
   if (armorType === ArmorTypeEnum.FERRO_FIBROUS_IS || 
       armorType === ArmorTypeEnum.FERRO_FIBROUS_CLAN ||
       armorType === ArmorTypeEnum.LIGHT_FERRO ||
-      armorType === ArmorTypeEnum.HEAVY_FERRO) return 2.0;
-  if (armorType === ArmorTypeEnum.STEALTH) return 5.0;
-  if (armorType === ArmorTypeEnum.REACTIVE) return 3.0;
-  if (armorType === ArmorTypeEnum.REFLECTIVE) return 3.0;
+      armorType === ArmorTypeEnum.HEAVY_FERRO) return ARMOR_COST_MULTIPLIER_FERRO_FIBROUS;
+  if (armorType === ArmorTypeEnum.STEALTH) return ARMOR_COST_MULTIPLIER_STEALTH;
+  if (armorType === ArmorTypeEnum.REACTIVE) return ARMOR_COST_MULTIPLIER_REACTIVE;
+  if (armorType === ArmorTypeEnum.REFLECTIVE) return ARMOR_COST_MULTIPLIER_REFLECTIVE;
   
-  // Check legacy string values
   if (typeof armorType === 'string') {
     const typeStr = armorType.toLowerCase();
-    if (typeStr.includes('ferro')) return 2.0;
-    if (typeStr.includes('stealth')) return 5.0;
-    if (typeStr.includes('reactive')) return 3.0;
-    if (typeStr.includes('reflective')) return 3.0;
+    if (typeStr.includes('ferro')) return ARMOR_COST_MULTIPLIER_FERRO_FIBROUS;
+    if (typeStr.includes('stealth')) return ARMOR_COST_MULTIPLIER_STEALTH;
+    if (typeStr.includes('reactive')) return ARMOR_COST_MULTIPLIER_REACTIVE;
+    if (typeStr.includes('reflective')) return ARMOR_COST_MULTIPLIER_REFLECTIVE;
   }
   
-  return 1.0;
+  return ARMOR_COST_MULTIPLIER_STANDARD;
 }
 
 /**
@@ -277,7 +294,6 @@ export class CalculationService implements ICalculationService {
   private calculateOffensiveBV(mech: IEditableMech, movement: IMovementProfile): number {
     const registry = getEquipmentRegistry();
     
-    // If registry isn't initialized, trigger initialization and return 0
     if (!registry.isReady()) {
       registry.initialize().catch(() => {
         // Initialization error handled silently - will retry on next call
@@ -285,8 +301,7 @@ export class CalculationService implements ICalculationService {
       return 0;
     }
     
-    // Calculate heat dissipation
-    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? 2 : 1;
+    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_CAPACITY_DOUBLE : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipation = mech.heatSinkCount * heatSinkCapacity;
     
     // Running heat: 2 heat for running movement
@@ -372,23 +387,15 @@ export class CalculationService implements ICalculationService {
    * Total Cost = (Structure + Engine + Gyro + Cockpit + Armor + Equipment) × Tech Multiplier
    */
   calculateCost(mech: IEditableMech): number {
-    // 1. Structure cost: tonnage × 400 (standard), multiplied for special types
-    const structureCost = mech.tonnage * 400 * getStructureCostMultiplier(mech.structureType);
+    const structureCost = mech.tonnage * STRUCTURE_COST_BASE * getStructureCostMultiplier(mech.structureType);
+    const engineCost = (mech.engineRating * ENGINE_COST_BASE) * getEngineCostMultiplier(mech.engineType);
+    const gyroCost = (mech.engineRating * GYRO_COST_BASE) * getGyroCostMultiplier(mech.gyroType);
     
-    // 2. Engine cost: rating × 5000 × type multiplier
-    const engineCost = (mech.engineRating * 5000) * getEngineCostMultiplier(mech.engineType);
-    
-    // 3. Gyro cost: rating × 300 × type multiplier
-    const gyroCost = (mech.engineRating * 300) * getGyroCostMultiplier(mech.gyroType);
-    
-    // 4. Cockpit cost
     const cockpitCost = getCockpitCost(mech.cockpitType);
     
-    // 5. Armor cost: armor weight × 10,000 × type multiplier
     const armorWeight = this.calculateArmorWeight(mech);
-    const armorCost = armorWeight * 10000 * getArmorCostMultiplier(mech.armorType);
+    const armorCost = armorWeight * ARMOR_COST_BASE * getArmorCostMultiplier(mech.armorType);
     
-    // 6. Equipment cost: sum of all equipment costs
     const registry = getEquipmentRegistry();
     let equipmentCost = 0;
     for (const slot of mech.equipment) {
@@ -398,26 +405,19 @@ export class CalculationService implements ICalculationService {
       }
     }
     
-    // 7. Heat sink cost: 2000 per single, 6000 per double (beyond engine integral)
-    const integralHeatSinks = Math.floor(mech.engineRating / 25);
+    const integralHeatSinks = Math.floor(mech.engineRating / ENGINE_INTEGRAL_HEAT_SINK_DIVISOR);
     const externalHeatSinks = Math.max(0, mech.heatSinkCount - integralHeatSinks);
-    const heatSinkCostPer = isDoubleHeatSink(mech.heatSinkType) ? 6000 : 2000;
+    const heatSinkCostPer = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_COST_DOUBLE : HEAT_SINK_COST_SINGLE;
     const heatSinkCost = externalHeatSinks * heatSinkCostPer;
     
-    // Total base cost
     const baseCost = structureCost + engineCost + gyroCost + cockpitCost + 
                      armorCost + equipmentCost + heatSinkCost;
     
-    // Apply final multiplier (1.25 for 'Mechs is the standard construction multiplier)
-    return Math.round(baseCost * 1.25);
+    return Math.round(baseCost * MECH_CONSTRUCTION_MULTIPLIER);
   }
 
-  /**
-   * Calculate heat profile from weapons and heat sinks
-   */
   calculateHeatProfile(mech: IEditableMech): IHeatProfile {
-    // Calculate heat dissipation
-    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? 2 : 1;
+    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_CAPACITY_DOUBLE : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipated = mech.heatSinkCount * heatSinkCapacity;
 
     // Calculate heat generated from weapons
