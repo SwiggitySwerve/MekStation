@@ -136,25 +136,25 @@ export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): 
       </div>
       
       <div className="flex items-center flex-wrap gap-1 sm:gap-1.5 justify-center">
-        <SimpleStat label="TON" value={stats.tonnage} />
-        <SimpleStat label="W" value={stats.walkMP} />
-        <SimpleStat label="R" value={stats.runMP} />
+        <SimpleStat label="Tonnage" value={stats.tonnage} />
+        <SimpleStat label="Walk" value={stats.walkMP} />
+        <SimpleStat label="Run" value={stats.runMP} />
         {stats.maxRunMP && stats.maxRunMP > stats.runMP && (
-          <SimpleStat label="R+" value={stats.maxRunMP} />
+          <SimpleStat label="Run+" value={stats.maxRunMP} />
         )}
-        <SimpleStat label="J" value={stats.jumpMP} />
+        <SimpleStat label="Jump" value={stats.jumpMP} />
         <SimpleStat label="BV" value={stats.battleValue?.toLocaleString() ?? '-'} status="bv" />
-        <SimpleStat label="ENG" value={stats.engineRating} status="engine" />
+        <SimpleStat label="Engine" value={stats.engineRating} status="engine" />
         <CapacityStat
-          label="WT"
+          label="Weight"
           current={stats.weightUsed.toFixed(1)}
           max={stats.tonnage.toFixed(0)}
           unit="t"
           status={weightStatus}
         />
-        <CapacityStat label="ARM" current={stats.armorPoints} max={stats.maxArmorPoints} />
-        <CapacityStat label="SLOTS" current={stats.criticalSlotsUsed} max={stats.criticalSlotsTotal} status={slotsStatus} />
-        <CapacityStat label="HEAT" current={stats.heatGenerated} max={stats.heatDissipation} status={heatStatus} />
+        <CapacityStat label="Armor" current={stats.armorPoints} max={stats.maxArmorPoints} />
+        <CapacityStat label="Slots" current={stats.criticalSlotsUsed} max={stats.criticalSlotsTotal} status={slotsStatus} />
+        <CapacityStat label="Heat" current={stats.heatGenerated} max={stats.heatDissipation} status={heatStatus} />
       </div>
     </div>
   );
