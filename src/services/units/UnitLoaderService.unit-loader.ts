@@ -222,7 +222,7 @@ export class UnitLoaderService {
       armorTonnage,
       armorAllocation,
       enhancement: null,
-      jumpMP: 0, // TODO: Parse from unit data
+      jumpMP: serialized.movement?.jump ?? 0,
       jumpJetType: JumpJetType.STANDARD,
       
       // Equipment

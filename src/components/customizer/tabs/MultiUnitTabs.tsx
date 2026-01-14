@@ -22,6 +22,8 @@ import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistr
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { unitLoaderService } from '@/services/units/UnitLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
+import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useToast } from '@/components/shared/Toast';
 
@@ -202,13 +204,14 @@ export function MultiUnitTabs({
     
     try {
       // Build the unit data for saving
+      const era = getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS;
       const unitData = {
         id: overwriteId || saveDialog.tabId,
         chassis,
         variant,
         tonnage: state.tonnage,
         techBase: state.techBase,
-        era: 'SUCCESSION_WARS', // TODO: Get from state when available
+        era,
         unitType: 'BattleMech' as const,
         // Add other unit data as needed
         engineType: state.engineType,
