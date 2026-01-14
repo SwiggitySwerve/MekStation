@@ -118,8 +118,8 @@ test.describe('Dark Mode Support', () => {
     await page.goto('/');
 
     // Check if dark mode classes are applied
-    const html = page.locator('html');
-    const body = page.locator('body');
+    const _html = page.locator('html');
+    const _body = page.locator('body');
 
     // The app should respond to dark mode (check for dark background or class)
     await expect(page.locator('body')).toBeVisible();

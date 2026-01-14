@@ -10,7 +10,7 @@ import { ArmorTypeEnum, getArmorDefinition } from '../../types/construction/Armo
 import { getStructurePoints } from '../../types/construction/InternalStructureType';
 import { ceilToHalfTon } from '../physical/weightUtils';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { MechLocation, getLocationsForConfig, hasRearArmor } from '@/types/construction/MechConfigurationSystem';
+import { MechLocation, getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 
 /**
  * Maximum armor points for head location

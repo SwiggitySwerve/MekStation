@@ -25,7 +25,7 @@ export function GlobalStyleProvider({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): React.ReactElement {
   // Use saved values as base
   const savedAccentColor = useAppSettingsStore((s) => s.accentColor);
   const savedFontSize = useAppSettingsStore((s) => s.fontSize);

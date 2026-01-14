@@ -55,7 +55,7 @@ const HALF_HEIGHT_PERCENT = 40;
 const FULL_HEIGHT_PERCENT = 85;
 
 /** Minimum drag distance to trigger state change */
-const DRAG_THRESHOLD = 50;
+const _DRAG_THRESHOLD = 50; // TODO: Implement drag gesture handling
 
 /** Velocity threshold for quick swipes (px/ms) */
 const VELOCITY_THRESHOLD = 0.5;

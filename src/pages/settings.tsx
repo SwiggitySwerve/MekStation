@@ -258,7 +258,7 @@ function UIThemePicker({
 }
 
 
-export default function SettingsPage() {
+export default function SettingsPage(): React.ReactElement {
   const router = useRouter();
 
   // Get store actions and state

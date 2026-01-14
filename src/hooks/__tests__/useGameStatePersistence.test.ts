@@ -362,7 +362,7 @@ describe('useGameStatePersistence', () => {
       await act(async () => {
         try {
           await result.current.load();
-        } catch (_e) {
+        } catch {
           // load() might throw, that's ok
         }
       });

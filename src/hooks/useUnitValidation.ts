@@ -10,7 +10,7 @@
 import { useMemo } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
+// MechConfiguration will be used when configuration-specific validation is added
 
 // =============================================================================
 // Types
@@ -204,7 +204,7 @@ function validateEngine(
 function validateIdentity(
   name: string,
   chassis: string,
-  model: string
+  _model: string
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
@@ -253,8 +253,8 @@ function validateHeatSinks(
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
-  // Calculate integrated heat sinks
-  const integratedHeatSinks = Math.floor(engineRating / 25);
+  // Calculate integrated heat sinks (for future use when checking external heat sinks)
+  const _integratedHeatSinks = Math.floor(engineRating / 25);
   const minHeatSinks = 10;
 
   if (heatSinkCount < minHeatSinks) {

@@ -99,7 +99,7 @@ export function EquipmentAssignmentAdapter({
   dragComponent,
   className = '',
 }: EquipmentAssignmentAdapterProps): React.ReactElement {
-  const { hasTouch, hasMouse: _hasMouse } = useDeviceCapabilities();
+  const { hasTouch } = useDeviceCapabilities();
   const [placementMode, setPlacementMode] = useState<PlacementModeData>({
     isActive: false,
     equipment: null,

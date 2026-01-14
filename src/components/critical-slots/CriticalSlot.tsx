@@ -69,6 +69,7 @@ export function CriticalSlot({
           {/* Equipment icon */}
           <div className="flex items-center justify-center h-12 mb-1">
             {slot.equipment.icon ? (
+              // eslint-disable-next-line @next/next/no-img-element -- Equipment icons are static SVG/PNG assets
               <img
                 src={slot.equipment.icon}
                 alt=""
