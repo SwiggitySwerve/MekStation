@@ -5,7 +5,12 @@
  * Supports equipment selection for critical slot assignment workflow.
  * Includes context menu for quick assignment to valid locations.
  * 
+ * Responsive behavior:
+ * - md (768-1024px): Compact width (180px) or collapsed (40px)
+ * - lg (1024px+): Full width (240px)
+ * 
  * @spec openspec/changes/unify-equipment-tab/specs/equipment-tray/spec.md
+ * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
@@ -577,7 +582,7 @@ export function GlobalLoadoutTray({
   // Collapsed state
   if (!isExpanded) {
     return (
-      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col items-center py-2 w-10 ${className}`}>
+      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col items-center py-2 w-10 flex-shrink-0 ${className}`}>
         <button
           onClick={onToggleExpand}
           className="flex flex-col items-center gap-1 text-text-theme-secondary hover:text-white transition-colors p-2"
@@ -600,7 +605,7 @@ export function GlobalLoadoutTray({
   // Expanded state
   return (
     <>
-      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col w-full sm:w-[200px] md:w-[240px] lg:w-[260px] ${className}`}>
+      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col w-[180px] lg:w-[240px] flex-shrink-0 ${className}`}>
         {/* Header */}
         <div className="flex-shrink-0 border-b border-border-theme">
           <div className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}>

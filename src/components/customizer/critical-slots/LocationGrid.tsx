@@ -82,13 +82,14 @@ export function LocationGrid({
   return (
     <div
       className={`
-        bg-surface-deep border border-border-theme w-36
+        bg-surface-deep border border-border-theme
+        w-24 sm:w-32 md:w-36
         ${className}
       `}
     >
       {/* Location header */}
-      <div className="px-2 py-1.5 border-b border-border-theme bg-surface-base text-center">
-        <span className="text-sm font-medium text-slate-200">{label}</span>
+      <div className="px-1 sm:px-2 py-1 sm:py-1.5 border-b border-border-theme bg-surface-base text-center">
+        <span className="text-xs sm:text-sm font-medium text-slate-200 truncate block">{label}</span>
       </div>
       
       {/* Slots */}

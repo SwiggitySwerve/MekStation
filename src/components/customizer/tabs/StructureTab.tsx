@@ -292,8 +292,8 @@ export function StructureTab({
         </div>
       </div>
 
-      {/* Two-column layout: Chassis | Movement */}
-      <div className={cs.layout.twoColumn}>
+      {/* Two-column layout: Chassis | Movement - uses lg breakpoint for sidebar-adjacent context */}
+      <div className={cs.layout.twoColumnSidebar}>
         
         {/* LEFT: Chassis */}
         <div className={cs.panel.main}>
@@ -555,14 +555,14 @@ export function StructureTab({
           
           <div className={cs.layout.formStack}>
             {/* Column Headers */}
-            <div className="grid grid-cols-[140px_112px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr_60px] sm:grid-cols-[140px_112px_1fr] gap-2 items-center">
               <span></span>
-              <span className={`${cs.text.secondary} text-center uppercase`}>Base</span>
-              <span className={`${cs.text.secondary} text-center uppercase`}>Final</span>
+              <span className={`${cs.text.secondary} text-center uppercase text-xs sm:text-sm`}>Base</span>
+              <span className={`${cs.text.secondary} text-center uppercase text-xs sm:text-sm`}>Final</span>
             </div>
             
             {/* Walk MP */}
-            <div className="grid grid-cols-[140px_112px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr_60px] sm:grid-cols-[140px_112px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Walk MP</label>
               <div className="flex items-center justify-center">
                 <button
@@ -593,7 +593,7 @@ export function StructureTab({
             </div>
             
             {/* Run MP (calculated) - no stepper, just centered value */}
-            <div className="grid grid-cols-[140px_112px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr_60px] sm:grid-cols-[140px_112px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Run MP</label>
               <span className={`text-sm ${cs.text.value} text-center`}>{runMP}</span>
               <div className="flex items-center justify-center gap-1">
@@ -618,7 +618,7 @@ export function StructureTab({
             </div>
             
             {/* Jump/UMU MP */}
-            <div className="grid grid-cols-[140px_112px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr_60px] sm:grid-cols-[140px_112px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Jump MP</label>
               <div className="flex items-center justify-center">
                 <button
@@ -649,7 +649,7 @@ export function StructureTab({
             </div>
             
             {/* Jump Type */}
-            <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr] sm:grid-cols-[140px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Jump Type</label>
               <select 
                 className={cs.select.inline}
@@ -666,7 +666,7 @@ export function StructureTab({
             </div>
             
             {/* Mech. J. Booster MP (placeholder) */}
-            <div className="grid grid-cols-[140px_112px_1fr] gap-2 items-center">
+            <div className="grid grid-cols-[80px_1fr_60px] sm:grid-cols-[140px_112px_1fr] gap-2 items-center">
               <label className={cs.text.label}>Mech. J. Booster MP</label>
               <div className="flex items-center justify-center">
                 <input
@@ -693,7 +693,7 @@ export function StructureTab({
             {/* Enhancement Subsection */}
             <div className={`${cs.layout.divider} mt-2`}>
               <h4 className="text-sm font-semibold text-slate-300 mb-3">Enhancement</h4>
-              <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
+              <div className="grid grid-cols-[80px_1fr] sm:grid-cols-[140px_1fr] gap-2 items-center">
                 <label className={cs.text.label}>Type</label>
                 <select 
                   className={cs.select.inline}
@@ -727,7 +727,7 @@ export function StructureTab({
             
             {/* Motive Type (Configuration) */}
             <div className={`${cs.layout.divider} mt-2`}>
-              <div className="grid grid-cols-[140px_1fr] gap-2 items-center">
+              <div className="grid grid-cols-[80px_1fr] sm:grid-cols-[140px_1fr] gap-2 items-center">
                 <label className={cs.text.label}>Motive Type</label>
                 <select 
                   className={cs.select.inline}

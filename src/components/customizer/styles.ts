@@ -125,17 +125,24 @@ const button = {
 // =============================================================================
 
 const layout = {
-  /** Tab content container */
-  tabContent: 'space-y-4 p-4',
+  /** Tab content container with responsive padding */
+  tabContent: 'space-y-4 p-2 sm:p-4',
   
   /** Two-column grid - stacks on mobile, side-by-side on md+ */
   twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4',
 
   /** Two-column grid with larger gap */
   twoColumnWide: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+  
+  /**
+   * Two-column grid for sidebar-adjacent layouts.
+   * Uses lg breakpoint instead of md because sidebar reduces available width.
+   * Use this when the loadout sidebar is visible.
+   */
+  twoColumnSidebar: 'grid grid-cols-1 lg:grid-cols-2 gap-4',
 
-  /** Three-column grid */
-  threeColumn: 'grid grid-cols-3 gap-3',
+  /** Three-column grid - stacks on mobile, side-by-side on sm+ */
+  threeColumn: 'grid grid-cols-1 sm:grid-cols-3 gap-3',
   
   /** Vertical form fields */
   formStack: 'space-y-3',
@@ -160,6 +167,12 @@ const layout = {
 
   /** Vertical divider */
   dividerV: 'pl-4 border-l border-border-theme',
+  
+  /** Flex container that can shrink - prevents content overflow */
+  shrinkable: 'min-w-0 flex-shrink',
+  
+  /** Full-height flex column with overflow handling */
+  flexColumn: 'flex flex-col min-h-0 overflow-hidden',
 } as const;
 
 // =============================================================================

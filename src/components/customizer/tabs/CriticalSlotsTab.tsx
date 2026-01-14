@@ -26,6 +26,7 @@ import {
   sortEquipmentBySize,
   getUnallocatedUnhittables,
 } from '@/utils/construction/slotOperations';
+import { VerticalSlotChip } from '../critical-slots/VerticalSlotChip';
 
 // =============================================================================
 // Types
@@ -38,6 +39,8 @@ interface CriticalSlotsTabProps {
   selectedEquipmentId?: string | null;
   /** Called when selection should change */
   onSelectEquipment?: (id: string | null) => void;
+  /** Whether to hide the external loadout tray (uses inline unassigned section instead) */
+  hideLoadoutTray?: boolean;
   /** Additional CSS classes */
   className?: string;
 }
@@ -248,14 +251,15 @@ function CriticalSlotsToolbar({
   onAutoFillToggle,
   onAutoCompactToggle,
   onAutoSortToggle,
-  onFill,
-  onCompact,
-  onSort,
+  onFill: _onFill,
+  onCompact: _onCompact,
+  onSort: _onSort,
   onReset,
   readOnly,
 }: ToolbarProps) {
+  // Mobile: tiny buttons, Desktop: full labels
   const toggleBtnClass = (active: boolean) => `
-    px-3 py-1.5 text-sm font-medium rounded border transition-colors
+    px-2 py-1 text-[10px] sm:text-sm font-medium rounded border transition-colors
     ${active
       ? 'bg-teal-600 border-teal-500 text-white'
       : 'bg-surface-raised border-border-theme text-slate-300 hover:bg-surface-base'
@@ -264,32 +268,26 @@ function CriticalSlotsToolbar({
   `;
   
   const actionBtnClass = `
-    px-4 py-1.5 text-sm font-medium rounded border transition-colors
+    px-2 sm:px-4 py-1 text-[10px] sm:text-sm font-medium rounded border transition-colors
     bg-surface-base border-border-theme-subtle text-white hover:bg-surface-raised
     ${readOnly ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
   `;
   
   return (
-    <div className="flex items-center gap-2 p-3 bg-surface-base border-b border-border-theme-subtle">
+    <div className="flex items-center gap-1 p-1 sm:p-2 bg-surface-base border-b border-border-theme-subtle overflow-x-auto">
       <button onClick={onAutoFillToggle} disabled={readOnly} className={toggleBtnClass(autoFillUnhittables)}>
-        Auto Fill Unhittables
+        Fill
       </button>
       <button onClick={onAutoCompactToggle} disabled={readOnly} className={toggleBtnClass(autoCompact)}>
-        Auto Compact
+        Compact
       </button>
       <button onClick={onAutoSortToggle} disabled={readOnly} className={toggleBtnClass(autoSort)}>
-        Auto Sort
+        Sort
       </button>
-      
-      <div className="w-px h-6 bg-border-theme mx-2" />
-      
-      <button onClick={onFill} disabled={readOnly} className={actionBtnClass}>Fill</button>
-      <button onClick={onCompact} disabled={readOnly} className={actionBtnClass}>Compact</button>
-      <button onClick={onSort} disabled={readOnly} className={actionBtnClass}>Sort</button>
       
       <div className="flex-1" />
       
-      <button onClick={onReset} disabled={readOnly} className={`${actionBtnClass} bg-surface-raised hover:bg-red-600`}>
+      <button onClick={onReset} disabled={readOnly} className={`${actionBtnClass} hover:bg-red-600`}>
         Reset
       </button>
     </div>
@@ -304,6 +302,7 @@ export function CriticalSlotsTab({
   readOnly = false,
   selectedEquipmentId,
   onSelectEquipment,
+  hideLoadoutTray = true, // Default: use inline unassigned section
   className = '',
 }: CriticalSlotsTabProps): React.ReactElement {
   // Unit state
@@ -587,6 +586,26 @@ export function CriticalSlotsTab({
       onEquipmentDragStart={handleEquipmentDragStart}
     />
   );
+
+  // Get unassigned equipment for inline display
+  const unassignedEquipment = useMemo(() => {
+    return equipment.filter(e => !e.location);
+  }, [equipment]);
+
+  // Render inline unassigned equipment chip using VerticalSlotChip
+  const renderUnassignedChip = (item: IMountedEquipmentInstance) => {
+    const isSelected = selectedEquipmentId === item.instanceId;
+    
+    return (
+      <VerticalSlotChip
+        key={item.instanceId}
+        name={item.name}
+        criticalSlots={item.criticalSlots}
+        isSelected={isSelected}
+        onClick={() => onSelectEquipment?.(isSelected ? null : item.instanceId)}
+      />
+    );
+  };
   
   return (
     <div className={`flex flex-col h-full bg-surface-deep ${className}`}>
@@ -604,16 +623,54 @@ export function CriticalSlotsTab({
         onReset={handleReset}
         readOnly={readOnly}
       />
+
+      {/* Inline Unassigned Equipment Section - compact, only when there's unassigned equipment */}
+      {hideLoadoutTray && unassignedEquipment.length > 0 && (
+        <div className="flex-shrink-0 bg-surface-base/30 border-b border-border-theme-subtle px-1.5 py-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[9px] font-medium text-amber-400 uppercase">Unassigned</span>
+            <span className="text-[9px] text-text-theme-muted">({unassignedEquipment.length})</span>
+          </div>
+          <div className="flex gap-1 overflow-x-auto">
+            {unassignedEquipment.map(renderUnassignedChip)}
+          </div>
+        </div>
+      )}
       
-      {/* Mech diagram - MegaMekLab-style 5-column layout */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="flex gap-3 items-start justify-center">
-          {/* Column 1: Left Arm (offset down to align with torso body) */}
+      {/* Mobile stacked 3-column layout - CT positioned higher like reference */}
+      <div className="flex-1 p-1 overflow-auto md:hidden">
+        <div className="flex gap-1 justify-center items-start">
+          {/* Left column: Left Arm + Left Torso + Left Leg */}
+          <div className="flex flex-col gap-1" style={{ marginTop: '80px' }}>
+            {renderLocation(MechLocation.LEFT_ARM)}
+            {renderLocation(MechLocation.LEFT_TORSO)}
+            {renderLocation(MechLocation.LEFT_LEG)}
+          </div>
+          
+          {/* Center column: Head + Center Torso (no extra margin, starts at top) */}
+          <div className="flex flex-col gap-1">
+            {renderLocation(MechLocation.HEAD)}
+            {renderLocation(MechLocation.CENTER_TORSO)}
+          </div>
+          
+          {/* Right column: Right Arm + Right Torso + Right Leg */}
+          <div className="flex flex-col gap-1" style={{ marginTop: '80px' }}>
+            {renderLocation(MechLocation.RIGHT_ARM)}
+            {renderLocation(MechLocation.RIGHT_TORSO)}
+            {renderLocation(MechLocation.RIGHT_LEG)}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop 5-column layout - hidden on mobile */}
+      <div className="hidden md:flex flex-1 p-2 lg:p-4 overflow-auto">
+        <div className="flex gap-2 lg:gap-3 items-start justify-center min-w-max mx-auto">
+          {/* Column 1: Left Arm */}
           <div className="flex flex-col" style={{ marginTop: '136px' }}>
             {renderLocation(MechLocation.LEFT_ARM)}
           </div>
           
-          {/* Column 2: Left Torso + Left Leg stacked */}
+          {/* Column 2: Left Torso + Left Leg */}
           <div className="flex flex-col" style={{ marginTop: '40px' }}>
             {renderLocation(MechLocation.LEFT_TORSO)}
             <div className="mt-16">
@@ -621,13 +678,13 @@ export function CriticalSlotsTab({
             </div>
           </div>
           
-          {/* Column 3: Head + Center Torso stacked */}
+          {/* Column 3: Head + Center Torso */}
           <div className="flex flex-col gap-3">
             {renderLocation(MechLocation.HEAD)}
             {renderLocation(MechLocation.CENTER_TORSO)}
           </div>
           
-          {/* Column 4: Right Torso + Right Leg stacked */}
+          {/* Column 4: Right Torso + Right Leg */}
           <div className="flex flex-col" style={{ marginTop: '40px' }}>
             {renderLocation(MechLocation.RIGHT_TORSO)}
             <div className="mt-16">
@@ -635,19 +692,31 @@ export function CriticalSlotsTab({
             </div>
           </div>
           
-          {/* Column 5: Right Arm (offset down to align with torso body) */}
+          {/* Column 5: Right Arm */}
           <div className="flex flex-col" style={{ marginTop: '136px' }}>
             {renderLocation(MechLocation.RIGHT_ARM)}
           </div>
         </div>
       </div>
       
-      {/* Selection hint bar at bottom */}
+      {/* Selection hint bar at bottom - only when equipment is selected */}
       {selectedEquipment && (
-        <div className="flex-shrink-0 px-4 py-2 bg-surface-base border-t border-border-theme-subtle text-center">
-          <span className="text-sm text-slate-300">
-            Select a slot for: <span className="text-accent font-medium">{selectedEquipment.name}</span>
-            <span className="text-text-theme-muted ml-2">({selectedEquipment.criticalSlots} slot{selectedEquipment.criticalSlots !== 1 ? 's' : ''})</span>
+        <div className="flex-shrink-0 px-2 py-1.5 bg-surface-base border-t border-border-theme-subtle text-center">
+          <span className="text-xs sm:text-sm text-slate-300">
+            Tap a slot to place: <span className="text-accent font-medium">{selectedEquipment.name}</span>
+            <span className="text-text-theme-muted ml-1">({selectedEquipment.criticalSlots}cr)</span>
+          </span>
+        </div>
+      )}
+
+      {/* Status bar at bottom - shows OK when all placed */}
+      {hideLoadoutTray && !selectedEquipment && (
+        <div className="flex-shrink-0 px-2 py-1.5 bg-surface-base border-t border-border-theme-subtle flex items-center justify-between text-xs">
+          <span className={unassignedEquipment.length === 0 ? 'text-green-400' : 'text-amber-400'}>
+            {unassignedEquipment.length === 0 ? '✓ All equipment placed' : `${unassignedEquipment.length} unassigned`}
+          </span>
+          <span className="text-text-theme-muted">
+            Tap equipment above, then tap a slot
           </span>
         </div>
       )}

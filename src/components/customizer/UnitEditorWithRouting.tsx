@@ -20,6 +20,7 @@ import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { CustomizerTabId, VALID_TAB_IDS } from '@/hooks/useCustomizerRouter';
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { usePersistedState, STORAGE_KEYS } from '@/hooks/usePersistedState';
 
 // Services
 import { calculationService } from '@/services/construction/CalculationService';
@@ -34,7 +35,8 @@ import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
-import { GlobalLoadoutTray, LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
+import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
+import type { LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
 
 // Equipment
 import { EquipmentCategory } from '@/types/equipment';
@@ -159,7 +161,11 @@ export function UnitEditorWithRouting({
   onTabChange,
 }: UnitEditorWithRoutingProps): React.ReactElement {
   // Loadout tray state
-  const [isTrayExpanded, setIsTrayExpanded] = useState(true);
+  // Persist loadout tray expanded state to localStorage
+  const [isTrayExpanded, setIsTrayExpanded] = usePersistedState(
+    STORAGE_KEYS.LOADOUT_TRAY_EXPANDED,
+    true // Default: expanded on desktop
+  );
   
   // Equipment selection state (for critical slot assignment)
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
@@ -580,25 +586,27 @@ export function UnitEditorWithRouting({
   };
   
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden min-w-0">
       {/* Unit Info Banner - at-a-glance stats */}
-      <div className="p-2 bg-surface-deep border-b border-border-theme">
+      <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0">
         <UnitInfoBanner stats={unitStats} />
       </div>
       
       {/* Main content area with tray */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left side: Tabs and content */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        {/* Left side: Tabs and content - must shrink to accommodate sidebar */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Section tabs (Structure, Armor, Weapons, etc.) */}
-          <CustomizerTabs
-            tabs={DEFAULT_CUSTOMIZER_TABS}
-            activeTab={activeTabId}
-            onTabChange={handleTabChange}
-          />
+          <div className="flex-shrink-0">
+            <CustomizerTabs
+              tabs={DEFAULT_CUSTOMIZER_TABS}
+              activeTab={activeTabId}
+              onTabChange={handleTabChange}
+            />
+          </div>
           
-          {/* Tab content */}
-          <div className="flex-1 overflow-auto">
+          {/* Tab content - scrollable area */}
+          <div className="flex-1 overflow-auto min-h-0">
             {activeTabId === 'overview' && <OverviewTab />}
             {activeTabId === 'structure' && <StructureTab />}
             {activeTabId === 'armor' && <ArmorTab />}
@@ -615,9 +623,9 @@ export function UnitEditorWithRouting({
           </div>
         </div>
         
-        {/* Right side: Global Loadout Tray (hidden on Preview tab) */}
-        {activeTabId !== 'preview' && (
-          <GlobalLoadoutTray
+        {/* Loadout Tray: Desktop sidebar / Mobile bottom sheet (hidden on Preview and Critical Slots tabs) */}
+        {activeTabId !== 'preview' && activeTabId !== 'criticals' && (
+          <ResponsiveLoadoutTray
             equipment={loadoutEquipment}
             equipmentCount={equipment.length}
             onRemoveEquipment={handleRemoveEquipment}

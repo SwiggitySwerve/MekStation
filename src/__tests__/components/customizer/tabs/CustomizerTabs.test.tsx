@@ -96,8 +96,9 @@ describe('CustomizerTabs', () => {
   it('should apply custom className', () => {
     const { container } = render(<CustomizerTabs {...defaultProps} className="custom-class" />);
     
-    const tabList = container.querySelector('[role="tablist"]');
-    expect(tabList).toHaveClass('custom-class');
+    // className is applied to the outer container div, not the tablist
+    const outerContainer = container.firstChild;
+    expect(outerContainer).toHaveClass('custom-class');
   });
 
   it('should render tab icons when provided', () => {
