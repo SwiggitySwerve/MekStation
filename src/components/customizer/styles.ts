@@ -134,8 +134,8 @@ const layout = {
   /** Two-column grid with larger gap */
   twoColumnWide: 'grid grid-cols-1 md:grid-cols-2 gap-6',
 
-  /** Three-column grid */
-  threeColumn: 'grid grid-cols-3 gap-3',
+  /** Three-column grid - stacks on mobile, side-by-side on sm+ */
+  threeColumn: 'grid grid-cols-1 sm:grid-cols-3 gap-3',
   
   /** Vertical form fields */
   formStack: 'space-y-3',
