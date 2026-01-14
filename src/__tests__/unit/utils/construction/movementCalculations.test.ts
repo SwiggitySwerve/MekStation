@@ -1,7 +1,5 @@
 import {
   calculateRunMP,
-  calculateSprintMP,
-  calculateCombinedSprintMP,
   getMaxJumpMP,
   calculateEnhancedMaxRunMP,
   getJumpJetDefinition,
@@ -10,6 +8,9 @@ import {
   validateJumpConfiguration,
   JumpJetType,
   JUMP_JET_DEFINITIONS,
+  getMovementModifiersFromEquipment,
+  calculateMaxRunMPWithModifiers,
+  MOVEMENT_ENHANCEMENT_MODIFIERS,
 } from '@/utils/construction/movementCalculations';
 
 describe('movementCalculations', () => {
@@ -26,27 +27,84 @@ describe('movementCalculations', () => {
     });
   });
 
-  describe('calculateSprintMP()', () => {
-    it('should calculate sprint MP from walk MP', () => {
-      expect(calculateSprintMP(4)).toBe(8); // floor(4 * 2) = 8
-      expect(calculateSprintMP(5)).toBe(10); // floor(5 * 2) = 10
+  describe('Movement Enhancement Modifiers', () => {
+    it('should define MASC with +0.5 multiplier bonus', () => {
+      expect(MOVEMENT_ENHANCEMENT_MODIFIERS['masc']).toEqual({
+        runMultiplierBonus: 0.5,
+        flatMPBonus: 0,
+      });
     });
 
-    it('should return 0 for zero or negative walk MP', () => {
-      expect(calculateSprintMP(0)).toBe(0);
-      expect(calculateSprintMP(-1)).toBe(0);
+    it('should define Supercharger with +0.5 multiplier bonus', () => {
+      expect(MOVEMENT_ENHANCEMENT_MODIFIERS['supercharger']).toEqual({
+        runMultiplierBonus: 0.5,
+        flatMPBonus: 0,
+      });
+    });
+
+    it('should define TSM with +1 flat bonus', () => {
+      expect(MOVEMENT_ENHANCEMENT_MODIFIERS['tsm']).toEqual({
+        runMultiplierBonus: 0,
+        flatMPBonus: 1,
+      });
     });
   });
 
-  describe('calculateCombinedSprintMP()', () => {
-    it('should calculate combined sprint MP', () => {
-      expect(calculateCombinedSprintMP(4)).toBe(10); // floor(4 * 2.5) = 10
-      expect(calculateCombinedSprintMP(5)).toBe(12); // floor(5 * 2.5) = 12
+  describe('getMovementModifiersFromEquipment()', () => {
+    it('should return zero modifiers for empty equipment', () => {
+      const modifiers = getMovementModifiersFromEquipment([]);
+      expect(modifiers.runMultiplierBonus).toBe(0);
+      expect(modifiers.flatMPBonus).toBe(0);
     });
 
-    it('should return 0 for zero or negative walk MP', () => {
-      expect(calculateCombinedSprintMP(0)).toBe(0);
-      expect(calculateCombinedSprintMP(-1)).toBe(0);
+    it('should sum modifiers for MASC alone', () => {
+      const modifiers = getMovementModifiersFromEquipment(['MASC']);
+      expect(modifiers.runMultiplierBonus).toBe(0.5);
+      expect(modifiers.flatMPBonus).toBe(0);
+    });
+
+    it('should sum modifiers for MASC + Supercharger (2.5x total)', () => {
+      const modifiers = getMovementModifiersFromEquipment(['MASC', 'Supercharger']);
+      expect(modifiers.runMultiplierBonus).toBe(1.0); // 0.5 + 0.5 = 1.0
+      expect(modifiers.flatMPBonus).toBe(0);
+    });
+
+    it('should handle TSM flat bonus', () => {
+      const modifiers = getMovementModifiersFromEquipment(['Triple Strength Myomer']);
+      expect(modifiers.runMultiplierBonus).toBe(0);
+      expect(modifiers.flatMPBonus).toBe(1);
+    });
+
+    it('should not double-count same enhancement', () => {
+      const modifiers = getMovementModifiersFromEquipment(['MASC', 'IS MASC', 'Clan MASC']);
+      expect(modifiers.runMultiplierBonus).toBe(0.5); // Only counted once
+    });
+  });
+
+  describe('calculateMaxRunMPWithModifiers()', () => {
+    it('should return undefined for no modifiers', () => {
+      const modifiers = { runMultiplierBonus: 0, flatMPBonus: 0 };
+      expect(calculateMaxRunMPWithModifiers(5, modifiers)).toBeUndefined();
+    });
+
+    it('should calculate sprint MP with MASC (2.0x)', () => {
+      const modifiers = { runMultiplierBonus: 0.5, flatMPBonus: 0 };
+      expect(calculateMaxRunMPWithModifiers(5, modifiers)).toBe(10); // floor(5 * 2.0) = 10
+    });
+
+    it('should calculate combined sprint MP (2.5x)', () => {
+      const modifiers = { runMultiplierBonus: 1.0, flatMPBonus: 0 };
+      expect(calculateMaxRunMPWithModifiers(5, modifiers)).toBe(12); // floor(5 * 2.5) = 12
+    });
+
+    it('should calculate TSM bonus (+1 flat)', () => {
+      const modifiers = { runMultiplierBonus: 0, flatMPBonus: 1 };
+      expect(calculateMaxRunMPWithModifiers(5, modifiers)).toBe(8); // floor(5 * 1.5) + 1 = 8
+    });
+
+    it('should return 0 for zero walk MP', () => {
+      const modifiers = { runMultiplierBonus: 0.5, flatMPBonus: 0 };
+      expect(calculateMaxRunMPWithModifiers(0, modifiers)).toBe(0);
     });
   });
 
@@ -57,7 +115,6 @@ describe('movementCalculations', () => {
     });
 
     it('should return run MP for improved jets', () => {
-      // Improved jets can reach runMP = ceil(walkMP * 1.5)
       const maxJump = getMaxJumpMP(5, JumpJetType.IMPROVED);
       expect(maxJump).toBe(8); // ceil(5 * 1.5) = 8
     });
@@ -108,29 +165,25 @@ describe('movementCalculations', () => {
     });
   });
 
-  describe('calculateEnhancedMaxRunMP()', () => {
+  describe('calculateEnhancedMaxRunMP() [deprecated]', () => {
     it('should calculate enhanced max run MP with MASC', () => {
-      // MASC allows sprint = walkMP * 2
       const enhanced = calculateEnhancedMaxRunMP(5, 'MASC', false);
       expect(enhanced).toBe(10); // floor(5 * 2) = 10
     });
 
     it('should calculate enhanced max run MP with Supercharger', () => {
-      // Supercharger also allows sprint = walkMP * 2
       const enhanced = calculateEnhancedMaxRunMP(5, 'Supercharger', false);
       expect(enhanced).toBe(10); // floor(5 * 2) = 10
     });
 
     it('should calculate enhanced max run MP with both MASC and Supercharger', () => {
-      // Combined allows sprint = walkMP * 2.5
       const enhanced = calculateEnhancedMaxRunMP(5, 'MASC', true);
       expect(enhanced).toBe(12); // floor(5 * 2.5) = 12
     });
 
     it('should calculate enhanced run MP with TSM', () => {
-      // TSM adds +1 to run MP
       const enhanced = calculateEnhancedMaxRunMP(5, 'TSM', false);
-      expect(enhanced).toBe(9); // runMP(5) + 1 = 8 + 1 = 9
+      expect(enhanced).toBe(8); // floor(5 * 1.5) + 1 = 8
     });
 
     it('should return undefined for no enhancement', () => {

@@ -496,6 +496,80 @@ describe('Unit Store', () => {
       
       expect(store.getState().armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
     });
+
+    it('should cap armor tonnage when switching to more efficient armor type', () => {
+      const store = createISTestStore({ tonnage: 75 });
+      store.getState().setArmorTonnage(19.5);
+      
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      
+      expect(store.getState().armorTonnage).toBeLessThan(19.5);
+    });
+
+    it('should not increase armor tonnage when switching armor types', () => {
+      const store = createISTestStore({ tonnage: 75 });
+      store.getState().setArmorTonnage(10);
+      
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      
+      expect(store.getState().armorTonnage).toBe(10);
+    });
+
+    it('should cap tonnage to max useful for Heavy Ferro-Fibrous', () => {
+      const store = createISTestStore({ tonnage: 75 });
+      store.getState().setArmorTonnage(20);
+      
+      store.getState().setArmorType(ArmorTypeEnum.HEAVY_FERRO);
+      
+      expect(store.getState().armorTonnage).toBeLessThanOrEqual(13);
+    });
+
+    it('should also cap when switching to less efficient armor if over max useful', () => {
+      const store = createISTestStore({ tonnage: 75 });
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      store.getState().setArmorTonnage(18);
+      
+      store.getState().setArmorType(ArmorTypeEnum.STANDARD);
+      
+      expect(store.getState().armorTonnage).toBeLessThanOrEqual(19.5);
+    });
+
+    it('should preserve tonnage when under max useful for new armor type', () => {
+      const store = createISTestStore({ tonnage: 75 });
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      store.getState().setArmorTonnage(5);
+      
+      store.getState().setArmorType(ArmorTypeEnum.STANDARD);
+      
+      expect(store.getState().armorTonnage).toBe(5);
+    });
+
+    it('should handle edge case of zero armor tonnage', () => {
+      const store = createISTestStore({ tonnage: 50 });
+      store.getState().setArmorTonnage(0);
+      
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      
+      expect(store.getState().armorTonnage).toBe(0);
+    });
+
+    it('should cap correctly for light mechs', () => {
+      const store = createISTestStore({ tonnage: 20 });
+      store.getState().setArmorTonnage(10);
+      
+      store.getState().setArmorType(ArmorTypeEnum.HEAVY_FERRO);
+      
+      expect(store.getState().armorTonnage).toBeLessThanOrEqual(4);
+    });
+
+    it('should cap correctly for assault mechs', () => {
+      const store = createISTestStore({ tonnage: 100 });
+      store.getState().setArmorTonnage(25);
+      
+      store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      
+      expect(store.getState().armorTonnage).toBeLessThanOrEqual(24);
+    });
   });
   
   // ===========================================================================

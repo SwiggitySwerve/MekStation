@@ -49,7 +49,7 @@ import { EngineType, getEngineDefinition } from '@/types/construction/EngineType
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { TechBaseMode, isEffectivelyMixed } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
-import { calculateEnhancedMaxRunMP } from '@/utils/construction/movementCalculations';
+import { getMovementModifiersFromEquipment, calculateMaxRunMPWithModifiers } from '@/utils/construction/movementCalculations';
 
 // Utils
 import { ValidationStatus } from '@/utils/colors/statusColors';
@@ -196,7 +196,6 @@ export function UnitEditorWithRouting({
   const isOmni = useUnitStore((s) => s.isOmni);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
-  const enhancement = useUnitStore((s) => s.enhancement);
   const removeEquipment = useUnitStore((s) => s.removeEquipment);
   const clearAllEquipment = useUnitStore((s) => s.clearAllEquipment);
   const clearEquipmentLocation = useUnitStore((s) => s.clearEquipmentLocation);
@@ -351,11 +350,11 @@ export function UnitEditorWithRouting({
     heatSinkType, heatSinkCount, equipment, registryReady,
   ]);
   
-  // Calculate max run MP with enhancement active
   const maxRunMP = useMemo(() => {
-    if (!enhancement) return undefined;
-    return calculateEnhancedMaxRunMP(calculations.walkMP, enhancement);
-  }, [enhancement, calculations.walkMP]);
+    const equipmentNames = equipment.map(e => e.name);
+    const modifiers = getMovementModifiersFromEquipment(equipmentNames);
+    return calculateMaxRunMPWithModifiers(calculations.walkMP, modifiers);
+  }, [equipment, calculations.walkMP]);
 
   // Compute effective tech base mode (detect mixed even if not in mixed mode)
   const effectiveTechBaseMode = useMemo(() => {
@@ -587,7 +586,6 @@ export function UnitEditorWithRouting({
   
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-      {/* Unit Info Banner - at-a-glance stats */}
       <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0">
         <UnitInfoBanner stats={unitStats} />
       </div>
