@@ -41,7 +41,7 @@ describe('ArmorDiagramQuickSettings', () => {
     await user.click(screen.getByRole('button', { expanded: false }));
 
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    expect(screen.getAllByRole('option')).toHaveLength(5);
+    expect(screen.getAllByRole('option')).toHaveLength(6);
   });
 
   it('displays all variant options in dropdown', async () => {
@@ -56,6 +56,7 @@ describe('ArmorDiagramQuickSettings', () => {
     expect(options[2]).toHaveTextContent('Tactical');
     expect(options[3]).toHaveTextContent('Premium');
     expect(options[4]).toHaveTextContent('MegaMek');
+    expect(options[5]).toHaveTextContent('MM Classic');
   });
 
   it('calls setArmorDiagramVariant when option selected', async () => {
