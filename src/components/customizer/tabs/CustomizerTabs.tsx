@@ -47,7 +47,7 @@ const TabIcons: Record<string, React.ReactNode> = {
   ),
   structure: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 0a2 2 0 012 2v1h2a1 1 0 011 1v3l2 1v6h-3v2h-2v-2h-4v2H8v-2H5v-6l2-1V8a1 1 0 011-1h2V6a2 2 0 012-2z" />
     </svg>
   ),
   armor: (
@@ -148,7 +148,7 @@ export function CustomizerTabs({
       {/* Tabs container */}
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme"
+        className="flex justify-evenly overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme"
         role="tablist"
         aria-label="Unit configuration tabs"
         onKeyDown={handleKeyDown}
@@ -164,8 +164,8 @@ export function CustomizerTabs({
             onClick={() => !tab.disabled && onTabChange(tab.id)}
             disabled={tab.disabled}
             className={`
-              flex-shrink-0 flex items-center justify-center gap-1 sm:gap-2
-              min-w-[44px] min-h-[44px] px-3 sm:px-4 py-2 text-sm font-medium
+              flex-1 flex items-center justify-center gap-1 sm:gap-2
+              min-w-[44px] min-h-[44px] px-2 sm:px-4 py-2 text-sm font-medium
               border-b-2 transition-colors whitespace-nowrap
               focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset
               ${tab.id === activeTab
