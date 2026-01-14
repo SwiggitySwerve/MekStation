@@ -13,10 +13,14 @@
  * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 import { MechLocation } from '@/types/construction';
+import { getLocationShorthand } from '@/utils/locationUtils';
+import { CATEGORY_ORDER, CATEGORY_LABELS } from './equipmentConstants';
+import { CategoryFilterBar } from './CategoryFilterBar';
+import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 
 // =============================================================================
 // Types
@@ -76,74 +80,7 @@ interface GlobalLoadoutTrayProps {
   className?: string;
 }
 
-// =============================================================================
-// Category Configuration
-// =============================================================================
 
-const CATEGORY_ORDER: EquipmentCategory[] = [
-  EquipmentCategory.ENERGY_WEAPON,
-  EquipmentCategory.BALLISTIC_WEAPON,
-  EquipmentCategory.MISSILE_WEAPON,
-  EquipmentCategory.ARTILLERY,
-  EquipmentCategory.AMMUNITION,
-  EquipmentCategory.ELECTRONICS,
-  EquipmentCategory.PHYSICAL_WEAPON,
-  EquipmentCategory.MOVEMENT,
-  EquipmentCategory.STRUCTURAL,
-  EquipmentCategory.MISC_EQUIPMENT,
-];
-
-const CATEGORY_LABELS: Record<EquipmentCategory, string> = {
-  [EquipmentCategory.ENERGY_WEAPON]: 'Energy',
-  [EquipmentCategory.BALLISTIC_WEAPON]: 'Ballistic',
-  [EquipmentCategory.MISSILE_WEAPON]: 'Missile',
-  [EquipmentCategory.ARTILLERY]: 'Artillery',
-  [EquipmentCategory.CAPITAL_WEAPON]: 'Capital',
-  [EquipmentCategory.AMMUNITION]: 'Ammo',
-  [EquipmentCategory.ELECTRONICS]: 'Electronics',
-  [EquipmentCategory.PHYSICAL_WEAPON]: 'Physical',
-  [EquipmentCategory.MOVEMENT]: 'Movement',
-  [EquipmentCategory.STRUCTURAL]: 'Structural',
-  [EquipmentCategory.MISC_EQUIPMENT]: 'Misc',
-};
-
-interface CategoryFilterConfig {
-  category: EquipmentCategory | 'ALL';
-  label: string;
-  icon: string;
-}
-
-const CATEGORY_FILTERS: CategoryFilterConfig[] = [
-  { category: 'ALL', label: 'All', icon: '∑' },
-  { category: EquipmentCategory.ENERGY_WEAPON, label: 'E', icon: '⚡' },
-  { category: EquipmentCategory.BALLISTIC_WEAPON, label: 'B', icon: '🎯' },
-  { category: EquipmentCategory.MISSILE_WEAPON, label: 'M', icon: '🚀' },
-  { category: EquipmentCategory.AMMUNITION, label: 'A', icon: '📦' },
-  { category: EquipmentCategory.ELECTRONICS, label: 'El', icon: '📡' },
-  { category: EquipmentCategory.MISC_EQUIPMENT, label: 'O', icon: '⚙️' },
-];
-
-const OTHER_CATEGORIES: EquipmentCategory[] = [
-  EquipmentCategory.MISC_EQUIPMENT,
-  EquipmentCategory.PHYSICAL_WEAPON,
-  EquipmentCategory.MOVEMENT,
-  EquipmentCategory.ARTILLERY,
-  EquipmentCategory.STRUCTURAL,
-];
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-function groupByCategory(equipment: LoadoutEquipmentItem[]): Map<EquipmentCategory, LoadoutEquipmentItem[]> {
-  const groups = new Map<EquipmentCategory, LoadoutEquipmentItem[]>();
-  for (const item of equipment) {
-    const existing = groups.get(item.category) || [];
-    existing.push(item);
-    groups.set(item.category, existing);
-  }
-  return groups;
-}
 
 // =============================================================================
 // Common Styles
@@ -191,60 +128,7 @@ const trayStyles = {
   actionButton: 'opacity-0 group-hover:opacity-100 transition-opacity px-0.5',
 } as const;
 
-/** Convert location names to shorthand (e.g., "Right Torso" -> "RT") */
-function getLocationShorthand(location: string): string {
-  const shortcuts: Record<string, string> = {
-    'Head': 'HD',
-    'Center Torso': 'CT',
-    'Left Torso': 'LT',
-    'Right Torso': 'RT',
-    'Left Arm': 'LA',
-    'Right Arm': 'RA',
-    'Left Leg': 'LL',
-    'Right Leg': 'RL',
-  };
-  return shortcuts[location] || location;
-}
 
-// =============================================================================
-// Category Filter Bar Component
-// =============================================================================
-
-interface CategoryFilterBarProps {
-  activeCategory: EquipmentCategory | 'ALL';
-  onSelectCategory: (category: EquipmentCategory | 'ALL') => void;
-}
-
-function CategoryFilterBar({ activeCategory, onSelectCategory }: CategoryFilterBarProps) {
-  return (
-    <div className="flex items-center gap-0.5 px-1 py-1 overflow-x-auto scrollbar-none">
-      {CATEGORY_FILTERS.map(({ category, label, icon }) => {
-        const isActive = category === activeCategory;
-        const colors = category === 'ALL' 
-          ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
-          : getCategoryColorsLegacy(category as EquipmentCategory);
-        
-        return (
-          <button
-            key={category}
-            onClick={() => onSelectCategory(category)}
-            className={`
-              flex-shrink-0 flex items-center justify-center
-              w-7 h-7 rounded transition-all
-              ${isActive
-                ? `${colors.bg} text-white ring-1 ring-white/20`
-                : 'bg-surface-raised/60 text-text-theme-secondary hover:bg-surface-raised'
-              }
-            `}
-            title={category === 'ALL' ? 'All Categories' : CATEGORY_LABELS[category as EquipmentCategory] || String(category)}
-          >
-            <span className="text-base">{icon}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 // =============================================================================
 // Context Menu Component
@@ -357,6 +241,17 @@ interface EquipmentItemProps {
 function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, onContextMenu, onUnassign: _onUnassign }: EquipmentItemProps) {
   const colors = getCategoryColorsLegacy(item.category);
   const [isDragging, setIsDragging] = useState(false);
+  const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+  const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmTimeoutRef.current) {
+        clearTimeout(confirmTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Check if this is fixed equipment on an OmniMech
   const isFixedOnOmni = isOmni && item.isOmniPodMounted === false;
@@ -379,6 +274,27 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
   
   const handleDragEnd = () => {
     setIsDragging(false);
+  };
+
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (showConfirmRemove) {
+      // Second click - confirm removal
+      onRemove();
+      setShowConfirmRemove(false);
+      if (confirmTimeoutRef.current) {
+        clearTimeout(confirmTimeoutRef.current);
+        confirmTimeoutRef.current = null;
+      }
+    } else {
+      // First click - show confirmation
+      setShowConfirmRemove(true);
+      // Auto-reset after 3 seconds
+      confirmTimeoutRef.current = setTimeout(() => {
+        setShowConfirmRemove(false);
+        confirmTimeoutRef.current = null;
+      }, 3000);
+    }
   };
   
   // Compute display name with OmniMech postfix
@@ -418,25 +334,37 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
         <span className={`truncate flex-1 text-white ${trayStyles.text.primary} drop-shadow-sm`}>
           {displayName}
         </span>
-        {/* Info + action inline */}
+        {/* Info inline */}
         <span className={`text-white/50 ${trayStyles.text.secondary} whitespace-nowrap`}>
           {item.weight}t | {item.criticalSlots} slot{item.criticalSlots !== 1 ? 's' : ''}
           {item.isAllocated && item.location && (
             <span className="text-white/80"> | {getLocationShorthand(item.location)}</span>
           )}
-          {/* Remove/Lock icon */}
-          <span
-            onClick={item.isRemovable ? (e) => { e.stopPropagation(); onRemove(); } : undefined}
-            className={`inline-block w-3 ml-0.5 text-center align-middle font-bold ${
-              item.isRemovable 
-                ? `${trayStyles.text.secondary} text-black hover:text-red-400 cursor-pointer transition-colors` 
-                : `${trayStyles.text.tertiary} text-white/30`
-            }`}
-            title={item.isRemovable ? "Remove from unit" : "Managed by configuration"}
-          >
-            {item.isRemovable ? '✕' : '🔒'}
-          </span>
         </span>
+      </div>
+      
+      {/* Delete zone - right side with confirmation */}
+      <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center border-l border-border-theme-subtle/30 ml-1">
+        {item.isRemovable ? (
+          <button
+            onClick={handleRemoveClick}
+            className={`w-full h-full flex items-center justify-center transition-all text-sm font-medium rounded-r-md
+              ${showConfirmRemove 
+                ? 'text-red-400 bg-red-900/50' 
+                : 'text-slate-400 hover:text-red-400 hover:bg-red-900/30'
+              }`}
+            title={showConfirmRemove ? 'Click again to confirm' : 'Remove from unit'}
+          >
+            {showConfirmRemove ? '?' : '×'}
+          </button>
+        ) : (
+          <span 
+            className="text-white/30 text-[10px]" 
+            title="Managed by configuration"
+          >
+            🔒
+          </span>
+        )}
       </div>
     </div>
   );
@@ -589,30 +517,13 @@ export function GlobalLoadoutTray({
     item: LoadoutEquipmentItem;
   } | null>(null);
   
-  const filteredEquipment = useMemo(() => {
-    if (activeCategory === 'ALL') return equipment;
-    if (activeCategory === EquipmentCategory.MISC_EQUIPMENT) {
-      return equipment.filter(item => OTHER_CATEGORIES.includes(item.category));
-    }
-    return equipment.filter(item => item.category === activeCategory);
-  }, [equipment, activeCategory]);
-  
-  const { unallocated, allocated } = useMemo(() => {
-    const unalloc: LoadoutEquipmentItem[] = [];
-    const alloc: LoadoutEquipmentItem[] = [];
-    for (const item of filteredEquipment) {
-      if (item.isAllocated) {
-        alloc.push(item);
-      } else {
-        unalloc.push(item);
-      }
-    }
-    return { unallocated: unalloc, allocated: alloc };
-  }, [filteredEquipment]);
-  
-  // Group by category
-  const unallocatedByCategory = useMemo(() => groupByCategory(unallocated), [unallocated]);
-  const allocatedByCategory = useMemo(() => groupByCategory(allocated), [allocated]);
+  const {
+    filteredEquipment,
+    unallocated,
+    allocated,
+    unallocatedByCategory,
+    allocatedByCategory,
+  } = useEquipmentFiltering(equipment, activeCategory);
   
   // Handle selection
   const handleSelect = useCallback((id: string | null) => {
@@ -710,6 +621,7 @@ export function GlobalLoadoutTray({
           <CategoryFilterBar
             activeCategory={activeCategory}
             onSelectCategory={setActiveCategory}
+            compact
           />
           
           {/* Quick actions */}

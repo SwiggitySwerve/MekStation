@@ -10,10 +10,10 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
-import { MechLocation } from '@/types/construction';
-import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
 import { MobileEquipmentRow, MobileEquipmentItem } from './MobileEquipmentRow';
 import { MobileLoadoutStats } from './MobileLoadoutHeader';
+import { CategoryFilterBar } from '../equipment/CategoryFilterBar';
+import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 
 // =============================================================================
 // Types
@@ -44,73 +44,7 @@ interface MobileLoadoutListProps {
   className?: string;
 }
 
-// =============================================================================
-// Constants
-// =============================================================================
 
-interface CategoryConfig {
-  category: EquipmentCategory | 'ALL';
-  label: string;
-  icon: string;
-}
-
-const CATEGORY_FILTERS: CategoryConfig[] = [
-  { category: 'ALL', label: 'All', icon: '∑' },
-  { category: EquipmentCategory.ENERGY_WEAPON, label: 'Energy', icon: '⚡' },
-  { category: EquipmentCategory.BALLISTIC_WEAPON, label: 'Ballistic', icon: '🎯' },
-  { category: EquipmentCategory.MISSILE_WEAPON, label: 'Missile', icon: '🚀' },
-  { category: EquipmentCategory.AMMUNITION, label: 'Ammo', icon: '📦' },
-  { category: EquipmentCategory.ELECTRONICS, label: 'Elec', icon: '📡' },
-  { category: EquipmentCategory.MISC_EQUIPMENT, label: 'Other', icon: '⚙️' },
-];
-
-// Categories to group under "Other" filter
-const OTHER_CATEGORIES: EquipmentCategory[] = [
-  EquipmentCategory.MISC_EQUIPMENT,
-  EquipmentCategory.PHYSICAL_WEAPON,
-  EquipmentCategory.MOVEMENT,
-  EquipmentCategory.ARTILLERY,
-];
-
-// =============================================================================
-// Category Filter Bar Component
-// =============================================================================
-
-interface CategoryFilterBarProps {
-  activeCategory: EquipmentCategory | 'ALL';
-  onSelectCategory: (category: EquipmentCategory | 'ALL') => void;
-}
-
-function CategoryFilterBar({ activeCategory, onSelectCategory }: CategoryFilterBarProps) {
-  return (
-    <div className="flex items-center gap-1 px-2 py-2 overflow-x-auto scrollbar-none bg-surface-base/50">
-      {CATEGORY_FILTERS.map(({ category, label, icon }) => {
-        const isActive = category === activeCategory;
-        const colors = category === 'ALL' 
-          ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
-          : getCategoryColorsLegacy(category as EquipmentCategory);
-        
-        return (
-          <button
-            key={category}
-            onClick={() => onSelectCategory(category)}
-            className={`
-              flex-shrink-0 flex items-center gap-1 px-2 py-1.5 rounded-lg
-              text-xs font-medium transition-all active:scale-95
-              ${isActive
-                ? `${colors.bg} text-white ring-1 ring-white/20`
-                : 'bg-surface-raised/60 text-text-theme-secondary'
-              }
-            `}
-          >
-            <span className="text-sm">{icon}</span>
-            <span className="hidden xs:inline">{label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 // =============================================================================
 // Section Header Component
@@ -239,33 +173,12 @@ export function MobileLoadoutList({
     return equipment.filter(item => item.isRemovable);
   }, [equipment]);
   
-  // Apply category filter
-  const filteredEquipment = useMemo(() => {
-    if (activeCategory === 'ALL') return removableEquipment;
-    
-    // "Other" category includes misc, physical, movement, artillery
-    if (activeCategory === EquipmentCategory.MISC_EQUIPMENT) {
-      return removableEquipment.filter(item => 
-        OTHER_CATEGORIES.includes(item.category)
-      );
-    }
-    
-    return removableEquipment.filter(item => item.category === activeCategory);
-  }, [removableEquipment, activeCategory]);
-  
-  // Split by allocation status
-  const { unassigned, allocated } = useMemo(() => {
-    const unalloc: MobileEquipmentItem[] = [];
-    const alloc: MobileEquipmentItem[] = [];
-    for (const item of filteredEquipment) {
-      if (item.isAllocated) {
-        alloc.push(item);
-      } else {
-        unalloc.push(item);
-      }
-    }
-    return { unassigned: unalloc, allocated: alloc };
-  }, [filteredEquipment]);
+  // Apply category filter and split by allocation status
+  const {
+    filteredEquipment,
+    unallocated: unassigned,
+    allocated,
+  } = useEquipmentFiltering(removableEquipment, activeCategory);
   
   // Handle equipment selection
   const handleSelect = useCallback((instanceId: string) => {
@@ -324,7 +237,8 @@ export function MobileLoadoutList({
       {/* Category Filters */}
       <CategoryFilterBar 
         activeCategory={activeCategory} 
-        onSelectCategory={setActiveCategory} 
+        onSelectCategory={setActiveCategory}
+        showLabels
       />
       
       {/* Equipment List */}
