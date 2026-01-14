@@ -352,10 +352,19 @@ export function UnitEditorWithRouting({
   ]);
   
   // Calculate max run MP with enhancement active
+  // Check equipment list for MASC + Supercharger combo (2.5x run speed)
   const maxRunMP = useMemo(() => {
+    const equipmentNames = equipment.map(e => e.name.toLowerCase());
+    const hasMASC = equipmentNames.some(name => name.includes('masc'));
+    const hasSupercharger = equipmentNames.some(name => name.includes('supercharger'));
+    const hasBoth = hasMASC && hasSupercharger;
+    
+    if (hasBoth) {
+      return calculateEnhancedMaxRunMP(calculations.walkMP, 'masc', true);
+    }
     if (!enhancement) return undefined;
-    return calculateEnhancedMaxRunMP(calculations.walkMP, enhancement);
-  }, [enhancement, calculations.walkMP]);
+    return calculateEnhancedMaxRunMP(calculations.walkMP, enhancement, false);
+  }, [enhancement, equipment, calculations.walkMP]);
 
   // Compute effective tech base mode (detect mixed even if not in mixed mode)
   const effectiveTechBaseMode = useMemo(() => {
