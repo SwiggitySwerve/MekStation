@@ -107,6 +107,30 @@ const CATEGORY_LABELS: Record<EquipmentCategory, string> = {
   [EquipmentCategory.MISC_EQUIPMENT]: 'Misc',
 };
 
+interface CategoryFilterConfig {
+  category: EquipmentCategory | 'ALL';
+  label: string;
+  icon: string;
+}
+
+const CATEGORY_FILTERS: CategoryFilterConfig[] = [
+  { category: 'ALL', label: 'All', icon: '∑' },
+  { category: EquipmentCategory.ENERGY_WEAPON, label: 'E', icon: '⚡' },
+  { category: EquipmentCategory.BALLISTIC_WEAPON, label: 'B', icon: '🎯' },
+  { category: EquipmentCategory.MISSILE_WEAPON, label: 'M', icon: '🚀' },
+  { category: EquipmentCategory.AMMUNITION, label: 'A', icon: '📦' },
+  { category: EquipmentCategory.ELECTRONICS, label: 'El', icon: '📡' },
+  { category: EquipmentCategory.MISC_EQUIPMENT, label: 'O', icon: '⚙️' },
+];
+
+const OTHER_CATEGORIES: EquipmentCategory[] = [
+  EquipmentCategory.MISC_EQUIPMENT,
+  EquipmentCategory.PHYSICAL_WEAPON,
+  EquipmentCategory.MOVEMENT,
+  EquipmentCategory.ARTILLERY,
+  EquipmentCategory.STRUCTURAL,
+];
+
 // =============================================================================
 // Helper Functions
 // =============================================================================
@@ -183,6 +207,46 @@ function getLocationShorthand(location: string): string {
 }
 
 // =============================================================================
+// Category Filter Bar Component
+// =============================================================================
+
+interface CategoryFilterBarProps {
+  activeCategory: EquipmentCategory | 'ALL';
+  onSelectCategory: (category: EquipmentCategory | 'ALL') => void;
+}
+
+function CategoryFilterBar({ activeCategory, onSelectCategory }: CategoryFilterBarProps) {
+  return (
+    <div className="flex items-center gap-0.5 px-1 py-1 overflow-x-auto scrollbar-none">
+      {CATEGORY_FILTERS.map(({ category, label, icon }) => {
+        const isActive = category === activeCategory;
+        const colors = category === 'ALL' 
+          ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
+          : getCategoryColorsLegacy(category as EquipmentCategory);
+        
+        return (
+          <button
+            key={category}
+            onClick={() => onSelectCategory(category)}
+            className={`
+              flex-shrink-0 flex items-center justify-center
+              w-6 h-6 rounded transition-all
+              ${isActive
+                ? `${colors.bg} text-white ring-1 ring-white/20`
+                : 'bg-surface-raised/60 text-text-theme-secondary hover:bg-surface-raised'
+              }
+            `}
+            title={category === 'ALL' ? 'All Categories' : CATEGORY_LABELS[category as EquipmentCategory] || String(category)}
+          >
+            <span className="text-xs">{icon}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================================================
 // Context Menu Component
 // =============================================================================
 
@@ -218,8 +282,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
     };
   }, [onClose]);
   
-  // Adjust position to keep menu on screen
-  const adjustedX = Math.min(x, window.innerWidth - 200);
+  const adjustedX = Math.min(x, window.innerWidth - 220);
   const adjustedY = Math.min(y, window.innerHeight - 300);
   
   const validLocations = availableLocations.filter(loc => loc.canFit);
@@ -227,7 +290,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-surface-base border border-border-theme rounded-lg shadow-xl py-1 min-w-[160px]"
+      className="fixed z-50 bg-surface-base border border-border-theme rounded-lg shadow-xl py-1 min-w-[200px]"
       style={{ left: adjustedX, top: adjustedY }}
     >
       {/* Header */}
@@ -258,10 +321,10 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
             <button
               key={loc.location}
               onClick={() => { onQuickAssign(loc.location); onClose(); }}
-              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-surface-raised transition-colors flex justify-between`}
+              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-surface-raised transition-colors flex justify-between items-center gap-3 whitespace-nowrap`}
             >
-              <span>Add to {loc.label}</span>
-              <span className={`text-slate-500 ${trayStyles.text.secondary}`}>{loc.availableSlots} free</span>
+              <span className="flex-shrink-0">Add to {loc.label}</span>
+              <span className={`text-slate-500 ${trayStyles.text.secondary} flex-shrink-0`}>{loc.availableSlots} free</span>
             </button>
           ))}
         </>
@@ -516,22 +579,28 @@ export function GlobalLoadoutTray({
   isOmni = false,
   className = '',
 }: GlobalLoadoutTrayProps): React.ReactElement {
-  // Section expansion state
   const [unallocatedExpanded, setUnallocatedExpanded] = useState(true);
   const [allocatedExpanded, setAllocatedExpanded] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<EquipmentCategory | 'ALL'>('ALL');
   
-  // Context menu state
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
     item: LoadoutEquipmentItem;
   } | null>(null);
   
-  // Split equipment by allocation
+  const filteredEquipment = useMemo(() => {
+    if (activeCategory === 'ALL') return equipment;
+    if (activeCategory === EquipmentCategory.MISC_EQUIPMENT) {
+      return equipment.filter(item => OTHER_CATEGORIES.includes(item.category));
+    }
+    return equipment.filter(item => item.category === activeCategory);
+  }, [equipment, activeCategory]);
+  
   const { unallocated, allocated } = useMemo(() => {
     const unalloc: LoadoutEquipmentItem[] = [];
     const alloc: LoadoutEquipmentItem[] = [];
-    for (const item of equipment) {
+    for (const item of filteredEquipment) {
       if (item.isAllocated) {
         alloc.push(item);
       } else {
@@ -539,7 +608,7 @@ export function GlobalLoadoutTray({
       }
     }
     return { unallocated: unalloc, allocated: alloc };
-  }, [equipment]);
+  }, [filteredEquipment]);
   
   // Group by category
   const unallocatedByCategory = useMemo(() => groupByCategory(unallocated), [unallocated]);
@@ -637,6 +706,12 @@ export function GlobalLoadoutTray({
             </button>
           </div>
           
+          {/* Category filter */}
+          <CategoryFilterBar
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+          />
+          
           {/* Quick actions */}
           {removableCount > 0 && (
             <div className={`${trayStyles.padding.header} pb-2`}>
@@ -652,11 +727,15 @@ export function GlobalLoadoutTray({
         
         {/* Equipment List */}
         <div className="flex-1 overflow-y-auto">
-          {equipment.length === 0 ? (
+          {filteredEquipment.length === 0 ? (
             <div className="p-4 text-center text-slate-500">
               <div className="text-2xl mb-2">⚙️</div>
-              <div className={trayStyles.text.primary}>No equipment</div>
-              <div className={`${trayStyles.text.secondary} mt-1`}>Add from Equipment tab</div>
+              <div className={trayStyles.text.primary}>
+                {equipment.length === 0 ? 'No equipment' : 'No items in filter'}
+              </div>
+              <div className={`${trayStyles.text.secondary} mt-1`}>
+                {equipment.length === 0 ? 'Add from Equipment tab' : 'Try another category'}
+              </div>
             </div>
           ) : (
             <>

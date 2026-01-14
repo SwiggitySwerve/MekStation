@@ -181,5 +181,75 @@ describe('GlobalLoadoutTray', () => {
     
     expect(screen.getByText(/No equipment/i)).toBeInTheDocument();
   });
+
+  describe('Category Filter', () => {
+    const mixedEquipment = [
+      createEquipment({ instanceId: 'e1', name: 'Medium Laser', category: EquipmentCategory.ENERGY_WEAPON }),
+      createEquipment({ instanceId: 'e2', name: 'AC/10', category: EquipmentCategory.BALLISTIC_WEAPON }),
+      createEquipment({ instanceId: 'e3', name: 'LRM 20', category: EquipmentCategory.MISSILE_WEAPON }),
+      createEquipment({ instanceId: 'e4', name: 'Ammo LRM', category: EquipmentCategory.AMMUNITION }),
+    ];
+
+    it('should render category filter buttons', () => {
+      render(<GlobalLoadoutTray {...defaultProps} equipment={mixedEquipment} />);
+      
+      expect(screen.getByTitle('All Categories')).toBeInTheDocument();
+      expect(screen.getByTitle('Energy')).toBeInTheDocument();
+      expect(screen.getByTitle('Ballistic')).toBeInTheDocument();
+    });
+
+    it('should show all equipment by default', () => {
+      render(<GlobalLoadoutTray {...defaultProps} equipment={mixedEquipment} />);
+      
+      expect(screen.getByText('Medium Laser')).toBeInTheDocument();
+      expect(screen.getByText('AC/10')).toBeInTheDocument();
+      expect(screen.getByText('LRM 20')).toBeInTheDocument();
+      expect(screen.getByText('Ammo LRM')).toBeInTheDocument();
+    });
+
+    it('should filter to energy weapons when energy filter clicked', async () => {
+      const user = userEvent.setup();
+      render(<GlobalLoadoutTray {...defaultProps} equipment={mixedEquipment} />);
+      
+      await user.click(screen.getByTitle('Energy'));
+      
+      expect(screen.getByText('Medium Laser')).toBeInTheDocument();
+      expect(screen.queryByText('AC/10')).not.toBeInTheDocument();
+      expect(screen.queryByText('LRM 20')).not.toBeInTheDocument();
+    });
+
+    it('should filter to ballistic weapons when ballistic filter clicked', async () => {
+      const user = userEvent.setup();
+      render(<GlobalLoadoutTray {...defaultProps} equipment={mixedEquipment} />);
+      
+      await user.click(screen.getByTitle('Ballistic'));
+      
+      expect(screen.queryByText('Medium Laser')).not.toBeInTheDocument();
+      expect(screen.getByText('AC/10')).toBeInTheDocument();
+      expect(screen.queryByText('LRM 20')).not.toBeInTheDocument();
+    });
+
+    it('should show empty filter state when no items match filter', async () => {
+      const user = userEvent.setup();
+      const energyOnly = [createEquipment({ instanceId: 'e1', name: 'Laser', category: EquipmentCategory.ENERGY_WEAPON })];
+      render(<GlobalLoadoutTray {...defaultProps} equipment={energyOnly} />);
+      
+      await user.click(screen.getByTitle('Ballistic'));
+      
+      expect(screen.getByText(/No items in filter/i)).toBeInTheDocument();
+    });
+
+    it('should return to showing all when All filter clicked', async () => {
+      const user = userEvent.setup();
+      render(<GlobalLoadoutTray {...defaultProps} equipment={mixedEquipment} />);
+      
+      await user.click(screen.getByTitle('Energy'));
+      expect(screen.queryByText('AC/10')).not.toBeInTheDocument();
+      
+      await user.click(screen.getByTitle('All Categories'));
+      expect(screen.getByText('AC/10')).toBeInTheDocument();
+      expect(screen.getByText('Medium Laser')).toBeInTheDocument();
+    });
+  });
 });
 
