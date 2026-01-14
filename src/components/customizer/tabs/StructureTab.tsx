@@ -292,8 +292,8 @@ export function StructureTab({
         </div>
       </div>
 
-      {/* Two-column layout: Chassis | Movement */}
-      <div className={cs.layout.twoColumn}>
+      {/* Two-column layout: Chassis | Movement - uses lg breakpoint for sidebar-adjacent context */}
+      <div className={cs.layout.twoColumnSidebar}>
         
         {/* LEFT: Chassis */}
         <div className={cs.panel.main}>

@@ -2,11 +2,13 @@
  * Customizer Tabs Component
  * 
  * Tabbed navigation for unit configuration sections.
+ * Responsive: Shows icons-only on mobile, icons + labels on larger screens.
  * 
  * @spec openspec/specs/customizer-tabs/spec.md
+ * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 
 /**
@@ -96,6 +98,11 @@ export const DEFAULT_CUSTOMIZER_TABS: CustomizerTabConfig[] = [
 
 /**
  * Customizer section tabs
+ * 
+ * Responsive behavior:
+ * - Mobile (<640px): Icons only, minimum 44px touch targets
+ * - Desktop (>=640px): Icons + labels
+ * - Scroll indicators appear when tabs overflow
  */
 export function CustomizerTabs({
   tabs,
@@ -105,39 +112,80 @@ export function CustomizerTabs({
   className = '',
 }: CustomizerTabsProps): React.ReactElement {
   const handleKeyDown = useTabKeyboardNavigation(tabs, activeTab, onTabChange);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  // Check scroll position to show/hide fade indicators
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const canScroll = scrollWidth > clientWidth;
+      setShowLeftFade(canScroll && scrollLeft > 0);
+      setShowRightFade(canScroll && scrollLeft < scrollWidth - clientWidth - 1);
+    };
+
+    checkScroll();
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+
+    return () => {
+      container.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [tabs]);
   
   return (
-    <div
-      className={`flex overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme bg-surface-base border-b border-border-theme-subtle ${className}`}
-      role="tablist"
-      aria-label="Unit configuration tabs"
-      onKeyDown={handleKeyDown}
-    >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          role="tab"
-          aria-selected={tab.id === activeTab}
-          aria-controls={`tabpanel-${tab.id}`}
-          tabIndex={tab.id === activeTab ? 0 : -1}
-          onClick={() => !tab.disabled && onTabChange(tab.id)}
-          disabled={tab.disabled}
-          className={`
-            flex-shrink-0 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 text-sm font-medium
-            border-b-2 transition-colors whitespace-nowrap
-            focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset
-            ${tab.id === activeTab
-              ? 'text-accent border-accent'
-              : 'text-text-theme-secondary border-transparent hover:text-white hover:border-border-theme-subtle'
-            }
-            ${tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-            ${readOnly ? 'pointer-events-none' : ''}
-          `}
-        >
-          {tab.icon}
-          <span className="hidden sm:inline">{tab.label}</span>
-        </button>
-      ))}
+    <div className={`relative bg-surface-base border-b border-border-theme-subtle ${className}`}>
+      {/* Left scroll fade indicator */}
+      {showLeftFade && (
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface-base to-transparent pointer-events-none z-10" />
+      )}
+      
+      {/* Tabs container */}
+      <div
+        ref={scrollContainerRef}
+        className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme"
+        role="tablist"
+        aria-label="Unit configuration tabs"
+        onKeyDown={handleKeyDown}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            role="tab"
+            aria-selected={tab.id === activeTab}
+            aria-controls={`tabpanel-${tab.id}`}
+            aria-label={tab.label}
+            tabIndex={tab.id === activeTab ? 0 : -1}
+            onClick={() => !tab.disabled && onTabChange(tab.id)}
+            disabled={tab.disabled}
+            className={`
+              flex-shrink-0 flex items-center justify-center gap-1 sm:gap-2
+              min-w-[44px] min-h-[44px] px-3 sm:px-4 py-2 text-sm font-medium
+              border-b-2 transition-colors whitespace-nowrap
+              focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset
+              ${tab.id === activeTab
+                ? 'text-accent border-accent'
+                : 'text-text-theme-secondary border-transparent hover:text-white hover:border-border-theme-subtle'
+              }
+              ${tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+              ${readOnly ? 'pointer-events-none' : ''}
+            `}
+          >
+            {tab.icon}
+            <span className="hidden sm:inline">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+      
+      {/* Right scroll fade indicator */}
+      {showRightFade && (
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-base to-transparent pointer-events-none z-10" />
+      )}
     </div>
   );
 }

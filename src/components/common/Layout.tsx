@@ -17,10 +17,11 @@ const Layout: React.FC<LayoutProps> = ({
   secondarySidebar,
 }) => {
   // Determine margin based on sidebar presence and state
-  // Sidebar widths: collapsed = w-16 (4rem), expanded = w-56 (14rem)
+  // Sidebar widths: collapsed = w-16 (4rem/64px), expanded = w-56 (14rem/224px)
+  // Margin applies on ALL screen sizes since sidebar is fixed and always visible
   const hasSidebar = !!sidebarComponent;
   const contentAndFooterMargin = hasSidebar 
-    ? (isSidebarCollapsed ? 'md:ml-16' : 'md:ml-56')
+    ? (isSidebarCollapsed ? 'ml-16' : 'ml-56')
     : 'ml-0';
 
   return (

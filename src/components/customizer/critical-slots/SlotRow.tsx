@@ -263,7 +263,7 @@ export const SlotRow = memo(function SlotRow({
           ${isAssignable ? 'focus:ring-1 focus:ring-green-400 focus:ring-inset' : ''}
           ${styleClasses}
           ${selectionClasses}
-          ${compact ? 'px-2 py-0.5 text-xs' : 'px-2 py-1 text-sm'}
+          ${compact ? 'px-1 py-0.5 text-[10px] sm:text-xs' : 'px-1 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-sm'}
         `}
         onClick={onClick}
         onDoubleClick={handleDoubleClick}

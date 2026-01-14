@@ -4,10 +4,18 @@
  * Wrapper that switches between GlobalLoadoutTray (desktop sidebar) and
  * BottomSheetTray (mobile bottom sheet) based on screen size.
  * 
+ * Responsive behavior:
+ * - Mobile (<768px): Bottom sheet with simple expand/collapse toggle
+ * - Desktop (768px+): Sidebar with expand/collapse toggle
+ * 
+ * Both states are persisted to localStorage so user preferences are remembered.
+ * No auto-collapse behavior - only changes state on explicit user interaction.
+ * 
  * Uses CSS-based responsive display (md: breakpoint) for smooth transitions
  * without layout shift on resize.
  * 
  * @spec openspec/changes/pwa-implementation-tasks.md - Phase 3.3
+ * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
 import React from 'react';
@@ -54,8 +62,10 @@ export interface ResponsiveLoadoutTrayProps {
  * Responsive loadout tray that switches between sidebar (desktop) and
  * bottom sheet (mobile) layouts.
  * 
- * Desktop (md and up): GlobalLoadoutTray sidebar on the right
- * Mobile (below md): BottomSheetTray fixed at bottom of screen
+ * - Mobile (<768px): Bottom sheet with simple toggle
+ * - Desktop (768px+): Sidebar with expand/collapse
+ * 
+ * State is persisted to localStorage - no auto-collapse behavior.
  */
 export function ResponsiveLoadoutTray({
   equipment,
@@ -71,10 +81,12 @@ export function ResponsiveLoadoutTray({
   availableLocations = [],
   isOmni = false,
 }: ResponsiveLoadoutTrayProps): React.ReactElement {
+  // No auto-collapse behavior - state is persisted and only changed by user interaction
+  
   return (
     <>
-      {/* Desktop: Sidebar tray (hidden on mobile) */}
-      <div className="hidden md:block">
+      {/* Desktop/Tablet: Sidebar tray (hidden on mobile) */}
+      <div className="hidden md:flex h-full">
         <GlobalLoadoutTray
           equipment={equipment}
           equipmentCount={equipmentCount}

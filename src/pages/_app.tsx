@@ -1,14 +1,19 @@
 import type { AppProps } from 'next/app'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/router'
 import '../styles/globals.css'
 import Layout from '../components/common/Layout'
 import Sidebar from '../components/common/Sidebar'
 import { InstallPrompt } from '../components/pwa/InstallPrompt'
 import { useServiceWorker } from '../hooks/useServiceWorker'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
+import { usePersistedState, STORAGE_KEYS } from '../hooks/usePersistedState'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
 import { indexedDBService } from '../services/persistence/IndexedDBService'
+
+/** Breakpoint for mobile (below this = auto-collapse on navigation) */
+const MOBILE_BREAKPOINT = 768;
 
 /**
  * Initialize browser-safe services
@@ -24,8 +29,29 @@ async function initializeBrowserServices(): Promise<void> {
 }
 
 export default function App({ Component, pageProps }: AppProps): React.ReactElement {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const router = useRouter();
+  
+  // Persist sidebar collapsed state to localStorage
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedState(
+    STORAGE_KEYS.SIDEBAR_COLLAPSED,
+    false // Default: expanded on desktop
+  );
   const [servicesReady, setServicesReady] = useState(false)
+  
+  // Auto-collapse sidebar on mobile after navigation
+  const handleRouteChange = useCallback(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [setIsSidebarCollapsed]);
+  
+  // Listen for route changes to auto-collapse on mobile
+  useEffect(() => {
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events, handleRouteChange]);
 
   // Initialize browser services on app mount
   useEffect(() => {
