@@ -401,7 +401,7 @@ export const BIPED_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.f
 /**
  * Slot counts per location for quad mechs
  *
- * Note: Quad legs have 12 slots each (same as biped arms).
+ * Note: All leg locations have 6 slots.
  * @deprecated Use LOCATION_SLOT_COUNTS from CriticalSlotAllocation instead
  */
 export const QUAD_SLOT_COUNTS: Partial<Record<MechLocation, number>> = Object.fromEntries(

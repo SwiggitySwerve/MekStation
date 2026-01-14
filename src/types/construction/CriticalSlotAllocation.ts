@@ -53,7 +53,7 @@ export enum MechLocation {
 /**
  * Critical slot counts per location
  *
- * Note: Quad legs have 12 slots (same as arms in biped).
+ * Note: All leg locations (biped, quad, tripod) have 6 slots.
  * LAM fighter locations are for armor mapping only, not critical slots.
  */
 export const LOCATION_SLOT_COUNTS: Readonly<Record<MechLocation, number>> = {
@@ -74,11 +74,11 @@ export const LOCATION_SLOT_COUNTS: Readonly<Record<MechLocation, number>> = {
   // Tripod center leg
   [MechLocation.CENTER_LEG]: 6,
 
-  // Quad/QuadVee leg locations (12 slots each)
-  [MechLocation.FRONT_LEFT_LEG]: 12,
-  [MechLocation.FRONT_RIGHT_LEG]: 12,
-  [MechLocation.REAR_LEFT_LEG]: 12,
-  [MechLocation.REAR_RIGHT_LEG]: 12,
+  // Quad/QuadVee leg locations (6 slots each - same as biped legs)
+  [MechLocation.FRONT_LEFT_LEG]: 6,
+  [MechLocation.FRONT_RIGHT_LEG]: 6,
+  [MechLocation.REAR_LEFT_LEG]: 6,
+  [MechLocation.REAR_RIGHT_LEG]: 6,
 
   // LAM Fighter mode locations (not used for critical slots, 0 by convention)
   [MechLocation.NOSE]: 0,

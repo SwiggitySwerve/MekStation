@@ -54,7 +54,7 @@ const SLOT_COUNTS: Record<string, number> = {
   RIGHT_ARM: 12,
   LEFT_LEG: 6,
   RIGHT_LEG: 6,
-  // Quad locations (12 slots each for legs)
+  // Quad locations (6 slots each for legs)
   FRONT_LEFT_LEG: 6,
   FRONT_RIGHT_LEG: 6,
   REAR_LEFT_LEG: 6,

@@ -35,6 +35,7 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
     'tactical-hud',
     'premium-material',
     'megamek',
+    'megamek-classic',
   ];
 
   return (

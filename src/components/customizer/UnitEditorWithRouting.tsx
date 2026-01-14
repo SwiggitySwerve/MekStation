@@ -624,21 +624,23 @@ export function UnitEditorWithRouting({
           </div>
         </div>
         
-        {/* Right side: Global Loadout Tray */}
-        <GlobalLoadoutTray
-          equipment={loadoutEquipment}
-          equipmentCount={equipment.length}
-          onRemoveEquipment={handleRemoveEquipment}
-          onRemoveAllEquipment={handleRemoveAllEquipment}
-          isExpanded={isTrayExpanded}
-          onToggleExpand={handleToggleTray}
-          selectedEquipmentId={selectedEquipmentId}
-          onSelectEquipment={handleSelectEquipment}
-          onUnassignEquipment={handleUnassignEquipment}
-          onQuickAssign={handleQuickAssign}
-          availableLocations={availableLocations}
-          isOmni={isOmni}
-        />
+        {/* Right side: Global Loadout Tray (hidden on Preview tab) */}
+        {activeTabId !== 'preview' && (
+          <GlobalLoadoutTray
+            equipment={loadoutEquipment}
+            equipmentCount={equipment.length}
+            onRemoveEquipment={handleRemoveEquipment}
+            onRemoveAllEquipment={handleRemoveAllEquipment}
+            isExpanded={isTrayExpanded}
+            onToggleExpand={handleToggleTray}
+            selectedEquipmentId={selectedEquipmentId}
+            onSelectEquipment={handleSelectEquipment}
+            onUnassignEquipment={handleUnassignEquipment}
+            onQuickAssign={handleQuickAssign}
+            availableLocations={availableLocations}
+            isOmni={isOmni}
+          />
+        )}
       </div>
     </div>
   );

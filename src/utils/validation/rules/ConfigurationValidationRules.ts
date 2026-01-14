@@ -242,7 +242,7 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
       return pass(this.id);
     }
 
-    // Quad mechs: 6 (head) + 12*3 (torsos) + 12*4 (quad legs) = 6 + 36 + 48 = 90 slots
+    // Quad mechs: 6 (head) + 12*3 (torsos) + 6*4 (quad legs) = 6 + 36 + 24 = 66 slots
     // Calculate dynamically from canonical source
     const quadLocations = [
       MechLocation.HEAD,
@@ -1126,9 +1126,9 @@ export const QuadVeeTotalSlotsRule: IValidationRuleDefinition = {
       return pass(this.id);
     }
 
-    // QuadVee: 6 (head) + 12*3 (torsos) + 12*4 (legs) = 6 + 36 + 48 = 90 slots available
-    // But with conversion equipment in each leg (1 slot each), effective is 86
-    const maxSlots = 90;
+    // QuadVee: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 6 + 36 + 24 = 66 slots available
+    // But with conversion equipment in each leg (1 slot each), effective is 62
+    const maxSlots = 66;
     let usedSlots = 0;
 
     for (const [_location, slots] of Object.entries(criticalSlots)) {

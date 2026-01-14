@@ -28,6 +28,9 @@ export * from './construction';
 // Re-export conversion services
 export * from './conversion';
 
+// Re-export asset services
+export * from './assets';
+
 // ============================================================================
 // SERVICE REGISTRY
 // ============================================================================

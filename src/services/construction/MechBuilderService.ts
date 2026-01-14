@@ -68,6 +68,13 @@ export interface IArmorAllocation {
   readonly rightArm: number;
   readonly leftLeg: number;
   readonly rightLeg: number;
+  // Quad-specific locations (optional)
+  readonly frontLeftLeg?: number;
+  readonly frontRightLeg?: number;
+  readonly rearLeftLeg?: number;
+  readonly rearRightLeg?: number;
+  // Tripod-specific location (optional)
+  readonly centerLeg?: number;
 }
 
 /**

@@ -429,10 +429,10 @@ describe('MechConfigurationSystem', () => {
         ).toBe(12);
       });
 
-      it('should return 12 slots for quad legs', () => {
+      it('should return 6 slots for quad legs', () => {
         expect(
           getLocationSlotCount(MechLocation.FRONT_LEFT_LEG, MechConfiguration.QUAD)
-        ).toBe(12);
+        ).toBe(6);
       });
     });
 

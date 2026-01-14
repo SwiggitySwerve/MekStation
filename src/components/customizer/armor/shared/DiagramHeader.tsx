@@ -10,6 +10,8 @@ import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 export interface DiagramHeaderProps {
   /** Title to display */
   title: string;
+  /** Optional subtitle to display */
+  subtitle?: string;
   /** Whether to show quick settings dropdown (defaults to true) */
   showQuickSettings?: boolean;
   /** Additional CSS classes for the title */
@@ -23,6 +25,7 @@ export interface DiagramHeaderProps {
  */
 export function DiagramHeader({
   title,
+  subtitle,
   showQuickSettings = true,
   titleClassName = '',
   className = '',
@@ -33,6 +36,9 @@ export function DiagramHeader({
         <h3 className={`text-lg font-semibold text-text-theme-primary ${titleClassName}`}>
           {title}
         </h3>
+        {subtitle && (
+          <span className="text-sm text-text-theme-secondary">({subtitle})</span>
+        )}
         {showQuickSettings && <ArmorDiagramQuickSettings />}
       </div>
     </div>

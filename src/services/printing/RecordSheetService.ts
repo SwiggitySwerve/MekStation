@@ -32,13 +32,26 @@ import { STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureTy
 import { IWeapon, WeaponCategory } from '@/types/equipment';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
-// SVG template paths (using original MegaMek templates)
+import { 
+  mmDataAssetService, 
+  MechConfiguration, 
+  PaperSize as AssetPaperSize 
+} from '@/services/assets/MmDataAssetService';
+
 const SVG_TEMPLATES = {
-  biped: '/record-sheets/templates/mek_biped_default.svg',
-  quad: '/record-sheets/templates/mek_quad.svg',
-  tripod: '/record-sheets/templates/mek_tripod.svg',
-  lam: '/record-sheets/templates/mek_lam.svg',
-  quadvee: '/record-sheets/templates/mek_quadvee.svg',
+  biped: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.BIPED, AssetPaperSize.LETTER),
+  quad: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.QUAD, AssetPaperSize.LETTER),
+  tripod: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.TRIPOD, AssetPaperSize.LETTER),
+  lam: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.LAM, AssetPaperSize.LETTER),
+  quadvee: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.QUADVEE, AssetPaperSize.LETTER),
+} as const;
+
+const SVG_TEMPLATES_A4 = {
+  biped: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.BIPED, AssetPaperSize.A4),
+  quad: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.QUAD, AssetPaperSize.A4),
+  tripod: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.TRIPOD, AssetPaperSize.A4),
+  lam: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.LAM, AssetPaperSize.A4),
+  quadvee: mmDataAssetService.getRecordSheetTemplatePath(MechConfiguration.QUADVEE, AssetPaperSize.A4),
 } as const;
 
 /**
@@ -78,6 +91,13 @@ interface IUnitConfig {
       rightArm: number;
       leftLeg: number;
       rightLeg: number;
+      // Quad-specific locations (optional)
+      frontLeftLeg?: number;
+      frontRightLeg?: number;
+      rearLeftLeg?: number;
+      rearRightLeg?: number;
+      // Tripod-specific location (optional)
+      centerLeg?: number;
     };
   };
   heatSinks: {
@@ -153,39 +173,37 @@ export class RecordSheetService {
   async renderPreview(
     canvas: HTMLCanvasElement,
     data: IRecordSheetData,
-    _paperSize: PaperSize = PaperSize.LETTER
+    paperSize: PaperSize = PaperSize.LETTER
   ): Promise<void> {
-    // Get template path based on mech type
-    const templatePath = SVG_TEMPLATES[data.mechType] || SVG_TEMPLATES.biped;
+    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+    const templatePath = templates[data.mechType] || templates.biped;
     
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
     
-    // Load and insert armor pips
-    await renderer.fillArmorPips(data.armor);
+    // Load and insert armor pips (pass mechType for dynamic generation on non-biped)
+    await renderer.fillArmorPips(data.armor, data.mechType);
     
-    // Fill structure pips and text values
-    await renderer.fillStructurePips(data.structure, data.header.tonnage);
+    // Fill structure pips and text values (pass mechType for dynamic generation on non-biped)
+    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
     
     await renderer.renderToCanvas(canvas);
   }
 
-  /**
-   * Get SVG string for the record sheet
-   */
-  async getSVGString(data: IRecordSheetData): Promise<string> {
-    const templatePath = SVG_TEMPLATES[data.mechType] || SVG_TEMPLATES.biped;
+  async getSVGString(data: IRecordSheetData, paperSize: PaperSize = PaperSize.LETTER): Promise<string> {
+    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+    const templatePath = templates[data.mechType] || templates.biped;
     
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
     
-    // Load and insert armor pips
-    await renderer.fillArmorPips(data.armor);
+    // Load and insert armor pips (pass mechType for dynamic generation on non-biped)
+    await renderer.fillArmorPips(data.armor, data.mechType);
     
-    // Fill structure pips and text values
-    await renderer.fillStructurePips(data.structure, data.header.tonnage);
+    // Fill structure pips and text values (pass mechType for dynamic generation on non-biped)
+    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
     
     return renderer.getSVGString();
   }
@@ -208,15 +226,15 @@ export class RecordSheetService {
     canvas.width = scaledWidth;
     canvas.height = scaledHeight;
 
-    // Get template path based on mech type
-    const templatePath = SVG_TEMPLATES[data.mechType] || SVG_TEMPLATES.biped;
+    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+    const templatePath = templates[data.mechType] || templates.biped;
 
     // Use SVG renderer with high-DPI canvas
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
-    await renderer.fillArmorPips(data.armor);
-    await renderer.fillStructurePips(data.structure, data.header.tonnage);
+    await renderer.fillArmorPips(data.armor, data.mechType);
+    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
     await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
 
     // Create PDF
@@ -314,13 +332,15 @@ export class RecordSheetService {
   }
 
   /**
-   * Extract armor data
+   * Extract armor data (configuration-aware)
    */
   private extractArmor(unit: IUnitConfig): IRecordSheetArmor {
-    const { armor, tonnage } = unit;
+    const { armor, tonnage, configuration } = unit;
     const structurePoints = STRUCTURE_POINTS_TABLE[tonnage] || STRUCTURE_POINTS_TABLE[50];
+    const mechType = this.getMechType(configuration);
     
-    const locations: ILocationArmor[] = [
+    // Common locations for all mech types
+    const baseLocations: ILocationArmor[] = [
       {
         location: LOCATION_NAMES[MechLocation.HEAD],
         abbreviation: LOCATION_ABBREVIATIONS[MechLocation.HEAD],
@@ -351,31 +371,103 @@ export class RecordSheetService {
         rear: armor.allocation.rightTorsoRear,
         rearMaximum: structurePoints.sideTorso,
       },
-      {
-        location: LOCATION_NAMES[MechLocation.LEFT_ARM],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
-        current: armor.allocation.leftArm,
-        maximum: structurePoints.arm * 2,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
-        current: armor.allocation.rightArm,
-        maximum: structurePoints.arm * 2,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.LEFT_LEG],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
-        current: armor.allocation.leftLeg,
-        maximum: structurePoints.leg * 2,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
-        current: armor.allocation.rightLeg,
-        maximum: structurePoints.leg * 2,
-      },
     ];
+
+    // Add limb locations based on mech type
+    let limbLocations: ILocationArmor[];
+    
+    if (mechType === 'quad') {
+      limbLocations = [
+        {
+          location: 'Front Left Leg',
+          abbreviation: 'FLL',
+          current: armor.allocation.frontLeftLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: 'Front Right Leg',
+          abbreviation: 'FRL',
+          current: armor.allocation.frontRightLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: 'Rear Left Leg',
+          abbreviation: 'RLL',
+          current: armor.allocation.rearLeftLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: 'Rear Right Leg',
+          abbreviation: 'RRL',
+          current: armor.allocation.rearRightLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+      ];
+    } else if (mechType === 'tripod') {
+      // Tripod - arms + 3 legs (left, right, center)
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          current: armor.allocation.leftArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          current: armor.allocation.rightArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          current: armor.allocation.leftLeg,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          current: armor.allocation.rightLeg,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.CENTER_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.CENTER_LEG],
+          current: armor.allocation.centerLeg ?? 0,
+          maximum: structurePoints.leg * 2,
+        },
+      ];
+    } else {
+      // Biped, LAM, quadvee - standard arm/leg locations
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          current: armor.allocation.leftArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          current: armor.allocation.rightArm,
+          maximum: structurePoints.arm * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          current: armor.allocation.leftLeg,
+          maximum: structurePoints.leg * 2,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          current: armor.allocation.rightLeg,
+          maximum: structurePoints.leg * 2,
+        },
+      ];
+    }
+
+    const locations = [...baseLocations, ...limbLocations];
 
     const totalPoints = locations.reduce((sum, loc) => {
       return sum + loc.current + (loc.rear || 0);
@@ -389,12 +481,14 @@ export class RecordSheetService {
   }
 
   /**
-   * Extract structure data
+   * Extract structure data (configuration-aware)
    */
   private extractStructure(unit: IUnitConfig): IRecordSheetStructure {
     const structurePoints = STRUCTURE_POINTS_TABLE[unit.tonnage] || STRUCTURE_POINTS_TABLE[50];
+    const mechType = this.getMechType(unit.configuration);
     
-    const locations: ILocationStructure[] = [
+    // Common locations for all mech types
+    const baseLocations: ILocationStructure[] = [
       {
         location: LOCATION_NAMES[MechLocation.HEAD],
         abbreviation: LOCATION_ABBREVIATIONS[MechLocation.HEAD],
@@ -415,28 +509,90 @@ export class RecordSheetService {
         abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_TORSO],
         points: structurePoints.sideTorso,
       },
-      {
-        location: LOCATION_NAMES[MechLocation.LEFT_ARM],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
-        points: structurePoints.arm,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
-        points: structurePoints.arm,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.LEFT_LEG],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
-        points: structurePoints.leg,
-      },
-      {
-        location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
-        abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
-        points: structurePoints.leg,
-      },
     ];
 
+    // Add limb locations based on mech type
+    let limbLocations: ILocationStructure[];
+    
+    if (mechType === 'quad') {
+      limbLocations = [
+        {
+          location: 'Front Left Leg',
+          abbreviation: 'FLL',
+          points: structurePoints.leg,
+        },
+        {
+          location: 'Front Right Leg',
+          abbreviation: 'FRL',
+          points: structurePoints.leg,
+        },
+        {
+          location: 'Rear Left Leg',
+          abbreviation: 'RLL',
+          points: structurePoints.leg,
+        },
+        {
+          location: 'Rear Right Leg',
+          abbreviation: 'RRL',
+          points: structurePoints.leg,
+        },
+      ];
+    } else if (mechType === 'tripod') {
+      // Tripod - arms + 3 legs (left, right, center)
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          points: structurePoints.leg,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          points: structurePoints.leg,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.CENTER_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.CENTER_LEG],
+          points: structurePoints.leg,
+        },
+      ];
+    } else {
+      // Biped, LAM, quadvee - standard arm/leg locations
+      limbLocations = [
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_ARM],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_ARM],
+          points: structurePoints.arm,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.LEFT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.LEFT_LEG],
+          points: structurePoints.leg,
+        },
+        {
+          location: LOCATION_NAMES[MechLocation.RIGHT_LEG],
+          abbreviation: LOCATION_ABBREVIATIONS[MechLocation.RIGHT_LEG],
+          points: structurePoints.leg,
+        },
+      ];
+    }
+
+    const locations = [...baseLocations, ...limbLocations];
     const totalPoints = locations.reduce((sum, loc) => sum + loc.points, 0);
 
     return {
@@ -662,18 +818,13 @@ export class RecordSheetService {
 
   /**
    * Extract critical slots data with fixed equipment (engine, gyro, actuators, etc.)
+   * Configuration-aware: returns appropriate locations for biped, quad, tripod, etc.
    */
   private extractCriticals(unit: IUnitConfig): readonly ILocationCriticals[] {
-    const locations: MechLocation[] = [
-      MechLocation.HEAD,
-      MechLocation.CENTER_TORSO,
-      MechLocation.LEFT_TORSO,
-      MechLocation.RIGHT_TORSO,
-      MechLocation.LEFT_ARM,
-      MechLocation.RIGHT_ARM,
-      MechLocation.LEFT_LEG,
-      MechLocation.RIGHT_LEG,
-    ];
+    const mechType = this.getMechType(unit.configuration);
+    
+    // Get locations based on mech configuration
+    const locations = this.getCriticalLocationsForMechType(mechType);
 
     // Calculate engine slot requirements
     const engineSlots = this.getEngineSlots(unit.engine.type, unit.engine.rating);
@@ -792,13 +943,29 @@ export class RecordSheetService {
       }
     }
 
-    // Legs - Actuators
-    if (location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG) {
+    // Biped/Tripod Legs - Actuators (6 slots)
+    if (location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG || location === MechLocation.CENTER_LEG) {
       switch (slotIndex) {
         case 0: return 'Hip';
         case 1: return 'Upper Leg Actuator';
         case 2: return 'Lower Leg Actuator';
         case 3: return 'Foot Actuator';
+      }
+    }
+
+    // Quad Legs - Actuators (6 slots, same as biped legs: 4 actuators + 2 empty)
+    if (
+      location === MechLocation.FRONT_LEFT_LEG ||
+      location === MechLocation.FRONT_RIGHT_LEG ||
+      location === MechLocation.REAR_LEFT_LEG ||
+      location === MechLocation.REAR_RIGHT_LEG
+    ) {
+      switch (slotIndex) {
+        case 0: return 'Hip';
+        case 1: return 'Upper Leg Actuator';
+        case 2: return 'Lower Leg Actuator';
+        case 3: return 'Foot Actuator';
+        // Slots 4 and 5 are empty (Roll Again)
       }
     }
 
@@ -877,6 +1044,51 @@ export class RecordSheetService {
     if (config.includes('lam')) return 'lam';
     if (config.includes('quadvee')) return 'quadvee';
     return 'biped';
+  }
+
+  /**
+   * Get the critical slot locations for a specific mech type
+   */
+  private getCriticalLocationsForMechType(mechType: string): MechLocation[] {
+    switch (mechType) {
+      case 'quad':
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.FRONT_LEFT_LEG,
+          MechLocation.FRONT_RIGHT_LEG,
+          MechLocation.REAR_LEFT_LEG,
+          MechLocation.REAR_RIGHT_LEG,
+        ];
+      case 'tripod':
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.LEFT_ARM,
+          MechLocation.RIGHT_ARM,
+          MechLocation.LEFT_LEG,
+          MechLocation.RIGHT_LEG,
+          MechLocation.CENTER_LEG,
+        ];
+      case 'biped':
+      case 'lam':
+      case 'quadvee':
+      default:
+        return [
+          MechLocation.HEAD,
+          MechLocation.CENTER_TORSO,
+          MechLocation.LEFT_TORSO,
+          MechLocation.RIGHT_TORSO,
+          MechLocation.LEFT_ARM,
+          MechLocation.RIGHT_ARM,
+          MechLocation.LEFT_LEG,
+          MechLocation.RIGHT_LEG,
+        ];
+    }
   }
 
   /**

@@ -482,4 +482,321 @@ describe('RecordSheetService', () => {
       }
     });
   });
+
+  describe('Multi-Configuration Support', () => {
+    describe('Quad Configuration', () => {
+      it('should extract quad mech type', () => {
+        const unit = createMockUnit({ 
+          configuration: 'Quad',
+          armor: {
+            type: 'Standard',
+            allocation: {
+              head: 9,
+              centerTorso: 20,
+              centerTorsoRear: 6,
+              leftTorso: 17,
+              leftTorsoRear: 5,
+              rightTorso: 17,
+              rightTorsoRear: 5,
+              leftArm: 0,
+              rightArm: 0,
+              leftLeg: 0,
+              rightLeg: 0,
+              frontLeftLeg: 21,
+              frontRightLeg: 21,
+              rearLeftLeg: 21,
+              rearRightLeg: 21,
+            },
+          },
+        });
+        
+        const data = service.extractData(unit);
+        
+        expect(data.mechType).toBe('quad');
+      });
+
+      it('should include quad leg locations in armor extraction', () => {
+        const unit = createMockUnit({ 
+          configuration: 'Quad',
+          armor: {
+            type: 'Standard',
+            allocation: {
+              head: 9,
+              centerTorso: 20,
+              centerTorsoRear: 6,
+              leftTorso: 17,
+              leftTorsoRear: 5,
+              rightTorso: 17,
+              rightTorsoRear: 5,
+              leftArm: 0,
+              rightArm: 0,
+              leftLeg: 0,
+              rightLeg: 0,
+              frontLeftLeg: 21,
+              frontRightLeg: 21,
+              rearLeftLeg: 21,
+              rearRightLeg: 21,
+            },
+          },
+        });
+        
+        const data = service.extractData(unit);
+        
+        // Quad should have FLL, FRL, RLL, RRL locations
+        const abbreviations = data.armor.locations.map(l => l.abbreviation);
+        expect(abbreviations).toContain('FLL');
+        expect(abbreviations).toContain('FRL');
+        expect(abbreviations).toContain('RLL');
+        expect(abbreviations).toContain('RRL');
+      });
+
+      it('should include quad leg locations in structure extraction', () => {
+        const unit = createMockUnit({ configuration: 'Quad' });
+        
+        const data = service.extractData(unit);
+        
+        const abbreviations = data.structure.locations.map(l => l.abbreviation);
+        expect(abbreviations).toContain('FLL');
+        expect(abbreviations).toContain('FRL');
+        expect(abbreviations).toContain('RLL');
+        expect(abbreviations).toContain('RRL');
+      });
+    });
+
+    describe('Tripod Configuration', () => {
+      it('should extract tripod mech type', () => {
+        const unit = createMockUnit({ configuration: 'Tripod' });
+        
+        const data = service.extractData(unit);
+        
+        expect(data.mechType).toBe('tripod');
+      });
+
+      it('should include center leg in armor extraction', () => {
+        const unit = createMockUnit({ 
+          configuration: 'Tripod',
+          armor: {
+            type: 'Standard',
+            allocation: {
+              head: 9,
+              centerTorso: 20,
+              centerTorsoRear: 6,
+              leftTorso: 17,
+              leftTorsoRear: 5,
+              rightTorso: 17,
+              rightTorsoRear: 5,
+              leftArm: 13,
+              rightArm: 13,
+              leftLeg: 20,
+              rightLeg: 20,
+              centerLeg: 20,
+            },
+          },
+        });
+        
+        const data = service.extractData(unit);
+        
+        const abbreviations = data.armor.locations.map(l => l.abbreviation);
+        expect(abbreviations).toContain('CL');
+        expect(abbreviations).toContain('LL');
+        expect(abbreviations).toContain('RL');
+        expect(abbreviations).toContain('LA');
+        expect(abbreviations).toContain('RA');
+      });
+
+      it('should include center leg in structure extraction', () => {
+        const unit = createMockUnit({ configuration: 'Tripod' });
+        
+        const data = service.extractData(unit);
+        
+        const abbreviations = data.structure.locations.map(l => l.abbreviation);
+        expect(abbreviations).toContain('CL');
+      });
+
+      it('should have 9 armor locations for tripod', () => {
+        const unit = createMockUnit({ 
+          configuration: 'Tripod',
+          armor: {
+            type: 'Standard',
+            allocation: {
+              head: 9,
+              centerTorso: 20,
+              centerTorsoRear: 6,
+              leftTorso: 17,
+              leftTorsoRear: 5,
+              rightTorso: 17,
+              rightTorsoRear: 5,
+              leftArm: 13,
+              rightArm: 13,
+              leftLeg: 20,
+              rightLeg: 20,
+              centerLeg: 20,
+            },
+          },
+        });
+        
+        const data = service.extractData(unit);
+        
+        // HD, CT, LT, RT, LA, RA, LL, RL, CL = 9 locations
+        expect(data.armor.locations.length).toBe(9);
+      });
+    });
+
+    describe('LAM Configuration', () => {
+      it('should extract lam mech type', () => {
+        const unit = createMockUnit({ configuration: 'LAM' });
+        
+        const data = service.extractData(unit);
+        
+        expect(data.mechType).toBe('lam');
+      });
+
+      it('should use biped locations for LAM', () => {
+        const unit = createMockUnit({ configuration: 'LAM' });
+        
+        const data = service.extractData(unit);
+        
+        const abbreviations = data.armor.locations.map(l => l.abbreviation);
+        // LAM uses biped locations
+        expect(abbreviations).toContain('LA');
+        expect(abbreviations).toContain('RA');
+        expect(abbreviations).toContain('LL');
+        expect(abbreviations).toContain('RL');
+      });
+    });
+
+    describe('QuadVee Configuration', () => {
+      it('should extract quadvee mech type', () => {
+        const unit = createMockUnit({ configuration: 'QuadVee' });
+        
+        const data = service.extractData(unit);
+        
+        // QuadVee uses quad template/locations so mechType returns 'quad'
+        // This is intentional - QuadVee shares mech configuration with Quad
+        expect(['quad', 'quadvee']).toContain(data.mechType);
+      });
+
+      it('should use quad locations for QuadVee', () => {
+        const unit = createMockUnit({ 
+          configuration: 'QuadVee',
+          armor: {
+            type: 'Standard',
+            allocation: {
+              head: 9,
+              centerTorso: 20,
+              centerTorsoRear: 6,
+              leftTorso: 17,
+              leftTorsoRear: 5,
+              rightTorso: 17,
+              rightTorsoRear: 5,
+              leftArm: 0,
+              rightArm: 0,
+              leftLeg: 0,
+              rightLeg: 0,
+              frontLeftLeg: 21,
+              frontRightLeg: 21,
+              rearLeftLeg: 21,
+              rearRightLeg: 21,
+            },
+          },
+        });
+        
+        const data = service.extractData(unit);
+        
+        // QuadVee uses quad locations
+        const abbreviations = data.armor.locations.map(l => l.abbreviation);
+        expect(abbreviations).toContain('FLL');
+        expect(abbreviations).toContain('FRL');
+        expect(abbreviations).toContain('RLL');
+        expect(abbreviations).toContain('RRL');
+      });
+    });
+  });
+
+  describe('Critical Slot Extraction', () => {
+    it('should extract criticals for biped with 8 locations', () => {
+      const unit = createMockUnit({ configuration: 'Biped' });
+      const data = service.extractData(unit);
+      
+      expect(data.criticals).toBeDefined();
+      expect(data.criticals.length).toBe(8);
+    });
+
+    it('should extract criticals for quad with 8 locations', () => {
+      const unit = createMockUnit({ configuration: 'Quad' });
+      const data = service.extractData(unit);
+      
+      expect(data.criticals).toBeDefined();
+      expect(data.criticals.length).toBe(8);
+      
+      // Check for quad-specific locations
+      const locations = data.criticals.map(c => c.abbreviation);
+      expect(locations).toContain('FLL');
+      expect(locations).toContain('FRL');
+      expect(locations).toContain('RLL');
+      expect(locations).toContain('RRL');
+    });
+
+    it('should extract criticals for tripod with 9 locations', () => {
+      const unit = createMockUnit({ configuration: 'Tripod' });
+      const data = service.extractData(unit);
+      
+      expect(data.criticals).toBeDefined();
+      expect(data.criticals.length).toBe(9);
+      
+      // Check for center leg
+      const locations = data.criticals.map(c => c.abbreviation);
+      expect(locations).toContain('CL');
+    });
+
+    it('should have correct slot counts per location', () => {
+      const unit = createMockUnit({ configuration: 'Biped' });
+      const data = service.extractData(unit);
+      
+      data.criticals.forEach(loc => {
+        if (loc.abbreviation === 'HD') {
+          expect(loc.slots.length).toBe(6);
+        } else if (['CT', 'LT', 'RT', 'LA', 'RA'].includes(loc.abbreviation)) {
+          expect(loc.slots.length).toBe(12);
+        } else if (['LL', 'RL'].includes(loc.abbreviation)) {
+          expect(loc.slots.length).toBe(6);
+        }
+      });
+    });
+
+    it('should have 6 slots for quad legs', () => {
+      const unit = createMockUnit({ configuration: 'Quad' });
+      const data = service.extractData(unit);
+      
+      const quadLegs = ['FLL', 'FRL', 'RLL', 'RRL'];
+      data.criticals.forEach(loc => {
+        if (quadLegs.includes(loc.abbreviation)) {
+          expect(loc.slots.length).toBe(6);
+        }
+      });
+    });
+
+    it('should have 6 slots for tripod center leg', () => {
+      const unit = createMockUnit({ configuration: 'Tripod' });
+      const data = service.extractData(unit);
+      
+      const centerLeg = data.criticals.find(c => c.abbreviation === 'CL');
+      expect(centerLeg).toBeDefined();
+      expect(centerLeg!.slots.length).toBe(6);
+    });
+
+    it('should include leg actuators in fixed slots', () => {
+      const unit = createMockUnit({ configuration: 'Biped' });
+      const data = service.extractData(unit);
+      
+      const leftLeg = data.criticals.find(c => c.abbreviation === 'LL');
+      expect(leftLeg).toBeDefined();
+      
+      // Slots are objects with a content property
+      expect(leftLeg!.slots[0].content).toBe('Hip');
+      expect(leftLeg!.slots[1].content).toBe('Upper Leg Actuator');
+      expect(leftLeg!.slots[2].content).toBe('Lower Leg Actuator');
+      expect(leftLeg!.slots[3].content).toBe('Foot Actuator');
+    });
+  });
 });

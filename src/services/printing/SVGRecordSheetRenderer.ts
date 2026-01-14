@@ -15,6 +15,7 @@ import {
   IRecordSheetCriticalSlot,
   PREVIEW_DPI_MULTIPLIER,
 } from '@/types/printing';
+import { ArmorPipLayout } from './ArmorPipLayout';
 
 // =============================================================================
 // Constants (matching MegaMek template element IDs)
@@ -79,6 +80,13 @@ const ARMOR_TEXT_IDS: Record<string, string> = {
   'RA': 'textArmor_RA',
   'LL': 'textArmor_LL',
   'RL': 'textArmor_RL',
+  // Quad leg locations
+  'FLL': 'textArmor_FLL',
+  'FRL': 'textArmor_FRL',
+  'RLL': 'textArmor_RLL',
+  'RRL': 'textArmor_RRL',
+  // Tripod center leg
+  'CL': 'textArmor_CL',
 };
 
 // Structure text label IDs (for displaying IS point values)
@@ -91,10 +99,17 @@ const STRUCTURE_TEXT_IDS: Record<string, string> = {
   'RA': 'textIS_RA',
   'LL': 'textIS_LL',
   'RL': 'textIS_RL',
+  // Quad leg locations
+  'FLL': 'textIS_FLL',
+  'FRL': 'textIS_FRL',
+  'RLL': 'textIS_RLL',
+  'RRL': 'textIS_RRL',
+  // Tripod center leg
+  'CL': 'textIS_CL',
 };
 
-// Structure pip group IDs (embedded pip templates in SVG)
-const STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
+// Structure pip group IDs (embedded pip templates in SVG) - Biped
+const BIPED_STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
   'HD': 'isPipsHD',
   'CT': 'isPipsCT',
   'LT': 'isPipsLT',
@@ -105,7 +120,35 @@ const STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
   'RL': 'isPipsRL',
 };
 
-// Map from our location abbreviations to MegaMek pip file location names
+// Structure pip group IDs for Quad mechs
+const QUAD_STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
+  'HD': 'isPipsHD',
+  'CT': 'isPipsCT',
+  'LT': 'isPipsLT',
+  'RT': 'isPipsRT',
+  'FLL': 'isPipsFLL',
+  'FRL': 'isPipsFRL',
+  'RLL': 'isPipsRLL',
+  'RRL': 'isPipsRRL',
+};
+
+// Structure pip group IDs for Tripod mechs
+const TRIPOD_STRUCTURE_PIP_GROUP_IDS: Record<string, string> = {
+  'HD': 'isPipsHD',
+  'CT': 'isPipsCT',
+  'LT': 'isPipsLT',
+  'RT': 'isPipsRT',
+  'LA': 'isPipsLA',
+  'RA': 'isPipsRA',
+  'LL': 'isPipsLL',
+  'RL': 'isPipsRL',
+  'CL': 'isPipsCL', // Center Leg (tripod-specific)
+};
+
+// Legacy alias for backward compatibility
+const STRUCTURE_PIP_GROUP_IDS = BIPED_STRUCTURE_PIP_GROUP_IDS;
+
+// Map from our location abbreviations to MegaMek pip file location names (for biped)
 const LOCATION_TO_PIP_NAME: Record<string, string> = {
   'HD': 'Head',
   'CT': 'CT',
@@ -117,8 +160,64 @@ const LOCATION_TO_PIP_NAME: Record<string, string> = {
   'RL': 'RLeg',
 };
 
+// Map from location abbreviations to template group IDs for armor pips
+// These IDs match the armorPipsXX groups in mm-data templates
+
+// Biped armor pip group IDs
+const BIPED_PIP_GROUP_IDS: Record<string, string> = {
+  'HD': 'armorPipsHD',
+  'CT': 'armorPipsCT',
+  'LT': 'armorPipsLT',
+  'RT': 'armorPipsRT',
+  'LA': 'armorPipsLA',
+  'RA': 'armorPipsRA',
+  'LL': 'armorPipsLL',
+  'RL': 'armorPipsRL',
+  // Rear
+  'CTR': 'armorPipsCTR',
+  'LTR': 'armorPipsLTR',
+  'RTR': 'armorPipsRTR',
+};
+
+// Quad armor pip group IDs
+const QUAD_PIP_GROUP_IDS: Record<string, string> = {
+  'HD': 'armorPipsHD',
+  'CT': 'armorPipsCT',
+  'LT': 'armorPipsLT',
+  'RT': 'armorPipsRT',
+  'FLL': 'armorPipsFLL',
+  'FRL': 'armorPipsFRL',
+  'RLL': 'armorPipsRLL',
+  'RRL': 'armorPipsRRL',
+  // Rear
+  'CTR': 'armorPipsCTR',
+  'LTR': 'armorPipsLTR',
+  'RTR': 'armorPipsRTR',
+};
+
+// Tripod armor pip group IDs
+const TRIPOD_PIP_GROUP_IDS: Record<string, string> = {
+  'HD': 'armorPipsHD',
+  'CT': 'armorPipsCT',
+  'LT': 'armorPipsLT',
+  'RT': 'armorPipsRT',
+  'LA': 'armorPipsLA',
+  'RA': 'armorPipsRA',
+  'LL': 'armorPipsLL',
+  'RL': 'armorPipsRL',
+  'CL': 'armorPipsCL', // Center Leg (tripod-specific)
+  // Rear
+  'CTR': 'armorPipsCTR',
+  'LTR': 'armorPipsLTR',
+  'RTR': 'armorPipsRTR',
+};
+
 // Rear armor locations
 const REAR_LOCATIONS = ['CT', 'LT', 'RT'];
+
+// Mech types that use pre-made pip files (DEPRECATED - all now use ArmorPipLayout)
+// Keeping for backward compatibility but now using dynamic generation for all types
+const PREMADE_PIP_TYPES: string[] = [];
 
 // =============================================================================
 // SVG Record Sheet Renderer
@@ -293,7 +392,7 @@ export class SVGRecordSheetRenderer {
   /**
    * Fill template with armor pips and text values (async - fetches pip SVGs)
    */
-  async fillArmorPips(armor: IRecordSheetData['armor']): Promise<void> {
+  async fillArmorPips(armor: IRecordSheetData['armor'], mechType?: string): Promise<void> {
     if (!this.svgDoc || !this.svgRoot) {
       throw new Error('Template not loaded');
     }
@@ -315,21 +414,20 @@ export class SVGRecordSheetRenderer {
       }
     });
 
-    // Find the armorPips group in the template
-    // The pips will be inserted into this group which has the correct transform
-    // MegaMekLab uses canonArmorPips with a specific transform to position pips
+    // Check if this mech type uses pre-made pip files
+    const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || 'biped');
+
+    if (usePremadePips) {
+      // Biped: Load pre-made pip SVG files
     let armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.CANON_ARMOR_PIPS);
     
     if (!armorPipsGroup) {
-      // Fallback to armorPips
       armorPipsGroup = this.svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
     }
     if (!armorPipsGroup) {
       console.warn('Could not find canonArmorPips or armorPips group in template');
-      // Fallback: create at root level with MegaMek's transform
       const rootGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
       rootGroup.setAttribute('id', 'armor-pips-generated');
-      // Apply the transform from MegaMek's canonArmorPips: matrix(0.975,0,0,0.975,-390.621,-44.241)
       rootGroup.setAttribute('transform', 'matrix(0.975,0,0,0.975,-390.621,-44.241)');
       this.svgRoot.appendChild(rootGroup);
       await this.loadAllArmorPips(rootGroup, armor);
@@ -337,13 +435,22 @@ export class SVGRecordSheetRenderer {
     }
 
     await this.loadAllArmorPips(armorPipsGroup, armor);
+    } else {
+      // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
+      await this.generateDynamicArmorPips(armor, mechType || 'quad');
+    }
   }
 
   /**
    * Fill template with structure pips and text values
-   * Loads pre-made structure pip SVG files (BipedIS{tonnage}_{location}.svg)
+   * For biped: Loads pre-made structure pip SVG files (BipedIS{tonnage}_{location}.svg)
+   * For non-biped: Generates pips dynamically using template bounding rects
    */
-  async fillStructurePips(structure: IRecordSheetData['structure'], tonnage: number): Promise<void> {
+  async fillStructurePips(
+    structure: IRecordSheetData['structure'],
+    tonnage: number,
+    mechType?: string
+  ): Promise<void> {
     if (!this.svgDoc || !this.svgRoot) {
       throw new Error('Template not loaded');
     }
@@ -356,27 +463,31 @@ export class SVGRecordSheetRenderer {
       }
     });
 
-    // Find the canonStructurePips group to insert pips
+    // Check if this mech type uses pre-made pip files
+    const usePremadePips = PREMADE_PIP_TYPES.includes(mechType || 'biped');
+
+    if (usePremadePips) {
+      // Biped: Load pre-made structure pip SVG files
     let structurePipsGroup: Element | null = this.svgDoc.getElementById(ELEMENT_IDS.CANON_STRUCTURE_PIPS);
     
     if (!structurePipsGroup) {
-      // Fallback to structurePips group - but hide existing template pips
       const templatePips = this.svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
       if (templatePips) {
         templatePips.setAttribute('visibility', 'hidden');
       }
       
-      // Create a new group for our loaded pips
       const newGroup = this.svgDoc.createElementNS(SVG_NS, 'g');
       newGroup.setAttribute('id', 'structure-pips-loaded');
-      // Apply the same transform as canonStructurePips: matrix(0.971,0,0,0.971,-378.511,-376.966)
       newGroup.setAttribute('transform', 'matrix(0.971,0,0,0.971,-378.511,-376.966)');
       this.svgRoot.appendChild(newGroup);
       structurePipsGroup = newGroup;
     }
 
-    // Load structure pips for each location
     await this.loadAllStructurePips(structurePipsGroup, structure.locations, tonnage);
+    } else {
+      // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
+      this.generateDynamicStructurePips(structure, mechType || 'quad');
+    }
   }
 
   /**
@@ -600,7 +711,7 @@ export class SVGRecordSheetRenderer {
   }
 
   /**
-   * Load all armor pips into a parent group
+   * Load all armor pips into a parent group (for biped - pre-made SVG files)
    */
   private async loadAllArmorPips(parentGroup: Element, armor: IRecordSheetData['armor']): Promise<void> {
     // Load pips for each armor location
@@ -634,6 +745,133 @@ export class SVGRecordSheetRenderer {
 
     await Promise.all(pipPromises);
   }
+
+  /**
+   * Generate dynamic armor pips for non-biped mechs (quad, tripod, LAM, quadvee)
+   * Uses MegaMekLab's ArmorPipLayout algorithm for proper pip positioning
+   */
+  private async generateDynamicArmorPips(
+    armor: IRecordSheetData['armor'],
+    mechType: string
+  ): Promise<void> {
+    if (!this.svgDoc || !this.svgRoot) return;
+
+    // Get the pip group IDs based on mech type
+    const pipGroupIds = this.getPipGroupIdsForMechType(mechType);
+
+    armor.locations.forEach((loc) => {
+      // Find the group ID for this location
+      const groupId = pipGroupIds[loc.abbreviation];
+      if (!groupId) {
+        console.warn(`No pip group ID for location: ${loc.abbreviation}`);
+        return;
+      }
+
+      // Find the pip area element in the template
+      const pipArea = this.svgDoc!.getElementById(groupId);
+      if (!pipArea) {
+        console.warn(`Pip area not found: ${groupId}`);
+        return;
+      }
+
+      // Use ArmorPipLayout to generate pips within the bounding rects
+      if (loc.current > 0) {
+        ArmorPipLayout.addPips(this.svgDoc!, pipArea, loc.current, {
+          fill: '#FFFFFF',
+          strokeWidth: 0.5,
+          className: 'pip armor',
+        });
+      }
+    });
+
+    // Handle rear armor
+    armor.locations.forEach((loc) => {
+      if (loc.rear !== undefined && loc.rear > 0 && REAR_LOCATIONS.includes(loc.abbreviation)) {
+        const rearGroupId = pipGroupIds[`${loc.abbreviation}R`];
+        if (rearGroupId) {
+          const pipArea = this.svgDoc!.getElementById(rearGroupId);
+          if (pipArea && loc.rear > 0) {
+            ArmorPipLayout.addPips(this.svgDoc!, pipArea, loc.rear, {
+              fill: '#FFFFFF',
+              strokeWidth: 0.5,
+              className: 'pip armor rear',
+            });
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Get pip group IDs for a specific mech type
+   */
+  private getPipGroupIdsForMechType(mechType: string): Record<string, string> {
+    switch (mechType) {
+      case 'quad':
+        return QUAD_PIP_GROUP_IDS;
+      case 'tripod':
+        return TRIPOD_PIP_GROUP_IDS;
+      case 'biped':
+      default:
+        return BIPED_PIP_GROUP_IDS;
+    }
+  }
+
+
+  /**
+   * Generate structure pips for non-biped mechs (quad, tripod, LAM, quadvee)
+   * Uses MegaMekLab's ArmorPipLayout algorithm for proper pip positioning
+   */
+  private generateDynamicStructurePips(
+    structure: IRecordSheetData['structure'],
+    mechType: string
+  ): void {
+    if (!this.svgDoc || !this.svgRoot) return;
+
+    // Get the structure pip group IDs based on mech type
+    const pipGroupIds = this.getStructurePipGroupIdsForMechType(mechType);
+
+    structure.locations.forEach((loc) => {
+      // Find the group ID for this location
+      const groupId = pipGroupIds[loc.abbreviation];
+      if (!groupId) {
+        console.warn(`No structure pip group ID for location: ${loc.abbreviation}`);
+        return;
+      }
+
+      // Find the pip area element in the template
+      const pipArea = this.svgDoc!.getElementById(groupId);
+      if (!pipArea) {
+        console.warn(`Structure pip area not found: ${groupId}`);
+        return;
+      }
+
+      // Use ArmorPipLayout to generate pips within the bounding rects
+      if (loc.points > 0) {
+        ArmorPipLayout.addPips(this.svgDoc!, pipArea, loc.points, {
+          fill: '#FFFFFF',
+          strokeWidth: 0.5,
+          className: 'pip structure',
+        });
+      }
+    });
+  }
+
+  /**
+   * Get structure pip group IDs for a specific mech type
+   */
+  private getStructurePipGroupIdsForMechType(mechType: string): Record<string, string> {
+    switch (mechType) {
+      case 'quad':
+        return QUAD_STRUCTURE_PIP_GROUP_IDS;
+      case 'tripod':
+        return TRIPOD_STRUCTURE_PIP_GROUP_IDS;
+      case 'biped':
+      default:
+        return BIPED_STRUCTURE_PIP_GROUP_IDS;
+    }
+  }
+
 
   /**
    * Load a pip SVG file and insert its paths into the template
