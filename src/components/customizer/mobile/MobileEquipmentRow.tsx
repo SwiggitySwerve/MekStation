@@ -197,18 +197,18 @@ export function MobileEquipmentRow({
       </div>
       
       {/* Stats columns - matching header widths */}
-      <div className="flex items-center text-[10px] text-text-theme-secondary flex-shrink-0 font-mono text-center">
-        <span className={`w-[28px] border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
+      <div className="flex items-center text-[10px] text-text-theme-secondary flex-shrink-0 font-mono">
+        <span className={`w-[28px] flex items-center justify-center border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
           {item.isAllocated && item.location ? getLocationShorthand(item.location) : '—'}
         </span>
-        <span className="w-[44px] border-l border-border-theme-subtle/20 text-[9px]">
+        <span className="w-[44px] flex items-center justify-center border-l border-border-theme-subtle/20 text-[9px]">
           {item.ranges ? `${item.ranges.short}/${item.ranges.medium}/${item.ranges.long}` : '—'}
         </span>
-        <span className={`w-[20px] border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
+        <span className={`w-[20px] flex items-center justify-center border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
           {item.heat ?? 0}
         </span>
-        <span className="w-[20px] border-l border-border-theme-subtle/20">{item.criticalSlots}</span>
-        <span className="w-[28px] border-l border-border-theme-subtle/20">{item.weight}</span>
+        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/20">{item.criticalSlots}</span>
+        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/20">{item.weight}</span>
       </div>
       
       {/* Actions - fixed width columns with proper touch targets */}

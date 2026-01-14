@@ -201,12 +201,12 @@ function SectionColumnHeaders(): React.ReactElement {
       
       <div className="flex-1 min-w-0 text-left">Name</div>
       
-      <div className="flex items-center flex-shrink-0 font-mono text-center">
-        <span className="w-[28px] border-l border-border-theme-subtle/30">Loc</span>
-        <span className="w-[44px] border-l border-border-theme-subtle/30">S/M/L</span>
-        <span className="w-[20px] border-l border-border-theme-subtle/30">H</span>
-        <span className="w-[20px] border-l border-border-theme-subtle/30">C</span>
-        <span className="w-[28px] border-l border-border-theme-subtle/30">Wt</span>
+      <div className="flex items-center flex-shrink-0 font-mono">
+        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/30">Loc</span>
+        <span className="w-[44px] flex items-center justify-center border-l border-border-theme-subtle/30">S/M/L</span>
+        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/30">H</span>
+        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/30">C</span>
+        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/30">Wt</span>
       </div>
       
       <div className="flex items-center flex-shrink-0">
