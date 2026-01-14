@@ -587,7 +587,6 @@ export function UnitEditorWithRouting({
   
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-      {/* Unit Info Banner - at-a-glance stats */}
       <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0">
         <UnitInfoBanner stats={unitStats} />
       </div>
