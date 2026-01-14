@@ -132,14 +132,16 @@ export function EquipmentBrowser({
                 <th className="px-1 py-1 text-center w-20 sm:w-24">Range</th>
                 <th className="px-1 py-1 text-center w-10 sm:w-12">Dmg</th>
                 <th className="px-1 py-1 text-center w-8 sm:w-10">Heat</th>
-                <SortableHeader
-                  label="Wt"
-                  column="weight"
-                  currentColumn={sortColumn}
-                  direction={sortDirection}
-                  onSort={setSort}
-                  className="text-center w-12"
-                />
+                <th className="px-1 py-1 text-center w-12 cursor-pointer hover:text-white transition-colors" onClick={() => setSort('weight')}>
+                  <span className="flex items-center justify-center gap-0.5">
+                    Wt
+                    {sortColumn === 'weight' && (
+                      <span className="text-accent text-[8px]">
+                        {sortDirection === 'asc' ? '▲' : '▼'}
+                      </span>
+                    )}
+                  </span>
+                </th>
                 <SortableHeader
                   label="Crit"
                   column="criticalSlots"
