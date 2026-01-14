@@ -93,7 +93,7 @@ export function CompactFilterBar({
                 onClick={(e) => handleCategoryClick(category, e)}
                 className={`
                   px-1.5 py-0.5 text-[10px] rounded transition-all
-                  flex items-center gap-0.5
+                  flex items-center gap-1
                   ${isActive
                     ? `${colors.bg} ${colors.text} ring-1 ${colors.border} shadow-sm`
                     : 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised'
@@ -101,7 +101,7 @@ export function CompactFilterBar({
                 `}
                 title={`${label} (Ctrl+click to multi-select)`}
               >
-                <span className="text-[9px]">{icon}</span>
+                <span className="text-sm">{icon}</span>
                 <span className="hidden sm:inline">{label}</span>
               </button>
             );

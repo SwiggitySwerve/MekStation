@@ -230,7 +230,7 @@ function CategoryFilterBar({ activeCategory, onSelectCategory }: CategoryFilterB
             onClick={() => onSelectCategory(category)}
             className={`
               flex-shrink-0 flex items-center justify-center
-              w-6 h-6 rounded transition-all
+              w-7 h-7 rounded transition-all
               ${isActive
                 ? `${colors.bg} text-white ring-1 ring-white/20`
                 : 'bg-surface-raised/60 text-text-theme-secondary hover:bg-surface-raised'
@@ -238,7 +238,7 @@ function CategoryFilterBar({ activeCategory, onSelectCategory }: CategoryFilterB
             `}
             title={category === 'ALL' ? 'All Categories' : CATEGORY_LABELS[category as EquipmentCategory] || String(category)}
           >
-            <span className="text-xs">{icon}</span>
+            <span className="text-base">{icon}</span>
           </button>
         );
       })}
