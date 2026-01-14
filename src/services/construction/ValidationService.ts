@@ -13,6 +13,19 @@ import { EngineType } from '@/types/construction/EngineType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
+import {
+  ENGINE_RATING_MIN,
+  ENGINE_RATING_MAX,
+  ENGINE_RATING_INCREMENT,
+  HEAT_SINK_MINIMUM,
+  STRUCTURE_WEIGHT_PERCENT,
+  GYRO_WEIGHT_DIVISOR,
+  COCKPIT_WEIGHT_STANDARD,
+  HEAD_ARMOR_MAX,
+  ARMOR_TO_STRUCTURE_RATIO,
+  CRITICAL_SLOTS,
+  CRITICAL_SLOTS_DEFAULT,
+} from './constructionConstants';
 
 /**
  * Validation service interface
@@ -26,17 +39,13 @@ export interface IValidationService {
   canAddEquipment(mech: IEditableMech, equipmentId: string, location: string): boolean;
 }
 
-/**
- * Calculate maximum armor for a location
- * Per TechManual: max armor = 2 × structure points (head = 9 maximum)
- */
 function getMaxArmorForLocation(tonnage: number, location: string): number {
   if (location === 'head') {
-    return 9; // Head always has max 9 armor regardless of structure
+    return HEAD_ARMOR_MAX;
   }
   
   const structurePoints = getStructurePoints(tonnage, location);
-  return structurePoints * 2;
+  return structurePoints * ARMOR_TO_STRUCTURE_RATIO;
 }
 
 /**
@@ -64,19 +73,15 @@ export class ValidationService implements IValidationService {
     return invalidResult(allErrors);
   }
 
-  /**
-   * Validate weight budget
-   */
   validateWeight(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
     
-    // Calculate total weight (simplified)
-    const structureWeight = mech.tonnage * 0.1; // 10% for standard
+    const structureWeight = mech.tonnage * STRUCTURE_WEIGHT_PERCENT;
     const engineWeight = this.getEngineWeight(mech.engineRating, mech.engineType);
-    const gyroWeight = Math.ceil(mech.engineRating / 100);
-    const cockpitWeight = 3;
+    const gyroWeight = Math.ceil(mech.engineRating / GYRO_WEIGHT_DIVISOR);
+    const cockpitWeight = COCKPIT_WEIGHT_STANDARD;
     const armorWeight = this.calculateArmorWeight(mech.armorAllocation);
-    const heatSinkWeight = Math.max(0, mech.heatSinkCount - 10); // First 10 are free
+    const heatSinkWeight = Math.max(0, mech.heatSinkCount - HEAT_SINK_MINIMUM);
     
     const totalWeight = structureWeight + engineWeight + gyroWeight + cockpitWeight + armorWeight + heatSinkWeight;
     
@@ -144,32 +149,16 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  /**
-   * Validate critical slots
-   */
   validateCriticalSlots(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
     
-    // Count slots per location
     const slotsUsed: Record<string, number> = {};
     for (const eq of mech.equipment) {
       slotsUsed[eq.location] = (slotsUsed[eq.location] || 0) + 1;
     }
 
-    // Check against max (simplified - actual max varies)
-    const maxSlots: Record<string, number> = {
-      head: 6,
-      centerTorso: 12,
-      leftTorso: 12,
-      rightTorso: 12,
-      leftArm: 12,
-      rightArm: 12,
-      leftLeg: 6,
-      rightLeg: 6,
-    };
-
     for (const [location, used] of Object.entries(slotsUsed)) {
-      const max = maxSlots[location] || 12;
+      const max = CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] || CRITICAL_SLOTS_DEFAULT;
       if (used > max) {
         errors.push({
           code: 'SLOTS_EXCEEDED',
@@ -229,25 +218,22 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  /**
-   * Validate engine configuration
-   */
   private validateEngine(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
 
-    if (mech.engineRating < 10 || mech.engineRating > 400) {
+    if (mech.engineRating < ENGINE_RATING_MIN || mech.engineRating > ENGINE_RATING_MAX) {
       errors.push({
         code: 'INVALID_ENGINE_RATING',
-        message: `Engine rating ${mech.engineRating} must be between 10 and 400`,
+        message: `Engine rating ${mech.engineRating} must be between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX}`,
         severity: ValidationSeverity.ERROR,
         field: 'engineRating',
       });
     }
 
-    if (mech.engineRating % 5 !== 0) {
+    if (mech.engineRating % ENGINE_RATING_INCREMENT !== 0) {
       errors.push({
         code: 'INVALID_ENGINE_RATING',
-        message: `Engine rating ${mech.engineRating} must be a multiple of 5`,
+        message: `Engine rating ${mech.engineRating} must be a multiple of ${ENGINE_RATING_INCREMENT}`,
         severity: ValidationSeverity.ERROR,
         field: 'engineRating',
       });
@@ -256,16 +242,13 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  /**
-   * Validate heat sink count
-   */
   private validateHeatSinks(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
 
-    if (mech.heatSinkCount < 10) {
+    if (mech.heatSinkCount < HEAT_SINK_MINIMUM) {
       errors.push({
         code: 'INSUFFICIENT_HEAT_SINKS',
-        message: `Mech must have at least 10 heat sinks (has ${mech.heatSinkCount})`,
+        message: `Mech must have at least ${HEAT_SINK_MINIMUM} heat sinks (has ${mech.heatSinkCount})`,
         severity: ValidationSeverity.ERROR,
         field: 'heatSinkCount',
       });
@@ -274,24 +257,9 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  /**
-   * Check if equipment can be added to a location
-   */
-  canAddEquipment(mech: IEditableMech, equipmentId: string, location: string): boolean {
-    // Simplified check - just verify slots available
+  canAddEquipment(mech: IEditableMech, _equipmentId: string, location: string): boolean {
     const locationEquipment = mech.equipment.filter(e => e.location === location);
-    const maxSlots: Record<string, number> = {
-      head: 6,
-      centerTorso: 12,
-      leftTorso: 12,
-      rightTorso: 12,
-      leftArm: 12,
-      rightArm: 12,
-      leftLeg: 6,
-      rightLeg: 6,
-    };
-    
-    const max = maxSlots[location] || 12;
+    const max = CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] || CRITICAL_SLOTS_DEFAULT;
     return locationEquipment.length < max;
   }
 
