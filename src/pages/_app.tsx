@@ -7,6 +7,7 @@ import Sidebar from '../components/common/Sidebar'
 import { InstallPrompt } from '../components/pwa/InstallPrompt'
 import { useServiceWorker } from '../hooks/useServiceWorker'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
+import { ToastProvider } from '../components/shared/Toast'
 import { usePersistedState, STORAGE_KEYS } from '../hooks/usePersistedState'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
@@ -67,20 +68,22 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
 
   return (
     <GlobalStyleProvider>
-      <Layout
-        sidebarComponent={
-          <Sidebar
-            isCollapsed={isSidebarCollapsed}
-            setIsCollapsed={setIsSidebarCollapsed}
-          />
-        }
-        isSidebarCollapsed={isSidebarCollapsed}
-      >
-        <Component {...pageProps} servicesReady={servicesReady} />
+      <ToastProvider>
+        <Layout
+          sidebarComponent={
+            <Sidebar
+              isCollapsed={isSidebarCollapsed}
+              setIsCollapsed={setIsSidebarCollapsed}
+            />
+          }
+          isSidebarCollapsed={isSidebarCollapsed}
+        >
+          <Component {...pageProps} servicesReady={servicesReady} />
 
-        {/* PWA Install Prompt */}
-        {sw.isSupported && <InstallPrompt />}
-      </Layout>
+          {/* PWA Install Prompt */}
+          {sw.isSupported && <InstallPrompt />}
+        </Layout>
+      </ToastProvider>
     </GlobalStyleProvider>
   )
 }

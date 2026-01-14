@@ -429,7 +429,7 @@ export function UnitEditorWithRouting({
   // Toggle tray expansion
   const handleToggleTray = useCallback(() => {
     setIsTrayExpanded((prev) => !prev);
-  }, []);
+  }, [setIsTrayExpanded]);
   
   // Handle equipment selection for slot assignment
   const handleSelectEquipment = useCallback((id: string | null) => {

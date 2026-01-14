@@ -4,6 +4,7 @@ import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
 import { useTabManagerStore, TabManagerState, TabInfo } from '@/stores/useTabManagerStore';
 import { useRouter } from 'next/router';
 import { TechBase } from '@/types/enums/TechBase';
+import { ToastProvider } from '@/components/shared/Toast';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -79,14 +80,18 @@ describe('MultiUnitTabs', () => {
     });
   });
 
+  const renderWithToast = (ui: React.ReactElement) => {
+    return render(<ToastProvider>{ui}</ToastProvider>);
+  };
+
   it('should render tab bar', () => {
-    render(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
+    renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
     
     expect(screen.getByTestId('tab-bar')).toBeInTheDocument();
   });
 
   it('should render children content', () => {
-    render(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
+    renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
     
     expect(screen.getByText('Content')).toBeInTheDocument();
   });
@@ -99,13 +104,13 @@ describe('MultiUnitTabs', () => {
       return undefined;
     });
     
-    render(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
+    renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
     
     expect(screen.getByTestId('new-tab-modal')).toBeInTheDocument();
   });
 
   it('should apply custom className', () => {
-    const { container } = render(<MultiUnitTabs className="custom-class"><div>Content</div></MultiUnitTabs>);
+    const { container } = renderWithToast(<MultiUnitTabs className="custom-class"><div>Content</div></MultiUnitTabs>);
     
     const tabs = container.firstChild;
     expect(tabs).toHaveClass('custom-class');

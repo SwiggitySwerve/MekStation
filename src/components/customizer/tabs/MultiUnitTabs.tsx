@@ -23,6 +23,7 @@ import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { unitLoaderService } from '@/services/units/UnitLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+import { useToast } from '@/components/shared/Toast';
 
 // =============================================================================
 // Types
@@ -61,6 +62,7 @@ export function MultiUnitTabs({
   className = '',
 }: MultiUnitTabsProps): React.ReactElement {
   const router = useRouter();
+  const { showToast } = useToast();
   
   // Close dialog state
   const [closeDialog, setCloseDialog] = useState<CloseDialogState>({
@@ -232,7 +234,7 @@ export function MultiUnitTabs({
       
       if (!result.success) {
         console.error('Failed to save unit:', result.error);
-        // TODO: Show error toast/notification
+        showToast({ message: `Failed to save unit: ${result.error}`, variant: 'error' });
         return;
       }
       
@@ -260,9 +262,9 @@ export function MultiUnitTabs({
       }
     } catch (error) {
       console.error('Failed to save unit:', error);
-      // TODO: Show error toast/notification
+      showToast({ message: 'Failed to save unit. Please try again.', variant: 'error' });
     }
-  }, [saveDialog.tabId, saveDialog.closeAfterSave, renameTab, performCloseTab]);
+  }, [saveDialog.tabId, saveDialog.closeAfterSave, renameTab, performCloseTab, showToast]);
   
   // Open load dialog
   const openLoadDialog = useCallback(() => {
@@ -316,11 +318,11 @@ export function MultiUnitTabs({
       setIsLoadDialogOpen(false);
     } catch (error) {
       console.error('Error loading unit:', error);
-      // TODO: Show error toast/notification
+      showToast({ message: 'Failed to load unit. Please try again.', variant: 'error' });
     } finally {
       setIsLoadingUnit(false);
     }
-  }, [createTab, router]);
+  }, [createTab, router, showToast]);
   
   // Create unit from template with URL navigation
   const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {

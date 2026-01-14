@@ -107,7 +107,7 @@ export function useEquipmentCalculations(
   equipment: readonly IMountedEquipmentInstance[]
 ): EquipmentCalculations {
   // Track registry readiness to recalculate when it becomes available
-  const { isReady: registryReady } = useEquipmentRegistry();
+  const { isReady: _registryReady } = useEquipmentRegistry();
   
   return useMemo(() => {
     // Separate allocated and unallocated equipment
@@ -148,7 +148,7 @@ export function useEquipmentCalculations(
       unallocatedEquipment,
       allocatedEquipment,
     };
-  }, [equipment, registryReady]); // Re-run when registry becomes ready
+  }, [equipment]); // Equipment changes trigger recalculation
 }
 
 /**
