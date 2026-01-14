@@ -32,26 +32,28 @@ The system SHALL display unallocated equipment in a categorized sidebar or inlin
 ### Requirement: VerticalSlotChip Component
 The VerticalSlotChip component SHALL be a rotated version of SlotRow with identical visual styling.
 
-#### Scenario: Fixed width matching SlotRow height
-- **GIVEN** a SlotRow component has a rendered height of approximately 26px
+#### Scenario: Responsive width matching SlotRow height at each breakpoint
+- **GIVEN** SlotRow has different heights at different breakpoints (mobile ~22px, sm+ ~30px)
 - **WHEN** a VerticalSlotChip is rendered
-- **THEN** its width SHALL be exactly 26px (fixed, not flexible)
-- **AND** no flex-grow, auto-expansion, or responsive padding SHALL alter this width
-- **AND** the width SHALL be set via inline style to prevent CSS override
+- **THEN** its width SHALL match SlotRow height at each breakpoint
+- **AND** mobile width SHALL be 22px (w-[22px])
+- **AND** sm+ width SHALL be 30px (sm:w-[30px])
+- **AND** flex-shrink-0 SHALL prevent compression in flex containers
 
 #### Scenario: Same color logic as SlotRow
 - **WHEN** a VerticalSlotChip renders equipment
 - **THEN** it SHALL use classifyEquipment() and getEquipmentColors() for color determination
 - **AND** the colors SHALL match exactly what SlotRow would display for the same equipment name
 
-#### Scenario: Rotated text orientation
+#### Scenario: Rotated text orientation with responsive sizing
 - **WHEN** equipment name is displayed in VerticalSlotChip
 - **THEN** text SHALL use writing-mode: vertical-rl
 - **AND** text SHALL be rotated 180 degrees to read bottom-to-top
-- **AND** text size SHALL be 10px matching SlotRow compact mode
+- **AND** text size SHALL be responsive: text-[10px] on mobile, sm:text-sm on larger screens
+- **AND** text sizing SHALL match SlotRow text sizing at each breakpoint
 
-#### Scenario: No auto-sizing
+#### Scenario: No auto-sizing beyond breakpoint scaling
 - **WHEN** VerticalSlotChip is placed in a flex container
-- **THEN** it SHALL NOT grow or shrink (flexShrink: 0)
-- **AND** padding SHALL be zero to prevent width expansion
-- **AND** margin SHALL be minimal (1px horizontal) for tight packing
+- **THEN** it SHALL NOT grow or shrink beyond its breakpoint-defined width (flex-shrink-0)
+- **AND** width changes SHALL only occur at Tailwind breakpoints (sm, md, lg)
+- **AND** chips SHALL pack tightly with minimal gap (gap-1)

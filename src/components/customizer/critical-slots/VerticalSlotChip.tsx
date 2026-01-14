@@ -2,7 +2,12 @@
  * Vertical Slot Chip Component
  * 
  * A rotated version of SlotRow for displaying unassigned equipment.
- * Width EXACTLY matches SlotRow height. No flex/auto-expansion.
+ * Width EXACTLY matches SlotRow height at each breakpoint.
+ * Scales up on larger screens just like SlotRow does.
+ * 
+ * SlotRow sizing:
+ * - Mobile: px-1 py-0.5 text-[10px] → height ~22px
+ * - sm+: px-2 py-1 text-sm → height ~30px
  * 
  * @spec openspec/specs/critical-slots-display/spec.md
  */
@@ -26,7 +31,7 @@ export interface VerticalSlotChipProps {
 
 /**
  * Vertical slot chip - a SlotRow rotated 90 degrees.
- * FIXED width of 26px = SlotRow height (text-sm + py-1 + border)
+ * Responsive width matching SlotRow height at each breakpoint.
  */
 export const VerticalSlotChip = memo(function VerticalSlotChip({
   name,
@@ -43,32 +48,23 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
       onClick={onClick}
       title={`${name} (${criticalSlots} slots)`}
       className={`
-        ${colors.bg} ${colors.border} ${colors.text}
-        ${isSelected ? 'ring-2 ring-accent' : ''}
+        flex items-center justify-center flex-shrink-0
         border border-border-theme-subtle rounded-sm
         cursor-pointer active:scale-95 transition-all
+        ${colors.bg} ${colors.border} ${colors.text}
+        ${isSelected ? 'ring-2 ring-accent' : ''}
+        w-[22px] sm:w-[30px]
+        h-[80px] sm:h-[100px]
       `}
-      style={{
-        width: '26px',
-        height: '96px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        padding: 0,
-        margin: '0 1px',
-      }}
     >
+      {/* Rotated text - scales with breakpoint like SlotRow */}
       <span 
+        className="whitespace-nowrap truncate text-[10px] sm:text-sm"
         style={{ 
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
           transform: 'rotate(180deg)',
-          fontSize: '10px',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          maxHeight: '90px',
+          maxHeight: '72px',
         }}
       >
         {name}

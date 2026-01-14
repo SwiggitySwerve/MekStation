@@ -20,25 +20,29 @@ describe('VerticalSlotChip', () => {
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
-  it('should have fixed width of 26px', () => {
+  it('should have responsive width classes matching SlotRow height', () => {
     const { container } = render(<VerticalSlotChip {...defaultProps} />);
     
     const button = container.querySelector('button');
-    expect(button).toHaveStyle({ width: '26px' });
+    // Mobile: w-[22px], sm+: sm:w-[30px]
+    expect(button).toHaveClass('w-[22px]');
+    expect(button).toHaveClass('sm:w-[30px]');
   });
 
-  it('should have fixed height of 96px', () => {
+  it('should have responsive height classes', () => {
     const { container } = render(<VerticalSlotChip {...defaultProps} />);
     
     const button = container.querySelector('button');
-    expect(button).toHaveStyle({ height: '96px' });
+    // Mobile: h-[80px], sm+: sm:h-[100px]
+    expect(button).toHaveClass('h-[80px]');
+    expect(button).toHaveClass('sm:h-[100px]');
   });
 
-  it('should have flexShrink 0 to prevent auto-sizing', () => {
+  it('should have flex-shrink-0 to prevent auto-sizing', () => {
     const { container } = render(<VerticalSlotChip {...defaultProps} />);
     
     const button = container.querySelector('button');
-    expect(button).toHaveStyle({ flexShrink: '0' });
+    expect(button).toHaveClass('flex-shrink-0');
   });
 
   it('should show tooltip with name and slot count', () => {
@@ -82,12 +86,21 @@ describe('VerticalSlotChip', () => {
     expect(button?.className).toMatch(/border-/);
   });
 
-  it('should have rotated text styling', () => {
+  it('should have rotated text styling for vertical display', () => {
     const { container } = render(<VerticalSlotChip {...defaultProps} />);
     
     const textSpan = container.querySelector('span');
     expect(textSpan).toHaveStyle({ writingMode: 'vertical-rl' });
     expect(textSpan).toHaveStyle({ transform: 'rotate(180deg)' });
+  });
+
+  it('should have responsive text size classes matching SlotRow', () => {
+    const { container } = render(<VerticalSlotChip {...defaultProps} />);
+    
+    const textSpan = container.querySelector('span');
+    // Mobile: text-[10px], sm+: sm:text-sm
+    expect(textSpan).toHaveClass('text-[10px]');
+    expect(textSpan).toHaveClass('sm:text-sm');
   });
 
   describe('with different equipment types', () => {
