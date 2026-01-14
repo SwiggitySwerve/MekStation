@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
-import { MechLocation } from '@/types/construction';
+import { getLocationShorthand } from '@/utils/locationUtils';
 
 // =============================================================================
 // Types
@@ -65,25 +65,6 @@ interface MobileEquipmentRowProps {
   onToggleLocationMenu?: () => void;
   showActions?: boolean;
   className?: string;
-}
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-/** Convert location names to shorthand (e.g., "Right Torso" -> "RT") */
-function getLocationShorthand(location: string): string {
-  const shortcuts: Record<string, string> = {
-    'Head': 'HD',
-    'Center Torso': 'CT',
-    'Left Torso': 'LT',
-    'Right Torso': 'RT',
-    'Left Arm': 'LA',
-    'Right Arm': 'RA',
-    'Left Leg': 'LL',
-    'Right Leg': 'RL',
-  };
-  return shortcuts[location] || location;
 }
 
 /** Format range brackets like "0/3/6/9" or "-/3/6/9" for min range */

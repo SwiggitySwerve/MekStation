@@ -67,13 +67,24 @@ describe('GlobalLoadoutTray', () => {
     expect(defaultProps.onSelectEquipment).toHaveBeenCalledWith('equip-1');
   });
 
-  it('should call onRemoveEquipment when remove button is clicked', async () => {
+  it('should call onRemoveEquipment when remove button is clicked twice (with confirmation)', async () => {
     const user = userEvent.setup();
     render(<GlobalLoadoutTray {...defaultProps} />);
     
     // Find the remove button by title
     const removeButton = screen.getByTitle('Remove from unit');
+    
+    // First click shows confirmation
     await user.click(removeButton);
+    expect(defaultProps.onRemoveEquipment).not.toHaveBeenCalled();
+    
+    // Button should now show confirmation state
+    const confirmButton = screen.getByTitle('Click again to confirm');
+    expect(confirmButton).toBeInTheDocument();
+    expect(confirmButton).toHaveTextContent('?');
+    
+    // Second click confirms and removes
+    await user.click(confirmButton);
     expect(defaultProps.onRemoveEquipment).toHaveBeenCalledWith('equip-1');
   });
 

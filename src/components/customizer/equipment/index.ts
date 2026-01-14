@@ -14,4 +14,6 @@ export { ResponsiveLoadoutTray } from './ResponsiveLoadoutTray';
 export type { LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
 export { EquipmentRow } from './EquipmentRow';
 export { CompactFilterBar } from './CompactFilterBar';
+export { CategoryFilterBar } from './CategoryFilterBar';
+export * from './equipmentConstants';
 
