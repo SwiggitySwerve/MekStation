@@ -38,10 +38,12 @@ import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import type { LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
+import type { MobileLoadoutStats } from '@/components/customizer/mobile';
 
 // Equipment
 import { EquipmentCategory } from '@/types/equipment';
 import { JUMP_JETS } from '@/types/equipment/MiscEquipmentTypes';
+import { getWeaponById, isDirectFireWeaponById } from '@/types/equipment/weapons/utilities';
 
 // Types
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
@@ -405,8 +407,26 @@ export function UnitEditorWithRouting({
     };
   }, [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue, validationResult]);
   
+  // Compute mobile stats for the bottom sheet tray
+  const mobileLoadoutStats: MobileLoadoutStats = useMemo(() => {
+    const unassignedCount = equipment.filter(e => !e.location).length;
+    return {
+      weightUsed: totalWeight,
+      weightMax: tonnage,
+      slotsUsed: totalSlotsUsed,
+      slotsMax: 78,
+      heatGenerated: heatProfile.heatGenerated,
+      heatDissipation: heatProfile.heatDissipated,
+      battleValue,
+      equipmentCount: equipment.length,
+      unassignedCount,
+    };
+  }, [totalWeight, tonnage, totalSlotsUsed, heatProfile, battleValue, equipment]);
+  
   // Convert equipment to LoadoutEquipmentItem format
   // Normalize categories for consistent display (e.g., jump jets -> Movement)
+  // Include weapon data (damage, ranges) for mobile loadout display
+  // Note: registryReady dependency ensures we re-run when weapon data is loaded
   const loadoutEquipment: LoadoutEquipmentItem[] = useMemo(() => {
     return equipment.map((item) => {
       // Normalize category: jump jets should be in Movement category
@@ -414,19 +434,36 @@ export function UnitEditorWithRouting({
         ? EquipmentCategory.MOVEMENT
         : item.category;
       
+      // Look up weapon data for damage/range display
+      // This will return data once registryReady is true
+      const weapon = getWeaponById(item.equipmentId);
+      const isDirectFire = isDirectFireWeaponById(item.equipmentId);
+      
       return {
         instanceId: item.instanceId,
+        equipmentId: item.equipmentId,
         name: item.name,
         category: normalizedCategory,
         weight: item.weight,
         criticalSlots: item.criticalSlots,
+        // Use weapon heat if available, fall back to store heat
+        heat: weapon?.heat ?? item.heat,
+        damage: weapon?.damage,
+        ranges: weapon ? {
+          minimum: weapon.ranges.minimum,
+          short: weapon.ranges.short,
+          medium: weapon.ranges.medium,
+          long: weapon.ranges.long,
+        } : undefined,
         isAllocated: !!item.location,
         location: item.location,
         isRemovable: item.isRemovable,
         isOmniPodMounted: item.isOmniPodMounted,
+        targetingComputerCompatible: isDirectFire,
       };
     });
-  }, [equipment]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [equipment, registryReady]);
   
   // Handle equipment removal
   const handleRemoveEquipment = useCallback((instanceId: string) => {
@@ -453,33 +490,31 @@ export function UnitEditorWithRouting({
     clearEquipmentLocation(instanceId);
   }, [clearEquipmentLocation]);
   
-  // Calculate available locations for the selected equipment
-  const availableLocations: AvailableLocation[] = useMemo(() => {
-    if (!selectedEquipmentId) return [];
+  // Location labels for display
+  const locationLabels: Partial<Record<MechLocation, string>> = useMemo(() => ({
+    [MechLocation.HEAD]: 'Head',
+    [MechLocation.CENTER_TORSO]: 'Center Torso',
+    [MechLocation.LEFT_TORSO]: 'Left Torso',
+    [MechLocation.RIGHT_TORSO]: 'Right Torso',
+    [MechLocation.LEFT_ARM]: 'Left Arm',
+    [MechLocation.RIGHT_ARM]: 'Right Arm',
+    [MechLocation.LEFT_LEG]: 'Left Leg',
+    [MechLocation.RIGHT_LEG]: 'Right Leg',
+  }), []);
+  
+  // Function to calculate available locations for any equipment item
+  const getAvailableLocationsForEquipment = useCallback((equipmentInstanceId: string): AvailableLocation[] => {
+    const item = equipment.find(e => e.instanceId === equipmentInstanceId);
+    if (!item) return [];
     
-    const selectedItem = equipment.find(e => e.instanceId === selectedEquipmentId);
-    if (!selectedItem) return [];
-    
-    const slotsNeeded = selectedItem.criticalSlots;
+    const slotsNeeded = item.criticalSlots;
     const locations: AvailableLocation[] = [];
-    
-    // Location labels for display
-    const locationLabels: Partial<Record<MechLocation, string>> = {
-      [MechLocation.HEAD]: 'Head',
-      [MechLocation.CENTER_TORSO]: 'Center Torso',
-      [MechLocation.LEFT_TORSO]: 'Left Torso',
-      [MechLocation.RIGHT_TORSO]: 'Right Torso',
-      [MechLocation.LEFT_ARM]: 'Left Arm',
-      [MechLocation.RIGHT_ARM]: 'Right Arm',
-      [MechLocation.LEFT_LEG]: 'Left Leg',
-      [MechLocation.RIGHT_LEG]: 'Right Leg',
-    };
     
     // Check each location
     const allLocations = Object.values(MechLocation) as MechLocation[];
     for (const loc of allLocations) {
       // Check location restrictions for this equipment
-      if (!isValidLocationForEquipment(selectedItem.equipmentId, loc)) {
+      if (!isValidLocationForEquipment(item.equipmentId, loc)) {
         // Location is forbidden for this equipment type
         locations.push({
           location: loc,
@@ -534,7 +569,13 @@ export function UnitEditorWithRouting({
     }
     
     return locations;
-  }, [selectedEquipmentId, equipment, engineType, gyroType]);
+  }, [equipment, engineType, gyroType, locationLabels]);
+  
+  // Calculate available locations for the selected equipment (for backwards compatibility)
+  const availableLocations: AvailableLocation[] = useMemo(() => {
+    if (!selectedEquipmentId) return [];
+    return getAvailableLocationsForEquipment(selectedEquipmentId);
+  }, [selectedEquipmentId, getAvailableLocationsForEquipment]);
   
   // Handle quick assign to a location
   const handleQuickAssign = useCallback((instanceId: string, location: MechLocation) => {
@@ -647,7 +688,9 @@ export function UnitEditorWithRouting({
             onUnassignEquipment={handleUnassignEquipment}
             onQuickAssign={handleQuickAssign}
             availableLocations={availableLocations}
+            getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
             isOmni={isOmni}
+            mobileStats={mobileLoadoutStats}
           />
         )}
       </div>

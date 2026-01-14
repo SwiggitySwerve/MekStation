@@ -4,29 +4,21 @@ import userEvent from '@testing-library/user-event';
 import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBrowser';
 import { EquipmentCategory } from '@/types/equipment';
 import { TechBase } from '@/types/enums/TechBase';
-import { CategoryToggleBarProps, HideToggleBarProps } from '@/components/customizer/equipment/CategoryToggleBar';
+import type { CompactFilterBarProps } from '@/components/customizer/equipment/CompactFilterBar';
 
-// Mock the hook
 jest.mock('@/hooks/useEquipmentBrowser', () => ({
   useEquipmentBrowser: jest.fn(),
 }));
 
-// Mock CategoryToggleBar and HideToggleBar
-jest.mock('@/components/customizer/equipment/CategoryToggleBar', () => ({
-  CategoryToggleBar: ({ activeCategories, onSelectCategory }: CategoryToggleBarProps) => (
-    <div data-testid="category-toggle-bar">
-      {Array.from<EquipmentCategory>(activeCategories).map((cat) => (
-        <button key={cat} onClick={(): void => { (onSelectCategory as (cat: EquipmentCategory, selected: boolean) => void)(cat, false); }}>
-          {cat}
-        </button>
-      ))}
-    </div>
-  ),
-  HideToggleBar: ({ hidePrototype, onTogglePrototype }: HideToggleBarProps) => (
-    <div data-testid="hide-toggle-bar">
-      <button onClick={(): void => { (onTogglePrototype as () => void)(); }}>
-        {hidePrototype ? 'Show Prototype' : 'Hide Prototype'}
-      </button>
+jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
+  CompactFilterBar: ({ search, onSearchChange, onClearFilters }: CompactFilterBarProps) => (
+    <div data-testid="compact-filter-bar">
+      <input
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)}
+      />
+      <button onClick={onClearFilters}>Clear</button>
     </div>
   ),
 }));
@@ -43,20 +35,7 @@ jest.mock('@/components/customizer/equipment/EquipmentRow', () => ({
   ),
 }));
 
-// Mock PaginationButtons
-jest.mock('@/components/ui/Button', () => ({
-  PaginationButtons: ({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) => (
-    <div data-testid="pagination">
-      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
-        Prev
-      </button>
-      <span>{currentPage} / {totalPages}</span>
-      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-        Next
-      </button>
-    </div>
-  ),
-}));
+
 
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 
@@ -97,6 +76,7 @@ describe('EquipmentBrowser', () => {
     hidePrototype: false,
     hideOneShot: false,
     hideUnavailable: false,
+    hideAmmoWithoutWeapon: false,
     sortColumn: 'name' as const,
     sortDirection: 'asc' as const,
     setSearch: jest.fn(),
@@ -105,6 +85,7 @@ describe('EquipmentBrowser', () => {
     toggleHidePrototype: jest.fn(),
     toggleHideOneShot: jest.fn(),
     toggleHideUnavailable: jest.fn(),
+    toggleHideAmmoWithoutWeapon: jest.fn(),
     clearFilters: jest.fn(),
     setPage: jest.fn(),
     setSort: jest.fn(),
@@ -197,7 +178,7 @@ describe('EquipmentBrowser', () => {
   it('should display pagination info', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
     
-    expect(screen.getByText('2 of 2')).toBeInTheDocument();
+    expect(screen.getByText('Page 1/1')).toBeInTheDocument();
   });
 
   it('should call setSearch when search input changes', async () => {
@@ -211,7 +192,7 @@ describe('EquipmentBrowser', () => {
     
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
     
-    const searchInput = screen.getByPlaceholderText('Search equipment...');
+    const searchInput = screen.getByPlaceholderText('Search...');
     await user.type(searchInput, 'laser');
     
     expect(setSearch).toHaveBeenCalled();

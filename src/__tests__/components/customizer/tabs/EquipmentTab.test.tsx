@@ -5,7 +5,6 @@ import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { EquipmentBrowserProps } from '@/components/customizer/equipment/EquipmentBrowser';
 
-// Mock EquipmentBrowser
 jest.mock('@/components/customizer/equipment/EquipmentBrowser', () => ({
   EquipmentBrowser: ({ onAddEquipment }: Pick<EquipmentBrowserProps, 'onAddEquipment'>) => (
     <div data-testid="equipment-browser">
@@ -16,20 +15,26 @@ jest.mock('@/components/customizer/equipment/EquipmentBrowser', () => ({
   ),
 }));
 
-// Mock useUnitStore
+jest.mock('@/components/customizer/equipment/EquippedSummary', () => ({
+  EquippedSummary: () => <div data-testid="equipped-summary" />,
+}));
+
 jest.mock('@/stores/useUnitStore', () => ({
   useUnitStore: jest.fn(),
 }));
 
 describe('EquipmentTab', () => {
   const mockAddEquipment = jest.fn();
+  const mockRemoveEquipment = jest.fn();
+  const mockEquipment: unknown[] = [];
 
   beforeEach(() => {
     jest.clearAllMocks();
     (useUnitStore as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) => {
-      if (selector.toString().includes('addEquipment')) {
-        return mockAddEquipment;
-      }
+      const selectorStr = selector.toString();
+      if (selectorStr.includes('addEquipment')) return mockAddEquipment;
+      if (selectorStr.includes('removeEquipment')) return mockRemoveEquipment;
+      if (selectorStr.includes('equipment')) return mockEquipment;
       return undefined;
     });
   });
