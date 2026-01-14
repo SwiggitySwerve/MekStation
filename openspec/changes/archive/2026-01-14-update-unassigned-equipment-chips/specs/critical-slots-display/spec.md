@@ -45,6 +45,15 @@ The VerticalSlotChip component SHALL be a rotated version of SlotRow with identi
 - **THEN** it SHALL use classifyEquipment() and getEquipmentColors() for color determination
 - **AND** the colors SHALL match exactly what SlotRow would display for the same equipment name
 
+#### Scenario: Consistent abbreviations with SlotRow
+- **WHEN** equipment names are displayed in VerticalSlotChip or SlotRow
+- **THEN** both SHALL use abbreviateEquipmentName() for consistent display
+- **AND** (Clan) SHALL be abbreviated to (C)
+- **AND** (Inner Sphere) SHALL be abbreviated to (IS)
+- **AND** Ferro-Fibrous SHALL be abbreviated to Ferro-Fib
+- **AND** Endo Steel SHALL NOT be abbreviated (kept as full name)
+- **AND** tooltip SHALL show full unabbreviated name
+
 #### Scenario: Rotated text orientation with responsive sizing
 - **WHEN** equipment name is displayed in VerticalSlotChip
 - **THEN** text SHALL use writing-mode: vertical-rl
