@@ -17,6 +17,7 @@ import {
   classifyEquipment, 
   getEquipmentColors 
 } from '@/utils/colors/equipmentColors';
+import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
 // =============================================================================
 // Context Menu Component
@@ -230,18 +231,19 @@ export const SlotRow = memo(function SlotRow({
     }
   };
   
-  // Determine display name with OmniMech postfix
+  // Determine display name with OmniMech postfix and abbreviations
   let displayName: string;
   if (slot.type === 'empty') {
     displayName = '- Empty -';
   } else if (slot.name) {
+    // Apply abbreviations for compact display (e.g., (Clan) -> (C))
+    let name = abbreviateEquipmentName(slot.name);
     // Add (Pod) or (Fixed) postfix for OmniMech equipment
     if (isOmni && slot.type === 'equipment') {
       const postfix = slot.isOmniPodMounted ? ' (Pod)' : ' (Fixed)';
-      displayName = slot.name + postfix;
-    } else {
-      displayName = slot.name;
+      name = name + postfix;
     }
+    displayName = name;
   } else {
     // Continuation of multi-slot equipment - show empty or continuation marker
     displayName = '';

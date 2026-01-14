@@ -118,18 +118,29 @@ describe('VerticalSlotChip', () => {
   });
 
   it('should display long equipment names without breaking', () => {
-    const longName = 'Extended Range Large Laser (Clan)';
+    const longName = 'Extended Range Large Laser';
     render(<VerticalSlotChip name={longName} criticalSlots={2} />);
     
-    const textElement = screen.getByText(longName);
+    // Abbreviated: Extended Range -> ER
+    const textElement = screen.getByText('ER Large Laser');
     expect(textElement).toBeVisible();
     expect(textElement).toHaveClass('whitespace-nowrap');
   });
 
+  it('should abbreviate (Clan) to (C) in display name', () => {
+    render(<VerticalSlotChip name="ER Medium Laser (Clan)" criticalSlots={1} />);
+    
+    // Should show abbreviated name
+    expect(screen.getByText('ER Medium Laser (C)')).toBeVisible();
+    // Tooltip should show full name
+    expect(screen.getByRole('button')).toHaveAttribute('title', 'ER Medium Laser (Clan) (1 slots)');
+  });
+
   describe('with different equipment types', () => {
-    it('should render Endo Steel correctly', () => {
+    it('should render Endo Steel correctly (not abbreviated)', () => {
       render(<VerticalSlotChip name="Endo Steel" criticalSlots={7} />);
       
+      // Endo Steel is NOT abbreviated - keeps full name
       expect(screen.getByText('Endo Steel')).toBeInTheDocument();
       expect(screen.getByRole('button')).toHaveAttribute('title', 'Endo Steel (7 slots)');
     });

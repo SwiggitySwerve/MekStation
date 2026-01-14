@@ -26,9 +26,7 @@ const ABBREVIATIONS: [RegExp, string][] = [
   [/Active Probe/gi, 'AP'],
   [/Command Console/gi, 'CC'],
   [/Communications Equipment/gi, 'Comm'],
-  [/Endo Steel/gi, 'Endo'],
-  [/Ferro-Fibrous/gi, 'FF'],
-  [/Standard/gi, 'Std'],
+  // Note: Endo Steel and Ferro-Fibrous are NOT abbreviated - keep full names
 ];
 
 /**

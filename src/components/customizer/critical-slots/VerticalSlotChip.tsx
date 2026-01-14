@@ -17,6 +17,7 @@ import {
   classifyEquipment, 
   getEquipmentColors 
 } from '@/utils/colors/equipmentColors';
+import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
 export interface VerticalSlotChipProps {
   /** Equipment name */
@@ -41,12 +42,13 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
 }: VerticalSlotChipProps) {
   const colorType = classifyEquipment(name);
   const colors = getEquipmentColors(colorType);
+  const displayName = abbreviateEquipmentName(name);
 
   return (
     <button
       type="button"
       onClick={onClick}
-      title={`${name} (${criticalSlots} slots)`}
+      title={`${name} (${criticalSlots} slots)`} // Full name in tooltip
       className={`
         flex items-center justify-center flex-shrink-0 overflow-hidden
         border border-border-theme-subtle rounded-sm
@@ -66,7 +68,7 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
           transform: 'rotate(180deg)',
         }}
       >
-        {name}
+        {displayName}
       </span>
     </button>
   );

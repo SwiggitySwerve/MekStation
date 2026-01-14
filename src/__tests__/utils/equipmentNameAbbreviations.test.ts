@@ -7,7 +7,7 @@ import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 describe('abbreviateEquipmentName', () => {
   it('should abbreviate (Clan) to (C)', () => {
     expect(abbreviateEquipmentName('ER Medium Laser (Clan)')).toBe('ER Medium Laser (C)');
-    expect(abbreviateEquipmentName('Endo Steel (Clan)')).toBe('Endo (C)');
+    expect(abbreviateEquipmentName('Endo Steel (Clan)')).toBe('Endo Steel (C)');
   });
 
   it('should abbreviate (Inner Sphere) to (IS)', () => {
@@ -49,9 +49,10 @@ describe('abbreviateEquipmentName', () => {
     expect(abbreviateEquipmentName('Beagle Active Probe')).toBe('BAP');
   });
 
-  it('should abbreviate structure types', () => {
-    expect(abbreviateEquipmentName('Endo Steel')).toBe('Endo');
-    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe('FF Armor');
+  it('should NOT abbreviate structure types (keep full names)', () => {
+    // Endo Steel and Ferro-Fibrous should remain as-is for clarity
+    expect(abbreviateEquipmentName('Endo Steel')).toBe('Endo Steel');
+    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe('Ferro-Fibrous Armor');
   });
 
   it('should handle multiple abbreviations in one name', () => {
@@ -63,8 +64,8 @@ describe('abbreviateEquipmentName', () => {
     expect(abbreviateEquipmentName('AC/10')).toBe('AC/10');
   });
 
-  it('should be case insensitive', () => {
-    expect(abbreviateEquipmentName('ENDO STEEL')).toBe('Endo');
-    expect(abbreviateEquipmentName('endo steel')).toBe('Endo');
+  it('should be case insensitive for (Clan) abbreviation', () => {
+    expect(abbreviateEquipmentName('Medium Laser (CLAN)')).toBe('Medium Laser (C)');
+    expect(abbreviateEquipmentName('Medium Laser (clan)')).toBe('Medium Laser (C)');
   });
 });
