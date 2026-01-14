@@ -196,7 +196,6 @@ export function UnitEditorWithRouting({
   const isOmni = useUnitStore((s) => s.isOmni);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
-  const enhancement = useUnitStore((s) => s.enhancement);
   const removeEquipment = useUnitStore((s) => s.removeEquipment);
   const clearAllEquipment = useUnitStore((s) => s.clearAllEquipment);
   const clearEquipmentLocation = useUnitStore((s) => s.clearEquipmentLocation);
