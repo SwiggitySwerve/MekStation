@@ -154,11 +154,13 @@ export function MobileEquipmentRow({
     }
   };
 
+  const canShowActions = showActions && item.isRemovable;
+  
   return (
     <div
       onClick={onSelect}
       className={`
-        min-h-[36px] px-2 py-1 flex items-center gap-1.5
+        min-h-[36px] px-2 py-1 flex items-center
         border-b border-border-theme-subtle/30
         ${onSelect ? 'cursor-pointer active:bg-surface-raised/50' : ''}
         ${isSelected ? 'bg-accent/10 border-l-2 border-l-accent' : ''}
@@ -166,146 +168,107 @@ export function MobileEquipmentRow({
         ${className}
       `}
     >
-      {/* Category indicator */}
-      <div className={`w-1 h-6 rounded-sm flex-shrink-0 ${colors.bg}`} />
+      <div className={`w-1 h-6 rounded-sm flex-shrink-0 mr-1.5 ${colors.bg}`} />
       
-      {/* Name column */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-white font-medium truncate">
-            {item.name}
+      <div className="flex-1 min-w-0 flex items-center gap-1">
+        <span className="text-xs text-white font-medium truncate">{item.name}</span>
+        {item.damage !== undefined && (
+          <span className="text-[9px] text-cyan-400/80 flex-shrink-0">{item.damage}d</span>
+        )}
+        {item.targetingComputerCompatible && (
+          <span className="text-[8px] text-green-400/70 flex-shrink-0">TC</span>
+        )}
+        {isOmni && (
+          <span className={`text-[8px] px-0.5 rounded flex-shrink-0 ${
+            item.isOmniPodMounted ? 'bg-accent/20 text-accent' : 'bg-slate-700 text-slate-400'
+          }`}>
+            {item.isOmniPodMounted ? 'P' : 'F'}
           </span>
-          {item.damage !== undefined && (
-            <span className="text-[9px] text-cyan-400/80 flex-shrink-0">{item.damage}d</span>
-          )}
-          {item.targetingComputerCompatible && (
-            <span className="text-[8px] text-green-400/70 flex-shrink-0">TC</span>
-          )}
-          {isOmni && (
-            <span className={`text-[8px] px-0.5 rounded flex-shrink-0 ${
-              item.isOmniPodMounted 
-                ? 'bg-accent/20 text-accent' 
-                : 'bg-slate-700 text-slate-400'
-            }`}>
-              {item.isOmniPodMounted ? 'P' : 'F'}
-            </span>
-          )}
-          {!item.isRemovable && (
-            <span className="text-[8px] text-slate-500 flex-shrink-0">🔒</span>
-          )}
-        </div>
+        )}
+        {!item.isRemovable && (
+          <span className="text-[8px] text-slate-500 flex-shrink-0">🔒</span>
+        )}
       </div>
       
-      {/* Stats columns - matching header widths */}
-      <div className="flex items-center text-[10px] text-text-theme-secondary flex-shrink-0 font-mono">
-        <span className={`w-[28px] flex items-center justify-center border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
-          {item.isAllocated && item.location ? getLocationShorthand(item.location) : '—'}
-        </span>
-        <span className="w-[44px] flex items-center justify-center border-l border-border-theme-subtle/20 text-[9px]">
-          {item.ranges ? `${item.ranges.short}/${item.ranges.medium}/${item.ranges.long}` : '—'}
-        </span>
-        <span className={`w-[20px] flex items-center justify-center border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
-          {item.heat ?? 0}
-        </span>
-        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/20">{item.criticalSlots}</span>
-        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/20">{item.weight}</span>
+      <div className={`w-[28px] flex-shrink-0 text-center text-[10px] font-mono border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
+        {item.isAllocated && item.location ? getLocationShorthand(item.location) : '—'}
+      </div>
+      <div className="w-[44px] flex-shrink-0 text-center text-[9px] font-mono border-l border-border-theme-subtle/20 text-text-theme-secondary">
+        {item.ranges ? `${item.ranges.short}/${item.ranges.medium}/${item.ranges.long}` : '—'}
+      </div>
+      <div className={`w-[20px] flex-shrink-0 text-center text-[10px] font-mono border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
+        {item.heat ?? 0}
+      </div>
+      <div className="w-[20px] flex-shrink-0 text-center text-[10px] font-mono border-l border-border-theme-subtle/20 text-text-theme-secondary">
+        {item.criticalSlots}
+      </div>
+      <div className="w-[28px] flex-shrink-0 text-center text-[10px] font-mono border-l border-border-theme-subtle/20 text-text-theme-secondary">
+        {item.weight}
       </div>
       
-      {/* Actions - fixed width columns with proper touch targets */}
-      {showActions && item.isRemovable && (
-        <div className="flex items-center flex-shrink-0 relative">
-          {/* Link/Unlink column - 36px for proper touch target */}
-          <div className="w-[36px] h-[36px] flex items-center justify-center border-l border-border-theme-subtle/20">
-            {item.isAllocated && onUnassign ? (
-              // Unlink button for allocated items
-              <button
-                onClick={handleUnassignClick}
-                className={`
-                  w-full h-full flex items-center justify-center transition-all active:scale-95 text-base
-                  ${showConfirmUnassign 
-                    ? 'text-amber-400 bg-amber-900/40' 
-                    : 'text-slate-400 hover:text-amber-400 hover:bg-amber-900/20'
-                  }
-                `}
-                title={showConfirmUnassign ? 'Confirm unassign' : 'Unassign from slot'}
-              >
-                {showConfirmUnassign ? '?' : '⛓️‍💥'}
-              </button>
-            ) : !item.isAllocated && onQuickAssign && availableLocations.length > 0 ? (
-              // Link button for unassigned items
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleLocationMenu?.();
-                }}
-                className={`
-                  w-full h-full flex items-center justify-center transition-all active:scale-95 text-base
-                  ${isLocationMenuOpen 
-                    ? 'text-green-400 bg-green-900/40' 
-                    : 'text-slate-400 hover:text-green-400 hover:bg-green-900/20'
-                  }
-                `}
-                title="Assign to location"
-              >
-                🔗
-              </button>
-            ) : null}
-          </div>
-          
-          {/* Remove column - 36px for proper touch target */}
-          <div className="w-[36px] h-[36px] flex items-center justify-center border-l border-border-theme-subtle/20">
-            {onRemove && (
-              <button
-                onClick={handleRemoveClick}
-                className={`
-                  w-full h-full flex items-center justify-center transition-all active:scale-95 text-lg font-medium
-                  ${showConfirmRemove 
-                    ? 'text-red-400 bg-red-900/40' 
-                    : 'text-slate-400 hover:text-red-400 hover:bg-red-900/20'
-                  }
-                `}
-                title={showConfirmRemove ? 'Confirm remove' : 'Remove from unit'}
-              >
-                {showConfirmRemove ? '?' : '×'}
-              </button>
+      <div className="w-[36px] h-[36px] flex-shrink-0 flex items-center justify-center border-l border-border-theme-subtle/20 relative">
+        {canShowActions && item.isAllocated && onUnassign ? (
+          <button
+            onClick={handleUnassignClick}
+            className={`w-full h-full flex items-center justify-center transition-all active:scale-95 text-base
+              ${showConfirmUnassign ? 'text-amber-400 bg-amber-900/40' : 'text-slate-400 hover:text-amber-400 hover:bg-amber-900/20'}`}
+            title={showConfirmUnassign ? 'Confirm unassign' : 'Unassign from slot'}
+          >
+            {showConfirmUnassign ? '?' : '⛓️‍💥'}
+          </button>
+        ) : canShowActions && !item.isAllocated && onQuickAssign && availableLocations.length > 0 ? (
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleLocationMenu?.(); }}
+            className={`w-full h-full flex items-center justify-center transition-all active:scale-95 text-base
+              ${isLocationMenuOpen ? 'text-green-400 bg-green-900/40' : 'text-slate-400 hover:text-green-400 hover:bg-green-900/20'}`}
+            title="Assign to location"
+          >
+            🔗
+          </button>
+        ) : null}
+        
+        {isLocationMenuOpen && !item.isAllocated && (
+          <div 
+            className="absolute right-0 top-full mt-1 z-50 bg-surface-base border border-accent/40 rounded-lg shadow-xl py-2 px-2 min-w-[200px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-[10px] text-text-theme-secondary uppercase tracking-wide mb-2 px-1 font-medium">
+              Assign to Location
+            </div>
+            {availableLocations.filter(loc => loc.canFit).length > 0 ? (
+              <div className="grid grid-cols-2 gap-1">
+                {availableLocations.filter(loc => loc.canFit).map((loc) => (
+                  <button
+                    key={loc.location}
+                    onClick={(e) => { e.stopPropagation(); onQuickAssign?.(loc.location); onToggleLocationMenu?.(); }}
+                    className="px-2 py-2 text-left text-xs bg-surface-raised hover:bg-accent/20 hover:border-accent/50 border border-border-theme-subtle rounded transition-colors"
+                  >
+                    <div className="text-white font-medium text-[11px]">{loc.label}</div>
+                    <div className="text-[9px] text-green-400/80">{loc.availableSlots} free</div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="px-2 py-3 text-xs text-amber-400/80 text-center bg-amber-900/10 rounded">
+                No locations with enough slots
+              </div>
             )}
           </div>
-          
-          {/* Location selection dropdown - wider grid layout */}
-          {isLocationMenuOpen && !item.isAllocated && (
-            <div 
-              className="absolute right-0 top-full mt-1 z-50 bg-surface-base border border-accent/40 rounded-lg shadow-xl py-2 px-2 min-w-[200px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-[10px] text-text-theme-secondary uppercase tracking-wide mb-2 px-1 font-medium">
-                Assign to Location
-              </div>
-              {availableLocations.filter(loc => loc.canFit).length > 0 ? (
-                <div className="grid grid-cols-2 gap-1">
-                  {availableLocations.filter(loc => loc.canFit).map((loc) => (
-                    <button
-                      key={loc.location}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onQuickAssign?.(loc.location);
-                        onToggleLocationMenu?.();
-                      }}
-                      className="px-2 py-2 text-left text-xs bg-surface-raised hover:bg-accent/20 hover:border-accent/50 border border-border-theme-subtle rounded transition-colors"
-                    >
-                      <div className="text-white font-medium text-[11px]">{loc.label}</div>
-                      <div className="text-[9px] text-green-400/80">{loc.availableSlots} free</div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="px-2 py-3 text-xs text-amber-400/80 text-center bg-amber-900/10 rounded">
-                  No locations with enough slots
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
+      
+      <div className="w-[36px] h-[36px] flex-shrink-0 flex items-center justify-center border-l border-border-theme-subtle/20">
+        {canShowActions && onRemove && (
+          <button
+            onClick={handleRemoveClick}
+            className={`w-full h-full flex items-center justify-center transition-all active:scale-95 text-lg font-medium
+              ${showConfirmRemove ? 'text-red-400 bg-red-900/40' : 'text-slate-400 hover:text-red-400 hover:bg-red-900/20'}`}
+            title={showConfirmRemove ? 'Confirm remove' : 'Remove from unit'}
+          >
+            {showConfirmRemove ? '?' : '×'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

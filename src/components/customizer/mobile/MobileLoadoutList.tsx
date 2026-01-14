@@ -196,23 +196,16 @@ function StatsSummary({ stats }: StatsSummaryProps) {
 
 function SectionColumnHeaders(): React.ReactElement {
   return (
-    <div className="flex items-center gap-1.5 px-2 py-1 bg-surface-raised/30 border-b border-border-theme-subtle/50 text-[8px] text-text-theme-secondary/50 uppercase tracking-wide">
-      <div className="w-1 flex-shrink-0" />
-      
-      <div className="flex-1 min-w-0 text-left">Name</div>
-      
-      <div className="flex items-center flex-shrink-0 font-mono">
-        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/30">Loc</span>
-        <span className="w-[44px] flex items-center justify-center border-l border-border-theme-subtle/30">S/M/L</span>
-        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/30">H</span>
-        <span className="w-[20px] flex items-center justify-center border-l border-border-theme-subtle/30">C</span>
-        <span className="w-[28px] flex items-center justify-center border-l border-border-theme-subtle/30">Wt</span>
-      </div>
-      
-      <div className="flex items-center flex-shrink-0">
-        <span className="w-[36px] flex items-center justify-center border-l border-border-theme-subtle/30">🔗</span>
-        <span className="w-[36px] flex items-center justify-center border-l border-border-theme-subtle/30">✕</span>
-      </div>
+    <div className="flex items-center px-2 py-1 bg-surface-raised/30 border-b border-border-theme-subtle/50 text-[8px] text-text-theme-secondary/50 uppercase tracking-wide font-mono">
+      <div className="w-1 flex-shrink-0 mr-1.5" />
+      <div className="flex-1 min-w-0 text-left font-sans">Name</div>
+      <div className="w-[28px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">Loc</div>
+      <div className="w-[44px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">S/M/L</div>
+      <div className="w-[20px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">H</div>
+      <div className="w-[20px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">C</div>
+      <div className="w-[28px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">Wt</div>
+      <div className="w-[36px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">🔗</div>
+      <div className="w-[36px] flex-shrink-0 text-center border-l border-border-theme-subtle/30">✕</div>
     </div>
   );
 }
