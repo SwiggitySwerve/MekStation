@@ -48,7 +48,7 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
       onClick={onClick}
       title={`${name} (${criticalSlots} slots)`}
       className={`
-        flex items-center justify-center flex-shrink-0
+        flex items-center justify-center flex-shrink-0 overflow-hidden
         border border-border-theme-subtle rounded-sm
         cursor-pointer active:scale-95 transition-all
         ${colors.bg} ${colors.border} ${colors.text}
@@ -57,14 +57,13 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
         h-[80px] sm:h-[100px]
       `}
     >
-      {/* Rotated text - scales with breakpoint like SlotRow */}
+      {/* Rotated text - scales with breakpoint like SlotRow, never wraps */}
       <span 
-        className="whitespace-nowrap truncate text-[10px] sm:text-sm"
+        className="text-[10px] sm:text-sm whitespace-nowrap"
         style={{ 
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
           transform: 'rotate(180deg)',
-          maxHeight: '72px',
         }}
       >
         {name}

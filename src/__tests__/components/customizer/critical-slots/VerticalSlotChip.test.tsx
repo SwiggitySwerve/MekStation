@@ -103,6 +103,29 @@ describe('VerticalSlotChip', () => {
     expect(textSpan).toHaveClass('sm:text-sm');
   });
 
+  it('should have whitespace-nowrap to prevent text wrapping', () => {
+    const { container } = render(<VerticalSlotChip {...defaultProps} />);
+    
+    const textSpan = container.querySelector('span');
+    expect(textSpan).toHaveClass('whitespace-nowrap');
+  });
+
+  it('should display the full equipment name text', () => {
+    render(<VerticalSlotChip name="ER Medium Laser" criticalSlots={1} />);
+    
+    const textElement = screen.getByText('ER Medium Laser');
+    expect(textElement).toBeVisible();
+  });
+
+  it('should display long equipment names without breaking', () => {
+    const longName = 'Extended Range Large Laser (Clan)';
+    render(<VerticalSlotChip name={longName} criticalSlots={2} />);
+    
+    const textElement = screen.getByText(longName);
+    expect(textElement).toBeVisible();
+    expect(textElement).toHaveClass('whitespace-nowrap');
+  });
+
   describe('with different equipment types', () => {
     it('should render Endo Steel correctly', () => {
       render(<VerticalSlotChip name="Endo Steel" criticalSlots={7} />);
