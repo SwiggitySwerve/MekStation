@@ -256,15 +256,6 @@ export function UnitEditorWithRouting({
         slotIndex: eq.slots?.[0] ?? 0,
       }));
 
-      // #region agent log
-      console.log('[BV DEBUG] Equipment for BV calc:', { 
-        unitName, 
-        equipmentCount: equipment.length, 
-        equipmentSlots: equipmentSlots.map(e => e.equipmentId),
-        armorPoints: (Object.values(armorAllocation) as number[]).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
-      });
-      // #endregion
-
       const editableMech: IEditableMech = {
         id: 'banner',
         chassis: chassis || unitName.split(' ')[0] || 'Unknown',

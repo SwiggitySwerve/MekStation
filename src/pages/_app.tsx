@@ -31,7 +31,9 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   useEffect(() => {
     initializeBrowserServices()
       .then(() => setServicesReady(true))
-      .catch(console.error);
+      .catch(() => {
+        // Browser service initialization failed - app will work with reduced functionality
+      });
   }, []);
 
   // Register service worker

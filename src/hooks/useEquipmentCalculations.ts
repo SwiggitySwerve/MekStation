@@ -123,15 +123,6 @@ export function useEquipmentCalculations(
     const totalHeat = equipment.reduce((total, item) => total + item.heat, 0);
     const itemCount = equipment.length;
     
-    // #region agent log
-    console.log('[EQUIP CALC] Heat calculation:', {
-      itemCount,
-      totalHeat,
-      items: equipment.map(e => ({ id: e.equipmentId, name: e.name, heat: e.heat })),
-      registryReady
-    });
-    // #endregion
-    
     // Calculate per-category summaries
     const byCategory = createEmptyCategorySummaries();
     const groupedByCategory = getEquipmentByCategory(equipment);

@@ -132,7 +132,11 @@ export default [
         'ts-nocheck': true,
         minimumDescriptionLength: 10,
       }],
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
       
       // React rules
       'react/jsx-key': 'warn',

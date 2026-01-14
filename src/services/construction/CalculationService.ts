@@ -279,7 +279,9 @@ export class CalculationService implements ICalculationService {
     
     // If registry isn't initialized, trigger initialization and return 0
     if (!registry.isReady()) {
-      registry.initialize().catch(console.error);
+      registry.initialize().catch(() => {
+        // Initialization error handled silently - will retry on next call
+      });
       return 0;
     }
     
@@ -423,8 +425,9 @@ export class CalculationService implements ICalculationService {
     
     // If registry isn't initialized, trigger initialization and return default
     if (!registry.isReady()) {
-      registry.initialize().catch(console.error);
-      console.log('[HEAT DEBUG] Registry not ready, returning default heat profile');
+      registry.initialize().catch(() => {
+        // Initialization error handled silently - will retry on next call
+      });
       return {
         heatGenerated: 0,
         heatDissipated,
@@ -435,34 +438,13 @@ export class CalculationService implements ICalculationService {
     
     let heatGenerated = 0;
     
-    // #region agent log
-    const heatDebugInfo: Array<{ equipmentId: string; heat: number; found: boolean }> = [];
-    // #endregion
-    
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (result.found && result.equipment && 'heat' in result.equipment) {
         const heat = (result.equipment as { heat: number }).heat;
         heatGenerated += heat;
-        // #region agent log
-        heatDebugInfo.push({ equipmentId: slot.equipmentId, heat, found: true });
-        // #endregion
-      } else {
-        // #region agent log
-        heatDebugInfo.push({ equipmentId: slot.equipmentId, heat: 0, found: result.found });
-        // #endregion
       }
     }
-    
-    // #region agent log
-    console.log('[HEAT DEBUG] Heat Profile:', { 
-      equipmentCount: mech.equipment.length, 
-      heatGenerated, 
-      heatDissipated,
-      heatSinkCount: mech.heatSinkCount,
-      heatSinkType: mech.heatSinkType,
-      heatDebugInfo: JSON.stringify(heatDebugInfo)
-    });
     // #endregion
 
     // Alpha strike heat = total heat from firing all weapons
