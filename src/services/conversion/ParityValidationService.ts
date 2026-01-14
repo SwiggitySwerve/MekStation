@@ -44,7 +44,7 @@ export class ParityValidationService {
    */
   validateUnit(mtfPath: string, outputDir: string): IUnitValidationResult {
     const issues: IDiscrepancy[] = [];
-    const parseErrors: string[] = [];
+    const _parseErrors: string[] = []; // Reserved for aggregated error tracking
 
     try {
       // Read original MTF

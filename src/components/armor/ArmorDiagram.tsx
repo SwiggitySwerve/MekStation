@@ -22,20 +22,6 @@ export interface ArmorDiagramProps {
 }
 
 /**
- * All mech locations in display order
- */
-const MECH_LOCATIONS: readonly MechLocation[] = [
-  MechLocation.HEAD,
-  MechLocation.CENTER_TORSO,
-  MechLocation.LEFT_TORSO,
-  MechLocation.RIGHT_TORSO,
-  MechLocation.LEFT_ARM,
-  MechLocation.RIGHT_ARM,
-  MechLocation.LEFT_LEG,
-  MechLocation.RIGHT_LEG,
-] as const;
-
-/**
  * Locations grouped by body section for mobile display
  */
 const LOCATION_GROUPS = {

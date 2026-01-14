@@ -17,8 +17,6 @@ import {
 import { MechLocation, LOCATION_SLOT_COUNTS } from '../../../types/construction/CriticalSlotAllocation';
 import {
   MechConfiguration,
-  QUAD_LOCATIONS,
-  BIPED_LOCATIONS,
   configurationRegistry,
 } from '../../../types/construction/MechConfigurationSystem';
 
@@ -257,7 +255,7 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
     const maxSlots = quadLocations.reduce((sum, loc) => sum + LOCATION_SLOT_COUNTS[loc], 0);
     let usedSlots = 0;
 
-    for (const [_location, slots] of Object.entries(criticalSlots)) {
+    for (const [, slots] of Object.entries(criticalSlots)) {
       if (Array.isArray(slots)) {
         usedSlots += slots.filter((s) => s !== null && s !== '-Empty-').length;
       }
@@ -869,7 +867,7 @@ export const TripodTotalSlotsRule: IValidationRuleDefinition = {
     const maxSlots = 84;
     let usedSlots = 0;
 
-    for (const [_location, slots] of Object.entries(criticalSlots)) {
+    for (const [, slots] of Object.entries(criticalSlots)) {
       if (Array.isArray(slots)) {
         usedSlots += slots.filter((s) => s !== null && s !== '-Empty-').length;
       }
@@ -1131,7 +1129,7 @@ export const QuadVeeTotalSlotsRule: IValidationRuleDefinition = {
     const maxSlots = 66;
     let usedSlots = 0;
 
-    for (const [_location, slots] of Object.entries(criticalSlots)) {
+    for (const [, slots] of Object.entries(criticalSlots)) {
       if (Array.isArray(slots)) {
         usedSlots += slots.filter((s) => s !== null && s !== '-Empty-').length;
       }

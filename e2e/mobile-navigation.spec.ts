@@ -7,7 +7,7 @@ test.describe('Mobile Navigation', () => {
     await page.goto('/');
 
     // Look for bottom nav bar elements
-    const bottomNav = page.locator('nav').filter({ hasText: /Structure|Armor|Equipment|Weapons|Summary/i });
+    const _bottomNav = page.locator('nav').filter({ hasText: /Structure|Armor|Equipment|Weapons|Summary/i });
 
     // If there's a dedicated mobile nav, it should be visible
     // Note: The actual implementation may vary based on the app routes
@@ -110,7 +110,7 @@ test.describe('Responsive Layout', () => {
 
     // Look for elements with mobile-specific classes (lg:hidden means visible on mobile)
     const mobileElements = page.locator('.lg\\:hidden');
-    const mobileElementCount = await mobileElements.count();
+    const _mobileElementCount = await mobileElements.count();
 
     // There should be some mobile-specific elements
     // Note: This depends on the actual implementation
@@ -122,7 +122,7 @@ test.describe('Responsive Layout', () => {
     await page.goto('/');
 
     // Desktop elements should be visible
-    const desktopElements = page.locator('.hidden.lg\\:block, .hidden.lg\\:flex, .hidden.lg\\:grid');
+    const _desktopElements = page.locator('.hidden.lg\\:block, .hidden.lg\\:flex, .hidden.lg\\:grid');
 
     // The page should render properly on desktop
     await expect(page.locator('body')).toBeVisible();

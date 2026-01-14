@@ -52,7 +52,7 @@ import {
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { MechConfiguration, LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,

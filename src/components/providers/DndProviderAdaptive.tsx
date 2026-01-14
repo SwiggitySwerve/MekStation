@@ -48,10 +48,10 @@ interface DndProviderAdaptiveProps {
 export function DndProviderAdaptive({
   children,
   forceBackend,
-  enableMouseEvents = true,
-  delayTouchStart = 0,
+  enableMouseEvents: _enableMouseEvents = true,
+  delayTouchStart: _delayTouchStart = 0,
 }: DndProviderAdaptiveProps): React.ReactElement {
-  const { isTouch, hasMouse } = useDeviceType();
+  const { isTouch, hasMouse: _hasMouse } = useDeviceType();
 
   // Determine which backend to use
   const useTouch = forceBackend === 'touch' || (forceBackend !== 'html5' && isTouch);
@@ -87,7 +87,8 @@ export function DndProviderAdaptive({
       backend: HTML5Backend,
       options: {},
     };
-  }, [useTouch, enableMouseEvents, hasMouse, delayTouchStart]);
+   
+  }, [useTouch]);
 
   return (
     <DndProvider backend={backendConfig.backend} options={backendConfig.options}>

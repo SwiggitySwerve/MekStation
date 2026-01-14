@@ -768,7 +768,7 @@ describe('Phase 5: End-to-End Integration Tests', () => {
 
     describe('5.1.4 LAM Mode Preservation', () => {
       it('should preserve biped locations in mech mode', () => {
-        const lamUnit = createLAMMech();
+        const _lamUnit = createLAMMech(); // Created to validate factory works
         const locations = getLocationsForConfig(MechConfiguration.LAM);
 
         expect(locations).toContain(MechLocation.LEFT_ARM);

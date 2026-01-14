@@ -46,7 +46,14 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
  * };
  * ```
  */
-export function useHaptics() {
+interface UseHapticsReturn {
+  vibrate: (pattern?: HapticPattern) => boolean;
+  vibrateCustom: (pattern: number | number[]) => boolean;
+  cancel: () => void;
+  isSupported: boolean;
+}
+
+export function useHaptics(): UseHapticsReturn {
   /**
    * Check if the Vibration API is supported
    */

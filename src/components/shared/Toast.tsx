@@ -352,13 +352,13 @@ export function toast(config: Omit<ToastConfig, 'id'>): void {
  * Convenience helpers for common toast types
  */
 export const toastHelpers = {
-  success: (message: string, duration?: number) =>
+  success: (message: string, duration?: number): void =>
     toast({ message, variant: 'success', duration }),
-  error: (message: string, duration?: number) =>
+  error: (message: string, duration?: number): void =>
     toast({ message, variant: 'error', duration }),
-  warning: (message: string, duration?: number) =>
+  warning: (message: string, duration?: number): void =>
     toast({ message, variant: 'warning', duration }),
-  info: (message: string, duration?: number) =>
+  info: (message: string, duration?: number): void =>
     toast({ message, variant: 'info', duration }),
 };
 

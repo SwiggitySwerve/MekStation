@@ -250,7 +250,7 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should fill armor pips for all biped locations', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
@@ -260,7 +260,7 @@ describe('SVGRecordSheetRenderer', () => {
     });
 
     it('should set armor text values', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const armorData: IRecordSheetData['armor'] = createMockArmorData('biped');
 
       await renderer.fillArmorPips(armorData, 'biped');
@@ -392,7 +392,7 @@ describe('SVGRecordSheetRenderer', () => {
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
         await renderer.loadTemplate('/record-sheets/templates_us/mek_quad_default.svg');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const armorData: IRecordSheetData['armor'] = createMockArmorData('quad');
         await renderer.fillArmorPips(armorData, 'quad');
 
@@ -406,7 +406,7 @@ describe('SVGRecordSheetRenderer', () => {
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
         await renderer.loadTemplate('/record-sheets/templates_us/mek_tripod_default.svg');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const armorData: IRecordSheetData['armor'] = createMockArmorData('tripod');
         await renderer.fillArmorPips(armorData, 'tripod');
 
@@ -438,7 +438,7 @@ describe('SVGRecordSheetRenderer', () => {
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
         await renderer.loadTemplate('/record-sheets/templates_us/mek_lam_default.svg');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const armorData: IRecordSheetData['armor'] = createMockArmorData('lam');
         await renderer.fillArmorPips(armorData, 'lam');
 
@@ -452,7 +452,7 @@ describe('SVGRecordSheetRenderer', () => {
         (global.fetch as jest.Mock).mockImplementation(() => createMockSVGResponse(mockSvg));
         await renderer.loadTemplate('/record-sheets/templates_us/mek_quad_default.svg');
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const armorData: IRecordSheetData['armor'] = createMockArmorData('quadvee');
         await renderer.fillArmorPips(armorData, 'quadvee');
 

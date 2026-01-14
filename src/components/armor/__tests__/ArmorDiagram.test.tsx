@@ -464,7 +464,7 @@ describe('ArmorDiagram', () => {
 
     it('should have 44x44px minimum touch targets on apply button', () => {
       const mockAutoAllocate = jest.fn();
-      const { container } = render(
+      render(
         <ArmorDiagram armor={mockArmor} onArmorChange={mockOnArmorChange} onAutoAllocate={mockAutoAllocate} />
       );
 

@@ -6,7 +6,7 @@
  * @spec openspec/specs/mtf-parity-validation/spec.md
  */
 
-import { MTFParserService, getMTFParserService, IMTFParseResult } from '@/services/conversion/MTFParserService';
+import { MTFParserService, getMTFParserService } from '@/services/conversion/MTFParserService';
 
 describe('MTFParserService', () => {
   let service: MTFParserService;

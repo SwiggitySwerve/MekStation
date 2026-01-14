@@ -12,7 +12,7 @@
 jest.unmock('@/services/conversion/MTFExportService');
 jest.unmock('@/services/conversion/MTFParserService');
 
-import { MTFExportService, getMTFExportService, IMTFExportResult } from '@/services/conversion/MTFExportService';
+import { MTFExportService, getMTFExportService } from '@/services/conversion/MTFExportService';
 import { MTFParserService } from '@/services/conversion/MTFParserService';
 import { ISerializedUnit, ISerializedFluff } from '@/types/unit/UnitSerialization';
 
@@ -1387,7 +1387,7 @@ describe('MTFExportService', () => {
     it('should handle unit with maximum equipment', () => {
       const maxEquipment = Array(50)
         .fill(null)
-        .map((_, i) => ({ id: 'medium-laser', location: 'CENTER_TORSO' }));
+        .map(() => ({ id: 'medium-laser', location: 'CENTER_TORSO' }));
       const unit = createMinimalUnit({ equipment: maxEquipment });
       const result = service.export(unit);
 

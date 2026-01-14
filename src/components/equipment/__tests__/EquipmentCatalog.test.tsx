@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { EquipmentCatalog } from '../EquipmentCatalog';
 import type { FilterOptions } from '../EquipmentCatalog';
 import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';

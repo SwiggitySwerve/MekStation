@@ -10,7 +10,7 @@
 import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance, UnitState } from '@/stores/unitState';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
-import { EngineType } from '@/types/construction/EngineType';
+// EngineType import reserved for future OmniMech engine compatibility checks
 import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
 
 /**

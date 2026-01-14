@@ -247,12 +247,12 @@ describe('ArmorLocation', () => {
 
   describe('Edge Cases', () => {
     it('should handle 0 current armor', () => {
-      const { container } = render(<ArmorLocation currentArmor={0} maxArmor={100} onArmorChange={jest.fn()} location="Test" />);
+      render(<ArmorLocation currentArmor={0} maxArmor={100} onArmorChange={jest.fn()} location="Test" />);
       expect(screen.getByText('0 / 100')).toBeInTheDocument();
     });
 
     it('should handle zero max armor gracefully', () => {
-      const { container } = render(<ArmorLocation currentArmor={0} maxArmor={0} onArmorChange={jest.fn()} location="Test" />);
+      render(<ArmorLocation currentArmor={0} maxArmor={0} onArmorChange={jest.fn()} location="Test" />);
       expect(screen.getByText('0 / 0')).toBeInTheDocument();
     });
 

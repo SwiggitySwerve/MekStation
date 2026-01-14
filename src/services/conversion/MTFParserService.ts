@@ -100,6 +100,7 @@ export class MTFParserService {
       const mass = this.parseField(lines, 'mass');
       const engine = this.parseEngine(lines);
       const structure = this.parseField(lines, 'structure') || 'IS Standard';
+      // Myomer parsed but not yet used - will be used for TSM/MASC detection
       const _myomer = this.parseField(lines, 'myomer') || 'Standard';
 
       // Parse heat sinks
@@ -383,13 +384,13 @@ export class MTFParserService {
 
     // Find "Weapons:" section
     let inWeaponsSection = false;
-    let weaponCount = 0;
+    let _weaponCount = 0; // Parsed for validation but not currently used
 
     for (const line of lines) {
       if (line.startsWith('Weapons:')) {
         const match = line.match(/Weapons:(\d+)/);
         if (match) {
-          weaponCount = parseInt(match[1], 10);
+          _weaponCount = parseInt(match[1], 10);
         }
         inWeaponsSection = true;
         continue;

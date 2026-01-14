@@ -330,7 +330,7 @@ export function getLocationAbbreviation(location: MechLocation): string {
 /**
  * Get critical slot count for a location based on configuration
  */
-export function getLocationSlotCount(location: MechLocation, config: MechConfiguration): number {
+export function getLocationSlotCount(location: MechLocation, _config: MechConfiguration): number {
   // Head always has 6 slots
   if (location === MechLocation.HEAD) {
     return 6;

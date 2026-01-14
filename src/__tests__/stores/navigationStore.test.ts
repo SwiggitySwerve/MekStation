@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useNavigationStore, type PanelId } from '../../stores/navigationStore';
+import { useNavigationStore } from '../../stores/navigationStore';
 
 describe('useNavigationStore', () => {
   beforeEach(() => {
