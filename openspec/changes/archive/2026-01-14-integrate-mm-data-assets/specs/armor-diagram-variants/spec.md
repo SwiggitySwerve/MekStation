@@ -35,18 +35,19 @@ The system SHALL provide a "MegaMek Classic" armor diagram variant that matches 
 
 ## MODIFIED Requirements
 
-### Requirement: Variant Selection (from armor-diagram-variants)
+### Requirement: Multiple Design Variants
 
-The system SHALL allow users to select from all available armor diagram variants including MegaMek Classic.
+The system SHALL provide 6 distinct armor diagram designs for user selection.
 
-MODIFIED: Add MegaMek Classic to variant list.
-
-#### Scenario: Available variants (MODIFIED)
-- **WHEN** user opens Settings > Appearance > Armor Diagram Style
-- **THEN** available variants SHALL include:
-  - Clean Tech (minimalist technical drawing)
-  - Neon Operator (cyberpunk glow effects)
-  - Tactical HUD (military heads-up display)
-  - Premium Material (premium gradient styling)
-  - MegaMek (classic MegaMek-style coloring)
-  - **MegaMek Classic (NEW - uses mm-data assets)**
+#### Scenario: Available variants
+- **WHEN** the armor diagram is rendered
+- **THEN** the system supports these variants:
+  - Clean Tech (default)
+  - Neon Operator
+  - Tactical HUD
+  - Premium Material
+  - MegaMek
+  - MegaMek Classic (NEW - uses mm-data assets)
+- **AND** each variant maintains identical functionality
+- **AND** each variant displays all locations for the current configuration
+- **AND** each variant applies consistently to all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)

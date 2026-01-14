@@ -14,7 +14,7 @@ including dynamic pip generation using the ArmorPipLayout algorithm ported from 
 
 ## MODIFIED Requirements
 
-### Requirement: SVG Template Rendering (from record-sheet-export)
+### Requirement: SVG Template Rendering
 
 The system SHALL use configuration-specific SVG templates from mm-data for all mech types.
 
@@ -52,7 +52,7 @@ MODIFIED: Expand template support to all mech configurations.
 - **THEN** template SHALL display QuadVee-specific layout
 - **AND** template SHALL include mode indicator area
 
-### Requirement: Armor Pip Visualization (from record-sheet-export)
+### Requirement: Armor Pip Visualization
 
 The system SHALL render armor pips using mm-data SVG assets for all mech configurations.
 
@@ -69,7 +69,7 @@ MODIFIED: Support all configuration types.
 - **THEN** load pip SVGs for all 9 tripod locations
 - **AND** CENTER_LEG uses `Armor_CL_{Count}_Humanoid.svg` format
 
-### Requirement: Structure Pip Visualization (from record-sheet-export)
+### Requirement: Structure Pip Visualization
 
 The system SHALL render internal structure pips using mm-data SVG assets for all mech configurations.
 
