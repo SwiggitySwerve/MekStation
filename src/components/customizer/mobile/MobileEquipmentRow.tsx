@@ -169,57 +169,46 @@ export function MobileEquipmentRow({
       {/* Category indicator */}
       <div className={`w-1 h-6 rounded-sm flex-shrink-0 ${colors.bg}`} />
       
-      {/* Main content */}
+      {/* Name column */}
       <div className="flex-1 min-w-0">
-        {/* Single compact row with all info */}
-        <div className="flex items-center justify-between gap-1">
-          {/* Name and details */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-white font-medium truncate">
-                {item.name}
-              </span>
-              {isOmni && (
-                <span className={`text-[8px] px-0.5 rounded flex-shrink-0 ${
-                  item.isOmniPodMounted 
-                    ? 'bg-accent/20 text-accent' 
-                    : 'bg-slate-700 text-slate-400'
-                }`}>
-                  {item.isOmniPodMounted ? 'P' : 'F'}
-                </span>
-              )}
-              {!item.isRemovable && (
-                <span className="text-[8px] text-slate-500 flex-shrink-0">🔒</span>
-              )}
-            </div>
-            {/* Weapon details inline */}
-            {(item.damage !== undefined || item.ranges) && (
-              <div className="flex items-center gap-1.5 text-[9px] text-text-theme-secondary/60 leading-none">
-                {item.damage !== undefined && (
-                  <span className="text-cyan-400/80">{item.damage}dmg</span>
-                )}
-                {item.ranges && (
-                  <span>{formatRangeBrackets(item.ranges)}</span>
-                )}
-                {item.targetingComputerCompatible && (
-                  <span className="text-green-400/70">TC</span>
-                )}
-              </div>
-            )}
-          </div>
-          
-          {/* Stats columns with separators - matching header widths */}
-          <div className="flex items-center text-[10px] text-text-theme-secondary flex-shrink-0 font-mono">
-            <span className={`w-[28px] text-center border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
-              {item.isAllocated && item.location ? getLocationShorthand(item.location) : '—'}
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-white font-medium truncate">
+            {item.name}
+          </span>
+          {item.damage !== undefined && (
+            <span className="text-[9px] text-cyan-400/80 flex-shrink-0">{item.damage}d</span>
+          )}
+          {item.targetingComputerCompatible && (
+            <span className="text-[8px] text-green-400/70 flex-shrink-0">TC</span>
+          )}
+          {isOmni && (
+            <span className={`text-[8px] px-0.5 rounded flex-shrink-0 ${
+              item.isOmniPodMounted 
+                ? 'bg-accent/20 text-accent' 
+                : 'bg-slate-700 text-slate-400'
+            }`}>
+              {item.isOmniPodMounted ? 'P' : 'F'}
             </span>
-            <span className={`w-[20px] text-center border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
-              {item.heat ?? 0}
-            </span>
-            <span className="w-[20px] text-center border-l border-border-theme-subtle/20">{item.criticalSlots}</span>
-            <span className="w-[28px] text-center border-l border-border-theme-subtle/20">{item.weight}</span>
-          </div>
+          )}
+          {!item.isRemovable && (
+            <span className="text-[8px] text-slate-500 flex-shrink-0">🔒</span>
+          )}
         </div>
+      </div>
+      
+      {/* Stats columns - matching header widths */}
+      <div className="flex items-center text-[10px] text-text-theme-secondary flex-shrink-0 font-mono text-center">
+        <span className={`w-[28px] border-l border-border-theme-subtle/20 ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}>
+          {item.isAllocated && item.location ? getLocationShorthand(item.location) : '—'}
+        </span>
+        <span className="w-[44px] border-l border-border-theme-subtle/20 text-[9px]">
+          {item.ranges ? `${item.ranges.short}/${item.ranges.medium}/${item.ranges.long}` : '—'}
+        </span>
+        <span className={`w-[20px] border-l border-border-theme-subtle/20 ${item.heat && item.heat > 0 ? 'text-red-400' : 'text-slate-600'}`}>
+          {item.heat ?? 0}
+        </span>
+        <span className="w-[20px] border-l border-border-theme-subtle/20">{item.criticalSlots}</span>
+        <span className="w-[28px] border-l border-border-theme-subtle/20">{item.weight}</span>
       </div>
       
       {/* Actions - fixed width columns with proper touch targets */}

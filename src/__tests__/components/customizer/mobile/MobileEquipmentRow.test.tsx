@@ -54,9 +54,10 @@ describe('MobileEquipmentRow', () => {
       expect(screen.getByText('2')).toBeInTheDocument(); // weight
     });
 
-    it('should show dash for unallocated location', () => {
+    it('should show dashes for empty location and range columns', () => {
       render(<MobileEquipmentRow {...defaultProps} />);
-      expect(screen.getByText('—')).toBeInTheDocument();
+      const dashes = screen.getAllByText('—');
+      expect(dashes.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should show location shorthand for allocated item', () => {
@@ -70,15 +71,15 @@ describe('MobileEquipmentRow', () => {
     it('should display damage for weapons', () => {
       const item = createItem({ damage: 5 });
       render(<MobileEquipmentRow {...defaultProps} item={item} />);
-      expect(screen.getByText('5dmg')).toBeInTheDocument();
+      expect(screen.getByText('5d')).toBeInTheDocument();
     });
 
-    it('should display range brackets', () => {
+    it('should display range brackets in S/M/L format', () => {
       const item = createItem({ 
         ranges: { minimum: 0, short: 3, medium: 6, long: 9 } 
       });
       render(<MobileEquipmentRow {...defaultProps} item={item} />);
-      expect(screen.getByText('0/3/6/9')).toBeInTheDocument();
+      expect(screen.getByText('3/6/9')).toBeInTheDocument();
     });
 
     it('should display TC indicator for targeting computer compatible weapons', () => {
