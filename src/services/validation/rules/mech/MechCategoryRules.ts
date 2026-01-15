@@ -17,19 +17,7 @@ import {
   createUnitValidationRuleResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
 import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
-import { requiresGyro, requiresMinimumHeatSinks } from '../../../../utils/validation/UnitCategoryMapper';
-
-/**
- * Type guard for mech units
- */
-function isMechUnitType(unitType: UnitType): boolean {
-  return (
-    unitType === UnitType.BATTLEMECH ||
-    unitType === UnitType.OMNIMECH ||
-    unitType === UnitType.INDUSTRIALMECH ||
-    unitType === UnitType.PROTOMECH
-  );
-}
+import { isMechType, requiresGyro, requiresMinimumHeatSinks } from '../../../../utils/validation/UnitCategoryMapper';
 
 /**
  * VAL-MECH-001: Engine Required
@@ -51,7 +39,7 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnitType(unit.unitType) && !unit.engineType) {
+    if (isMechType(unit.unitType) && !unit.engineType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -90,7 +78,7 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnitType(unit.unitType) && requiresGyro(unit.unitType) && !unit.gyroType) {
+    if (isMechType(unit.unitType) && requiresGyro(unit.unitType) && !unit.gyroType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -130,7 +118,7 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnitType(unit.unitType) && !unit.cockpitType) {
+    if (isMechType(unit.unitType) && !unit.cockpitType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -170,7 +158,7 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnitType(unit.unitType) && !unit.internalStructureType) {
+    if (isMechType(unit.unitType) && !unit.internalStructureType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -209,7 +197,7 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const warnings = [];
 
-    if (isMechUnitType(unit.unitType) && requiresMinimumHeatSinks(unit.unitType)) {
+    if (isMechType(unit.unitType) && requiresMinimumHeatSinks(unit.unitType)) {
       const heatSinkCount = unit.heatSinkCount ?? 0;
       const MINIMUM_HEAT_SINKS = 10;
 

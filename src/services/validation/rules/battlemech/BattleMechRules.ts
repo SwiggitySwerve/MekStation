@@ -21,13 +21,15 @@ import {
   createUnitValidationRuleResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
 import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { isCombatMech } from '../../../../utils/validation/UnitCategoryMapper';
+import {
+  BATTLEMECH_TONNAGE,
+  ENGINE_RATING_MIN,
+  ENGINE_RATING_INCREMENT,
+} from '../../../construction/constructionConstants';
 
-/**
- * Type guard for BattleMech/OmniMech units
- */
-function isBattleMechType(unitType: UnitType): boolean {
-  return unitType === UnitType.BATTLEMECH || unitType === UnitType.OMNIMECH;
-}
+/** Engine rating max for BattleMechs per TechManual (higher than general limit) */
+const ENGINE_RATING_MAX_BATTLEMECH = 500;
 
 /**
  * VAL-BM-001: BattleMech Tonnage Range
@@ -45,37 +47,38 @@ export const BattleMechTonnageRange: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
     const tonnage = unit.weight;
+    const { min, max, step } = BATTLEMECH_TONNAGE;
 
-    if (isBattleMechType(unit.unitType)) {
-      if (tonnage < 20 || tonnage > 100) {
+    if (isCombatMech(unit.unitType)) {
+      if (tonnage < min || tonnage > max) {
         errors.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.CRITICAL_ERROR,
             this.category,
-            `BattleMech tonnage must be between 20 and 100 tons (current: ${tonnage})`,
+            `BattleMech tonnage must be between ${min} and ${max} tons (current: ${tonnage})`,
             {
               field: 'weight',
-              expected: '20-100',
+              expected: `${min}-${max}`,
               actual: String(tonnage),
-              suggestion: 'Select a valid tonnage between 20 and 100 tons',
+              suggestion: `Select a valid tonnage between ${min} and ${max} tons`,
             }
           )
         );
-      } else if (tonnage % 5 !== 0) {
+      } else if (tonnage % step !== 0) {
         errors.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.CRITICAL_ERROR,
             this.category,
-            `BattleMech tonnage must be divisible by 5 (current: ${tonnage})`,
+            `BattleMech tonnage must be divisible by ${step} (current: ${tonnage})`,
             {
               field: 'weight',
-              expected: 'divisible by 5',
+              expected: `divisible by ${step}`,
               actual: String(tonnage),
-              suggestion: `Round tonnage to nearest valid value (${Math.round(tonnage / 5) * 5})`,
+              suggestion: `Round tonnage to nearest valid value (${Math.round(tonnage / step) * step})`,
             }
           )
         );
@@ -102,7 +105,7 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (!isBattleMechType(unit.unitType)) {
+    if (!isCombatMech(unit.unitType)) {
       return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
     }
 
@@ -118,35 +121,35 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
     if (ratingMatch) {
       const rating = parseInt(ratingMatch[0], 10);
       
-      if (rating < 10 || rating > 500) {
+      if (rating < ENGINE_RATING_MIN || rating > ENGINE_RATING_MAX_BATTLEMECH) {
         errors.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.CRITICAL_ERROR,
             this.category,
-            `Engine rating must be between 10 and 500 (current: ${rating})`,
+            `Engine rating must be between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH} (current: ${rating})`,
             {
               field: 'engineType',
-              expected: '10-500',
+              expected: `${ENGINE_RATING_MIN}-${ENGINE_RATING_MAX_BATTLEMECH}`,
               actual: String(rating),
-              suggestion: 'Select an engine with rating between 10 and 500',
+              suggestion: `Select an engine with rating between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH}`,
             }
           )
         );
-      } else if (rating % 5 !== 0) {
+      } else if (rating % ENGINE_RATING_INCREMENT !== 0) {
         errors.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.CRITICAL_ERROR,
             this.category,
-            `Engine rating must be a multiple of 5 (current: ${rating})`,
+            `Engine rating must be a multiple of ${ENGINE_RATING_INCREMENT} (current: ${rating})`,
             {
               field: 'engineType',
-              expected: 'multiple of 5',
+              expected: `multiple of ${ENGINE_RATING_INCREMENT}`,
               actual: String(rating),
-              suggestion: `Round engine rating to ${Math.round(rating / 5) * 5}`,
+              suggestion: `Round engine rating to ${Math.round(rating / ENGINE_RATING_INCREMENT) * ENGINE_RATING_INCREMENT}`,
             }
           )
         );

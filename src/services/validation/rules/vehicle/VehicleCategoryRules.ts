@@ -18,6 +18,12 @@ import {
   IValidatableUnit,
 } from '../../../../types/validation/UnitValidationInterfaces';
 import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { isVehicleType } from '../../../../utils/validation/UnitCategoryMapper';
+import {
+  VEHICLE_TONNAGE,
+  VTOL_TONNAGE,
+  SUPPORT_VEHICLE_TONNAGE,
+} from '../../../construction/constructionConstants';
 
 /**
  * Extended vehicle unit interface for vehicle-specific validation
@@ -33,38 +39,27 @@ interface IVehicleUnit extends IValidatableUnit {
 }
 
 /**
- * Type guard for vehicle units
+ * Type guard that narrows to IVehicleUnit interface
  */
 function isVehicleUnit(unit: IValidatableUnit): unit is IVehicleUnit {
-  return (
-    unit.unitType === UnitType.VEHICLE ||
-    unit.unitType === UnitType.VTOL ||
-    unit.unitType === UnitType.SUPPORT_VEHICLE
-  );
+  return isVehicleType(unit.unitType);
 }
 
 /**
- * Tonnage ranges by vehicle type
+ * Get tonnage range for a vehicle unit type
  */
-const VEHICLE_TONNAGE_RANGES: Record<UnitType, { min: number; max: number }> = {
-  [UnitType.VEHICLE]: { min: 1, max: 100 },
-  [UnitType.VTOL]: { min: 1, max: 30 },
-  [UnitType.SUPPORT_VEHICLE]: { min: 1, max: 300 },
-  // Other unit types (not used here but needed for type safety)
-  [UnitType.BATTLEMECH]: { min: 20, max: 100 },
-  [UnitType.OMNIMECH]: { min: 20, max: 100 },
-  [UnitType.INDUSTRIALMECH]: { min: 10, max: 100 },
-  [UnitType.PROTOMECH]: { min: 2, max: 15 },
-  [UnitType.AEROSPACE]: { min: 5, max: 100 },
-  [UnitType.CONVENTIONAL_FIGHTER]: { min: 5, max: 50 },
-  [UnitType.SMALL_CRAFT]: { min: 100, max: 200 },
-  [UnitType.DROPSHIP]: { min: 200, max: 100000 },
-  [UnitType.JUMPSHIP]: { min: 50000, max: 500000 },
-  [UnitType.WARSHIP]: { min: 100000, max: 2500000 },
-  [UnitType.SPACE_STATION]: { min: 5000, max: 2500000 },
-  [UnitType.INFANTRY]: { min: 0, max: 10 },
-  [UnitType.BATTLE_ARMOR]: { min: 0.4, max: 2 },
-};
+function getVehicleTonnageRange(unitType: UnitType): { min: number; max: number } {
+  switch (unitType) {
+    case UnitType.VEHICLE:
+      return VEHICLE_TONNAGE;
+    case UnitType.VTOL:
+      return VTOL_TONNAGE;
+    case UnitType.SUPPORT_VEHICLE:
+      return SUPPORT_VEHICLE_TONNAGE;
+    default:
+      return { min: 1, max: 100 };
+  }
+}
 
 /**
  * VAL-VEH-001: Engine Required
@@ -233,8 +228,8 @@ export const VehicleTonnageRange: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    const range = VEHICLE_TONNAGE_RANGES[unit.unitType];
-    if (range) {
+    if (isVehicleType(unit.unitType)) {
+      const range = getVehicleTonnageRange(unit.unitType);
       if (unit.weight < range.min || unit.weight > range.max) {
         errors.push(
           createUnitValidationError(

@@ -24,12 +24,7 @@ import { JumpJetType, getMaxJumpMP, JUMP_JET_DEFINITIONS, calculateEnhancedMaxRu
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { customizerStyles as cs } from '../styles';
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-const TONNAGE_RANGE = { min: 20, max: 100, step: 5 };
+import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
 
 const CONFIGURATION_OPTIONS: { value: MechConfiguration; label: string }[] = [
   { value: MechConfiguration.BIPED, label: 'Biped' },
@@ -185,8 +180,8 @@ export function StructureTab({
   
   // Handlers - Tonnage and Configuration
   const handleTonnageChange = useCallback((newTonnage: number) => {
-    const clamped = Math.max(TONNAGE_RANGE.min, Math.min(TONNAGE_RANGE.max, newTonnage));
-    const rounded = Math.round(clamped / TONNAGE_RANGE.step) * TONNAGE_RANGE.step;
+    const clamped = Math.max(BATTLEMECH_TONNAGE.min, Math.min(BATTLEMECH_TONNAGE.max, newTonnage));
+    const rounded = Math.round(clamped / BATTLEMECH_TONNAGE.step) * BATTLEMECH_TONNAGE.step;
     setTonnage(rounded);
   }, [setTonnage]);
   
@@ -305,8 +300,8 @@ export function StructureTab({
               <label className={cs.text.label}>Tonnage</label>
               <div className={cs.layout.rowGap}>
                 <button
-                  onClick={() => handleTonnageChange(tonnage - TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage <= TONNAGE_RANGE.min}
+                  onClick={() => handleTonnageChange(tonnage - BATTLEMECH_TONNAGE.step)}
+                  disabled={readOnly || tonnage <= BATTLEMECH_TONNAGE.min}
                   className={cs.button.stepperMd}
                 >
                   −
@@ -314,16 +309,16 @@ export function StructureTab({
                 <input
                   type="number"
                   value={tonnage}
-                  onChange={(e) => handleTonnageChange(parseInt(e.target.value, 10) || TONNAGE_RANGE.min)}
+                  onChange={(e) => handleTonnageChange(parseInt(e.target.value, 10) || BATTLEMECH_TONNAGE.min)}
                   disabled={readOnly}
-                  min={TONNAGE_RANGE.min}
-                  max={TONNAGE_RANGE.max}
-                  step={TONNAGE_RANGE.step}
+                  min={BATTLEMECH_TONNAGE.min}
+                  max={BATTLEMECH_TONNAGE.max}
+                  step={BATTLEMECH_TONNAGE.step}
                   className={`w-20 ${cs.input.base} text-center ${cs.input.noSpinners}`}
                 />
                 <button
-                  onClick={() => handleTonnageChange(tonnage + TONNAGE_RANGE.step)}
-                  disabled={readOnly || tonnage >= TONNAGE_RANGE.max}
+                  onClick={() => handleTonnageChange(tonnage + BATTLEMECH_TONNAGE.step)}
+                  disabled={readOnly || tonnage >= BATTLEMECH_TONNAGE.max}
                   className={cs.button.stepperMd}
                 >
                   +
