@@ -13,6 +13,9 @@ import { EngineType } from '@/types/construction/EngineType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
+import { IValidatableUnit, IUnitValidationOptions, IUnitValidationResult } from '@/types/validation/UnitValidationInterfaces';
+import { UnitValidationOrchestrator } from '@/services/validation/UnitValidationOrchestrator';
+import { initializeUnitValidationRules } from '@/services/validation/initializeUnitValidation';
 import {
   ENGINE_RATING_MIN,
   ENGINE_RATING_MAX,
@@ -32,6 +35,7 @@ import {
  */
 export interface IValidationService {
   validate(mech: IEditableMech): IValidationResult;
+  validateUnit(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult;
   validateWeight(mech: IEditableMech): IValidationError[];
   validateArmor(mech: IEditableMech): IValidationError[];
   validateCriticalSlots(mech: IEditableMech): IValidationError[];
@@ -318,6 +322,35 @@ export class ValidationService implements IValidationService {
     
     // Standard armor: 16 points per ton
     return Math.ceil(totalPoints / 16 * 2) / 2; // Round to 0.5 tons
+  }
+
+  /**
+   * Unit validation orchestrator (lazy initialized)
+   */
+  private _orchestrator: UnitValidationOrchestrator | null = null;
+
+  private getOrchestrator(): UnitValidationOrchestrator {
+    if (!this._orchestrator) {
+      // Ensure rules are initialized
+      initializeUnitValidationRules();
+      this._orchestrator = new UnitValidationOrchestrator();
+    }
+    return this._orchestrator;
+  }
+
+  /**
+   * Validate any unit using the new Unit Validation Framework
+   * 
+   * This method provides a unified entry point for validating any unit type
+   * (BattleMech, Vehicle, Aerospace, Infantry, etc.) using the hierarchical
+   * validation rule system.
+   * 
+   * @param unit - The unit to validate (must implement IValidatableUnit)
+   * @param options - Validation options (strictMode, skipRules, etc.)
+   * @returns Validation result with errors, warnings, and infos
+   */
+  validateUnit(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult {
+    return this.getOrchestrator().validate(unit, options);
   }
 }
 

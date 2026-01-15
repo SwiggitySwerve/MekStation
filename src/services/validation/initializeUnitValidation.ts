@@ -15,6 +15,8 @@ import { MECH_CATEGORY_RULES } from './rules/mech/MechCategoryRules';
 import { VEHICLE_CATEGORY_RULES } from './rules/vehicle/VehicleCategoryRules';
 import { AEROSPACE_CATEGORY_RULES } from './rules/aerospace/AerospaceCategoryRules';
 import { PERSONNEL_CATEGORY_RULES } from './rules/personnel/PersonnelCategoryRules';
+import { BATTLEMECH_RULES } from './rules/battlemech/BattleMechRules';
+import { UnitType } from '../../types/unit/BattleMechInterfaces';
 
 /**
  * Flag to track if rules have been initialized
@@ -59,6 +61,12 @@ export function initializeUnitValidationRules(): void {
     registry.registerCategoryRule(UnitCategory.PERSONNEL, rule);
   }
 
+  // Register BattleMech-specific rules (unit-type level)
+  for (const rule of BATTLEMECH_RULES) {
+    registry.registerUnitTypeRule(UnitType.BATTLEMECH, rule);
+    registry.registerUnitTypeRule(UnitType.OMNIMECH, rule);
+  }
+
   rulesInitialized = true;
 }
 
@@ -68,6 +76,7 @@ export function initializeUnitValidationRules(): void {
 export function getValidationRuleStats(): {
   universal: number;
   mech: number;
+  battlemech: number;
   vehicle: number;
   aerospace: number;
   personnel: number;
@@ -76,12 +85,14 @@ export function getValidationRuleStats(): {
   return {
     universal: UNIVERSAL_VALIDATION_RULES.length,
     mech: MECH_CATEGORY_RULES.length,
+    battlemech: BATTLEMECH_RULES.length,
     vehicle: VEHICLE_CATEGORY_RULES.length,
     aerospace: AEROSPACE_CATEGORY_RULES.length,
     personnel: PERSONNEL_CATEGORY_RULES.length,
     total:
       UNIVERSAL_VALIDATION_RULES.length +
       MECH_CATEGORY_RULES.length +
+      BATTLEMECH_RULES.length +
       VEHICLE_CATEGORY_RULES.length +
       AEROSPACE_CATEGORY_RULES.length +
       PERSONNEL_CATEGORY_RULES.length,

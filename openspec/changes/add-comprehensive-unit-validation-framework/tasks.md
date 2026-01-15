@@ -90,24 +90,24 @@
 
 ## 7. BattleMech-Specific Rules Integration
 
-- [ ] 7.1 Analyze existing `validation-rules-master` 89 rules
-- [ ] 7.2 Create `src/services/validation/rules/battlemech/` directory
-- [ ] 7.3 Migrate BattleMech-specific rules from ValidationService:
+- [x] 7.1 Analyze existing `validation-rules-master` 89 rules
+- [x] 7.2 Create `src/services/validation/rules/battlemech/` directory
+- [x] 7.3 Migrate BattleMech-specific rules from ValidationService:
   - Weight validation rules (VAL-WEIGHT-*)
   - Slot validation rules (VAL-SLOT-*)
   - Structural validation rules (VAL-STRUCT-*)
   - Component requirement rules (VAL-COMP-*)
   - Construction sequence rules (VAL-SEQ-*)
   - Placement validation rules (VAL-PLACE-*)
-- [ ] 7.4 Register BattleMech rules as unit-type-specific layer
-- [ ] 7.5 Mark appropriate rules as overriding/extending category rules
+- [x] 7.4 Register BattleMech rules as unit-type-specific layer
+- [x] 7.5 Mark appropriate rules as overriding/extending category rules
 
 ## 8. Service Integration
 
-- [ ] 8.1 Update `ValidationService` to use UnitValidationOrchestrator
-- [ ] 8.2 Maintain backward compatibility for existing `validate()` calls
-- [ ] 8.3 Add `validateUnit(unit, context)` method for generic unit validation
-- [ ] 8.4 Update ValidationRuleRegistry to integrate with UnitValidationRegistry
+- [x] 8.1 Update `ValidationService` to use UnitValidationOrchestrator
+- [x] 8.2 Maintain backward compatibility for existing `validate()` calls
+- [x] 8.3 Add `validateUnit(unit, context)` method for generic unit validation
+- [x] 8.4 Update ValidationRuleRegistry to integrate with UnitValidationRegistry
 
 ## 9. Testing
 

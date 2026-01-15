@@ -14,6 +14,10 @@ export * from './universal/UniversalValidationRules';
 export { MECH_CATEGORY_RULES } from './mech/MechCategoryRules';
 export * from './mech/MechCategoryRules';
 
+// BattleMech-specific rules (extends Mech category)
+export { BATTLEMECH_RULES } from './battlemech/BattleMechRules';
+export * from './battlemech/BattleMechRules';
+
 // Vehicle category rules
 export { VEHICLE_CATEGORY_RULES } from './vehicle/VehicleCategoryRules';
 export * from './vehicle/VehicleCategoryRules';
