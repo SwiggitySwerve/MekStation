@@ -292,6 +292,13 @@ describe('UnitSerializer', () => {
     });
   });
 
+    it('should return null for non-string format version', () => {
+      const envelope = { formatVersion: 123 };
+      const version = getSerializedFormatVersion(JSON.stringify(envelope));
+      expect(version).toBeNull();
+    });
+  });
+
   describe('isFormatVersionSupported()', () => {
     it('should support current format version', () => {
       const supported = isFormatVersionSupported(CURRENT_FORMAT_VERSION);

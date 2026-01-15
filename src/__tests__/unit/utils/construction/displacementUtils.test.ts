@@ -41,7 +41,10 @@ describe('displacementUtils', () => {
     });
 
     it('should detect equipment displaced by engine change', () => {
-      const equipment = [createEquipment({ slots: [0, 1] })];
+      // XL engine takes 3 slots in each side torso
+      const equipment = [
+        createEquipment({ location: MechLocation.LEFT_TORSO, slots: [0, 1] })
+      ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
         equipment,
@@ -51,22 +54,43 @@ describe('displacementUtils', () => {
         GyroType.STANDARD
       );
 
-      // Result depends on engine slot requirements
-      expect(result).toBeDefined();
+      expect(result.displacedEquipmentIds).toContain('equip-1');
+      expect(result.affectedLocations).toContain(MechLocation.LEFT_TORSO);
     });
 
     it('should detect equipment displaced by gyro change', () => {
-      const equipment = [createEquipment({ slots: [3, 4] })];
+      // Standard gyro + Standard engine takes slots 0-9
+      // XL gyro + Standard engine takes slots 0-11
+      // Slots 10 and 11 are newly required
+      const equipment = [
+        createEquipment({ location: MechLocation.CENTER_TORSO, slots: [10] })
+      ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
         equipment,
         EngineType.STANDARD,
         EngineType.STANDARD,
         GyroType.STANDARD,
-        GyroType.COMPACT
+        GyroType.XL
       );
 
-      expect(result).toBeDefined();
+      expect(result.displacedEquipmentIds).toContain('equip-1');
+    });
+
+    it('should skip equipment in unaffected locations', () => {
+      const equipment = [
+        createEquipment({ location: MechLocation.HEAD, slots: [0] })
+      ];
+      const result = getDisplacedEquipment(
+        // @ts-expect-error - MockEquipment is partial for testing
+        equipment,
+        EngineType.STANDARD,
+        EngineType.XL_IS,
+        GyroType.STANDARD,
+        GyroType.STANDARD
+      );
+
+      expect(result.displacedEquipmentIds.length).toBe(0);
     });
 
     it('should include affected locations', () => {
