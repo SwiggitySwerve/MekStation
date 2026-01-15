@@ -27,6 +27,7 @@ describe('gyroCalculations', () => {
     });
 
     it('should handle unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateGyroWeight(250, 'INVALID' as any)).toBe(Math.ceil(250 / 100));
     });
   });
@@ -43,6 +44,7 @@ describe('gyroCalculations', () => {
     });
 
     it('should return default 4 for unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getGyroCriticalSlots('INVALID' as any)).toBe(4);
     });
   });
@@ -63,6 +65,7 @@ describe('gyroCalculations', () => {
     });
 
     it('should reject unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       const result = validateGyro('INVALID' as any, 250);
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toContain('Unknown gyro type');

@@ -1,6 +1,6 @@
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TechBase, RulesLevel, Era } from '@/types/enums';
-import { IUnitValidationContext, UnitCategory } from '@/types/validation/UnitValidationInterfaces';
+import { IUnitValidationContext, UnitCategory, IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import {
   MechEngineRequired,
   MechGyroRequired,
@@ -12,7 +12,7 @@ import {
 } from '@/services/validation/rules/mech/MechCategoryRules';
 
 describe('MechCategoryRules', () => {
-  const createBaseUnit = (overrides = {}) => ({
+  const createBaseUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.BATTLEMECH,
@@ -31,11 +31,11 @@ describe('MechCategoryRules', () => {
     ...overrides,
   });
 
-  const createContext = (unit: any): IUnitValidationContext => ({
-    unit: unit as any,
-    unitType: unit.unitType || UnitType.BATTLEMECH,
+  const createContext = (unit: IValidatableUnit): IUnitValidationContext => ({
+    unit,
+    unitType: unit.unitType,
     unitCategory: UnitCategory.MECH,
-    techBase: unit.techBase || TechBase.INNER_SPHERE,
+    techBase: unit.techBase,
     options: {},
     cache: new Map(),
   });

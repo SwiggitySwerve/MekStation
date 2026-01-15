@@ -125,6 +125,7 @@ describe('armorCalculations utilities', () => {
     });
 
     it('should handle unknown armor type by defaulting to standard', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateArmorWeight(16, 'INVALID' as any)).toBe(1);
     });
   });
@@ -135,6 +136,7 @@ describe('armorCalculations utilities', () => {
     });
 
     it('should handle unknown armor type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateArmorPoints(1, 'INVALID' as any)).toBe(16);
     });
   });

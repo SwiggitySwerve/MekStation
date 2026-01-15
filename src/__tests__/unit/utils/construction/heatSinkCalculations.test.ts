@@ -6,7 +6,6 @@ import {
   validateHeatSinks,
   calculateHeatSinkWeight,
   getHeatSinkSummary,
-  MINIMUM_HEAT_SINKS,
 } from '@/utils/construction/heatSinkCalculations';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { EngineType } from '@/types/construction/EngineType';
@@ -24,6 +23,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateHeatDissipation('INVALID' as any, 10)).toBe(10);
     });
   });
@@ -65,6 +65,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateExternalHeatSinkWeight(5, 'INVALID' as any)).toBe(5);
     });
   });
@@ -76,6 +77,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateExternalHeatSinkSlots(5, 'INVALID' as any)).toBe(5);
     });
   });
@@ -96,6 +98,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should reject unknown heat sink type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       const result = validateHeatSinks(15, 'INVALID' as any, 250, EngineType.STANDARD);
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toContain('Unknown heat sink type');

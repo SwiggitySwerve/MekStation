@@ -16,7 +16,6 @@
  */
 
 import React, { useMemo, useCallback } from 'react';
-import { EquipmentCategory } from '@/types/equipment';
 import type { LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
 import { MechLocation } from '@/types/construction';
 import { usePersistedState, STORAGE_KEYS } from '@/hooks/usePersistedState';

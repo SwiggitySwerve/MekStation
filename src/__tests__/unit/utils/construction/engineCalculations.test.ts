@@ -74,6 +74,7 @@ describe('engineCalculations', () => {
     });
 
     it('should handle unknown engine type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateEngineWeight(250, 'INVALID' as any)).toBe(getBaseEngineWeight(250));
     });
   });
@@ -116,7 +117,7 @@ describe('engineCalculations', () => {
     });
 
     it('should return 0 if engine does not support integral sinks', () => {
-      // Assuming there is an engine type that doesn't support it, or using mock
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateIntegralHeatSinks(250, 'ICE' as any)).toBe(0);
     });
   });
@@ -133,6 +134,7 @@ describe('engineCalculations', () => {
     });
 
     it('should handle unknown engine type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getEngineCTSlots(250, 'INVALID' as any)).toBe(6);
     });
   });

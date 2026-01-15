@@ -36,6 +36,7 @@ export default [
       '**/*.stories.tsx',
       '**/*.stories.ts',
       '**/src/docs/**',
+      '**/playwright-report/**',
     ],
   },
   

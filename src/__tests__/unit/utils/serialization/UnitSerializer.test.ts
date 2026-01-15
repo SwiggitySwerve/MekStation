@@ -290,7 +290,6 @@ describe('UnitSerializer', () => {
       const version = getSerializedFormatVersion('invalid');
       expect(version).toBeNull();
     });
-  });
 
     it('should return null for non-string format version', () => {
       const envelope = { formatVersion: 123 };

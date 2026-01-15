@@ -15,7 +15,6 @@ import {
   UnitValidationSeverity,
   createUnitValidationError,
   createUnitValidationRuleResult,
-  IValidatableUnit,
 } from '../../../../types/validation/UnitValidationInterfaces';
 import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import { requiresGyro, requiresMinimumHeatSinks } from '../../../../utils/validation/UnitCategoryMapper';

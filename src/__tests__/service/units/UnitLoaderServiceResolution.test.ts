@@ -1,7 +1,8 @@
 import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { EquipmentType } from '@/types/enums/EquipmentType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { EquipmentCategory } from '@/types/equipment';
+import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry, EquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
@@ -15,6 +16,22 @@ jest.mock('@/services/equipment/EquipmentRegistry');
 
 const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<typeof equipmentLookupService>;
 const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<typeof getEquipmentRegistry>;
+
+// Helper to create mock equipment items
+function createMockEquipment(id: string, name: string, techBase: TechBase): IEquipmentItem {
+  return {
+    id,
+    name,
+    category: EquipmentCategory.ENERGY_WEAPON,
+    techBase,
+    rulesLevel: RulesLevel.STANDARD,
+    weight: 1,
+    criticalSlots: 1,
+    costCBills: 1000,
+    battleValue: 10,
+    introductionYear: 3025,
+  };
+}
 
 describe('UnitLoaderService Equipment Resolution', () => {
   describe('normalizeEquipmentId', () => {
@@ -89,7 +106,7 @@ describe('UnitLoaderService Equipment Resolution', () => {
     it('should resolve standard IDs', () => {
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
         if (id === 'medium-laser') {
-          return { id: 'medium-laser', name: 'Medium Laser', techBase: TechBase.INNER_SPHERE } as any;
+          return createMockEquipment('medium-laser', 'Medium Laser', TechBase.INNER_SPHERE);
         }
         return undefined;
       });
@@ -102,10 +119,10 @@ describe('UnitLoaderService Equipment Resolution', () => {
     it('should prefer Clan variant for Clan units', () => {
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
         if (id === 'uac-5') {
-          return { id: 'uac-5', name: 'Ultra AC/5', techBase: TechBase.INNER_SPHERE } as any;
+          return createMockEquipment('uac-5', 'Ultra AC/5', TechBase.INNER_SPHERE);
         }
         if (id === 'clan-uac-5') {
-          return { id: 'clan-uac-5', name: 'Ultra AC/5 (Clan)', techBase: TechBase.CLAN } as any;
+          return createMockEquipment('clan-uac-5', 'Ultra AC/5 (Clan)', TechBase.CLAN);
         }
         return undefined;
       });
@@ -122,16 +139,16 @@ describe('UnitLoaderService Equipment Resolution', () => {
       // First lookup for the original ID fails
       mockRegistry.lookup.mockReturnValueOnce({ found: false, equipment: null, category: null });
       
-      // Second lookup for the normalized ID succeeds
+      // Second lookup for the normalized ID succeeds - use null for equipment since it just triggers the fallback
       mockRegistry.lookup.mockReturnValueOnce({ 
         found: true, 
-        equipment: { id: 'uac-5' } as any,
-        category: EquipmentCategory.BALLISTIC_WEAPON 
+        equipment: null,
+        category: EquipmentType.WEAPON 
       });
       
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
         if (id === 'uac-5') {
-          return { id: 'uac-5', name: 'Ultra AC/5' } as any;
+          return createMockEquipment('uac-5', 'Ultra AC/5', TechBase.INNER_SPHERE);
         }
         return undefined;
       });
@@ -154,7 +171,7 @@ describe('UnitLoaderService Equipment Resolution', () => {
     it('should handle tech base fallbacks if preferred not found', () => {
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
         if (id === 'clan-only-weapon') {
-          return { id: 'clan-only-weapon', name: 'Clan Only Weapon', techBase: TechBase.CLAN } as any;
+          return createMockEquipment('clan-only-weapon', 'Clan Only Weapon', TechBase.CLAN);
         }
         return undefined;
       });
@@ -169,7 +186,6 @@ describe('UnitLoaderService Equipment Resolution', () => {
   describe('stripTechPrefixFromNormalizedKey', () => {
     // This is an internal function but it's used by inferPreferredTechBaseFromCriticalSlots
     it('should handle various tech prefixes in tokens', () => {
-      const slots = ['CL-Medium-Laser', 'IS-Medium-Laser', 'Clan Medium Laser', 'IS Medium Laser'];
       // These should all be handled by getTechHintFromToken and stripTechPrefixFromNormalizedKey
       
       // CL-Medium-Laser -> hint 'clan', normalized 'clmediumlaser', stripped 'mediumlaser'

@@ -239,7 +239,7 @@ describe('MobileEquipmentRow', () => {
     });
 
     it('should show location dropdown when link button is clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const _user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
       render(
         <MobileEquipmentRow
           {...defaultProps}

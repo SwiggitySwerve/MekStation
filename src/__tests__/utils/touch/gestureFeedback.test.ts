@@ -13,8 +13,6 @@ import {
 } from '@/utils/touch/gestureFeedback';
 
 describe('gestureFeedback', () => {
-  const originalNavigator = global.navigator;
-
   beforeEach(() => {
     // Reset mocks
     jest.clearAllMocks();
@@ -37,7 +35,7 @@ describe('gestureFeedback', () => {
       // In JSDOM, navigator is always defined, but we can simulate missing vibrate
       const hasVibrate = 'vibrate' in global.navigator;
       if (hasVibrate) {
-        // @ts-ignore
+        // @ts-ignore - Deleting navigator property to simulate unsupported environment
         delete global.navigator.vibrate;
       }
       expect(isVibrationSupported()).toBe(false);
@@ -91,7 +89,7 @@ describe('gestureFeedback', () => {
         value: undefined,
         configurable: true,
       });
-      // @ts-ignore
+      // @ts-ignore - Deleting navigator property to simulate unsupported environment
       delete global.navigator.vibrate;
       expect(triggerHaptic('light')).toBe(false);
     });

@@ -35,6 +35,7 @@ describe('UnitCategoryMapper', () => {
     });
 
     it('should return undefined for unknown unit type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getCategoryForUnitType('UNKNOWN' as any)).toBeUndefined();
     });
   });
@@ -50,6 +51,7 @@ describe('UnitCategoryMapper', () => {
     });
 
     it('should return empty array for unknown category', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getUnitTypesInCategory('UNKNOWN' as any)).toEqual([]);
     });
   });

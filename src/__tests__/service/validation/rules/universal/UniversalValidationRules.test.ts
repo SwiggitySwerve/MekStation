@@ -1,7 +1,7 @@
-import { RulesLevel } from '@/types/enums';
+import { RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
-import { IUnitValidationContext, UnitCategory } from '@/types/validation/UnitValidationInterfaces';
+import { IUnitValidationContext, UnitCategory, IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import {
   EntityIdRequired,
   EntityNameRequired,
@@ -18,23 +18,25 @@ import {
 } from '@/services/validation/rules/universal/UniversalValidationRules';
 
 describe('UniversalValidationRules', () => {
-  const createBaseUnit = () => ({
+  const createBaseUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.BATTLEMECH,
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
     introductionYear: 3025,
+    era: Era.LATE_SUCCESSION_WARS,
     weight: 50,
     cost: 1000000,
     battleValue: 1000,
+    ...overrides,
   });
 
-  const createContext = (unit: any): IUnitValidationContext => ({
-    unit: unit as any,
-    unitType: unit.unitType || UnitType.BATTLEMECH,
+  const createContext = (unit: IValidatableUnit): IUnitValidationContext => ({
+    unit,
+    unitType: unit.unitType,
     unitCategory: UnitCategory.MECH,
-    techBase: unit.techBase || TechBase.INNER_SPHERE,
+    techBase: unit.techBase,
     options: {},
     cache: new Map(),
   });
@@ -46,8 +48,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail if id is missing or empty', () => {
-      const unit = createBaseUnit();
-      unit.id = '';
+      const unit = createBaseUnit({ id: '' });
       const result = EntityIdRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('id');
@@ -61,8 +62,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail if name is missing or empty', () => {
-      const unit = createBaseUnit();
-      unit.name = '';
+      const unit = createBaseUnit({ name: '' });
       const result = EntityNameRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('name');
@@ -76,8 +76,8 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for invalid unit type', () => {
-      const unit = createBaseUnit();
-      unit.unitType = 'INVALID' as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      const unit = createBaseUnit({ unitType: 'INVALID' as any });
       const result = ValidUnitType.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -90,8 +90,8 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for missing or invalid tech base', () => {
-      const unit = createBaseUnit();
-      unit.techBase = '' as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      const unit = createBaseUnit({ techBase: '' as any });
       const result = TechBaseRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -104,8 +104,8 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for missing or invalid rules level', () => {
-      const unit = createBaseUnit();
-      unit.rulesLevel = 'INVALID' as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      const unit = createBaseUnit({ rulesLevel: 'INVALID' as any });
       const result = RulesLevelRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -118,25 +118,24 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for year outside BT timeline', () => {
-      const unit = createBaseUnit();
-      unit.introductionYear = 1900;
-      const result = IntroductionYearValid.validate(createContext(unit));
+      const unitTooEarly = createBaseUnit({ introductionYear: 1900 });
+      const result = IntroductionYearValid.validate(createContext(unitTooEarly));
       expect(result.passed).toBe(false);
       
-      unit.introductionYear = 4000;
-      expect(IntroductionYearValid.validate(createContext(unit)).passed).toBe(false);
+      const unitTooLate = createBaseUnit({ introductionYear: 4000 });
+      expect(IntroductionYearValid.validate(createContext(unitTooLate)).passed).toBe(false);
     });
   });
 
   describe('VAL-UNIV-007: Temporal Consistency', () => {
     it('should pass if extinction year is after intro year', () => {
-      const unit = { ...createBaseUnit(), extinctionYear: 3050 };
+      const unit = createBaseUnit({ extinctionYear: 3050 });
       const result = TemporalConsistency.validate(createContext(unit));
       expect(result.passed).toBe(true);
     });
 
     it('should fail if extinction year is before or equal to intro year', () => {
-      const unit = { ...createBaseUnit(), extinctionYear: 3000 };
+      const unit = createBaseUnit({ extinctionYear: 3000 });
       const result = TemporalConsistency.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -149,8 +148,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for negative weight', () => {
-      const unit = createBaseUnit();
-      unit.weight = -10;
+      const unit = createBaseUnit({ weight: -10 });
       const result = WeightNonNegative.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -163,8 +161,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for negative cost', () => {
-      const unit = createBaseUnit();
-      unit.cost = -100;
+      const unit = createBaseUnit({ cost: -100 });
       const result = CostNonNegative.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -177,8 +174,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for negative battle value', () => {
-      const unit = createBaseUnit();
-      unit.battleValue = -100;
+      const unit = createBaseUnit({ battleValue: -100 });
       const result = BattleValueNonNegative.validate(createContext(unit));
       expect(result.passed).toBe(false);
     });
@@ -198,14 +194,14 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail if campaign year is after extinction year', () => {
-      const unit = { ...createBaseUnit(), extinctionYear: 3050 };
+      const unit = createBaseUnit({ extinctionYear: 3050 });
       const context = { ...createContext(unit), campaignYear: 3060 };
       expect(EraAvailability.validate(context).passed).toBe(false);
     });
 
     it('should skip validation if campaign year is not provided', () => {
       const context = createContext(createBaseUnit());
-      expect(EraAvailability.canValidate(context)).toBe(false);
+      expect(EraAvailability.canValidate!(context)).toBe(false);
       expect(EraAvailability.validate(context).passed).toBe(true);
     });
   });
@@ -221,14 +217,14 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail if unit rules level exceeds filter', () => {
-      const unit = { ...createBaseUnit(), rulesLevel: RulesLevel.ADVANCED };
+      const unit = createBaseUnit({ rulesLevel: RulesLevel.ADVANCED });
       const context = { ...createContext(unit), rulesLevelFilter: RulesLevel.STANDARD };
       expect(RulesLevelCompliance.validate(context).passed).toBe(false);
     });
 
     it('should skip validation if filter is not provided', () => {
       const context = createContext(createBaseUnit());
-      expect(RulesLevelCompliance.canValidate(context)).toBe(false);
+      expect(RulesLevelCompliance.canValidate!(context)).toBe(false);
       expect(RulesLevelCompliance.validate(context).passed).toBe(true);
     });
   });
