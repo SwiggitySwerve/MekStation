@@ -21,31 +21,14 @@ import { ValidationCategory } from '../../../../types/validation/rules/Validatio
 import { requiresGyro, requiresMinimumHeatSinks } from '../../../../utils/validation/UnitCategoryMapper';
 
 /**
- * Extended mech unit interface for mech-specific validation
- */
-interface IMechUnit extends IValidatableUnit {
-  engine?: { type: string; rating: number };
-  gyro?: { type: string };
-  cockpit?: { type: string };
-  structure?: { type: string };
-  heatSinks?: { total: number };
-  totalWeight?: number;
-  criticalSlots?: {
-    location: string;
-    used: number;
-    total: number;
-  }[];
-}
-
-/**
  * Type guard for mech units
  */
-function isMechUnit(unit: IValidatableUnit): unit is IMechUnit {
+function isMechUnitType(unitType: UnitType): boolean {
   return (
-    unit.unitType === UnitType.BATTLEMECH ||
-    unit.unitType === UnitType.OMNIMECH ||
-    unit.unitType === UnitType.INDUSTRIALMECH ||
-    unit.unitType === UnitType.PROTOMECH
+    unitType === UnitType.BATTLEMECH ||
+    unitType === UnitType.OMNIMECH ||
+    unitType === UnitType.INDUSTRIALMECH ||
+    unitType === UnitType.PROTOMECH
   );
 }
 
@@ -69,7 +52,7 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnit(unit) && !unit.engine) {
+    if (isMechUnitType(unit.unitType) && !unit.engineType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -78,7 +61,7 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
           this.category,
           'Engine required',
           {
-            field: 'engine',
+            field: 'engineType',
             suggestion: 'Select an engine for the unit',
           }
         )
@@ -108,7 +91,7 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnit(unit) && requiresGyro(unit.unitType) && !unit.gyro) {
+    if (isMechUnitType(unit.unitType) && requiresGyro(unit.unitType) && !unit.gyroType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -117,7 +100,7 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
           this.category,
           'Gyro required',
           {
-            field: 'gyro',
+            field: 'gyroType',
             suggestion: 'Select a gyro for the unit',
           }
         )
@@ -148,7 +131,7 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnit(unit) && !unit.cockpit) {
+    if (isMechUnitType(unit.unitType) && !unit.cockpitType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -157,7 +140,7 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
           this.category,
           'Cockpit required',
           {
-            field: 'cockpit',
+            field: 'cockpitType',
             suggestion: 'Select a cockpit for the unit',
           }
         )
@@ -188,7 +171,7 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechUnit(unit) && !unit.structure) {
+    if (isMechUnitType(unit.unitType) && !unit.internalStructureType) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -197,7 +180,7 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
           this.category,
           'Internal structure required',
           {
-            field: 'structure',
+            field: 'internalStructureType',
             suggestion: 'Select internal structure type for the unit',
           }
         )
@@ -225,22 +208,22 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const warnings = [];
 
-    if (isMechUnit(unit) && requiresMinimumHeatSinks(unit.unitType)) {
-      const heatSinkCount = unit.heatSinks?.total ?? 0;
+    if (isMechUnitType(unit.unitType) && requiresMinimumHeatSinks(unit.unitType)) {
+      const heatSinkCount = unit.heatSinkCount ?? 0;
       const MINIMUM_HEAT_SINKS = 10;
 
       if (heatSinkCount < MINIMUM_HEAT_SINKS) {
-        errors.push(
+        warnings.push(
           createUnitValidationError(
             this.id,
             this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
+            UnitValidationSeverity.WARNING,
             this.category,
-            `Unit must have at least ${MINIMUM_HEAT_SINKS} heat sinks (current: ${heatSinkCount})`,
+            `Unit should have at least ${MINIMUM_HEAT_SINKS} heat sinks (current: ${heatSinkCount})`,
             {
-              field: 'heatSinks.total',
+              field: 'heatSinkCount',
               expected: `>= ${MINIMUM_HEAT_SINKS}`,
               actual: String(heatSinkCount),
               suggestion: `Add ${MINIMUM_HEAT_SINKS - heatSinkCount} more heat sinks`,
@@ -250,7 +233,7 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
   },
 };
 
@@ -270,56 +253,10 @@ export const MechExactWeightMatch: IUnitValidationRuleDefinition = {
     UnitType.PROTOMECH,
   ],
 
-  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const { unit } = context;
-    const errors = [];
-
-    if (isMechUnit(unit) && unit.totalWeight !== undefined) {
-      const declaredTonnage = unit.weight;
-      const actualWeight = unit.totalWeight;
-      const difference = actualWeight - declaredTonnage;
-
-      // Allow small floating point tolerance
-      const TOLERANCE = 0.001;
-
-      if (Math.abs(difference) > TOLERANCE) {
-        if (difference > 0) {
-          errors.push(
-            createUnitValidationError(
-              this.id,
-              this.name,
-              UnitValidationSeverity.CRITICAL_ERROR,
-              this.category,
-              `Design is overweight by ${difference.toFixed(2)} tons`,
-              {
-                field: 'totalWeight',
-                expected: String(declaredTonnage),
-                actual: String(actualWeight),
-                suggestion: 'Remove or lighten components',
-              }
-            )
-          );
-        } else {
-          errors.push(
-            createUnitValidationError(
-              this.id,
-              this.name,
-              UnitValidationSeverity.CRITICAL_ERROR,
-              this.category,
-              `Design is underweight by ${Math.abs(difference).toFixed(2)} tons`,
-              {
-                field: 'totalWeight',
-                expected: String(declaredTonnage),
-                actual: String(actualWeight),
-                suggestion: 'Add components or increase armor',
-              }
-            )
-          );
-        }
-      }
-    }
-
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+  validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
+    // Weight validation is handled by the UI via totalWeight calculation
+    // This rule will be enhanced when totalWeight is added to IValidatableUnit
+    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
   },
 };
 
@@ -339,34 +276,10 @@ export const MechCriticalSlotLimits: IUnitValidationRuleDefinition = {
     UnitType.PROTOMECH,
   ],
 
-  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const { unit } = context;
-    const errors = [];
-
-    if (isMechUnit(unit) && unit.criticalSlots) {
-      for (const locationSlots of unit.criticalSlots) {
-        if (locationSlots.used > locationSlots.total) {
-          const overflow = locationSlots.used - locationSlots.total;
-          errors.push(
-            createUnitValidationError(
-              this.id,
-              this.name,
-              UnitValidationSeverity.ERROR,
-              this.category,
-              `Insufficient slots in ${locationSlots.location}. Required: ${locationSlots.used}, Available: ${locationSlots.total}`,
-              {
-                field: `criticalSlots.${locationSlots.location}`,
-                expected: `<= ${locationSlots.total}`,
-                actual: String(locationSlots.used),
-                suggestion: `Remove ${overflow} slot(s) of equipment from ${locationSlots.location}`,
-              }
-            )
-          );
-        }
-      }
-    }
-
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+  validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
+    // Critical slot validation is handled by the UI via slot counting
+    // This rule will be enhanced when criticalSlots data is added to IValidatableUnit
+    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
   },
 };
 

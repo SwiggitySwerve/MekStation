@@ -114,6 +114,14 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
   const year = useUnitStore((s) => s.year);
   const unitType = useUnitStore((s) => s.unitType);
 
+  // Mech component fields
+  const engineType = useUnitStore((s) => s.engineType);
+  const gyroType = useUnitStore((s) => s.gyroType);
+  const cockpitType = useUnitStore((s) => s.cockpitType);
+  const internalStructureType = useUnitStore((s) => s.internalStructureType);
+  const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
+  const heatSinkType = useUnitStore((s) => s.heatSinkType);
+
   // Derive era from year using the era utility function
   const era = year ? getEraForYear(year) : Era.DARK_AGE;
 
@@ -155,6 +163,13 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       weight: tonnage || 0,
       cost,
       battleValue,
+      // Mech component fields
+      engineType,
+      gyroType,
+      cockpitType,
+      internalStructureType,
+      heatSinkCount,
+      heatSinkType,
     };
 
     try {
@@ -220,6 +235,12 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     cost,
     battleValue,
     unitType,
+    engineType,
+    gyroType,
+    cockpitType,
+    internalStructureType,
+    heatSinkCount,
+    heatSinkType,
     options?.disabled,
     options?.campaignYear,
     options?.rulesLevelFilter,
