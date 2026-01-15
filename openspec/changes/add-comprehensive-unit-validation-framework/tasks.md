@@ -127,6 +127,21 @@
 - [ ] 10.2 Add JSDoc comments to all new interfaces and classes
 - [ ] 10.3 Create rule reference table in codebase (rules-reference.md)
 
+## 11. UI Integration
+
+- [x] 11.1 Create `src/hooks/useUnitValidation.ts` with:
+  - React hook connecting UnitValidationOrchestrator to UI
+  - Read unit state from Zustand store (useUnitStore)
+  - Convert store state to IValidatableUnit format
+  - Run validation and return UI-friendly results
+  - Auto-initialize validation rules on first use
+  - Memoized validation to avoid unnecessary re-runs
+- [x] 11.2 Update `UnitEditorWithRouting.tsx` to use useUnitValidation:
+  - Import and call useUnitValidation hook
+  - Replace hardcoded `validationStatus: 'valid'` with live results
+  - Wire validation.status, validation.errorCount, validation.warningCount to UnitStats
+- [x] 11.3 ValidationBadge displays real-time validation status in UnitInfoBanner
+
 ## Dependencies
 
 - Tasks 2-6 depend on Task 1 (framework infrastructure)
@@ -134,9 +149,11 @@
 - Task 8 depends on Tasks 1-7 (all rules implemented)
 - Task 9 can start after Task 1, expanded as rules are added
 - Task 10 can be done in parallel with implementation
+- Task 11 depends on Tasks 1-6 (framework + all category rules)
 
 ## Parallelizable Work
 
 - Tasks 3, 4, 5, 6 can be implemented in parallel after Task 2
 - Testing tasks can run in parallel with remaining implementation
 - Documentation can proceed alongside implementation
+- Task 11 (UI integration) can proceed after Tasks 1-6
