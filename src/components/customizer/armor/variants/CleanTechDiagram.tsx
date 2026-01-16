@@ -8,15 +8,15 @@
  * - Color + small text for capacity indication
  * - Stacked front/rear display
  * - Simple border highlight on interaction
+ *
+ * Uses the Layout Engine for constraint-based positioning.
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
   LOCATION_LABELS,
-  getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -30,9 +30,12 @@ import {
 } from '../shared/ArmorFills';
 import { DiagramHeader } from '../shared/DiagramHeader';
 import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
+import { useResolvedLayout, ResolvedPosition } from '../shared/layout';
 
 interface CleanTechLocationProps {
   location: MechLocation;
+  /** Resolved position from the layout engine */
+  position: ResolvedPosition;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
@@ -42,20 +45,22 @@ interface CleanTechLocationProps {
 
 function CleanTechLocation({
   location,
+  position,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: CleanTechLocationProps): React.ReactElement | null {
-  const pos = BATTLEMECH_SILHOUETTE.locations[location];
+}: CleanTechLocationProps): React.ReactElement {
   const label = LOCATION_LABELS[location];
 
-  // Skip rendering if this location is not defined in this silhouette
-  if (!pos) return null;
-
-  const center = getLocationCenter(pos);
   const showRear = hasTorsoRear(location);
+  const isHead = location === MechLocation.HEAD;
+
+  // Use position from layout engine
+  const pos = position;
+
+  const center = pos.center;
 
   const current = data?.current ?? 0;
   const maximum = data?.maximum ?? 1;
@@ -78,12 +83,16 @@ function CleanTechLocation({
   const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
   const strokeWidth = isSelected ? 2.5 : 1;
 
-  // Split positions for front/rear - adjusted for divider
+  // Split positions for front/rear - 60/40 split for consistency across variants
   const dividerHeight = showRear ? 2 : 0;
-  const frontHeight = showRear ? pos.height * 0.65 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.35 - dividerHeight : 0;
+  const frontHeight = showRear ? pos.height * 0.60 : pos.height;
+  const rearHeight = showRear ? pos.height * 0.40 - dividerHeight : 0;
   const dividerY = pos.y + frontHeight;
   const rearY = dividerY + dividerHeight;
+
+  // Use abbreviated labels for torso sections to fit in smaller space
+  const frontLabel = showRear ? `${label}-F` : label;
+  const rearLabel = 'R';
 
   return (
     <g
@@ -104,17 +113,14 @@ function CleanTechLocation({
       onFocus={() => onHover(true)}
       onBlur={() => onHover(false)}
     >
-      {/* Front armor section */}
-      {pos.path ? (
+      {/* Front armor section - use rect for torso locations to ensure proper front/rear split */}
+      {pos.path && !showRear ? (
         <path
           d={pos.path}
           fill={fillColor}
           stroke={strokeColor}
           strokeWidth={strokeWidth}
           className="transition-all duration-150"
-          style={{
-            clipPath: showRear ? `inset(0 0 ${rearHeight}px 0)` : undefined,
-          }}
         />
       ) : (
         <rect
@@ -130,38 +136,40 @@ function CleanTechLocation({
         />
       )}
 
+      {/* Location label - positioned at top of section */}
+      <text
+        x={center.x}
+        y={pos.y + (isHead ? 9 : showRear ? 10 : 12)}
+        textAnchor="middle"
+        className="fill-white/80 font-semibold pointer-events-none"
+        style={{ fontSize: isHead ? '7px' : showRear ? '8px' : '10px' }}
+      >
+        {frontLabel}
+      </text>
+
       {/* Front armor value - large bold number */}
       <text
         x={center.x}
-        y={pos.y + frontHeight / 2 + 5}
+        y={pos.y + (isHead ? frontHeight / 2 + 4 : frontHeight / 2 + (showRear ? 2 : 5))}
         textAnchor="middle"
         className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: pos.width < 40 ? '14px' : '18px' }}
+        style={{ fontSize: isHead ? '12px' : showRear ? '14px' : (pos.width < 40 ? '14px' : '18px') }}
       >
         {current}
       </text>
 
-      {/* Capacity text */}
-      <text
-        x={center.x}
-        y={pos.y + frontHeight / 2 + 18}
-        textAnchor="middle"
-        className="fill-white/60 pointer-events-none"
-        style={{ fontSize: '9px' }}
-      >
-        / {maximum}
-      </text>
-
-      {/* Location label */}
-      <text
-        x={center.x}
-        y={pos.y + 12}
-        textAnchor="middle"
-        className="fill-white/80 font-semibold pointer-events-none"
-        style={{ fontSize: showRear ? '8px' : '10px' }}
-      >
-        {showRear ? `${label} FRONT` : label}
-      </text>
+      {/* Capacity text - hide for HEAD due to limited space */}
+      {!isHead && (
+        <text
+          x={center.x}
+          y={pos.y + frontHeight / 2 + (showRear ? 14 : 18)}
+          textAnchor="middle"
+          className="fill-white/60 pointer-events-none"
+          style={{ fontSize: '9px' }}
+        >
+          / {maximum}
+        </text>
+      )}
 
       {/* Divider line between front and rear */}
       {showRear && (
@@ -195,21 +203,21 @@ function CleanTechLocation({
           {/* Rear label */}
           <text
             x={center.x}
-            y={rearY + 11}
+            y={rearY + 9}
             textAnchor="middle"
             className="fill-white/80 font-semibold pointer-events-none"
             style={{ fontSize: '8px' }}
           >
-            REAR
+            {rearLabel}
           </text>
 
           {/* Rear armor value */}
           <text
             x={center.x}
-            y={rearY + rearHeight / 2 + 6}
+            y={rearY + rearHeight / 2 + 4}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
-            style={{ fontSize: '14px' }}
+            style={{ fontSize: '12px' }}
           >
             {rear}
           </text>
@@ -235,6 +243,9 @@ export function CleanTechDiagram({
 }: CleanTechDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
 
+  // Use the layout engine to get resolved positions
+  const { getPosition, viewBox, bounds } = useResolvedLayout('battlemech-biped');
+
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
@@ -254,10 +265,10 @@ export function CleanTechDiagram({
     <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
       <DiagramHeader title="Armor Allocation" />
 
-      {/* Diagram */}
+      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          viewBox={viewBox}
           className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
@@ -265,26 +276,32 @@ export function CleanTechDiagram({
 
           {/* Background grid pattern */}
           <rect
-            x="0"
-            y="0"
-            width="200"
-            height="280"
+            x={bounds.minX}
+            y={bounds.minY}
+            width={bounds.width}
+            height={bounds.height}
             fill="url(#armor-grid)"
             opacity="0.5"
           />
 
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <CleanTechLocation
-              key={loc}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-            />
-          ))}
+          {/* Render all locations using layout engine positions */}
+          {locations.map((loc) => {
+            const position = getPosition(loc);
+            if (!position) return null;
+            
+            return (
+              <CleanTechLocation
+                key={loc}
+                location={loc}
+                position={position}
+                data={getArmorData(loc)}
+                isSelected={selectedLocation === loc}
+                isHovered={hoveredLocation === loc}
+                onClick={() => onLocationClick(loc)}
+                onHover={(h) => setHoveredLocation(h ? loc : null)}
+              />
+            );
+          })}
         </svg>
       </div>
 

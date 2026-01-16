@@ -7,15 +7,15 @@
  * - Stacked progress rings for front/rear
  * - Amber (front) and sky (rear) color coding
  * - Glow pulse interaction
+ *
+ * Uses the Layout Engine for constraint-based positioning.
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
   LOCATION_LABELS,
-  getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -27,6 +27,7 @@ import {
   SELECTED_COLOR,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { useResolvedLayout, ResolvedPosition } from '../shared/layout';
 
 interface ProgressRingProps {
   cx: number;
@@ -80,6 +81,8 @@ function ProgressRing({
 
 interface NeonLocationProps {
   location: MechLocation;
+  /** Resolved position from the layout engine */
+  position: ResolvedPosition;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
@@ -87,35 +90,25 @@ interface NeonLocationProps {
   onHover: (hovered: boolean) => void;
 }
 
-// Calculate leg offset based on torso height expansion
-const TORSO_HEIGHT_MULTIPLIER = 1.4;
-const LEG_Y_OFFSET = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO]!.height * (TORSO_HEIGHT_MULTIPLIER - 1);
-
-function isLegLocation(location: MechLocation): boolean {
-  return location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
-}
-
 function NeonLocation({
   location,
+  position,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: NeonLocationProps): React.ReactElement | null {
-  const basePos = BATTLEMECH_SILHOUETTE.locations[location];
-
-  // Skip rendering if this location is not defined in this silhouette
-  if (!basePos) return null;
+}: NeonLocationProps): React.ReactElement {
   const label = LOCATION_LABELS[location];
   const showRear = hasTorsoRear(location);
+  const isHead = location === MechLocation.HEAD;
 
-  // Adjust position for torso locations to be taller, and offset legs down
-  const pos = showRear
-    ? { ...basePos, height: basePos.height * TORSO_HEIGHT_MULTIPLIER }
-    : isLegLocation(location)
-      ? { ...basePos, y: basePos.y + LEG_Y_OFFSET }
-      : basePos;
+  // Use position from layout engine
+  const pos = position;
+
+  // Use abbreviated labels for torso sections to fit in smaller space
+  const frontLabel = showRear ? `${label}-F` : label;
+  const rearLabel = 'R';
 
   const front = data?.current ?? 0;
   const frontMax = data?.maximum ?? 1;
@@ -144,9 +137,9 @@ function NeonLocation({
 
   const fillOpacity = isHovered ? 0.4 : 0.25;
 
-  // Layout calculations for stacked front/rear
-  const frontSectionHeight = showRear ? pos.height * 0.55 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.45 : 0;
+  // Layout calculations for stacked front/rear - 60/40 split for consistency
+  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
   const frontCenterY = pos.y + frontSectionHeight / 2;
   const rearCenterY = pos.y + frontSectionHeight + rearSectionHeight / 2;
   const dividerY = pos.y + frontSectionHeight;
@@ -157,7 +150,7 @@ function NeonLocation({
     : Math.min(pos.width, pos.height) * 0.35;
   const rearRingRadius = showRear ? Math.min(pos.width, rearSectionHeight) * 0.35 : 0;
 
-  const center = getLocationCenter(pos);
+  const center = pos.center;
 
   return (
     <g
@@ -211,15 +204,15 @@ function NeonLocation({
           {/* Front section */}
           <text
             x={center.x}
-            y={pos.y + 11}
+            y={pos.y + 10}
             textAnchor="middle"
             className="fill-white/70 font-medium pointer-events-none"
             style={{
-              fontSize: '7px',
-              textShadow: `0 0 5px ${frontColor}`,
+              fontSize: '8px',
+              textShadow: `0 0 3px ${frontColor}`,
             }}
           >
-            {label} FRONT
+            {frontLabel}
           </text>
 
           <ProgressRing
@@ -259,15 +252,15 @@ function NeonLocation({
           {/* Rear section */}
           <text
             x={center.x}
-            y={dividerY + 10}
+            y={dividerY + 9}
             textAnchor="middle"
             className="fill-white/70 font-medium pointer-events-none"
             style={{
-              fontSize: '7px',
-              textShadow: `0 0 5px ${rearColor}`,
+              fontSize: '8px',
+              textShadow: `0 0 3px ${rearColor}`,
             }}
           >
-            REAR
+            {rearLabel}
           </text>
 
           <ProgressRing
@@ -294,36 +287,39 @@ function NeonLocation({
         </>
       ) : (
         <>
-          {/* Non-torso: single ring */}
+          {/* Non-torso: single ring - HEAD gets special compact layout */}
           <text
             x={center.x}
-            y={pos.y + 12}
+            y={pos.y + (isHead ? 9 : 12)}
             textAnchor="middle"
             className="fill-white/70 font-medium pointer-events-none"
             style={{
-              fontSize: '8px',
-              textShadow: `0 0 5px ${glowColor}`,
+              fontSize: isHead ? '7px' : '9px',
+              textShadow: `0 0 3px ${glowColor}`,
             }}
           >
             {label}
           </text>
 
-          <ProgressRing
-            cx={center.x}
-            cy={pos.y + pos.height / 2 + 4}
-            radius={frontRingRadius}
-            progress={frontPercent}
-            color={glowColor}
-            strokeWidth={isHovered ? 4 : 3}
-          />
+          {/* Skip ring for HEAD - not enough space */}
+          {!isHead && (
+            <ProgressRing
+              cx={center.x}
+              cy={pos.y + pos.height / 2 + 4}
+              radius={frontRingRadius}
+              progress={frontPercent}
+              color={glowColor}
+              strokeWidth={isHovered ? 4 : 3}
+            />
+          )}
 
           <text
             x={center.x}
-            y={pos.y + pos.height / 2 + 8}
+            y={pos.y + (isHead ? pos.height / 2 + 4 : pos.height / 2 + 8)}
             textAnchor="middle"
             className="fill-white font-bold pointer-events-none"
             style={{
-              fontSize: pos.width < 40 ? '12px' : '16px',
+              fontSize: isHead ? '12px' : (pos.width < 40 ? '12px' : '16px'),
               textShadow: `0 0 10px ${glowColor}`,
             }}
           >
@@ -351,6 +347,9 @@ export function NeonOperatorDiagram({
   className = '',
 }: NeonOperatorDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+
+  // Use the layout engine to get resolved positions
+  const { getPosition, viewBox, bounds } = useResolvedLayout('battlemech-biped');
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
@@ -382,10 +381,10 @@ export function NeonOperatorDiagram({
         </div>
       </div>
 
-      {/* Diagram */}
+      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          viewBox={viewBox}
           className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
@@ -393,54 +392,53 @@ export function NeonOperatorDiagram({
 
           {/* Scanline overlay */}
           <rect
-            x="0"
-            y="0"
-            width="200"
-            height="280"
+            x={bounds.minX}
+            y={bounds.minY}
+            width={bounds.width}
+            height={bounds.height}
             fill="url(#armor-scanlines)"
             opacity="0.3"
           />
 
-          {/* Wireframe outline */}
-          {BATTLEMECH_SILHOUETTE.outlinePath && (
-            <path
-              d={BATTLEMECH_SILHOUETTE.outlinePath}
-              fill="none"
-              stroke="rgba(34, 211, 238, 0.2)"
-              strokeWidth="1"
-              strokeDasharray="4 2"
-            />
-          )}
-
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <NeonLocation
-              key={loc}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-            />
-          ))}
+          {/* Render all locations using layout engine positions */}
+          {locations.map((loc) => {
+            const position = getPosition(loc);
+            if (!position) return null;
+            
+            return (
+              <NeonLocation
+                key={loc}
+                location={loc}
+                position={position}
+                data={getArmorData(loc)}
+                isSelected={selectedLocation === loc}
+                isHovered={hoveredLocation === loc}
+                onClick={() => onLocationClick(loc)}
+                onHover={(h) => setHoveredLocation(h ? loc : null)}
+              />
+            );
+          })}
 
           {/* Targeting reticle on hovered */}
-          {hoveredLocation && BATTLEMECH_SILHOUETTE.locations[hoveredLocation] && (
-            <g className="pointer-events-none">
-              <circle
-                cx={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]!).x}
-                cy={getLocationCenter(BATTLEMECH_SILHOUETTE.locations[hoveredLocation]!).y}
-                r={40}
-                fill="none"
-                stroke="rgba(34, 211, 238, 0.3)"
-                strokeWidth="1"
-                strokeDasharray="8 4"
-                className="animate-spin"
-                style={{ animationDuration: '8s' }}
-              />
-            </g>
-          )}
+          {hoveredLocation && (() => {
+            const hoveredPos = getPosition(hoveredLocation);
+            if (!hoveredPos) return null;
+            return (
+              <g className="pointer-events-none">
+                <circle
+                  cx={hoveredPos.center.x}
+                  cy={hoveredPos.center.y}
+                  r={40}
+                  fill="none"
+                  stroke="rgba(34, 211, 238, 0.3)"
+                  strokeWidth="1"
+                  strokeDasharray="8 4"
+                  className="animate-spin"
+                  style={{ animationDuration: '8s' }}
+                />
+              </g>
+            );
+          })()}
         </svg>
       </div>
 
@@ -469,7 +467,7 @@ export function NeonOperatorDiagram({
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-cyan-600/50 text-center mt-2">
+      <p className="text-xs text-cyan-500/70 text-center mt-2">
         SELECT TARGET LOCATION
       </p>
     </div>
