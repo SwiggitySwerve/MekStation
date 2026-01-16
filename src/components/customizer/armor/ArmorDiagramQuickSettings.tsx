@@ -26,10 +26,13 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
+  // Use effective variant (respects draft if exists) for display
+  const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
   const setArmorDiagramVariant = useAppSettingsStore((s) => s.setArmorDiagramVariant);
+  const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
 
-  const currentLabel = DIAGRAM_VARIANT_INFO[armorDiagramVariant].name;
+  const effectiveVariant = getEffectiveArmorDiagramVariant();
+  const currentLabel = DIAGRAM_VARIANT_INFO[effectiveVariant].name;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -58,6 +61,9 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
   }, [isOpen]);
 
   const handleSelect = (variant: ArmorDiagramVariant) => {
+    // Clear any draft state from settings page to avoid conflicts
+    revertCustomizer();
+    // Set the persisted value directly
     setArmorDiagramVariant(variant);
     setIsOpen(false);
   };
@@ -88,7 +94,7 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
           role="listbox"
         >
           {VARIANTS.map((variant) => {
-            const isSelected = armorDiagramVariant === variant;
+            const isSelected = effectiveVariant === variant;
 
             return (
               <button
