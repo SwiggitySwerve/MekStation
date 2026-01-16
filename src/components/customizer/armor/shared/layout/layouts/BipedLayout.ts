@@ -361,7 +361,7 @@ export const BATTLEMECH_BIPED_LAYOUT: MechLayoutConfig = {
   ],
   constraints: BIPED_CONSTRAINTS,
   padding: 10,
-  minGap: 4,
+  minGap: 2,  // Compact layout allows tighter spacing
   visualConnectors: false,
   scale: 1,
 };

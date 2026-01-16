@@ -298,7 +298,7 @@ export const GEOMETRIC_TRIPOD_LAYOUT: MechLayoutConfig = {
   ],
   constraints: TRIPOD_CONSTRAINTS,
   padding: 10,
-  minGap: 5,
+  minGap: 2,  // Compact tripod layout allows tighter spacing
   visualConnectors: false,
   scale: 1,
 };
