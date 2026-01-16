@@ -183,7 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ${effectiveCollapsed ? 'justify-center px-2' : 'px-4 gap-3'}
       `}>
         {/* Logo/Icon */}
-        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-accent to-accent-hover rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
+        <div className="flex-shrink-0 w-8 h-8 bg-[#3a3a3c] rounded-lg flex items-center justify-center shadow-lg shadow-cyan-900/30 border-b-2 border-cyan-400/60">
           <MekStationIcon />
         </div>
         
@@ -306,8 +306,28 @@ export default Sidebar;
 
 function MekStationIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
-      <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM8.547 4.505a8.25 8.25 0 1011.672 11.672A8.25 8.25 0 008.547 4.505z" clipRule="evenodd" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+      {/* Mech silhouette */}
+      <g fill="#e8e8e8" stroke="#707070" strokeWidth="0.3">
+        {/* Head */}
+        <path d="M9.5 4 L14.5 4 L15.5 5.5 L15 7 L9 7 L8.5 5.5 Z"/>
+        {/* Cockpit visor */}
+        <rect x="10.5" y="4.8" width="3" height="1" rx="0.3" fill="#00bfff"/>
+        {/* Torso */}
+        <path d="M9.5 7.5 L14.5 7.5 L15 8.5 L15 13 L9 13 L9 8.5 Z"/>
+        {/* Left arm */}
+        <rect x="6" y="8" width="2.5" height="4" rx="0.5"/>
+        <rect x="5.5" y="12" width="3" height="2.5" rx="0.4"/>
+        {/* Right arm */}
+        <rect x="15.5" y="8" width="2.5" height="4" rx="0.5"/>
+        <rect x="15.5" y="12" width="3" height="2.5" rx="0.4"/>
+        {/* Left leg */}
+        <path d="M9.5 13.5 L11 13.5 L10.8 17 L9.2 17 Z"/>
+        <path d="M8.5 17.5 L11.5 17.5 L11.8 19 L8.2 19 Z"/>
+        {/* Right leg */}
+        <path d="M13 13.5 L14.5 13.5 L14.8 17 L13.2 17 Z"/>
+        <path d="M12.5 17.5 L15.5 17.5 L15.8 19 L12.2 19 Z"/>
+      </g>
     </svg>
   );
 }

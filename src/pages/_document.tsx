@@ -13,7 +13,7 @@ export default function Document(): React.ReactElement {
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
         {/* Theme Color */}
-        <meta name="theme-color" content="#dc2626" />
+        <meta name="theme-color" content="#00bfff" />
 
         {/* PWA Meta Tags */}
         <meta name="application-name" content="MekStation" />

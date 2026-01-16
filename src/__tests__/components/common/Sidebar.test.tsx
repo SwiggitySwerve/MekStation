@@ -49,13 +49,18 @@ jest.mock('next/router', () => ({
   }),
 }));
 
-// Mock the mobile sidebar store
+// Mock the mobile sidebar store with configurable state
+let mockIsOpen = false;
 const mockClose = jest.fn();
 jest.mock('@/stores/navigationStore', () => ({
-  useMobileSidebarStore: () => ({
-    isOpen: false,
-    close: mockClose,
-  }),
+  useMobileSidebarStore: (selector?: (state: { isOpen: boolean; close: () => void }) => unknown) => {
+    const state = { isOpen: mockIsOpen, close: mockClose };
+    // If no selector is provided, return the full state object
+    if (typeof selector === 'function') {
+      return selector(state);
+    }
+    return state;
+  },
 }));
 
 describe('Sidebar', () => {
@@ -228,6 +233,11 @@ describe('Sidebar', () => {
     // Note: Mobile state is now managed by useMobileSidebarStore
     // The store is mocked at the top of this file with isOpen: false by default
     
+    beforeEach(() => {
+      mockIsOpen = false;
+      mockClose.mockClear();
+    });
+
     it('should be translated off-screen when mobile is closed (default mock state)', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
@@ -240,6 +250,93 @@ describe('Sidebar', () => {
 
       const sidebar = container.querySelector('aside') as HTMLElement;
       expect(sidebar).toHaveClass('lg:translate-x-0');
+    });
+
+    it('should be translated to visible position when mobile sidebar is open', () => {
+      mockIsOpen = true;
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      const sidebar = container.querySelector('aside') as HTMLElement;
+      expect(sidebar).toHaveClass('translate-x-0');
+    });
+
+    it('should show backdrop overlay when mobile sidebar is open', () => {
+      mockIsOpen = true;
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      // Look for the backdrop div
+      const backdrop = container.querySelector('[class*="bg-black"]');
+      expect(backdrop).toBeInTheDocument();
+    });
+
+    it('should hide backdrop when mobile sidebar is closed', () => {
+      mockIsOpen = false;
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      // Backdrop should have pointer-events-none or be invisible
+      const backdrop = container.querySelector('[class*="bg-black"]');
+      if (backdrop) {
+        // Either it's hidden or has pointer-events-none
+        expect(backdrop.className).toMatch(/opacity-0|pointer-events-none/);
+      }
+    });
+  });
+
+  describe('Mobile expansion behavior', () => {
+    beforeEach(() => {
+      mockClose.mockClear();
+    });
+
+    it('should show expanded width when mobile sidebar is open regardless of isCollapsed prop', () => {
+      mockIsOpen = true;
+      const { container } = render(<Sidebar {...defaultProps} isCollapsed={true} />);
+
+      const sidebar = container.querySelector('aside') as HTMLElement;
+      // When mobile is open, should be expanded (w-56) not collapsed (w-16)
+      expect(sidebar).toHaveClass('w-56');
+    });
+
+    it('should show nav labels when mobile sidebar is open regardless of isCollapsed prop', () => {
+      mockIsOpen = true;
+      render(<Sidebar {...defaultProps} isCollapsed={true} />);
+
+      // Should show the full brand name since mobile opens expanded
+      expect(screen.getByText('MekStation')).toBeInTheDocument();
+    });
+
+    it('should call close when navigation item is clicked', () => {
+      mockIsOpen = true;
+      render(<Sidebar {...defaultProps} />);
+
+      // Click on a navigation item
+      const dashboardLink = screen.getByText('Dashboard').closest('a');
+      if (dashboardLink) {
+        fireEvent.click(dashboardLink);
+      }
+
+      expect(mockClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call close when backdrop is clicked', () => {
+      mockIsOpen = true;
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      // Find and click the backdrop
+      const backdrop = container.querySelector('[class*="bg-black"]');
+      if (backdrop) {
+        fireEvent.click(backdrop);
+        expect(mockClose).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it('should hide collapse toggle button on mobile', () => {
+      mockIsOpen = true;
+      const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
+
+      // The toggle button should have lg:block (hidden on mobile)
+      const toggleButton = screen.getByRole('button', { name: /collapse sidebar/i });
+      expect(toggleButton).toHaveClass('lg:block');
+      expect(toggleButton).toHaveClass('hidden');
     });
   });
 });
