@@ -26,10 +26,8 @@ type Story = StoryObj<typeof Sidebar>;
 
 function SidebarWrapper({
   initialCollapsed = false,
-  initialPath = '/',
 }: {
   initialCollapsed?: boolean;
-  initialPath?: string;
 }) {
   const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);
   

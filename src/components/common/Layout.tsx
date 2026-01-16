@@ -1,12 +1,24 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
+import { useMobileSidebarStore } from '@/stores/navigationStore';
 
 interface LayoutProps {
   children: ReactNode;
   title?: string;
   sidebarComponent?: ReactNode; // Global sidebar component
-  isSidebarCollapsed?: boolean; // New prop for controlling margins
+  isSidebarCollapsed?: boolean; // Prop for controlling sidebar width/margins on desktop
   secondarySidebar?: ReactNode; // Optional page-specific sidebar
+  /** Hide the mobile header (useful for pages with their own mobile navigation like customizer) */
+  hideMobileHeader?: boolean;
+}
+
+/** Hamburger menu icon */
+function HamburgerIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+  );
 }
 
 const Layout: React.FC<LayoutProps> = ({
@@ -15,14 +27,18 @@ const Layout: React.FC<LayoutProps> = ({
   sidebarComponent,
   isSidebarCollapsed,
   secondarySidebar,
+  hideMobileHeader = false,
 }) => {
+  const openMobileSidebar = useMobileSidebarStore((s) => s.open);
+  
   // Determine margin based on sidebar presence and state
   // Sidebar widths: collapsed = w-16 (4rem/64px), expanded = w-56 (14rem/224px)
-  // Margin applies on ALL screen sizes since sidebar is fixed and always visible
+  // On mobile (<lg): no margin, sidebar is an overlay
+  // On desktop (lg+): margin applied to push content
   const hasSidebar = !!sidebarComponent;
   const contentAndFooterMargin = hasSidebar 
-    ? (isSidebarCollapsed ? 'ml-16' : 'ml-56')
-    : 'ml-0';
+    ? (isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56')
+    : '';
 
   return (
     <>
@@ -33,12 +49,28 @@ const Layout: React.FC<LayoutProps> = ({
       </Head>
 
       <div className="flex flex-col h-screen bg-surface-deep overflow-hidden">
+        {/* Mobile header - shown on mobile only, hidden on desktop */}
+        {hasSidebar && !hideMobileHeader && (
+          <header className="lg:hidden flex items-center justify-between h-12 px-3 bg-surface-base border-b border-border-theme-subtle print:hidden">
+            <span className="text-sm font-semibold text-text-theme-primary truncate">
+              {title}
+            </span>
+            <button
+              onClick={openMobileSidebar}
+              className="p-2 -mr-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
+              aria-label="Open navigation menu"
+            >
+              <HamburgerIcon />
+            </button>
+          </header>
+        )}
+
         <div className="flex flex-1 overflow-hidden">
           {/* Global sidebar - fixed position component */}
           {sidebarComponent && <div className="print:hidden">{sidebarComponent}</div>}
 
           {/* Main content area with optional secondary sidebar */}
-          <div className={`flex-1 flex ml-0 ${contentAndFooterMargin} transition-all duration-300 ease-in-out overflow-hidden`}>
+          <div className={`flex-1 flex ${contentAndFooterMargin} transition-all duration-300 ease-in-out overflow-hidden`}>
             {/* Optional page-specific secondary sidebar */}
             {secondarySidebar && (
               <aside className="w-64 bg-surface-base border-r border-border-theme-subtle print:hidden overflow-auto">

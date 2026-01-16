@@ -49,6 +49,15 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+// Mock the mobile sidebar store
+const mockClose = jest.fn();
+jest.mock('@/stores/navigationStore', () => ({
+  useMobileSidebarStore: () => ({
+    isOpen: false,
+    close: mockClose,
+  }),
+}));
+
 describe('Sidebar', () => {
   const defaultProps = {
     isCollapsed: false,
@@ -107,14 +116,14 @@ describe('Sidebar', () => {
     it('should have narrow width when collapsed', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={true} />);
 
-      const sidebar = container.firstChild as HTMLElement;
+      const sidebar = container.querySelector('aside') as HTMLElement;
       expect(sidebar).toHaveClass('w-16');
     });
 
     it('should have wide width when expanded', () => {
       const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
-      const sidebar = container.firstChild as HTMLElement;
+      const sidebar = container.querySelector('aside') as HTMLElement;
       expect(sidebar).toHaveClass('w-56');
     });
   });
@@ -196,22 +205,41 @@ describe('Sidebar', () => {
     it('should have dark background', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
-      const sidebar = container.firstChild as HTMLElement;
+      const sidebar = container.querySelector('aside') as HTMLElement;
       expect(sidebar).toHaveClass('bg-surface-deep');
     });
 
     it('should be fixed positioned', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
-      const sidebar = container.firstChild as HTMLElement;
+      const sidebar = container.querySelector('aside') as HTMLElement;
       expect(sidebar).toHaveClass('fixed');
     });
 
-    it('should have transition classes', () => {
+    it('should have transition classes for transform', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
 
-      const sidebar = container.firstChild as HTMLElement;
-      expect(sidebar).toHaveClass('transition-all');
+      const sidebar = container.querySelector('aside') as HTMLElement;
+      expect(sidebar).toHaveClass('transition-transform');
+    });
+  });
+
+  describe('Mobile overlay behavior', () => {
+    // Note: Mobile state is now managed by useMobileSidebarStore
+    // The store is mocked at the top of this file with isOpen: false by default
+    
+    it('should be translated off-screen when mobile is closed (default mock state)', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      const sidebar = container.querySelector('aside') as HTMLElement;
+      expect(sidebar).toHaveClass('-translate-x-full');
+    });
+
+    it('should have lg:translate-x-0 for desktop visibility', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+
+      const sidebar = container.querySelector('aside') as HTMLElement;
+      expect(sidebar).toHaveClass('lg:translate-x-0');
     });
   });
 });

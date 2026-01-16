@@ -1,5 +1,38 @@
 import { create } from 'zustand';
 
+// =============================================================================
+// Mobile Sidebar Store
+// =============================================================================
+
+/**
+ * Mobile sidebar state and actions
+ */
+interface MobileSidebarState {
+  /** Whether the mobile sidebar is open */
+  isOpen: boolean;
+  /** Open the mobile sidebar */
+  open: () => void;
+  /** Close the mobile sidebar */
+  close: () => void;
+  /** Toggle the mobile sidebar */
+  toggle: () => void;
+}
+
+/**
+ * Store for mobile sidebar (drawer) state.
+ * Used to control the sidebar overlay on mobile devices.
+ */
+export const useMobileSidebarStore = create<MobileSidebarState>((set) => ({
+  isOpen: false,
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
+  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
+}));
+
+// =============================================================================
+// Panel Navigation Store
+// =============================================================================
+
 /**
  * Panel identifiers for mobile navigation
  */

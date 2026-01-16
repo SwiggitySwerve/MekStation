@@ -71,7 +71,7 @@ describe('Layout', () => {
       expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
     });
 
-    it('should adjust margin when sidebar is collapsed', () => {
+    it('should adjust margin when sidebar is collapsed (desktop only)', () => {
       const { container } = render(
         <Layout 
           sidebarComponent={<div>Sidebar</div>}
@@ -81,12 +81,12 @@ describe('Layout', () => {
         </Layout>
       );
 
-      // When collapsed, should have ml-16 class
-      const contentArea = container.querySelector('.ml-16');
+      // When collapsed, should have lg:ml-16 class (desktop only margin)
+      const contentArea = container.querySelector('.lg\\:ml-16');
       expect(contentArea).toBeInTheDocument();
     });
 
-    it('should adjust margin when sidebar is expanded', () => {
+    it('should adjust margin when sidebar is expanded (desktop only)', () => {
       const { container } = render(
         <Layout 
           sidebarComponent={<div>Sidebar</div>}
@@ -96,8 +96,8 @@ describe('Layout', () => {
         </Layout>
       );
 
-      // When expanded, should have ml-56 class
-      const contentArea = container.querySelector('.ml-56');
+      // When expanded, should have lg:ml-56 class (desktop only margin)
+      const contentArea = container.querySelector('.lg\\:ml-56');
       expect(contentArea).toBeInTheDocument();
     });
 
@@ -108,9 +108,9 @@ describe('Layout', () => {
         </Layout>
       );
 
-      // Should have ml-0 class
-      const contentArea = container.querySelector('.ml-0');
-      expect(contentArea).toBeInTheDocument();
+      // Should NOT have any lg:ml-* classes when no sidebar
+      const contentAreaWithMargin = container.querySelector('[class*="lg:ml-"]');
+      expect(contentAreaWithMargin).not.toBeInTheDocument();
     });
   });
 

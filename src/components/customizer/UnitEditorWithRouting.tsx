@@ -14,6 +14,7 @@ import React, { useMemo, useState, useCallback } from 'react';
 // Stores
 import { useUnitStore } from '@/stores/useUnitStore';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
+import { useMobileSidebarStore } from '@/stores/navigationStore';
 
 // Hooks
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
@@ -174,6 +175,9 @@ export function UnitEditorWithRouting({
   
   // Track equipment registry initialization for BV calculation
   const { isReady: registryReady } = useEquipmentRegistry();
+  
+  // Mobile sidebar open function (for bottom tray menu button)
+  const openMobileSidebar = useMobileSidebarStore((s) => s.open);
   
   // Access unit state from context
   const unitName = useUnitStore((s) => s.name);
@@ -682,6 +686,7 @@ export function UnitEditorWithRouting({
             getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
             isOmni={isOmni}
             mobileStats={mobileLoadoutStats}
+            onMenuOpen={openMobileSidebar}
           />
         )}
       </div>

@@ -57,6 +57,8 @@ export interface ResponsiveLoadoutTrayProps {
   isOmni?: boolean;
   /** Unit stats for mobile status bar */
   mobileStats?: MobileLoadoutStats;
+  /** Optional callback to open navigation menu (mobile sidebar) */
+  onMenuOpen?: () => void;
 }
 
 // =============================================================================
@@ -87,6 +89,7 @@ export function ResponsiveLoadoutTray({
   getAvailableLocationsForEquipment,
   isOmni = false,
   mobileStats,
+  onMenuOpen,
 }: ResponsiveLoadoutTrayProps): React.ReactElement {
   // No auto-collapse behavior - state is persisted and only changed by user interaction
   
@@ -125,6 +128,7 @@ export function ResponsiveLoadoutTray({
           getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
           isOmni={isOmni}
           stats={mobileStats}
+          onMenuOpen={onMenuOpen}
         />
       </div>
     </>
