@@ -2,16 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BottomNavBar, Tab } from '../../../components/mobile/BottomNavBar';
 import { useNavigationStore, PanelId } from '../../../stores/navigationStore';
-import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../../hooks/useDeviceType';
 
 // Mock dependencies
 jest.mock('../../../stores/navigationStore');
-jest.mock('../../../hooks/useDeviceCapabilities');
+jest.mock('../../../hooks/useDeviceType');
 
 describe('BottomNavBar', () => {
   const mockPushPanel = jest.fn();
   const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<typeof useNavigationStore>;
-  const mockUseDeviceCapabilities = useDeviceCapabilities as jest.MockedFunction<typeof useDeviceCapabilities>;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
 
   // Sample tabs for testing - use valid PanelId values
   const sampleTabs: Tab[] = [
@@ -20,11 +20,15 @@ describe('BottomNavBar', () => {
     { id: 'equipment-browser', icon: <span data-testid="icon-equipment">Q</span>, label: 'Equipment', panelId: 'equipment-browser' },
   ];
 
-  beforeEach(() => {
-    mockUseDeviceCapabilities.mockReturnValue({
-      hasTouch: true,
-      hasMouse: false,
+beforeEach(() => {
+    mockUseDeviceType.mockReturnValue({
       isMobile: true,
+      isTablet: false,
+      isDesktop: false,
+      isTouch: true,
+      hasMouse: false,
+      isHybrid: false,
+      viewportWidth: 375,
     });
 
     mockUseNavigationStore.mockReturnValue({
@@ -54,11 +58,15 @@ describe('BottomNavBar', () => {
       expect(nav).toHaveClass('md:hidden');
     });
 
-    it('should not render when isMobile is false', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: false,
-        hasMouse: true,
+it('should not render when isMobile is false', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isTouch: false,
+        hasMouse: true,
+        isHybrid: false,
+        viewportWidth: 1024,
       });
 
       const { container } = render(<BottomNavBar tabs={sampleTabs} />);

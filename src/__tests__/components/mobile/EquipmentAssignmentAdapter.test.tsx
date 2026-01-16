@@ -1,18 +1,18 @@
 import React from 'react';
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 import { EquipmentAssignmentAdapter, usePlacementMode, PlacementModeState } from '../../../components/mobile/EquipmentAssignmentAdapter';
-import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../../hooks/useDeviceType';
 import * as hapticFeedback from '../../../utils/hapticFeedback';
 
 // PlacementModeState already includes activatePlacementMode, handleSlotTap, cancelPlacementMode
 // so we don't need an extended interface
 
 // Mock dependencies
-jest.mock('../../../hooks/useDeviceCapabilities');
+jest.mock('../../../hooks/useDeviceType');
 jest.mock('../../../utils/hapticFeedback');
 
 describe('EquipmentAssignmentAdapter', () => {
-  const mockUseDeviceCapabilities = useDeviceCapabilities as jest.MockedFunction<typeof useDeviceCapabilities>;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
   const mockHapticTap = jest.fn();
   const mockHapticError = jest.fn();
 
@@ -38,11 +38,15 @@ describe('EquipmentAssignmentAdapter', () => {
     (hapticFeedback.tap as jest.MockedFunction<typeof hapticFeedback.tap>).mockReturnValue(true);
     (hapticFeedback.error as jest.MockedFunction<typeof hapticFeedback.error>).mockReturnValue(true);
 
-    // Default: touch device
-    mockUseDeviceCapabilities.mockReturnValue({
-      hasTouch: true,
-      hasMouse: false,
+// Default: touch device
+    mockUseDeviceType.mockReturnValue({
       isMobile: true,
+      isTablet: false,
+      isDesktop: false,
+      isTouch: true,
+      hasMouse: false,
+      isHybrid: false,
+      viewportWidth: 375,
     });
   });
 
@@ -206,11 +210,15 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(onCancel).toHaveBeenCalledTimes(1);
     });
 
-    it('should not activate placement mode in mouse mode', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: false,
-        hasMouse: true,
+it('should not activate placement mode in mouse mode', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isTouch: false,
+        hasMouse: true,
+        isHybrid: false,
+        viewportWidth: 1024,
       });
 
       const dragComponent = <div data-testid="drag-component">Drag Me</div>;
@@ -233,11 +241,15 @@ describe('EquipmentAssignmentAdapter', () => {
   });
 
   describe('mouse mode', () => {
-    it('should render drag component when not touch device', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: false,
-        hasMouse: true,
+it('should render drag component when not touch device', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isTouch: false,
+        hasMouse: true,
+        isHybrid: false,
+        viewportWidth: 1024,
       });
 
       const dragComponent = <div data-testid="drag-component">Drag Me</div>;
@@ -257,11 +269,15 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(screen.queryByTestId('child')).not.toBeInTheDocument();
     });
 
-    it('should render nothing when drag component not provided in mouse mode', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: false,
-        hasMouse: true,
+it('should render nothing when drag component not provided in mouse mode', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isTouch: false,
+        hasMouse: true,
+        isHybrid: false,
+        viewportWidth: 1024,
       });
 
       const { container } = render(
@@ -280,11 +296,15 @@ describe('EquipmentAssignmentAdapter', () => {
   });
 
   describe('dual-mode devices', () => {
-    it('should use touch mode when device has both touch and mouse', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: true,
-        hasMouse: true,
+it('should use touch mode when device has both touch and mouse', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: true,
+        isDesktop: false,
+        isTouch: true,
+        hasMouse: true,
+        isHybrid: true,
+        viewportWidth: 768,
       });
 
       render(

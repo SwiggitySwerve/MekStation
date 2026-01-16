@@ -3,11 +3,13 @@
  */
 
 export { DiagramHeader, type DiagramHeaderProps } from './DiagramHeader';
+
+// Re-export from canonical location (src/components/armor/shared/)
 export {
   ArmorStatusLegend,
   ArmorDiagramInstructions,
   type ArmorStatusLegendProps,
-} from './ArmorStatusLegend';
+} from '@/components/armor/shared/ArmorStatusLegend';
 
 // Re-export existing shared modules
 export * from './MechSilhouette';

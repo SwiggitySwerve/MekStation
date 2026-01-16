@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useCallback } from 'react';
-import { useDeviceCapabilities } from '../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../hooks/useDeviceType';
 import { tap as hapticTap, error as hapticError } from '../../utils/hapticFeedback';
 
 /**
@@ -99,7 +99,7 @@ export function EquipmentAssignmentAdapter({
   dragComponent,
   className = '',
 }: EquipmentAssignmentAdapterProps): React.ReactElement {
-  const { hasTouch } = useDeviceCapabilities();
+  const { isTouch: hasTouch } = useDeviceType();
   const [placementMode, setPlacementMode] = useState<PlacementModeData>({
     isActive: false,
     equipment: null,

@@ -2,22 +2,26 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { PanelStack, Panel } from '../../../components/mobile/PanelStack';
 import { useNavigationStore } from '../../../stores/navigationStore';
-import { useDeviceCapabilities } from '../../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../../hooks/useDeviceType';
 
 // Mock dependencies
 jest.mock('../../../stores/navigationStore');
-jest.mock('../../../hooks/useDeviceCapabilities');
+jest.mock('../../../hooks/useDeviceType');
 
 describe('PanelStack', () => {
   const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<typeof useNavigationStore>;
-  const mockUseDeviceCapabilities = useDeviceCapabilities as jest.MockedFunction<typeof useDeviceCapabilities>;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
 
   beforeEach(() => {
     // Default mocks
-    mockUseDeviceCapabilities.mockReturnValue({
-      hasTouch: false,
-      hasMouse: true,
+    mockUseDeviceType.mockReturnValue({
       isMobile: true,
+      isTablet: false,
+      isDesktop: false,
+      isTouch: false,
+      hasMouse: true,
+      isHybrid: false,
+      viewportWidth: 375,
     });
 
     mockUseNavigationStore.mockReturnValue({
@@ -64,11 +68,15 @@ describe('PanelStack', () => {
       expect(screen.getByText('Catalog Content')).toBeInTheDocument();
     });
 
-    it('should not render when isMobile is false', () => {
-      mockUseDeviceCapabilities.mockReturnValue({
-        hasTouch: false,
-        hasMouse: true,
+it('should not render when isMobile is false', () => {
+      mockUseDeviceType.mockReturnValue({
         isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isTouch: false,
+        hasMouse: true,
+        isHybrid: false,
+        viewportWidth: 1024,
       });
 
       const { container } = render(

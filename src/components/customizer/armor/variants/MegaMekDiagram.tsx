@@ -25,7 +25,7 @@ import {
   SELECTED_COLOR,
 } from '../shared/ArmorFills';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared/ArmorStatusLegend';
+import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 
 interface MegaMekLocationProps {
   location: MechLocation;

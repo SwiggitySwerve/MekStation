@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
 import { useMobileSidebarStore } from '@/stores/navigationStore';
+import { HamburgerIcon } from './icons/NavigationIcons';
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,15 +11,6 @@ interface LayoutProps {
   secondarySidebar?: ReactNode; // Optional page-specific sidebar
   /** Hide the mobile header (useful for pages with their own mobile navigation like customizer) */
   hideMobileHeader?: boolean;
-}
-
-/** Hamburger menu icon */
-function HamburgerIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-    </svg>
-  );
 }
 
 const Layout: React.FC<LayoutProps> = ({
