@@ -1,5 +1,7 @@
 # Change: Codebase Cleanup and Consolidation
 
+**Status**: COMPLETED (2026-01-16)
+
 ## Why
 
 Following PRs #65-72, the codebase has accumulated technical debt including duplicate type definitions, inconsistent naming conventions, and parallel implementations. This cleanup addresses:
@@ -110,3 +112,21 @@ Following PRs #65-72, the codebase has accumulated technical debt including dupl
 
 - No new specs created
 - No specs modified
+
+## Outcomes
+
+### Completed
+- All 6 phases completed successfully
+- 57 files modified, 3 deleted, 3 created
+- All 5713 tests passing
+- TypeScript, ESLint, and build all passing
+- Merged as PR #73
+
+### Deferred
+- 5.1.6: JSDoc deprecation notices for legacy stores (still actively used)
+- 6.1.5-6.1.6: Manual smoke tests (require runtime testing)
+
+### Key Decisions
+- **Validation Systems**: Kept both systems (Option A) - they serve different purposes (unit-type vs config-based)
+- **Desktop Types**: Kept `desktop/types/BaseTypes.ts` separate from web types (intentional separation)
+- **Store Naming**: `navigationStore.ts` → `useNavigationStore.ts` despite exporting two stores (primary store matches filename)
