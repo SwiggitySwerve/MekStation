@@ -52,6 +52,17 @@ jest.mock('next/image', () => ({
   },
 }));
 
+// Mock ResizeObserver (not available in jsdom)
+class ResizeObserverMock {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserverMock;
+
 // Mock canvas if used in components
 HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
   clearRect: jest.fn(),
