@@ -39,8 +39,6 @@ interface MobileLoadoutHeaderProps {
   stats: MobileLoadoutStats;
   isExpanded: boolean;
   onToggle: () => void;
-  /** Optional callback to open navigation menu (mobile sidebar) */
-  onMenuOpen?: () => void;
   className?: string;
 }
 
@@ -113,7 +111,6 @@ export function MobileLoadoutHeader({
   stats,
   isExpanded,
   onToggle,
-  onMenuOpen,
   className = '',
 }: MobileLoadoutHeaderProps): React.ReactElement {
   const weightStatus = getWeightStatus(stats.weightUsed, stats.weightMax);
@@ -187,22 +184,6 @@ export function MobileLoadoutHeader({
           </div>
         </div>
       </button>
-
-      {/* Menu button - opens navigation sidebar (right side for right-hand ergonomics) */}
-      {onMenuOpen && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onMenuOpen();
-          }}
-          className="h-full px-3 flex items-center justify-center border-l border-border-theme-subtle text-text-theme-secondary hover:text-accent hover:bg-surface-raised/50 active:bg-surface-raised transition-colors"
-          aria-label="Open navigation menu"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }

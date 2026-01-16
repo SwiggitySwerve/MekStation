@@ -45,8 +45,6 @@ interface BottomSheetTrayProps {
   isOmni?: boolean;
   /** Unit stats for the status bar */
   stats?: MobileLoadoutStats;
-  /** Optional callback to open navigation menu (mobile sidebar) */
-  onMenuOpen?: () => void;
   className?: string;
 }
 
@@ -83,7 +81,6 @@ export function BottomSheetTray({
   getAvailableLocationsForEquipment,
   isOmni = false,
   stats: providedStats,
-  onMenuOpen,
   className = '',
 }: BottomSheetTrayProps): React.ReactElement {
   // Persist expanded state to localStorage
@@ -188,7 +185,6 @@ export function BottomSheetTray({
           stats={computedStats}
           isExpanded={isExpanded}
           onToggle={handleToggle}
-          onMenuOpen={onMenuOpen}
         />
       </div>
 

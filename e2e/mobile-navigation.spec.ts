@@ -35,15 +35,15 @@ test.describe('Mobile Navigation Header', () => {
     await expect(menuButton).toBeVisible();
   });
 
-  test('should NOT display mobile header on customizer page', async ({ page }) => {
+  test('should display mobile header on customizer page for consistency', async ({ page }) => {
     await page.goto('/customizer');
     
     // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    // Customizer has its own bottom tray navigation, so no mobile header
-    const menuButton = page.locator('header button[aria-label="Open navigation menu"]');
-    await expect(menuButton).not.toBeVisible();
+    // Mobile header is now shown on ALL pages for consistent UX
+    const menuButton = page.getByRole('button', { name: /open navigation menu/i });
+    await expect(menuButton).toBeVisible();
   });
 
   test('should hide mobile header on desktop viewport', async ({ page }) => {
@@ -199,7 +199,7 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
 // Customizer Bottom Tray Menu Tests
 // =============================================================================
 
-test.describe('Customizer Bottom Tray Menu', () => {
+test.describe('Customizer Page', () => {
   test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE viewport
 
   test('should display bottom tray on customizer', async ({ page }) => {
@@ -208,46 +208,42 @@ test.describe('Customizer Bottom Tray Menu', () => {
     // Wait for page to fully load
     await page.waitForLoadState('networkidle');
 
-    // The customizer should have a fixed bottom area
-    // This test just verifies the page loads and has the expected layout
+    // The customizer should have a fixed bottom area for stats
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('should open sidebar from customizer menu button if present', async ({ page }) => {
+  test('should use mobile header for navigation (consistent with other pages)', async ({ page }) => {
     await page.goto('/customizer');
     await page.waitForLoadState('networkidle');
 
-    // Find the menu button (may be in bottom tray or elsewhere)
-    const menuButton = page.locator('button[aria-label="Open navigation menu"]');
-    
-    // Only test if button exists (customizer may have different nav approach)
-    const buttonCount = await menuButton.count();
-    if (buttonCount > 0 && await menuButton.first().isVisible()) {
-      await menuButton.first().click();
+    // Menu button should be in the mobile header (top), not in bottom tray
+    const menuButton = page.getByRole('button', { name: /open navigation menu/i });
+    await expect(menuButton).toBeVisible();
 
-      // Sidebar should open
-      const sidebar = page.locator('aside');
-      await expect(sidebar).toBeVisible();
-      await expect(sidebar.getByText('Dashboard')).toBeVisible();
+    // Verify it's in the header (top of screen)
+    const buttonBox = await menuButton.boundingBox();
+    expect(buttonBox).not.toBeNull();
+    if (buttonBox) {
+      // Button should be near the top of the screen (in header)
+      expect(buttonBox.y).toBeLessThan(100);
+      // And on the right side
+      expect(buttonBox.x).toBeGreaterThan(375 / 2);
     }
   });
 
-  test('should position menu button on the right side if present', async ({ page }) => {
+  test('should open sidebar from customizer mobile header', async ({ page }) => {
     await page.goto('/customizer');
     await page.waitForLoadState('networkidle');
 
-    const menuButton = page.locator('button[aria-label="Open navigation menu"]');
-    
-    const buttonCount = await menuButton.count();
-    if (buttonCount > 0 && await menuButton.first().isVisible()) {
-      const buttonBox = await menuButton.first().boundingBox();
+    // Click the menu button in the mobile header
+    const menuButton = page.getByRole('button', { name: /open navigation menu/i });
+    await menuButton.click();
 
-      expect(buttonBox).not.toBeNull();
-      if (buttonBox) {
-        // Button should be on the right side (x > viewport width / 2)
-        expect(buttonBox.x).toBeGreaterThan(375 / 2);
-      }
-    }
+    // Sidebar should open
+    await page.waitForTimeout(350);
+    const sidebar = page.locator('aside');
+    await expect(sidebar).toBeVisible();
+    await expect(sidebar.getByText('Dashboard')).toBeVisible();
   });
 });
 

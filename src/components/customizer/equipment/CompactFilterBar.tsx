@@ -6,6 +6,7 @@
 import React, { useState, useCallback } from 'react';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+import { BalancedGrid } from '@/components/common/BalancedGrid';
 
 export interface CompactFilterBarProps {
   activeCategories: Set<EquipmentCategory>;
@@ -77,53 +78,53 @@ export function CompactFilterBar({
   
   return (
     <div className={`space-y-1.5 ${className}`}>
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <div className="flex items-center gap-0.5 flex-wrap">
-          {CATEGORY_CONFIGS.map(({ category, label, icon }) => {
-            const isActive = showAll || (
-              category === EquipmentCategory.MISC_EQUIPMENT
-                ? OTHER_COMBINED_CATEGORIES.some(cat => activeCategories.has(cat))
-                : activeCategories.has(category)
-            );
-            const colors = getCategoryColorsLegacy(category);
-            
-            return (
-              <button
-                key={category}
-                onClick={(e) => handleCategoryClick(category, e)}
-                className={`
-                  px-1.5 py-0.5 text-[10px] rounded transition-all
-                  flex items-center gap-1
-                  ${isActive
-                    ? `${colors.bg} ${colors.text} ring-1 ${colors.border} shadow-sm`
-                    : 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised'
-                  }
-                `}
-                title={`${label} (Ctrl+click to multi-select)`}
-              >
-                <span className="text-sm">{icon}</span>
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            );
-          })}
+      {/* Row 1: Category buttons with balanced grid */}
+      <BalancedGrid minItemWidth={85} gap={4} fallbackColumns="repeat(auto-fill, minmax(40px, 1fr))">
+        {CATEGORY_CONFIGS.map(({ category, label, icon }) => {
+          const isActive = showAll || (
+            category === EquipmentCategory.MISC_EQUIPMENT
+              ? OTHER_COMBINED_CATEGORIES.some(cat => activeCategories.has(cat))
+              : activeCategories.has(category)
+          );
+          const colors = getCategoryColorsLegacy(category);
           
-          <button
-            onClick={onShowAll}
-            className={`
-              px-1.5 py-0.5 text-[10px] rounded transition-all
-              ${showAll
-                ? 'bg-accent text-white ring-1 ring-accent shadow-sm'
-                : 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised'
-              }
-            `}
-            title="Show all categories"
-          >
-            All
-          </button>
-        </div>
+          return (
+            <button
+              key={category}
+              onClick={(e) => handleCategoryClick(category, e)}
+              className={`
+                px-1.5 py-0.5 text-[10px] rounded transition-all
+                flex items-center justify-center gap-1
+                ${isActive
+                  ? `${colors.bg} ${colors.text} ring-1 ${colors.border} shadow-sm`
+                  : 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised'
+                }
+              `}
+              title={`${label} (Ctrl+click to multi-select)`}
+            >
+              <span className="text-sm">{icon}</span>
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          );
+        })}
         
-        <div className="w-px h-4 bg-border-theme-subtle hidden sm:block" />
-        
+        <button
+          onClick={onShowAll}
+          className={`
+            px-1.5 py-0.5 text-[10px] rounded transition-all
+            ${showAll
+              ? 'bg-accent text-white ring-1 ring-accent shadow-sm'
+              : 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised'
+            }
+          `}
+          title="Show all categories"
+        >
+          All
+        </button>
+      </BalancedGrid>
+      
+      {/* Row 2: Controls (Hide, Search, Clear) */}
+      <div className="flex items-center gap-1.5 flex-wrap">
         <button
           onClick={() => setHideFiltersExpanded(!hideFiltersExpanded)}
           className={`

@@ -2,6 +2,7 @@
  * Unit Info Banner Component
  * 
  * Modular stat box display that flows and wraps as space permits.
+ * Uses balanced grid for even row distribution when wrapping.
  * Single responsive component for both mobile and desktop.
  * 
  * @spec openspec/specs/unit-info-banner/spec.md
@@ -10,6 +11,7 @@
 import React from 'react';
 import { TechBaseBadge } from './TechBaseBadge';
 import { ValidationBadge } from './ValidationBadge';
+import { BalancedGrid } from '@/components/common/BalancedGrid';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { ValidationStatus } from '@/utils/colors/statusColors';
 
@@ -107,6 +109,7 @@ function CapacityStat({ label, current, max, unit = '', status = 'normal' }: Cap
   );
 }
 
+
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -123,6 +126,8 @@ export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): 
     stats.heatGenerated > stats.heatDissipation ? 'error' :
     stats.heatGenerated === stats.heatDissipation ? 'warning' : 'success';
 
+  const hasRunPlus = stats.maxRunMP && stats.maxRunMP > stats.runMP;
+
   return (
     <div className={`bg-surface-base border border-border-theme-subtle rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 ${className}`}>
       <div className="flex items-center gap-2 mb-1.5">
@@ -135,12 +140,13 @@ export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): 
         />
       </div>
       
-      <div className="flex items-center flex-wrap gap-1 sm:gap-1.5 justify-center">
+      {/* BalancedGrid automatically distributes items evenly across rows */}
+      <BalancedGrid minItemWidth={75} gap={6} className="sm:gap-1.5">
         <SimpleStat label="Tonnage" value={stats.tonnage} />
         <SimpleStat label="Walk" value={stats.walkMP} />
         <SimpleStat label="Run" value={stats.runMP} />
-        {stats.maxRunMP && stats.maxRunMP > stats.runMP && (
-          <SimpleStat label="Run+" value={stats.maxRunMP} />
+        {hasRunPlus && (
+          <SimpleStat label="Run+" value={stats.maxRunMP!} />
         )}
         <SimpleStat label="Jump" value={stats.jumpMP} />
         <SimpleStat label="BV" value={stats.battleValue?.toLocaleString() ?? '-'} status="bv" />
@@ -155,7 +161,7 @@ export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): 
         <CapacityStat label="Armor" current={stats.armorPoints} max={stats.maxArmorPoints} />
         <CapacityStat label="Slots" current={stats.criticalSlotsUsed} max={stats.criticalSlotsTotal} status={slotsStatus} />
         <CapacityStat label="Heat" current={stats.heatGenerated} max={stats.heatDissipation} status={heatStatus} />
-      </div>
+      </BalancedGrid>
     </div>
   );
 }

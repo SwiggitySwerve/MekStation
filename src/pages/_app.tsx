@@ -72,8 +72,9 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   // Register service worker
   const sw = useServiceWorker();
 
-  // Hide mobile header on customizer page (it has its own bottom tray navigation)
-  const isCustomizerPage = router.pathname.startsWith('/customizer');
+  // Mobile header is now shown on ALL pages for consistency
+  // Previously customizer had hideMobileHeader=true, but that caused jarring UX 
+  // with menu button appearing in different positions
 
   return (
     <GlobalStyleProvider>
@@ -86,7 +87,6 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
             />
           }
           isSidebarCollapsed={isSidebarCollapsed}
-          hideMobileHeader={isCustomizerPage}
         >
           <Component {...pageProps} servicesReady={servicesReady} />
 
