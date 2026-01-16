@@ -7,15 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppSettingsStore, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
-
-const VARIANT_LABELS: Record<ArmorDiagramVariant, string> = {
-  'clean-tech': 'Clean Tech',
-  'neon-operator': 'Neon',
-  'tactical-hud': 'Tactical',
-  'premium-material': 'Premium',
-  'megamek': 'MegaMek',
-  'megamek-classic': 'MM Classic',
-};
+import { DIAGRAM_VARIANT_INFO } from './ArmorDiagramPreview';
 
 const VARIANTS: ArmorDiagramVariant[] = [
   'clean-tech',
@@ -37,7 +29,7 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
   const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
   const setArmorDiagramVariant = useAppSettingsStore((s) => s.setArmorDiagramVariant);
 
-  const currentLabel = VARIANT_LABELS[armorDiagramVariant];
+  const currentLabel = DIAGRAM_VARIANT_INFO[armorDiagramVariant].name;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -78,7 +70,7 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span className="text-text-theme-secondary">Style:</span>
+        <span className="text-text-theme-secondary">Silhouette:</span>
         <span className="text-text-theme-primary font-medium">{currentLabel}</span>
         <svg
           className={`w-3 h-3 text-text-theme-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -110,7 +102,7 @@ export function ArmorDiagramQuickSettings({ className = '' }: QuickSettingsProps
                 role="option"
                 aria-selected={isSelected}
               >
-                <span>{VARIANT_LABELS[variant]}</span>
+                <span>{DIAGRAM_VARIANT_INFO[variant].name}</span>
                 {isSelected && (
                   <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
