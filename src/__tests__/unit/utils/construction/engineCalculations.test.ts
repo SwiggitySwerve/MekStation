@@ -5,6 +5,12 @@ import {
   calculateEngineRating,
   calculateIntegralHeatSinks,
   getEngineCTSlots,
+  calculateWalkMP,
+  getEngineSideTorsoSlots,
+  getTotalEngineSlots,
+  validateEngineForTonnage,
+  isFusionEngine,
+  getAllValidEngineRatings,
 } from '@/utils/construction/engineCalculations';
 import { EngineType } from '@/types/construction/EngineType';
 
@@ -66,6 +72,11 @@ describe('engineCalculations', () => {
       
       expect(xlWeight).toBeLessThan(standardWeight);
     });
+
+    it('should handle unknown engine type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(calculateEngineWeight(250, 'INVALID' as any)).toBe(getBaseEngineWeight(250));
+    });
   });
 
   describe('calculateEngineRating()', () => {
@@ -77,6 +88,18 @@ describe('engineCalculations', () => {
     it('should round to nearest multiple of 5', () => {
       const rating = calculateEngineRating(50, 4.7);
       expect(rating % 5).toBe(0);
+    });
+  });
+
+  describe('calculateWalkMP()', () => {
+    it('should calculate walk MP', () => {
+      expect(calculateWalkMP(250, 50)).toBe(5);
+      expect(calculateWalkMP(245, 50)).toBe(4);
+    });
+
+    it('should return 0 for invalid input', () => {
+      expect(calculateWalkMP(0, 50)).toBe(0);
+      expect(calculateWalkMP(250, 0)).toBe(0);
     });
   });
 
@@ -92,6 +115,11 @@ describe('engineCalculations', () => {
       
       expect(xlSinks).toBeGreaterThanOrEqual(standardSinks);
     });
+
+    it('should return 0 if engine does not support integral sinks', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(calculateIntegralHeatSinks(250, 'ICE' as any)).toBe(0);
+    });
   });
 
   describe('getEngineCTSlots()', () => {
@@ -101,10 +129,64 @@ describe('engineCalculations', () => {
       expect(slots).toBeLessThanOrEqual(6);
     });
 
-    it('should return CT slots based on rating', () => {
-      const lowRatingSlots = getEngineCTSlots(100, EngineType.STANDARD);
-      const highRatingSlots = getEngineCTSlots(400, EngineType.STANDARD);
-      expect(highRatingSlots).toBeGreaterThanOrEqual(lowRatingSlots);
+    it('should handle COMPACT engine', () => {
+      expect(getEngineCTSlots(250, EngineType.COMPACT)).toBe(3);
+    });
+
+    it('should handle unknown engine type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(getEngineCTSlots(250, 'INVALID' as any)).toBe(6);
+    });
+  });
+
+  describe('getEngineSideTorsoSlots()', () => {
+    it('should return 0 for standard engine', () => {
+      expect(getEngineSideTorsoSlots(EngineType.STANDARD)).toBe(0);
+    });
+
+    it('should return correct slots for XL engine', () => {
+      expect(getEngineSideTorsoSlots(EngineType.XL_IS)).toBe(3);
+    });
+  });
+
+  describe('getTotalEngineSlots()', () => {
+    it('should sum CT and side torso slots', () => {
+      const total = getTotalEngineSlots(250, EngineType.XL_IS);
+      expect(total).toBe(6 + (3 * 2));
+    });
+  });
+
+  describe('validateEngineForTonnage()', () => {
+    it('should validate valid engine', () => {
+      const result = validateEngineForTonnage(250, 50);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject engine with walk MP < 1', () => {
+      const result = validateEngineForTonnage(40, 100);
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toContain('too low');
+    });
+
+    it('should reject engine with walk MP > 20', () => {
+      const result = validateEngineForTonnage(500, 20);
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toContain('too high');
+    });
+  });
+
+  describe('isFusionEngine()', () => {
+    it('should return true for fusion engines', () => {
+      expect(isFusionEngine(EngineType.STANDARD)).toBe(true);
+      expect(isFusionEngine(EngineType.XL_IS)).toBe(true);
+    });
+  });
+
+  describe('getAllValidEngineRatings()', () => {
+    it('should return a list of ratings', () => {
+      const ratings = getAllValidEngineRatings();
+      expect(ratings).toContain(250);
+      expect(ratings.length).toBeGreaterThan(50);
     });
   });
 });

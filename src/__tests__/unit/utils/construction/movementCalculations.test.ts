@@ -133,8 +133,16 @@ describe('movementCalculations', () => {
     });
 
     it('should calculate jump jet weight across all types and fallbacks', () => {
+      // Standard: <= 55: 0.5, <= 85: 1.0, > 85: 2.0
+      expect(calculateJumpJetWeight(50, 2, JumpJetType.STANDARD)).toBe(1.0);
+      expect(calculateJumpJetWeight(75, 2, JumpJetType.STANDARD)).toBe(2.0);
       expect(calculateJumpJetWeight(90, 2, JumpJetType.STANDARD)).toBe(4); // 2 × 2.0t
+      
+      // Improved: <= 55: 1.0, <= 85: 2.0, > 85: 4.0
+      expect(calculateJumpJetWeight(50, 2, JumpJetType.IMPROVED)).toBe(2.0);
+      expect(calculateJumpJetWeight(75, 2, JumpJetType.IMPROVED)).toBe(4.0);
       expect(calculateJumpJetWeight(90, 3, JumpJetType.IMPROVED)).toBe(12); // 3 × 4.0t
+      
       expect(calculateJumpJetWeight(60, 4, JumpJetType.MECHANICAL)).toBeCloseTo(6); // 4 × (60 × 0.025)
       expect(calculateJumpJetWeight(45, 2, 'Unknown' as JumpJetType)).toBe(1); // default 0.5t per jump
     });

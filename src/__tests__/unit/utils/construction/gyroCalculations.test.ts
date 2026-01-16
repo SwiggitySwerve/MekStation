@@ -25,6 +25,11 @@ describe('gyroCalculations', () => {
       expect(calculateGyroWeight(0, GyroType.STANDARD)).toBe(0);
       expect(calculateGyroWeight(-1, GyroType.STANDARD)).toBe(0);
     });
+
+    it('should handle unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(calculateGyroWeight(250, 'INVALID' as any)).toBe(Math.ceil(250 / 100));
+    });
   });
 
   describe('getGyroCriticalSlots()', () => {
@@ -36,6 +41,11 @@ describe('gyroCalculations', () => {
     it('should return critical slots for compact gyro', () => {
       const slots = getGyroCriticalSlots(GyroType.COMPACT);
       expect(slots).toBeGreaterThan(0);
+    });
+
+    it('should return default 4 for unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(getGyroCriticalSlots('INVALID' as any)).toBe(4);
     });
   });
 
@@ -52,6 +62,13 @@ describe('gyroCalculations', () => {
       
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    it('should reject unknown gyro type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      const result = validateGyro('INVALID' as any, 250);
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toContain('Unknown gyro type');
     });
   });
 

@@ -55,7 +55,6 @@ import { TechBase } from '@/types/enums/TechBase';
 import { getMovementModifiersFromEquipment, calculateMaxRunMPWithModifiers } from '@/utils/construction/movementCalculations';
 
 // Utils
-import { ValidationStatus } from '@/utils/colors/statusColors';
 import { getMaxTotalArmor } from '@/utils/construction/armorCalculations';
 
 // =============================================================================
@@ -206,9 +205,9 @@ export function UnitEditorWithRouting({
   
   // Calculate equipment totals
   const equipmentCalcs = useEquipmentCalculations(equipment);
-  
-  // Get validation status
-  const validationResult = useUnitValidation();
+
+  // Get real-time validation results
+  const validation = useUnitValidation();
   
   // Calculate armor stats for display
   const allocatedArmorPoints = useMemo(
@@ -376,37 +375,29 @@ export function UnitEditorWithRouting({
     return techBaseMode;
   }, [techBaseMode, componentTechBases]);
 
-  const unitStats: UnitStats = useMemo(() => {
-    const validationStatus: ValidationStatus = validationResult.errorCount > 0
-      ? 'error'
-      : validationResult.warningCount > 0
-        ? 'warning'
-        : 'valid';
-    
-    return {
-      name: unitName,
-      tonnage,
-      techBaseMode: effectiveTechBaseMode,
-      engineRating,
-      walkMP: calculations.walkMP,
-      runMP: calculations.runMP,
-      jumpMP: calculations.jumpMP,
-      maxRunMP,
-      weightUsed: totalWeight,
-      weightRemaining: tonnage - totalWeight,
-      armorPoints: allocatedArmorPoints,
-      maxArmorPoints: maxArmorPoints,
-      criticalSlotsUsed: totalSlotsUsed,
-      criticalSlotsTotal: 78,
-      heatGenerated: heatProfile.heatGenerated,
-      heatDissipation: heatProfile.heatDissipated,
-      battleValue,
-      validationStatus,
-      errorCount: validationResult.errorCount,
-      warningCount: validationResult.warningCount,
-    };
-  }, [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue, validationResult]);
-  
+  const unitStats: UnitStats = useMemo(() => ({
+    name: unitName,
+    tonnage,
+    techBaseMode: effectiveTechBaseMode,
+    engineRating,
+    walkMP: calculations.walkMP,
+    runMP: calculations.runMP,
+    jumpMP: calculations.jumpMP,
+    maxRunMP,
+    weightUsed: totalWeight,
+    weightRemaining: tonnage - totalWeight,
+    armorPoints: allocatedArmorPoints,
+    maxArmorPoints: maxArmorPoints,
+    criticalSlotsUsed: totalSlotsUsed,
+    criticalSlotsTotal: 78,
+    heatGenerated: heatProfile.heatGenerated,
+    heatDissipation: heatProfile.heatDissipated,
+    battleValue,
+    validationStatus: validation.status,
+    errorCount: validation.errorCount,
+    warningCount: validation.warningCount,
+  }), [unitName, tonnage, effectiveTechBaseMode, engineRating, calculations, heatProfile, totalWeight, totalSlotsUsed, allocatedArmorPoints, maxArmorPoints, maxRunMP, battleValue, validation.status, validation.errorCount, validation.warningCount]);
+
   // Compute mobile stats for the bottom sheet tray
   const mobileLoadoutStats: MobileLoadoutStats = useMemo(() => {
     const unassignedCount = equipment.filter(e => !e.location).length;

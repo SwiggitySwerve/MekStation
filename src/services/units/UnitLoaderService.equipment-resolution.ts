@@ -113,7 +113,8 @@ export function inferPreferredTechBaseFromCriticalSlots(
  * - 'rotary-ac-5' → 'rac-5'
  */
 export function normalizeEquipmentId(id: string, _unitTechBase: TechBase): string {
-  let normalized = id.toLowerCase().trim();
+  let normalized = id.toLowerCase().trim()
+    .replace(/[ \-_]+/g, '-');
   
   // Check for Clan prefix
   const isClanPrefix = normalized.startsWith('clan-');
@@ -122,19 +123,19 @@ export function normalizeEquipmentId(id: string, _unitTechBase: TechBase): strin
   }
   
   // Ultra AC/x patterns: 'ultra-ac-5' → 'uac-5'
-  if (/^ultra-ac-?\d+$/.test(normalized)) {
+  if (/^ultra-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `uac-${num}`;
   }
   
   // Rotary AC patterns: 'rotary-ac-5' → 'rac-5'
-  if (/^rotary-ac-?\d+$/.test(normalized)) {
+  if (/^rotary-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `rac-${num}`;
   }
   
   // Light AC patterns: 'light-ac-5' → 'lac-5'
-  if (/^light-ac-?\d+$/.test(normalized)) {
+  if (/^light-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `lac-${num}`;
   }

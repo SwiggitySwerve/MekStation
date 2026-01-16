@@ -290,6 +290,12 @@ describe('UnitSerializer', () => {
       const version = getSerializedFormatVersion('invalid');
       expect(version).toBeNull();
     });
+
+    it('should return null for non-string format version', () => {
+      const envelope = { formatVersion: 123 };
+      const version = getSerializedFormatVersion(JSON.stringify(envelope));
+      expect(version).toBeNull();
+    });
   });
 
   describe('isFormatVersionSupported()', () => {

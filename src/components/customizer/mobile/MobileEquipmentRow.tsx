@@ -68,13 +68,13 @@ interface MobileEquipmentRowProps {
 }
 
 /** Format range brackets like "0/3/6/9" or "-/3/6/9" for min range */
-function formatRangeBrackets(ranges: { minimum: number; short: number; medium: number; long: number }): string {
+function _formatRangeBrackets(ranges: { minimum: number; short: number; medium: number; long: number }): string {
   const min = ranges.minimum > 0 ? ranges.minimum : 0;
   return `${min}/${ranges.short}/${ranges.medium}/${ranges.long}`;
 }
 
 /** Get range band description based on short range */
-function getRangeBand(ranges: { short: number; medium: number }): string {
+function _getRangeBand(ranges: { short: number; medium: number }): string {
   // Rough heuristics based on typical BattleTech weapon ranges
   if (ranges.short <= 2) return 'PD'; // Point Defense (very short range)
   if (ranges.short <= 4) return 'Short';
@@ -93,7 +93,7 @@ export function MobileEquipmentRow({
   isOmni = false,
   onSelect,
   onRemove,
-  onEditLocation,
+  onEditLocation: _onEditLocation,
   onUnassign,
   onQuickAssign,
   availableLocations = [],
