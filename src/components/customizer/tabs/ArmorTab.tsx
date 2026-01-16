@@ -65,11 +65,9 @@ export function ArmorTab({
   readOnly = false,
   className = '',
 }: ArmorTabProps): React.ReactElement {
-  // Get app settings - use effective getters for draft preview support
-  const getEffectiveArmorDiagramMode = useAppSettingsStore((s) => s.getEffectiveArmorDiagramMode);
-  const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
-  const armorDiagramMode = getEffectiveArmorDiagramMode();
-  const armorDiagramVariant = getEffectiveArmorDiagramVariant();
+  // Get app settings - subscribe to computed values for reactivity
+  const armorDiagramMode = useAppSettingsStore((s) => s.getEffectiveArmorDiagramMode());
+  const armorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant());
 
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
