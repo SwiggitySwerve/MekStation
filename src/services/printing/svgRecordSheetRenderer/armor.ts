@@ -4,7 +4,7 @@
  */
 
 import { IRecordSheetData } from '@/types/printing';
-import { ArmorPipLayout } from './ArmorPipLayout';
+import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -16,8 +16,8 @@ import {
   BIPED_PIP_GROUP_IDS,
   QUAD_PIP_GROUP_IDS,
   TRIPOD_PIP_GROUP_IDS,
-} from './SVGRecordSheetRenderer.constants';
-import { setTextContent } from './SVGRecordSheetRenderer.template';
+} from './constants';
+import { setTextContent } from './template';
 
 /**
  * Fill template with armor pips and text values (async - fetches pip SVGs)
@@ -35,7 +35,7 @@ export async function fillArmorPips(
     if (textId) {
       setTextContent(svgDoc, textId, `( ${loc.current} )`);
     }
-    
+
     // Rear armor for torso locations
     if (loc.rear !== undefined && loc.rear > 0) {
       const rearTextId = ARMOR_TEXT_IDS[`${loc.abbreviation}R`];
@@ -51,7 +51,7 @@ export async function fillArmorPips(
   if (usePremadePips) {
     // Biped: Load pre-made pip SVG files
     let armorPipsGroup = svgDoc.getElementById(ELEMENT_IDS.CANON_ARMOR_PIPS);
-    
+
     if (!armorPipsGroup) {
       armorPipsGroup = svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
     }
@@ -144,7 +144,7 @@ async function loadAndInsertPips(
     // Extract the path elements from the pip SVG
     // Pip files have paths inside <switch><g>...</g></switch>
     const paths = pipDoc.querySelectorAll('path');
-    
+
     if (paths.length === 0) return;
 
     // Create a group for this location's pips

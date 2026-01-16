@@ -52,7 +52,7 @@ jest.mock('next/router', () => ({
 // Mock the mobile sidebar store with configurable state
 let mockIsOpen = false;
 const mockClose = jest.fn();
-jest.mock('@/stores/navigationStore', () => ({
+jest.mock('@/stores/useNavigationStore', () => ({
   useMobileSidebarStore: (selector?: (state: { isOpen: boolean; close: () => void }) => unknown) => {
     const state = { isOpen: mockIsOpen, close: mockClose };
     // If no selector is provided, return the full state object

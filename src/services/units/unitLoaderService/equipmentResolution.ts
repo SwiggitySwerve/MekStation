@@ -1,9 +1,9 @@
 /**
  * Unit Loader Service - Equipment Resolution
- * 
+ *
  * Functions for resolving equipment IDs and variants from serialized units.
  * Handles ID normalization, alias resolution, and tech-base variant selection.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
@@ -46,17 +46,17 @@ function stripTechMarkersFromName(name: string): string {
 
 function getTechHintFromToken(token: string): TechHint | null {
   const trimmed = token.trim();
-  
+
   // Clan markers commonly found in MegaMek exports
   if (/^CL[A-Za-z0-9]/.test(trimmed) || /^Clan\s+/i.test(trimmed) || /\(Clan\)/i.test(trimmed)) {
     return 'clan';
   }
-  
+
   // Inner Sphere markers commonly found in import sources
   if (/^IS[A-Za-z0-9]/.test(trimmed) || /^IS\s+/i.test(trimmed) || /\(IS\)/i.test(trimmed) || /\[IS\]/i.test(trimmed)) {
     return 'is';
   }
-  
+
   return null;
 }
 
@@ -66,12 +66,12 @@ function stripTechPrefixFromNormalizedKey(normalized: string, hint: TechHint): s
     if (normalized.startsWith('cl')) return normalized.slice(2);
     return normalized;
   }
-  
+
   if (hint === 'is') {
     if (normalized.startsWith('is')) return normalized.slice(2);
     return normalized;
   }
-  
+
   return normalized;
 }
 
@@ -82,25 +82,25 @@ export function inferPreferredTechBaseFromCriticalSlots(
   if (!locationSlots || locationSlots.length === 0) {
     return null;
   }
-  
+
   for (const entry of locationSlots) {
     if (typeof entry !== 'string') {
       continue;
     }
-    
+
     const hint = getTechHintFromToken(entry);
     if (!hint) {
       continue;
     }
-    
+
     const normalizedToken = normalizeMatchKey(entry);
     const strippedToken = stripTechPrefixFromNormalizedKey(normalizedToken, hint);
-    
+
     if (strippedToken === equipmentNameKey) {
       return hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
     }
   }
-  
+
   return null;
 }
 
@@ -115,37 +115,37 @@ export function inferPreferredTechBaseFromCriticalSlots(
 export function normalizeEquipmentId(id: string, _unitTechBase: TechBase): string {
   let normalized = id.toLowerCase().trim()
     .replace(/[ \-_]+/g, '-');
-  
+
   // Check for Clan prefix
   const isClanPrefix = normalized.startsWith('clan-');
   if (isClanPrefix) {
     normalized = normalized.slice(5); // Remove 'clan-' prefix
   }
-  
+
   // Ultra AC/x patterns: 'ultra-ac-5' → 'uac-5'
   if (/^ultra-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `uac-${num}`;
   }
-  
+
   // Rotary AC patterns: 'rotary-ac-5' → 'rac-5'
   if (/^rotary-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `rac-${num}`;
   }
-  
+
   // Light AC patterns: 'light-ac-5' → 'lac-5'
   if (/^light-?ac-?\d+$/.test(normalized)) {
     const num = normalized.match(/\d+$/)?.[0];
     normalized = `lac-${num}`;
   }
-  
+
   // LB X AC patterns: 'lb-10-x-ac' → 'lb-10x-ac'
   normalized = normalized.replace(/^lb-(\d+)-x-ac$/, 'lb-$1x-ac');
-  
+
   // ER laser patterns
   normalized = normalized.replace(/^extended-range-(.*)$/, 'er-$1');
-  
+
   // Handle ammo patterns
   if (normalized.endsWith('-ammo') || normalized.includes('-ammo-')) {
     // 'ultra-ac-5-ammo' → 'uac-5-ammo'
@@ -154,12 +154,12 @@ export function normalizeEquipmentId(id: string, _unitTechBase: TechBase): strin
     normalized = normalized.replace(/light-ac-(\d+)/, 'lac-$1');
     normalized = normalized.replace(/lb-(\d+)-x-ac/, 'lb-$1x-ac');
   }
-  
+
   // Re-add clan prefix if it was explicitly present in the source ID
   if (isClanPrefix) {
     normalized = `clan-${normalized}`;
   }
-  
+
   return normalized;
 }
 
@@ -175,25 +175,25 @@ export function resolveEquipmentId(
 ): { equipmentDef: IEquipmentItem | undefined; resolvedId: string } {
   const normalizedId = normalizeEquipmentId(id, unitTechBase);
   const baseId = normalizedId.startsWith('clan-') ? normalizedId.slice(5) : normalizedId;
-  
+
   // Canonical IDs in our catalog generally follow the pattern:
   // - Inner Sphere: <id>
   // - Clan: clan-<id>
   const isId = baseId;
   const clanId = `clan-${baseId}`;
-  
+
   const isDef = equipmentLookupService.getById(isId);
   const clanDef = equipmentLookupService.getById(clanId);
-  
+
   // For mixed-tech units, use critical slot tokens as a per-item hint for Clan vs IS variants.
   if (unitTechBaseMode === TechBaseMode.MIXED && (isDef || clanDef)) {
     const candidateName = (isDef ?? clanDef)?.name;
     const equipmentNameKey = candidateName
       ? normalizeMatchKey(stripTechMarkersFromName(candidateName))
       : normalizeMatchKey(baseId);
-    
+
     const hintedTechBase = inferPreferredTechBaseFromCriticalSlots(locationCriticalSlots, equipmentNameKey);
-    
+
     if (hintedTechBase === TechBase.CLAN && clanDef) {
       return { equipmentDef: clanDef, resolvedId: clanId };
     }
@@ -201,18 +201,18 @@ export function resolveEquipmentId(
       return { equipmentDef: isDef, resolvedId: isId };
     }
   }
-  
+
   // Unit-level preference: Clan units prefer clan-* variants when available.
   const preferredTechBase: TechBase =
     unitTechBaseMode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
-  
+
   if (preferredTechBase === TechBase.CLAN && clanDef) {
     return { equipmentDef: clanDef, resolvedId: clanId };
   }
   if (preferredTechBase === TechBase.INNER_SPHERE && isDef) {
     return { equipmentDef: isDef, resolvedId: isId };
   }
-  
+
   // Fallback: return whichever variant exists.
   if (isDef) {
     return { equipmentDef: isDef, resolvedId: isId };
@@ -220,7 +220,7 @@ export function resolveEquipmentId(
   if (clanDef) {
     return { equipmentDef: clanDef, resolvedId: clanId };
   }
-  
+
   // Final fallback: EquipmentRegistry name-based alias resolution
   const registry = getEquipmentRegistry();
   if (registry.isReady()) {
@@ -231,7 +231,7 @@ export function resolveEquipmentId(
         return { equipmentDef: resolvedEquipment, resolvedId: lookupResult.equipment.id };
       }
     }
-    
+
     if (normalizedId !== id) {
       const normalizedLookup = registry.lookup(normalizedId);
       if (normalizedLookup.found && normalizedLookup.equipment) {
@@ -242,7 +242,7 @@ export function resolveEquipmentId(
       }
     }
   }
-  
+
   // Not found
   return { equipmentDef: undefined, resolvedId: normalizedId };
 }

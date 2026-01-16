@@ -14,29 +14,11 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentCategory } from '@/types/equipment';
 
 // ============================================================================
-// RESULT TYPES
+// RESULT TYPES (re-exported from core)
 // ============================================================================
 
-/**
- * Result type for operations that can fail
- */
-export type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
-
-/**
- * Create a successful result
- */
-export function success<T>(data: T): Result<T> {
-  return { success: true, data };
-}
-
-/**
- * Create a failed result
- */
-export function failure<T, E = Error>(error: E): Result<T, E> {
-  return { success: false, error };
-}
+export type { ResultType } from '../core/types/BaseTypes';
+export { Result } from '../core/types/BaseTypes';
 
 // ============================================================================
 // VALIDATION TYPES
@@ -95,22 +77,9 @@ export function invalidResult(errors: IValidationError[]): IValidationResult {
 // UNIT TYPES
 // ============================================================================
 
-/**
- * Unit type classification
- */
-export type UnitType = 
-  | 'BattleMech' 
-  | 'Vehicle' 
-  | 'Infantry' 
-  | 'ProtoMech' 
-  | 'BattleArmor' 
-  | 'Aerospace'
-  | 'ConvFighter'
-  | 'Dropship'
-  | 'Jumpship'
-  | 'Warship'
-  | 'SpaceStation'
-  | 'SmallCraft';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+// Re-export canonical UnitType from BattleMechInterfaces
+export { UnitType };
 
 /**
  * Lightweight unit metadata for search and browsing

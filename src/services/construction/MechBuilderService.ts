@@ -9,7 +9,7 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { InternalStructureType, STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
@@ -259,10 +259,49 @@ export class MechBuilderService implements IMechBuilderService {
   }
 
   /**
-   * Set armor allocation
+   * Set armor allocation with validation
    */
   setArmor(mech: IEditableMech, allocation: Partial<IArmorAllocation>): IEditableMech {
-    // TODO: Add validation for maximum armor per location
+    // Validate each location's armor value
+    const errors: string[] = [];
+
+    // Get structure points table for this tonnage
+    const structureTable = STRUCTURE_POINTS_TABLE[mech.tonnage];
+    if (structureTable) {
+      // Helper to validate a location
+      const validateLocation = (
+        location: string,
+        locationKey: keyof typeof structureTable,
+        value: number | undefined,
+        maxOverride?: number
+      ) => {
+        if (value === undefined) return;
+        const max = maxOverride ?? structureTable[locationKey] * 2;
+        if (value < 0) {
+          errors.push(`${location}: armor cannot be negative`);
+        } else if (value > max) {
+          errors.push(`${location}: maximum armor is ${max} (got ${value})`);
+        }
+      };
+
+      // Head has a fixed maximum of 9 for standard armor
+      validateLocation('Head', 'head', allocation.head, 9);
+      validateLocation('Center Torso', 'centerTorso', allocation.centerTorso);
+      validateLocation('Center Torso (Rear)', 'centerTorso', allocation.centerTorsoRear);
+      validateLocation('Left Torso', 'sideTorso', allocation.leftTorso);
+      validateLocation('Left Torso (Rear)', 'sideTorso', allocation.leftTorsoRear);
+      validateLocation('Right Torso', 'sideTorso', allocation.rightTorso);
+      validateLocation('Right Torso (Rear)', 'sideTorso', allocation.rightTorsoRear);
+      validateLocation('Left Arm', 'arm', allocation.leftArm);
+      validateLocation('Right Arm', 'arm', allocation.rightArm);
+      validateLocation('Left Leg', 'leg', allocation.leftLeg);
+      validateLocation('Right Leg', 'leg', allocation.rightLeg);
+    }
+
+    if (errors.length > 0) {
+      throw new ValidationError('Invalid armor allocation', errors);
+    }
+
     return {
       ...mech,
       armorAllocation: { ...mech.armorAllocation, ...allocation },

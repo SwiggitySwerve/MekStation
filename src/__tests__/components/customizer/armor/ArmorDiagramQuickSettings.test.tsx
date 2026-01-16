@@ -10,28 +10,36 @@ jest.mock('@/stores/useAppSettingsStore', () => ({
 
 const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
 
-function createMockState(variant: ArmorDiagramVariant, setFn: jest.Mock): Partial<AppSettingsState> {
+function createMockState(
+  variant: ArmorDiagramVariant,
+  setFn: jest.Mock,
+  revertFn: jest.Mock
+): Partial<AppSettingsState> {
   return {
     armorDiagramVariant: variant,
     setArmorDiagramVariant: setFn,
+    revertCustomizer: revertFn,
+    getEffectiveArmorDiagramVariant: () => variant,
   };
 }
 
 describe('ArmorDiagramQuickSettings', () => {
   const mockSetArmorDiagramVariant = jest.fn();
+  const mockRevertCustomizer = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAppSettingsStore.mockImplementation(<T,>(selector: (state: AppSettingsState) => T): T => {
-      const state = createMockState('clean-tech', mockSetArmorDiagramVariant);
+      const state = createMockState('clean-tech', mockSetArmorDiagramVariant, mockRevertCustomizer);
       return selector(state as AppSettingsState);
     });
   });
 
-  it('renders current variant name with style label', () => {
+  it('renders current variant name with silhouette label', () => {
     render(<ArmorDiagramQuickSettings />);
-    expect(screen.getByText('Style:')).toBeInTheDocument();
-    expect(screen.getByText('Clean Tech')).toBeInTheDocument();
+    expect(screen.getByText('Silhouette:')).toBeInTheDocument();
+    // Uses DIAGRAM_VARIANT_INFO name: 'Standard' for 'clean-tech'
+    expect(screen.getByText('Standard')).toBeInTheDocument();
   });
 
   it('opens dropdown on click', async () => {
@@ -50,13 +58,14 @@ describe('ArmorDiagramQuickSettings', () => {
 
     await user.click(screen.getByRole('button', { expanded: false }));
 
+    // Uses DIAGRAM_VARIANT_INFO names
     const options = screen.getAllByRole('option');
-    expect(options[0]).toHaveTextContent('Clean Tech');
-    expect(options[1]).toHaveTextContent('Neon');
-    expect(options[2]).toHaveTextContent('Tactical');
-    expect(options[3]).toHaveTextContent('Premium');
+    expect(options[0]).toHaveTextContent('Standard');
+    expect(options[1]).toHaveTextContent('Glow Effects');
+    expect(options[2]).toHaveTextContent('LED Display');
+    expect(options[3]).toHaveTextContent('Metallic');
     expect(options[4]).toHaveTextContent('MegaMek');
-    expect(options[5]).toHaveTextContent('MM Classic');
+    expect(options[5]).toHaveTextContent('MegaMek Classic');
   });
 
   it('calls setArmorDiagramVariant when option selected', async () => {
@@ -64,8 +73,9 @@ describe('ArmorDiagramQuickSettings', () => {
     render(<ArmorDiagramQuickSettings />);
 
     await user.click(screen.getByRole('button', { expanded: false }));
-    await user.click(screen.getByRole('option', { name: 'Neon' }));
+    await user.click(screen.getByRole('option', { name: 'Glow Effects' }));
 
+    expect(mockRevertCustomizer).toHaveBeenCalled();
     expect(mockSetArmorDiagramVariant).toHaveBeenCalledWith('neon-operator');
   });
 
@@ -76,7 +86,7 @@ describe('ArmorDiagramQuickSettings', () => {
     await user.click(screen.getByRole('button', { expanded: false }));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('option', { name: 'Tactical' }));
+    await user.click(screen.getByRole('option', { name: 'LED Display' }));
 
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
@@ -116,18 +126,19 @@ describe('ArmorDiagramQuickSettings', () => {
 
     await user.click(screen.getByRole('button', { expanded: false }));
 
-    const cleanTechOption = screen.getByRole('option', { selected: true });
-    expect(cleanTechOption).toHaveTextContent('Clean Tech');
+    const selectedOption = screen.getByRole('option', { selected: true });
+    expect(selectedOption).toHaveTextContent('Standard');
   });
 
   it('reflects different initial variant', () => {
     mockUseAppSettingsStore.mockImplementation(<T,>(selector: (state: AppSettingsState) => T): T => {
-      const state = createMockState('tactical-hud', mockSetArmorDiagramVariant);
+      const state = createMockState('tactical-hud', mockSetArmorDiagramVariant, mockRevertCustomizer);
       return selector(state as AppSettingsState);
     });
 
     render(<ArmorDiagramQuickSettings />);
-    expect(screen.getByText('Tactical')).toBeInTheDocument();
+    // DIAGRAM_VARIANT_INFO name for 'tactical-hud' is 'LED Display'
+    expect(screen.getByText('LED Display')).toBeInTheDocument();
   });
 
   it('persists changes immediately', async () => {

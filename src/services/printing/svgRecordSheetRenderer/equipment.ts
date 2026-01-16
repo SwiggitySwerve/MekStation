@@ -4,7 +4,7 @@
  */
 
 import { IRecordSheetEquipment } from '@/types/printing';
-import { SVG_NS, ELEMENT_IDS } from './SVGRecordSheetRenderer.constants';
+import { SVG_NS, ELEMENT_IDS } from './constants';
 
 /**
  * Render the equipment/inventory table
@@ -80,19 +80,19 @@ export function renderEquipmentTable(
       const heatStr = eq.heat === 0 || eq.heat === '-' ? '-' : String(eq.heat);
       const heat = createEquipmentText(svgDoc, cols.heat, rowY, heatStr, false);
       group.appendChild(heat);
-      
+
       // Damage column with type code: "5 [DE]" format
-      const damageStr = eq.damageCode 
-        ? `${eq.damage} ${eq.damageCode}` 
+      const damageStr = eq.damageCode
+        ? `${eq.damage} ${eq.damageCode}`
         : String(eq.damage || '-');
       const dmg = createEquipmentText(svgDoc, cols.dmg, rowY, damageStr, false);
       group.appendChild(dmg);
-      
+
       // Range columns - show '-' for 0 minimum
       const minStr = eq.minimum === 0 || eq.minimum === '-' ? '-' : String(eq.minimum);
       const min = createEquipmentText(svgDoc, cols.min, rowY, minStr, false);
       group.appendChild(min);
-      
+
       const sht = createEquipmentText(svgDoc, cols.sht, rowY, String(eq.short || '-'), false);
       const med = createEquipmentText(svgDoc, cols.med, rowY, String(eq.medium || '-'), false);
       const lng = createEquipmentText(svgDoc, cols.lng, rowY, String(eq.long || '-'), false);

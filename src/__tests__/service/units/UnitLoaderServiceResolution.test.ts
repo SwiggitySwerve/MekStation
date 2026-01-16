@@ -9,7 +9,7 @@ import {
   normalizeEquipmentId,
   resolveEquipmentId,
   inferPreferredTechBaseFromCriticalSlots,
-} from '@/services/units/UnitLoaderService.equipment-resolution';
+} from '@/services/units/unitLoaderService/equipmentResolution';
 
 jest.mock('@/services/equipment/EquipmentLookupService');
 jest.mock('@/services/equipment/EquipmentRegistry');

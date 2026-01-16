@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { PanelStack, Panel } from '../../../components/mobile/PanelStack';
-import { useNavigationStore } from '../../../stores/navigationStore';
+import { useNavigationStore } from '../../../stores/useNavigationStore';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 
 // Mock dependencies
-jest.mock('../../../stores/navigationStore');
+jest.mock('../../../stores/useNavigationStore');
 jest.mock('../../../hooks/useDeviceType');
 
 describe('PanelStack', () => {

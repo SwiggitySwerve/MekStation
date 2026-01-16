@@ -20,7 +20,7 @@ import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore'
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistry';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
-import { unitLoaderService } from '@/services/units/UnitLoaderService';
+import { unitLoaderService } from '@/services/units/unitLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';

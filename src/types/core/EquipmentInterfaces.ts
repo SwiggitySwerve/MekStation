@@ -1,7 +1,11 @@
 /**
- * EquipmentInterfaces.ts - STUB FILE
- * Equipment interface definitions
- * TODO: Replace with spec-driven implementation from openspec/specs/phase-3-equipment/
+ * Equipment Interface Definitions
+ *
+ * Core interfaces for BattleTech equipment including weapons, ammunition,
+ * and equipment allocation. These types support validation, configuration,
+ * and equipment database operations.
+ *
+ * @module types/core/EquipmentInterfaces
  */
 
 import { TechBase, RulesLevel, EntityId, Severity } from './index';

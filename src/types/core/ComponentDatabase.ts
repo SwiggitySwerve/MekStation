@@ -1,7 +1,10 @@
 /**
- * ComponentDatabase.ts - STUB FILE
- * Component database interface
- * TODO: Replace with spec-driven implementation
+ * Component Database Interface
+ *
+ * Defines the interface for component databases (armor, structure, engines, etc.).
+ * The actual component data is loaded from equipment definitions.
+ *
+ * @see @/services/equipment/EquipmentRegistry for implementation
  */
 
 import { IArmorDef, IStructureDef, IEngineDef, IGyroDef, ICockpitDef, IHeatSinkDef } from './ComponentInterfaces';

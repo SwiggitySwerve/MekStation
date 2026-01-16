@@ -14,7 +14,7 @@ import {
   PDF_DPI_MULTIPLIER,
   IPDFExportOptions,
 } from '@/types/printing';
-import { SVGRecordSheetRenderer } from './SVGRecordSheetRenderer';
+import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
 import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from './recordsheet/constants';
 import { IUnitConfig } from './recordsheet/types';
 import { getMechType } from './recordsheet/mechTypeUtils';

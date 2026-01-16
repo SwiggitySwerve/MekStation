@@ -1,5 +1,5 @@
 import React, { ReactNode, useRef, useEffect, useState } from 'react';
-import { useNavigationStore } from '../../stores/navigationStore';
+import { useNavigationStore } from '../../stores/useNavigationStore';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 interface PanelProps {

@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import type { Decorator } from '@storybook/react';
-import { useNavigationStore, PanelId } from '../../src/stores/navigationStore';
+import { useNavigationStore, PanelId } from '../../src/stores/useNavigationStore';
 import { useAppSettingsStore } from '../../src/stores/useAppSettingsStore';
 
 interface ZustandProviderProps {

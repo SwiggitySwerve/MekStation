@@ -1,8 +1,8 @@
 /**
  * Unit Loader Service - Equipment Mapping
- * 
+ *
  * Functions for mapping equipment arrays from serialized units to mounted equipment instances.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
@@ -11,8 +11,8 @@ import { TechBase } from '@/types/enums/TechBase';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
-import { mapMechLocation } from './UnitLoaderService.component-mappers';
-import { resolveEquipmentId, CRITICAL_SLOTS_LOCATION_KEYS } from './UnitLoaderService.equipment-resolution';
+import { mapMechLocation } from './componentMappers';
+import { resolveEquipmentId, CRITICAL_SLOTS_LOCATION_KEYS } from './equipmentResolution';
 
 type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
 
@@ -30,13 +30,13 @@ export function mapEquipment(
   if (!equipment || equipment.length === 0) {
     return [];
   }
-  
+
   return equipment.map((item) => {
     const location = mapMechLocation(item.location);
     const locationCriticalSlots = unitCriticalSlots
       ? (location ? unitCriticalSlots[CRITICAL_SLOTS_LOCATION_KEYS[location] ?? ''] : unitCriticalSlots[item.location])
       : undefined;
-    
+
     // Look up equipment using multiple resolution strategies
     const { equipmentDef, resolvedId } = resolveEquipmentId(
       item.id,
@@ -44,16 +44,16 @@ export function mapEquipment(
       unitTechBaseMode,
       locationCriticalSlots
     );
-    
+
     if (equipmentDef) {
       // Found in database - use full properties
       const heat = 'heat' in equipmentDef ? (equipmentDef as { heat: number }).heat : 0;
-      
+
       // Log if we resolved through normalization/aliasing
       if (resolvedId !== item.id) {
         console.debug(`Equipment ID resolved: "${item.id}" → "${resolvedId}"`);
       }
-      
+
       return {
         instanceId: uuidv4(),
         equipmentId: equipmentDef.id,

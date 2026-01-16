@@ -1,31 +1,29 @@
 /**
  * SVG Record Sheet Renderer
- * 
+ *
  * Renders record sheets using MegaMek SVG templates.
  * Fills in template placeholders with unit data and loads armor/structure pips.
- * 
+ *
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
-import { 
+import {
   IRecordSheetData,
   PREVIEW_DPI_MULTIPLIER,
 } from '@/types/printing';
-import { ELEMENT_IDS } from './SVGRecordSheetRenderer.constants';
-import { 
+import { ELEMENT_IDS } from './constants';
+import {
   loadSVGTemplate,
   addDocumentMargins,
   hideSecondCrewPanel,
   fixCopyrightYear,
   setTextContent,
-} from './SVGRecordSheetRenderer.template';
-import { fillArmorPips } from './SVGRecordSheetRenderer.armor';
-import { fillStructurePips } from './SVGRecordSheetRenderer.structure';
-import { renderEquipmentTable } from './SVGRecordSheetRenderer.equipment';
-import { renderCriticalSlots } from './SVGRecordSheetRenderer.criticals';
-import { renderToCanvasHighDPI } from './SVGRecordSheetRenderer.canvas';
-
-export * from './SVGRecordSheetRenderer.constants';
+} from './template';
+import { fillArmorPips } from './armor';
+import { fillStructurePips } from './structure';
+import { renderEquipmentTable } from './equipment';
+import { renderCriticalSlots } from './criticals';
+import { renderToCanvasHighDPI } from './canvas';
 
 export class SVGRecordSheetRenderer {
   private svgDoc: Document | null = null;
@@ -48,7 +46,7 @@ export class SVGRecordSheetRenderer {
     setTextContent(this.svgDoc, ELEMENT_IDS.TECH_BASE, data.header.techBase);
     setTextContent(this.svgDoc, ELEMENT_IDS.RULES_LEVEL, data.header.rulesLevel);
     setTextContent(this.svgDoc, ELEMENT_IDS.ROLE, 'Juggernaut');
-    
+
     const engineRating = data.header.tonnage * data.movement.walkMP;
     setTextContent(this.svgDoc, ELEMENT_IDS.ENGINE_TYPE, `${engineRating} XL`);
 

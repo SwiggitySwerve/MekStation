@@ -2,7 +2,7 @@
  * Template loading and document configuration utilities
  */
 
-import { SVG_NS } from './SVGRecordSheetRenderer.constants';
+import { SVG_NS } from './constants';
 
 /**
  * Load an SVG template from a URL
@@ -13,16 +13,16 @@ export async function loadSVGTemplate(templatePath: string): Promise<{
 }> {
   const response = await fetch(templatePath);
   const svgText = await response.text();
-  
+
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-  
+
   // Check for parse errors first
   const parseError = svgDoc.querySelector('parsererror');
   if (parseError) {
     throw new Error(`Failed to parse SVG template: ${parseError.textContent}`);
   }
-  
+
   // Verify documentElement is an SVG element
   const docElement = svgDoc.documentElement;
   if (
@@ -44,19 +44,19 @@ export function addDocumentMargins(svgRoot: SVGSVGElement): void {
   // Original template dimensions
   const originalWidth = 576;
   const originalHeight = 756;
-  
+
   // Target dimensions (US Letter in points: 612x792)
   const targetWidth = 612;
   const targetHeight = 792;
-  
+
   // Calculate margins (centered)
   const marginX = (targetWidth - originalWidth) / 2; // 18 points each side
   const marginY = (targetHeight - originalHeight) / 2; // 18 points top and bottom
-  
+
   // Set viewBox to add margins: negative offset positions content with margins
   // viewBox = "minX minY width height"
   svgRoot.setAttribute('viewBox', `${-marginX} ${-marginY} ${targetWidth} ${targetHeight}`);
-  
+
   // Update width/height to target size
   svgRoot.setAttribute('width', String(targetWidth));
   svgRoot.setAttribute('height', String(targetHeight));
@@ -88,7 +88,7 @@ export function fixCopyrightYear(svgDoc: Document): void {
     // Position near bottom with margin space (content area ends at 756, margin adds 18 more)
     footerElement.setAttribute('transform', 'translate(288.0 762.0)');
   }
-  
+
   const copyrightElement = svgDoc.getElementById('tspanCopyright');
   if (copyrightElement && copyrightElement.textContent) {
     const currentYear = new Date().getFullYear();
@@ -99,7 +99,7 @@ export function fixCopyrightYear(svgDoc: Document): void {
     // Position first line above second line (adjusted for larger font)
     copyrightElement.setAttribute('y', '-9.0');
   }
-  
+
   // Also fix the second line of copyright (Catalyst Game Labs)
   const catalystElement = svgDoc.getElementById('tspan221');
   if (catalystElement) {

@@ -1,7 +1,10 @@
 /**
- * ComponentInterfaces.ts - STUB FILE
- * Component interface definitions
- * TODO: Replace with spec-driven implementation from openspec/specs/phase-2-construction/
+ * Component Interface Definitions
+ *
+ * Core interfaces for BattleTech construction components.
+ * These types define the structure of armor, structure, engines, gyros, cockpits, and heat sinks.
+ *
+ * @module types/core/ComponentInterfaces
  */
 
 import { TechBase, RulesLevel, ComponentCategory } from './index';

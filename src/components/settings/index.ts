@@ -8,9 +8,11 @@ export { DesktopSettingsProvider, useDesktopSettingsDialog } from './DesktopSett
 export { useDesktopSettings } from './useDesktopSettings';
 export { useRecentFiles } from './useRecentFiles';
 export { useElectron, isElectron } from './useElectron';
-export type { 
+export type {
   IElectronAPI,
   IDesktopSettings,
   IRecentFile,
-  MenuCommand 
+  IAddRecentFileParams,
+  RecentFileUnitType,
+  MenuCommand
 } from './useElectron';

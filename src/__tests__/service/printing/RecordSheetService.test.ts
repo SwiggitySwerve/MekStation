@@ -17,7 +17,7 @@ jest.mock('jspdf', () => ({
 }));
 
 // Mock SVGRecordSheetRenderer
-jest.mock('@/services/printing/SVGRecordSheetRenderer', () => ({
+jest.mock('@/services/printing/svgRecordSheetRenderer', () => ({
   SVGRecordSheetRenderer: jest.fn().mockImplementation(() => ({
     loadTemplate: jest.fn().mockResolvedValue(undefined),
     fillTemplate: jest.fn(),

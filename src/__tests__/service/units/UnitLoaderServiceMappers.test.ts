@@ -20,7 +20,7 @@ import {
   mapRulesLevel,
   mapMechLocation,
   mapArmorAllocation,
-} from '@/services/units/UnitLoaderService.component-mappers';
+} from '@/services/units/unitLoaderService/componentMappers';
 
 describe('UnitLoaderService Component Mappers', () => {
   describe('mapEngineType', () => {

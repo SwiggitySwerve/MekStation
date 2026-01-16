@@ -1,12 +1,9 @@
 /**
  * Unit Loader Service
- * 
- * Fetches full unit data from canonical JSON files or SQLite custom units
- * and maps them to the UnitState format for the customizer.
- * 
- * This file serves as the main entry point and re-exports all functionality
- * from the modularized implementation files.
- * 
+ *
+ * Main entry point for the UnitLoaderService module.
+ * This file barrel-exports all functionality from the modularized implementation.
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
@@ -15,12 +12,12 @@ export type {
   UnitSource,
   ISerializedUnit,
   ILoadUnitResult,
-} from './UnitLoaderService.types';
+} from './types';
 
 // Type guards
 export {
   hasSerializedUnitStructure,
-} from './UnitLoaderService.type-guards';
+} from './typeGuards';
 
 // Component mappers
 export {
@@ -35,7 +32,7 @@ export {
   mapRulesLevel,
   mapMechLocation,
   mapArmorAllocation,
-} from './UnitLoaderService.component-mappers';
+} from './componentMappers';
 
 // Equipment resolution
 export {
@@ -43,20 +40,20 @@ export {
   resolveEquipmentId,
   inferPreferredTechBaseFromCriticalSlots,
   CRITICAL_SLOTS_LOCATION_KEYS,
-} from './UnitLoaderService.equipment-resolution';
+} from './equipmentResolution';
 
 // Equipment mapping
 export {
   mapEquipment,
-} from './UnitLoaderService.equipment-mapping';
+} from './equipmentMapping';
 
 // Armor calculations
 export {
   calculateArmorTonnage,
-} from './UnitLoaderService.armor-calculations';
+} from './armorCalculations';
 
 // Main service class
 export {
   UnitLoaderService,
   unitLoaderService,
-} from './UnitLoaderService.unit-loader';
+} from './unitLoader';
