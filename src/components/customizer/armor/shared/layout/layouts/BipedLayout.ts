@@ -325,12 +325,14 @@ export const MEGAMEK_BIPED_LAYOUT: MechLayoutConfig = {
   parts: [
     { ...CENTER_TORSO, baseWidth: 60, baseHeight: 100 },
     { ...HEAD, baseWidth: 60, baseHeight: 44 },
-    { ...LEFT_TORSO, baseWidth: 40, baseHeight: 96 },
-    { ...RIGHT_TORSO, baseWidth: 40, baseHeight: 96 },
+    // Wider side torsos to create more separation between arms and legs
+    { ...LEFT_TORSO, baseWidth: 48, baseHeight: 96 },
+    { ...RIGHT_TORSO, baseWidth: 48, baseHeight: 96 },
     { ...LEFT_ARM, baseWidth: 24, baseHeight: 120 },
     { ...RIGHT_ARM, baseWidth: 24, baseHeight: 120 },
-    { ...LEFT_LEG, baseWidth: 52, baseHeight: 152 },
-    { ...RIGHT_LEG, baseWidth: 52, baseHeight: 152 },
+    // Slightly narrower legs to avoid arm overlap
+    { ...LEFT_LEG, baseWidth: 46, baseHeight: 152 },
+    { ...RIGHT_LEG, baseWidth: 46, baseHeight: 152 },
   ],
   constraints: BIPED_CONSTRAINTS,
   padding: 10,

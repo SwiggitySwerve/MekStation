@@ -45,15 +45,12 @@ const CENTER_TORSO: PartDefinition = {
   isRoot: true,
   anchors: [
     { id: 'neck', position: 'top', offset: { x: 0, y: 0 } },
-    // Front leg anchors at top corners
-    { id: 'front_left_hip', position: 'top-left', offset: { x: 0, y: 20 } },
-    { id: 'front_right_hip', position: 'top-right', offset: { x: 0, y: 20 } },
-    // Rear leg anchors at bottom corners
-    { id: 'rear_left_hip', position: 'bottom-left', offset: { x: 0, y: -10 } },
-    { id: 'rear_right_hip', position: 'bottom-right', offset: { x: 0, y: -10 } },
-    // Side anchors for side torsos
-    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0.3 } },
-    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0.3 } },
+    // Side anchors for side torsos - aligned at top
+    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0 } },
+    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0 } },
+    // Front leg hip anchors - at top portion of center torso (like biped legs but higher)
+    { id: 'front_left_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.2 } },
+    { id: 'front_right_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.8 } },
   ],
   pathTemplate: `
     M {x} {y}
@@ -67,10 +64,12 @@ const CENTER_TORSO: PartDefinition = {
 const LEFT_TORSO: PartDefinition = {
   id: MechLocation.LEFT_TORSO,
   baseWidth: 50,
-  baseHeight: 100,
+  baseHeight: 110,
   shape: 'path',
   anchors: [
-    { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0.3 } },
+    { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
+    // Rear leg mount at 75% down (25% up from bottom) - like arm mount but lower
+    { id: 'rear_leg_mount', position: 'left', edgePosition: { edge: 'left', at: 0.75 } },
   ],
   pathTemplate: `
     M {x} {y}
@@ -84,10 +83,12 @@ const LEFT_TORSO: PartDefinition = {
 const RIGHT_TORSO: PartDefinition = {
   id: MechLocation.RIGHT_TORSO,
   baseWidth: 50,
-  baseHeight: 100,
+  baseHeight: 110,
   shape: 'path',
   anchors: [
-    { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0.3 } },
+    { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
+    // Rear leg mount at 75% down (25% up from bottom) - like arm mount but lower
+    { id: 'rear_leg_mount', position: 'right', edgePosition: { edge: 'right', at: 0.75 } },
   ],
   pathTemplate: `
     M {x} {y}
@@ -98,12 +99,14 @@ const RIGHT_TORSO: PartDefinition = {
   `,
 };
 
+// Front legs - positioned like normal biped legs at the center torso bottom
 const FRONT_LEFT_LEG: PartDefinition = {
   id: MechLocation.FRONT_LEFT_LEG,
-  baseWidth: 45,
-  baseHeight: 100,
+  baseWidth: 50,
+  baseHeight: 90,
   shape: 'path',
   anchors: [
+    // Hip on inner edge (top-right) so leg extends outward to the left
     { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
   ],
   pathTemplate: `
@@ -117,10 +120,11 @@ const FRONT_LEFT_LEG: PartDefinition = {
 
 const FRONT_RIGHT_LEG: PartDefinition = {
   id: MechLocation.FRONT_RIGHT_LEG,
-  baseWidth: 45,
-  baseHeight: 100,
+  baseWidth: 50,
+  baseHeight: 90,
   shape: 'path',
   anchors: [
+    // Hip on inner edge (top-left) so leg extends outward to the right
     { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
   ],
   pathTemplate: `
@@ -132,12 +136,14 @@ const FRONT_RIGHT_LEG: PartDefinition = {
   `,
 };
 
+// Rear legs - positioned on outer edge of side torsos at lower portion
 const REAR_LEFT_LEG: PartDefinition = {
   id: MechLocation.REAR_LEFT_LEG,
-  baseWidth: 45,
-  baseHeight: 100,
+  baseWidth: 50,
+  baseHeight: 90,
   shape: 'path',
   anchors: [
+    // Hip on inner edge (top-right) so leg extends outward to the left
     { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
   ],
   pathTemplate: `
@@ -151,10 +157,11 @@ const REAR_LEFT_LEG: PartDefinition = {
 
 const REAR_RIGHT_LEG: PartDefinition = {
   id: MechLocation.REAR_RIGHT_LEG,
-  baseWidth: 45,
-  baseHeight: 100,
+  baseWidth: 50,
+  baseHeight: 90,
   shape: 'path',
   anchors: [
+    // Hip on inner edge (top-left) so leg extends outward to the right
     { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
   ],
   pathTemplate: `
@@ -201,7 +208,7 @@ const QUAD_CONSTRAINTS: LayoutConstraint[] = [
     priority: 90,
   },
 
-  // Front left leg connects to center torso
+  // Front left leg connects to center torso hip (like biped leg)
   {
     id: 'front-left-leg-to-hip',
     type: 'anchor-to-anchor',
@@ -211,7 +218,7 @@ const QUAD_CONSTRAINTS: LayoutConstraint[] = [
     priority: 80,
   },
 
-  // Front right leg connects to center torso
+  // Front right leg connects to center torso hip (like biped leg)
   {
     id: 'front-right-leg-to-hip',
     type: 'anchor-to-anchor',
@@ -221,24 +228,24 @@ const QUAD_CONSTRAINTS: LayoutConstraint[] = [
     priority: 80,
   },
 
-  // Rear left leg connects to center torso
+  // Rear left leg connects to left torso outer edge at lower portion
   {
-    id: 'rear-left-leg-to-hip',
+    id: 'rear-left-leg-to-torso',
     type: 'anchor-to-anchor',
     source: { part: MechLocation.REAR_LEFT_LEG, anchor: 'hip' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'rear_left_hip' },
-    gap: 5,
-    priority: 80,
+    target: { part: MechLocation.LEFT_TORSO, anchor: 'rear_leg_mount' },
+    gap: 0,
+    priority: 70,
   },
 
-  // Rear right leg connects to center torso
+  // Rear right leg connects to right torso outer edge at lower portion
   {
-    id: 'rear-right-leg-to-hip',
+    id: 'rear-right-leg-to-torso',
     type: 'anchor-to-anchor',
     source: { part: MechLocation.REAR_RIGHT_LEG, anchor: 'hip' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'rear_right_hip' },
-    gap: 5,
-    priority: 80,
+    target: { part: MechLocation.RIGHT_TORSO, anchor: 'rear_leg_mount' },
+    gap: 0,
+    priority: 70,
   },
 ];
 
