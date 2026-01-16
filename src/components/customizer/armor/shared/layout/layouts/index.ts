@@ -5,9 +5,7 @@
  */
 
 export * from './BipedLayout';
-
-// Future exports:
-// export * from './QuadLayout';
-// export * from './TripodLayout';
-// export * from './LAMLayout';
-// export * from './QuadVeeLayout';
+export * from './QuadLayout';
+export * from './TripodLayout';
+export * from './LAMLayout';
+export * from './QuadVeeLayout';

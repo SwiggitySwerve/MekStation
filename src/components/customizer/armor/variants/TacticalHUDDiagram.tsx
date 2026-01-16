@@ -27,7 +27,7 @@ import {
   darkenColor,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-import { useResolvedLayout, ResolvedPosition } from '../shared/layout';
+import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
 
 /**
  * LED-style segmented digit display
@@ -407,6 +407,53 @@ export interface TacticalHUDDiagramProps {
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   className?: string;
+  /** Mech configuration type for layout selection */
+  mechConfigType?: MechConfigType;
+}
+
+/**
+ * Get the locations to render based on mech configuration type
+ */
+function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
+  switch (configType) {
+    case 'quad':
+    case 'quadvee':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.FRONT_LEFT_LEG,
+        MechLocation.FRONT_RIGHT_LEG,
+        MechLocation.REAR_LEFT_LEG,
+        MechLocation.REAR_RIGHT_LEG,
+      ];
+    case 'tripod':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+        MechLocation.CENTER_LEG,
+      ];
+    case 'lam':
+    case 'biped':
+    default:
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+      ];
+  }
 }
 
 export function TacticalHUDDiagram({
@@ -415,11 +462,15 @@ export function TacticalHUDDiagram({
   unallocatedPoints,
   onLocationClick,
   className = '',
+  mechConfigType = 'biped',
 }: TacticalHUDDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
 
+  // Get layout ID based on mech configuration type
+  const layoutId = getLayoutIdForConfig(mechConfigType, 'geometric');
+
   // Use the layout engine to get resolved positions
-  const { layout, getPosition, viewBox, bounds } = useResolvedLayout('geometric-biped');
+  const { layout, getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
@@ -427,16 +478,8 @@ export function TacticalHUDDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
+  // Get locations based on mech configuration type
+  const locations = getLocationsForConfig(mechConfigType);
 
   return (
     <div className={`bg-surface-deep rounded-lg border border-border-theme-subtle p-4 ${className}`}>

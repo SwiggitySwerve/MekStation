@@ -22,6 +22,18 @@ import {
   MEGAMEK_BIPED_LAYOUT,
   BATTLEMECH_BIPED_LAYOUT,
   getBipedLayout,
+  GEOMETRIC_QUAD_LAYOUT,
+  BATTLEMECH_QUAD_LAYOUT,
+  getQuadLayout,
+  GEOMETRIC_TRIPOD_LAYOUT,
+  BATTLEMECH_TRIPOD_LAYOUT,
+  getTripodLayout,
+  GEOMETRIC_LAM_LAYOUT,
+  BATTLEMECH_LAM_LAYOUT,
+  getLAMLayout,
+  GEOMETRIC_QUADVEE_LAYOUT,
+  BATTLEMECH_QUADVEE_LAYOUT,
+  getQuadVeeLayout,
 } from './layouts';
 
 // ============================================================================
@@ -32,10 +44,23 @@ import {
  * All available layout configurations
  */
 const LAYOUT_REGISTRY: Map<string, MechLayoutConfig> = new Map([
+  // Biped layouts
   ['geometric-biped', GEOMETRIC_BIPED_LAYOUT],
   ['realistic-biped', REALISTIC_BIPED_LAYOUT],
   ['megamek-biped', MEGAMEK_BIPED_LAYOUT],
   ['battlemech-biped', BATTLEMECH_BIPED_LAYOUT],
+  // Quad layouts
+  ['geometric-quad', GEOMETRIC_QUAD_LAYOUT],
+  ['battlemech-quad', BATTLEMECH_QUAD_LAYOUT],
+  // Tripod layouts
+  ['geometric-tripod', GEOMETRIC_TRIPOD_LAYOUT],
+  ['battlemech-tripod', BATTLEMECH_TRIPOD_LAYOUT],
+  // LAM layouts
+  ['geometric-lam', GEOMETRIC_LAM_LAYOUT],
+  ['battlemech-lam', BATTLEMECH_LAM_LAYOUT],
+  // QuadVee layouts
+  ['geometric-quadvee', GEOMETRIC_QUADVEE_LAYOUT],
+  ['battlemech-quadvee', BATTLEMECH_QUADVEE_LAYOUT],
 ]);
 
 /**
@@ -49,7 +74,14 @@ export function registerLayout(config: MechLayoutConfig): void {
  * Get a layout configuration by ID
  */
 export function getLayoutConfig(id: string): MechLayoutConfig | undefined {
-  return LAYOUT_REGISTRY.get(id) ?? getBipedLayout(id);
+  return (
+    LAYOUT_REGISTRY.get(id) ??
+    getBipedLayout(id) ??
+    getQuadLayout(id) ??
+    getTripodLayout(id) ??
+    getLAMLayout(id) ??
+    getQuadVeeLayout(id)
+  );
 }
 
 /**
@@ -57,6 +89,44 @@ export function getLayoutConfig(id: string): MechLayoutConfig | undefined {
  */
 export function getLayoutIds(): string[] {
   return Array.from(LAYOUT_REGISTRY.keys());
+}
+
+/**
+ * Mech configuration types for layout selection
+ */
+export type MechConfigType = 'biped' | 'quad' | 'tripod' | 'lam' | 'quadvee';
+
+/**
+ * Display names for mech configurations
+ */
+export const MECH_CONFIG_DISPLAY_NAMES: Record<MechConfigType, string> = {
+  biped: 'Biped',
+  quad: 'Quad',
+  tripod: 'Tripod',
+  lam: 'LAM',
+  quadvee: 'QuadVee',
+};
+
+/**
+ * Get all available mech configuration types
+ */
+export function getMechConfigTypes(): MechConfigType[] {
+  return ['biped', 'quad', 'tripod', 'lam', 'quadvee'];
+}
+
+/**
+ * Get layout ID for a mech configuration and style
+ */
+export function getLayoutIdForConfig(
+  configType: MechConfigType,
+  style: 'geometric' | 'battlemech' | 'realistic' | 'megamek' = 'geometric'
+): string {
+  // Map style to prefix
+  const stylePrefix = style === 'realistic' ? 'realistic' : 
+                      style === 'megamek' ? 'megamek' : 
+                      style === 'battlemech' ? 'battlemech' : 'geometric';
+  
+  return `${stylePrefix}-${configType}`;
 }
 
 // ============================================================================

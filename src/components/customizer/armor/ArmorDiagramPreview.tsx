@@ -5,7 +5,7 @@
  * Used in settings page to let users see design variants before selecting.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from './ArmorDiagram';
 import {
@@ -14,16 +14,15 @@ import {
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
   MegaMekDiagram,
-  MegaMekClassicDiagram,
 } from './variants';
 import { SchematicDiagram } from '@/components/armor/schematic';
 import { ArmorDiagramVariant, ArmorDiagramMode } from '@/stores/useAppSettingsStore';
+import { MechConfigType } from './shared/layout/useResolvedLayout';
 
 /**
- * Sample armor data for preview
- * Represents a typical 75-ton mech with varied armor allocation
+ * Sample armor data for different mech configurations
  */
-const SAMPLE_ARMOR_DATA: LocationArmorData[] = [
+const SAMPLE_BIPED_ARMOR_DATA: LocationArmorData[] = [
   { location: MechLocation.HEAD, current: 9, maximum: 9 },
   { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
   { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
@@ -34,6 +33,80 @@ const SAMPLE_ARMOR_DATA: LocationArmorData[] = [
   { location: MechLocation.RIGHT_LEG, current: 28, maximum: 32 },
 ];
 
+const SAMPLE_QUAD_ARMOR_DATA: LocationArmorData[] = [
+  { location: MechLocation.HEAD, current: 9, maximum: 9 },
+  { location: MechLocation.CENTER_TORSO, current: 38, maximum: 50, rear: 14, rearMaximum: 25 },
+  { location: MechLocation.LEFT_TORSO, current: 26, maximum: 34, rear: 10, rearMaximum: 17 },
+  { location: MechLocation.RIGHT_TORSO, current: 26, maximum: 34, rear: 10, rearMaximum: 17 },
+  { location: MechLocation.FRONT_LEFT_LEG, current: 22, maximum: 28 },
+  { location: MechLocation.FRONT_RIGHT_LEG, current: 22, maximum: 28 },
+  { location: MechLocation.REAR_LEFT_LEG, current: 22, maximum: 28 },
+  { location: MechLocation.REAR_RIGHT_LEG, current: 22, maximum: 28 },
+];
+
+const SAMPLE_TRIPOD_ARMOR_DATA: LocationArmorData[] = [
+  { location: MechLocation.HEAD, current: 9, maximum: 9 },
+  { location: MechLocation.CENTER_TORSO, current: 40, maximum: 52, rear: 15, rearMaximum: 26 },
+  { location: MechLocation.LEFT_TORSO, current: 28, maximum: 36, rear: 10, rearMaximum: 18 },
+  { location: MechLocation.RIGHT_TORSO, current: 28, maximum: 36, rear: 10, rearMaximum: 18 },
+  { location: MechLocation.LEFT_ARM, current: 22, maximum: 26 },
+  { location: MechLocation.RIGHT_ARM, current: 22, maximum: 26 },
+  { location: MechLocation.LEFT_LEG, current: 26, maximum: 32 },
+  { location: MechLocation.RIGHT_LEG, current: 26, maximum: 32 },
+  { location: MechLocation.CENTER_LEG, current: 30, maximum: 36 },
+];
+
+const SAMPLE_LAM_ARMOR_DATA: LocationArmorData[] = [
+  { location: MechLocation.HEAD, current: 8, maximum: 9 },
+  { location: MechLocation.CENTER_TORSO, current: 28, maximum: 35, rear: 10, rearMaximum: 17 },
+  { location: MechLocation.LEFT_TORSO, current: 20, maximum: 26, rear: 7, rearMaximum: 13 },
+  { location: MechLocation.RIGHT_TORSO, current: 20, maximum: 26, rear: 7, rearMaximum: 13 },
+  { location: MechLocation.LEFT_ARM, current: 16, maximum: 20 },
+  { location: MechLocation.RIGHT_ARM, current: 16, maximum: 20 },
+  { location: MechLocation.LEFT_LEG, current: 22, maximum: 26 },
+  { location: MechLocation.RIGHT_LEG, current: 22, maximum: 26 },
+];
+
+const SAMPLE_QUADVEE_ARMOR_DATA: LocationArmorData[] = [
+  { location: MechLocation.HEAD, current: 9, maximum: 9 },
+  { location: MechLocation.CENTER_TORSO, current: 42, maximum: 54, rear: 16, rearMaximum: 27 },
+  { location: MechLocation.LEFT_TORSO, current: 28, maximum: 36, rear: 11, rearMaximum: 18 },
+  { location: MechLocation.RIGHT_TORSO, current: 28, maximum: 36, rear: 11, rearMaximum: 18 },
+  { location: MechLocation.FRONT_LEFT_LEG, current: 24, maximum: 30 },
+  { location: MechLocation.FRONT_RIGHT_LEG, current: 24, maximum: 30 },
+  { location: MechLocation.REAR_LEFT_LEG, current: 24, maximum: 30 },
+  { location: MechLocation.REAR_RIGHT_LEG, current: 24, maximum: 30 },
+];
+
+/**
+ * Get sample armor data for a mech configuration type
+ */
+function getSampleArmorData(configType: MechConfigType): LocationArmorData[] {
+  switch (configType) {
+    case 'quad':
+      return SAMPLE_QUAD_ARMOR_DATA;
+    case 'tripod':
+      return SAMPLE_TRIPOD_ARMOR_DATA;
+    case 'lam':
+      return SAMPLE_LAM_ARMOR_DATA;
+    case 'quadvee':
+      return SAMPLE_QUADVEE_ARMOR_DATA;
+    case 'biped':
+    default:
+      return SAMPLE_BIPED_ARMOR_DATA;
+  }
+}
+
+// Backward compatibility alias
+const SAMPLE_ARMOR_DATA = SAMPLE_BIPED_ARMOR_DATA;
+
+import {
+  VARIANT_NAMES,
+  VARIANT_DESCRIPTIONS,
+  VARIANT_IDS,
+  ALL_VARIANTS,
+} from './shared/VariantConstants';
+
 /**
  * Variant metadata
  * Note: These are independent visual styles for the armor diagram only,
@@ -43,9 +116,9 @@ export const DIAGRAM_VARIANT_INFO: Record<
   ArmorDiagramVariant,
   { name: string; description: string; features: string[] }
 > = {
-  'clean-tech': {
-    name: 'Standard',
-    description: 'Clean design with solid colors',
+  [VARIANT_IDS.STANDARD]: {
+    name: VARIANT_NAMES[VARIANT_IDS.STANDARD],
+    description: VARIANT_DESCRIPTIONS[VARIANT_IDS.STANDARD],
     features: [
       'Realistic mech silhouette',
       'Solid gradient fills',
@@ -53,9 +126,9 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Stacked front/rear',
     ],
   },
-  'neon-operator': {
-    name: 'Glow Effects',
-    description: 'Sci-fi aesthetic with neon lighting',
+  [VARIANT_IDS.GLOW]: {
+    name: VARIANT_NAMES[VARIANT_IDS.GLOW],
+    description: VARIANT_DESCRIPTIONS[VARIANT_IDS.GLOW],
     features: [
       'Wireframe outline',
       'Glowing edge effects',
@@ -63,9 +136,9 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Stacked front/rear',
     ],
   },
-  'tactical-hud': {
-    name: 'LED Display',
-    description: 'Military-style LED readouts',
+  [VARIANT_IDS.HUD]: {
+    name: VARIANT_NAMES[VARIANT_IDS.HUD],
+    description: VARIANT_DESCRIPTIONS[VARIANT_IDS.HUD],
     features: [
       'Geometric shapes',
       'LED number display',
@@ -73,9 +146,9 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Stacked front/rear',
     ],
   },
-  'premium-material': {
-    name: 'Metallic',
-    description: 'Chrome textures with 3D depth',
+  [VARIANT_IDS.CHROMATIC]: {
+    name: VARIANT_NAMES[VARIANT_IDS.CHROMATIC],
+    description: VARIANT_DESCRIPTIONS[VARIANT_IDS.CHROMATIC],
     features: [
       'Realistic contour',
       'Metallic textures',
@@ -83,24 +156,14 @@ export const DIAGRAM_VARIANT_INFO: Record<
       'Stacked front/rear',
     ],
   },
-  'megamek': {
-    name: 'MegaMek',
-    description: 'Authentic record sheet style',
+  [VARIANT_IDS.MEGAMEK]: {
+    name: VARIANT_NAMES[VARIANT_IDS.MEGAMEK],
+    description: VARIANT_DESCRIPTIONS[VARIANT_IDS.MEGAMEK],
     features: [
-      'PDF record sheet proportions',
+      'Classic beige/cream palette',
       'Layered shadow/fill/outline',
-      'Hand actuator details',
-      'Knee joint articulation',
-    ],
-  },
-  'megamek-classic': {
-    name: 'MegaMek Classic',
-    description: 'Uses mm-data pip assets',
-    features: [
-      'Authentic MegaMekLab pips',
-      'Multi-config support',
-      'Exact visual parity',
-      'All mech types',
+      'PDF record sheet proportions',
+      'Dark text on light fills',
     ],
   },
 };
@@ -108,6 +171,8 @@ export const DIAGRAM_VARIANT_INFO: Record<
 interface ArmorDiagramPreviewProps {
   /** The variant to preview */
   variant: ArmorDiagramVariant;
+  /** Optional: mech configuration type for preview */
+  mechConfigType?: MechConfigType;
   /** Optional: compact mode (smaller size) */
   compact?: boolean;
   /** Optional: show variant label */
@@ -125,6 +190,7 @@ interface ArmorDiagramPreviewProps {
  */
 export function ArmorDiagramPreview({
   variant,
+  mechConfigType = 'biped',
   compact = false,
   showLabel = false,
   onClick,
@@ -137,13 +203,17 @@ export function ArmorDiagramPreview({
     setSelectedLocation((prev) => (prev === location ? null : location));
   };
 
+  // Get sample armor data for the mech configuration type
+  const armorData = useMemo(() => getSampleArmorData(mechConfigType), [mechConfigType]);
+
   // Common props for all diagrams
   const diagramProps = {
-    armorData: SAMPLE_ARMOR_DATA,
+    armorData,
     selectedLocation,
     unallocatedPoints: 12,
     onLocationClick: handleLocationClick,
     className: compact ? 'transform scale-90 origin-top' : '',
+    mechConfigType,
   };
 
   const renderDiagram = () => {
@@ -158,8 +228,6 @@ export function ArmorDiagramPreview({
         return <PremiumMaterialDiagram {...diagramProps} />;
       case 'megamek':
         return <MegaMekDiagram {...diagramProps} />;
-      case 'megamek-classic':
-        return <MegaMekClassicDiagram {...diagramProps} />;
       default:
         return <CleanTechDiagram {...diagramProps} />;
     }
@@ -210,18 +278,10 @@ export function ArmorDiagramGridPreview({
   onSelectVariant,
   className = '',
 }: ArmorDiagramGridPreviewProps): React.ReactElement {
-  const variants: ArmorDiagramVariant[] = [
-    'clean-tech',
-    'neon-operator',
-    'tactical-hud',
-    'premium-material',
-    'megamek',
-    'megamek-classic',
-  ];
 
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>
-      {variants.map((variant) => (
+      {ALL_VARIANTS.map((variant) => (
         <div
           key={variant}
           className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
