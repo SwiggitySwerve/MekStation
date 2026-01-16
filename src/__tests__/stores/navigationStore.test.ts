@@ -1,5 +1,164 @@
 import { renderHook, act } from '@testing-library/react';
-import { useNavigationStore } from '../../stores/navigationStore';
+import { useNavigationStore, useMobileSidebarStore } from '../../stores/navigationStore';
+
+// =============================================================================
+// Mobile Sidebar Store Tests
+// =============================================================================
+
+describe('useMobileSidebarStore', () => {
+  beforeEach(() => {
+    // Reset store before each test
+    useMobileSidebarStore.setState({ isOpen: false });
+  });
+
+  describe('initial state', () => {
+    it('should start with sidebar closed', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+      expect(result.current.isOpen).toBe(false);
+    });
+  });
+
+  describe('open', () => {
+    it('should open the mobile sidebar', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      act(() => {
+        result.current.open();
+      });
+
+      expect(result.current.isOpen).toBe(true);
+    });
+
+    it('should stay open when called multiple times', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      act(() => {
+        result.current.open();
+        result.current.open();
+        result.current.open();
+      });
+
+      expect(result.current.isOpen).toBe(true);
+    });
+  });
+
+  describe('close', () => {
+    it('should close the mobile sidebar', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      act(() => {
+        result.current.open();
+      });
+
+      expect(result.current.isOpen).toBe(true);
+
+      act(() => {
+        result.current.close();
+      });
+
+      expect(result.current.isOpen).toBe(false);
+    });
+
+    it('should stay closed when called while already closed', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      act(() => {
+        result.current.close();
+        result.current.close();
+      });
+
+      expect(result.current.isOpen).toBe(false);
+    });
+  });
+
+  describe('toggle', () => {
+    it('should open sidebar when closed', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      expect(result.current.isOpen).toBe(false);
+
+      act(() => {
+        result.current.toggle();
+      });
+
+      expect(result.current.isOpen).toBe(true);
+    });
+
+    it('should close sidebar when open', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      act(() => {
+        result.current.open();
+      });
+
+      expect(result.current.isOpen).toBe(true);
+
+      act(() => {
+        result.current.toggle();
+      });
+
+      expect(result.current.isOpen).toBe(false);
+    });
+
+    it('should alternate between open and closed', () => {
+      const { result } = renderHook(() => useMobileSidebarStore());
+
+      // Start closed
+      expect(result.current.isOpen).toBe(false);
+
+      // Toggle 1: closed -> open
+      act(() => {
+        result.current.toggle();
+      });
+      expect(result.current.isOpen).toBe(true);
+
+      // Toggle 2: open -> closed
+      act(() => {
+        result.current.toggle();
+      });
+      expect(result.current.isOpen).toBe(false);
+
+      // Toggle 3: closed -> open
+      act(() => {
+        result.current.toggle();
+      });
+      expect(result.current.isOpen).toBe(true);
+    });
+  });
+
+  describe('reactivity', () => {
+    it('should share state across multiple hook instances', () => {
+      const { result: result1 } = renderHook(() => useMobileSidebarStore());
+      const { result: result2 } = renderHook(() => useMobileSidebarStore());
+
+      // Both start closed
+      expect(result1.current.isOpen).toBe(false);
+      expect(result2.current.isOpen).toBe(false);
+
+      // Open via first hook
+      act(() => {
+        result1.current.open();
+      });
+
+      // Both should now be open
+      expect(result1.current.isOpen).toBe(true);
+      expect(result2.current.isOpen).toBe(true);
+
+      // Close via second hook
+      act(() => {
+        result2.current.close();
+      });
+
+      // Both should now be closed
+      expect(result1.current.isOpen).toBe(false);
+      expect(result2.current.isOpen).toBe(false);
+    });
+  });
+});
+
+// =============================================================================
+// Panel Navigation Store Tests
+// =============================================================================
 
 describe('useNavigationStore', () => {
   beforeEach(() => {

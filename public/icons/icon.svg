@@ -1,32 +1,80 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Background -->
-  <rect width="512" height="512" rx="100" fill="#dc2626"/>
-
-  <!-- BattleMech silhouette -->
-  <g fill="#ffffff">
-    <!-- Head -->
-    <circle cx="256" cy="120" r="30"/>
-
-    <!-- Torso -->
-    <rect x="216" y="150" width="80" height="120" rx="10"/>
-
-    <!-- Left Arm -->
-    <rect x="166" y="160" width="50" height="80" rx="8"/>
-    <rect x="156" y="240" width="70" height="40" rx="6"/>
-
-    <!-- Right Arm -->
-    <rect x="296" y="160" width="50" height="80" rx="8"/>
-    <rect x="286" y="240" width="70" height="40" rx="6"/>
-
-    <!-- Left Leg -->
-    <rect x="226" y="270" width="30" height="100" rx="6"/>
-    <rect x="216" y="370" width="50" height="50" rx="8"/>
-
-    <!-- Right Leg -->
-    <rect x="256" y="270" width="30" height="100" rx="6"/>
-    <rect x="246" y="370" width="50" height="50" rx="8"/>
+  <defs>
+    <!-- Cyan glow gradient for bottom accent -->
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00bfff;stop-opacity:0"/>
+      <stop offset="70%" style="stop-color:#00bfff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00bfff;stop-opacity:0.8"/>
+    </linearGradient>
+    <!-- Metallic gradient for mech -->
+    <linearGradient id="metallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e8e8"/>
+      <stop offset="50%" style="stop-color:#c0c0c0"/>
+      <stop offset="100%" style="stop-color:#a0a0a0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Dark background with rounded corners -->
+  <rect width="512" height="512" rx="80" ry="80" fill="#3a3a3c"/>
+  
+  <!-- Cyan bottom glow accent -->
+  <rect x="0" y="400" width="512" height="112" rx="0" ry="0" fill="url(#cyanGlow)" clip-path="inset(0 0 0 0 round 0 0 80px 80px)"/>
+  <path d="M0 432 Q0 512 80 512 L432 512 Q512 512 512 432 L512 480 Q512 512 432 512 L80 512 Q0 512 0 432 Z" fill="#00bfff" opacity="0.6"/>
+  
+  <!-- Mech Body -->
+  <g fill="url(#metallic)" stroke="#707070" stroke-width="2">
+    <!-- Head / Cockpit -->
+    <path d="M200 100 L312 100 L330 130 L310 160 L202 160 L182 130 Z"/>
+    <!-- Cockpit visor -->
+    <rect x="230" y="115" width="52" height="20" rx="4" fill="#00bfff"/>
+    
+    <!-- Center Torso -->
+    <path d="M210 165 L302 165 L315 185 L315 290 L197 290 L197 185 Z"/>
+    <!-- Center detail lines -->
+    <line x1="256" y1="185" x2="256" y2="280" stroke="#505050" stroke-width="3"/>
+    
+    <!-- Left Torso -->
+    <path d="M140 175 L197 175 L197 290 L150 290 L140 260 Z"/>
+    
+    <!-- Right Torso -->
+    <path d="M315 175 L372 175 L372 260 L362 290 L315 290 Z"/>
+    
+    <!-- Left Arm Upper -->
+    <path d="M100 175 L135 175 L145 185 L145 250 L100 250 L90 230 Z"/>
+    
+    <!-- Left Arm Lower / Weapon -->
+    <rect x="85" y="255" width="65" height="95" rx="8"/>
+    <rect x="95" y="350" width="45" height="50" rx="6"/>
+    
+    <!-- Right Arm Upper -->
+    <path d="M377 175 L412 175 L422 230 L412 250 L367 250 L367 185 Z"/>
+    
+    <!-- Right Arm Lower / Weapon -->
+    <rect x="362" y="255" width="65" height="95" rx="8"/>
+    <rect x="372" y="350" width="45" height="50" rx="6"/>
+    
+    <!-- Left Leg Upper -->
+    <path d="M185 295 L235 295 L230 340 L220 380 L190 380 L180 340 Z"/>
+    
+    <!-- Left Leg Lower -->
+    <path d="M183 385 L223 385 L225 445 L180 445 Z"/>
+    
+    <!-- Left Foot -->
+    <path d="M165 448 L230 448 L235 475 L160 475 Z"/>
+    
+    <!-- Right Leg Upper -->
+    <path d="M277 295 L327 295 L332 340 L322 380 L292 380 L282 340 Z"/>
+    
+    <!-- Right Leg Lower -->
+    <path d="M289 385 L329 385 L332 445 L287 445 Z"/>
+    
+    <!-- Right Foot -->
+    <path d="M282 448 L347 448 L352 475 L277 475 Z"/>
   </g>
-
-  <!-- Accent -->
-  <circle cx="256" cy="120" r="15" fill="#fbbf24"/>
+  
+  <!-- Additional detail highlights -->
+  <g fill="none" stroke="#505050" stroke-width="1.5">
+    <line x1="155" y1="200" x2="155" y2="250"/>
+    <line x1="357" y1="200" x2="357" y2="250"/>
+  </g>
 </svg>

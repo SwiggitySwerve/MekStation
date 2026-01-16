@@ -6,7 +6,7 @@
  * Uses draft/save pattern for consistency with appearance settings.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppSettingsStore, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { VariantThumbnail } from './VariantThumbnail';
 import { ArmorDiagramPreview, DIAGRAM_VARIANT_INFO } from './ArmorDiagramPreview';
@@ -22,10 +22,15 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
   const setDraftArmorDiagramVariant = useAppSettingsStore((s) => s.setDraftArmorDiagramVariant);
   const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
 
-  const effectiveVariant = getEffectiveArmorDiagramVariant();
+  // Track hydration to avoid SSR mismatch (server doesn't have localStorage values)
+  const [hasMounted, setHasMounted] = useState(false);
+  
+  // Use default on server, actual value after mount
+  const effectiveVariant = hasMounted ? getEffectiveArmorDiagramVariant() : 'clean-tech';
 
-  // Initialize draft on mount
+  // Initialize draft and mark as mounted
   useEffect(() => {
+    setHasMounted(true);
     initDraftCustomizer();
   }, [initDraftCustomizer]);
 
@@ -40,9 +45,10 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
 
   return (
     <div className={className}>
-      <div className="flex gap-4">
-        {/* Left: Variant list */}
-        <div className="w-48 space-y-1">
+      {/* Responsive layout: stacked on mobile, side-by-side on desktop */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Variant list: full width on mobile, fixed width on desktop */}
+        <div className="w-full md:w-48 space-y-1">
           {variants.map((variant) => {
             const info = DIAGRAM_VARIANT_INFO[variant];
             const isSelected = effectiveVariant === variant;
@@ -71,8 +77,8 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
           })}
         </div>
 
-        {/* Right: Large preview */}
-        <div className="flex-1">
+        {/* Preview: below on mobile, right side on desktop */}
+        <div className="flex-1 min-w-0">
           <ArmorDiagramPreview variant={effectiveVariant} />
         </div>
       </div>

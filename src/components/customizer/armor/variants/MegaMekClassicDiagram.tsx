@@ -12,7 +12,7 @@ import React, { useState, useMemo } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared/ArmorStatusLegend';
+import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 import {
   LocationBounds,
   getLocationBoundsForConfiguration,

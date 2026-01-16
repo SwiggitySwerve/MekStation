@@ -9,6 +9,7 @@ import { useServiceWorker } from '../hooks/useServiceWorker'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
 import { ToastProvider } from '../components/shared/Toast'
 import { usePersistedState, STORAGE_KEYS } from '../hooks/usePersistedState'
+import { useMobileSidebarStore } from '../stores/navigationStore'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
 import { indexedDBService } from '../services/persistence/IndexedDBService'
@@ -37,14 +38,19 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
     STORAGE_KEYS.SIDEBAR_COLLAPSED,
     false // Default: expanded on desktop
   );
+  
+// Mobile sidebar drawer state from store (shared across app)
+  const { close: closeMobileSidebar } = useMobileSidebarStore();
+  
   const [servicesReady, setServicesReady] = useState(false)
   
-  // Auto-collapse sidebar on mobile after navigation
+  // Auto-collapse/close sidebar on mobile after navigation
   const handleRouteChange = useCallback(() => {
     if (typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT) {
       setIsSidebarCollapsed(true);
+      closeMobileSidebar();
     }
-  }, [setIsSidebarCollapsed]);
+  }, [setIsSidebarCollapsed, closeMobileSidebar]);
   
   // Listen for route changes to auto-collapse on mobile
   useEffect(() => {
@@ -65,6 +71,10 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
 
   // Register service worker
   const sw = useServiceWorker();
+
+  // Mobile header is now shown on ALL pages for consistency
+  // Previously customizer had hideMobileHeader=true, but that caused jarring UX 
+  // with menu button appearing in different positions
 
   return (
     <GlobalStyleProvider>

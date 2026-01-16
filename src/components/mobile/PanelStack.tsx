@@ -1,6 +1,6 @@
 import React, { ReactNode, useRef, useEffect, useState } from 'react';
 import { useNavigationStore } from '../../stores/navigationStore';
-import { useDeviceCapabilities } from '../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 interface PanelProps {
   id: string;
@@ -141,7 +141,7 @@ export function PanelStack({
   children,
   className = '',
 }: PanelStackProps): React.ReactElement | null {
-  const { isMobile } = useDeviceCapabilities();
+  const { isMobile } = useDeviceType();
   const { currentPanel, history, currentIndex } = useNavigationStore();
   const [direction, setDirection] = useState<'forward' | 'backward' | null>(
     null

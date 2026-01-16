@@ -347,9 +347,9 @@ describe('UnitValidationOrchestrator', () => {
   });
 
   describe('validateUnit convenience function', () => {
-    it('should validate using the singleton orchestrator', () => {
-      // Use the global registry
-      const globalRegistry = new UnitValidationRegistry();
+it('should validate using the singleton orchestrator', () => {
+      // Use the global registry (instantiated to verify no side effects)
+      const _globalRegistry = new UnitValidationRegistry();
       // Note: validateUnit uses the singleton which has its own registry
       resetUnitValidationOrchestrator();
       

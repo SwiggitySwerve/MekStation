@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useNavigationStore, PanelId } from '../../stores/navigationStore';
-import { useDeviceCapabilities } from '../../hooks/useDeviceCapabilities';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 export interface Tab {
   id: string;
@@ -40,7 +40,7 @@ export function BottomNavBar({
   tabs,
   className = '',
 }: BottomNavBarProps): React.ReactElement | null {
-  const { isMobile } = useDeviceCapabilities();
+  const { isMobile } = useDeviceType();
   const { currentPanel, pushPanel } = useNavigationStore();
 
   // Don't render on desktop

@@ -118,19 +118,22 @@ export function MobileLoadoutHeader({
   const heatStatus = getHeatStatus(stats.heatGenerated, stats.heatDissipation);
 
   return (
-    <button
-      onClick={onToggle}
+    <div
       className={`
-        w-full h-11 px-2 flex items-center justify-between
+        w-full h-11 flex items-center
         bg-surface-base border-t border-border-theme
-        active:bg-surface-raised/50 transition-colors
         ${className}
       `}
-      aria-expanded={isExpanded}
-      aria-label={isExpanded ? 'Collapse loadout' : 'Expand loadout'}
     >
-      {/* Stats row */}
-      <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden">
+      {/* Main stats area - tappable to expand loadout */}
+      <button
+        onClick={onToggle}
+        className="flex-1 h-full px-2 flex items-center justify-between active:bg-surface-raised/50 transition-colors"
+        aria-expanded={isExpanded}
+        aria-label={isExpanded ? 'Collapse loadout' : 'Expand loadout'}
+      >
+        {/* Stats row */}
+        <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden">
         <StatDisplay
           label="Weight"
           value={stats.weightUsed.toFixed(1)}
@@ -164,23 +167,24 @@ export function MobileLoadoutHeader({
         />
       </div>
 
-      {/* Expand indicator with equipment count */}
-      <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-        {stats.unassignedCount > 0 && (
-          <span className="text-[9px] text-amber-400 font-medium">
-            {stats.unassignedCount} unassigned
-          </span>
-        )}
-        <div className="flex items-center gap-1 bg-accent/20 rounded-full px-2 py-0.5">
-          <span className="text-xs font-bold text-accent">
-            {stats.equipmentCount}
-          </span>
-          <span className={`text-[10px] text-accent transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-            ▲
-          </span>
+        {/* Expand indicator with equipment count */}
+        <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+          {stats.unassignedCount > 0 && (
+            <span className="text-[9px] text-amber-400 font-medium">
+              {stats.unassignedCount} unassigned
+            </span>
+          )}
+          <div className="flex items-center gap-1 bg-accent/20 rounded-full px-2 py-0.5">
+            <span className="text-xs font-bold text-accent">
+              {stats.equipmentCount}
+            </span>
+            <span className={`text-[10px] text-accent transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+              ▲
+            </span>
+          </div>
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
