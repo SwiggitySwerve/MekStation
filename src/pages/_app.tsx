@@ -39,8 +39,8 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
     false // Default: expanded on desktop
   );
   
-  // Mobile sidebar drawer state from store (shared across app)
-  const { isOpen: isMobileSidebarOpen, open: openMobileSidebar, close: closeMobileSidebar } = useMobileSidebarStore();
+// Mobile sidebar drawer state from store (shared across app)
+  const { close: closeMobileSidebar } = useMobileSidebarStore();
   
   const [servicesReady, setServicesReady] = useState(false)
   

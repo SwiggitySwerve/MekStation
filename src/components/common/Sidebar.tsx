@@ -17,8 +17,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   GithubIcon,
-  HamburgerIcon,
-  CloseIcon,
 } from './icons/NavigationIcons';
 
 interface SidebarProps {

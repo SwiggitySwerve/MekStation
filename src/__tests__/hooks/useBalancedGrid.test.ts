@@ -4,12 +4,12 @@
  * Tests the column balancing algorithm to ensure even distribution across rows.
  */
 
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useBalancedGrid } from '@/hooks/useBalancedGrid';
 import { RefObject } from 'react';
 
-// Mock ResizeObserver
-class MockResizeObserver {
+// Mock ResizeObserver - uses global mock from jest.setup.js
+class MockResizeObserver implements ResizeObserver {
   callback: ResizeObserverCallback;
   
   constructor(callback: ResizeObserverCallback) {
@@ -21,7 +21,8 @@ class MockResizeObserver {
   disconnect = jest.fn();
 }
 
-global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+// Assign with proper typing to avoid double assertion
+(global as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = MockResizeObserver;
 
 // Mock requestAnimationFrame to execute callback immediately
 global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {

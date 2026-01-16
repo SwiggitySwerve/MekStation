@@ -329,9 +329,9 @@ describe('Sidebar', () => {
       }
     });
 
-    it('should hide collapse toggle button on mobile', () => {
+it('should hide collapse toggle button on mobile', () => {
       mockIsOpen = true;
-      const { container } = render(<Sidebar {...defaultProps} isCollapsed={false} />);
+      render(<Sidebar {...defaultProps} isCollapsed={false} />);
 
       // The toggle button should have lg:block (hidden on mobile)
       const toggleButton = screen.getByRole('button', { name: /collapse sidebar/i });

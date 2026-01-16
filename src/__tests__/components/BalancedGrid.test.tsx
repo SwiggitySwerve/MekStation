@@ -6,12 +6,16 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BalancedGrid } from '@/components/common/BalancedGrid';
 
-// Mock ResizeObserver
-class MockResizeObserver {
+// Mock ResizeObserver - uses global mock from jest.setup.js
+// Additional mock setup for tests that need to trigger resize callbacks
+const mockResizeObserverInstances: Array<{ callback: ResizeObserverCallback }> = [];
+
+class MockResizeObserver implements ResizeObserver {
   callback: ResizeObserverCallback;
   
   constructor(callback: ResizeObserverCallback) {
     this.callback = callback;
+    mockResizeObserverInstances.push(this);
   }
   
   observe = jest.fn();
@@ -19,7 +23,8 @@ class MockResizeObserver {
   disconnect = jest.fn();
 }
 
-global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+// Assign with proper typing to avoid double assertion
+(global as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = MockResizeObserver;
 
 // Mock requestAnimationFrame to execute callback immediately
 global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
