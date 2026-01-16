@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useNavigationStore, useMobileSidebarStore } from '../../stores/navigationStore';
+import { useNavigationStore, useMobileSidebarStore } from '../../stores/useNavigationStore';
 
 // =============================================================================
 // Mobile Sidebar Store Tests

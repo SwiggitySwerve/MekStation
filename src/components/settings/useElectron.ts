@@ -109,14 +109,17 @@ export interface IDesktopSettings {
   enableDevTools: boolean;
 }
 
-export type UnitType = 'BattleMech' | 'Vehicle' | 'Infantry' | 'ProtoMech' | 'Aerospace' | 'Unknown';
+// UnitType for recent files - uses canonical enum values plus 'Unknown' fallback
+// The canonical UnitType enum is in @/types/unit/BattleMechInterfaces but we need
+// 'Unknown' as a fallback for the Electron desktop app interface
+export type RecentFileUnitType = 'BattleMech' | 'Vehicle' | 'Infantry' | 'ProtoMech' | 'Aerospace' | 'Unknown';
 
 export interface IRecentFile {
   id: string;
   name: string;
   path: string;
   lastOpened: string;
-  unitType: UnitType;
+  unitType: RecentFileUnitType;
   tonnage?: number;
   variant?: string;
 }
@@ -125,7 +128,7 @@ export interface IAddRecentFileParams {
   id: string;
   name: string;
   path: string;
-  unitType: UnitType;
+  unitType: RecentFileUnitType;
   tonnage?: number;
   variant?: string;
 }

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { useNavigationStore, PanelId } from '../../stores/navigationStore';
+import { useNavigationStore, PanelId } from '../../stores/useNavigationStore';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export interface Tab {

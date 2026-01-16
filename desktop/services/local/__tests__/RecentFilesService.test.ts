@@ -7,7 +7,8 @@
 
 import { RecentFilesService } from '../RecentFilesService';
 import { LocalStorageService } from '../LocalStorageService';
-import { Result, IRecentFile, UnitType } from '../../../types/BaseTypes';
+import { Result, IRecentFile } from '../../../types/BaseTypes';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // Mock LocalStorageService
 const mockLocalStorage = {

@@ -1,10 +1,10 @@
 /**
  * Miscellaneous Equipment Alias Utilities
- * 
+ *
  * Provides alias generation for miscellaneous equipment.
  * Handles heat sinks, jump jets, and other misc equipment variations.
- * 
- * @module services/equipment/aliasUtils.misc
+ *
+ * @module services/equipment/aliases/misc
  */
 
 import { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
@@ -17,7 +17,7 @@ export function addMiscEquipmentAliases(
   nameToIdMap: Map<string, string>
 ): void {
   const name = equipment.name;
-  
+
   // Handle heat sink variations
   if (name === 'Heat Sink' || name === 'Double Heat Sink') {
     nameToIdMap.set('Single Heat Sink', 'single-heat-sink');
@@ -25,7 +25,7 @@ export function addMiscEquipmentAliases(
     nameToIdMap.set('Double', 'double-heat-sink');
     nameToIdMap.set('DHS', 'double-heat-sink');
   }
-  
+
   // Handle jump jet variations
   if (name.includes('Jump Jet')) {
     nameToIdMap.set('Jump Jet', 'jump-jet-medium');

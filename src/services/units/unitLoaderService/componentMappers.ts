@@ -1,8 +1,8 @@
 /**
  * Unit Loader Service - Component Type Mappers
- * 
+ *
  * Functions for mapping string values from serialized units to typed enums.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
@@ -23,12 +23,12 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
  */
 export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   // Standard fusion engine variations
   if (normalized === 'FUSION' || normalized === 'STANDARD' || normalized === 'STANDARDFUSION') {
     return EngineType.STANDARD;
   }
-  
+
   // XL engine - depends on tech base
   if (normalized === 'XL' || normalized === 'XLENGINE') {
     return techBase === TechBase.CLAN ? EngineType.XL_CLAN : EngineType.XL_IS;
@@ -39,7 +39,7 @@ export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
   if (normalized === 'XLCLAN' || normalized === 'XLENGINECLAN') {
     return EngineType.XL_CLAN;
   }
-  
+
   // Other engine types
   if (normalized === 'LIGHT' || normalized === 'LIGHTENGINE') {
     return EngineType.LIGHT;
@@ -59,7 +59,7 @@ export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
   if (normalized === 'FISSION') {
     return EngineType.FISSION;
   }
-  
+
   // Default to standard
   return EngineType.STANDARD;
 }
@@ -69,7 +69,7 @@ export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
  */
 export function mapGyroType(typeStr: string): GyroType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'XL' || normalized === 'XLGYRO') {
     return GyroType.XL;
   }
@@ -79,7 +79,7 @@ export function mapGyroType(typeStr: string): GyroType {
   if (normalized === 'HEAVYDUTY' || normalized === 'HEAVYDUTYGYRO' || normalized === 'HD') {
     return GyroType.HEAVY_DUTY;
   }
-  
+
   return GyroType.STANDARD;
 }
 
@@ -88,10 +88,10 @@ export function mapGyroType(typeStr: string): GyroType {
  */
 export function mapStructureType(typeStr: string, techBase: TechBase): InternalStructureType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'ENDOSTEEL' || normalized === 'ENDO') {
-    return techBase === TechBase.CLAN 
-      ? InternalStructureType.ENDO_STEEL_CLAN 
+    return techBase === TechBase.CLAN
+      ? InternalStructureType.ENDO_STEEL_CLAN
       : InternalStructureType.ENDO_STEEL_IS;
   }
   if (normalized === 'ENDOSTEELIS') {
@@ -112,7 +112,7 @@ export function mapStructureType(typeStr: string, techBase: TechBase): InternalS
   if (normalized === 'INDUSTRIAL') {
     return InternalStructureType.INDUSTRIAL;
   }
-  
+
   return InternalStructureType.STANDARD;
 }
 
@@ -121,7 +121,7 @@ export function mapStructureType(typeStr: string, techBase: TechBase): InternalS
  */
 export function mapCockpitType(typeStr: string): CockpitType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'SMALL' || normalized === 'SMALLCOCKPIT') {
     return CockpitType.SMALL;
   }
@@ -140,7 +140,7 @@ export function mapCockpitType(typeStr: string): CockpitType {
   if (normalized === 'SUPERHEAVY' || normalized === 'SUPERHEAVYCOCKPIT') {
     return CockpitType.SUPER_HEAVY;
   }
-  
+
   return CockpitType.STANDARD;
 }
 
@@ -149,7 +149,7 @@ export function mapCockpitType(typeStr: string): CockpitType {
  */
 export function mapHeatSinkType(typeStr: string): HeatSinkType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'DOUBLE' || normalized === 'DOUBLEIS' || normalized === 'DHS') {
     return HeatSinkType.DOUBLE_IS;
   }
@@ -162,7 +162,7 @@ export function mapHeatSinkType(typeStr: string): HeatSinkType {
   if (normalized === 'COMPACT') {
     return HeatSinkType.COMPACT;
   }
-  
+
   return HeatSinkType.SINGLE;
 }
 
@@ -171,10 +171,10 @@ export function mapHeatSinkType(typeStr: string): HeatSinkType {
  */
 export function mapArmorType(typeStr: string, techBase: TechBase): ArmorTypeEnum {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'FERROFIBROUS' || normalized === 'FERRO') {
-    return techBase === TechBase.CLAN 
-      ? ArmorTypeEnum.FERRO_FIBROUS_CLAN 
+    return techBase === TechBase.CLAN
+      ? ArmorTypeEnum.FERRO_FIBROUS_CLAN
       : ArmorTypeEnum.FERRO_FIBROUS_IS;
   }
   if (normalized === 'FERROFIBROUSIS') {
@@ -203,7 +203,7 @@ export function mapArmorType(typeStr: string, techBase: TechBase): ArmorTypeEnum
   }
   // INDUSTRIAL, HEAVY_INDUSTRIAL, PRIMITIVE armor types map to STANDARD for now
   // These can be added to the enum when needed
-  
+
   return ArmorTypeEnum.STANDARD;
 }
 
@@ -212,14 +212,14 @@ export function mapArmorType(typeStr: string, techBase: TechBase): ArmorTypeEnum
  */
 export function mapTechBase(techBaseStr: string): TechBase {
   const normalized = techBaseStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'CLAN') {
     return TechBase.CLAN;
   }
   if (normalized === 'MIXED') {
     return TechBase.INNER_SPHERE; // Mixed defaults to IS base
   }
-  
+
   return TechBase.INNER_SPHERE;
 }
 
@@ -229,14 +229,14 @@ export function mapTechBase(techBaseStr: string): TechBase {
  */
 export function mapTechBaseMode(techBaseStr: string): TechBaseMode {
   const normalized = techBaseStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'CLAN') {
     return TechBaseMode.CLAN;
   }
   if (normalized === 'MIXED') {
     return TechBaseMode.MIXED;
   }
-  
+
   return TechBaseMode.INNER_SPHERE;
 }
 
@@ -245,7 +245,7 @@ export function mapTechBaseMode(techBaseStr: string): TechBaseMode {
  */
 export function mapRulesLevel(levelStr: string): RulesLevel {
   const normalized = levelStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   if (normalized === 'INTRODUCTORY' || normalized === 'INTRO') {
     return RulesLevel.INTRODUCTORY;
   }
@@ -256,7 +256,7 @@ export function mapRulesLevel(levelStr: string): RulesLevel {
     return RulesLevel.EXPERIMENTAL;
   }
   // ERA is mapped to ADVANCED for now
-  
+
   return RulesLevel.STANDARD;
 }
 
@@ -265,7 +265,7 @@ export function mapRulesLevel(levelStr: string): RulesLevel {
  */
 export function mapMechLocation(locationStr: string): MechLocation | undefined {
   const normalized = locationStr.toUpperCase().replace(/[_\s-]/g, '');
-  
+
   const locationMap: Record<string, MechLocation> = {
     'HEAD': MechLocation.HEAD,
     'HD': MechLocation.HEAD,
@@ -284,7 +284,7 @@ export function mapMechLocation(locationStr: string): MechLocation | undefined {
     'RIGHTLEG': MechLocation.RIGHT_LEG,
     'RL': MechLocation.RIGHT_LEG,
   };
-  
+
   return locationMap[normalized];
 }
 
@@ -335,21 +335,21 @@ export function mapArmorAllocation(
   }
 
   const result = createEmptyArmorAllocation();
-  
+
   for (const [locationKey, value] of Object.entries(allocation)) {
     const location = mapMechLocation(locationKey);
-    
+
     if (location === undefined) {
       continue;
     }
-    
+
     if (typeof value === 'number') {
       // Simple number - direct armor value
       setArmorValue(result, location, value);
     } else if (typeof value === 'object' && value !== null && 'front' in value && 'rear' in value) {
       // Object with front/rear
       setArmorValue(result, location, value.front);
-      
+
       // Map rear armor
       if (location === MechLocation.CENTER_TORSO) {
         result.centerTorsoRear = value.rear;
@@ -360,6 +360,6 @@ export function mapArmorAllocation(
       }
     }
   }
-  
+
   return result;
 }

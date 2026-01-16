@@ -2,6 +2,7 @@ import { CanonicalUnitService, canonicalUnitService } from '@/services/units/Can
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // Mock fetch for client-side
 global.fetch = jest.fn();
@@ -488,7 +489,7 @@ describe('CanonicalUnitService', () => {
     });
 
     it('should filter by unit type with no matches', async () => {
-      const results = await service.query({ unitType: 'Vehicle' });
+      const results = await service.query({ unitType: UnitType.VEHICLE });
 
       expect(results.length).toBe(0);
     });

@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
-import { useMobileSidebarStore } from '@/stores/navigationStore';
+import { useMobileSidebarStore } from '@/stores/useNavigationStore';
 import { HamburgerIcon } from './icons/NavigationIcons';
 
 interface LayoutProps {

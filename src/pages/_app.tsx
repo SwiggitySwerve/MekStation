@@ -9,7 +9,7 @@ import { useServiceWorker } from '../hooks/useServiceWorker'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
 import { ToastProvider } from '../components/shared/Toast'
 import { usePersistedState, STORAGE_KEYS } from '../hooks/usePersistedState'
-import { useMobileSidebarStore } from '../stores/navigationStore'
+import { useMobileSidebarStore } from '../stores/useNavigationStore'
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
 import { indexedDBService } from '../services/persistence/IndexedDBService'

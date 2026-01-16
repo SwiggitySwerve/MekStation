@@ -1,8 +1,8 @@
 /**
  * Unit Loader Service - Type Definitions
- * 
+ *
  * Types and interfaces for unit loading and serialization.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 

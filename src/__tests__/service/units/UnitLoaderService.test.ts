@@ -1,4 +1,4 @@
-import { UnitLoaderService, ISerializedUnit } from '@/services/units/UnitLoaderService';
+import { UnitLoaderService, ISerializedUnit } from '@/services/units/unitLoaderService';
 import { canonicalUnitService, IFullUnit } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';

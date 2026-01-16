@@ -19,7 +19,8 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { IUnitQueryCriteria, UnitType } from '@/services/common/types';
+import { IUnitQueryCriteria } from '@/services/common/types';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -56,12 +57,7 @@ function isValidWeightClass(value: string): value is WeightClass {
  * Type guard to validate UnitType
  */
 function isValidUnitType(value: string): value is UnitType {
-  const validTypes: UnitType[] = [
-    'BattleMech', 'Vehicle', 'Infantry', 'ProtoMech', 'BattleArmor',
-    'Aerospace', 'ConvFighter', 'Dropship', 'Jumpship', 'Warship',
-    'SpaceStation', 'SmallCraft'
-  ];
-  return validTypes.includes(value as UnitType);
+  return Object.values(UnitType).includes(value as UnitType);
 }
 
 /**

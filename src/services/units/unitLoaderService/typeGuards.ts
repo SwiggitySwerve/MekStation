@@ -1,12 +1,12 @@
 /**
  * Unit Loader Service - Type Guards
- * 
+ *
  * Type guard functions for validating unit data structures.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { IFullUnit } from './CanonicalUnitService';
+import { IFullUnit } from '../CanonicalUnitService';
 
 /**
  * Check if IFullUnit has the structure of ISerializedUnit

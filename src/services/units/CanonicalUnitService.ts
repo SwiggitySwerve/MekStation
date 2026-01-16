@@ -12,6 +12,7 @@ import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /**
  * Raw unit index entry from index.json
@@ -81,7 +82,7 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
     techBase,
     era,
     weightClass,
-    unitType: 'BattleMech',
+    unitType: UnitType.BATTLEMECH,
     filePath: `/data/units/battlemechs/${raw.path}`,
     year: raw.year,
     role: raw.role,

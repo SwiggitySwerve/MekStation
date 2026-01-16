@@ -5,7 +5,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMobileSidebarStore } from '@/stores/navigationStore';
+import { useMobileSidebarStore } from '@/stores/useNavigationStore';
 import {
   MekStationIcon,
   HomeIcon,

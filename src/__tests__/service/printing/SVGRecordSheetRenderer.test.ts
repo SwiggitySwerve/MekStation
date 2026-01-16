@@ -10,7 +10,7 @@
  * - Pip group ID resolution for all configurations
  */
 
-import { SVGRecordSheetRenderer } from '@/services/printing/SVGRecordSheetRenderer';
+import { SVGRecordSheetRenderer } from '@/services/printing/svgRecordSheetRenderer';
 import { IRecordSheetData } from '@/types/printing';
 
 // Mock fetch for SVG template loading

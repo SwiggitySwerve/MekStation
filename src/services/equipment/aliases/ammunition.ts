@@ -1,10 +1,10 @@
 /**
  * Ammunition Alias Utilities
- * 
+ *
  * Provides alias generation for ammunition equipment.
  * Handles techbase prefixes and slug-style IDs for ammunition.
- * 
- * @module services/equipment/aliasUtils.ammunition
+ *
+ * @module services/equipment/aliases/ammunition
  */
 
 import { TechBase } from '@/types/enums/TechBase';
@@ -20,7 +20,7 @@ export function addAmmunitionAliases(
   const name = ammo.name;
   const id = ammo.id;
   const isClan = ammo.techBase === TechBase.CLAN;
-  
+
   // Handle "IS Ammo" and "Clan Ammo" prefixes
   if (ammo.techBase === TechBase.INNER_SPHERE) {
     nameToIdMap.set(`IS ${name}`, id);
@@ -29,12 +29,12 @@ export function addAmmunitionAliases(
     nameToIdMap.set(`Clan ${name}`, id);
     nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
   }
-  
+
   // Handle various ammo naming patterns from MTF files
   const weaponBase = name.replace(' Ammo', '').replace('Ammo ', '');
   nameToIdMap.set(`Ammo ${weaponBase}`, id);
   nameToIdMap.set(`${weaponBase} Ammo`, id);
-  
+
   // Add slug-style ID aliases for ammo (e.g., 'ultra-ac-5-ammo' → 'uac-5-ammo')
   addAmmunitionSlugAliases(id, isClan, nameToIdMap);
 }
@@ -49,7 +49,7 @@ export function addAmmunitionSlugAliases(
   nameToIdMap: Map<string, string>
 ): void {
   const prefix = isClan ? 'clan-' : '';
-  
+
   // Ultra AC ammo: 'uac-5-ammo' should also match 'ultra-ac-5-ammo'
   const uacMatch = id.match(/^(clan-)?uac-(\d+)-ammo$/);
   if (uacMatch) {
@@ -57,7 +57,7 @@ export function addAmmunitionSlugAliases(
     nameToIdMap.set(`${prefix}ultra-ac-${num}-ammo`, id);
     nameToIdMap.set(`ultra-ac-${num}-ammo`, id);
   }
-  
+
   // Rotary AC ammo: 'rac-5-ammo' should also match 'rotary-ac-5-ammo'
   const racMatch = id.match(/^(clan-)?rac-(\d+)-ammo$/);
   if (racMatch) {
@@ -65,7 +65,7 @@ export function addAmmunitionSlugAliases(
     nameToIdMap.set(`${prefix}rotary-ac-${num}-ammo`, id);
     nameToIdMap.set(`rotary-ac-${num}-ammo`, id);
   }
-  
+
   // Light AC ammo: 'lac-5-ammo' should also match 'light-ac-5-ammo'
   const lacMatch = id.match(/^(clan-)?lac-(\d+)-ammo$/);
   if (lacMatch) {
@@ -73,7 +73,7 @@ export function addAmmunitionSlugAliases(
     nameToIdMap.set(`${prefix}light-ac-${num}-ammo`, id);
     nameToIdMap.set(`light-ac-${num}-ammo`, id);
   }
-  
+
   // LB-X AC ammo: 'lb-10x-ac-ammo' should also match 'lb-10-x-ac-ammo'
   const lbxMatch = id.match(/^(clan-)?lb-(\d+)x-ac-(.*ammo.*)$/);
   if (lbxMatch) {

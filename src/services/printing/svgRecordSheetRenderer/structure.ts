@@ -4,7 +4,7 @@
  */
 
 import { IRecordSheetData, ILocationStructure } from '@/types/printing';
-import { ArmorPipLayout } from './ArmorPipLayout';
+import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
   PIPS_BASE_PATH,
@@ -15,8 +15,8 @@ import {
   BIPED_STRUCTURE_PIP_GROUP_IDS,
   QUAD_STRUCTURE_PIP_GROUP_IDS,
   TRIPOD_STRUCTURE_PIP_GROUP_IDS,
-} from './SVGRecordSheetRenderer.constants';
-import { setTextContent } from './SVGRecordSheetRenderer.template';
+} from './constants';
+import { setTextContent } from './template';
 
 /**
  * Fill template with structure pips and text values
@@ -44,13 +44,13 @@ export async function fillStructurePips(
   if (usePremadePips) {
     // Biped: Load pre-made structure pip SVG files
     let structurePipsGroup: Element | null = svgDoc.getElementById(ELEMENT_IDS.CANON_STRUCTURE_PIPS);
-    
+
     if (!structurePipsGroup) {
       const templatePips = svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
       if (templatePips) {
         templatePips.setAttribute('visibility', 'hidden');
       }
-      
+
       const newGroup = svgDoc.createElementNS(SVG_NS, 'g');
       newGroup.setAttribute('id', 'structure-pips-loaded');
       newGroup.setAttribute('transform', 'matrix(0.971,0,0,0.971,-378.511,-376.966)');
@@ -108,7 +108,7 @@ async function loadAndInsertStructurePips(
 
     // Extract the path elements from the pip SVG
     const paths = pipDoc.querySelectorAll('path');
-    
+
     if (paths.length === 0) return;
 
     // Create a group for this location's structure pips
@@ -156,13 +156,13 @@ export function generateStructurePipsForLocationFallback(
 
   // Get all existing pip paths in this group to determine positions
   const existingPips = existingPipGroup.querySelectorAll('path.pip.structure, circle.pip.structure');
-  
+
   // If there are existing pips, we can use them as templates
   // Otherwise, generate pips in a grid layout within the group
   if (existingPips.length > 0) {
     // Show only the number of pips we need (up to existing count)
     const pipsToShow = Math.min(location.points, existingPips.length);
-    
+
     // The template already has the pips positioned - we just need to ensure
     // the correct number are visible and styled
     for (let i = 0; i < existingPips.length; i++) {
@@ -210,7 +210,7 @@ function generateAdditionalStructurePips(
 
   const transform = parentG.getAttribute('transform') || '';
   const translateMatch = transform.match(/translate\(([\d.-]+),([\d.-]+)\)/);
-  
+
   if (!translateMatch) return;
 
   const baseX = parseFloat(translateMatch[1]);

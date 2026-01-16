@@ -13,11 +13,13 @@ import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { EquipmentLoaderService, getEquipmentLoader } from './EquipmentLoaderService';
-import { addCommonWeaponAliases } from './aliasUtils.weapon';
-import { addAmmunitionAliases } from './aliasUtils.ammunition';
-import { addStaticAliasMappings } from './aliasUtils.static';
-import { parseLegacyMegaMekId } from './aliasUtils.legacy';
-import { addMiscEquipmentAliases } from './aliasUtils.misc';
+import {
+  addCommonWeaponAliases,
+  addAmmunitionAliases,
+  addStaticAliasMappings,
+  parseLegacyMegaMekId,
+  addMiscEquipmentAliases,
+} from './aliases';
 
 /**
  * Generic equipment type union

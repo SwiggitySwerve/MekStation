@@ -1,21 +1,21 @@
 /**
  * Legacy MegaMek ID Parsing Utilities
- * 
+ *
  * Provides parsing and conversion for legacy MegaMek-style equipment IDs.
  * Handles formats like: "1-ismediumlaser", "2-clermediumlaser", "1-islbxac10"
- * 
- * @module services/equipment/aliasUtils.legacy
+ *
+ * @module services/equipment/aliases/legacy
  */
 
 /**
  * Parse legacy MegaMek-style equipment IDs
  * Formats like: "1-ismediumlaser", "2-clermediumlaser", "1-islbxac10"
- * 
+ *
  * Pattern: [quantity]-[techbase][equipmentname]
  * - quantity: numeric prefix (1, 2, 3, etc.)
  * - techbase: 'is' (Inner Sphere) or 'cl' (Clan)
  * - equipmentname: concatenated equipment name
- * 
+ *
  * @returns Canonical equipment ID or null if not a legacy format
  */
 export function parseLegacyMegaMekId(legacyId: string): string | null {
@@ -26,13 +26,13 @@ export function parseLegacyMegaMekId(legacyId: string): string | null {
     /^(\d+)-(is|cl)-(.+)$/i,
     // With quantity prefix: "1-ismediumlaser"
     /^(\d+)-?(is|cl)(.+)$/i,
-    // Without quantity: "ismediumlaser", "clerlargelaser"  
+    // Without quantity: "ismediumlaser", "clerlargelaser"
     /^(is|cl)(.+)$/i,
   ];
-  
+
   let techBase: 'is' | 'cl' | null = null;
   let equipName: string = '';
-  
+
   for (const pattern of patterns) {
     const match = legacyId.match(pattern);
     if (match) {
@@ -48,11 +48,11 @@ export function parseLegacyMegaMekId(legacyId: string): string | null {
       break;
     }
   }
-  
+
   if (!techBase || !equipName) {
     return null;
   }
-  
+
   // Build canonical ID by converting concatenated name to slug format
   // e.g., "mediumlaser" -> "medium-laser", "erlarge laser" -> "er-large-laser"
   const canonicalId = convertMegaMekNameToSlug(equipName, techBase);
@@ -64,7 +64,7 @@ export function parseLegacyMegaMekId(legacyId: string): string | null {
  */
 export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): string {
   const prefix = techBase === 'cl' ? 'clan-' : '';
-  
+
   // Common weapon patterns
   const weaponPatterns: [RegExp, string][] = [
     // Lasers
@@ -93,7 +93,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^chemicalmediumlaser$/, `${prefix}chemical-medium-laser`],
     [/^chemicalsmalllaser$/, `${prefix}chemical-small-laser`],
     [/^bombastlaser$/, `${prefix}bombast-laser`],
-    
+
     // PPCs
     [/^ppc$/, 'ppc'],
     [/^erppc$/, `${prefix}er-ppc`],
@@ -101,7 +101,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^lightppc$/, `${prefix}light-ppc`],
     [/^snppc$/, `${prefix}snub-nose-ppc`],
     [/^snubnose?ppc$/, `${prefix}snub-nose-ppc`],
-    
+
     // Autocannons
     [/^ac(\d+)$/, 'ac-$1'],
     [/^uac(\d+)$/, `${prefix}uac-$1`],
@@ -115,10 +115,10 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^rotaryac(\d+)$/, `${prefix}rac-$1`],
     [/^hvac(\d+)$/, `${prefix}hvac-$1`],
     [/^hypervelocityac(\d+)$/, `${prefix}hvac-$1`],
-    
+
     // Hyper Assault Gauss
     [/^hag(\d+)$/, `hag$1`],
-    
+
     // Gauss
     [/^gaussrifle$/, `${prefix}gauss-rifle`],
     [/^lightgaussrifle$/, `${prefix}light-gauss-rifle`],
@@ -126,7 +126,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^improvedheavygaussrifle$/, `${prefix}improved-heavy-gauss-rifle`],
     [/^magshot$/, 'magshot'],
     [/^silverbulletgauss$/, 'silver-bullet-gauss'],
-    
+
     // Missiles
     [/^srm(\d+)$/, `${prefix}srm-$1`],
     [/^lrm(\d+)$/, `${prefix}lrm-$1`],
@@ -146,7 +146,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^inarc$/, `${prefix}inarc`],
     [/^inarcbeacon$/, `${prefix}inarc`],
     [/^thunderbolt(\d+)$/, `${prefix}thunderbolt-$1`],
-    
+
     // Machine Guns
     [/^machinegun$/, `${prefix}machine-gun`],
     [/^mg$/, `${prefix}machine-gun`],
@@ -154,7 +154,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^lightmg$/, `${prefix}light-machine-gun`],
     [/^heavymachinegun$/, `${prefix}heavy-machine-gun`],
     [/^heavymg$/, `${prefix}heavy-machine-gun`],
-    
+
     // Other weapons
     [/^flamer$/, `${prefix}flamer`],
     [/^erflamer$/, `${prefix}er-flamer`],
@@ -164,7 +164,7 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^plasmacannon$/, `${prefix}plasma-cannon`],
     [/^tag$/, `${prefix}tag`],
     [/^lighttag$/, `${prefix}light-tag`],
-    
+
     // Electronics
     [/^guardianecm$/, `${prefix}guardian-ecm`],
     [/^angelecm$/, `${prefix}angel-ecm`],
@@ -183,14 +183,14 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^watchdogcews$/, `${prefix}watchdog-cews`],
     [/^ecm$/, `${prefix}guardian-ecm`],
     [/^activeprobe$/, `${prefix}active-probe`],
-    
+
     // Physical Weapons
     [/^sword$/, 'sword'],
     [/^hatchet$/, 'hatchet'],
     [/^mace$/, 'mace'],
     [/^claw$/, `${prefix}claw`],
     [/^talons$/, `${prefix}talons`],
-    
+
     // Artillery
     [/^arrowiv$/, `${prefix}arrow-iv`],
     [/^arrowivmissile$/, `${prefix}arrow-iv`],
@@ -198,12 +198,12 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^longtom$/, `${prefix}long-tom`],
     [/^sniper$/, `${prefix}sniper-cannon`],
     [/^thumper$/, `${prefix}thumper-cannon`],
-    
+
     // Misc Equipment
     [/^coolantpod$/, `${prefix}coolant-pod`],
     [/^mpod$/, `${prefix}m-pod`],
     [/^bpod$/, `${prefix}b-pod`],
-    
+
     // Anti-Missile
     [/^ams$/, `${prefix}ams`],
     [/^antimissilesystem$/, `${prefix}ams`],
@@ -211,14 +211,14 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     [/^laserAMS$/, `${prefix}laser-ams`],
     [/^clams$/, 'clan-ams'],
   ];
-  
+
   // Try each pattern
   for (const [pattern, replacement] of weaponPatterns) {
     if (pattern.test(name)) {
       return name.replace(pattern, replacement);
     }
   }
-  
+
   // Fallback: convert camelCase to slug
   // Insert hyphens before capital letters and numbers
   const slug = name
@@ -226,6 +226,6 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
     .replace(/(\d)([a-z])/g, '$1-$2')  // number followed by letter
     .replace(/([a-z])([A-Z])/g, '$1-$2') // camelCase
     .toLowerCase();
-  
+
   return prefix + slug;
 }

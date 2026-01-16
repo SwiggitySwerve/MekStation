@@ -1,7 +1,13 @@
 /**
  * UnitInterfaces.ts - STUB FILE
  * Unit interface definitions
- * TODO: Replace with spec-driven implementation from 
+ *
+ * NOTE: This is a legacy stub file. Modern unit types are defined in:
+ * - @/types/unit/BattleMechInterfaces.ts
+ * - @/types/unit/VehicleInterfaces.ts
+ * - @/types/unit/UnitCommon.ts
+ *
+ * @deprecated Prefer importing from the typed interfaces above
  */
 
 import { TechBase, RulesLevel, EntityId } from './index';

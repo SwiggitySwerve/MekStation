@@ -17,33 +17,33 @@ export const ELEMENT_IDS = {
   RULES_LEVEL: 'rulesLevel',
   ROLE: 'role',
   ENGINE_TYPE: 'engineType',
-  
+
   // Movement section
   WALK_MP: 'mpWalk',
-  RUN_MP: 'mpRun', 
+  RUN_MP: 'mpRun',
   JUMP_MP: 'mpJump',
-  
+
   // Equipment/Inventory area
   INVENTORY: 'inventory',
-  
+
   // Battle value
   BV: 'bv',
-  
+
   // Armor
   ARMOR_TYPE: 'armorType',
   STRUCTURE_TYPE: 'structureType',
   CANON_ARMOR_PIPS: 'canonArmorPips',
   ARMOR_PIPS: 'armorPips',
-  
+
   // Structure (Internal Structure)
   CANON_STRUCTURE_PIPS: 'canonStructurePips',
   STRUCTURE_PIPS: 'structurePips',
-  
+
   // Warrior data
   PILOT_NAME: 'pilotName0',
   GUNNERY_SKILL: 'gunnerySkill0',
   PILOTING_SKILL: 'pilotingSkill0',
-  
+
   // Heat
   HEAT_SINK_TYPE: 'hsType',
   HEAT_SINK_COUNT: 'hsCount',
