@@ -89,7 +89,11 @@ export function useBalancedGrid(
   }, [containerRef, minItemWidth, gap, itemCount]);
   
   useEffect(() => {
-    calculateColumns();
+    // Use requestAnimationFrame to ensure DOM has painted before measuring
+    // This fixes the issue where offsetWidth returns 0 on initial render
+    const rafId = requestAnimationFrame(() => {
+      calculateColumns();
+    });
     
     // Use ResizeObserver for responsive updates
     const resizeObserver = new ResizeObserver(() => {
@@ -101,6 +105,7 @@ export function useBalancedGrid(
     }
     
     return () => {
+      cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
     };
   }, [containerRef, calculateColumns]);

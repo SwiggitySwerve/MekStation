@@ -21,6 +21,14 @@ class MockResizeObserver {
 
 global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
 
+// Mock requestAnimationFrame to execute callback immediately
+global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
+  callback(0);
+  return 0;
+});
+
+global.cancelAnimationFrame = jest.fn();
+
 // Mock offsetWidth for container measurement
 Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
   configurable: true,
@@ -118,6 +126,74 @@ describe('BalancedGrid', () => {
       expect(screen.getByTestId('item-1')).toBeInTheDocument();
       expect(screen.getByTestId('item-2')).toBeInTheDocument();
       expect(screen.queryByText('Hidden')).not.toBeInTheDocument();
+    });
+
+    it('should correctly count children excluding false conditionals', () => {
+      // This tests the fix for {condition && <Component/>} pattern
+      // When condition is false, the expression evaluates to `false`
+      // Children.toArray excludes false, so itemCount should be accurate
+      const showOptional = false;
+      
+      render(
+        <BalancedGrid minItemWidth={75} gap={6} data-testid="grid">
+          <div data-testid="stat-1">Stat 1</div>
+          <div data-testid="stat-2">Stat 2</div>
+          <div data-testid="stat-3">Stat 3</div>
+          {showOptional && <div data-testid="stat-optional">Optional</div>}
+          <div data-testid="stat-4">Stat 4</div>
+          <div data-testid="stat-5">Stat 5</div>
+        </BalancedGrid>
+      );
+      
+      // Should render exactly 5 items (not 6)
+      expect(screen.getByTestId('stat-1')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-2')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-3')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-4')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-5')).toBeInTheDocument();
+      expect(screen.queryByTestId('stat-optional')).not.toBeInTheDocument();
+    });
+
+    it('should include conditional children when condition is true', () => {
+      const showOptional = true;
+      
+      render(
+        <BalancedGrid minItemWidth={75} gap={6} data-testid="grid">
+          <div data-testid="stat-1">Stat 1</div>
+          <div data-testid="stat-2">Stat 2</div>
+          {showOptional && <div data-testid="stat-optional">Optional</div>}
+          <div data-testid="stat-3">Stat 3</div>
+        </BalancedGrid>
+      );
+      
+      // Should render exactly 4 items including optional
+      expect(screen.getByTestId('stat-1')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-2')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-optional')).toBeInTheDocument();
+      expect(screen.getByTestId('stat-3')).toBeInTheDocument();
+    });
+
+    it('should handle mixed conditional patterns', () => {
+      const conditions = { a: true, b: false, c: true };
+      
+      render(
+        <BalancedGrid minItemWidth={60} gap={6} data-testid="grid">
+          <div data-testid="always-1">Always 1</div>
+          {conditions.a && <div data-testid="cond-a">Condition A</div>}
+          {conditions.b && <div data-testid="cond-b">Condition B</div>}
+          {conditions.c && <div data-testid="cond-c">Condition C</div>}
+          <div data-testid="always-2">Always 2</div>
+          {null}
+          {undefined}
+        </BalancedGrid>
+      );
+      
+      // Should render 4 items (2 always + 2 true conditions)
+      expect(screen.getByTestId('always-1')).toBeInTheDocument();
+      expect(screen.getByTestId('cond-a')).toBeInTheDocument();
+      expect(screen.queryByTestId('cond-b')).not.toBeInTheDocument();
+      expect(screen.getByTestId('cond-c')).toBeInTheDocument();
+      expect(screen.getByTestId('always-2')).toBeInTheDocument();
     });
   });
 
@@ -226,5 +302,72 @@ describe('BalancedGrid integration with real content', () => {
     stats.forEach(stat => {
       expect(screen.getByTestId(`stat-${stat.toLowerCase()}`)).toBeInTheDocument();
     });
+  });
+
+  it('should handle UnitInfoBanner pattern with optional Run+ stat', () => {
+    // This mirrors the actual UnitInfoBanner component structure
+    const hasRunPlus = false; // Simulates when maxRunMP <= runMP
+    
+    render(
+      <BalancedGrid minItemWidth={75} gap={6} data-testid="unit-stats">
+        <div data-testid="tonnage">Tonnage</div>
+        <div data-testid="walk">Walk</div>
+        <div data-testid="run">Run</div>
+        {hasRunPlus && <div data-testid="run-plus">Run+</div>}
+        <div data-testid="jump">Jump</div>
+        <div data-testid="bv">BV</div>
+        <div data-testid="engine">Engine</div>
+        <div data-testid="weight">Weight</div>
+        <div data-testid="armor">Armor</div>
+        <div data-testid="slots">Slots</div>
+        <div data-testid="heat">Heat</div>
+      </BalancedGrid>
+    );
+    
+    // Should have exactly 10 items (Run+ excluded)
+    expect(screen.getByTestId('tonnage')).toBeInTheDocument();
+    expect(screen.getByTestId('walk')).toBeInTheDocument();
+    expect(screen.getByTestId('run')).toBeInTheDocument();
+    expect(screen.queryByTestId('run-plus')).not.toBeInTheDocument();
+    expect(screen.getByTestId('jump')).toBeInTheDocument();
+    expect(screen.getByTestId('bv')).toBeInTheDocument();
+    expect(screen.getByTestId('engine')).toBeInTheDocument();
+    expect(screen.getByTestId('weight')).toBeInTheDocument();
+    expect(screen.getByTestId('armor')).toBeInTheDocument();
+    expect(screen.getByTestId('slots')).toBeInTheDocument();
+    expect(screen.getByTestId('heat')).toBeInTheDocument();
+  });
+
+  it('should handle UnitInfoBanner pattern with Run+ stat included', () => {
+    const hasRunPlus = true; // Simulates when maxRunMP > runMP
+    
+    render(
+      <BalancedGrid minItemWidth={75} gap={6} data-testid="unit-stats">
+        <div data-testid="tonnage">Tonnage</div>
+        <div data-testid="walk">Walk</div>
+        <div data-testid="run">Run</div>
+        {hasRunPlus && <div data-testid="run-plus">Run+</div>}
+        <div data-testid="jump">Jump</div>
+        <div data-testid="bv">BV</div>
+        <div data-testid="engine">Engine</div>
+        <div data-testid="weight">Weight</div>
+        <div data-testid="armor">Armor</div>
+        <div data-testid="slots">Slots</div>
+        <div data-testid="heat">Heat</div>
+      </BalancedGrid>
+    );
+    
+    // Should have exactly 11 items (Run+ included)
+    expect(screen.getByTestId('tonnage')).toBeInTheDocument();
+    expect(screen.getByTestId('walk')).toBeInTheDocument();
+    expect(screen.getByTestId('run')).toBeInTheDocument();
+    expect(screen.getByTestId('run-plus')).toBeInTheDocument();
+    expect(screen.getByTestId('jump')).toBeInTheDocument();
+    expect(screen.getByTestId('bv')).toBeInTheDocument();
+    expect(screen.getByTestId('engine')).toBeInTheDocument();
+    expect(screen.getByTestId('weight')).toBeInTheDocument();
+    expect(screen.getByTestId('armor')).toBeInTheDocument();
+    expect(screen.getByTestId('slots')).toBeInTheDocument();
+    expect(screen.getByTestId('heat')).toBeInTheDocument();
   });
 });

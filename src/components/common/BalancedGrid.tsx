@@ -43,7 +43,8 @@ export function BalancedGrid({
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Count actual children for balanced calculation
-  const itemCount = Children.count(children);
+  // Use toArray to exclude false/null/undefined from conditional renders like {condition && <Child />}
+  const itemCount = Children.toArray(children).length;
   
   const { columns, ready } = useBalancedGrid(containerRef, {
     minItemWidth,

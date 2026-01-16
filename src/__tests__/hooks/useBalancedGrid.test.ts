@@ -23,6 +23,14 @@ class MockResizeObserver {
 
 global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
 
+// Mock requestAnimationFrame to execute callback immediately
+global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
+  callback(0);
+  return 0;
+});
+
+global.cancelAnimationFrame = jest.fn();
+
 describe('useBalancedGrid', () => {
   // Helper to create a mock container ref with specific width
   function createMockContainerRef(width: number): RefObject<HTMLDivElement> {
