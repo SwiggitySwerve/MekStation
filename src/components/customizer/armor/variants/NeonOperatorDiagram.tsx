@@ -15,7 +15,7 @@ import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  LOCATION_LABELS,
+  getLocationLabel,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -88,6 +88,8 @@ interface NeonLocationProps {
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  /** Mech configuration type for correct label lookup */
+  configType?: MechConfigType;
 }
 
 function NeonLocation({
@@ -98,8 +100,9 @@ function NeonLocation({
   isHovered,
   onClick,
   onHover,
+  configType = 'biped',
 }: NeonLocationProps): React.ReactElement {
-  const label = LOCATION_LABELS[location];
+  const label = getLocationLabel(location, configType);
   const showRear = hasTorsoRear(location);
   const isHead = location === MechLocation.HEAD;
 
@@ -458,6 +461,7 @@ export function NeonOperatorDiagram({
                 isHovered={hoveredLocation === loc}
                 onClick={() => onLocationClick(loc)}
                 onHover={(h) => setHoveredLocation(h ? loc : null)}
+                configType={mechConfigType}
               />
             );
           })}

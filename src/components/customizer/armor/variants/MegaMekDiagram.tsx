@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  LOCATION_LABELS,
+  getLocationLabel,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -38,6 +38,8 @@ interface MegaMekLocationProps {
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  /** Mech configuration type for correct label lookup */
+  configType?: MechConfigType;
 }
 
 function MegaMekLocation({
@@ -48,8 +50,9 @@ function MegaMekLocation({
   isHovered,
   onClick,
   onHover,
+  configType = 'biped',
 }: MegaMekLocationProps): React.ReactElement {
-  const label = LOCATION_LABELS[location];
+  const label = getLocationLabel(location, configType);
 
   const showRear = hasTorsoRear(location);
   const isHead = location === MechLocation.HEAD;
@@ -405,6 +408,7 @@ export function MegaMekDiagram({
                 isHovered={hoveredLocation === loc}
                 onClick={() => onLocationClick(loc)}
                 onHover={(h) => setHoveredLocation(h ? loc : null)}
+                configType={mechConfigType}
               />
             );
           })}
