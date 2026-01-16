@@ -28,7 +28,7 @@ The banner SHALL display unit name and basic classification on the left.
 - **AND** text is slate-100 (heading) and slate-400 (subtitle)
 
 ### Requirement: Statistics Grid
-The banner SHALL display key unit statistics in a horizontal grid using "current / max" format for capacity-based stats.
+The banner SHALL display key unit statistics in a balanced grid using BalancedGrid component for even row distribution.
 
 #### Scenario: Movement stats display
 - **WHEN** movement stats render
@@ -71,9 +71,19 @@ The banner SHALL display key unit statistics in a horizontal grid using "current
 - **AND** value text is red if generated exceeds dissipation (overheating)
 - **AND** value text is green if dissipation meets or exceeds generation
 
-#### Scenario: Grid minimum width
-- **WHEN** statistics grid renders
-- **THEN** minimum width is 380px to accommodate all stats including BV
+#### Scenario: Balanced row distribution
+- **WHEN** statistics grid renders with 10 items
+- **THEN** items are distributed as 5+5 across two rows
+- **AND** NOT as 6+4 uneven distribution
+- **AND** BalancedGrid component with minItemWidth=75 and gap=6 is used
+
+#### Scenario: Optional Run+ stat handling
+- **WHEN** unit has maxRunMP > runMP
+- **THEN** Run+ stat is included (11 total items)
+- **AND** grid recalculates for balanced 6+5 or 4+4+3 distribution
+- **WHEN** unit does NOT have enhanced run
+- **THEN** Run+ stat is excluded from count
+- **AND** conditional `{hasRunPlus && <Component/>}` is NOT counted as child
 
 ### Requirement: Stat Cell Styling
 Each statistic cell SHALL use consistent vertical layout with clear labeling.
@@ -118,12 +128,15 @@ The banner SHALL provide quick action buttons on the right side.
 - **AND** clicking toggles debug panel visibility
 
 ### Requirement: Responsive Spacing
-The statistics grid SHALL use appropriate spacing between items.
+The statistics grid SHALL use appropriate spacing between items with responsive overrides.
 
-#### Scenario: Desktop spacing
-- **WHEN** viewport is desktop size
-- **THEN** statistics use horizontal spacing
-- **AND** all statistics are visible in single row
+#### Scenario: Base spacing
+- **WHEN** statistics grid renders
+- **THEN** gap is 6px (gap prop)
+
+#### Scenario: Desktop spacing override
+- **WHEN** viewport is sm breakpoint or larger
+- **THEN** gap increases via className="sm:gap-1.5"
 
 ### Requirement: Editor Integration
 The Unit Info Banner SHALL be rendered as part of the unit editor content in CustomizerContent.
