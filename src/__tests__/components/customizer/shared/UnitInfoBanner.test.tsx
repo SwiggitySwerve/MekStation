@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { UnitValidationState } from '@/hooks/useUnitValidation';
 
 describe('UnitInfoBanner', () => {
   const createStats = (overrides?: Partial<UnitStats>): UnitStats => ({
@@ -42,7 +43,17 @@ describe('UnitInfoBanner', () => {
 
   it('should render validation badge', () => {
     const stats = createStats();
-    render(<UnitInfoBanner stats={stats} />);
+    const mockValidation: UnitValidationState = {
+      isValid: true,
+      errorCount: 0,
+      warningCount: 0,
+      infoCount: 0,
+      status: 'valid',
+      hasCriticalErrors: false,
+      result: null,
+      isLoading: false,
+    };
+    render(<UnitInfoBanner stats={stats} validation={mockValidation} />);
     
     expect(screen.getByText('✓')).toBeInTheDocument();
   });
