@@ -28,16 +28,16 @@
 ## 4. Integration
 
 - [x] 4.1 Add `addPolygonPips()` function for SVG integration
-- [ ] 4.2 Define polygon regions for biped mech body parts (Phase 3)
-- [ ] 4.3 Update `svgRecordSheetRenderer/armor.ts` to use new service (Phase 3)
-- [ ] 4.4 Add feature flag for algorithm selection (Phase 2)
+- [x] 4.2 Define polygon regions for biped mech body parts
+- [x] 4.3 Update `svgRecordSheetRenderer/armor.ts` to use new service
+- [x] 4.4 Add feature flag `usePoissonPipDistribution` in app settings store
 - [x] 4.5 Ensure fallback to legacy `ArmorPipLayout` for rectangle templates
 
 ## 5. Visual QA and Validation
 
-- [ ] 5.1 Generate comparison renders: legacy vs Poisson for biped (Phase 2)
-- [ ] 5.2 Generate comparison renders for quad configuration (Phase 2)
-- [ ] 5.3 Generate comparison renders for tripod configuration (Phase 2)
+- [ ] 5.1 Generate comparison renders: legacy vs Poisson for biped
+- [ ] 5.2 Generate comparison renders for quad configuration
+- [ ] 5.3 Generate comparison renders for tripod configuration
 - [x] 5.4 Verify exact pip counts match armor values across all test cases
 - [x] 5.5 Verify no pips render outside polygon boundaries
 
@@ -49,5 +49,5 @@
 
 ---
 
-**Phase 1 Complete**: Core service implemented with 27 unit tests passing.
-Remaining tasks (4.2-4.4, 5.1-5.3) are Phase 2/3 work for integration and visual QA.
+**Phase 1 Complete**: Core service implemented with 46 unit tests passing.
+**Phase 2 Complete**: Feature flag added, armor.ts integrated with conditional algorithm selection.

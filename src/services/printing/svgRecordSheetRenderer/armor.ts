@@ -6,6 +6,10 @@
 import { IRecordSheetData } from '@/types/printing';
 import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
+  addPolygonPips,
+  getBipedArmorRegion,
+} from '../pipDistribution';
+import {
   SVG_NS,
   PIPS_BASE_PATH,
   ARMOR_TEXT_IDS,
@@ -18,6 +22,23 @@ import {
   TRIPOD_PIP_GROUP_IDS,
 } from './constants';
 import { setTextContent } from './template';
+
+/**
+ * Check if Poisson pip distribution is enabled in app settings.
+ * Reads directly from localStorage since this runs outside React.
+ */
+function isPoissonPipDistributionEnabled(): boolean {
+  try {
+    const stored = localStorage.getItem('mekstation-app-settings');
+    if (stored) {
+      const parsed = JSON.parse(stored) as { state?: { usePoissonPipDistribution?: boolean } };
+      return parsed.state?.usePoissonPipDistribution === true;
+    }
+  } catch {
+    // Fall back to legacy if localStorage read fails
+  }
+  return false;
+}
 
 /**
  * Fill template with armor pips and text values (async - fetches pip SVGs)
@@ -175,13 +196,16 @@ async function loadAndInsertPips(
 
 /**
  * Generate dynamic armor pips for non-biped mechs (quad, tripod, LAM, quadvee)
- * Uses MegaMekLab's ArmorPipLayout algorithm for proper pip positioning
+ * Uses MegaMekLab's ArmorPipLayout algorithm for proper pip positioning,
+ * or Poisson disk sampling when enabled via settings.
  */
 async function generateDynamicArmorPips(
   svgDoc: Document,
   armor: IRecordSheetData['armor'],
   mechType: string
 ): Promise<void> {
+  const usePoissonPips = isPoissonPipDistributionEnabled();
+
   // Get the pip group IDs based on mech type
   const pipGroupIds = getPipGroupIdsForMechType(mechType);
 
@@ -200,13 +224,33 @@ async function generateDynamicArmorPips(
       return;
     }
 
-    // Use ArmorPipLayout to generate pips within the bounding rects
     if (loc.current > 0) {
-      ArmorPipLayout.addPips(svgDoc, pipArea, loc.current, {
-        fill: '#FFFFFF',
-        strokeWidth: 0.5,
-        className: 'pip armor',
-      });
+      if (usePoissonPips) {
+        // Use new Poisson disk sampling distribution
+        const region = getBipedArmorRegion(loc.abbreviation);
+        if (region) {
+          addPolygonPips(svgDoc, pipArea, region, loc.current, {
+            fill: '#FFFFFF',
+            strokeWidth: 0.5,
+            className: 'pip armor',
+            relaxationIterations: 10,
+          });
+        } else {
+          // Fallback to legacy if no region defined
+          ArmorPipLayout.addPips(svgDoc, pipArea, loc.current, {
+            fill: '#FFFFFF',
+            strokeWidth: 0.5,
+            className: 'pip armor',
+          });
+        }
+      } else {
+        // Use legacy ArmorPipLayout grid-based distribution
+        ArmorPipLayout.addPips(svgDoc, pipArea, loc.current, {
+          fill: '#FFFFFF',
+          strokeWidth: 0.5,
+          className: 'pip armor',
+        });
+      }
     }
   });
 
@@ -217,11 +261,31 @@ async function generateDynamicArmorPips(
       if (rearGroupId) {
         const pipArea = svgDoc.getElementById(rearGroupId);
         if (pipArea && loc.rear > 0) {
-          ArmorPipLayout.addPips(svgDoc, pipArea, loc.rear, {
-            fill: '#FFFFFF',
-            strokeWidth: 0.5,
-            className: 'pip armor rear',
-          });
+          if (usePoissonPips) {
+            // Use new Poisson distribution for rear armor
+            const region = getBipedArmorRegion(`${loc.abbreviation}R`);
+            if (region) {
+              addPolygonPips(svgDoc, pipArea, region, loc.rear, {
+                fill: '#FFFFFF',
+                strokeWidth: 0.5,
+                className: 'pip armor rear',
+                relaxationIterations: 10,
+              });
+            } else {
+              // Fallback to legacy
+              ArmorPipLayout.addPips(svgDoc, pipArea, loc.rear, {
+                fill: '#FFFFFF',
+                strokeWidth: 0.5,
+                className: 'pip armor rear',
+              });
+            }
+          } else {
+            ArmorPipLayout.addPips(svgDoc, pipArea, loc.rear, {
+              fill: '#FFFFFF',
+              strokeWidth: 0.5,
+              className: 'pip armor rear',
+            });
+          }
         }
       }
     }
