@@ -2,7 +2,7 @@
   "$schema": "../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2025-12-05T03:18:04.830Z",
-  "count": 121,
+  "count": 33,
   "items": [
     {
       "id": "small-laser",
