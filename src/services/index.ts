@@ -31,6 +31,9 @@ export * from './conversion';
 // Re-export asset services
 export * from './assets';
 
+// Re-export pilot services
+export * from './pilots';
+
 // ============================================================================
 // SERVICE REGISTRY
 // ============================================================================
@@ -40,6 +43,7 @@ import { getEquipmentLoader, getEquipmentRegistry, getEquipmentNameMapper } from
 import { getUnitFactory } from './units';
 import { mechBuilderService, validationService, calculationService } from './construction';
 import { getMTFImportService } from './conversion';
+import { getPilotService, getPilotRepository } from './pilots';
 
 /**
  * Centralized service registry for singleton access
@@ -73,6 +77,12 @@ export const services = {
   // Conversion
   conversion: {
     importer: getMTFImportService(),
+  },
+
+  // Pilots
+  pilots: {
+    service: getPilotService(),
+    repository: getPilotRepository(),
   },
 } as const;
 

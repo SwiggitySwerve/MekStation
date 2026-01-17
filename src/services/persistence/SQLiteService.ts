@@ -99,6 +99,79 @@ const MIGRATIONS: readonly IMigration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'pilots_schema',
+    up: `
+      -- Pilots table
+      CREATE TABLE IF NOT EXISTS pilots (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        callsign TEXT,
+        affiliation TEXT,
+        portrait TEXT,
+        background TEXT,
+        type TEXT NOT NULL DEFAULT 'persistent',
+        status TEXT NOT NULL DEFAULT 'active',
+        gunnery INTEGER NOT NULL DEFAULT 4,
+        piloting INTEGER NOT NULL DEFAULT 5,
+        wounds INTEGER NOT NULL DEFAULT 0,
+        missions_completed INTEGER NOT NULL DEFAULT 0,
+        victories INTEGER NOT NULL DEFAULT 0,
+        defeats INTEGER NOT NULL DEFAULT 0,
+        draws INTEGER NOT NULL DEFAULT 0,
+        total_kills INTEGER NOT NULL DEFAULT 0,
+        xp INTEGER NOT NULL DEFAULT 0,
+        total_xp_earned INTEGER NOT NULL DEFAULT 0,
+        rank TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      -- Pilot abilities junction table
+      CREATE TABLE IF NOT EXISTS pilot_abilities (
+        id TEXT PRIMARY KEY,
+        pilot_id TEXT NOT NULL,
+        ability_id TEXT NOT NULL,
+        acquired_date TEXT NOT NULL,
+        acquired_game_id TEXT,
+        UNIQUE(pilot_id, ability_id),
+        FOREIGN KEY (pilot_id) REFERENCES pilots(id) ON DELETE CASCADE
+      );
+
+      -- Pilot kill records
+      CREATE TABLE IF NOT EXISTS pilot_kills (
+        id TEXT PRIMARY KEY,
+        pilot_id TEXT NOT NULL,
+        target_id TEXT NOT NULL,
+        target_name TEXT NOT NULL,
+        weapon_used TEXT NOT NULL,
+        kill_date TEXT NOT NULL,
+        game_id TEXT NOT NULL,
+        FOREIGN KEY (pilot_id) REFERENCES pilots(id) ON DELETE CASCADE
+      );
+
+      -- Pilot mission history
+      CREATE TABLE IF NOT EXISTS pilot_missions (
+        id TEXT PRIMARY KEY,
+        pilot_id TEXT NOT NULL,
+        game_id TEXT NOT NULL,
+        mission_name TEXT NOT NULL,
+        mission_date TEXT NOT NULL,
+        outcome TEXT NOT NULL,
+        xp_earned INTEGER NOT NULL DEFAULT 0,
+        kills INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (pilot_id) REFERENCES pilots(id) ON DELETE CASCADE
+      );
+
+      -- Indexes for pilot queries
+      CREATE INDEX IF NOT EXISTS idx_pilots_status ON pilots(status);
+      CREATE INDEX IF NOT EXISTS idx_pilots_affiliation ON pilots(affiliation);
+      CREATE INDEX IF NOT EXISTS idx_pilot_abilities_pilot_id ON pilot_abilities(pilot_id);
+      CREATE INDEX IF NOT EXISTS idx_pilot_kills_pilot_id ON pilot_kills(pilot_id);
+      CREATE INDEX IF NOT EXISTS idx_pilot_missions_pilot_id ON pilot_missions(pilot_id);
+    `,
+  },
 ];
 
 /**

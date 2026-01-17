@@ -30,3 +30,6 @@ export * from './useUIBehaviorStore';
 // Navigation
 export * from './useNavigationStore';
 
+// Pilots
+export * from './usePilotStore';
+

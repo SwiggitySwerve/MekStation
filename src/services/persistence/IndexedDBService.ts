@@ -9,7 +9,7 @@
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
-const DB_VERSION = 2;  // Bumped for custom-formulas store
+const DB_VERSION = 3;  // Bumped for pilots store
 
 /**
  * Object store names
@@ -18,6 +18,7 @@ export const STORES = {
   CUSTOM_UNITS: 'custom-units',
   UNIT_METADATA: 'unit-metadata',
   CUSTOM_FORMULAS: 'custom-formulas',
+  PILOTS: 'pilots',
 } as const;
 
 type StoreName = typeof STORES[keyof typeof STORES];
@@ -88,6 +89,9 @@ export class IndexedDBService implements IIndexedDBService {
         }
         if (!db.objectStoreNames.contains(STORES.CUSTOM_FORMULAS)) {
           db.createObjectStore(STORES.CUSTOM_FORMULAS);
+        }
+        if (!db.objectStoreNames.contains(STORES.PILOTS)) {
+          db.createObjectStore(STORES.PILOTS);
         }
       };
     });

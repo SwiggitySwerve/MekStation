@@ -26,3 +26,6 @@ export * from './unit';
 // Temporal types - only export non-conflicting items
 // (Era is already exported from enums)
 export type { EraDefinition } from './temporal';
+
+// Pilot types (spec-driven implementation)
+export * from './pilot';
