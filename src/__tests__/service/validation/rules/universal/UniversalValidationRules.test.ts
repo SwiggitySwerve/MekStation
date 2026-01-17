@@ -16,6 +16,8 @@ import {
   EraAvailability,
   RulesLevelCompliance,
   ArmorAllocationWarning,
+  WeightOverflowValidation,
+  CriticalSlotOverflowValidation,
 } from '@/services/validation/rules/universal/UniversalValidationRules';
 
 describe('UniversalValidationRules', () => {
@@ -257,10 +259,10 @@ describe('UniversalValidationRules', () => {
       expect(result.warnings).toHaveLength(0);
     });
 
-    it('should emit errors when any location has zero armor', () => {
+    it('should emit errors when armor is below 20% (critical)', () => {
       const armorByLocation = createFullArmorAllocation(10, 10);
-      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };
-      armorByLocation.centerTorso = { current: 0, max: 10, displayName: 'Center Torso' };
+      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };        // 0% - critical
+      armorByLocation.centerTorso = { current: 1, max: 10, displayName: 'Center Torso' }; // 10% - critical
       
       const unit = createBaseUnit({ 
         totalArmorPoints: 80,
@@ -270,11 +272,12 @@ describe('UniversalValidationRules', () => {
       expect(result.passed).toBe(false);
       expect(result.errors).toHaveLength(2);
       expect(result.errors[0].message).toContain('has no armor');
+      expect(result.errors[1].message).toContain('critical armor');
     });
 
-    it('should emit warnings when armor is below 50% of max', () => {
-      const armorByLocation = createFullArmorAllocation(10, 20); // 50% of max
-      armorByLocation.head = { current: 3, max: 9, displayName: 'Head' }; // Below 50%
+    it('should emit warnings when armor is between 20-40% (low)', () => {
+      const armorByLocation = createFullArmorAllocation(10, 20); // 50% - no warning
+      armorByLocation.head = { current: 3, max: 10, displayName: 'Head' }; // 30% - low, warning
       
       const unit = createBaseUnit({ 
         totalArmorPoints: 90,
@@ -285,6 +288,19 @@ describe('UniversalValidationRules', () => {
       expect(result.errors).toHaveLength(0);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0].message).toContain('has low armor');
+    });
+
+    it('should not warn when armor is at or above 40%', () => {
+      const armorByLocation = createFullArmorAllocation(4, 10); // 40% - no warning
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 44,
+        armorByLocation,
+      });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.warnings).toHaveLength(0);
     });
 
     it('should skip validation when armorByLocation is undefined', () => {
@@ -351,6 +367,113 @@ describe('UniversalValidationRules', () => {
       const result = ArmorAllocationWarning.validate(createContext(unit));
       expect(result.passed).toBe(true);
       expect(result.errors).toHaveLength(0);
+    });
+  });
+
+  describe('VAL-UNIV-014: Weight Overflow Validation', () => {
+    it('should pass when weight is within limits', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 45,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass when weight exactly matches max', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 50,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should emit critical error when weight exceeds max', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 55,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('exceeds maximum tonnage');
+      expect(result.errors[0].message).toContain('5.0 tons');
+    });
+
+    it('should skip validation when weight data is undefined', () => {
+      const unit = createBaseUnit();
+      const context = createContext(unit);
+      expect(WeightOverflowValidation.canValidate!(context)).toBe(false);
+    });
+
+    it('should validate when weight data is defined', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 45,
+        maxWeight: 50,
+      });
+      const context = createContext(unit);
+      expect(WeightOverflowValidation.canValidate!(context)).toBe(true);
+    });
+  });
+
+  describe('VAL-UNIV-015: Critical Slot Overflow Validation', () => {
+    it('should pass when all locations are within slot limits', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 4, max: 6, displayName: 'Head' },
+          'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
+          'Left Arm': { used: 8, max: 12, displayName: 'Left Arm' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should emit critical error when any location exceeds slot limit', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 8, max: 6, displayName: 'Head' },
+          'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('Head');
+      expect(result.errors[0].message).toContain('exceeds slot capacity');
+      expect(result.errors[0].message).toContain('2');
+    });
+
+    it('should emit errors for multiple locations exceeding limits', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 8, max: 6, displayName: 'Head' },
+          'Left Arm': { used: 14, max: 12, displayName: 'Left Arm' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(2);
+    });
+
+    it('should skip validation when slot data is undefined', () => {
+      const unit = createBaseUnit();
+      const context = createContext(unit);
+      expect(CriticalSlotOverflowValidation.canValidate!(context)).toBe(false);
+    });
+
+    it('should validate when slot data is defined', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 4, max: 6, displayName: 'Head' },
+        },
+      });
+      const context = createContext(unit);
+      expect(CriticalSlotOverflowValidation.canValidate!(context)).toBe(true);
     });
   });
 });

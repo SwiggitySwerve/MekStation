@@ -520,8 +520,14 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
 
 /**
  * VAL-UNIV-013: Per-Location Armor Validation
- * ERROR: Any location with 0 armor
- * WARNING: Locations with armor below 50% of maximum
+ * ERROR: Locations with armor below 20% of maximum (critical)
+ * WARNING: Locations with armor between 20-40% of maximum (low)
+ *
+ * Thresholds align with ArmorFills.tsx status colors:
+ * - HEALTHY: >= 60%
+ * - MODERATE: >= 40%
+ * - LOW: >= 20% (warning)
+ * - CRITICAL: < 20% (error)
  */
 export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-013',
@@ -545,43 +551,50 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
     }
 
     const armor = unit.armorByLocation;
-    const LOW_ARMOR_THRESHOLD = 0.5; // 50% of max
+    const CRITICAL_THRESHOLD = 0.2; // < 20% = error
+    const LOW_THRESHOLD = 0.4;      // < 40% but >= 20% = warning
 
     // Check each location - uses displayName from the armor entry
     // This supports all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)
     for (const [locationKey, locationArmor] of Object.entries(armor)) {
       const displayName = locationArmor.displayName || locationKey;
       
-      // ERROR: Location has 0 armor
-      if (locationArmor.current === 0) {
+      if (locationArmor.max <= 0) continue;
+      
+      const ratio = locationArmor.current / locationArmor.max;
+      
+      // ERROR: Location has critical armor (< 20%)
+      if (ratio < CRITICAL_THRESHOLD) {
         errors.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.ERROR,
             this.category,
-            `${displayName} has no armor - will be destroyed on first hit`,
+            locationArmor.current === 0
+              ? `${displayName} has no armor - will be destroyed on first hit`
+              : `${displayName} has critical armor (${locationArmor.current}/${locationArmor.max}, ${Math.round(ratio * 100)}%)`,
             {
               field: `armorAllocation.${locationKey}`,
-              expected: '> 0',
-              actual: '0',
-              suggestion: `Allocate armor to ${displayName} in the Armor tab`,
+              expected: `>= ${Math.ceil(locationArmor.max * CRITICAL_THRESHOLD)} (20%)`,
+              actual: String(locationArmor.current),
+              suggestion: `Allocate more armor to ${displayName} in the Armor tab`,
             }
           )
         );
       }
-      // WARNING: Location has low armor (below 50% of max)
-      else if (locationArmor.max > 0 && locationArmor.current < locationArmor.max * LOW_ARMOR_THRESHOLD) {
+      // WARNING: Location has low armor (20-40%)
+      else if (ratio < LOW_THRESHOLD) {
         warnings.push(
           createUnitValidationError(
             this.id,
             this.name,
             UnitValidationSeverity.WARNING,
             this.category,
-            `${displayName} has low armor (${locationArmor.current}/${locationArmor.max})`,
+            `${displayName} has low armor (${locationArmor.current}/${locationArmor.max}, ${Math.round(ratio * 100)}%)`,
             {
               field: `armorAllocation.${locationKey}`,
-              expected: `>= ${Math.ceil(locationArmor.max * LOW_ARMOR_THRESHOLD)}`,
+              expected: `>= ${Math.ceil(locationArmor.max * LOW_THRESHOLD)} (40%)`,
               actual: String(locationArmor.current),
               suggestion: `Consider adding more armor to ${displayName}`,
             }
@@ -591,6 +604,107 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
     }
 
     return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+  },
+};
+
+/**
+ * VAL-UNIV-014: Weight Overflow Validation
+ * ERROR: Total allocated weight exceeds maximum tonnage
+ */
+export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
+  id: 'VAL-UNIV-014',
+  name: 'Weight Overflow Validation',
+  description: 'Validate total weight does not exceed maximum tonnage',
+  category: ValidationCategory.WEIGHT,
+  priority: 14,
+  applicableUnitTypes: 'ALL',
+
+  canValidate(context: IUnitValidationContext): boolean {
+    return context.unit.allocatedWeight !== undefined && context.unit.maxWeight !== undefined;
+  },
+
+  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
+    const { unit } = context;
+    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+
+    if (unit.allocatedWeight === undefined || unit.maxWeight === undefined) {
+      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    }
+
+    const allocated = unit.allocatedWeight;
+    const max = unit.maxWeight;
+
+    if (allocated > max) {
+      const overage = (allocated - max).toFixed(1);
+      errors.push(
+        createUnitValidationError(
+          this.id,
+          this.name,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          this.category,
+          `Unit exceeds maximum tonnage by ${overage} tons (${allocated.toFixed(1)}/${max} tons)`,
+          {
+            field: 'weight',
+            expected: `<= ${max} tons`,
+            actual: `${allocated.toFixed(1)} tons`,
+            suggestion: 'Remove equipment or reduce armor/components to meet weight limit',
+          }
+        )
+      );
+    }
+
+    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+  },
+};
+
+/**
+ * VAL-UNIV-015: Critical Slot Overflow Validation
+ * ERROR: Any location exceeds its maximum critical slot capacity
+ */
+export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
+  id: 'VAL-UNIV-015',
+  name: 'Critical Slot Overflow Validation',
+  description: 'Validate no location exceeds its critical slot capacity',
+  category: ValidationCategory.SLOTS,
+  priority: 15,
+  applicableUnitTypes: 'ALL',
+
+  canValidate(context: IUnitValidationContext): boolean {
+    return context.unit.slotsByLocation !== undefined;
+  },
+
+  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
+    const { unit } = context;
+    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+
+    if (!unit.slotsByLocation) {
+      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    }
+
+    for (const [locationKey, slotInfo] of Object.entries(unit.slotsByLocation)) {
+      const displayName = slotInfo.displayName || locationKey;
+
+      if (slotInfo.used > slotInfo.max) {
+        const overage = slotInfo.used - slotInfo.max;
+        errors.push(
+          createUnitValidationError(
+            this.id,
+            this.name,
+            UnitValidationSeverity.CRITICAL_ERROR,
+            this.category,
+            `${displayName} exceeds slot capacity by ${overage} (${slotInfo.used}/${slotInfo.max} slots)`,
+            {
+              field: `criticalSlots.${locationKey}`,
+              expected: `<= ${slotInfo.max} slots`,
+              actual: `${slotInfo.used} slots`,
+              suggestion: `Remove or relocate equipment from ${displayName}`,
+            }
+          )
+        );
+      }
+    }
+
+    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
   },
 };
 
@@ -611,6 +725,8 @@ export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[
   EraAvailability,
   RulesLevelCompliance,
   ArmorAllocationValidation,
+  WeightOverflowValidation,
+  CriticalSlotOverflowValidation,
 ];
 
 // Backwards compatibility alias

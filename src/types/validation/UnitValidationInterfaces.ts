@@ -84,6 +84,16 @@ export interface IValidatableUnit {
 
   // Per-location armor allocation for detailed validation
   readonly armorByLocation?: IArmorByLocation;
+
+  // Weight validation fields
+  /** Total weight used by all components and equipment */
+  readonly allocatedWeight?: number;
+  /** Maximum weight allowed (same as weight/tonnage) */
+  readonly maxWeight?: number;
+
+  // Critical slot validation fields
+  /** Per-location critical slot usage */
+  readonly slotsByLocation?: ISlotsByLocation;
 }
 
 /**
@@ -94,6 +104,20 @@ export interface IArmorLocationEntry {
   readonly max: number;
   readonly displayName: string;
 }
+
+/**
+ * Single slot location entry with used and max values
+ */
+export interface ISlotLocationEntry {
+  readonly used: number;
+  readonly max: number;
+  readonly displayName: string;
+}
+
+/**
+ * Per-location critical slot usage
+ */
+export type ISlotsByLocation = Record<string, ISlotLocationEntry>;
 
 /**
  * Per-location armor allocation with current and max values

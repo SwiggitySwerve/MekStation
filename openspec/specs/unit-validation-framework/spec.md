@@ -157,6 +157,27 @@ The system SHALL provide validation rules that apply to ALL unit types.
 - **AND** non-compliant unit SHALL produce ERROR
 - **AND** error message SHALL be "Unit rules level {level} exceeds allowed level {filter}"
 
+#### Scenario: VAL-UNIV-013 Armor Allocation Validation
+- **WHEN** validating armor allocation per location
+- **THEN** armor below 20% of expected max SHALL produce CRITICAL_ERROR
+- **AND** armor between 20-40% of expected max SHALL produce WARNING
+- **AND** armor at or above 40% SHALL pass validation
+- **AND** front torso expected max SHALL be 75% of total location max
+- **AND** rear torso expected max SHALL be 25% of total location max
+
+#### Scenario: VAL-UNIV-014 Weight Overflow
+- **WHEN** validating unit weight
+- **THEN** allocated weight exceeding max tonnage SHALL produce CRITICAL_ERROR
+- **AND** error message SHALL be "Unit exceeds maximum tonnage by {overage} tons"
+- **AND** validation SHALL be skipped if weight data unavailable
+
+#### Scenario: VAL-UNIV-015 Critical Slot Overflow
+- **WHEN** validating critical slot allocation
+- **THEN** any location exceeding slot capacity SHALL produce CRITICAL_ERROR
+- **AND** error message SHALL be "{Location} exceeds slot capacity by {overage}"
+- **AND** multiple overflowing locations SHALL produce separate errors
+- **AND** validation SHALL be skipped if slot data unavailable
+
 ---
 
 ### Requirement: Mech Category Validation Rules
@@ -409,16 +430,23 @@ The system SHALL provide React hooks for integrating validation into the customi
 - **THEN** hook SHALL call initializeUnitValidationRules() if not already initialized
 - **AND** all universal and category rules SHALL be registered
 
-#### Scenario: UnitInfoBanner displays validation status
+#### Scenario: ValidationSummary is sole validation display in header
 - **WHEN** UnitEditorWithRouting renders
-- **THEN** UnitInfoBanner SHALL receive validation.status
-- **AND** UnitInfoBanner SHALL receive validation.errorCount
-- **AND** UnitInfoBanner SHALL receive validation.warningCount
-- **AND** ValidationBadge SHALL display appropriate status icon and color
+- **THEN** UnitInfoBanner SHALL contain ValidationSummary component
+- **AND** ValidationSummary SHALL display compact badge with error/warning counts
+- **AND** clicking ValidationSummary badge SHALL expand dropdown with issue details
+- **AND** dropdown items SHALL be clickable to navigate to relevant tab
+- **AND** no separate ValidationPanel SHALL render in the header area
+
+#### Scenario: ValidationTabBadge provides per-tab indicators
+- **WHEN** CustomizerTabs renders
+- **THEN** each tab SHALL display ValidationTabBadge if issues exist for that tab
+- **AND** badge SHALL show error count (red) or warning count (amber)
+- **AND** badge SHALL be compact (18px circular)
 
 #### Scenario: Validation updates in real-time
 - **WHEN** user modifies unit in customizer
 - **THEN** validation SHALL re-run automatically
-- **AND** UnitInfoBanner SHALL update to reflect new validation state
+- **AND** ValidationSummary SHALL update to reflect new validation state
 - **AND** status SHALL change from 'valid' to 'error' when errors exist
 
