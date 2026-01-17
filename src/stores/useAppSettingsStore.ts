@@ -102,9 +102,6 @@ export interface AppSettingsState {
   highContrast: boolean;
   reduceMotion: boolean;
 
-  // Printing/PDF settings
-  usePoissonPipDistribution: boolean; // Use Poisson sampling for armor/structure pips
-
   // Actions for persisted settings (immediate save)
   setAccentColor: (color: AccentColor) => void;
   setFontSize: (size: FontSize) => void;
@@ -148,7 +145,6 @@ export interface AppSettingsState {
   setShowTooltips: (show: boolean) => void;
   setHighContrast: (enabled: boolean) => void;
   setReduceMotion: (enabled: boolean) => void;
-  setUsePoissonPipDistribution: (enabled: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -162,7 +158,7 @@ type ActionKeys =
   | 'saveCustomizer' | 'revertCustomizer' | 'initDraftCustomizer'
   | 'getEffectiveArmorDiagramMode' | 'getEffectiveArmorDiagramVariant'
   | 'setArmorDiagramMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
-  | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'setUsePoissonPipDistribution' | 'resetToDefaults';
+  | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults';
 
 const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   // Appearance
@@ -194,9 +190,6 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   // Accessibility
   highContrast: false,
   reduceMotion: false,
-
-  // Printing/PDF settings
-  usePoissonPipDistribution: false, // Default to legacy algorithm for stability
 };
 
 /**
@@ -407,7 +400,6 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       setShowTooltips: (show) => set({ showTooltips: show }),
       setHighContrast: (enabled) => set({ highContrast: enabled }),
       setReduceMotion: (enabled) => set({ reduceMotion: enabled }),
-      setUsePoissonPipDistribution: (enabled) => set({ usePoissonPipDistribution: enabled }),
 
       resetToDefaults: () => set({
         ...DEFAULT_SETTINGS,
@@ -435,7 +427,6 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         showTooltips: state.showTooltips,
         highContrast: state.highContrast,
         reduceMotion: state.reduceMotion,
-        usePoissonPipDistribution: state.usePoissonPipDistribution,
       }),
     }
   )

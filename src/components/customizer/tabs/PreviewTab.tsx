@@ -10,7 +10,6 @@
 
 import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { RecordSheetPreview } from '../preview/RecordSheetPreview';
 import { PreviewToolbar } from '../preview/PreviewToolbar';
 import { recordSheetService } from '@/services/printing/RecordSheetService';
@@ -47,15 +46,6 @@ export function PreviewTab({
 }: PreviewTabProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
-  const [previewKey, setPreviewKey] = useState(0);
-  
-  // Get pip distribution mode from settings (for preview key)
-  const usePoissonPips = useAppSettingsStore((s) => s.usePoissonPipDistribution);
-  
-  // Force re-render when pip mode changes
-  const handlePipModeChange = useCallback(() => {
-    setPreviewKey((k) => k + 1);
-  }, []);
   
   // Get unit state from store
   const name = useUnitStore((s) => s.name);
@@ -331,13 +321,11 @@ export function PreviewTab({
         onPrint={handlePrint}
         paperSize={paperSize}
         onPaperSizeChange={setPaperSize}
-        onPipModeChange={handlePipModeChange}
       />
       
       {/* Preview Area */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         <RecordSheetPreviewWithRef
-          key={`preview-${previewKey}-${usePoissonPips}`}
           paperSize={paperSize}
           scale={0.75}
           onCanvasRef={handleCanvasRef}

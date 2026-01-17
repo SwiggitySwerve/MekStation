@@ -7,6 +7,3 @@
 export * from './svgRecordSheetRenderer';
 export * from './RecordSheetService';
 
-// Pip distribution service (Poisson disk sampling)
-export * from './pipDistribution';
-
