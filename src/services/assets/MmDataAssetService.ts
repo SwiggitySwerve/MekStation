@@ -1,4 +1,5 @@
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { getLocationsForConfigurationString } from '@/utils/mech/mechLocationRegistry';
 
 export enum MechConfiguration {
   BIPED = 'Biped',
@@ -169,50 +170,8 @@ class MmDataAssetService {
   }
 
   getLocationsForConfiguration(config: MechConfiguration): MechLocation[] {
-    const commonLocations = [
-      MechLocation.HEAD,
-      MechLocation.CENTER_TORSO,
-      MechLocation.LEFT_TORSO,
-      MechLocation.RIGHT_TORSO,
-    ];
-
-    switch (config) {
-      case MechConfiguration.BIPED:
-      case MechConfiguration.LAM:
-        return [
-          ...commonLocations,
-          MechLocation.LEFT_ARM,
-          MechLocation.RIGHT_ARM,
-          MechLocation.LEFT_LEG,
-          MechLocation.RIGHT_LEG,
-        ];
-      case MechConfiguration.QUAD:
-      case MechConfiguration.QUADVEE:
-        return [
-          ...commonLocations,
-          MechLocation.FRONT_LEFT_LEG,
-          MechLocation.FRONT_RIGHT_LEG,
-          MechLocation.REAR_LEFT_LEG,
-          MechLocation.REAR_RIGHT_LEG,
-        ];
-      case MechConfiguration.TRIPOD:
-        return [
-          ...commonLocations,
-          MechLocation.LEFT_ARM,
-          MechLocation.RIGHT_ARM,
-          MechLocation.LEFT_LEG,
-          MechLocation.RIGHT_LEG,
-          MechLocation.CENTER_LEG,
-        ];
-      default:
-        return [
-          ...commonLocations,
-          MechLocation.LEFT_ARM,
-          MechLocation.RIGHT_ARM,
-          MechLocation.LEFT_LEG,
-          MechLocation.RIGHT_LEG,
-        ];
-    }
+    // Use centralized registry with string-based lookup
+    return getLocationsForConfigurationString(config);
   }
 
   parseSVGToPaths(svgContent: string): string[] {

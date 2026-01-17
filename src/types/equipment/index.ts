@@ -6,6 +6,9 @@
  * @spec openspec/specs/equipment-database/spec.md
  */
 
+// Equipment Category (separated to avoid circular dependencies)
+export * from './EquipmentCategory';
+
 // Weapon Types (from weapons subfolder)
 export * from './weapons';
 
@@ -36,29 +39,14 @@ export * from './VariableEquipment';
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
-import { ALL_STANDARD_WEAPONS, IWeapon, WeaponCategory } from './weapons';
+import { ALL_STANDARD_WEAPONS, IWeapon } from './weapons';
 import { ARTILLERY_WEAPONS, CAPITAL_WEAPONS } from './ArtilleryTypes';
 import { ALL_AMMUNITION, IAmmunition } from './AmmunitionTypes';
 import { ALL_ELECTRONICS, IElectronics } from './ElectronicsTypes';
 import { ALL_MISC_EQUIPMENT, IMiscEquipment, MiscEquipmentCategory } from './MiscEquipmentTypes';
 import { PHYSICAL_WEAPON_DEFINITIONS, IPhysicalWeapon } from './PhysicalWeaponTypes';
-
-/**
- * Equipment categories for unified access
- */
-export enum EquipmentCategory {
-  ENERGY_WEAPON = 'Energy Weapon',
-  BALLISTIC_WEAPON = 'Ballistic Weapon',
-  MISSILE_WEAPON = 'Missile Weapon',
-  ARTILLERY = 'Artillery',
-  CAPITAL_WEAPON = 'Capital Weapon',
-  AMMUNITION = 'Ammunition',
-  ELECTRONICS = 'Electronics',
-  PHYSICAL_WEAPON = 'Physical Weapon',
-  MOVEMENT = 'Movement',
-  STRUCTURAL = 'Structural',
-  MISC_EQUIPMENT = 'Misc Equipment',
-}
+import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
+import { EquipmentCategory } from './EquipmentCategory';
 
 /**
  * Unified equipment item (for listing/browsing)
@@ -145,25 +133,9 @@ const EXCLUDED_MISC_CATEGORIES: readonly MiscEquipmentCategory[] = [
 export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
   const items: IEquipmentItem[] = [];
 
-  // Weapons
+  // Weapons - use centralized category registry
   for (const weapon of getAllWeapons()) {
-    let category: EquipmentCategory;
-    switch (weapon.category) {
-      case WeaponCategory.ENERGY:
-        category = EquipmentCategory.ENERGY_WEAPON;
-        break;
-      case WeaponCategory.BALLISTIC:
-        category = EquipmentCategory.BALLISTIC_WEAPON;
-        break;
-      case WeaponCategory.MISSILE:
-        category = EquipmentCategory.MISSILE_WEAPON;
-        break;
-      case WeaponCategory.ARTILLERY:
-        category = EquipmentCategory.ARTILLERY;
-        break;
-      default:
-        category = EquipmentCategory.MISC_EQUIPMENT;
-    }
+    const category = weaponCategoryToEquipmentCategory(weapon.category);
 
     const additionalCategories = AMS_WEAPON_IDS.includes(weapon.id)
       ? [EquipmentCategory.MISC_EQUIPMENT]
@@ -263,25 +235,9 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
 export function getAllEquipmentItems(): IEquipmentItem[] {
   const items: IEquipmentItem[] = [];
 
-  // Weapons
+  // Weapons - use centralized category registry
   for (const weapon of getAllWeapons()) {
-    let category: EquipmentCategory;
-    switch (weapon.category) {
-      case WeaponCategory.ENERGY:
-        category = EquipmentCategory.ENERGY_WEAPON;
-        break;
-      case WeaponCategory.BALLISTIC:
-        category = EquipmentCategory.BALLISTIC_WEAPON;
-        break;
-      case WeaponCategory.MISSILE:
-        category = EquipmentCategory.MISSILE_WEAPON;
-        break;
-      case WeaponCategory.ARTILLERY:
-        category = EquipmentCategory.ARTILLERY;
-        break;
-      default:
-        category = EquipmentCategory.MISC_EQUIPMENT;
-    }
+    const category = weaponCategoryToEquipmentCategory(weapon.category);
 
     // AMS weapons should also appear in "Other" (defensive systems)
     const additionalCategories = AMS_WEAPON_IDS.includes(weapon.id)

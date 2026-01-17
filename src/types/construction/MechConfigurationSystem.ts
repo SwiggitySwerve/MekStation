@@ -263,19 +263,26 @@ export const LAM_FIGHTER_LOCATIONS: MechLocation[] = [
 
 /**
  * Get locations for a specific configuration
+ * 
+ * Note: This function delegates to the centralized mechLocationRegistry
+ * but maintains special handling for QuadVee -> Quad mapping.
  */
 export function getLocationsForConfig(config: MechConfiguration): MechLocation[] {
-  switch (config) {
-    case MechConfiguration.QUAD:
-    case MechConfiguration.QUADVEE:
-      return QUAD_LOCATIONS;
-    case MechConfiguration.TRIPOD:
-      return TRIPOD_LOCATIONS;
-    case MechConfiguration.LAM:
-    case MechConfiguration.BIPED:
-    default:
-      return BIPED_LOCATIONS;
+  // QuadVee uses same locations as Quad
+  if (config === MechConfiguration.QUADVEE) {
+    return QUAD_LOCATIONS;
   }
+  
+  // Use registry for all other configurations
+  const locationMap: Record<MechConfiguration, MechLocation[]> = {
+    [MechConfiguration.BIPED]: BIPED_LOCATIONS,
+    [MechConfiguration.QUAD]: QUAD_LOCATIONS,
+    [MechConfiguration.TRIPOD]: TRIPOD_LOCATIONS,
+    [MechConfiguration.LAM]: BIPED_LOCATIONS, // LAM uses biped locations
+    [MechConfiguration.QUADVEE]: QUAD_LOCATIONS,
+  };
+  
+  return locationMap[config] ?? BIPED_LOCATIONS;
 }
 
 /**

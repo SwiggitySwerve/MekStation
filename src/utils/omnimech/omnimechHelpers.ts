@@ -10,6 +10,7 @@
 import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance, UnitState } from '@/stores/unitState';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 // EngineType import reserved for future OmniMech engine compatibility checks
 import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
 
@@ -230,44 +231,56 @@ export function calculateTotalPodSpace(state: UnitState): number {
 
 /**
  * Get the list of locations for a given mech configuration
+ * Uses inline lookup to avoid circular dependencies with mechLocationRegistry.
  */
 function getLocationsForConfiguration(configuration: string): MechLocation[] {
+  const BIPED_LOCATIONS = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+  ];
+
+  const QUAD_LOCATIONS = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.FRONT_LEFT_LEG,
+    MechLocation.FRONT_RIGHT_LEG,
+    MechLocation.REAR_LEFT_LEG,
+    MechLocation.REAR_RIGHT_LEG,
+  ];
+
+  const TRIPOD_LOCATIONS = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+    MechLocation.CENTER_LEG,
+  ];
+
   switch (configuration) {
     case 'Quad':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.FRONT_LEFT_LEG,
-        MechLocation.FRONT_RIGHT_LEG,
-        MechLocation.REAR_LEFT_LEG,
-        MechLocation.REAR_RIGHT_LEG,
-      ];
+    case MechConfiguration.QUAD:
+    case MechConfiguration.QUADVEE:
+      return QUAD_LOCATIONS;
     case 'Tripod':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-        MechLocation.CENTER_LEG,
-      ];
+    case MechConfiguration.TRIPOD:
+      return TRIPOD_LOCATIONS;
     case 'Biped':
+    case MechConfiguration.BIPED:
+    case MechConfiguration.LAM:
     default:
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ];
+      return BIPED_LOCATIONS;
   }
 }
 

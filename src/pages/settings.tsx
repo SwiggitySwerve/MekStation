@@ -416,7 +416,7 @@ export default function SettingsPage(): React.ReactElement {
   const router = useRouter();
 
   // Track hydration to avoid SSR mismatch
-  const [hasMounted, setHasMounted] = useState(false);
+  const [_hasMounted, setHasMounted] = useState(false);
 
   // Active section from URL hash (only one section expanded at a time)
   // Default to 'appearance' for SSR, will update after mount if hash is present

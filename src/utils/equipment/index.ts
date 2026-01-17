@@ -8,3 +8,4 @@
  */
 
 export * from './equipmentListUtils';
+export * from './categoryRegistry';

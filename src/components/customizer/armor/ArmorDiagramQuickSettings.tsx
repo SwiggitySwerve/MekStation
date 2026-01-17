@@ -7,7 +7,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppSettingsStore, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
-import { DIAGRAM_VARIANT_INFO } from './ArmorDiagramPreview';
 import { ALL_VARIANTS, DEFAULT_VARIANT, getVariantName } from './shared/VariantConstants';
 
 interface QuickSettingsProps {

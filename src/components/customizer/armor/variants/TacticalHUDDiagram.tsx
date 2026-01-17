@@ -474,7 +474,7 @@ export function TacticalHUDDiagram({
   const layoutId = getLayoutIdForConfig(mechConfigType, 'geometric');
 
   // Use the layout engine to get resolved positions
-  const { layout, getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
+  const { layout: _layout, getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);

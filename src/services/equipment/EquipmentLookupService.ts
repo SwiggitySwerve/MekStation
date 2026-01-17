@@ -9,7 +9,6 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
-import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import {
   EquipmentCategory,
   IEquipmentItem,
@@ -22,6 +21,7 @@ import {
 import { IEquipmentQueryCriteria } from '../common/types';
 import { getEquipmentLoader, IEquipmentLoadResult } from './EquipmentLoaderService';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
 
 /**
  * Equipment lookup service interface
@@ -170,25 +170,9 @@ export class EquipmentLookupService implements IEquipmentLookupService {
     const items: IEquipmentItem[] = [];
     const loader = getEquipmentLoader();
 
-    // Weapons
+    // Weapons - use centralized category registry
     for (const weapon of loader.getAllWeapons()) {
-      let category: EquipmentCategory;
-      switch (weapon.category) {
-        case WeaponCategory.ENERGY:
-          category = EquipmentCategory.ENERGY_WEAPON;
-          break;
-        case WeaponCategory.BALLISTIC:
-          category = EquipmentCategory.BALLISTIC_WEAPON;
-          break;
-        case WeaponCategory.MISSILE:
-          category = EquipmentCategory.MISSILE_WEAPON;
-          break;
-        case WeaponCategory.ARTILLERY:
-          category = EquipmentCategory.ARTILLERY;
-          break;
-        default:
-          category = EquipmentCategory.MISC_EQUIPMENT;
-      }
+      const category = weaponCategoryToEquipmentCategory(weapon.category);
 
       const additionalCategories = AMS_WEAPON_IDS.includes(weapon.id)
         ? [EquipmentCategory.MISC_EQUIPMENT]

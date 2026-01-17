@@ -9,7 +9,7 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
 
 /**
  * Get all equipment items for lookup (from JSON loader or empty if not loaded)
@@ -22,25 +22,9 @@ function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
   
   const items: IEquipmentItem[] = [];
   
-  // Weapons
+  // Weapons - use centralized category registry
   for (const weapon of loader.getAllWeapons()) {
-    let category: EquipmentCategory;
-    switch (weapon.category) {
-      case WeaponCategory.ENERGY:
-        category = EquipmentCategory.ENERGY_WEAPON;
-        break;
-      case WeaponCategory.BALLISTIC:
-        category = EquipmentCategory.BALLISTIC_WEAPON;
-        break;
-      case WeaponCategory.MISSILE:
-        category = EquipmentCategory.MISSILE_WEAPON;
-        break;
-      case WeaponCategory.ARTILLERY:
-        category = EquipmentCategory.ARTILLERY;
-        break;
-      default:
-        category = EquipmentCategory.MISC_EQUIPMENT;
-    }
+    const category = weaponCategoryToEquipmentCategory(weapon.category);
     
     items.push({
       id: weapon.id,

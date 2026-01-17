@@ -20,8 +20,12 @@ export { useTabManagerStore } from './useTabManagerStore';
 export type { TabInfo, TabManagerState } from './useTabManagerStore';
 export { UnitStoreProvider, useHasUnitStore } from './UnitStoreProvider';
 
-// App settings
+// App settings (main store + focused stores)
 export * from './useAppSettingsStore';
+export * from './useAppearanceStore';
+export * from './useCustomizerSettingsStore';
+export * from './useAccessibilityStore';
+export * from './useUIBehaviorStore';
 
 // Navigation
 export * from './useNavigationStore';
