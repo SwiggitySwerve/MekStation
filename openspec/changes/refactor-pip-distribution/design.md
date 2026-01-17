@@ -5,93 +5,153 @@ The current `ArmorPipLayout.ts` is a direct port of MegaMekLab's `ArmorPipLayout
 1. **Rectangle-only constraint**: Cannot place pips within arbitrary polygon shapes
 2. **Grid artifacts**: Row-based placement creates visible horizontal lines
 3. **No density variation**: Cannot vary pip spacing within a region
-4. **Limited visual appeal**: Regular grid patterns are less organic than blue noise
+4. **Visual appearance**: Need organized patterns (grid/hexagonal) that fit contours
 
-The refactor introduces Poisson disk sampling for visually superior "blue noise" distributions within arbitrary polygon boundaries.
+The refactor introduces **Turf.js grid-based distribution** for organized, evenly-spaced dot patterns within polygon boundaries constructed from rect elements.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Implement Poisson disk sampling for uniform point distribution
-- Support arbitrary polygon boundaries (not just rectangles)
-- Guarantee exact pip counts matching armor values
+- Generate organized grid patterns (rectangular or hexagonal) within polygon shapes
+- Automatic polygon masking using Turf.js built-in features
+- Controllable density based on pip count requirements
+- Support both rectangular (aligned rows) and hexagonal (staggered/crosshatch) patterns
 - Maintain backward compatibility with rectangle-based templates
-- Enable variable density control for future enhancements
 
 **Non-Goals:**
+- Random/scattered distributions (Poisson disk sampling deprecated for this use case)
 - Changing the visual style of existing record sheet templates
 - Modifying the interactive armor diagram (uses fill-based visualization)
-- Changing pip rendering style (circles remain circles)
 - Real-time animation of pip placement
 
 ## Decisions
 
-### Decision: Use `poisson-disk-sampling` + `@turf/boolean-point-in-polygon`
+### Decision: Use Turf.js Grid Functions
 
-**Why:** This pairing is the most battle-tested solution (~6K weekly npm downloads for poisson-disk-sampling). Bridson's O(n) algorithm is efficient, and Turf.js provides reliable polygon containment tests with minimal bundle overhead.
+**Why:** Turf.js provides built-in grid generation with automatic polygon masking:
+- `@turf/point-grid`: Rectangular grid patterns with even spacing
+- `@turf/hex-grid`: Hexagonal/staggered patterns for denser packing
+- Both support `mask` option to automatically clip to polygon boundaries
 
-**Alternatives considered:**
-- `@thi.ng/poisson`: Native TypeScript but requires companion packages (KdTree), higher setup complexity
-- Custom implementation: Would take longer and be less tested than established libraries
-- `d3-delaunay` only: Better for exact counts but doesn't provide the blue noise quality of Poisson
+**Packages:**
+```bash
+npm install @turf/point-grid @turf/hex-grid @turf/helpers @turf/bbox @turf/centroid
+```
 
-### Decision: Hybrid approach for exact counts
+**Bundle impact:** ~25KB total (modular imports keep it minimal)
 
-**Why:** Pure Poisson sampling determines point count based on spacing, not target count. Armor values require exact pip counts.
+### Decision: Build polygon from rect elements
+
+**Why:** MegaMekLab templates encode silhouette shapes through varying-width rect elements stacked vertically. We construct a polygon by:
+1. Collecting all rect elements (x, y, width, height)
+2. Sorting by Y position
+3. Building left edge (min X of each row) and right edge (max X of each row)
+4. Connecting into closed polygon
+
+This preserves the contour information already in the templates.
+
+### Decision: Adaptive pattern selection
 
 **Algorithm:**
-1. Poisson sampling generates candidate points with minimum spacing
-2. Post-filtering removes points outside polygon boundary  
-3. Count adjustment adds/removes points to match exact armor value
-4. Lloyd's relaxation (optional) refines positions for visual uniformity
+- **Sparse layouts** (few pips): Use rectangular grid for clean alignment
+- **Dense layouts** (many pips): Use hexagonal grid for efficient packing
+
+**Density threshold:** Use hex grid when `pipCount > rows * 3`
 
 ### Decision: Keep legacy ArmorPipLayout as fallback
 
 **Why:** Existing rectangle-based templates in mm-data work with the current algorithm. Migration should be incremental, not big-bang.
 
 **Approach:**
-- New `PipDistribution` service for polygon-based regions
+- New `PipDistribution` service for grid-based regions
 - Legacy `ArmorPipLayout.ts` remains for `<rect>` based templates
-- Template detection determines which algorithm to use
+- Feature flag toggles between implementations
 
 ## Risks / Trade-offs
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Bundle size increase (~18KB) | Medium | Tree-shake Turf.js modules, lazy load for PDF generation |
+| Bundle size increase (~25KB) | Low | Modular Turf.js imports, tree-shaking |
 | Visual inconsistency with MegaMekLab | Medium | Side-by-side comparison before rollout |
-| Exact count failure for edge cases | Low | Hybrid approach with count adjustment guarantees matching |
-| Performance regression | Low | Poisson is O(n), likely faster than current row iteration |
+| Polygon construction edge cases | Low | Fall back to rect-based rows if polygon fails |
+| Grid doesn't fill exact pip count | Medium | Adjust cellSize iteratively until count matches |
+
+## Algorithm Details
+
+### Polygon Construction from Rects
+
+```typescript
+function buildPolygonFromRects(rects: RectData[]): number[][] {
+  // Sort by Y position
+  rects.sort((a, b) => a.y - b.y);
+  
+  // Build left edge (top to bottom)
+  const leftEdge = rects.map(r => [r.x, r.y + r.height / 2]);
+  
+  // Build right edge (bottom to top)
+  const rightEdge = rects.reverse().map(r => [r.x + r.width, r.y + r.height / 2]);
+  
+  // Close the polygon
+  return [...leftEdge, ...rightEdge, leftEdge[0]];
+}
+```
+
+### Grid Generation with Masking
+
+```typescript
+import { pointGrid, hexGrid } from '@turf/turf';
+
+// Rectangular grid (aligned rows)
+const rectGrid = pointGrid(bbox, cellSize, {
+  units: 'degrees',
+  mask: polygon
+});
+
+// Hexagonal grid (staggered rows)
+const hexes = hexGrid(bbox, cellSize, {
+  units: 'degrees', 
+  mask: polygon
+});
+```
+
+### Density Control
+
+To hit exact pip counts:
+1. Estimate initial cellSize from `sqrt(area / pipCount)`
+2. Generate grid, count points
+3. Binary search cellSize until count matches target (±10%)
+4. If count low, use smaller cellSize; if high, use larger
 
 ## Migration Plan
 
-### Phase 1: New Service Implementation
-1. Add npm dependencies
-2. Create `pipDistribution/` service module with full test coverage
-3. Add polygon extraction utilities
+### Phase 1: New Service Implementation ✅
+1. Add npm dependencies (Turf.js grid modules)
+2. Create `pipDistribution/` service module
+3. Add polygon extraction from rect elements
 
-### Phase 2: Parallel Operation  
-1. Add feature flag for new algorithm
-2. Run both algorithms for visual comparison
-3. Visual QA across all mech configurations
+### Phase 2: Parallel Operation (Current)
+1. ✅ Feature flag toggle in Preview toolbar
+2. Grid-based distribution implementation
+3. Visual QA across mech configurations
 
-### Phase 3: Template Enhancement
-1. Define polygon regions for body parts (replacing rectangles)
-2. Update SVG templates with polygon markers
-3. Test with all mech types (biped, quad, tripod, LAM, quadvee)
-
-### Phase 4: Full Migration
+### Phase 3: Full Migration
 1. Switch default to new algorithm
-2. Deprecate rectangle-based approach
-3. Remove legacy code after stabilization period
+2. Remove legacy fallback after stabilization
+
+## Pattern Comparison
+
+| Pattern | Function | Best For | Visual |
+|---------|----------|----------|--------|
+| Rectangular | `pointGrid` | Sparse layouts, clean alignment | ● ● ● ● |
+| Hexagonal | `hexGrid` | Dense layouts, natural packing | ● ● ● ● offset |
 
 ## Open Questions
 
-1. Should polygon regions be defined in SVG templates or in code?
-   - **Recommendation:** Start with code-defined polygons, migrate to SVG markers if templates are updated
+1. ~~Should polygon regions be defined in SVG templates or in code?~~
+   - **Resolved:** Build from existing rect elements in templates
    
-2. Should Lloyd's relaxation be enabled by default?
-   - **Recommendation:** Start with 10 iterations, make configurable for performance tuning
-
+2. ~~Should Lloyd's relaxation be enabled by default?~~
+   - **Resolved:** Not needed - grid functions provide uniform spacing
+   
 3. How to handle extremely narrow regions (e.g., head)?
-   - **Recommendation:** Fall back to single-row placement for regions where Poisson fails
+   - **Recommendation:** Let grid masking handle it; very narrow areas get fewer points naturally
