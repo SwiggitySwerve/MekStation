@@ -10,4 +10,5 @@ export * from './RulesLevel';
 export * from './Era';
 export * from './WeightClass';
 export * from './EquipmentType';
+export * from './EquipmentFlag';
 

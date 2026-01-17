@@ -11,10 +11,15 @@
 
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import {
+  EquipmentFlag,
+  EquipmentBehaviorFlag,
+} from '@/types/enums/EquipmentFlag';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory, AmmoVariant } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /**
  * Detect if we're running in a server (Node.js) environment
@@ -96,6 +101,19 @@ export interface IEquipmentFilter {
   readonly maxYear?: number;
   readonly minYear?: number;
   readonly searchText?: string;
+  /**
+   * Filter by unit type compatibility.
+   * Equipment must have at least one of the specified unit types in allowedUnitTypes.
+   */
+  readonly unitType?: UnitType | UnitType[];
+  /**
+   * Filter to equipment that has ALL of the specified flags.
+   */
+  readonly hasFlags?: EquipmentFlag[];
+  /**
+   * Filter out equipment that has ANY of the specified flags.
+   */
+  readonly excludeFlags?: EquipmentFlag[];
 }
 
 /**
@@ -125,6 +143,12 @@ interface IRawWeaponData {
   introductionYear: number;
   isExplosive?: boolean;
   special?: string[];
+  /** Unit types that can mount this weapon */
+  allowedUnitTypes?: string[];
+  /** Equipment flags (behavior and unit type) */
+  flags?: string[];
+  /** Locations where this equipment can be mounted */
+  allowedLocations?: string[];
 }
 
 /**
@@ -148,6 +172,10 @@ interface IRawAmmunitionData {
   damageModifier?: number;
   rangeModifier?: number;
   special?: string[];
+  /** Unit types that can use this ammunition */
+  allowedUnitTypes?: string[];
+  /** Equipment flags */
+  flags?: string[];
 }
 
 /**
@@ -166,6 +194,12 @@ interface IRawElectronicsData {
   introductionYear: number;
   special?: string[];
   variableEquipmentId?: string;
+  /** Unit types that can mount this equipment */
+  allowedUnitTypes?: string[];
+  /** Equipment flags */
+  flags?: string[];
+  /** Locations where this equipment can be mounted */
+  allowedLocations?: string[];
 }
 
 /**
@@ -184,6 +218,12 @@ interface IRawMiscEquipmentData {
   introductionYear: number;
   special?: string[];
   variableEquipmentId?: string;
+  /** Unit types that can mount this equipment */
+  allowedUnitTypes?: string[];
+  /** Equipment flags */
+  flags?: string[];
+  /** Locations where this equipment can be mounted */
+  allowedLocations?: string[];
 }
 
 /**
@@ -371,9 +411,119 @@ function parseMiscEquipmentCategory(value: string): MiscEquipmentCategory {
 }
 
 /**
+ * Convert string to UnitType enum
+ * Returns undefined if not a valid unit type
+ */
+function parseUnitType(value: string): UnitType | undefined {
+  // Handle both full enum name and shorthand
+  const normalized = value.toUpperCase().replace(/-/g, '_').replace(/ /g, '_');
+  
+  // Map of normalized strings to UnitType values
+  const unitTypeMap: Record<string, UnitType> = {
+    // Full names
+    'BATTLEMECH': UnitType.BATTLEMECH,
+    'OMNIMECH': UnitType.OMNIMECH,
+    'INDUSTRIALMECH': UnitType.INDUSTRIALMECH,
+    'PROTOMECH': UnitType.PROTOMECH,
+    'VEHICLE': UnitType.VEHICLE,
+    'VTOL': UnitType.VTOL,
+    'AEROSPACE': UnitType.AEROSPACE,
+    'CONVENTIONAL_FIGHTER': UnitType.CONVENTIONAL_FIGHTER,
+    'SMALL_CRAFT': UnitType.SMALL_CRAFT,
+    'DROPSHIP': UnitType.DROPSHIP,
+    'JUMPSHIP': UnitType.JUMPSHIP,
+    'WARSHIP': UnitType.WARSHIP,
+    'SPACE_STATION': UnitType.SPACE_STATION,
+    'INFANTRY': UnitType.INFANTRY,
+    'BATTLE_ARMOR': UnitType.BATTLE_ARMOR,
+    'SUPPORT_VEHICLE': UnitType.SUPPORT_VEHICLE,
+    // Common shorthands
+    'MECH': UnitType.BATTLEMECH,
+    'MECH_EQUIPMENT': UnitType.BATTLEMECH,
+    'TANK': UnitType.VEHICLE,
+    'VEHICLE_EQUIPMENT': UnitType.VEHICLE,
+    'VTOL_EQUIPMENT': UnitType.VTOL,
+    'FIGHTER': UnitType.AEROSPACE,
+    'FIGHTER_EQUIPMENT': UnitType.AEROSPACE,
+    'ASF': UnitType.AEROSPACE,
+    'SUPPORT': UnitType.SUPPORT_VEHICLE,
+    'SUPPORT_VEHICLE_EQUIPMENT': UnitType.SUPPORT_VEHICLE,
+    'BA': UnitType.BATTLE_ARMOR,
+    'BA_EQUIPMENT': UnitType.BATTLE_ARMOR,
+    'INF': UnitType.INFANTRY,
+    'INF_EQUIPMENT': UnitType.INFANTRY,
+    'PROTO': UnitType.PROTOMECH,
+    'PROTO_EQUIPMENT': UnitType.PROTOMECH,
+    'SC': UnitType.SMALL_CRAFT,
+    'SC_EQUIPMENT': UnitType.SMALL_CRAFT,
+    'DS': UnitType.DROPSHIP,
+    'DS_EQUIPMENT': UnitType.DROPSHIP,
+    'JS': UnitType.JUMPSHIP,
+    'JS_EQUIPMENT': UnitType.JUMPSHIP,
+    'WS': UnitType.WARSHIP,
+    'WS_EQUIPMENT': UnitType.WARSHIP,
+    'SS': UnitType.SPACE_STATION,
+    'SS_EQUIPMENT': UnitType.SPACE_STATION,
+  };
+  
+  return unitTypeMap[normalized];
+}
+
+/**
+ * Convert string to EquipmentBehaviorFlag enum
+ * Returns undefined if not a valid behavior flag
+ */
+function parseBehaviorFlag(value: string): EquipmentBehaviorFlag | undefined {
+  const normalized = value.toUpperCase().replace(/-/g, '_');
+  const flagValues = Object.values(EquipmentBehaviorFlag);
+  if (flagValues.includes(normalized as EquipmentBehaviorFlag)) {
+    return normalized as EquipmentBehaviorFlag;
+  }
+  return undefined;
+}
+
+/**
+ * Parse an array of string flags into typed EquipmentFlag array
+ * Note: Only behavior flags are stored in the flags array.
+ * Unit type compatibility is handled via allowedUnitTypes.
+ */
+function parseFlags(flags: string[] | undefined): EquipmentBehaviorFlag[] {
+  if (!flags) return [];
+  
+  const result: EquipmentBehaviorFlag[] = [];
+  for (const flag of flags) {
+    const behaviorFlag = parseBehaviorFlag(flag);
+    if (behaviorFlag) {
+      result.push(behaviorFlag);
+    }
+    // Unknown flags are silently ignored (may be new flags not yet supported)
+  }
+  return result;
+}
+
+/**
+ * Parse allowed unit types from string array
+ */
+function parseAllowedUnitTypes(types: string[] | undefined): UnitType[] {
+  if (!types) return [];
+  
+  const result: UnitType[] = [];
+  for (const type of types) {
+    const unitType = parseUnitType(type);
+    if (unitType) {
+      result.push(unitType);
+    }
+  }
+  return result;
+}
+
+/**
  * Convert raw JSON weapon data to IWeapon interface
  */
 function convertWeapon(raw: IRawWeaponData): IWeapon {
+  const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
+  const flags = parseFlags(raw.flags);
+  
   return {
     id: raw.id,
     name: raw.name,
@@ -392,6 +542,9 @@ function convertWeapon(raw: IRawWeaponData): IWeapon {
     introductionYear: raw.introductionYear,
     ...(raw.isExplosive && { isExplosive: raw.isExplosive }),
     ...(raw.special && { special: raw.special }),
+    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(flags.length > 0 && { flags }),
+    ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };
 }
 
@@ -399,6 +552,9 @@ function convertWeapon(raw: IRawWeaponData): IWeapon {
  * Convert raw JSON ammunition data to IAmmunition interface
  */
 function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
+  const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
+  const flags = parseFlags(raw.flags);
+  
   return {
     id: raw.id,
     name: raw.name,
@@ -417,6 +573,8 @@ function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
     ...(raw.damageModifier !== undefined && { damageModifier: raw.damageModifier }),
     ...(raw.rangeModifier !== undefined && { rangeModifier: raw.rangeModifier }),
     ...(raw.special && { special: raw.special }),
+    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(flags.length > 0 && { flags }),
   };
 }
 
@@ -424,6 +582,9 @@ function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
  * Convert raw JSON electronics data to IElectronics interface
  */
 function convertElectronics(raw: IRawElectronicsData): IElectronics {
+  const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
+  const flags = parseFlags(raw.flags);
+  
   return {
     id: raw.id,
     name: raw.name,
@@ -437,6 +598,9 @@ function convertElectronics(raw: IRawElectronicsData): IElectronics {
     introductionYear: raw.introductionYear,
     ...(raw.special && { special: raw.special }),
     ...(raw.variableEquipmentId && { variableEquipmentId: raw.variableEquipmentId }),
+    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(flags.length > 0 && { flags }),
+    ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };
 }
 
@@ -444,6 +608,9 @@ function convertElectronics(raw: IRawElectronicsData): IElectronics {
  * Convert raw JSON misc equipment data to IMiscEquipment interface
  */
 function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
+  const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
+  const flags = parseFlags(raw.flags);
+  
   return {
     id: raw.id,
     name: raw.name,
@@ -457,6 +624,9 @@ function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
     introductionYear: raw.introductionYear,
     ...(raw.special && { special: raw.special }),
     ...(raw.variableEquipmentId && { variableEquipmentId: raw.variableEquipmentId }),
+    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(flags.length > 0 && { flags }),
+    ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };
 }
 
@@ -777,7 +947,240 @@ export class EquipmentLoaderService {
       );
     }
     
+    // Filter by unit type compatibility
+    if (filter.unitType) {
+      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
+      results = results.filter(w => {
+        // If weapon has no allowedUnitTypes, it defaults to mech/vehicle/aerospace
+        const weaponUnitTypes = w.allowedUnitTypes ?? [
+          UnitType.BATTLEMECH,
+          UnitType.VEHICLE,
+          UnitType.AEROSPACE,
+        ];
+        // Equipment is compatible if it supports at least one of the requested unit types
+        return unitTypes.some(ut => weaponUnitTypes.includes(ut));
+      });
+    }
+    
+    // Filter to equipment that has ALL of the specified flags
+    if (filter.hasFlags && filter.hasFlags.length > 0) {
+      results = results.filter(w => {
+        const weaponFlags = w.flags ?? [];
+        return filter.hasFlags!.every(flag => weaponFlags.includes(flag));
+      });
+    }
+    
+    // Filter out equipment that has ANY of the specified flags
+    if (filter.excludeFlags && filter.excludeFlags.length > 0) {
+      results = results.filter(w => {
+        const weaponFlags = w.flags ?? [];
+        return !filter.excludeFlags!.some(flag => weaponFlags.includes(flag));
+      });
+    }
+    
     return results;
+  }
+  
+  /**
+   * Search ammunition by filter
+   */
+  searchAmmunition(filter: IEquipmentFilter): IAmmunition[] {
+    let results = this.getAllAmmunition();
+    
+    if (filter.techBase) {
+      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
+      results = results.filter(a => techBases.includes(a.techBase));
+    }
+    
+    if (filter.rulesLevel) {
+      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
+      results = results.filter(a => levels.includes(a.rulesLevel));
+    }
+    
+    if (filter.maxYear !== undefined) {
+      results = results.filter(a => a.introductionYear <= filter.maxYear!);
+    }
+    
+    if (filter.minYear !== undefined) {
+      results = results.filter(a => a.introductionYear >= filter.minYear!);
+    }
+    
+    if (filter.searchText) {
+      const search = filter.searchText.toLowerCase();
+      results = results.filter(a => 
+        a.name.toLowerCase().includes(search) ||
+        a.id.toLowerCase().includes(search)
+      );
+    }
+    
+    if (filter.unitType) {
+      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
+      results = results.filter(a => {
+        const ammoUnitTypes = a.allowedUnitTypes ?? [
+          UnitType.BATTLEMECH,
+          UnitType.VEHICLE,
+          UnitType.AEROSPACE,
+        ];
+        return unitTypes.some(ut => ammoUnitTypes.includes(ut));
+      });
+    }
+    
+    if (filter.hasFlags && filter.hasFlags.length > 0) {
+      results = results.filter(a => {
+        const ammoFlags = a.flags ?? [];
+        return filter.hasFlags!.every(flag => ammoFlags.includes(flag));
+      });
+    }
+    
+    if (filter.excludeFlags && filter.excludeFlags.length > 0) {
+      results = results.filter(a => {
+        const ammoFlags = a.flags ?? [];
+        return !filter.excludeFlags!.some(flag => ammoFlags.includes(flag));
+      });
+    }
+    
+    return results;
+  }
+  
+  /**
+   * Search electronics by filter
+   */
+  searchElectronics(filter: IEquipmentFilter): IElectronics[] {
+    let results = this.getAllElectronics();
+    
+    if (filter.techBase) {
+      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
+      results = results.filter(e => techBases.includes(e.techBase));
+    }
+    
+    if (filter.rulesLevel) {
+      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
+      results = results.filter(e => levels.includes(e.rulesLevel));
+    }
+    
+    if (filter.maxYear !== undefined) {
+      results = results.filter(e => e.introductionYear <= filter.maxYear!);
+    }
+    
+    if (filter.minYear !== undefined) {
+      results = results.filter(e => e.introductionYear >= filter.minYear!);
+    }
+    
+    if (filter.searchText) {
+      const search = filter.searchText.toLowerCase();
+      results = results.filter(e => 
+        e.name.toLowerCase().includes(search) ||
+        e.id.toLowerCase().includes(search)
+      );
+    }
+    
+    if (filter.unitType) {
+      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
+      results = results.filter(e => {
+        const elecUnitTypes = e.allowedUnitTypes ?? [
+          UnitType.BATTLEMECH,
+          UnitType.VEHICLE,
+          UnitType.AEROSPACE,
+        ];
+        return unitTypes.some(ut => elecUnitTypes.includes(ut));
+      });
+    }
+    
+    if (filter.hasFlags && filter.hasFlags.length > 0) {
+      results = results.filter(e => {
+        const elecFlags = e.flags ?? [];
+        return filter.hasFlags!.every(flag => elecFlags.includes(flag));
+      });
+    }
+    
+    if (filter.excludeFlags && filter.excludeFlags.length > 0) {
+      results = results.filter(e => {
+        const elecFlags = e.flags ?? [];
+        return !filter.excludeFlags!.some(flag => elecFlags.includes(flag));
+      });
+    }
+    
+    return results;
+  }
+  
+  /**
+   * Search misc equipment by filter
+   */
+  searchMiscEquipment(filter: IEquipmentFilter): IMiscEquipment[] {
+    let results = this.getAllMiscEquipment();
+    
+    if (filter.techBase) {
+      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
+      results = results.filter(m => techBases.includes(m.techBase));
+    }
+    
+    if (filter.rulesLevel) {
+      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
+      results = results.filter(m => levels.includes(m.rulesLevel));
+    }
+    
+    if (filter.maxYear !== undefined) {
+      results = results.filter(m => m.introductionYear <= filter.maxYear!);
+    }
+    
+    if (filter.minYear !== undefined) {
+      results = results.filter(m => m.introductionYear >= filter.minYear!);
+    }
+    
+    if (filter.searchText) {
+      const search = filter.searchText.toLowerCase();
+      results = results.filter(m => 
+        m.name.toLowerCase().includes(search) ||
+        m.id.toLowerCase().includes(search)
+      );
+    }
+    
+    if (filter.unitType) {
+      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
+      results = results.filter(m => {
+        const miscUnitTypes = m.allowedUnitTypes ?? [
+          UnitType.BATTLEMECH,
+          UnitType.VEHICLE,
+          UnitType.AEROSPACE,
+        ];
+        return unitTypes.some(ut => miscUnitTypes.includes(ut));
+      });
+    }
+    
+    if (filter.hasFlags && filter.hasFlags.length > 0) {
+      results = results.filter(m => {
+        const miscFlags = m.flags ?? [];
+        return filter.hasFlags!.every(flag => miscFlags.includes(flag));
+      });
+    }
+    
+    if (filter.excludeFlags && filter.excludeFlags.length > 0) {
+      results = results.filter(m => {
+        const miscFlags = m.flags ?? [];
+        return !filter.excludeFlags!.some(flag => miscFlags.includes(flag));
+      });
+    }
+    
+    return results;
+  }
+  
+  /**
+   * Search all equipment types by unit type
+   * Convenience method to get all compatible equipment for a unit type
+   */
+  searchByUnitType(unitType: UnitType): {
+    weapons: IWeapon[];
+    ammunition: IAmmunition[];
+    electronics: IElectronics[];
+    miscEquipment: IMiscEquipment[];
+  } {
+    const filter: IEquipmentFilter = { unitType };
+    return {
+      weapons: this.searchWeapons(filter),
+      ammunition: this.searchAmmunition(filter),
+      electronics: this.searchElectronics(filter),
+      miscEquipment: this.searchMiscEquipment(filter),
+    };
   }
   
   /**
