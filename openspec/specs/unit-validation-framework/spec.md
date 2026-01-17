@@ -157,6 +157,27 @@ The system SHALL provide validation rules that apply to ALL unit types.
 - **AND** non-compliant unit SHALL produce ERROR
 - **AND** error message SHALL be "Unit rules level {level} exceeds allowed level {filter}"
 
+#### Scenario: VAL-UNIV-013 Armor Allocation Validation
+- **WHEN** validating armor allocation per location
+- **THEN** armor below 20% of expected max SHALL produce CRITICAL_ERROR
+- **AND** armor between 20-40% of expected max SHALL produce WARNING
+- **AND** armor at or above 40% SHALL pass validation
+- **AND** front torso expected max SHALL be 75% of total location max
+- **AND** rear torso expected max SHALL be 25% of total location max
+
+#### Scenario: VAL-UNIV-014 Weight Overflow
+- **WHEN** validating unit weight
+- **THEN** allocated weight exceeding max tonnage SHALL produce CRITICAL_ERROR
+- **AND** error message SHALL be "Unit exceeds maximum tonnage by {overage} tons"
+- **AND** validation SHALL be skipped if weight data unavailable
+
+#### Scenario: VAL-UNIV-015 Critical Slot Overflow
+- **WHEN** validating critical slot allocation
+- **THEN** any location exceeding slot capacity SHALL produce CRITICAL_ERROR
+- **AND** error message SHALL be "{Location} exceeds slot capacity by {overage}"
+- **AND** multiple overflowing locations SHALL produce separate errors
+- **AND** validation SHALL be skipped if slot data unavailable
+
 ---
 
 ### Requirement: Mech Category Validation Rules
