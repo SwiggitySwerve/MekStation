@@ -9,8 +9,10 @@
 
 import { useMemo, useEffect, useRef } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
+import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
 import { initializeUnitValidationRules, areRulesInitialized } from '@/services/validation/initializeUnitValidation';
+import { getMaxTotalArmor } from '@/utils/construction/armorCalculations';
 import {
   IValidatableUnit,
   IUnitValidationResult,
@@ -121,6 +123,8 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
+  const armorAllocation = useUnitStore((s) => s.armorAllocation);
+  const configuration = useUnitStore((s) => s.configuration);
 
   // Derive era from year using the era utility function
   const era = year ? getEraForYear(year) : Era.DARK_AGE;
@@ -150,6 +154,9 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       initializeUnitValidationRules();
     }
 
+    const totalArmorPoints = getTotalAllocatedArmor(armorAllocation, configuration);
+    const maxArmorPoints = getMaxTotalArmor(tonnage || 20, configuration);
+
     // Build validatable unit from store state
     const validatableUnit: IValidatableUnit = {
       id: id || 'new-unit',
@@ -163,13 +170,14 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       weight: tonnage || 0,
       cost,
       battleValue,
-      // Mech component fields
       engineType,
       gyroType,
       cockpitType,
       internalStructureType,
       heatSinkCount,
       heatSinkType,
+      totalArmorPoints,
+      maxArmorPoints,
     };
 
     try {
@@ -241,6 +249,8 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     internalStructureType,
     heatSinkCount,
     heatSinkType,
+    armorAllocation,
+    configuration,
     options?.disabled,
     options?.campaignYear,
     options?.rulesLevelFilter,

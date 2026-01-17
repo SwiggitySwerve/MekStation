@@ -73,18 +73,14 @@ export interface IValidatableUnit {
   readonly battleValue: number;
 
   // Mech-specific optional fields
-  /** Engine type (for mechs) */
   readonly engineType?: string;
-  /** Gyro type (for mechs) */
   readonly gyroType?: string;
-  /** Cockpit type (for mechs) */
   readonly cockpitType?: string;
-  /** Internal structure type (for mechs) */
   readonly internalStructureType?: string;
-  /** Heat sink count (for mechs) */
   readonly heatSinkCount?: number;
-  /** Heat sink type (for mechs) */
   readonly heatSinkType?: string;
+  readonly totalArmorPoints?: number;
+  readonly maxArmorPoints?: number;
 }
 
 /**

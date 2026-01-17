@@ -519,6 +519,47 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
 };
 
 /**
+ * VAL-UNIV-013: Armor Allocation Warning
+ */
+export const ArmorAllocationWarning: IUnitValidationRuleDefinition = {
+  id: 'VAL-UNIV-013',
+  name: 'Armor Allocation Warning',
+  description: 'Warn when unit has no armor allocated',
+  category: ValidationCategory.ARMOR,
+  priority: 13,
+  applicableUnitTypes: 'ALL',
+
+  canValidate(context: IUnitValidationContext): boolean {
+    return context.unit.totalArmorPoints !== undefined;
+  },
+
+  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
+    const { unit } = context;
+    const warnings = [];
+
+    if (unit.totalArmorPoints !== undefined && unit.totalArmorPoints === 0) {
+      warnings.push(
+        createUnitValidationError(
+          this.id,
+          this.name,
+          UnitValidationSeverity.WARNING,
+          this.category,
+          'Unit has no armor allocated - highly vulnerable to damage',
+          {
+            field: 'armorAllocation',
+            expected: '> 0',
+            actual: '0',
+            suggestion: 'Allocate armor points in the Armor tab',
+          }
+        )
+      );
+    }
+
+    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
+  },
+};
+
+/**
  * All universal validation rules
  */
 export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[] = [
@@ -534,4 +575,5 @@ export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[
   BattleValueNonNegative,
   EraAvailability,
   RulesLevelCompliance,
+  ArmorAllocationWarning,
 ];

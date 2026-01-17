@@ -15,6 +15,7 @@ import {
   BattleValueNonNegative,
   EraAvailability,
   RulesLevelCompliance,
+  ArmorAllocationWarning,
 } from '@/services/validation/rules/universal/UniversalValidationRules';
 
 describe('UniversalValidationRules', () => {
@@ -226,6 +227,35 @@ describe('UniversalValidationRules', () => {
       const context = createContext(createBaseUnit());
       expect(RulesLevelCompliance.canValidate!(context)).toBe(false);
       expect(RulesLevelCompliance.validate(context).passed).toBe(true);
+    });
+  });
+
+  describe('VAL-UNIV-013: Armor Allocation Warning', () => {
+    it('should pass with no warnings when armor is allocated', () => {
+      const unit = createBaseUnit({ totalArmorPoints: 100 });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should emit warning when armor is zero', () => {
+      const unit = createBaseUnit({ totalArmorPoints: 0 });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings[0].message).toContain('no armor allocated');
+    });
+
+    it('should skip validation when totalArmorPoints is undefined', () => {
+      const unit = createBaseUnit();
+      const context = createContext(unit);
+      expect(ArmorAllocationWarning.canValidate!(context)).toBe(false);
+    });
+
+    it('should validate when totalArmorPoints is defined', () => {
+      const unit = createBaseUnit({ totalArmorPoints: 50 });
+      const context = createContext(unit);
+      expect(ArmorAllocationWarning.canValidate!(context)).toBe(true);
     });
   });
 });

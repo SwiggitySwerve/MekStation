@@ -10,10 +10,12 @@
 
 import React from 'react';
 import { TechBaseBadge } from './TechBaseBadge';
-import { ValidationBadge } from './ValidationBadge';
+import { ValidationSummary } from './ValidationSummary';
 import { BalancedGrid } from '@/components/common/BalancedGrid';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { ValidationStatus } from '@/utils/colors/statusColors';
+import { UnitValidationState } from '@/hooks/useUnitValidation';
+import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 // =============================================================================
 // Types
@@ -44,6 +46,8 @@ export interface UnitStats {
 
 interface UnitInfoBannerProps {
   stats: UnitStats;
+  validation?: UnitValidationState;
+  onValidationNavigate?: (tabId: CustomizerTabId) => void;
   className?: string;
 }
 
@@ -114,7 +118,7 @@ function CapacityStat({ label, current, max, unit = '', status = 'normal' }: Cap
 // Main Component
 // =============================================================================
 
-export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): React.ReactElement {
+export function UnitInfoBanner({ stats, validation, onValidationNavigate, className = '' }: UnitInfoBannerProps): React.ReactElement {
   const weightStatus: 'normal' | 'warning' | 'error' = 
     stats.weightUsed > stats.tonnage ? 'error' :
     stats.weightRemaining < 0.5 ? 'warning' : 'normal';
@@ -133,11 +137,12 @@ export function UnitInfoBanner({ stats, className = '' }: UnitInfoBannerProps): 
       <div className="flex items-center gap-2 mb-1.5">
         <h2 className="text-sm sm:text-base font-bold text-white truncate">{stats.name}</h2>
         <TechBaseBadge techBaseMode={stats.techBaseMode} />
-        <ValidationBadge 
-          status={stats.validationStatus}
-          label={stats.validationStatus === 'valid' ? 'Valid' : 
-                `${stats.errorCount} errors, ${stats.warningCount} warnings`}
-        />
+{validation && (
+          <ValidationSummary 
+            validation={validation}
+            onNavigate={onValidationNavigate}
+          />
+        )}
       </div>
       
       {/* BalancedGrid automatically distributes items evenly across rows */}
