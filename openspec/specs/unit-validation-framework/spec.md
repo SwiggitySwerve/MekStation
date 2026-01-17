@@ -430,16 +430,23 @@ The system SHALL provide React hooks for integrating validation into the customi
 - **THEN** hook SHALL call initializeUnitValidationRules() if not already initialized
 - **AND** all universal and category rules SHALL be registered
 
-#### Scenario: UnitInfoBanner displays validation status
+#### Scenario: ValidationSummary is sole validation display in header
 - **WHEN** UnitEditorWithRouting renders
-- **THEN** UnitInfoBanner SHALL receive validation.status
-- **AND** UnitInfoBanner SHALL receive validation.errorCount
-- **AND** UnitInfoBanner SHALL receive validation.warningCount
-- **AND** ValidationBadge SHALL display appropriate status icon and color
+- **THEN** UnitInfoBanner SHALL contain ValidationSummary component
+- **AND** ValidationSummary SHALL display compact badge with error/warning counts
+- **AND** clicking ValidationSummary badge SHALL expand dropdown with issue details
+- **AND** dropdown items SHALL be clickable to navigate to relevant tab
+- **AND** no separate ValidationPanel SHALL render in the header area
+
+#### Scenario: ValidationTabBadge provides per-tab indicators
+- **WHEN** CustomizerTabs renders
+- **THEN** each tab SHALL display ValidationTabBadge if issues exist for that tab
+- **AND** badge SHALL show error count (red) or warning count (amber)
+- **AND** badge SHALL be compact (18px circular)
 
 #### Scenario: Validation updates in real-time
 - **WHEN** user modifies unit in customizer
 - **THEN** validation SHALL re-run automatically
-- **AND** UnitInfoBanner SHALL update to reflect new validation state
+- **AND** ValidationSummary SHALL update to reflect new validation state
 - **AND** status SHALL change from 'valid' to 'error' when errors exist
 
