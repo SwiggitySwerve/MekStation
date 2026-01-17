@@ -121,6 +121,25 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Special rules for this weapon"
+    },
+    "flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Equipment behavior flags"
+    },
+    "allowedUnitTypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
+          "Vehicle", "VTOL", "Support Vehicle",
+          "Aerospace", "Conventional Fighter", "Small Craft",
+          "DropShip", "JumpShip", "WarShip", "Space Station",
+          "Infantry", "Battle Armor"
+        ]
+      },
+      "description": "Unit types that can mount this weapon. Physical weapons are typically limited to BattleMechs."
     }
   },
   "additionalProperties": false

@@ -100,6 +100,20 @@ export default function CompendiumPage(): React.ReactElement {
       breadcrumbs={[]}
       headerActions={headerActions}
     >
+      {/* Units Section */}
+      <section className="mb-8">
+        <h2 className="text-category-label text-text-theme-secondary mb-4">UNITS</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CategoryCard
+            icon={<MechIcon />}
+            title="Unit Database"
+            subtitle="Browse BattleMechs, vehicles, aerospace, and more"
+            href="/compendium/units"
+            accentColor="emerald"
+          />
+        </div>
+      </section>
+
       {/* Equipment Section */}
       <section className="mb-8">
         <h2 className="text-category-label text-text-theme-secondary mb-4">EQUIPMENT</h2>
@@ -250,6 +264,14 @@ function ListIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+  );
+}
+
+function MechIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 14.5M14.25 3.104c.251.023.501.05.75.082M19.8 14.5l-4.5 4.5-3.3-3.3-3.3 3.3-4.5-4.5m0 0l-2.25 2.25M19.8 14.5l2.25 2.25" />
     </svg>
   );
 }

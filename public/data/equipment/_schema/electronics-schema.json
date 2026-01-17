@@ -95,6 +95,30 @@
     "variableEquipmentId": {
       "type": "string",
       "description": "ID for variable equipment formula lookup"
+    },
+    "flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Equipment behavior flags (e.g., ECM, BAP, C3S)"
+    },
+    "allowedUnitTypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
+          "Vehicle", "VTOL", "Support Vehicle",
+          "Aerospace", "Conventional Fighter", "Small Craft",
+          "DropShip", "JumpShip", "WarShip", "Space Station",
+          "Infantry", "Battle Armor"
+        ]
+      },
+      "description": "Unit types that can mount this equipment. If omitted, defaults to BattleMech, Vehicle, Aerospace."
+    },
+    "allowedLocations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific locations where this equipment can be mounted. If omitted, any valid equipment location is allowed."
     }
   },
   "additionalProperties": false

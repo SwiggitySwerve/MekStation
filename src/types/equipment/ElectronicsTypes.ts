@@ -11,6 +11,8 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { EquipmentFlag } from '../enums/EquipmentFlag';
+import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
  * Electronics category
@@ -41,6 +43,24 @@ export interface IElectronics {
   readonly special?: readonly string[];
   /** ID for variable equipment formula lookup in FormulaRegistry */
   readonly variableEquipmentId?: string;
+
+  /**
+   * Unit types that can mount this electronics equipment.
+   * Most electronics work on multiple unit types.
+   */
+  readonly allowedUnitTypes?: readonly UnitType[];
+
+  /**
+   * Equipment flags defining behavior and properties.
+   * @see EquipmentFlag
+   */
+  readonly flags?: readonly EquipmentFlag[];
+
+  /**
+   * Locations where this equipment can be mounted.
+   * If undefined, equipment can be mounted in any valid location for the unit type.
+   */
+  readonly allowedLocations?: readonly string[];
 }
 
 // ============================================================================
