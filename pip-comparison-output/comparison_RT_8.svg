@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="152.18600000000015" height="156.37400000000002" viewBox="0 0 152.18600000000015 156.37400000000002">
+  <style>
+    .title { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+    .subtitle { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  
+  <!-- Title -->
+  <text x="76.09300000000007" y="15" class="title" text-anchor="middle">RT - 8 pips</text>
+  
+  <!-- Legacy (MegaMekLab) -->
+  <g transform="translate(0, 25)">
+    <text x="28.046500000000037" y="12" class="subtitle" text-anchor="middle">Legacy (MegaMekLab)</text>
+    <rect x="0" y="18" width="56.093000000000075" height="116.37400000000001" fill="none" stroke="#ccc" stroke-dasharray="2,2"/>
+    <circle cx="25.309000000000083" cy="20" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="36.093000000000075" cy="20" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="30.700000000000045" cy="32.724000000000004" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="25.309000000000083" cy="45.446" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="36.093000000000075" cy="45.446" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="25.309000000000083" cy="58.169" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="20" cy="77.253" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="31.734000000000037" cy="96.37400000000001" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Poisson -->
+  <g transform="translate(76.09300000000007, 25)">
+    <text x="28.046500000000037" y="12" class="subtitle" text-anchor="middle">Poisson Disk Sampling</text>
+    <rect x="0" y="18" width="56.093000000000075" height="116.37400000000001" fill="none" stroke="#ccc" stroke-dasharray="2,2"/>
+    <circle cx="105.46407604550302" cy="59.700630632052494" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="99.61495149376708" cy="42.18123616884" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="111.92606356831811" cy="46.101267420610384" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="105.00139660521916" cy="71.32891781056033" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="102.86109897039364" cy="87.16363503234435" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="105.53426842710053" cy="29.131810487561097" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="110.90621243347107" cy="93.40257664593803" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="109.49878465787981" cy="71.58494030803486" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+  </g>
+</svg>

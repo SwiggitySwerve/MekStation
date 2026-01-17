@@ -111,15 +111,15 @@ export class ValidationService implements IValidationService {
     const armor = mech.armorAllocation;
 
     // Check each location against its maximum
-    const locationChecks: { location: string; actual: number; rear?: number }[] = [
-      { location: 'head', actual: armor.head },
-      { location: 'centerTorso', actual: armor.centerTorso, rear: armor.centerTorsoRear },
-      { location: 'leftTorso', actual: armor.leftTorso, rear: armor.leftTorsoRear },
-      { location: 'rightTorso', actual: armor.rightTorso, rear: armor.rightTorsoRear },
-      { location: 'leftArm', actual: armor.leftArm },
-      { location: 'rightArm', actual: armor.rightArm },
-      { location: 'leftLeg', actual: armor.leftLeg },
-      { location: 'rightLeg', actual: armor.rightLeg },
+    const locationChecks: { location: string; displayName: string; actual: number; rear?: number }[] = [
+      { location: 'head', displayName: 'Head', actual: armor.head },
+      { location: 'centerTorso', displayName: 'Center Torso', actual: armor.centerTorso, rear: armor.centerTorsoRear },
+      { location: 'leftTorso', displayName: 'Left Torso', actual: armor.leftTorso, rear: armor.leftTorsoRear },
+      { location: 'rightTorso', displayName: 'Right Torso', actual: armor.rightTorso, rear: armor.rightTorsoRear },
+      { location: 'leftArm', displayName: 'Left Arm', actual: armor.leftArm },
+      { location: 'rightArm', displayName: 'Right Arm', actual: armor.rightArm },
+      { location: 'leftLeg', displayName: 'Left Leg', actual: armor.leftLeg },
+      { location: 'rightLeg', displayName: 'Right Leg', actual: armor.rightLeg },
     ];
 
     for (const check of locationChecks) {
@@ -131,20 +131,40 @@ export class ValidationService implements IValidationService {
         if (totalTorsoArmor > maxArmor) {
           errors.push({
             code: 'ARMOR_EXCEEDS_MAX',
-            message: `${check.location} total armor (${totalTorsoArmor}) exceeds maximum of ${maxArmor}`,
+            message: `${check.displayName} total armor (${totalTorsoArmor}) exceeds maximum of ${maxArmor}`,
             severity: ValidationSeverity.ERROR,
             field: check.location,
             details: { front: check.actual, rear: check.rear, total: totalTorsoArmor, max: maxArmor },
+          });
+        }
+        // Warn if torso has zero front armor (rear-only is unusual)
+        if (check.actual === 0 && check.rear === 0) {
+          errors.push({
+            code: 'NO_ARMOR',
+            message: `${check.displayName} has no armor assigned`,
+            severity: ValidationSeverity.WARNING,
+            field: check.location,
+            details: { location: check.displayName },
           });
         }
       } else {
         if (check.actual > maxArmor) {
           errors.push({
             code: 'ARMOR_EXCEEDS_MAX',
-            message: `${check.location} armor (${check.actual}) exceeds maximum of ${maxArmor}`,
+            message: `${check.displayName} armor (${check.actual}) exceeds maximum of ${maxArmor}`,
             severity: ValidationSeverity.ERROR,
             field: check.location,
             details: { actual: check.actual, max: maxArmor },
+          });
+        }
+        // Warn if location has zero armor
+        if (check.actual === 0) {
+          errors.push({
+            code: 'NO_ARMOR',
+            message: `${check.displayName} has no armor assigned`,
+            severity: ValidationSeverity.WARNING,
+            field: check.location,
+            details: { location: check.displayName },
           });
         }
       }

@@ -198,4 +198,6 @@ export const REAR_LOCATIONS = ['CT', 'LT', 'RT'];
 
 // Mech types that use pre-made pip files (DEPRECATED - all now use ArmorPipLayout)
 // Keeping for backward compatibility but now using dynamic generation for all types
-export const PREMADE_PIP_TYPES: string[] = [];
+// Mech types that use pre-made pip SVG files from mm-data
+// These have pip layouts already computed in SVG form
+export const PREMADE_PIP_TYPES: string[] = ['biped'];

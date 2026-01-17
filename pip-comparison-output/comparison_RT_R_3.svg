@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120.00800000000004" height="101.55200000000002" viewBox="0 0 120.00800000000004 101.55200000000002">
+  <style>
+    .title { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+    .subtitle { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  
+  <!-- Title -->
+  <text x="60.00400000000002" y="15" class="title" text-anchor="middle">RT_R - 3 pips</text>
+  
+  <!-- Legacy (MegaMekLab) -->
+  <g transform="translate(0, 25)">
+    <text x="20.00200000000001" y="12" class="subtitle" text-anchor="middle">Legacy (MegaMekLab)</text>
+    <rect x="0" y="18" width="40.00400000000002" height="61.55200000000002" fill="none" stroke="#ccc" stroke-dasharray="2,2"/>
+    <circle cx="20" cy="20" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="20" cy="30.774999999999977" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+    <circle cx="20.00400000000002" cy="41.55200000000002" r="2.415" fill="none" stroke="#000" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Poisson -->
+  <g transform="translate(60.00400000000002, 25)">
+    <text x="20.00200000000001" y="12" class="subtitle" text-anchor="middle">Poisson Disk Sampling</text>
+    <rect x="0" y="18" width="40.00400000000002" height="61.55200000000002" fill="none" stroke="#ccc" stroke-dasharray="2,2"/>
+    <circle cx="80.00632923035994" cy="31.203131843061726" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="80.00435525178932" cy="25.806607881865773" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+    <circle cx="80.00431928825401" cy="39.39838533303441" r="2.415" fill="none" stroke="#0066cc" stroke-width="0.5"/>
+  </g>
+</svg>

@@ -36,6 +36,7 @@ import { EquipmentTab } from '@/components/customizer/tabs/EquipmentTab';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
 import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
+import { ValidationPanel } from '@/components/customizer/shared/ValidationPanel';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import type { LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
 import type { MobileLoadoutStats } from '@/components/customizer/mobile';
@@ -630,8 +631,9 @@ export function UnitEditorWithRouting({
   
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-      <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0">
+      <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0 space-y-2">
         <UnitInfoBanner stats={unitStats} />
+        <ValidationPanel validation={validation} defaultCollapsed={false} />
       </div>
       
       {/* Main content area with tray */}
