@@ -4,7 +4,6 @@
  * Tests for ProtoMech BLK parsing and validation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { ProtoMechUnitHandler, createProtoMechHandler } from '../ProtoMechUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';

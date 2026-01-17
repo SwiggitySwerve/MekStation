@@ -30,14 +30,7 @@ const clientSafeStorage: StateStorage = {
   },
 };
 
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
-import {
-  InfantryArmorKit,
-  InfantrySpecialization,
-  IInfantryFieldGun,
-} from '@/types/unit/PersonnelInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { IInfantryFieldGun } from '@/types/unit/PersonnelInterfaces';
 import {
   InfantryState,
   InfantryStore,

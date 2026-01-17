@@ -4,7 +4,6 @@
  * Tests for aerospace fighter BLK parsing and validation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { AerospaceUnitHandler, createAerospaceHandler } from '../AerospaceUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';

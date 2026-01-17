@@ -15,7 +15,7 @@
  */
 
 import { IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent } from '../core';
-import { Era, RulesLevel, TechBase, WeightClass } from '../enums';
+import { WeightClass } from '../enums';
 import { UnitType, IUnitMetadata } from './BattleMechInterfaces';
 
 // ============================================================================

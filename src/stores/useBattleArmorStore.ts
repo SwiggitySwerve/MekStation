@@ -30,17 +30,8 @@ const clientSafeStorage: StateStorage = {
   },
 };
 
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
-import {
-  BattleArmorChassisType,
-  BattleArmorWeightClass,
-  ManipulatorType,
-} from '@/types/unit/PersonnelInterfaces';
-import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import {
   BattleArmorState,
   BattleArmorStore,
@@ -62,7 +53,7 @@ export type { BattleArmorStore } from './battleArmorState';
 export function createBattleArmorStore(initialState: BattleArmorState): StoreApi<BattleArmorStore> {
   return create<BattleArmorStore>()(
     persist(
-      (set, get) => ({
+      (set, _get) => ({
         // Spread initial state
         ...initialState,
 

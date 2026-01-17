@@ -7,7 +7,6 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import {

@@ -6,7 +6,6 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2.8
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { VehicleUnitHandler, createVehicleHandler } from '../VehicleUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';

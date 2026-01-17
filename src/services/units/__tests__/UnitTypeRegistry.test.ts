@@ -4,7 +4,6 @@
  * Tests for unit type handler registration and lookup
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   UnitTypeRegistry,
@@ -14,14 +13,12 @@ import {
   isUnitTypeSupported,
 } from '../UnitTypeRegistry';
 import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
+import { IBlkDocument } from '../../../types/formats/BlkFormat';
 import {
   createVehicleHandler,
   createAerospaceHandler,
   createBattleArmorHandler,
   createInfantryHandler,
-  createProtoMechHandler,
-  createDropShipHandler,
-  createWarShipHandler,
   initializeUnitTypeHandlers,
   resetHandlerInitialization,
 } from '../handlers';
@@ -144,7 +141,7 @@ describe('UnitTypeRegistry', () => {
         rawTags: {},
       };
 
-      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as any);
+      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as IBlkDocument);
       expect(handler).toBeDefined();
       expect(handler?.unitType).toBe(UnitType.VEHICLE);
     });
@@ -166,7 +163,7 @@ describe('UnitTypeRegistry', () => {
         rawTags: {},
       };
 
-      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as any);
+      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as IBlkDocument);
       expect(handler).toBeUndefined();
     });
   });

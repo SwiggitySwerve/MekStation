@@ -34,8 +34,6 @@ const clientSafeStorage: StateStorage = {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType, ITurretConfiguration } from '@/types/unit/VehicleInterfaces';
 import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -85,7 +83,7 @@ function calculateFlankMP(cruiseMP: number): number {
 export function createVehicleStore(initialState: VehicleState): StoreApi<VehicleStore> {
   return create<VehicleStore>()(
     persist(
-      (set, get) => ({
+      (set, _get) => ({
         // Spread initial state
         ...initialState,
 

@@ -4,7 +4,6 @@
  * Tests for Infantry BLK parsing and validation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { InfantryUnitHandler, createInfantryHandler } from '../InfantryUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';

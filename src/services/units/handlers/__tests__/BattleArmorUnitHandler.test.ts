@@ -4,7 +4,6 @@
  * Tests for Battle Armor BLK parsing and validation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { BattleArmorUnitHandler, createBattleArmorHandler } from '../BattleArmorUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';

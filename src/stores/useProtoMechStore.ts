@@ -33,7 +33,6 @@ const clientSafeStorage: StateStorage = {
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import {
   ProtoMechState,
   ProtoMechStore,
@@ -56,7 +55,7 @@ export type { ProtoMechStore } from './protoMechState';
 export function createProtoMechStore(initialState: ProtoMechState): StoreApi<ProtoMechStore> {
   return create<ProtoMechStore>()(
     persist(
-      (set, get) => ({
+      (set, _get) => ({
         // Spread initial state
         ...initialState,
 
@@ -113,7 +112,7 @@ export function createProtoMechStore(initialState: ProtoMechState): StoreApi<Pro
         // =================================================================
 
         setTonnage: (tonnage) =>
-          set((state) => {
+          set((_state) => {
             const clampedTonnage = Math.max(2, Math.min(9, tonnage));
             const newCruiseMP = Math.max(1, 10 - clampedTonnage);
             return {

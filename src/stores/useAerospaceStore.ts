@@ -31,15 +31,11 @@ const clientSafeStorage: StateStorage = {
   },
 };
 
-import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   AerospaceState,
   AerospaceStore,
