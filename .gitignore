@@ -116,5 +116,13 @@ test-results/
 # Parity validation output
 validation-output/
 
+# Generated validation/audit reports
+*-validation-report.json
+*-equipment-report.json
+eslint-output.json
+
+# Pip distribution comparison output (development research)
+pip-comparison-output/
+
 # Storybook
 storybook-static/

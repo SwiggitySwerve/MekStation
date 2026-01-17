@@ -28,6 +28,13 @@ import { ValidationStatus } from '@/utils/colors/statusColors';
 import { IArmorAllocation } from '@/stores/unitState';
 
 /**
+ * Standard front/rear armor distribution ratio (75/25 split)
+ * Must match ArmorFills.tsx for consistent UI/validation behavior
+ */
+const FRONT_ARMOR_RATIO = 0.75;
+const REAR_ARMOR_RATIO = 0.25;
+
+/**
  * Build per-location armor data based on mech configuration
  * Handles Biped, Quad, Tripod, LAM, and QuadVee configurations
  */
@@ -38,20 +45,36 @@ function buildArmorByLocation(
 ): IArmorByLocation {
   const armorByLocation: IArmorByLocation = {};
 
-  // Helper to add a location
+  // Helper to add a non-torso location with full max armor
   const addLocation = (key: string, displayName: string, locationKey: MechLocation | string, current: number) => {
     const max = getMaxArmorForLocation(tonnage, locationKey as string);
     armorByLocation[key] = { current, max, displayName };
   };
 
+  // Helper to add front torso location with expected max (75% of total torso max)
+  // This matches ArmorFills.tsx getTorsoFrontStatusColor calculation
+  const addFrontTorsoLocation = (key: string, displayName: string, torsoLocationKey: string, current: number) => {
+    const totalTorsoMax = getMaxArmorForLocation(tonnage, torsoLocationKey);
+    const expectedFrontMax = Math.round(totalTorsoMax * FRONT_ARMOR_RATIO);
+    armorByLocation[key] = { current, max: expectedFrontMax, displayName };
+  };
+
+  // Helper to add rear torso location with expected max (25% of total torso max)
+  // This matches ArmorFills.tsx getTorsoRearStatusColor calculation
+  const addRearTorsoLocation = (key: string, displayName: string, torsoLocationKey: string, current: number) => {
+    const totalTorsoMax = getMaxArmorForLocation(tonnage, torsoLocationKey);
+    const expectedRearMax = Math.round(totalTorsoMax * REAR_ARMOR_RATIO);
+    armorByLocation[key] = { current, max: expectedRearMax, displayName };
+  };
+
   // Universal locations (all configurations have these)
   addLocation('head', 'Head', 'head', allocation[MechLocation.HEAD] || 0);
-  addLocation('centerTorso', 'Center Torso', 'centerTorso', allocation[MechLocation.CENTER_TORSO] || 0);
-  addLocation('centerTorsoRear', 'Center Torso (Rear)', 'centerTorso', allocation.centerTorsoRear || 0);
-  addLocation('leftTorso', 'Left Torso', 'leftTorso', allocation[MechLocation.LEFT_TORSO] || 0);
-  addLocation('leftTorsoRear', 'Left Torso (Rear)', 'leftTorso', allocation.leftTorsoRear || 0);
-  addLocation('rightTorso', 'Right Torso', 'rightTorso', allocation[MechLocation.RIGHT_TORSO] || 0);
-  addLocation('rightTorsoRear', 'Right Torso (Rear)', 'rightTorso', allocation.rightTorsoRear || 0);
+  addFrontTorsoLocation('centerTorso', 'Center Torso', 'centerTorso', allocation[MechLocation.CENTER_TORSO] || 0);
+  addRearTorsoLocation('centerTorsoRear', 'Center Torso (Rear)', 'centerTorso', allocation.centerTorsoRear || 0);
+  addFrontTorsoLocation('leftTorso', 'Left Torso', 'leftTorso', allocation[MechLocation.LEFT_TORSO] || 0);
+  addRearTorsoLocation('leftTorsoRear', 'Left Torso (Rear)', 'leftTorso', allocation.leftTorsoRear || 0);
+  addFrontTorsoLocation('rightTorso', 'Right Torso', 'rightTorso', allocation[MechLocation.RIGHT_TORSO] || 0);
+  addRearTorsoLocation('rightTorsoRear', 'Right Torso (Rear)', 'rightTorso', allocation.rightTorsoRear || 0);
 
   // Configuration-specific limb locations
   if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {

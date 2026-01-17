@@ -257,10 +257,10 @@ describe('UniversalValidationRules', () => {
       expect(result.warnings).toHaveLength(0);
     });
 
-    it('should emit errors when any location has zero armor', () => {
+    it('should emit errors when armor is below 20% (critical)', () => {
       const armorByLocation = createFullArmorAllocation(10, 10);
-      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };
-      armorByLocation.centerTorso = { current: 0, max: 10, displayName: 'Center Torso' };
+      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };        // 0% - critical
+      armorByLocation.centerTorso = { current: 1, max: 10, displayName: 'Center Torso' }; // 10% - critical
       
       const unit = createBaseUnit({ 
         totalArmorPoints: 80,
@@ -270,11 +270,12 @@ describe('UniversalValidationRules', () => {
       expect(result.passed).toBe(false);
       expect(result.errors).toHaveLength(2);
       expect(result.errors[0].message).toContain('has no armor');
+      expect(result.errors[1].message).toContain('critical armor');
     });
 
-    it('should emit warnings when armor is below 50% of max', () => {
-      const armorByLocation = createFullArmorAllocation(10, 20); // 50% of max
-      armorByLocation.head = { current: 3, max: 9, displayName: 'Head' }; // Below 50%
+    it('should emit warnings when armor is between 20-40% (low)', () => {
+      const armorByLocation = createFullArmorAllocation(10, 20); // 50% - no warning
+      armorByLocation.head = { current: 3, max: 10, displayName: 'Head' }; // 30% - low, warning
       
       const unit = createBaseUnit({ 
         totalArmorPoints: 90,
@@ -285,6 +286,19 @@ describe('UniversalValidationRules', () => {
       expect(result.errors).toHaveLength(0);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0].message).toContain('has low armor');
+    });
+
+    it('should not warn when armor is at or above 40%', () => {
+      const armorByLocation = createFullArmorAllocation(4, 10); // 40% - no warning
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 44,
+        armorByLocation,
+      });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.warnings).toHaveLength(0);
     });
 
     it('should skip validation when armorByLocation is undefined', () => {
