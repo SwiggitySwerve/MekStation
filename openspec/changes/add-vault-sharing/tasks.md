@@ -3,35 +3,35 @@
 ## Phase 1: File-Based Sharing
 
 ### 1.1 Identity Foundation
-- [x] 1.1.1 Implement Ed25519 keypair generation
-- [x] 1.1.2 Implement secure key storage (encrypted at rest)
-- [x] 1.1.3 Implement friend code encoding/decoding
-- [x] 1.1.4 Create identity initialization flow (first launch)
-- [x] 1.1.5 Write tests for identity system
+- [ ] 1.1.1 Implement Ed25519 keypair generation
+- [ ] 1.1.2 Implement secure key storage (encrypted at rest)
+- [ ] 1.1.3 Implement friend code encoding/decoding
+- [ ] 1.1.4 Create identity initialization flow (first launch)
+- [ ] 1.1.5 Write tests for identity system
 
 ### 1.2 Export System
-- [x] 1.2.1 Define shareable bundle format (JSON + signature)
-- [x] 1.2.2 Implement unit export (single and batch)
-- [x] 1.2.3 Implement pilot export
-- [x] 1.2.4 Implement force export (with nested pilots/units)
-- [x] 1.2.5 Implement digital signature generation
-- [x] 1.2.6 Add metadata (author, timestamp, version)
-- [x] 1.2.7 Write tests for export
+- [ ] 1.2.1 Define shareable bundle format (JSON + signature)
+- [ ] 1.2.2 Implement unit export (single and batch)
+- [ ] 1.2.3 Implement pilot export
+- [ ] 1.2.4 Implement force export (with nested pilots/units)
+- [ ] 1.2.5 Implement digital signature generation
+- [ ] 1.2.6 Add metadata (author, timestamp, version)
+- [ ] 1.2.7 Write tests for export
 
 ### 1.3 Import System
-- [x] 1.3.1 Implement bundle parsing and validation
-- [x] 1.3.2 Implement signature verification
-- [x] 1.3.3 Implement conflict detection (duplicate IDs)
-- [x] 1.3.4 Implement import with ID remapping
-- [x] 1.3.5 Add "Imported" source tracking
-- [x] 1.3.6 Write tests for import
+- [ ] 1.3.1 Implement bundle parsing and validation
+- [ ] 1.3.2 Implement signature verification
+- [ ] 1.3.3 Implement conflict detection (duplicate IDs)
+- [ ] 1.3.4 Implement import with ID remapping
+- [ ] 1.3.5 Add "Imported" source tracking
+- [ ] 1.3.6 Write tests for import
 
 ### 1.4 Export/Import UI
-- [x] 1.4.1 Add "Export" option to unit/pilot/force context menus
-- [x] 1.4.2 Create export dialog (select items, options)
-- [x] 1.4.3 Create import dialog (file picker, preview, confirm)
-- [x] 1.4.4 Show import results (success, conflicts, errors)
-- [x] 1.4.5 Add "Imported Items" filter to lists
+- [ ] 1.4.1 Add "Export" option to unit/pilot/force context menus
+- [ ] 1.4.2 Create export dialog (select items, options)
+- [ ] 1.4.3 Create import dialog (file picker, preview, confirm)
+- [ ] 1.4.4 Show import results (success, conflicts, errors)
+- [ ] 1.4.5 Add "Imported Items" filter to lists
 
 ## Phase 2: Link-Based Sharing
 
