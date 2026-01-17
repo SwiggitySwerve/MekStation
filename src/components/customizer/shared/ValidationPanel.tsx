@@ -7,21 +7,21 @@
 
 import React, { useState, useMemo } from 'react';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { IUnitValidationResult, UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
+import { IUnitValidationResult, IUnitValidationError, UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import { getTabForCategory, getTabLabel } from '@/utils/validation/validationNavigation';
+import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface ValidationPanelProps {
-  /** Validation state from useUnitValidation hook */
   validation: UnitValidationState;
-  /** Whether the panel is collapsed by default */
   defaultCollapsed?: boolean;
-  /** Maximum height before scrolling */
   maxHeight?: string;
-  /** Additional CSS classes */
   className?: string;
+  onNavigate?: (tabId: CustomizerTabId) => void;
 }
 
 interface ValidationMessage {
@@ -30,6 +30,10 @@ interface ValidationMessage {
   message: string;
   details?: string;
   ruleId?: string;
+  category: ValidationCategory;
+  targetTab: CustomizerTabId;
+  targetTabLabel: string;
+  originalError: IUnitValidationError;
 }
 
 // =============================================================================
@@ -49,47 +53,40 @@ function mapSeverity(severity: UnitValidationSeverity): 'error' | 'warning' | 'i
   }
 }
 
+function createMessageFromError(error: IUnitValidationError, index: number, severity: 'error' | 'warning' | 'info'): ValidationMessage {
+  const targetTab = getTabForCategory(error.category);
+  return {
+    id: `${error.ruleId}-${index}`,
+    severity,
+    message: error.message,
+    details: error.details ? JSON.stringify(error.details) : undefined,
+    ruleId: error.ruleId,
+    category: error.category,
+    targetTab,
+    targetTabLabel: getTabLabel(targetTab),
+    originalError: error,
+  };
+}
+
 function extractMessages(result: IUnitValidationResult | null): ValidationMessage[] {
   if (!result) return [];
   
   const messages: ValidationMessage[] = [];
   
   for (const ruleResult of result.results) {
-    // Add errors
     for (const error of ruleResult.errors) {
-      messages.push({
-        id: `${error.ruleId}-${messages.length}`,
-        severity: mapSeverity(error.severity),
-        message: error.message,
-        details: error.details ? JSON.stringify(error.details) : undefined,
-        ruleId: error.ruleId,
-      });
+      messages.push(createMessageFromError(error, messages.length, mapSeverity(error.severity)));
     }
     
-    // Add warnings
     for (const warning of ruleResult.warnings) {
-      messages.push({
-        id: `${warning.ruleId}-${messages.length}`,
-        severity: 'warning',
-        message: warning.message,
-        details: warning.details ? JSON.stringify(warning.details) : undefined,
-        ruleId: warning.ruleId,
-      });
+      messages.push(createMessageFromError(warning, messages.length, 'warning'));
     }
     
-    // Add infos (optional - usually less important)
     for (const info of ruleResult.infos) {
-      messages.push({
-        id: `${info.ruleId}-${messages.length}`,
-        severity: 'info',
-        message: info.message,
-        details: info.details ? JSON.stringify(info.details) : undefined,
-        ruleId: info.ruleId,
-      });
+      messages.push(createMessageFromError(info, messages.length, 'info'));
     }
   }
   
-  // Sort by severity (errors first, then warnings, then info)
   const severityOrder = { error: 0, warning: 1, info: 2 };
   messages.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
   
@@ -133,6 +130,7 @@ export function ValidationPanel({
   defaultCollapsed = false,
   maxHeight = '200px',
   className = '',
+  onNavigate,
 }: ValidationPanelProps): React.ReactElement | null {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   
@@ -202,10 +200,21 @@ export function ValidationPanel({
           <ul className="divide-y divide-border-theme">
             {messages.map((msg) => {
               const style = severityStyles[msg.severity];
+              const isClickable = !!onNavigate;
+              
               return (
                 <li
                   key={msg.id}
-                  className={`flex items-start gap-2 px-3 py-2 ${style.bg}`}
+                  className={`flex items-start gap-2 px-3 py-2 ${style.bg} ${isClickable ? 'cursor-pointer hover:brightness-110 transition-all' : ''}`}
+                  onClick={isClickable ? () => onNavigate(msg.targetTab) : undefined}
+                  role={isClickable ? 'button' : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={isClickable ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onNavigate(msg.targetTab);
+                    }
+                  } : undefined}
                 >
                   <span className={`flex-shrink-0 ${style.iconColor}`}>
                     {style.icon}
@@ -214,9 +223,9 @@ export function ValidationPanel({
                     <p className={`text-sm ${style.text}`}>
                       {msg.message}
                     </p>
-                    {msg.details && (
-                      <p className="text-xs text-slate-500 mt-0.5 truncate">
-                        {msg.details}
+                    {isClickable && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Go to {msg.targetTabLabel} →
                       </p>
                     )}
                   </div>

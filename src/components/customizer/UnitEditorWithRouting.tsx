@@ -19,6 +19,8 @@ import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
+import { useValidationNavigation } from '@/hooks/useValidationNavigation';
+import { useValidationToast } from '@/hooks/useValidationToast';
 import { CustomizerTabId, VALID_TAB_IDS } from '@/hooks/useCustomizerRouter';
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { usePersistedState, STORAGE_KEYS } from '@/hooks/usePersistedState';
@@ -209,6 +211,8 @@ export function UnitEditorWithRouting({
 
   // Get real-time validation results
   const validation = useUnitValidation();
+  const validationNav = useValidationNavigation(validation);
+  useValidationToast(validation, { onNavigate: onTabChange });
   
   // Calculate armor stats for display
   const allocatedArmorPoints = useMemo(
@@ -632,8 +636,16 @@ export function UnitEditorWithRouting({
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
       <div className="p-2 bg-surface-deep border-b border-border-theme flex-shrink-0 space-y-2">
-        <UnitInfoBanner stats={unitStats} />
-        <ValidationPanel validation={validation} defaultCollapsed={false} />
+        <UnitInfoBanner
+          stats={unitStats}
+          validation={validation}
+          onValidationNavigate={handleTabChange}
+        />
+        <ValidationPanel
+          validation={validation}
+          defaultCollapsed={false}
+          onNavigate={handleTabChange}
+        />
       </div>
       
       {/* Main content area with tray */}
@@ -646,6 +658,7 @@ export function UnitEditorWithRouting({
               tabs={DEFAULT_CUSTOMIZER_TABS}
               activeTab={activeTabId}
               onTabChange={handleTabChange}
+              validationCounts={validationNav.errorsByTab}
             />
           </div>
           

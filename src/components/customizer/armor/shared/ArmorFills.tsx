@@ -10,10 +10,10 @@ import React from 'react';
  * Status thresholds for armor coloring
  */
 export const ARMOR_STATUS = {
-  HEALTHY: { min: 0.75, color: '#22c55e' },    // green-500
-  MODERATE: { min: 0.5, color: '#f59e0b' },    // amber-500
-  LOW: { min: 0.25, color: '#f97316' },        // orange-500
-  CRITICAL: { min: 0, color: '#ef4444' },      // red-500
+  HEALTHY: { min: 0.6, color: '#22c55e' },     // green-500  (≥60%)
+  MODERATE: { min: 0.4, color: '#f59e0b' },    // amber-500  (≥40%)
+  LOW: { min: 0.2, color: '#f97316' },         // orange-500 (≥20%)
+  CRITICAL: { min: 0, color: '#ef4444' },      // red-500    (<20%)
 } as const;
 
 export const SELECTED_COLOR = '#3b82f6';        // blue-500
@@ -46,9 +46,9 @@ export function getMegaMekStatusColor(current: number, maximum: number): string 
   if (maximum === 0) return MEGAMEK_COLORS.CRITICAL;
   const ratio = current / maximum;
 
-  if (ratio >= 0.75) return MEGAMEK_COLORS.HEALTHY;
-  if (ratio >= 0.5) return MEGAMEK_COLORS.MODERATE;
-  if (ratio >= 0.25) return MEGAMEK_COLORS.LOW;
+  if (ratio >= ARMOR_STATUS.HEALTHY.min) return MEGAMEK_COLORS.HEALTHY;
+  if (ratio >= ARMOR_STATUS.MODERATE.min) return MEGAMEK_COLORS.MODERATE;
+  if (ratio >= ARMOR_STATUS.LOW.min) return MEGAMEK_COLORS.LOW;
   return MEGAMEK_COLORS.CRITICAL;
 }
 
@@ -285,9 +285,9 @@ export function getArmorGradientId(current: number, maximum: number, isSelected:
   if (maximum === 0) return 'url(#armor-gradient-critical)';
 
   const ratio = current / maximum;
-  if (ratio >= 0.75) return 'url(#armor-gradient-healthy)';
-  if (ratio >= 0.5) return 'url(#armor-gradient-moderate)';
-  if (ratio >= 0.25) return 'url(#armor-gradient-low)';
+  if (ratio >= ARMOR_STATUS.HEALTHY.min) return 'url(#armor-gradient-healthy)';
+  if (ratio >= ARMOR_STATUS.MODERATE.min) return 'url(#armor-gradient-moderate)';
+  if (ratio >= ARMOR_STATUS.LOW.min) return 'url(#armor-gradient-low)';
   return 'url(#armor-gradient-critical)';
 }
 

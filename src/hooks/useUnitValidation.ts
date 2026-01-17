@@ -9,18 +9,74 @@
 
 import { useMemo, useEffect, useRef } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
+import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
 import { initializeUnitValidationRules, areRulesInitialized } from '@/services/validation/initializeUnitValidation';
+import { getMaxTotalArmor, getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 import {
   IValidatableUnit,
   IUnitValidationResult,
   UnitValidationSeverity,
   IUnitValidationOptions,
+  IArmorByLocation,
 } from '@/types/validation/UnitValidationInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { UnitType, MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel, Era, getEraForYear } from '@/types/enums';
 import { ValidationStatus } from '@/utils/colors/statusColors';
+import { IArmorAllocation } from '@/stores/unitState';
+
+/**
+ * Build per-location armor data based on mech configuration
+ * Handles Biped, Quad, Tripod, LAM, and QuadVee configurations
+ */
+function buildArmorByLocation(
+  allocation: IArmorAllocation,
+  tonnage: number,
+  configuration?: MechConfiguration
+): IArmorByLocation {
+  const armorByLocation: IArmorByLocation = {};
+
+  // Helper to add a location
+  const addLocation = (key: string, displayName: string, locationKey: MechLocation | string, current: number) => {
+    const max = getMaxArmorForLocation(tonnage, locationKey as string);
+    armorByLocation[key] = { current, max, displayName };
+  };
+
+  // Universal locations (all configurations have these)
+  addLocation('head', 'Head', 'head', allocation[MechLocation.HEAD] || 0);
+  addLocation('centerTorso', 'Center Torso', 'centerTorso', allocation[MechLocation.CENTER_TORSO] || 0);
+  addLocation('centerTorsoRear', 'Center Torso (Rear)', 'centerTorso', allocation.centerTorsoRear || 0);
+  addLocation('leftTorso', 'Left Torso', 'leftTorso', allocation[MechLocation.LEFT_TORSO] || 0);
+  addLocation('leftTorsoRear', 'Left Torso (Rear)', 'leftTorso', allocation.leftTorsoRear || 0);
+  addLocation('rightTorso', 'Right Torso', 'rightTorso', allocation[MechLocation.RIGHT_TORSO] || 0);
+  addLocation('rightTorsoRear', 'Right Torso (Rear)', 'rightTorso', allocation.rightTorsoRear || 0);
+
+  // Configuration-specific limb locations
+  if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {
+    // Quad mechs have 4 legs, no arms
+    addLocation('frontLeftLeg', 'Front Left Leg', MechLocation.FRONT_LEFT_LEG, allocation[MechLocation.FRONT_LEFT_LEG] || 0);
+    addLocation('frontRightLeg', 'Front Right Leg', MechLocation.FRONT_RIGHT_LEG, allocation[MechLocation.FRONT_RIGHT_LEG] || 0);
+    addLocation('rearLeftLeg', 'Rear Left Leg', MechLocation.REAR_LEFT_LEG, allocation[MechLocation.REAR_LEFT_LEG] || 0);
+    addLocation('rearRightLeg', 'Rear Right Leg', MechLocation.REAR_RIGHT_LEG, allocation[MechLocation.REAR_RIGHT_LEG] || 0);
+  } else if (configuration === MechConfiguration.TRIPOD) {
+    // Tripod has arms + 3 legs (including center leg)
+    addLocation('leftArm', 'Left Arm', 'leftArm', allocation[MechLocation.LEFT_ARM] || 0);
+    addLocation('rightArm', 'Right Arm', 'rightArm', allocation[MechLocation.RIGHT_ARM] || 0);
+    addLocation('leftLeg', 'Left Leg', 'leftLeg', allocation[MechLocation.LEFT_LEG] || 0);
+    addLocation('rightLeg', 'Right Leg', 'rightLeg', allocation[MechLocation.RIGHT_LEG] || 0);
+    addLocation('centerLeg', 'Center Leg', MechLocation.CENTER_LEG, allocation[MechLocation.CENTER_LEG] || 0);
+  } else {
+    // Biped/LAM/default: standard arms + legs
+    addLocation('leftArm', 'Left Arm', 'leftArm', allocation[MechLocation.LEFT_ARM] || 0);
+    addLocation('rightArm', 'Right Arm', 'rightArm', allocation[MechLocation.RIGHT_ARM] || 0);
+    addLocation('leftLeg', 'Left Leg', 'leftLeg', allocation[MechLocation.LEFT_LEG] || 0);
+    addLocation('rightLeg', 'Right Leg', 'rightLeg', allocation[MechLocation.RIGHT_LEG] || 0);
+  }
+
+  return armorByLocation;
+}
 
 /**
  * Validation results formatted for UI consumption
@@ -121,6 +177,12 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
+  const armorAllocation = useUnitStore((s) => s.armorAllocation);
+  const configuration = useUnitStore((s) => s.configuration);
+
+  // Compute total armor points outside useMemo to ensure reactivity
+  // This primitive value will definitely trigger re-renders when armor changes
+  const totalArmorPointsComputed = getTotalAllocatedArmor(armorAllocation, configuration);
 
   // Derive era from year using the era utility function
   const era = year ? getEraForYear(year) : Era.DARK_AGE;
@@ -150,6 +212,15 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       initializeUnitValidationRules();
     }
 
+    // Use the pre-computed total for reactivity (computed outside useMemo)
+    const totalArmorPoints = totalArmorPointsComputed;
+    const maxArmorPoints = getMaxTotalArmor(tonnage || 20, configuration);
+    const effectiveTonnage = tonnage || 20;
+
+    // Build per-location armor data for detailed validation
+    // Handles all mech configurations: Biped, Quad, Tripod, LAM, QuadVee
+    const armorByLocation = buildArmorByLocation(armorAllocation, effectiveTonnage, configuration);
+
     // Build validatable unit from store state
     const validatableUnit: IValidatableUnit = {
       id: id || 'new-unit',
@@ -163,13 +234,15 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       weight: tonnage || 0,
       cost,
       battleValue,
-      // Mech component fields
       engineType,
       gyroType,
       cockpitType,
       internalStructureType,
       heatSinkCount,
       heatSinkType,
+      totalArmorPoints,
+      maxArmorPoints,
+      armorByLocation,
     };
 
     try {
@@ -241,6 +314,9 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     internalStructureType,
     heatSinkCount,
     heatSinkType,
+    armorAllocation,
+    configuration,
+    totalArmorPointsComputed,
     options?.disabled,
     options?.campaignYear,
     options?.rulesLevelFilter,

@@ -254,18 +254,16 @@ function calculateBipedArmorAllocation(availablePoints: number, tonnage: number)
     break;
   }
   
+  // MegaMekLab uses 75% front / 25% rear for ALL torsos (CT, LT, RT)
   const REAR_RATIO = 0.25;
   const ctRear = Math.round(ct * REAR_RATIO);
   const ctFront = ct - ctRear;
   
-  let ltRear = 0, ltFront = lt;
-  let rtRear = 0, rtFront = rt;
-  if (lt > maxLT * 0.4) {
-    ltRear = Math.round(lt * REAR_RATIO);
-    ltFront = lt - ltRear;
-    rtRear = ltRear;
-    rtFront = rt - rtRear;
-  }
+  // Side torsos always get 25% rear, same as center torso (matching MegaMekLab)
+  const ltRear = Math.round(lt * REAR_RATIO);
+  const ltFront = lt - ltRear;
+  const rtRear = ltRear;
+  const rtFront = rt - rtRear;
   
   allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + la + ra + ll + rl;
   
@@ -324,14 +322,10 @@ function calculateQuadArmorAllocation(availablePoints: number, tonnage: number):
   const ctRear = Math.round(ct * REAR_RATIO);
   const ctFront = ct - ctRear;
   
-  let ltRear = 0, ltFront = lt;
-  let rtRear = 0, rtFront = rt;
-  if (lt > maxLT * 0.4) {
-    ltRear = Math.round(lt * REAR_RATIO);
-    ltFront = lt - ltRear;
-    rtRear = ltRear;
-    rtFront = rt - rtRear;
-  }
+  const ltRear = Math.round(lt * REAR_RATIO);
+  const ltFront = lt - ltRear;
+  const rtRear = ltRear;
+  const rtFront = rt - rtRear;
   
   allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + fll + frl + rll + rrl;
   
@@ -393,14 +387,10 @@ function calculateTripodArmorAllocation(availablePoints: number, tonnage: number
   const ctRear = Math.round(ct * REAR_RATIO);
   const ctFront = ct - ctRear;
   
-  let ltRear = 0, ltFront = lt;
-  let rtRear = 0, rtFront = rt;
-  if (lt > maxLT * 0.4) {
-    ltRear = Math.round(lt * REAR_RATIO);
-    ltFront = lt - ltRear;
-    rtRear = ltRear;
-    rtFront = rt - rtRear;
-  }
+  const ltRear = Math.round(lt * REAR_RATIO);
+  const ltFront = lt - ltRear;
+  const rtRear = ltRear;
+  const rtFront = rt - rtRear;
   
   allocated = head + ctFront + ctRear + ltFront + ltRear + rtFront + rtRear + la + ra + ll + rl + cl;
   

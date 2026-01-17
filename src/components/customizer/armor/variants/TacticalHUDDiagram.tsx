@@ -25,6 +25,7 @@ import {
   getTorsoFrontStatusColor,
   getTorsoRearStatusColor,
   darkenColor,
+  ARMOR_STATUS,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
@@ -556,19 +557,19 @@ export function TacticalHUDDiagram({
       <div className="flex justify-center gap-3 mt-3 text-xs font-mono">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
-          <span className="text-text-theme-muted">75%+</span>
+          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-          <span className="text-text-theme-muted">50%+</span>
+          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
-          <span className="text-text-theme-muted">25%+</span>
+          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm bg-red-500" />
-          <span className="text-text-theme-muted">&lt;25%</span>
+          <span className="text-text-theme-muted">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
         </div>
       </div>
 

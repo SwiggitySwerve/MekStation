@@ -519,6 +519,82 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
 };
 
 /**
+ * VAL-UNIV-013: Per-Location Armor Validation
+ * ERROR: Any location with 0 armor
+ * WARNING: Locations with armor below 50% of maximum
+ */
+export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
+  id: 'VAL-UNIV-013',
+  name: 'Armor Allocation Validation',
+  description: 'Validate armor is allocated to all locations',
+  category: ValidationCategory.ARMOR,
+  priority: 13,
+  applicableUnitTypes: 'ALL',
+
+  canValidate(context: IUnitValidationContext): boolean {
+    return context.unit.armorByLocation !== undefined;
+  },
+
+  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
+    const { unit } = context;
+    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+    const warnings: ReturnType<typeof createUnitValidationError>[] = [];
+
+    if (!unit.armorByLocation) {
+      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    }
+
+    const armor = unit.armorByLocation;
+    const LOW_ARMOR_THRESHOLD = 0.5; // 50% of max
+
+    // Check each location - uses displayName from the armor entry
+    // This supports all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)
+    for (const [locationKey, locationArmor] of Object.entries(armor)) {
+      const displayName = locationArmor.displayName || locationKey;
+      
+      // ERROR: Location has 0 armor
+      if (locationArmor.current === 0) {
+        errors.push(
+          createUnitValidationError(
+            this.id,
+            this.name,
+            UnitValidationSeverity.ERROR,
+            this.category,
+            `${displayName} has no armor - will be destroyed on first hit`,
+            {
+              field: `armorAllocation.${locationKey}`,
+              expected: '> 0',
+              actual: '0',
+              suggestion: `Allocate armor to ${displayName} in the Armor tab`,
+            }
+          )
+        );
+      }
+      // WARNING: Location has low armor (below 50% of max)
+      else if (locationArmor.max > 0 && locationArmor.current < locationArmor.max * LOW_ARMOR_THRESHOLD) {
+        warnings.push(
+          createUnitValidationError(
+            this.id,
+            this.name,
+            UnitValidationSeverity.WARNING,
+            this.category,
+            `${displayName} has low armor (${locationArmor.current}/${locationArmor.max})`,
+            {
+              field: `armorAllocation.${locationKey}`,
+              expected: `>= ${Math.ceil(locationArmor.max * LOW_ARMOR_THRESHOLD)}`,
+              actual: String(locationArmor.current),
+              suggestion: `Consider adding more armor to ${displayName}`,
+            }
+          )
+        );
+      }
+    }
+
+    return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+  },
+};
+
+/**
  * All universal validation rules
  */
 export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[] = [
@@ -534,4 +610,8 @@ export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[
   BattleValueNonNegative,
   EraAvailability,
   RulesLevelCompliance,
+  ArmorAllocationValidation,
 ];
+
+// Backwards compatibility alias
+export const ArmorAllocationWarning = ArmorAllocationValidation;

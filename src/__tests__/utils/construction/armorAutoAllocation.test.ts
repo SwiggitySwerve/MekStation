@@ -15,14 +15,14 @@ describe('calculateOptimalArmorAllocation', () => {
     it('should allocate 32 points (2 tons) matching MegaMekLab pattern', () => {
       const result = calculateOptimalArmorAllocation(32, 50);
       
-      // Expected: Head=8, CT=3+1=4, LT/RT=5 each, LA/RA=2 each, LL/RL=3 each
+      // Head=8, CT=3+1=4, LT/RT=4+1=5 each (75/25 split), LA/RA=2 each, LL/RL=3 each
       expect(result.head).toBe(8);
       expect(result.centerTorsoFront).toBe(3);
       expect(result.centerTorsoRear).toBe(1);
-      expect(result.leftTorsoFront).toBe(5);
-      expect(result.rightTorsoFront).toBe(5);
-      expect(result.leftTorsoRear).toBe(0);
-      expect(result.rightTorsoRear).toBe(0);
+      expect(result.leftTorsoFront).toBe(4);
+      expect(result.rightTorsoFront).toBe(4);
+      expect(result.leftTorsoRear).toBe(1);
+      expect(result.rightTorsoRear).toBe(1);
       expect(result.leftArm).toBe(2);
       expect(result.rightArm).toBe(2);
       expect(result.leftLeg).toBe(3);
@@ -235,12 +235,17 @@ describe('calculateOptimalArmorAllocation', () => {
       expect(frontRatio).toBeLessThanOrEqual(0.9);
     });
 
-    it('should have all front for side torsos at low armor levels', () => {
+    it('should have 75/25 split for side torsos at all armor levels (matching MegaMekLab)', () => {
       const result = calculateOptimalArmorAllocation(32, 50);
       
-      // At low levels, side torso rear should be 0
-      expect(result.leftTorsoRear).toBe(0);
-      expect(result.rightTorsoRear).toBe(0);
+      // Side torsos always get 25% rear, same as CT (MegaMekLab behavior)
+      const ltTotal = result.leftTorsoFront + result.leftTorsoRear;
+      const rtTotal = result.rightTorsoFront + result.rightTorsoRear;
+      
+      if (ltTotal > 0) {
+        expect(result.leftTorsoRear).toBe(Math.round(ltTotal * 0.25));
+        expect(result.rightTorsoRear).toBe(Math.round(rtTotal * 0.25));
+      }
     });
   });
 });

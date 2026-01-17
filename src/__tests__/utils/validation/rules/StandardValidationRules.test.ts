@@ -10,6 +10,7 @@ import {
   TotalSlotsRule,
   MinimumHeatSinksRule,
   ArmorMaximumRule,
+  ArmorLevelRule,
   EngineRatingRule,
   TechBaseCompatibilityRule,
   EraAvailabilityRule,
@@ -453,9 +454,9 @@ describe('Standard Validation Rules', () => {
       expect(rules).toContain(EraAvailabilityRule);
     });
 
-    it('should return 8 rules', () => {
+    it('should return 9 rules', () => {
       const rules = getStandardValidationRules();
-      expect(rules).toHaveLength(8);
+      expect(rules).toHaveLength(9);
     });
   });
 
@@ -466,8 +467,9 @@ describe('Standard Validation Rules', () => {
       
       registerStandardRules(mockRegistry);
       
-      expect(mockRegister).toHaveBeenCalledTimes(8);
+      expect(mockRegister).toHaveBeenCalledTimes(9);
       expect(mockRegister).toHaveBeenCalledWith(TotalWeightRule);
+      expect(mockRegister).toHaveBeenCalledWith(ArmorLevelRule);
       expect(mockRegister).toHaveBeenCalledWith(EngineRatingRule);
     });
   });

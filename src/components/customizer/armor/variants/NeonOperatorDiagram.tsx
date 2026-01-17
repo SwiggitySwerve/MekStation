@@ -25,6 +25,7 @@ import {
   getTorsoRearStatusColor,
   lightenColor,
   SELECTED_COLOR,
+  ARMOR_STATUS,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
@@ -493,19 +494,19 @@ export function NeonOperatorDiagram({
       <div className="flex justify-center items-center gap-3 mt-4 text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #22c55e' }} />
-          <span className="text-text-theme-secondary">75%+</span>
+          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500" style={{ boxShadow: '0 0 6px #f59e0b' }} />
-          <span className="text-text-theme-secondary">50%+</span>
+          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-500" style={{ boxShadow: '0 0 6px #f97316' }} />
-          <span className="text-text-theme-secondary">25%+</span>
+          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px #ef4444' }} />
-          <span className="text-text-theme-secondary">&lt;25%</span>
+          <span className="text-text-theme-secondary">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
         </div>
         <div className="w-px h-3 bg-surface-raised" />
         <span className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}>

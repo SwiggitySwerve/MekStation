@@ -10,6 +10,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { ValidationTabBadge } from '@/components/customizer/shared/ValidationTabBadge';
+import { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
 
 /**
  * Customizer tab configuration
@@ -26,16 +28,12 @@ export interface CustomizerTabConfig {
 }
 
 interface CustomizerTabsProps {
-  /** Tab configurations */
   tabs: CustomizerTabConfig[];
-  /** Currently active tab ID */
   activeTab: string;
-  /** Called when tab changes */
   onTabChange: (tabId: string) => void;
-  /** Read-only mode */
   readOnly?: boolean;
-  /** Additional CSS classes */
   className?: string;
+  validationCounts?: ValidationCountsByTab;
 }
 
 // Simple SVG icons for mobile view
@@ -110,6 +108,7 @@ export function CustomizerTabs({
   onTabChange,
   readOnly = false,
   className = '',
+  validationCounts,
 }: CustomizerTabsProps): React.ReactElement {
   const handleKeyDown = useTabKeyboardNavigation(tabs, activeTab, onTabChange);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -178,6 +177,12 @@ export function CustomizerTabs({
           >
             {tab.icon}
             <span className="hidden sm:inline">{tab.label}</span>
+            {validationCounts && (
+              <ValidationTabBadge
+                counts={validationCounts[tab.id as keyof ValidationCountsByTab] ?? { errors: 0, warnings: 0, infos: 0 }}
+                className="ml-1"
+              />
+            )}
           </button>
         ))}
       </div>
