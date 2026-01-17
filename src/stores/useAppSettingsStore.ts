@@ -21,8 +21,7 @@ export type ArmorDiagramVariant =
   | 'neon-operator'
   | 'tactical-hud'
   | 'premium-material'
-  | 'megamek'
-  | 'megamek-classic';
+  | 'megamek';
 
 /**
  * Global UI theme variants
@@ -82,7 +81,8 @@ export interface AppSettingsState {
 
   // Draft appearance for live preview (not persisted)
   draftAppearance: AppearanceSettings | null;
-  hasUnsavedAppearance: boolean;
+  hasUnsavedUITheme: boolean;
+  hasUnsavedOtherAppearance: boolean;
 
   // Customizer preferences
   armorDiagramMode: ArmorDiagramMode;
@@ -115,7 +115,8 @@ export interface AppSettingsState {
   setDraftAnimationLevel: (level: AnimationLevel) => void;
   setDraftCompactMode: (compact: boolean) => void;
   setDraftUITheme: (theme: UITheme) => void;
-  saveAppearance: () => void;
+  saveUITheme: () => void;
+  saveOtherAppearance: () => void;
   revertAppearance: () => void;
   initDraftAppearance: () => void;
 
@@ -151,7 +152,7 @@ export interface AppSettingsState {
 type ActionKeys =
   | 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme'
   | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
-  | 'saveAppearance' | 'revertAppearance' | 'initDraftAppearance'
+  | 'saveUITheme' | 'saveOtherAppearance' | 'revertAppearance' | 'initDraftAppearance'
   | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
   | 'setDraftArmorDiagramMode' | 'setDraftArmorDiagramVariant'
   | 'saveCustomizer' | 'revertCustomizer' | 'initDraftCustomizer'
@@ -169,7 +170,8 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
 
   // Draft state (not persisted)
   draftAppearance: null,
-  hasUnsavedAppearance: false,
+  hasUnsavedUITheme: false,
+  hasUnsavedOtherAppearance: false,
 
   // Customizer preferences
   armorDiagramMode: 'silhouette',
@@ -218,7 +220,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           accentColor: color,
         },
-        hasUnsavedAppearance: true,
+        hasUnsavedOtherAppearance: true,
       })),
 
       setDraftFontSize: (size) => set((state) => ({
@@ -232,7 +234,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           fontSize: size,
         },
-        hasUnsavedAppearance: true,
+        hasUnsavedOtherAppearance: true,
       })),
 
       setDraftAnimationLevel: (level) => set((state) => ({
@@ -246,7 +248,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           animationLevel: level,
         },
-        hasUnsavedAppearance: true,
+        hasUnsavedOtherAppearance: true,
       })),
 
       setDraftCompactMode: (compact) => set((state) => ({
@@ -260,10 +262,10 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           compactMode: compact,
         },
-        hasUnsavedAppearance: true,
+        hasUnsavedOtherAppearance: true,
       })),
 
-      // Draft UITheme changes independently of ArmorDiagramVariant
+      // Draft UITheme - tracked separately from other appearance settings
       setDraftUITheme: (theme) => set((state) => ({
         draftAppearance: {
           ...(state.draftAppearance ?? {
@@ -275,7 +277,7 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           }),
           uiTheme: theme,
         },
-        hasUnsavedAppearance: true,
+        hasUnsavedUITheme: true,
       })),
 
       // Initialize draft with current saved values (call when entering settings)
@@ -287,19 +289,28 @@ export const useAppSettingsStore = create<AppSettingsState>()(
           compactMode: state.compactMode,
           uiTheme: state.uiTheme,
         },
-        hasUnsavedAppearance: false,
+        hasUnsavedUITheme: false,
+        hasUnsavedOtherAppearance: false,
       })),
 
-      // Save draft to persisted state
-      saveAppearance: () => set((state) => {
+      // Save UI Theme only (separate from other appearance settings)
+      saveUITheme: () => set((state) => {
+        if (!state.draftAppearance) return state;
+        return {
+          uiTheme: state.draftAppearance.uiTheme,
+          hasUnsavedUITheme: false,
+        };
+      }),
+
+      // Save other appearance settings (accent, font, animation, compact) - NOT theme
+      saveOtherAppearance: () => set((state) => {
         if (!state.draftAppearance) return state;
         return {
           accentColor: state.draftAppearance.accentColor,
           fontSize: state.draftAppearance.fontSize,
           animationLevel: state.draftAppearance.animationLevel,
           compactMode: state.draftAppearance.compactMode,
-          uiTheme: state.draftAppearance.uiTheme,
-          hasUnsavedAppearance: false,
+          hasUnsavedOtherAppearance: false,
         };
       }),
 
@@ -307,7 +318,8 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       // ArmorDiagramVariant is independent and not affected by appearance revert
       revertAppearance: () => set({
         draftAppearance: null,
-        hasUnsavedAppearance: false,
+        hasUnsavedUITheme: false,
+        hasUnsavedOtherAppearance: false,
       }),
 
       // Getters for effective appearance (draft if exists, otherwise saved)
@@ -392,7 +404,8 @@ export const useAppSettingsStore = create<AppSettingsState>()(
       resetToDefaults: () => set({
         ...DEFAULT_SETTINGS,
         draftAppearance: null,
-        hasUnsavedAppearance: false,
+        hasUnsavedUITheme: false,
+        hasUnsavedOtherAppearance: false,
         draftCustomizer: null,
         hasUnsavedCustomizer: false,
       }),

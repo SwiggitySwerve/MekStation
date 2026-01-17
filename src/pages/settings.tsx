@@ -9,7 +9,7 @@
  * - Navigating away without saving reverts to previous values
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { PageLayout } from '@/components/ui/PageLayout';
@@ -25,24 +25,171 @@ import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiag
 import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
 
 /**
- * Settings section wrapper
+ * Section configuration for navigation and state
  */
-function SettingsSection({
-  title,
-  description,
-  children,
-}: {
+type SectionId = 'appearance' | 'customizer' | 'ui-behavior' | 'accessibility' | 'reset';
+
+interface SectionConfig {
+  id: SectionId;
   title: string;
   description?: string;
+  icon: React.ReactNode;
+}
+
+const SECTIONS: SectionConfig[] = [
+  {
+    id: 'appearance',
+    title: 'Appearance',
+    description: 'Customize colors, fonts, and visual effects. Changes preview instantly but require saving.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'customizer',
+    title: 'Customizer',
+    description: 'Configure the mech customizer interface',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'ui-behavior',
+    title: 'UI Behavior',
+    description: 'Control how the interface behaves',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+      </svg>
+    ),
+  },
+  {
+    id: 'accessibility',
+    title: 'Accessibility',
+    description: 'Options for better accessibility',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'reset',
+    title: 'Reset',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+    ),
+  },
+];
+
+/**
+ * Quick navigation tags using URL hash anchors
+ */
+function QuickNavigation({
+  activeSection,
+  onNavigate,
+}: {
+  activeSection: SectionId | null;
+  onNavigate: (sectionId: SectionId) => void;
+}) {
+  return (
+    <div className="sticky top-0 z-10 bg-surface-deep/95 backdrop-blur-sm border-b border-border-theme-subtle -mx-4 px-4 py-3 mb-4">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-text-theme-muted mr-1">Jump to:</span>
+        {SECTIONS.map((section) => {
+          const isActive = activeSection === section.id;
+          return (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate(section.id);
+              }}
+              className={`
+                inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md
+                transition-all duration-150 no-underline
+                ${isActive
+                  ? 'bg-accent/20 text-accent border border-accent/30'
+                  : 'bg-surface-raised/50 text-text-theme-secondary border border-border-theme-subtle hover:bg-surface-raised hover:text-text-theme-primary hover:border-border-theme'
+                }
+              `}
+            >
+              {section.icon}
+              {section.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Collapsible settings section wrapper
+ */
+function SettingsSection({
+  id,
+  title,
+  description,
+  isExpanded,
+  onToggle,
+  onRef,
+  children,
+}: {
+  id: SectionId;
+  title: string;
+  description?: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onRef?: (el: HTMLDivElement | null) => void;
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-surface-base/50 rounded-lg border border-border-theme-subtle p-5">
-      <h3 className="text-lg font-semibold text-text-theme-primary mb-1">{title}</h3>
-      {description && (
-        <p className="text-sm text-text-theme-secondary mb-4">{description}</p>
-      )}
-      <div className="space-y-4">{children}</div>
+    <div
+      ref={onRef}
+      id={`section-${id}`}
+      className="bg-surface-base/50 rounded-lg border border-border-theme-subtle overflow-hidden transition-all duration-200"
+    >
+      {/* Header - always visible, clickable to toggle */}
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-raised/30 transition-colors"
+      >
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-text-theme-primary">{title}</h3>
+          {description && !isExpanded && (
+            <p className="text-sm text-text-theme-muted mt-0.5 line-clamp-1">{description}</p>
+          )}
+        </div>
+        <div className={`ml-4 text-text-theme-secondary transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </button>
+
+      {/* Content - collapsible */}
+      <div
+        className={`
+          transition-all duration-200 ease-in-out
+          ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}
+        `}
+      >
+        <div className="px-5 pb-5 border-t border-border-theme-subtle/50">
+          {description && (
+            <p className="text-sm text-text-theme-secondary mb-4 mt-4">{description}</p>
+          )}
+          <div className="space-y-4">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -258,14 +405,104 @@ function UIThemePicker({
 }
 
 
+// Valid section IDs for type checking
+const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'ui-behavior', 'accessibility', 'reset'];
+
+function isValidSectionId(hash: string): hash is SectionId {
+  return VALID_SECTION_IDS.includes(hash as SectionId);
+}
+
 export default function SettingsPage(): React.ReactElement {
   const router = useRouter();
 
+  // Track hydration to avoid SSR mismatch
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Active section from URL hash (only one section expanded at a time)
+  // Default to 'appearance' for SSR, will update after mount if hash is present
+  const [activeSection, setActiveSection] = useState<SectionId>('appearance');
+
+  // Refs for scrolling to sections
+  const sectionRefs = useRef<Record<SectionId, HTMLDivElement | null>>({
+    appearance: null,
+    customizer: null,
+    'ui-behavior': null,
+    accessibility: null,
+    reset: null,
+  });
+
+  // Parse hash from URL on mount and hash changes
+  useEffect(() => {
+    setHasMounted(true);
+
+    const handleHashChange = (shouldScroll = true) => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && isValidSectionId(hash)) {
+        setActiveSection(hash);
+        // Scroll to section after a short delay
+        if (shouldScroll) {
+          setTimeout(() => {
+            const element = sectionRefs.current[hash];
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }
+      }
+    };
+
+    // Check initial hash (don't scroll immediately on page load to avoid jumpiness)
+    const hash = window.location.hash.replace('#', '');
+    if (hash && isValidSectionId(hash)) {
+      setActiveSection(hash);
+      // Delayed scroll for initial load
+      setTimeout(() => {
+        const element = sectionRefs.current[hash];
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+
+    // Listen for hash changes
+    const onHashChange = () => handleHashChange(true);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Navigate to section (update URL hash)
+  const navigateToSection = useCallback((sectionId: SectionId) => {
+    // Update URL hash (this triggers hashchange event)
+    window.history.pushState(null, '', `#${sectionId}`);
+    setActiveSection(sectionId);
+
+    // Scroll to section after a short delay
+    setTimeout(() => {
+      const element = sectionRefs.current[sectionId];
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }, []);
+
+  // Toggle section - clicking header expands that section
+  const toggleSection = useCallback((sectionId: SectionId) => {
+    if (activeSection === sectionId) {
+      // If clicking the active section, keep it open (or optionally close it)
+      // For now, we'll navigate to it anyway to update the URL
+      navigateToSection(sectionId);
+    } else {
+      navigateToSection(sectionId);
+    }
+  }, [activeSection, navigateToSection]);
+
   // Get store actions and state
   const initDraftAppearance = useAppSettingsStore((s) => s.initDraftAppearance);
-  const saveAppearance = useAppSettingsStore((s) => s.saveAppearance);
+  const saveUITheme = useAppSettingsStore((s) => s.saveUITheme);
+  const saveOtherAppearance = useAppSettingsStore((s) => s.saveOtherAppearance);
   const revertAppearance = useAppSettingsStore((s) => s.revertAppearance);
-  const hasUnsavedAppearance = useAppSettingsStore((s) => s.hasUnsavedAppearance);
+  const hasUnsavedUITheme = useAppSettingsStore((s) => s.hasUnsavedUITheme);
+  const hasUnsavedOtherAppearance = useAppSettingsStore((s) => s.hasUnsavedOtherAppearance);
 
   // Get draft values for display (or saved values if no draft)
   const draftAppearance = useAppSettingsStore((s) => s.draftAppearance);
@@ -297,11 +534,6 @@ export default function SettingsPage(): React.ReactElement {
     initDraftAppearance();
   }, [initDraftAppearance]);
 
-  // Handle save
-  const handleSaveAppearance = useCallback(() => {
-    saveAppearance();
-  }, [saveAppearance]);
-
   const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
 
   // Revert on unmount if there are unsaved changes
@@ -318,6 +550,11 @@ export default function SettingsPage(): React.ReactElement {
     };
   }, [router.events, revertAppearance, revertCustomizer]);
 
+  // Create ref callback for each section
+  const createSectionRef = (id: SectionId) => (el: HTMLDivElement | null) => {
+    sectionRefs.current[id] = el;
+  };
+
   return (
     <>
       <Head>
@@ -329,11 +566,21 @@ export default function SettingsPage(): React.ReactElement {
         subtitle="Customize your MekStation experience"
         maxWidth="narrow"
       >
-        <div className="space-y-6 pb-8">
+        {/* Quick Navigation */}
+        <QuickNavigation
+          activeSection={activeSection}
+          onNavigate={navigateToSection}
+        />
+
+        <div className="space-y-4 pb-8">
           {/* Appearance Section */}
           <SettingsSection
+            id="appearance"
             title="Appearance"
             description="Customize colors, fonts, and visual effects. Changes preview instantly but require saving."
+            isExpanded={activeSection === 'appearance'}
+            onToggle={() => toggleSection('appearance')}
+            onRef={createSectionRef('appearance')}
           >
             <UIThemePicker
               value={effectiveUITheme}
@@ -341,7 +588,7 @@ export default function SettingsPage(): React.ReactElement {
             />
 
             {/* UI Theme Save Notice */}
-            {hasUnsavedAppearance && draftAppearance?.uiTheme !== undefined && (
+            {hasUnsavedUITheme && (
               <div className="flex items-center justify-between p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                 <div className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-amber-400">
@@ -352,7 +599,7 @@ export default function SettingsPage(): React.ReactElement {
                   </span>
                 </div>
                 <button
-                  onClick={handleSaveAppearance}
+                  onClick={saveUITheme}
                   className="px-3 py-1.5 text-sm font-medium bg-amber-600 hover:bg-amber-500 text-white rounded-md transition-colors"
                 >
                   Save Theme
@@ -396,19 +643,19 @@ export default function SettingsPage(): React.ReactElement {
               onChange={setDraftCompactMode}
             />
 
-            {/* Save Button */}
+            {/* Save Button - for accent, font, animation, compact (not theme) */}
             <div className="pt-4 border-t border-border-theme-subtle">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-text-theme-secondary">
-                  {hasUnsavedAppearance
+                  {hasUnsavedOtherAppearance
                     ? 'You have unsaved appearance changes'
                     : 'Appearance settings saved'}
                 </div>
                 <button
-                  onClick={handleSaveAppearance}
-                  disabled={!hasUnsavedAppearance}
+                  onClick={saveOtherAppearance}
+                  disabled={!hasUnsavedOtherAppearance}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    hasUnsavedAppearance
+                    hasUnsavedOtherAppearance
                       ? 'bg-accent hover:bg-accent-hover text-white'
                       : 'bg-surface-raised text-text-theme-muted cursor-not-allowed'
                   }`}
@@ -421,8 +668,12 @@ export default function SettingsPage(): React.ReactElement {
 
           {/* Customizer Section */}
           <SettingsSection
+            id="customizer"
             title="Customizer"
             description="Configure the mech customizer interface"
+            isExpanded={activeSection === 'customizer'}
+            onToggle={() => toggleSection('customizer')}
+            onRef={createSectionRef('customizer')}
           >
             {/* Armor Diagram Mode */}
             <div>
@@ -457,8 +708,12 @@ export default function SettingsPage(): React.ReactElement {
 
           {/* UI Behavior Section */}
           <SettingsSection
+            id="ui-behavior"
             title="UI Behavior"
             description="Control how the interface behaves"
+            isExpanded={activeSection === 'ui-behavior'}
+            onToggle={() => toggleSection('ui-behavior')}
+            onRef={createSectionRef('ui-behavior')}
           >
             <Toggle
               label="Collapse Sidebar by Default"
@@ -484,8 +739,12 @@ export default function SettingsPage(): React.ReactElement {
 
           {/* Accessibility Section */}
           <SettingsSection
+            id="accessibility"
             title="Accessibility"
             description="Options for better accessibility"
+            isExpanded={activeSection === 'accessibility'}
+            onToggle={() => toggleSection('accessibility')}
+            onRef={createSectionRef('accessibility')}
           >
             <Toggle
               label="High Contrast"
@@ -503,7 +762,13 @@ export default function SettingsPage(): React.ReactElement {
           </SettingsSection>
 
           {/* Reset Section */}
-          <SettingsSection title="Reset">
+          <SettingsSection
+            id="reset"
+            title="Reset"
+            isExpanded={activeSection === 'reset'}
+            onToggle={() => toggleSection('reset')}
+            onRef={createSectionRef('reset')}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-medium text-white">Reset All Settings</div>
