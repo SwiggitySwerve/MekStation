@@ -9,18 +9,21 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
+import {
+  useMovementCalculations,
+  getEnhancementOptions,
+  MAX_ENGINE_RATING,
+} from '@/hooks/useMovementCalculations';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { CockpitType } from '@/types/construction/CockpitType';
-import { 
-  MovementEnhancementType, 
-} from '@/types/construction/MovementEnhancement';
-import { JumpJetType, getMaxJumpMP, JUMP_JET_DEFINITIONS, calculateEnhancedMaxRunMP } from '@/utils/construction/movementCalculations';
+import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { JumpJetType, JUMP_JET_DEFINITIONS } from '@/utils/construction/movementCalculations';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { customizerStyles as cs } from '../styles';
@@ -43,48 +46,6 @@ interface StructureTabProps {
   readOnly?: boolean;
   /** Additional CSS classes */
   className?: string;
-}
-
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-/** Maximum engine rating per BattleTech TechManual */
-const MAX_ENGINE_RATING = 400;
-const MIN_ENGINE_RATING = 10;
-
-/**
- * Get valid Walk MP range for a given tonnage
- * Engine rating = tonnage × walkMP, must be 10-400
- */
-function getWalkMPRange(tonnage: number): { min: number; max: number } {
-  const minWalk = Math.max(1, Math.ceil(MIN_ENGINE_RATING / tonnage));
-  const maxWalk = Math.min(12, Math.floor(MAX_ENGINE_RATING / tonnage));
-  
-  return { min: minWalk, max: maxWalk };
-}
-
-/**
- * Calculate Run MP from Walk MP (ceil of 1.5× walk)
- */
-function calculateRunMP(walkMP: number): number {
-  return Math.ceil(walkMP * 1.5);
-}
-
-/**
- * Get available enhancement options
- * Note: MASC and TSM are mutually exclusive but we don't disable options
- * since selecting one simply replaces the other.
- */
-function getEnhancementOptions(): {
-  value: MovementEnhancementType | null;
-  label: string;
-}[] {
-  return [
-    { value: null, label: 'None' },
-    { value: MovementEnhancementType.MASC, label: 'MASC' },
-    { value: MovementEnhancementType.TSM, label: 'Triple Strength Myomer' },
-  ];
 }
 
 // =============================================================================
@@ -158,25 +119,27 @@ export function StructureTab({
     armorTonnage
   );
   
-  // Movement calculations - Walk MP drives engine rating
-  const walkMP = useMemo(() => Math.floor(engineRating / tonnage), [engineRating, tonnage]);
-  const runMP = useMemo(() => calculateRunMP(walkMP), [walkMP]);
-  const walkMPRange = useMemo(() => getWalkMPRange(tonnage), [tonnage]);
-  
-  // Engine rating limit warnings
-  const isAtMaxEngineRating = engineRating >= MAX_ENGINE_RATING;
-  
-  // Calculate max run MP with enhancement active
-  const maxRunMP = useMemo(() => {
-    if (!enhancement) return undefined;
-    return calculateEnhancedMaxRunMP(walkMP, enhancement);
-  }, [enhancement, walkMP]);
-  
-  // Jump jet calculations
-  const maxJumpMP = useMemo(() => getMaxJumpMP(walkMP, jumpJetType), [walkMP, jumpJetType]);
-  
-  // Enhancement options
-  const enhancementOptions = useMemo(() => getEnhancementOptions(), []);
+  // Movement calculations - extracted to useMovementCalculations hook
+  const {
+    walkMP,
+    runMP,
+    walkMPRange,
+    maxJumpMP,
+    maxRunMP,
+    isAtMaxEngineRating,
+    getEngineRatingForWalkMP,
+    clampWalkMP,
+    clampJumpMP,
+  } = useMovementCalculations({
+    tonnage,
+    engineRating,
+    jumpMP,
+    jumpJetType,
+    enhancement,
+  });
+
+  // Enhancement options (static data from hook module)
+  const enhancementOptions = getEnhancementOptions();
   
   // Handlers - Tonnage and Configuration
   const handleTonnageChange = useCallback((newTonnage: number) => {
@@ -195,12 +158,10 @@ export function StructureTab({
   }, [setEngineType]);
   
   const handleWalkMPChange = useCallback((newWalkMP: number) => {
-    // Clamp to valid range
-    const clampedWalk = Math.max(walkMPRange.min, Math.min(walkMPRange.max, newWalkMP));
-    // Calculate and set engine rating
-    const newRating = tonnage * clampedWalk;
+    const clampedWalk = clampWalkMP(newWalkMP);
+    const newRating = getEngineRatingForWalkMP(clampedWalk);
     setEngineRating(newRating);
-  }, [tonnage, walkMPRange, setEngineRating]);
+  }, [clampWalkMP, getEngineRatingForWalkMP, setEngineRating]);
   
   const handleGyroTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setGyroType(e.target.value as GyroType);
@@ -220,10 +181,9 @@ export function StructureTab({
   }, [setEnhancement]);
   
   const handleJumpMPChange = useCallback((newJumpMP: number) => {
-    // Clamp to valid range (0 to max)
-    const clampedJump = Math.max(0, Math.min(maxJumpMP, newJumpMP));
+    const clampedJump = clampJumpMP(newJumpMP);
     setJumpMP(clampedJump);
-  }, [maxJumpMP, setJumpMP]);
+  }, [clampJumpMP, setJumpMP]);
   
   const handleJumpJetTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setJumpJetType(e.target.value as JumpJetType);
