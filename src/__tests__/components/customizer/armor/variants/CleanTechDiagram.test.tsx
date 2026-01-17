@@ -35,11 +35,11 @@ describe('CleanTechDiagram', () => {
   it('should render all 8 mech locations', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    // Check for location labels (torso locations show "X FRONT" format)
+    // Check for location labels (torso locations show "X-F" format for front)
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
-    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
-    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('CT-F')).toBeInTheDocument();
+    expect(screen.getByText('LT-F')).toBeInTheDocument();
+    expect(screen.getByText('RT-F')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();

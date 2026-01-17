@@ -68,11 +68,11 @@ describe('PremiumMaterialDiagram', () => {
   it('should render all 8 mech locations', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    // Check for location labels (torso locations show "X FRONT" format)
+    // Check for location labels (torso locations show "X-F" format for front)
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
-    expect(screen.getByText('LT FRONT')).toBeInTheDocument();
-    expect(screen.getByText('RT FRONT')).toBeInTheDocument();
+    expect(screen.getByText('CT-F')).toBeInTheDocument();
+    expect(screen.getByText('LT-F')).toBeInTheDocument();
+    expect(screen.getByText('RT-F')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();
@@ -82,8 +82,8 @@ describe('PremiumMaterialDiagram', () => {
   it('should display rear armor labels for torso locations', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    // Check for rear labels (3 torso locations have REAR labels)
-    const rearLabels = screen.getAllByText('REAR');
+    // Check for rear labels (3 torso locations have "R" labels)
+    const rearLabels = screen.getAllByText('R');
     expect(rearLabels.length).toBe(3);
   });
 });

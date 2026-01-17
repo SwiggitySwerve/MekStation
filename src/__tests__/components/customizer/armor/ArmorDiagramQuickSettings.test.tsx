@@ -49,7 +49,7 @@ describe('ArmorDiagramQuickSettings', () => {
     await user.click(screen.getByRole('button', { expanded: false }));
 
     expect(screen.getByRole('listbox')).toBeInTheDocument();
-    expect(screen.getAllByRole('option')).toHaveLength(6);
+    expect(screen.getAllByRole('option')).toHaveLength(5);
   });
 
   it('displays all variant options in dropdown', async () => {
@@ -58,14 +58,13 @@ describe('ArmorDiagramQuickSettings', () => {
 
     await user.click(screen.getByRole('button', { expanded: false }));
 
-    // Uses DIAGRAM_VARIANT_INFO names
+    // Uses VARIANT_NAMES from VariantConstants
     const options = screen.getAllByRole('option');
     expect(options[0]).toHaveTextContent('Standard');
-    expect(options[1]).toHaveTextContent('Glow Effects');
-    expect(options[2]).toHaveTextContent('LED Display');
-    expect(options[3]).toHaveTextContent('Metallic');
+    expect(options[1]).toHaveTextContent('Glow');
+    expect(options[2]).toHaveTextContent('HUD');
+    expect(options[3]).toHaveTextContent('Chromatic');
     expect(options[4]).toHaveTextContent('MegaMek');
-    expect(options[5]).toHaveTextContent('MegaMek Classic');
   });
 
   it('calls setArmorDiagramVariant when option selected', async () => {
@@ -73,7 +72,7 @@ describe('ArmorDiagramQuickSettings', () => {
     render(<ArmorDiagramQuickSettings />);
 
     await user.click(screen.getByRole('button', { expanded: false }));
-    await user.click(screen.getByRole('option', { name: 'Glow Effects' }));
+    await user.click(screen.getByRole('option', { name: 'Glow' }));
 
     expect(mockRevertCustomizer).toHaveBeenCalled();
     expect(mockSetArmorDiagramVariant).toHaveBeenCalledWith('neon-operator');
@@ -86,7 +85,7 @@ describe('ArmorDiagramQuickSettings', () => {
     await user.click(screen.getByRole('button', { expanded: false }));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('option', { name: 'LED Display' }));
+    await user.click(screen.getByRole('option', { name: 'HUD' }));
 
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
@@ -137,8 +136,8 @@ describe('ArmorDiagramQuickSettings', () => {
     });
 
     render(<ArmorDiagramQuickSettings />);
-    // DIAGRAM_VARIANT_INFO name for 'tactical-hud' is 'LED Display'
-    expect(screen.getByText('LED Display')).toBeInTheDocument();
+    // VARIANT_NAMES name for 'tactical-hud' is 'HUD'
+    expect(screen.getByText('HUD')).toBeInTheDocument();
   });
 
   it('persists changes immediately', async () => {
