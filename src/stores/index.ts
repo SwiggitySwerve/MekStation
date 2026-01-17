@@ -28,6 +28,18 @@ export * from './useVehicleStore';
 export * from './aerospaceState';
 export * from './useAerospaceStore';
 
+// Battle Armor store
+export * from './battleArmorState';
+export * from './useBattleArmorStore';
+
+// Infantry store
+export * from './infantryState';
+export * from './useInfantryStore';
+
+// ProtoMech store
+export * from './protoMechState';
+export * from './useProtoMechStore';
+
 // App settings (main store + focused stores)
 export * from './useAppSettingsStore';
 export * from './useAppearanceStore';
