@@ -2,7 +2,7 @@
   "$schema": "../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2025-12-05T03:18:04.830Z",
-  "count": 33,
+  "count": 36,
   "items": [
     {
       "id": "small-laser",
@@ -751,6 +751,81 @@
       "introductionYear": 3070,
       "special": [],
       "allowedUnitTypes": ["Battle Armor"]
+    },
+    {
+      "id": "clan-small-chemical-laser",
+      "name": "Small Chemical Laser (Clan)",
+      "category": "Energy",
+      "subType": "Chemical Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 3,
+      "heat": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "ammoPerTon": 60,
+      "costCBills": 10000,
+      "battleValue": 7,
+      "introductionYear": 3059,
+      "special": [
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "clan-medium-chemical-laser",
+      "name": "Medium Chemical Laser (Clan)",
+      "category": "Energy",
+      "subType": "Chemical Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 5,
+      "heat": 2,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 30,
+      "costCBills": 30000,
+      "battleValue": 37,
+      "introductionYear": 3059,
+      "special": [
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "clan-large-chemical-laser",
+      "name": "Large Chemical Laser (Clan)",
+      "category": "Energy",
+      "subType": "Chemical Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 8,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 2,
+      "ammoPerTon": 10,
+      "costCBills": 75000,
+      "battleValue": 99,
+      "introductionYear": 3059,
+      "special": [
+        "Requires ammo"
+      ]
     }
   ]
 }
