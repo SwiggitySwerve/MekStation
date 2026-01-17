@@ -24,6 +24,10 @@ export { UnitStoreProvider, useHasUnitStore } from './UnitStoreProvider';
 export * from './vehicleState';
 export * from './useVehicleStore';
 
+// Aerospace store
+export * from './aerospaceState';
+export * from './useAerospaceStore';
+
 // App settings (main store + focused stores)
 export * from './useAppSettingsStore';
 export * from './useAppearanceStore';
