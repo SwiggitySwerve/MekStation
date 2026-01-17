@@ -9,18 +9,26 @@
 
 import { useMemo, useEffect, useRef } from 'react';
 import { useUnitStore } from '@/stores/useUnitStore';
-import { getTotalAllocatedArmor } from '@/stores/unitState';
+import { getTotalAllocatedArmor, getTotalEquipmentWeight, IMountedEquipmentInstance } from '@/stores/unitState';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
 import { initializeUnitValidationRules, areRulesInitialized } from '@/services/validation/initializeUnitValidation';
 import { getMaxTotalArmor, getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { calculateGyroWeight } from '@/utils/construction/gyroCalculations';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
+import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
+import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import {
   IValidatableUnit,
   IUnitValidationResult,
   UnitValidationSeverity,
   IUnitValidationOptions,
   IArmorByLocation,
+  ISlotsByLocation,
 } from '@/types/validation/UnitValidationInterfaces';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { UnitType, MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel, Era, getEraForYear } from '@/types/enums';
@@ -99,6 +107,152 @@ function buildArmorByLocation(
   }
 
   return armorByLocation;
+}
+
+/**
+ * Location display names for slot validation
+ */
+const LOCATION_DISPLAY_NAMES: Record<MechLocation, string> = {
+  [MechLocation.HEAD]: 'Head',
+  [MechLocation.CENTER_TORSO]: 'Center Torso',
+  [MechLocation.LEFT_TORSO]: 'Left Torso',
+  [MechLocation.RIGHT_TORSO]: 'Right Torso',
+  [MechLocation.LEFT_ARM]: 'Left Arm',
+  [MechLocation.RIGHT_ARM]: 'Right Arm',
+  [MechLocation.LEFT_LEG]: 'Left Leg',
+  [MechLocation.RIGHT_LEG]: 'Right Leg',
+  [MechLocation.CENTER_LEG]: 'Center Leg',
+  [MechLocation.FRONT_LEFT_LEG]: 'Front Left Leg',
+  [MechLocation.FRONT_RIGHT_LEG]: 'Front Right Leg',
+  [MechLocation.REAR_LEFT_LEG]: 'Rear Left Leg',
+  [MechLocation.REAR_RIGHT_LEG]: 'Rear Right Leg',
+  [MechLocation.NOSE]: 'Nose',
+  [MechLocation.LEFT_WING]: 'Left Wing',
+  [MechLocation.RIGHT_WING]: 'Right Wing',
+  [MechLocation.AFT]: 'Aft',
+  [MechLocation.FUSELAGE]: 'Fuselage',
+};
+
+/**
+ * Build per-location slot usage data from equipment
+ */
+function buildSlotsByLocation(
+  equipment: readonly IMountedEquipmentInstance[],
+  configuration?: MechConfiguration
+): ISlotsByLocation {
+  const slotsByLocation: ISlotsByLocation = {};
+
+  // Get locations for this configuration
+  const locations = getLocationsForConfiguration(configuration);
+
+  // Initialize all locations with 0 used and max from LOCATION_SLOT_COUNTS
+  for (const location of locations) {
+    const maxSlots = LOCATION_SLOT_COUNTS[location] || 0;
+    if (maxSlots > 0) {
+      slotsByLocation[location] = {
+        used: 0,
+        max: maxSlots,
+        displayName: LOCATION_DISPLAY_NAMES[location] || location,
+      };
+    }
+  }
+
+  // Count slots used by equipment in each location
+  for (const item of equipment) {
+    if (item.location && item.slots && item.slots.length > 0) {
+      const loc = item.location;
+      if (slotsByLocation[loc]) {
+        slotsByLocation[loc] = {
+          ...slotsByLocation[loc],
+          used: slotsByLocation[loc].used + item.slots.length,
+        };
+      }
+    }
+  }
+
+  return slotsByLocation;
+}
+
+/**
+ * Get applicable locations for a mech configuration
+ */
+function getLocationsForConfiguration(configuration?: MechConfiguration): MechLocation[] {
+  const coreLocations = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+  ];
+
+  if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {
+    return [
+      ...coreLocations,
+      MechLocation.FRONT_LEFT_LEG,
+      MechLocation.FRONT_RIGHT_LEG,
+      MechLocation.REAR_LEFT_LEG,
+      MechLocation.REAR_RIGHT_LEG,
+    ];
+  } else if (configuration === MechConfiguration.TRIPOD) {
+    return [
+      ...coreLocations,
+      MechLocation.LEFT_ARM,
+      MechLocation.RIGHT_ARM,
+      MechLocation.LEFT_LEG,
+      MechLocation.RIGHT_LEG,
+      MechLocation.CENTER_LEG,
+    ];
+  } else {
+    // Biped/LAM/default
+    return [
+      ...coreLocations,
+      MechLocation.LEFT_ARM,
+      MechLocation.RIGHT_ARM,
+      MechLocation.LEFT_LEG,
+      MechLocation.RIGHT_LEG,
+    ];
+  }
+}
+
+/**
+ * Calculate total structural weight for the unit
+ */
+function calculateStructuralWeight(
+  tonnage: number,
+  engineType: string,
+  engineRating: number,
+  gyroType: string,
+  internalStructureType: string,
+  cockpitType: string,
+  heatSinkType: string,
+  heatSinkCount: number,
+  armorTonnage: number
+): number {
+  // Engine weight - cast to EngineType for calculation
+  const engineWeight = calculateEngineWeight(engineRating, engineType as Parameters<typeof calculateEngineWeight>[1]);
+
+  // Gyro weight - cast to GyroType for calculation
+  const gyroWeight = calculateGyroWeight(engineRating, gyroType as Parameters<typeof calculateGyroWeight>[1]);
+
+  // Structure weight - cast to InternalStructureType for lookup
+  const structureDef = getInternalStructureDefinition(internalStructureType as Parameters<typeof getInternalStructureDefinition>[0]);
+  const structureWeight = structureDef
+    ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
+    : ceilToHalfTon(tonnage * 0.1);
+
+  // Cockpit weight - cast to CockpitType for lookup
+  const cockpitDef = getCockpitDefinition(cockpitType as Parameters<typeof getCockpitDefinition>[0]);
+  const cockpitWeight = cockpitDef?.weight ?? 3;
+
+  // Heat sink weight (first 10 are free)
+  const heatSinkDef = getHeatSinkDefinition(heatSinkType as Parameters<typeof getHeatSinkDefinition>[0]);
+  const heatSinksRequiringWeight = Math.max(0, heatSinkCount - 10);
+  const weightPerHeatSink = heatSinkDef?.weight ?? 1.0;
+  const heatSinkWeight = heatSinksRequiringWeight * weightPerHeatSink;
+
+  // Armor weight
+  const armorWeight = armorTonnage;
+
+  return engineWeight + gyroWeight + structureWeight + cockpitWeight + heatSinkWeight + armorWeight;
 }
 
 /**
@@ -195,13 +349,16 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
 
   // Mech component fields
   const engineType = useUnitStore((s) => s.engineType);
+  const engineRating = useUnitStore((s) => s.engineRating);
   const gyroType = useUnitStore((s) => s.gyroType);
   const cockpitType = useUnitStore((s) => s.cockpitType);
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
+  const armorTonnage = useUnitStore((s) => s.armorTonnage);
   const configuration = useUnitStore((s) => s.configuration);
+  const equipment = useUnitStore((s) => s.equipment);
 
   // Compute total armor points outside useMemo to ensure reactivity
   // This primitive value will definitely trigger re-renders when armor changes
@@ -244,6 +401,24 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     // Handles all mech configurations: Biped, Quad, Tripod, LAM, QuadVee
     const armorByLocation = buildArmorByLocation(armorAllocation, effectiveTonnage, configuration);
 
+    // Build per-location slot data for critical slot validation
+    const slotsByLocation = buildSlotsByLocation(equipment, configuration);
+
+    // Calculate total weight for weight overflow validation
+    const structuralWeight = calculateStructuralWeight(
+      effectiveTonnage,
+      engineType,
+      engineRating,
+      gyroType,
+      internalStructureType,
+      cockpitType,
+      heatSinkType,
+      heatSinkCount,
+      armorTonnage
+    );
+    const equipmentWeight = getTotalEquipmentWeight(equipment);
+    const allocatedWeight = structuralWeight + equipmentWeight;
+
     // Build validatable unit from store state
     const validatableUnit: IValidatableUnit = {
       id: id || 'new-unit',
@@ -266,6 +441,11 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       totalArmorPoints,
       maxArmorPoints,
       armorByLocation,
+      // Weight validation fields
+      allocatedWeight,
+      maxWeight: effectiveTonnage,
+      // Slot validation fields
+      slotsByLocation,
     };
 
     try {
@@ -332,13 +512,16 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     battleValue,
     unitType,
     engineType,
+    engineRating,
     gyroType,
     cockpitType,
     internalStructureType,
     heatSinkCount,
     heatSinkType,
     armorAllocation,
+    armorTonnage,
     configuration,
+    equipment,
     totalArmorPointsComputed,
     options?.disabled,
     options?.campaignYear,

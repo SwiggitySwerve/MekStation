@@ -16,6 +16,8 @@ import {
   EraAvailability,
   RulesLevelCompliance,
   ArmorAllocationWarning,
+  WeightOverflowValidation,
+  CriticalSlotOverflowValidation,
 } from '@/services/validation/rules/universal/UniversalValidationRules';
 
 describe('UniversalValidationRules', () => {
@@ -365,6 +367,113 @@ describe('UniversalValidationRules', () => {
       const result = ArmorAllocationWarning.validate(createContext(unit));
       expect(result.passed).toBe(true);
       expect(result.errors).toHaveLength(0);
+    });
+  });
+
+  describe('VAL-UNIV-014: Weight Overflow Validation', () => {
+    it('should pass when weight is within limits', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 45,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass when weight exactly matches max', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 50,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should emit critical error when weight exceeds max', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 55,
+        maxWeight: 50,
+      });
+      const result = WeightOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('exceeds maximum tonnage');
+      expect(result.errors[0].message).toContain('5.0 tons');
+    });
+
+    it('should skip validation when weight data is undefined', () => {
+      const unit = createBaseUnit();
+      const context = createContext(unit);
+      expect(WeightOverflowValidation.canValidate!(context)).toBe(false);
+    });
+
+    it('should validate when weight data is defined', () => {
+      const unit = createBaseUnit({
+        allocatedWeight: 45,
+        maxWeight: 50,
+      });
+      const context = createContext(unit);
+      expect(WeightOverflowValidation.canValidate!(context)).toBe(true);
+    });
+  });
+
+  describe('VAL-UNIV-015: Critical Slot Overflow Validation', () => {
+    it('should pass when all locations are within slot limits', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 4, max: 6, displayName: 'Head' },
+          'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
+          'Left Arm': { used: 8, max: 12, displayName: 'Left Arm' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should emit critical error when any location exceeds slot limit', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 8, max: 6, displayName: 'Head' },
+          'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('Head');
+      expect(result.errors[0].message).toContain('exceeds slot capacity');
+      expect(result.errors[0].message).toContain('2');
+    });
+
+    it('should emit errors for multiple locations exceeding limits', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 8, max: 6, displayName: 'Head' },
+          'Left Arm': { used: 14, max: 12, displayName: 'Left Arm' },
+        },
+      });
+      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(2);
+    });
+
+    it('should skip validation when slot data is undefined', () => {
+      const unit = createBaseUnit();
+      const context = createContext(unit);
+      expect(CriticalSlotOverflowValidation.canValidate!(context)).toBe(false);
+    });
+
+    it('should validate when slot data is defined', () => {
+      const unit = createBaseUnit({
+        slotsByLocation: {
+          'Head': { used: 4, max: 6, displayName: 'Head' },
+        },
+      });
+      const context = createContext(unit);
+      expect(CriticalSlotOverflowValidation.canValidate!(context)).toBe(true);
     });
   });
 });
