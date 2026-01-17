@@ -8,15 +8,15 @@
  * - Dot indicator capacity
  * - Stacked front/rear display for torso
  * - Lift/shadow interaction
+ *
+ * Uses the Layout Engine for constraint-based positioning.
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  BATTLEMECH_SILHOUETTE,
-  LOCATION_LABELS,
-  getLocationCenter,
+  getLocationLabel,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -28,6 +28,7 @@ import {
   lightenColor,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
 
 /**
  * Circular badge with number
@@ -138,38 +139,37 @@ function DotIndicator({
 
 interface PremiumLocationProps {
   location: MechLocation;
+  /** Resolved position from the layout engine */
+  position: ResolvedPosition;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  /** Mech configuration type for correct label lookup */
+  configType?: MechConfigType;
 }
 
 function PremiumLocation({
   location,
+  position,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: PremiumLocationProps): React.ReactElement | null {
-  const basePos = BATTLEMECH_SILHOUETTE.locations[location];
-
-  // Skip rendering if this location is not defined in this silhouette
-  if (!basePos) return null;
-
-  const label = LOCATION_LABELS[location];
+  configType = 'biped',
+}: PremiumLocationProps): React.ReactElement {
+  const label = getLocationLabel(location, configType);
   const showRear = hasTorsoRear(location);
-  const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
+  const isHead = location === MechLocation.HEAD;
 
-  // Adjust height for torso locations to fit stacked layout, offset legs down
-  const TORSO_MULTIPLIER = 1.4;
-  const legOffset = BATTLEMECH_SILHOUETTE.locations[MechLocation.CENTER_TORSO]!.height * (TORSO_MULTIPLIER - 1);
-  const pos = showRear
-    ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
-    : isLeg
-      ? { ...basePos, y: basePos.y + legOffset }
-      : basePos;
+  // Use position from layout engine
+  const pos = position;
+
+  // Use abbreviated labels for torso sections to fit in smaller space
+  const frontLabel = showRear ? `${label}-F` : label;
+  const rearLabel = 'R';
 
   const front = data?.current ?? 0;
   const frontMax = data?.maximum ?? 1;
@@ -198,11 +198,12 @@ function PremiumLocation({
   const liftOffset = isHovered ? -2 : 0;
 
   // Layout for stacked front/rear
-  const frontSectionHeight = showRear ? pos.height * 0.58 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.42 : 0;
+  // 60/40 split for consistency across all variants
+  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
   const dividerY = pos.y + frontSectionHeight;
 
-  const center = getLocationCenter(pos);
+  const center = pos.center;
   const frontCenterY = pos.y + frontSectionHeight / 2;
   const rearCenterY = dividerY + rearSectionHeight / 2;
 
@@ -284,34 +285,36 @@ function PremiumLocation({
         {/* Front label */}
         <text
           x={center.x}
-          y={pos.y + 12}
+          y={pos.y + (isHead ? 9 : showRear ? 10 : 12)}
           textAnchor="middle"
-          fontSize={showRear ? '7' : '9'}
+          fontSize={isHead ? '7' : showRear ? '8' : '10'}
           fill="rgba(255,255,255,0.8)"
           fontWeight="600"
           letterSpacing="0.5"
         >
-          {showRear ? `${label} FRONT` : label}
+          {frontLabel}
         </text>
 
         {/* Front number badge */}
         <NumberBadge
           x={center.x}
-          y={frontCenterY + 2}
+          y={frontCenterY + (isHead ? 1 : 2)}
           value={front}
           color={frontColor}
-          size={showRear ? (pos.width < 50 ? 18 : 22) : (pos.width < 50 ? 20 : 28)}
+          size={isHead ? 14 : showRear ? (pos.width < 50 ? 18 : 22) : (pos.width < 50 ? 20 : 28)}
         />
 
-        {/* Front dot indicators */}
-        <DotIndicator
-          x={center.x}
-          y={pos.y + frontSectionHeight - 10}
-          fillPercent={frontPercent}
-          color={frontColor}
-          dots={showRear ? 4 : 5}
-          dotSize={showRear ? 3 : (pos.width < 50 ? 3 : 4)}
-        />
+        {/* Front dot indicators - hide for HEAD */}
+        {!isHead && (
+          <DotIndicator
+            x={center.x}
+            y={pos.y + frontSectionHeight - 10}
+            fillPercent={frontPercent}
+            color={frontColor}
+            dots={showRear ? 4 : 5}
+            dotSize={showRear ? 3 : (pos.width < 50 ? 3 : 4)}
+          />
+        )}
 
         {/* Rivets/bolts at corners (only on front) */}
         {pos.width > 40 && !showRear && (
@@ -377,13 +380,13 @@ function PremiumLocation({
           {/* Rear label */}
           <text
             x={center.x}
-            y={dividerY + 11}
+            y={dividerY + 9}
             textAnchor="middle"
-            fontSize="7"
+            fontSize="8"
             fill="rgba(255,255,255,0.7)"
             fontWeight="500"
           >
-            REAR
+            {rearLabel}
           </text>
 
           {/* Rear number badge */}
@@ -429,6 +432,53 @@ export interface PremiumMaterialDiagramProps {
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   className?: string;
+  /** Mech configuration type for layout selection */
+  mechConfigType?: MechConfigType;
+}
+
+/**
+ * Get the locations to render based on mech configuration type
+ */
+function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
+  switch (configType) {
+    case 'quad':
+    case 'quadvee':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.FRONT_LEFT_LEG,
+        MechLocation.FRONT_RIGHT_LEG,
+        MechLocation.REAR_LEFT_LEG,
+        MechLocation.REAR_RIGHT_LEG,
+      ];
+    case 'tripod':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+        MechLocation.CENTER_LEG,
+      ];
+    case 'lam':
+    case 'biped':
+    default:
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+      ];
+  }
 }
 
 export function PremiumMaterialDiagram({
@@ -436,23 +486,22 @@ export function PremiumMaterialDiagram({
   selectedLocation,
   onLocationClick,
   className = '',
+  mechConfigType = 'biped',
 }: PremiumMaterialDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+
+  // Get layout ID based on mech configuration type
+  const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
+
+  // Use the layout engine to get resolved positions
+  const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
+  // Get locations based on mech configuration type
+  const locations = getLocationsForConfig(mechConfigType);
 
   return (
     <div
@@ -472,10 +521,10 @@ export function PremiumMaterialDiagram({
         </div>
       </div>
 
-      {/* Diagram */}
+      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
-          viewBox={BATTLEMECH_SILHOUETTE.viewBox}
+          viewBox={viewBox}
           className="w-full max-w-[280px] mx-auto"
           style={{ height: 'auto' }}
         >
@@ -483,26 +532,33 @@ export function PremiumMaterialDiagram({
 
           {/* Ambient glow behind mech */}
           <ellipse
-            cx="100"
-            cy="140"
-            rx="80"
-            ry="110"
+            cx={bounds.minX + bounds.width / 2}
+            cy={bounds.minY + bounds.height / 2}
+            rx={bounds.width * 0.4}
+            ry={bounds.height * 0.4}
             fill="url(#armor-gradient-selected)"
             opacity="0.03"
           />
 
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <PremiumLocation
-              key={loc}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-            />
-          ))}
+          {/* Render all locations using layout engine positions */}
+          {locations.map((loc) => {
+            const position = getPosition(loc);
+            if (!position) return null;
+            
+            return (
+              <PremiumLocation
+                key={loc}
+                location={loc}
+                position={position}
+                data={getArmorData(loc)}
+                isSelected={selectedLocation === loc}
+                isHovered={hoveredLocation === loc}
+                onClick={() => onLocationClick(loc)}
+                onHover={(h) => setHoveredLocation(h ? loc : null)}
+                configType={mechConfigType}
+              />
+            );
+          })}
         </svg>
       </div>
 

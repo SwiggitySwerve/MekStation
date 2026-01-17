@@ -16,3 +16,4 @@ export * from './MechSilhouette';
 export * from './ArmorFills';
 export * from './VariantStyles';
 export * from './VariantLocationRenderer';
+export * from './VariantConstants';

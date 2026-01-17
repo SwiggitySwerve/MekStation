@@ -35,10 +35,10 @@ describe('NeonOperatorDiagram', () => {
   it('should render front/rear labels on torso locations', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
-    // Torso locations have stacked front/rear with FRONT label
-    expect(screen.getByText('CT FRONT')).toBeInTheDocument();
-    // Multiple REAR labels for each torso
-    const rearLabels = screen.getAllByText('REAR');
+    // Torso locations have stacked front/rear with "-F" suffix for front
+    expect(screen.getByText('CT-F')).toBeInTheDocument();
+    // Multiple "R" labels for each torso rear section
+    const rearLabels = screen.getAllByText('R');
     expect(rearLabels.length).toBe(3);
   });
 

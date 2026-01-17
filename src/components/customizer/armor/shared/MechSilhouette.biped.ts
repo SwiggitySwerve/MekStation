@@ -436,36 +436,30 @@ export const MEGAMEK_SILHOUETTE: SilhouetteConfig = {
     [MechLocation.LEFT_ARM]: {
       x: 4,
       y: 56,
-      width: 22,
+      width: 24,
       height: 120,
       path: `
-        M 26 56
-        L 26 64
-        L 8 72
-        L 4 80
-        L 4 168
-        L 8 176
-        L 22 176
-        L 26 168
-        L 26 64
+        M 28 56
+        L 28 68
+        L 4 72
+        L 4 176
+        L 28 176
+        L 28 156
         Z
       `,
     },
     [MechLocation.RIGHT_ARM]: {
-      x: 174,
+      x: 172,
       y: 56,
-      width: 22,
+      width: 24,
       height: 120,
       path: `
-        M 174 56
-        L 174 64
-        L 192 72
-        L 196 80
-        L 196 168
-        L 192 176
-        L 178 176
-        L 174 168
-        L 174 64
+        M 172 56
+        L 172 68
+        L 196 72
+        L 196 176
+        L 172 176
+        L 172 156
         Z
       `,
     },
@@ -544,129 +538,129 @@ export const MEGAMEK_SILHOUETTE: SilhouetteConfig = {
 };
 
 export const GEOMETRIC_SILHOUETTE: SilhouetteConfig = {
-  viewBox: '0 0 300 400',
+  viewBox: '0 0 360 400',
   locations: {
     [MechLocation.HEAD]: {
-      x: 115,
+      x: 145,
       y: 0,
       width: 70,
       height: 55,
       path: `
-        M 150 0
-        L 185 15
-        L 185 45
-        L 150 55
-        L 115 45
-        L 115 15
+        M 180 0
+        L 215 15
+        L 215 45
+        L 180 55
+        L 145 45
+        L 145 15
         Z
       `,
     },
     [MechLocation.CENTER_TORSO]: {
-      x: 95,
+      x: 125,
       y: 60,
       width: 110,
       height: 115,
       path: `
-        M 115 60
-        L 185 60
-        L 205 90
-        L 205 145
-        L 185 175
-        L 115 175
-        L 95 145
-        L 95 90
+        M 145 60
+        L 215 60
+        L 235 90
+        L 235 145
+        L 215 175
+        L 145 175
+        L 125 145
+        L 125 90
         Z
       `,
     },
     [MechLocation.LEFT_TORSO]: {
-      x: 25,
+      x: 55,
       y: 70,
       width: 65,
       height: 105,
       path: `
-        M 50 70
-        L 90 70
-        L 90 165
-        L 70 175
-        L 25 175
-        L 25 85
+        M 80 70
+        L 120 70
+        L 120 165
+        L 100 175
+        L 55 175
+        L 55 85
         Z
       `,
     },
     [MechLocation.RIGHT_TORSO]: {
-      x: 210,
+      x: 240,
       y: 70,
       width: 65,
       height: 105,
       path: `
-        M 250 70
-        L 210 70
-        L 210 165
-        L 230 175
-        L 275 175
-        L 275 85
+        M 280 70
+        L 240 70
+        L 240 165
+        L 260 175
+        L 305 175
+        L 305 85
         Z
       `,
     },
     [MechLocation.LEFT_ARM]: {
       x: 0,
       y: 75,
-      width: 22,
+      width: 28,
       height: 150,
       path: `
         M 5 75
-        L 22 85
-        L 22 205
-        L 15 225
+        L 28 85
+        L 28 205
+        L 18 225
         L 0 225
         L 0 85
         Z
       `,
     },
     [MechLocation.RIGHT_ARM]: {
-      x: 278,
+      x: 332,
       y: 75,
-      width: 22,
+      width: 28,
       height: 150,
       path: `
-        M 295 75
-        L 278 85
-        L 278 205
-        L 285 225
-        L 300 225
-        L 300 85
+        M 355 75
+        L 332 85
+        L 332 205
+        L 342 225
+        L 360 225
+        L 360 85
         Z
       `,
     },
     [MechLocation.LEFT_LEG]: {
-      x: 45,
+      x: 75,
       y: 180,
       width: 60,
       height: 160,
       path: `
-        M 55 180
-        L 105 180
-        L 105 310
-        L 95 340
-        L 55 340
-        L 45 310
-        L 45 195
+        M 85 180
+        L 135 180
+        L 135 310
+        L 125 340
+        L 85 340
+        L 75 310
+        L 75 195
         Z
       `,
     },
     [MechLocation.RIGHT_LEG]: {
-      x: 195,
+      x: 225,
       y: 180,
       width: 60,
       height: 160,
       path: `
-        M 245 180
-        L 195 180
-        L 195 310
-        L 205 340
-        L 245 340
-        L 255 310
-        L 255 195
+        M 275 180
+        L 225 180
+        L 225 310
+        L 235 340
+        L 275 340
+        L 285 310
+        L 285 195
         Z
       `,
     },

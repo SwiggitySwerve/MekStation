@@ -51,16 +51,9 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
         };
       case 'megamek':
         return {
-          fill: '#22c55e',
-          stroke: '#000',
+          fill: '#f5f5dc', // Beige/cream for record sheet style
+          stroke: '#8b7355', // Brown/sepia outline
           strokeWidth: 1.2,
-          filter: undefined,
-        };
-      case 'megamek-classic':
-        return {
-          fill: '#ffffff',
-          stroke: '#000',
-          strokeWidth: 1.5,
           filter: undefined,
         };
       default: {
@@ -127,6 +120,73 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
           <rect x="14" y="20" width="12" height="4" fill="#3b82f6" opacity="0.8" />
           <rect x="14" y="28" width="12" height="4" fill="#3b82f6" opacity="0.6" />
           <rect x="14" y="36" width="12" height="4" fill="#3b82f6" opacity="0.4" />
+        </>
+      )}
+
+      {/* Standard (clean-tech): Front/rear divider line */}
+      {variant === 'clean-tech' && (
+        <>
+          <line
+            x1="10"
+            y1="35"
+            x2="30"
+            y2="35"
+            stroke="#334155"
+            strokeWidth="1"
+            strokeDasharray="3 2"
+          />
+          <text x="20" y="22" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">F</text>
+          <text x="20" y="46" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">R</text>
+        </>
+      )}
+
+      {/* MegaMek: Shadow offset effect */}
+      {variant === 'megamek' && (
+        <>
+          {/* Shadow layer */}
+          <rect
+            x="10"
+            y="7"
+            width="24"
+            height="50"
+            rx="3"
+            fill="#1a1a1a"
+            opacity="0.3"
+          />
+          {/* Divider line */}
+          <line
+            x1="10"
+            y1="35"
+            x2="30"
+            y2="35"
+            stroke="#8b7355"
+            strokeWidth="1"
+            strokeDasharray="3 2"
+          />
+        </>
+      )}
+
+      {/* Chromatic (Premium Material): Circular badge overlay */}
+      {variant === 'premium-material' && (
+        <>
+          {/* Badge circle */}
+          <circle
+            cx="20"
+            cy="30"
+            r="10"
+            fill="none"
+            stroke="#94a3b8"
+            strokeWidth="1.5"
+          />
+          <circle
+            cx="20"
+            cy="30"
+            r="7"
+            fill="#475569"
+            stroke="#64748b"
+            strokeWidth="0.5"
+          />
+          <text x="20" y="33" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">24</text>
         </>
       )}
     </svg>

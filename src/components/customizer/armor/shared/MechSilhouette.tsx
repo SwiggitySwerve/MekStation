@@ -24,6 +24,8 @@ export {
   QUAD_LOCATION_LABELS,
   FIGHTER_LOCATION_LABELS,
   TRIPOD_LOCATION_LABELS,
+  LAM_LOCATION_LABELS,
+  getLocationLabel,
 } from './MechSilhouette.labels';
 
 export {

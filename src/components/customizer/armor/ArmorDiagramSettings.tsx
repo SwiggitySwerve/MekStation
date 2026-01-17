@@ -4,12 +4,21 @@
  * Split-panel layout for selecting armor diagram variant.
  * Left: list with thumbnails, Right: large preview.
  * Uses draft/save pattern for consistency with appearance settings.
+ * 
+ * Includes a mech type selector to preview different unit configurations
+ * (Biped, Quad, Tripod, LAM, QuadVee).
  */
 
 import React, { useEffect, useState } from 'react';
-import { useAppSettingsStore, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { VariantThumbnail } from './VariantThumbnail';
 import { ArmorDiagramPreview, DIAGRAM_VARIANT_INFO } from './ArmorDiagramPreview';
+import { ALL_VARIANTS, DEFAULT_VARIANT } from './shared/VariantConstants';
+import {
+  MechConfigType,
+  getMechConfigTypes,
+  MECH_CONFIG_DISPLAY_NAMES,
+} from './shared/layout/useResolvedLayout';
 
 interface ArmorDiagramSettingsProps {
   className?: string;
@@ -25,8 +34,11 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
   // Track hydration to avoid SSR mismatch (server doesn't have localStorage values)
   const [hasMounted, setHasMounted] = useState(false);
   
+  // Mech type selector for preview (local state, not persisted)
+  const [previewMechType, setPreviewMechType] = useState<MechConfigType>('biped');
+  
   // Use default on server, actual value after mount
-  const effectiveVariant = hasMounted ? getEffectiveArmorDiagramVariant() : 'clean-tech';
+  const effectiveVariant = hasMounted ? getEffectiveArmorDiagramVariant() : DEFAULT_VARIANT;
 
   // Initialize draft and mark as mounted
   useEffect(() => {
@@ -34,17 +46,34 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
     initDraftCustomizer();
   }, [initDraftCustomizer]);
 
-  const variants: ArmorDiagramVariant[] = [
-    'clean-tech',
-    'neon-operator',
-    'tactical-hud',
-    'premium-material',
-    'megamek',
-    'megamek-classic',
-  ];
+  // Use centralized variant list
+  const variants = ALL_VARIANTS;
+  const mechConfigTypes = getMechConfigTypes();
 
   return (
     <div className={className}>
+      {/* Mech Type Selector Bar */}
+      <div className="mb-4 p-1 bg-surface-raised/50 rounded-lg border border-border-theme">
+        <div className="flex gap-1">
+          {mechConfigTypes.map((configType) => {
+            const isSelected = previewMechType === configType;
+            return (
+              <button
+                key={configType}
+                onClick={() => setPreviewMechType(configType)}
+                className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all ${
+                  isSelected
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised'
+                }`}
+              >
+                {MECH_CONFIG_DISPLAY_NAMES[configType]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Responsive layout: stacked on mobile, side-by-side on desktop */}
       <div className="flex flex-col md:flex-row gap-4">
         {/* Variant list: full width on mobile, fixed width on desktop */}
@@ -79,7 +108,7 @@ export function ArmorDiagramSettings({ className = '' }: ArmorDiagramSettingsPro
 
         {/* Preview: below on mobile, right side on desktop */}
         <div className="flex-1 min-w-0">
-          <ArmorDiagramPreview variant={effectiveVariant} />
+          <ArmorDiagramPreview variant={effectiveVariant} mechConfigType={previewMechType} />
         </div>
       </div>
 

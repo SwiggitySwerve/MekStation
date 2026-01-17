@@ -25,7 +25,6 @@ import {
   TacticalHUDDiagram,
   PremiumMaterialDiagram,
   MegaMekDiagram,
-  MegaMekClassicDiagram,
 } from '../armor/variants';
 import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
 import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
@@ -363,16 +362,7 @@ export function ArmorTab({
         {/* RIGHT: Armor Diagram - Configuration-aware */}
         <div className="space-y-4" data-testid="armor-diagram">
           {/* QUAD configuration */}
-          {configuration === MechConfiguration.QUAD && armorDiagramVariant === 'megamek-classic' && (
-            <MegaMekClassicDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              configuration={configuration}
-            />
-          )}
-          {configuration === MechConfiguration.QUAD && armorDiagramVariant !== 'megamek-classic' && (
+          {configuration === MechConfiguration.QUAD && (
             <QuadArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -383,16 +373,7 @@ export function ArmorTab({
           )}
 
           {/* TRIPOD configuration */}
-          {configuration === MechConfiguration.TRIPOD && armorDiagramVariant === 'megamek-classic' && (
-            <MegaMekClassicDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              configuration={configuration}
-            />
-          )}
-          {configuration === MechConfiguration.TRIPOD && armorDiagramVariant !== 'megamek-classic' && (
+          {configuration === MechConfiguration.TRIPOD && (
             <TripodArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -403,16 +384,7 @@ export function ArmorTab({
           )}
 
           {/* LAM configuration */}
-          {configuration === MechConfiguration.LAM && armorDiagramVariant === 'megamek-classic' && (
-            <MegaMekClassicDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              configuration={configuration}
-            />
-          )}
-          {configuration === MechConfiguration.LAM && armorDiagramVariant !== 'megamek-classic' && (
+          {configuration === MechConfiguration.LAM && (
             <LAMArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -423,16 +395,7 @@ export function ArmorTab({
           )}
 
           {/* QUADVEE configuration */}
-          {configuration === MechConfiguration.QUADVEE && armorDiagramVariant === 'megamek-classic' && (
-            <MegaMekClassicDiagram
-              armorData={armorData}
-              selectedLocation={selectedLocation}
-              unallocatedPoints={pointsDelta}
-              onLocationClick={handleLocationClick}
-              configuration={configuration}
-            />
-          )}
-          {configuration === MechConfiguration.QUADVEE && armorDiagramVariant !== 'megamek-classic' && (
+          {configuration === MechConfiguration.QUADVEE && (
             <QuadVeeArmorDiagram
               armorData={armorData}
               selectedLocation={selectedLocation}
@@ -493,15 +456,6 @@ export function ArmorTab({
                   selectedLocation={selectedLocation}
                   unallocatedPoints={pointsDelta}
                   onLocationClick={handleLocationClick}
-                />
-              )}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek-classic' && (
-                <MegaMekClassicDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                  configuration={configuration}
                 />
               )}
             </>

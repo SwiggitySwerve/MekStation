@@ -8,14 +8,15 @@
  * - Horizontal bar capacity indicator
  * - Stacked front/rear display for torso
  * - Bracket focus interaction
+ *
+ * Uses the Layout Engine for constraint-based positioning.
  */
 
 import React, { useState } from 'react';
 import { MechLocation } from '@/types/construction';
 import { LocationArmorData } from '../ArmorDiagram';
 import {
-  GEOMETRIC_SILHOUETTE,
-  LOCATION_LABELS,
+  getLocationLabel,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
 import {
@@ -26,6 +27,7 @@ import {
   darkenColor,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
 
 /**
  * LED-style segmented digit display
@@ -143,38 +145,33 @@ function CornerBrackets({
 
 interface TacticalLocationProps {
   location: MechLocation;
+  /** Resolved position from the layout engine */
+  position: ResolvedPosition;
   data?: LocationArmorData;
   isSelected: boolean;
   isHovered: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
+  /** Mech configuration type for correct label lookup */
+  configType?: MechConfigType;
 }
 
 function TacticalLocation({
   location,
+  position,
   data,
   isSelected,
   isHovered,
   onClick,
   onHover,
-}: TacticalLocationProps): React.ReactElement | null {
-  const basePos = GEOMETRIC_SILHOUETTE.locations[location];
-
-  // Skip rendering if this location is not defined in this silhouette
-  if (!basePos) return null;
-
-  const label = LOCATION_LABELS[location];
+  configType = 'biped',
+}: TacticalLocationProps): React.ReactElement {
+  const label = getLocationLabel(location, configType);
   const showRear = hasTorsoRear(location);
-  const isLeg = location === MechLocation.LEFT_LEG || location === MechLocation.RIGHT_LEG;
+  const isHead = location === MechLocation.HEAD;
 
-  // Adjust height for torso locations to fit stacked layout, offset legs down
-  const TORSO_MULTIPLIER = 1.5;
-  const legOffset = GEOMETRIC_SILHOUETTE.locations[MechLocation.CENTER_TORSO]!.height * (TORSO_MULTIPLIER - 1);
-  const pos = showRear
-    ? { ...basePos, height: basePos.height * TORSO_MULTIPLIER }
-    : isLeg
-      ? { ...basePos, y: basePos.y + legOffset }
-      : basePos;
+  // Use position from layout engine
+  const pos = position;
 
   const center = {
     x: pos.x + pos.width / 2,
@@ -207,8 +204,9 @@ function TacticalLocation({
   const darkRearFill = darkenColor(rearColor, 0.6);
 
   // Layout for stacked front/rear
-  const frontSectionHeight = showRear ? pos.height * 0.55 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.45 : 0;
+  // 60/40 split for consistency across all variants
+  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
   const dividerY = pos.y + frontSectionHeight;
 
   // Tank fill calculations
@@ -272,9 +270,9 @@ function TacticalLocation({
       {/* Front label */}
       <text
         x={center.x}
-        y={pos.y + 10}
+        y={pos.y + (isHead ? 8 : 10)}
         textAnchor="middle"
-        fontSize={7}
+        fontSize={isHead ? 7 : 9}
         fill="#94a3b8"
         fontFamily="monospace"
       >
@@ -285,20 +283,22 @@ function TacticalLocation({
       <LEDDigit
         value={front.toString().padStart(2, '0')}
         x={center.x}
-        y={pos.y + frontSectionHeight / 2 + 4}
-        size={showRear ? 12 : 14}
+        y={pos.y + frontSectionHeight / 2 + (isHead ? 3 : 4)}
+        size={isHead ? 10 : showRear ? 12 : 14}
         color={frontColor}
       />
 
-      {/* Front bar gauge */}
-      <BarGauge
-        x={pos.x + 4}
-        y={pos.y + frontSectionHeight - 8}
-        width={pos.width - 8}
-        height={4}
-        fillPercent={frontPercent}
-        color={frontColor}
-      />
+      {/* Front bar gauge - hide for HEAD due to limited space */}
+      {!isHead && (
+        <BarGauge
+          x={pos.x + 4}
+          y={pos.y + frontSectionHeight - 8}
+          width={pos.width - 8}
+          height={4}
+          fillPercent={frontPercent}
+          color={frontColor}
+        />
+      )}
 
       {showRear && (
         <>
@@ -351,7 +351,7 @@ function TacticalLocation({
             x={center.x}
             y={dividerY + 10}
             textAnchor="middle"
-            fontSize={6}
+            fontSize={9}
             fill="#94a3b8"
             fontFamily="monospace"
           >
@@ -410,6 +410,53 @@ export interface TacticalHUDDiagramProps {
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   className?: string;
+  /** Mech configuration type for layout selection */
+  mechConfigType?: MechConfigType;
+}
+
+/**
+ * Get the locations to render based on mech configuration type
+ */
+function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
+  switch (configType) {
+    case 'quad':
+    case 'quadvee':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.FRONT_LEFT_LEG,
+        MechLocation.FRONT_RIGHT_LEG,
+        MechLocation.REAR_LEFT_LEG,
+        MechLocation.REAR_RIGHT_LEG,
+      ];
+    case 'tripod':
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+        MechLocation.CENTER_LEG,
+      ];
+    case 'lam':
+    case 'biped':
+    default:
+      return [
+        MechLocation.HEAD,
+        MechLocation.CENTER_TORSO,
+        MechLocation.LEFT_TORSO,
+        MechLocation.RIGHT_TORSO,
+        MechLocation.LEFT_ARM,
+        MechLocation.RIGHT_ARM,
+        MechLocation.LEFT_LEG,
+        MechLocation.RIGHT_LEG,
+      ];
+  }
 }
 
 export function TacticalHUDDiagram({
@@ -418,8 +465,15 @@ export function TacticalHUDDiagram({
   unallocatedPoints,
   onLocationClick,
   className = '',
+  mechConfigType = 'biped',
 }: TacticalHUDDiagramProps): React.ReactElement {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+
+  // Get layout ID based on mech configuration type
+  const layoutId = getLayoutIdForConfig(mechConfigType, 'geometric');
+
+  // Use the layout engine to get resolved positions
+  const { layout, getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
@@ -427,16 +481,8 @@ export function TacticalHUDDiagram({
 
   const isOverAllocated = unallocatedPoints < 0;
 
-  const locations: MechLocation[] = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
+  // Get locations based on mech configuration type
+  const locations = getLocationsForConfig(mechConfigType);
 
   return (
     <div className={`bg-surface-deep rounded-lg border border-border-theme-subtle p-4 ${className}`}>
@@ -451,33 +497,40 @@ export function TacticalHUDDiagram({
         </div>
       </div>
 
-      {/* Diagram */}
+      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
-          viewBox="0 0 300 500"
+          viewBox={viewBox}
           className="w-full max-w-[300px] mx-auto"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
 
-          {/* Render all locations */}
-          {locations.map((loc) => (
-            <TacticalLocation
-              key={loc}
-              location={loc}
-              data={getArmorData(loc)}
-              isSelected={selectedLocation === loc}
-              isHovered={hoveredLocation === loc}
-              onClick={() => onLocationClick(loc)}
-              onHover={(h) => setHoveredLocation(h ? loc : null)}
-            />
-          ))}
+          {/* Render all locations using layout engine positions */}
+          {locations.map((loc) => {
+            const position = getPosition(loc);
+            if (!position) return null;
+            
+            return (
+              <TacticalLocation
+                key={loc}
+                location={loc}
+                position={position}
+                data={getArmorData(loc)}
+                isSelected={selectedLocation === loc}
+                isHovered={hoveredLocation === loc}
+                onClick={() => onLocationClick(loc)}
+                onHover={(h) => setHoveredLocation(h ? loc : null)}
+                configType={mechConfigType}
+              />
+            );
+          })}
 
-          {/* Scan line animation */}
+          {/* Scan line animation - uses auto-calculated bounds */}
           <line
-            x1="0"
+            x1={bounds.minX}
             y1="0"
-            x2="300"
+            x2={bounds.maxX}
             y2="0"
             stroke="#22d3ee"
             strokeWidth="1"
@@ -485,13 +538,13 @@ export function TacticalHUDDiagram({
           >
             <animate
               attributeName="y1"
-              values="0;420;0"
+              values={`${bounds.minY};${bounds.maxY};${bounds.minY}`}
               dur="4s"
               repeatCount="indefinite"
             />
             <animate
               attributeName="y2"
-              values="0;420;0"
+              values={`${bounds.minY};${bounds.maxY};${bounds.minY}`}
               dur="4s"
               repeatCount="indefinite"
             />

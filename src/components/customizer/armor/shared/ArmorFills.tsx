@@ -27,6 +27,48 @@ export const FRONT_ARMOR_LIGHT = '#fbbf24';     // amber-400
 export const REAR_ARMOR_LIGHT = '#38bdf8';      // sky-400
 
 /**
+ * MegaMek-specific record sheet colors
+ * Uses beige/cream palette for authentic appearance
+ */
+export const MEGAMEK_COLORS = {
+  HEALTHY: '#d4c896',     // Warm beige - high armor
+  MODERATE: '#c9a868',    // Tan/amber - moderate armor
+  LOW: '#b8905a',         // Brown-tan - low armor
+  CRITICAL: '#a3694a',    // Brown-red - critical armor
+  OUTLINE: '#8b7355',     // Brown/sepia outline
+  SHADOW: '#1a1a1a',      // Shadow color
+} as const;
+
+/**
+ * Get MegaMek status color (beige palette) based on armor percentage
+ */
+export function getMegaMekStatusColor(current: number, maximum: number): string {
+  if (maximum === 0) return MEGAMEK_COLORS.CRITICAL;
+  const ratio = current / maximum;
+
+  if (ratio >= 0.75) return MEGAMEK_COLORS.HEALTHY;
+  if (ratio >= 0.5) return MEGAMEK_COLORS.MODERATE;
+  if (ratio >= 0.25) return MEGAMEK_COLORS.LOW;
+  return MEGAMEK_COLORS.CRITICAL;
+}
+
+/**
+ * Get MegaMek front torso status color
+ */
+export function getMegaMekFrontStatusColor(frontCurrent: number, totalMax: number): string {
+  const expectedFrontMax = Math.round(totalMax * 0.75);
+  return getMegaMekStatusColor(frontCurrent, expectedFrontMax);
+}
+
+/**
+ * Get MegaMek rear torso status color
+ */
+export function getMegaMekRearStatusColor(rearCurrent: number, totalMax: number): string {
+  const expectedRearMax = Math.round(totalMax * 0.25);
+  return getMegaMekStatusColor(rearCurrent, expectedRearMax);
+}
+
+/**
  * Get status color based on armor percentage
  */
 export function getArmorStatusColor(current: number, maximum: number): string {
