@@ -4,7 +4,6 @@ import {
   getTabForCategory,
   getTabLabel,
   createEmptyValidationCounts,
-  ValidationCountsByTab,
 } from '@/utils/validation/validationNavigation';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';

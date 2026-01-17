@@ -1,75 +1,51 @@
 /**
- * App Settings Store
+ * App Settings Store (Compatibility Layer)
  *
- * Global app preferences stored in localStorage.
- * Includes appearance, UI preferences, and feature settings.
+ * This module re-exports from focused stores for backward compatibility.
+ * New code should import directly from the focused stores:
+ * - useAppearanceStore: accent color, font size, animation, compact mode, UI theme
+ * - useCustomizerSettingsStore: armor diagram mode and variant
+ * - useAccessibilityStore: high contrast, reduce motion
+ * - useUIBehaviorStore: sidebar, confirm on close, tooltips
+ *
+ * @deprecated Import from focused stores instead for new code
  */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-/**
- * Armor diagram display mode
- */
-export type ArmorDiagramMode = 'schematic' | 'silhouette';
+// Re-export types from focused stores
+export type {
+  UITheme,
+  AccentColor,
+  FontSize,
+  AnimationLevel,
+  AppearanceSettings,
+} from './useAppearanceStore';
+
+export type {
+  ArmorDiagramMode,
+  ArmorDiagramVariant,
+  CustomizerSettings,
+} from './useCustomizerSettingsStore';
+
+// Re-export CSS mappings
+export { ACCENT_COLOR_CSS, FONT_SIZE_CSS } from './useAppearanceStore';
+
+// Re-export focused stores for direct access
+export { useAppearanceStore } from './useAppearanceStore';
+export { useCustomizerSettingsStore } from './useCustomizerSettingsStore';
+export { useAccessibilityStore } from './useAccessibilityStore';
+export { useUIBehaviorStore } from './useUIBehaviorStore';
+
+// Import focused stores for combined store
+import { useAppearanceStore, type AccentColor, type FontSize, type AnimationLevel, type UITheme, type AppearanceSettings } from './useAppearanceStore';
+import { useCustomizerSettingsStore, type ArmorDiagramMode, type ArmorDiagramVariant, type CustomizerSettings } from './useCustomizerSettingsStore';
+import { useAccessibilityStore } from './useAccessibilityStore';
+import { useUIBehaviorStore } from './useUIBehaviorStore';
 
 /**
- * Armor diagram design variants
- */
-export type ArmorDiagramVariant =
-  | 'clean-tech'
-  | 'neon-operator'
-  | 'tactical-hud'
-  | 'premium-material'
-  | 'megamek';
-
-/**
- * Global UI theme variants
- */
-export type UITheme = 'default' | 'neon' | 'tactical' | 'minimal';
-
-/**
- * Accent color options
- */
-export type AccentColor =
-  | 'amber'
-  | 'cyan'
-  | 'emerald'
-  | 'rose'
-  | 'violet'
-  | 'blue';
-
-/**
- * Font size options
- */
-export type FontSize = 'small' | 'medium' | 'large';
-
-/**
- * Animation preference
- */
-export type AnimationLevel = 'full' | 'reduced' | 'none';
-
-/**
- * Appearance settings that support live preview with save/revert
- */
-export interface AppearanceSettings {
-  accentColor: AccentColor;
-  fontSize: FontSize;
-  animationLevel: AnimationLevel;
-  compactMode: boolean;
-  uiTheme: UITheme;
-}
-
-/**
- * Customizer settings that support live preview with save/revert
- */
-export interface CustomizerSettings {
-  armorDiagramMode: ArmorDiagramMode;
-  armorDiagramVariant: ArmorDiagramVariant;
-}
-
-/**
- * App settings state
+ * App settings state (combined interface for backward compatibility)
  */
 export interface AppSettingsState {
   // Appearance (persisted)
@@ -193,222 +169,309 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
 };
 
 /**
- * App settings store with localStorage persistence
+ * Combined app settings store for backward compatibility.
+ * 
+ * This store delegates to focused stores internally while maintaining
+ * the same external API. For new code, prefer using the focused stores directly.
+ * 
+ * @deprecated Use focused stores (useAppearanceStore, useCustomizerSettingsStore, etc.) for new code
  */
 export const useAppSettingsStore = create<AppSettingsState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       ...DEFAULT_SETTINGS,
 
       // Direct setters (immediately persisted) - used for non-appearance settings
-      setAccentColor: (color) => set({ accentColor: color }),
-      setFontSize: (size) => set({ fontSize: size }),
-      setAnimationLevel: (level) => set({ animationLevel: level }),
-      setCompactMode: (compact) => set({ compactMode: compact }),
+      setAccentColor: (color) => {
+        useAppearanceStore.getState().setAccentColor(color);
+        set({ accentColor: color });
+      },
+      setFontSize: (size) => {
+        useAppearanceStore.getState().setFontSize(size);
+        set({ fontSize: size });
+      },
+      setAnimationLevel: (level) => {
+        useAppearanceStore.getState().setAnimationLevel(level);
+        set({ animationLevel: level });
+      },
+      setCompactMode: (compact) => {
+        useAppearanceStore.getState().setCompactMode(compact);
+        set({ compactMode: compact });
+      },
       // UITheme changes independently of ArmorDiagramVariant
-      setUITheme: (theme) => set({ uiTheme: theme }),
+      setUITheme: (theme) => {
+        useAppearanceStore.getState().setUITheme(theme);
+        set({ uiTheme: theme });
+      },
 
       // Draft setters for live preview (not persisted until save)
-      setDraftAccentColor: (color) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          accentColor: color,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftAccentColor: (color) => {
+        useAppearanceStore.getState().setDraftAccentColor(color);
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            accentColor: color,
+          },
+          hasUnsavedOtherAppearance: true,
+        }));
+      },
 
-      setDraftFontSize: (size) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          fontSize: size,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftFontSize: (size) => {
+        useAppearanceStore.getState().setDraftFontSize(size);
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            fontSize: size,
+          },
+          hasUnsavedOtherAppearance: true,
+        }));
+      },
 
-      setDraftAnimationLevel: (level) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          animationLevel: level,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftAnimationLevel: (level) => {
+        useAppearanceStore.getState().setDraftAnimationLevel(level);
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            animationLevel: level,
+          },
+          hasUnsavedOtherAppearance: true,
+        }));
+      },
 
-      setDraftCompactMode: (compact) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          compactMode: compact,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftCompactMode: (compact) => {
+        useAppearanceStore.getState().setDraftCompactMode(compact);
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            compactMode: compact,
+          },
+          hasUnsavedOtherAppearance: true,
+        }));
+      },
 
       // Draft UITheme - tracked separately from other appearance settings
-      setDraftUITheme: (theme) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
+      setDraftUITheme: (theme) => {
+        useAppearanceStore.getState().setDraftUITheme(theme);
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            uiTheme: theme,
+          },
+          hasUnsavedUITheme: true,
+        }));
+      },
+
+      // Initialize draft with current saved values (call when entering settings)
+      initDraftAppearance: () => {
+        useAppearanceStore.getState().initDraftAppearance();
+        set((state) => ({
+          draftAppearance: {
             accentColor: state.accentColor,
             fontSize: state.fontSize,
             animationLevel: state.animationLevel,
             compactMode: state.compactMode,
             uiTheme: state.uiTheme,
-          }),
-          uiTheme: theme,
-        },
-        hasUnsavedUITheme: true,
-      })),
-
-      // Initialize draft with current saved values (call when entering settings)
-      initDraftAppearance: () => set((state) => ({
-        draftAppearance: {
-          accentColor: state.accentColor,
-          fontSize: state.fontSize,
-          animationLevel: state.animationLevel,
-          compactMode: state.compactMode,
-          uiTheme: state.uiTheme,
-        },
-        hasUnsavedUITheme: false,
-        hasUnsavedOtherAppearance: false,
-      })),
+          },
+          hasUnsavedUITheme: false,
+          hasUnsavedOtherAppearance: false,
+        }));
+      },
 
       // Save UI Theme only (separate from other appearance settings)
-      saveUITheme: () => set((state) => {
-        if (!state.draftAppearance) return state;
-        return {
-          uiTheme: state.draftAppearance.uiTheme,
-          hasUnsavedUITheme: false,
-        };
-      }),
+      saveUITheme: () => {
+        useAppearanceStore.getState().saveUITheme();
+        set((state) => {
+          if (!state.draftAppearance) return state;
+          return {
+            uiTheme: state.draftAppearance.uiTheme,
+            hasUnsavedUITheme: false,
+          };
+        });
+      },
 
       // Save other appearance settings (accent, font, animation, compact) - NOT theme
-      saveOtherAppearance: () => set((state) => {
-        if (!state.draftAppearance) return state;
-        return {
-          accentColor: state.draftAppearance.accentColor,
-          fontSize: state.draftAppearance.fontSize,
-          animationLevel: state.draftAppearance.animationLevel,
-          compactMode: state.draftAppearance.compactMode,
-          hasUnsavedOtherAppearance: false,
-        };
-      }),
+      saveOtherAppearance: () => {
+        useAppearanceStore.getState().saveOtherAppearance();
+        set((state) => {
+          if (!state.draftAppearance) return state;
+          return {
+            accentColor: state.draftAppearance.accentColor,
+            fontSize: state.draftAppearance.fontSize,
+            animationLevel: state.draftAppearance.animationLevel,
+            compactMode: state.draftAppearance.compactMode,
+            hasUnsavedOtherAppearance: false,
+          };
+        });
+      },
 
       // Revert draft to saved state (call when leaving settings without save)
       // ArmorDiagramVariant is independent and not affected by appearance revert
-      revertAppearance: () => set({
-        draftAppearance: null,
-        hasUnsavedUITheme: false,
-        hasUnsavedOtherAppearance: false,
-      }),
+      revertAppearance: () => {
+        useAppearanceStore.getState().revertAppearance();
+        set({
+          draftAppearance: null,
+          hasUnsavedUITheme: false,
+          hasUnsavedOtherAppearance: false,
+        });
+      },
 
       // Getters for effective appearance (draft if exists, otherwise saved)
       getEffectiveAccentColor: () => {
-        const state = get();
-        return state.draftAppearance?.accentColor ?? state.accentColor;
+        return useAppearanceStore.getState().getEffectiveAccentColor();
       },
 
       getEffectiveUITheme: () => {
-        const state = get();
-        return state.draftAppearance?.uiTheme ?? state.uiTheme;
+        return useAppearanceStore.getState().getEffectiveUITheme();
       },
 
       getEffectiveFontSize: () => {
-        const state = get();
-        return state.draftAppearance?.fontSize ?? state.fontSize;
+        return useAppearanceStore.getState().getEffectiveFontSize();
       },
 
       // Draft customizer setters for live preview (not persisted until save)
-      setDraftArmorDiagramMode: (mode) => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: mode,
-          armorDiagramVariant: state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant,
-        },
-        hasUnsavedCustomizer: true,
-      })),
+      setDraftArmorDiagramMode: (mode) => {
+        useCustomizerSettingsStore.getState().setDraftArmorDiagramMode(mode);
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode: mode,
+            armorDiagramVariant: state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant,
+          },
+          hasUnsavedCustomizer: true,
+        }));
+      },
 
-      setDraftArmorDiagramVariant: (variant) => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
-          armorDiagramVariant: variant,
-        },
-        hasUnsavedCustomizer: true,
-      })),
+      setDraftArmorDiagramVariant: (variant) => {
+        useCustomizerSettingsStore.getState().setDraftArmorDiagramVariant(variant);
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode: state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
+            armorDiagramVariant: variant,
+          },
+          hasUnsavedCustomizer: true,
+        }));
+      },
 
       // Initialize draft customizer with current saved values (call when entering customizer settings)
-      initDraftCustomizer: () => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: state.armorDiagramMode,
-          armorDiagramVariant: state.armorDiagramVariant,
-        },
-        hasUnsavedCustomizer: false,
-      })),
+      initDraftCustomizer: () => {
+        useCustomizerSettingsStore.getState().initDraftCustomizer();
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode: state.armorDiagramMode,
+            armorDiagramVariant: state.armorDiagramVariant,
+          },
+          hasUnsavedCustomizer: false,
+        }));
+      },
 
       // Save draft customizer to persisted state
-      saveCustomizer: () => set((state) => {
-        if (!state.draftCustomizer) return state;
-        return {
-          armorDiagramMode: state.draftCustomizer.armorDiagramMode,
-          armorDiagramVariant: state.draftCustomizer.armorDiagramVariant,
-          hasUnsavedCustomizer: false,
-        };
-      }),
+      saveCustomizer: () => {
+        useCustomizerSettingsStore.getState().saveCustomizer();
+        set((state) => {
+          if (!state.draftCustomizer) return state;
+          return {
+            armorDiagramMode: state.draftCustomizer.armorDiagramMode,
+            armorDiagramVariant: state.draftCustomizer.armorDiagramVariant,
+            hasUnsavedCustomizer: false,
+          };
+        });
+      },
 
       // Revert draft customizer to saved state (call when leaving customizer without save)
-      revertCustomizer: () => set({
-        draftCustomizer: null,
-        hasUnsavedCustomizer: false,
-      }),
+      revertCustomizer: () => {
+        useCustomizerSettingsStore.getState().revertCustomizer();
+        set({
+          draftCustomizer: null,
+          hasUnsavedCustomizer: false,
+        });
+      },
 
       // Getters for effective customizer (draft if exists, otherwise saved)
       getEffectiveArmorDiagramMode: () => {
-        const state = get();
-        return state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode;
+        return useCustomizerSettingsStore.getState().getEffectiveArmorDiagramMode();
       },
 
       getEffectiveArmorDiagramVariant: () => {
-        const state = get();
-        return state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant;
+        return useCustomizerSettingsStore.getState().getEffectiveArmorDiagramVariant();
       },
 
       // Other settings (immediately persisted)
-      setArmorDiagramMode: (mode) => set({ armorDiagramMode: mode }),
-      setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
-      setShowArmorDiagramSelector: (show) => set({ showArmorDiagramSelector: show }),
-      setSidebarDefaultCollapsed: (collapsed) => set({ sidebarDefaultCollapsed: collapsed }),
-      setConfirmOnClose: (confirm) => set({ confirmOnClose: confirm }),
-      setShowTooltips: (show) => set({ showTooltips: show }),
-      setHighContrast: (enabled) => set({ highContrast: enabled }),
-      setReduceMotion: (enabled) => set({ reduceMotion: enabled }),
+      setArmorDiagramMode: (mode) => {
+        useCustomizerSettingsStore.getState().setArmorDiagramMode(mode);
+        set({ armorDiagramMode: mode });
+      },
+      setArmorDiagramVariant: (variant) => {
+        useCustomizerSettingsStore.getState().setArmorDiagramVariant(variant);
+        set({ armorDiagramVariant: variant });
+      },
+      setShowArmorDiagramSelector: (show) => {
+        useCustomizerSettingsStore.getState().setShowArmorDiagramSelector(show);
+        set({ showArmorDiagramSelector: show });
+      },
+      setSidebarDefaultCollapsed: (collapsed) => {
+        useUIBehaviorStore.getState().setSidebarDefaultCollapsed(collapsed);
+        set({ sidebarDefaultCollapsed: collapsed });
+      },
+      setConfirmOnClose: (confirm) => {
+        useUIBehaviorStore.getState().setConfirmOnClose(confirm);
+        set({ confirmOnClose: confirm });
+      },
+      setShowTooltips: (show) => {
+        useUIBehaviorStore.getState().setShowTooltips(show);
+        set({ showTooltips: show });
+      },
+      setHighContrast: (enabled) => {
+        useAccessibilityStore.getState().setHighContrast(enabled);
+        set({ highContrast: enabled });
+      },
+      setReduceMotion: (enabled) => {
+        useAccessibilityStore.getState().setReduceMotion(enabled);
+        set({ reduceMotion: enabled });
+      },
 
-      resetToDefaults: () => set({
-        ...DEFAULT_SETTINGS,
-        draftAppearance: null,
-        hasUnsavedUITheme: false,
-        hasUnsavedOtherAppearance: false,
-        draftCustomizer: null,
-        hasUnsavedCustomizer: false,
-      }),
+      resetToDefaults: () => {
+        useAppearanceStore.getState().resetToDefaults();
+        useCustomizerSettingsStore.getState().resetToDefaults();
+        useAccessibilityStore.getState().resetToDefaults();
+        useUIBehaviorStore.getState().resetToDefaults();
+        set({
+          ...DEFAULT_SETTINGS,
+          draftAppearance: null,
+          hasUnsavedUITheme: false,
+          hasUnsavedOtherAppearance: false,
+          draftCustomizer: null,
+          hasUnsavedCustomizer: false,
+        });
+      },
     }),
     {
       name: 'mekstation-app-settings',
@@ -431,48 +494,3 @@ export const useAppSettingsStore = create<AppSettingsState>()(
     }
   )
 );
-
-/**
- * Accent color CSS variable mappings
- */
-export const ACCENT_COLOR_CSS: Record<AccentColor, { primary: string; hover: string; muted: string }> = {
-  amber: {
-    primary: '#f59e0b',
-    hover: '#d97706',
-    muted: 'rgba(245, 158, 11, 0.15)',
-  },
-  cyan: {
-    primary: '#06b6d4',
-    hover: '#0891b2',
-    muted: 'rgba(6, 182, 212, 0.15)',
-  },
-  emerald: {
-    primary: '#10b981',
-    hover: '#059669',
-    muted: 'rgba(16, 185, 129, 0.15)',
-  },
-  rose: {
-    primary: '#f43f5e',
-    hover: '#e11d48',
-    muted: 'rgba(244, 63, 94, 0.15)',
-  },
-  violet: {
-    primary: '#8b5cf6',
-    hover: '#7c3aed',
-    muted: 'rgba(139, 92, 246, 0.15)',
-  },
-  blue: {
-    primary: '#3b82f6',
-    hover: '#2563eb',
-    muted: 'rgba(59, 130, 246, 0.15)',
-  },
-};
-
-/**
- * Font size CSS mappings
- */
-export const FONT_SIZE_CSS: Record<FontSize, string> = {
-  small: '14px',
-  medium: '16px',
-  large: '18px',
-};

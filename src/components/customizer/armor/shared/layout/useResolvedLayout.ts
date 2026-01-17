@@ -185,7 +185,7 @@ export function useResolvedLayout(
 
   const layout = useMemo(() => {
     return resolveLayout(config, options);
-  }, [config, options.scale, options.padding, options.validate, options.debug]);
+  }, [config, options]);
 
   const validation = useMemo(() => {
     return validateLayout(layout, config);

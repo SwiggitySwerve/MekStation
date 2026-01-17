@@ -8,7 +8,7 @@
  * - Symmetric parts have proper separation
  */
 
-import { resolveLayout, calculateViewBox } from '../LayoutEngine';
+import { resolveLayout } from '../LayoutEngine';
 import { validateLayout, formatValidationResult } from '../LayoutValidator';
 import {
   GEOMETRIC_BIPED_LAYOUT,
@@ -187,7 +187,7 @@ describe('Layout Validation', () => {
         [MechLocation.REAR_LEFT_LEG, MechLocation.REAR_RIGHT_LEG],
       ];
 
-      const minGap = config.minGap || 5;
+      const _minGap = config.minGap || 5;
       const violations: string[] = [];
 
       for (const [leftPart, rightPart] of symmetricPairs) {
@@ -217,7 +217,7 @@ describe('Layout Validation', () => {
     });
 
     it('should have positive dimensions for all parts', () => {
-      for (const [loc, pos] of Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>) {
+      for (const [_loc, pos] of Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>) {
         expect(pos.width).toBeGreaterThan(0);
         expect(pos.height).toBeGreaterThan(0);
       }
@@ -227,7 +227,7 @@ describe('Layout Validation', () => {
       const viewBoxParts = layout.viewBox.split(' ').map(Number);
       const [vbX, vbY, vbWidth, vbHeight] = viewBoxParts;
 
-      for (const [loc, pos] of Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>) {
+      for (const [_loc, pos] of Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>) {
         expect(pos.x).toBeGreaterThanOrEqual(vbX);
         expect(pos.y).toBeGreaterThanOrEqual(vbY);
         expect(pos.x + pos.width).toBeLessThanOrEqual(vbX + vbWidth);
