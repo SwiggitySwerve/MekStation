@@ -307,19 +307,20 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
     set({ error: null });
 
     try {
-      const pilot = get().pilots.find((p) => p.id === pilotId);
-      if (!pilot) {
-        set({ error: 'Pilot not found' });
+      // Call dedicated endpoint that enforces XP cost via service
+      const response = await fetch(`/api/pilots/${pilotId}/improve-gunnery`, {
+        method: 'POST',
+      });
+
+      const data = (await response.json()) as { success: boolean; error?: string };
+
+      if (data.success) {
+        await get().loadPilots();
+        return true;
+      } else {
+        set({ error: data.error || 'Failed to improve gunnery' });
         return false;
       }
-
-      // Update skills via API
-      const newSkills = {
-        ...pilot.skills,
-        gunnery: pilot.skills.gunnery - 1,
-      };
-
-      return get().updatePilot(pilotId, { skills: newSkills });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to improve gunnery';
       set({ error: message });
@@ -331,19 +332,20 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
     set({ error: null });
 
     try {
-      const pilot = get().pilots.find((p) => p.id === pilotId);
-      if (!pilot) {
-        set({ error: 'Pilot not found' });
+      // Call dedicated endpoint that enforces XP cost via service
+      const response = await fetch(`/api/pilots/${pilotId}/improve-piloting`, {
+        method: 'POST',
+      });
+
+      const data = (await response.json()) as { success: boolean; error?: string };
+
+      if (data.success) {
+        await get().loadPilots();
+        return true;
+      } else {
+        set({ error: data.error || 'Failed to improve piloting' });
         return false;
       }
-
-      // Update skills via API
-      const newSkills = {
-        ...pilot.skills,
-        piloting: pilot.skills.piloting - 1,
-      };
-
-      return get().updatePilot(pilotId, { skills: newSkills });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to improve piloting';
       set({ error: message });
@@ -409,20 +411,21 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
     set({ error: null });
 
     try {
-      const pilot = get().pilots.find((p) => p.id === pilotId);
-      if (!pilot) {
-        set({ error: 'Pilot not found' });
+      const response = await fetch(`/api/pilots/${pilotId}/purchase-ability`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ abilityId }),
+      });
+
+      const data = (await response.json()) as { success: boolean; error?: string };
+
+      if (data.success) {
+        await get().loadPilots();
+        return true;
+      } else {
+        set({ error: data.error || 'Failed to purchase ability' });
         return false;
       }
-
-      // Add ability to pilot's list
-      const now = new Date().toISOString();
-      const newAbilities = [
-        ...pilot.abilities,
-        { abilityId, acquiredDate: now },
-      ];
-
-      return get().updatePilot(pilotId, { abilities: newAbilities } as Partial<IPilot>);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to purchase ability';
       set({ error: message });
