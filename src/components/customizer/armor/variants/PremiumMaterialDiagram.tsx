@@ -26,6 +26,7 @@ import {
   getTorsoRearStatusColor,
   darkenColor,
   lightenColor,
+  ARMOR_STATUS,
 } from '../shared/ArmorFills';
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
@@ -566,19 +567,19 @@ export function PremiumMaterialDiagram({
       <div className="flex justify-center gap-4 mt-5">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
-          <span className="text-xs text-text-theme-secondary">75%+</span>
+          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
-          <span className="text-xs text-text-theme-secondary">50%+</span>
+          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
-          <span className="text-xs text-text-theme-secondary">25%+</span>
+          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
-          <span className="text-xs text-text-theme-secondary">&lt;25%</span>
+          <span className="text-xs text-text-theme-secondary">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PremiumMaterialDiagram } from '@/components/customizer/armor/variants/PremiumMaterialDiagram';
 import { MechLocation } from '@/types/construction';
+import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 
 describe('PremiumMaterialDiagram', () => {
   const mockArmorData = [
@@ -37,10 +38,14 @@ describe('PremiumMaterialDiagram', () => {
   it('should display legend with status indicators', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    expect(screen.getByText('75%+')).toBeInTheDocument();
-    expect(screen.getByText('50%+')).toBeInTheDocument();
-    expect(screen.getByText('25%+')).toBeInTheDocument();
-    expect(screen.getByText('<25%')).toBeInTheDocument();
+    const healthyPct = Math.round(ARMOR_STATUS.HEALTHY.min * 100);
+    const moderatePct = Math.round(ARMOR_STATUS.MODERATE.min * 100);
+    const lowPct = Math.round(ARMOR_STATUS.LOW.min * 100);
+
+    expect(screen.getByText(`${healthyPct}%+`)).toBeInTheDocument();
+    expect(screen.getByText(`${moderatePct}%+`)).toBeInTheDocument();
+    expect(screen.getByText(`${lowPct}%+`)).toBeInTheDocument();
+    expect(screen.getByText(`<${lowPct}%`)).toBeInTheDocument();
   });
 
   it('should display instruction text', () => {

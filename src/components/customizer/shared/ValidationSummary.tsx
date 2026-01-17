@@ -73,7 +73,8 @@ export function ValidationSummary({
     }
   }, [isOpen]);
   
-  if (validation.isValid) {
+  // Only show "Valid" badge if there are no errors, warnings, or infos
+  if (validation.isValid && validation.warningCount === 0 && validation.infoCount === 0) {
     return (
       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30 ${className}`}>
         <span>✓</span>
@@ -82,8 +83,17 @@ export function ValidationSummary({
     );
   }
   
-  const badgeBg = validation.errorCount > 0 ? 'bg-red-500/20 border-red-500/30' : 'bg-amber-500/20 border-amber-500/30';
-  const badgeText = validation.errorCount > 0 ? 'text-red-300' : 'text-amber-300';
+  // Determine badge color based on most severe issue type
+  const badgeBg = validation.errorCount > 0 
+    ? 'bg-red-500/20 border-red-500/30' 
+    : validation.warningCount > 0 
+      ? 'bg-amber-500/20 border-amber-500/30'
+      : 'bg-blue-500/20 border-blue-500/30';
+  const badgeText = validation.errorCount > 0 
+    ? 'text-red-300' 
+    : validation.warningCount > 0 
+      ? 'text-amber-300'
+      : 'text-blue-300';
   
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -103,6 +113,12 @@ export function ValidationSummary({
           <span className="flex items-center gap-0.5">
             <span>⚠️</span>
             <span>{validation.warningCount}</span>
+          </span>
+        )}
+        {validation.infoCount > 0 && (
+          <span className="flex items-center gap-0.5">
+            <span>ℹ️</span>
+            <span>{validation.infoCount}</span>
           </span>
         )}
         <span className="text-[10px]">{isOpen ? '▲' : '▼'}</span>

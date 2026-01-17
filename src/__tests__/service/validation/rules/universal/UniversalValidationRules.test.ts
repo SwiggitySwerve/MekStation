@@ -230,32 +230,127 @@ describe('UniversalValidationRules', () => {
     });
   });
 
-  describe('VAL-UNIV-013: Armor Allocation Warning', () => {
-    it('should pass with no warnings when armor is allocated', () => {
-      const unit = createBaseUnit({ totalArmorPoints: 100 });
+  describe('VAL-UNIV-013: Armor Allocation Validation', () => {
+    // Helper to create armor allocation with displayName for all configurations
+    const createFullArmorAllocation = (armorValue: number, maxValue: number = 10) => ({
+      head: { current: armorValue, max: 9, displayName: 'Head' },
+      centerTorso: { current: armorValue, max: maxValue, displayName: 'Center Torso' },
+      centerTorsoRear: { current: armorValue, max: maxValue, displayName: 'Center Torso (Rear)' },
+      leftTorso: { current: armorValue, max: maxValue, displayName: 'Left Torso' },
+      leftTorsoRear: { current: armorValue, max: maxValue, displayName: 'Left Torso (Rear)' },
+      rightTorso: { current: armorValue, max: maxValue, displayName: 'Right Torso' },
+      rightTorsoRear: { current: armorValue, max: maxValue, displayName: 'Right Torso (Rear)' },
+      leftArm: { current: armorValue, max: maxValue, displayName: 'Left Arm' },
+      rightArm: { current: armorValue, max: maxValue, displayName: 'Right Arm' },
+      leftLeg: { current: armorValue, max: maxValue, displayName: 'Left Leg' },
+      rightLeg: { current: armorValue, max: maxValue, displayName: 'Right Leg' },
+    });
+
+    it('should pass with no errors/warnings when armor is fully allocated', () => {
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 100,
+        armorByLocation: createFullArmorAllocation(10, 10),
+      });
       const result = ArmorAllocationWarning.validate(createContext(unit));
       expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
       expect(result.warnings).toHaveLength(0);
     });
 
-    it('should emit warning when armor is zero', () => {
-      const unit = createBaseUnit({ totalArmorPoints: 0 });
+    it('should emit errors when any location has zero armor', () => {
+      const armorByLocation = createFullArmorAllocation(10, 10);
+      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };
+      armorByLocation.centerTorso = { current: 0, max: 10, displayName: 'Center Torso' };
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 80,
+        armorByLocation,
+      });
       const result = ArmorAllocationWarning.validate(createContext(unit));
-      expect(result.passed).toBe(true);
-      expect(result.warnings).toHaveLength(1);
-      expect(result.warnings[0].message).toContain('no armor allocated');
+      expect(result.passed).toBe(false);
+      expect(result.errors).toHaveLength(2);
+      expect(result.errors[0].message).toContain('has no armor');
     });
 
-    it('should skip validation when totalArmorPoints is undefined', () => {
-      const unit = createBaseUnit();
+    it('should emit warnings when armor is below 50% of max', () => {
+      const armorByLocation = createFullArmorAllocation(10, 20); // 50% of max
+      armorByLocation.head = { current: 3, max: 9, displayName: 'Head' }; // Below 50%
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 90,
+        armorByLocation,
+      });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings[0].message).toContain('has low armor');
+    });
+
+    it('should skip validation when armorByLocation is undefined', () => {
+      const unit = createBaseUnit({ totalArmorPoints: 50 });
       const context = createContext(unit);
       expect(ArmorAllocationWarning.canValidate!(context)).toBe(false);
     });
 
-    it('should validate when totalArmorPoints is defined', () => {
-      const unit = createBaseUnit({ totalArmorPoints: 50 });
+    it('should validate when armorByLocation is defined', () => {
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 50,
+        armorByLocation: createFullArmorAllocation(5, 10),
+      });
       const context = createContext(unit);
       expect(ArmorAllocationWarning.canValidate!(context)).toBe(true);
+    });
+
+    it('should handle quad mech locations', () => {
+      // Quad mechs have 4 legs instead of 2 arms + 2 legs
+      const quadArmorAllocation = {
+        head: { current: 9, max: 9, displayName: 'Head' },
+        centerTorso: { current: 10, max: 10, displayName: 'Center Torso' },
+        centerTorsoRear: { current: 5, max: 10, displayName: 'Center Torso (Rear)' },
+        leftTorso: { current: 10, max: 10, displayName: 'Left Torso' },
+        leftTorsoRear: { current: 5, max: 10, displayName: 'Left Torso (Rear)' },
+        rightTorso: { current: 10, max: 10, displayName: 'Right Torso' },
+        rightTorsoRear: { current: 5, max: 10, displayName: 'Right Torso (Rear)' },
+        frontLeftLeg: { current: 10, max: 10, displayName: 'Front Left Leg' },
+        frontRightLeg: { current: 10, max: 10, displayName: 'Front Right Leg' },
+        rearLeftLeg: { current: 10, max: 10, displayName: 'Rear Left Leg' },
+        rearRightLeg: { current: 10, max: 10, displayName: 'Rear Right Leg' },
+      };
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 99,
+        armorByLocation: quadArmorAllocation,
+      });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should handle tripod mech locations', () => {
+      // Tripod mechs have 2 arms + 3 legs (including center leg)
+      const tripodArmorAllocation = {
+        head: { current: 9, max: 9, displayName: 'Head' },
+        centerTorso: { current: 10, max: 10, displayName: 'Center Torso' },
+        centerTorsoRear: { current: 5, max: 10, displayName: 'Center Torso (Rear)' },
+        leftTorso: { current: 10, max: 10, displayName: 'Left Torso' },
+        leftTorsoRear: { current: 5, max: 10, displayName: 'Left Torso (Rear)' },
+        rightTorso: { current: 10, max: 10, displayName: 'Right Torso' },
+        rightTorsoRear: { current: 5, max: 10, displayName: 'Right Torso (Rear)' },
+        leftArm: { current: 10, max: 10, displayName: 'Left Arm' },
+        rightArm: { current: 10, max: 10, displayName: 'Right Arm' },
+        leftLeg: { current: 10, max: 10, displayName: 'Left Leg' },
+        rightLeg: { current: 10, max: 10, displayName: 'Right Leg' },
+        centerLeg: { current: 10, max: 10, displayName: 'Center Leg' },
+      };
+      
+      const unit = createBaseUnit({ 
+        totalArmorPoints: 109,
+        armorByLocation: tripodArmorAllocation,
+      });
+      const result = ArmorAllocationWarning.validate(createContext(unit));
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
     });
   });
 });

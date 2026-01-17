@@ -127,7 +127,7 @@ describe('ValidationSummary', () => {
   });
 
   describe('when has warnings only', () => {
-    it('should show valid badge since warnings alone do not invalidate unit', () => {
+    it('should show warning badge with count when there are warnings but no errors', () => {
       const validation = createMockValidationState({
         isValid: true,
         errorCount: 0,
@@ -140,8 +140,29 @@ describe('ValidationSummary', () => {
       
       render(<ValidationSummary validation={validation} />);
       
-      expect(screen.getByText('✓')).toBeInTheDocument();
-      expect(screen.getByText('Valid')).toBeInTheDocument();
+      // Should show warning icon and count, not "Valid"
+      expect(screen.getByText('⚠️')).toBeInTheDocument();
+      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.queryByText('Valid')).not.toBeInTheDocument();
+    });
+
+    it('should show dropdown with warnings when clicked', () => {
+      const validation = createMockValidationState({
+        isValid: true,
+        errorCount: 0,
+        warningCount: 1,
+        result: createMockResult([], [
+          { message: 'Warning message', category: ValidationCategory.ARMOR },
+        ]),
+      });
+      
+      render(<ValidationSummary validation={validation} />);
+      
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      
+      expect(screen.getByText('Validation Issues')).toBeInTheDocument();
+      expect(screen.getByText('Warning message')).toBeInTheDocument();
     });
   });
 

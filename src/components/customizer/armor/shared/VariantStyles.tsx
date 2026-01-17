@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { ARMOR_STATUS } from './ArmorFills';
 
 /**
  * Variant-specific styling configuration
@@ -227,9 +228,10 @@ export function VariantLegend({
             }}
           />
           <span className={style.legendTextClass}>
-            {status === 'healthy' ? '75%+' :
-             status === 'moderate' ? '50%+' :
-             status === 'low' ? '25%+' : '<25%'}
+            {status === 'healthy' ? `${Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+` :
+             status === 'moderate' ? `${Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+` :
+             status === 'low' ? `${Math.round(ARMOR_STATUS.LOW.min * 100)}%+` :
+             `<${Math.round(ARMOR_STATUS.LOW.min * 100)}%`}
           </span>
         </div>
       ))}

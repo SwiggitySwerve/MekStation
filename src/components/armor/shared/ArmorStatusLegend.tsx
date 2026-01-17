@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 
 export interface ArmorStatusLegendProps {
   /** Additional CSS classes */
@@ -18,23 +19,27 @@ export interface ArmorStatusLegendProps {
 export function ArmorStatusLegend({
   className = '',
 }: ArmorStatusLegendProps): React.ReactElement {
+  const healthyPct = Math.round(ARMOR_STATUS.HEALTHY.min * 100);
+  const moderatePct = Math.round(ARMOR_STATUS.MODERATE.min * 100);
+  const lowPct = Math.round(ARMOR_STATUS.LOW.min * 100);
+
   return (
     <div className={`flex justify-center gap-3 mt-4 text-xs ${className}`}>
       <div className="flex items-center gap-1.5">
         <div className="w-3 h-3 rounded bg-green-500" />
-        <span className="text-text-theme-secondary">75%+</span>
+        <span className="text-text-theme-secondary">{healthyPct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
         <div className="w-3 h-3 rounded bg-amber-500" />
-        <span className="text-text-theme-secondary">50%+</span>
+        <span className="text-text-theme-secondary">{moderatePct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
         <div className="w-3 h-3 rounded bg-orange-500" />
-        <span className="text-text-theme-secondary">25%+</span>
+        <span className="text-text-theme-secondary">{lowPct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
         <div className="w-3 h-3 rounded bg-red-500" />
-        <span className="text-text-theme-secondary">&lt;25%</span>
+        <span className="text-text-theme-secondary">&lt;{lowPct}%</span>
       </div>
     </div>
   );

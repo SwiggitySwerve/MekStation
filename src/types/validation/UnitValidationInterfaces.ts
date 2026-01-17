@@ -81,7 +81,29 @@ export interface IValidatableUnit {
   readonly heatSinkType?: string;
   readonly totalArmorPoints?: number;
   readonly maxArmorPoints?: number;
+
+  // Per-location armor allocation for detailed validation
+  readonly armorByLocation?: IArmorByLocation;
 }
+
+/**
+ * Single armor location entry with current and max values
+ */
+export interface IArmorLocationEntry {
+  readonly current: number;
+  readonly max: number;
+  readonly displayName: string;
+}
+
+/**
+ * Per-location armor allocation with current and max values
+ * Uses a flexible Record to support all mech configurations:
+ * - Biped: head, CT, LT, RT, LA, RA, LL, RL (+ rear torsos)
+ * - Quad: head, CT, LT, RT, FLL, FRL, RLL, RRL (+ rear torsos)
+ * - Tripod: head, CT, LT, RT, LA, RA, LL, RL, CL (+ rear torsos)
+ * - LAM: same as Biped
+ */
+export type IArmorByLocation = Record<string, IArmorLocationEntry>;
 
 /**
  * Extended validation context for unit validation
