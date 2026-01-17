@@ -20,6 +20,10 @@ export { useTabManagerStore } from './useTabManagerStore';
 export type { TabInfo, TabManagerState } from './useTabManagerStore';
 export { UnitStoreProvider, useHasUnitStore } from './UnitStoreProvider';
 
+// Vehicle store
+export * from './vehicleState';
+export * from './useVehicleStore';
+
 // App settings (main store + focused stores)
 export * from './useAppSettingsStore';
 export * from './useAppearanceStore';
