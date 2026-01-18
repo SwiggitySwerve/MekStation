@@ -117,8 +117,138 @@ export interface IPilotCareer {
   readonly rank: string;
 }
 
+// =============================================================================
+// Effect Parameter Types (Discriminated Union)
+// =============================================================================
+
+/**
+ * Effect parameters for to-hit modifier abilities.
+ * Used with AbilityEffectType.ToHitModifier
+ */
+export interface IToHitModifierParams {
+  /** To-hit roll modifier (negative = better) */
+  readonly modifier: number;
+  /** Optional condition when this modifier applies */
+  readonly condition?: 'aimed_shot' | 'medium_range' | 'multi_target' | string;
+  /** Optional weapon type filter */
+  readonly weaponType?: 'selected' | string;
+  /** Optional weapon category filter */
+  readonly weaponCategory?: 'direct_fire' | 'missile' | string;
+  /** Optional range restriction */
+  readonly range?: 'short' | 'medium' | 'long';
+}
+
+/**
+ * Effect parameters for damage modifier abilities.
+ * Used with AbilityEffectType.DamageModifier
+ */
+export interface IDamageModifierParams {
+  /** Damage multiplier (e.g., 1.5 for +50% damage) */
+  readonly multiplier?: number;
+  /** Cluster hit table column shift for missiles */
+  readonly clusterColumnShift?: number;
+  /** Optional weapon category filter */
+  readonly weaponCategory?: 'missile' | 'ballistic' | 'energy' | string;
+  /** Optional weapon type filter */
+  readonly weaponType?: string;
+}
+
+/**
+ * Effect parameters for piloting modifier abilities.
+ * Used with AbilityEffectType.PilotingModifier
+ */
+export interface IPilotingModifierParams {
+  /** Piloting skill roll modifier (negative = better) */
+  readonly modifier: number;
+  /** Condition when this modifier applies */
+  readonly condition?: 'jump_landing' | 'dfa_attack' | 'difficult_terrain' | string;
+}
+
+/**
+ * Effect parameters for target movement modifier abilities.
+ * Used with AbilityEffectType.TMMModifier
+ */
+export interface ITMMModifierParams {
+  /** TMM modifier (positive = harder to hit) */
+  readonly modifier: number;
+  /** Condition when this modifier applies */
+  readonly condition?: 'running_or_jumping' | string;
+}
+
+/**
+ * Effect parameters for consciousness check modifier abilities.
+ * Used with AbilityEffectType.ConsciousnessModifier
+ */
+export interface IConsciousnessModifierParams {
+  /** Consciousness check modifier (negative = better) */
+  readonly modifier: number;
+}
+
+/**
+ * Effect parameters for heat management abilities.
+ * Used with AbilityEffectType.HeatModifier
+ */
+export interface IHeatModifierParams {
+  /** Heat reduction per turn */
+  readonly heatReduction?: number;
+  /** Shutdown threshold increase */
+  readonly shutdownThresholdIncrease?: number;
+}
+
+/**
+ * Effect parameters for initiative modifier abilities.
+ * Used with AbilityEffectType.InitiativeModifier
+ */
+export interface IInitiativeModifierParams {
+  /** Initiative roll modifier */
+  readonly modifier: number;
+}
+
+/**
+ * Effect parameters for special abilities with unique mechanics.
+ * Used with AbilityEffectType.Special
+ */
+export interface ISpecialAbilityParams {
+  /** Ignore first wound penalty */
+  readonly ignoreFirstWoundPenalty?: boolean;
+  /** Number of rerolls per game */
+  readonly rerollsPerGame?: number;
+  /** Extra movement hexes */
+  readonly extraMovement?: number;
+  /** Heat cost for extra movement */
+  readonly heatCost?: number;
+  /** Condition when special ability applies */
+  readonly condition?: string;
+  /** Other special parameters */
+  readonly [key: string]: unknown;
+}
+
+/**
+ * Discriminated union of all effect parameter types.
+ * The type is determined by the effectType field in ISpecialAbility.
+ */
+export type AbilityEffectParams =
+  | IToHitModifierParams
+  | IDamageModifierParams
+  | IPilotingModifierParams
+  | ITMMModifierParams
+  | IConsciousnessModifierParams
+  | IHeatModifierParams
+  | IInitiativeModifierParams
+  | ISpecialAbilityParams;
+
 /**
  * Special ability that modifies pilot performance.
+ * 
+ * The effectParams type is determined by the effectType field:
+ * - ToHitModifier → IToHitModifierParams
+ * - DamageModifier → IDamageModifierParams
+ * - PilotingModifier → IPilotingModifierParams
+ * - TMMModifier → ITMMModifierParams
+ * - ConsciousnessModifier → IConsciousnessModifierParams
+ * - HeatModifier → IHeatModifierParams
+ * - InitiativeModifier → IInitiativeModifierParams
+ * - Special → ISpecialAbilityParams
  */
 export interface ISpecialAbility {
   /** Unique ability identifier */
@@ -137,8 +267,8 @@ export interface ISpecialAbility {
   readonly minPiloting?: number;
   /** Effect type for game mechanics */
   readonly effectType: AbilityEffectType;
-  /** Effect parameters (varies by effect type) */
-  readonly effectParams: Record<string, unknown>;
+  /** Effect parameters (type varies by effectType) */
+  readonly effectParams: AbilityEffectParams;
 }
 
 /**
@@ -304,4 +434,116 @@ export function isPilotStatblock(obj: unknown): obj is IPilotStatblock {
     typeof statblock.gunnery === 'number' &&
     typeof statblock.piloting === 'number'
   );
+}
+
+// =============================================================================
+// Effect Parameter Type Guards
+// =============================================================================
+
+/**
+ * Type guard for to-hit modifier parameters.
+ */
+export function isToHitModifierParams(params: AbilityEffectParams): params is IToHitModifierParams {
+  return 'modifier' in params && typeof params.modifier === 'number';
+}
+
+/**
+ * Type guard for damage modifier parameters.
+ */
+export function isDamageModifierParams(params: AbilityEffectParams): params is IDamageModifierParams {
+  return 'multiplier' in params || 'clusterColumnShift' in params;
+}
+
+/**
+ * Type guard for piloting modifier parameters.
+ */
+export function isPilotingModifierParams(params: AbilityEffectParams): params is IPilotingModifierParams {
+  return 'modifier' in params && typeof params.modifier === 'number';
+}
+
+/**
+ * Type guard for TMM modifier parameters.
+ */
+export function isTMMModifierParams(params: AbilityEffectParams): params is ITMMModifierParams {
+  return 'modifier' in params && typeof params.modifier === 'number';
+}
+
+/**
+ * Type guard for consciousness modifier parameters.
+ */
+export function isConsciousnessModifierParams(params: AbilityEffectParams): params is IConsciousnessModifierParams {
+  return 'modifier' in params && typeof params.modifier === 'number';
+}
+
+/**
+ * Type guard for heat modifier parameters.
+ */
+export function isHeatModifierParams(params: AbilityEffectParams): params is IHeatModifierParams {
+  return 'heatReduction' in params || 'shutdownThresholdIncrease' in params;
+}
+
+/**
+ * Type guard for initiative modifier parameters.
+ */
+export function isInitiativeModifierParams(params: AbilityEffectParams): params is IInitiativeModifierParams {
+  return 'modifier' in params && typeof params.modifier === 'number';
+}
+
+/**
+ * Type guard for special ability parameters.
+ */
+export function isSpecialAbilityParams(params: AbilityEffectParams): params is ISpecialAbilityParams {
+  return (
+    'ignoreFirstWoundPenalty' in params ||
+    'rerollsPerGame' in params ||
+    'extraMovement' in params
+  );
+}
+
+/**
+ * Get typed effect parameters based on effect type.
+ * Provides runtime type narrowing for effect parameters.
+ * 
+ * @example
+ * ```typescript
+ * const ability = getAbility('marksman');
+ * const params = getTypedEffectParams(ability.effectType, ability.effectParams);
+ * if (params.type === 'ToHitModifier') {
+ *   console.log(params.params.modifier); // Type-safe access
+ * }
+ * ```
+ */
+export function getTypedEffectParams(
+  effectType: AbilityEffectType,
+  params: AbilityEffectParams
+):
+  | { type: 'ToHitModifier'; params: IToHitModifierParams }
+  | { type: 'DamageModifier'; params: IDamageModifierParams }
+  | { type: 'PilotingModifier'; params: IPilotingModifierParams }
+  | { type: 'TMMModifier'; params: ITMMModifierParams }
+  | { type: 'ConsciousnessModifier'; params: IConsciousnessModifierParams }
+  | { type: 'HeatModifier'; params: IHeatModifierParams }
+  | { type: 'InitiativeModifier'; params: IInitiativeModifierParams }
+  | { type: 'Special'; params: ISpecialAbilityParams } {
+  
+  switch (effectType) {
+    case AbilityEffectType.ToHitModifier:
+      return { type: 'ToHitModifier', params: params as IToHitModifierParams };
+    case AbilityEffectType.DamageModifier:
+      return { type: 'DamageModifier', params: params as IDamageModifierParams };
+    case AbilityEffectType.PilotingModifier:
+      return { type: 'PilotingModifier', params: params as IPilotingModifierParams };
+    case AbilityEffectType.TMMModifier:
+      return { type: 'TMMModifier', params: params as ITMMModifierParams };
+    case AbilityEffectType.ConsciousnessModifier:
+      return { type: 'ConsciousnessModifier', params: params as IConsciousnessModifierParams };
+    case AbilityEffectType.HeatModifier:
+      return { type: 'HeatModifier', params: params as IHeatModifierParams };
+    case AbilityEffectType.InitiativeModifier:
+      return { type: 'InitiativeModifier', params: params as IInitiativeModifierParams };
+    case AbilityEffectType.Special:
+      return { type: 'Special', params: params as ISpecialAbilityParams };
+    default:
+      return { type: 'Special', params: params as ISpecialAbilityParams };
+  }
 }

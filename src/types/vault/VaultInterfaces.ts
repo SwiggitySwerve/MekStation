@@ -1083,10 +1083,24 @@ export interface IVersionDiff {
   /** Fields that changed */
   changedFields: string[];
 
-  /** Additions (new fields/values) */
+  /**
+   * Additions (new fields/values in the new version)
+   * 
+   * Note: Intentionally typed as Record<string, unknown> because:
+   * - Represents arbitrary JSON diff data
+   * - Field names and types vary by content type and specific changes
+   * - Used for display purposes, not type-safe operations
+   */
   additions: Record<string, unknown>;
 
-  /** Deletions (removed fields/values) */
+  /**
+   * Deletions (removed fields/values from the old version)
+   * 
+   * Note: Intentionally typed as Record<string, unknown> because:
+   * - Represents arbitrary JSON diff data
+   * - Field names and types vary by content type and specific changes
+   * - Used for display purposes, not type-safe operations
+   */
   deletions: Record<string, unknown>;
 
   /** Modifications (changed values) */

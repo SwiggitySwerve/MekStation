@@ -52,6 +52,7 @@ describe('UnitInfoBanner', () => {
       hasCriticalErrors: false,
       result: null,
       isLoading: false,
+      isValidating: false,
     };
     render(<UnitInfoBanner stats={stats} validation={mockValidation} />);
     

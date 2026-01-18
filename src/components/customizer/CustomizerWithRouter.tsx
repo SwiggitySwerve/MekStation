@@ -21,6 +21,7 @@ import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
 // Components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
 import { UnitTypeRouter } from './UnitTypeRouter';
+import { ErrorBoundary } from '@/components/common';
 
 // =============================================================================
 // Main Component
@@ -175,22 +176,26 @@ export default function CustomizerWithRouter(): React.ReactElement {
   }
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-surface-deep flex flex-col">
-        <MultiUnitTabs>
-          <UnitTypeRouter
-            activeTab={activeTab}
-            activeTabId={effectiveTabId}
-            onTabChange={(tabId) => {
-              if (activeTabId) {
-                setLastSubTab(activeTabId, tabId);
-              }
-              router.navigateToTab(tabId);
-            }}
-          />
-        </MultiUnitTabs>
-      </div>
-    </DndProvider>
+    <ErrorBoundary componentName="CustomizerWithRouter">
+      <DndProvider backend={HTML5Backend}>
+        <div className="min-h-screen bg-surface-deep flex flex-col">
+          <MultiUnitTabs>
+            <ErrorBoundary componentName="UnitTypeRouter">
+              <UnitTypeRouter
+                activeTab={activeTab}
+                activeTabId={effectiveTabId}
+                onTabChange={(tabId) => {
+                  if (activeTabId) {
+                    setLastSubTab(activeTabId, tabId);
+                  }
+                  router.navigateToTab(tabId);
+                }}
+              />
+            </ErrorBoundary>
+          </MultiUnitTabs>
+        </div>
+      </DndProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -56,6 +56,7 @@ function createMockValidationState(
     warningCount,
     infoCount: results.reduce((sum, r) => sum + r.infos.length, 0),
     isLoading: false,
+    isValidating: false,
     result: {
       isValid: errorCount === 0,
       hasCriticalErrors: false,
@@ -81,6 +82,7 @@ const emptyValidation: UnitValidationState = {
   warningCount: 0,
   infoCount: 0,
   isLoading: false,
+  isValidating: false,
   result: null,
 };
 

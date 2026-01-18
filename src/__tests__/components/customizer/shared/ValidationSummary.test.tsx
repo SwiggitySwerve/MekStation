@@ -18,6 +18,7 @@ const createMockValidationState = (
   hasCriticalErrors: false,
   result: null,
   isLoading: false,
+  isValidating: false,
   ...overrides,
 });
 

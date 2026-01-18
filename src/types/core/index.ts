@@ -79,8 +79,26 @@ export interface IService {
   cleanup?(): Promise<void>;
 }
 
-export interface IServiceEvent {
+/**
+ * Service event with typed data payload.
+ * 
+ * @template TData - The type of the event data payload (defaults to object for flexibility)
+ * 
+ * @example
+ * ```typescript
+ * interface ValidationCompleteData {
+ *   isValid: boolean;
+ *   errorCount: number;
+ * }
+ * const event: IServiceEvent<ValidationCompleteData> = {
+ *   type: 'validation:complete',
+ *   timestamp: new Date(),
+ *   data: { isValid: true, errorCount: 0 }
+ * };
+ * ```
+ */
+export interface IServiceEvent<TData extends object = object> {
   type: string;
   timestamp: Date;
-  data?: Record<string, unknown>;
+  data?: TData;
 }

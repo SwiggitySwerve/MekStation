@@ -39,6 +39,7 @@ import { ProtoMechCustomizer } from './protomech/ProtoMechCustomizer';
 // BattleMech
 import { UnitEditorWithRouting } from './UnitEditorWithRouting';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { ErrorBoundary } from '@/components/common';
 
 interface UnitTypeRouterProps {
   activeTab: TabInfo | null;
@@ -142,60 +143,70 @@ export function UnitTypeRouter({
   // Vehicle customizer
   if (isVehicle && vehicleStore) {
     return (
-      <VehicleStoreContext.Provider value={vehicleStore}>
-        <VehicleCustomizer
-          store={vehicleStore}
-          className="flex-1"
-        />
-      </VehicleStoreContext.Provider>
+      <ErrorBoundary componentName="VehicleCustomizer">
+        <VehicleStoreContext.Provider value={vehicleStore}>
+          <VehicleCustomizer
+            store={vehicleStore}
+            className="flex-1"
+          />
+        </VehicleStoreContext.Provider>
+      </ErrorBoundary>
     );
   }
   
   // Aerospace customizer
   if (isAerospace && aerospaceStore) {
     return (
-      <AerospaceStoreContext.Provider value={aerospaceStore}>
-        <AerospaceCustomizer
-          store={aerospaceStore}
-          className="flex-1"
-        />
-      </AerospaceStoreContext.Provider>
+      <ErrorBoundary componentName="AerospaceCustomizer">
+        <AerospaceStoreContext.Provider value={aerospaceStore}>
+          <AerospaceCustomizer
+            store={aerospaceStore}
+            className="flex-1"
+          />
+        </AerospaceStoreContext.Provider>
+      </ErrorBoundary>
     );
   }
   
   // Battle Armor customizer
   if (isBattleArmor && battleArmorStore) {
     return (
-      <BattleArmorStoreContext.Provider value={battleArmorStore}>
-        <BattleArmorCustomizer
-          store={battleArmorStore}
-          className="flex-1"
-        />
-      </BattleArmorStoreContext.Provider>
+      <ErrorBoundary componentName="BattleArmorCustomizer">
+        <BattleArmorStoreContext.Provider value={battleArmorStore}>
+          <BattleArmorCustomizer
+            store={battleArmorStore}
+            className="flex-1"
+          />
+        </BattleArmorStoreContext.Provider>
+      </ErrorBoundary>
     );
   }
   
   // Infantry customizer
   if (isInfantry && infantryStore) {
     return (
-      <InfantryStoreContext.Provider value={infantryStore}>
-        <InfantryCustomizer
-          store={infantryStore}
-          className="flex-1"
-        />
-      </InfantryStoreContext.Provider>
+      <ErrorBoundary componentName="InfantryCustomizer">
+        <InfantryStoreContext.Provider value={infantryStore}>
+          <InfantryCustomizer
+            store={infantryStore}
+            className="flex-1"
+          />
+        </InfantryStoreContext.Provider>
+      </ErrorBoundary>
     );
   }
   
   // ProtoMech customizer
   if (isProtoMech && protoMechStore) {
     return (
-      <ProtoMechStoreContext.Provider value={protoMechStore}>
-        <ProtoMechCustomizer
-          store={protoMechStore}
-          className="flex-1"
-        />
-      </ProtoMechStoreContext.Provider>
+      <ErrorBoundary componentName="ProtoMechCustomizer">
+        <ProtoMechStoreContext.Provider value={protoMechStore}>
+          <ProtoMechCustomizer
+            store={protoMechStore}
+            className="flex-1"
+          />
+        </ProtoMechStoreContext.Provider>
+      </ErrorBoundary>
     );
   }
   
@@ -208,21 +219,23 @@ export function UnitTypeRouter({
   };
   
   return (
-    <UnitStoreProvider
-      activeTab={mechActiveTab}
-      fallback={
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-text-theme-secondary p-8">
-            <p className="text-lg mb-2">Loading unit...</p>
+    <ErrorBoundary componentName="BattleMechEditor">
+      <UnitStoreProvider
+        activeTab={mechActiveTab}
+        fallback={
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center text-text-theme-secondary p-8">
+              <p className="text-lg mb-2">Loading unit...</p>
+            </div>
           </div>
-        </div>
-      }
-    >
-      <UnitEditorWithRouting
-        activeTabId={activeTabId}
-        onTabChange={onTabChange}
-      />
-    </UnitStoreProvider>
+        }
+      >
+        <UnitEditorWithRouting
+          activeTabId={activeTabId}
+          onTabChange={onTabChange}
+        />
+      </UnitStoreProvider>
+    </ErrorBoundary>
   );
 }
 
