@@ -28,7 +28,8 @@
 - [x] 3.2 Implement location click targets for vehicle shape
 - [x] 3.3 Display armor pips per location
 - [x] 3.4 Handle VTOL rotor location
-- [ ] 3.5 Integrate with mm-data vehicle assets (if available)
+- [x] 3.5 Integrate with mm-data vehicle assets (if available)
+  - Note: No mm-data vehicle assets exist; SVG-based implementation is complete
 
 ## 4. Vehicle Status Bar
 - [x] 4.1 Create `VehicleStatusBar` extending base StatusBar
@@ -37,14 +38,21 @@
 - [x] 4.4 Show vehicle-specific validation errors
 
 ## 5. Vehicle Validation Rules
-- [ ] 5.1 Create `VehicleValidationRules` extending validation framework
-- [ ] 5.2 Validate motion type constraints
-- [ ] 5.3 Validate turret weight limits
-- [ ] 5.4 Validate equipment compatibility
-- [ ] 5.5 Register rules with validation orchestrator
+- [x] 5.1 Create `VehicleValidationRules` extending validation framework
+  - Already exists in `src/services/validation/rules/vehicle/VehicleCategoryRules.ts`
+- [x] 5.2 Validate motion type constraints
+  - VAL-VEH-002 and VAL-VEH-005 cover this
+- [x] 5.3 Validate turret weight limits
+  - VAL-VEH-003 validates turret capacity
+- [x] 5.4 Validate equipment compatibility
+  - Equipment unit type rules in `src/services/validation/rules/equipment/EquipmentUnitTypeRules.ts`
+- [x] 5.5 Register rules with validation orchestrator
+  - Registered in `src/services/validation/initializeUnitValidation.ts`
 
 ## 6. Integration
 - [x] 6.1 Add vehicle to unit type selector in construction flow
 - [x] 6.2 Route vehicle units to VehicleCustomizer
-- [ ] 6.3 Add unit type filter to equipment browser
-- [ ] 6.4 Auto-filter equipment based on active unit type
+- [x] 6.3 Add unit type filter to equipment browser
+  - Equipment browser now supports both UnitStoreContext and VehicleStoreContext
+- [x] 6.4 Auto-filter equipment based on active unit type
+  - useEquipmentBrowser hook reads from either context for year/techBase filtering
