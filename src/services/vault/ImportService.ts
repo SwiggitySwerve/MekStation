@@ -185,8 +185,10 @@ export async function importBundle<T>(
 
   for (const item of parsed.items) {
     const itemId = getItemId(item);
-    const resolution = conflictMap.get(itemId) || 'skip';
+    const resolution = conflictMap.get(itemId);
 
+    // Only skip if item has a conflict and resolution is 'skip'
+    // Items without conflicts (not in conflictMap) should be imported
     if (resolution === 'skip') {
       skippedCount++;
       continue;
