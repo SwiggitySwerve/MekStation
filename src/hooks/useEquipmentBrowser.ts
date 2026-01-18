@@ -86,8 +86,15 @@ export interface EquipmentBrowserState {
 
 /**
  * Hook to safely get unit store values if within a unit context
- * Supports both BattleMech (UnitStoreContext) and Vehicle (VehicleStoreContext)
- * Uses subscription pattern to avoid conditional hook calls
+ * 
+ * INTENTIONAL DESIGN: This hook does NOT throw when used outside a provider context.
+ * The equipment browser can function standalone (for browsing equipment) or within
+ * a unit context (for availability filtering based on year/tech base).
+ * 
+ * Supports both BattleMech (UnitStoreContext) and Vehicle (VehicleStoreContext).
+ * Uses subscription pattern to avoid conditional hook calls.
+ * 
+ * Returns null values when no context is available - this is expected behavior.
  */
 function useUnitContextValues(): { 
   year: number | null; 

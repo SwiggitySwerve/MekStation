@@ -78,19 +78,32 @@ export interface IVersionMetadata {
 
 /**
  * Create unit request
+ * 
+ * Note: `data` is intentionally typed as Record<string, unknown> because:
+ * - It represents a serialized unit from various sources (JSON import, MTF conversion, etc.)
+ * - The actual structure varies by unit type (BattleMech, Vehicle, Aerospace, etc.)
+ * - Runtime validation is performed before persisting to database
+ * - Strict typing would require complex discriminated unions that don't provide value here
  */
 export interface ICreateUnitRequest {
   readonly chassis: string;
   readonly variant: string;
-  readonly data: Record<string, unknown>; // ISerializedUnit
+  /** Serialized unit data (ISerializedUnit) - validated at runtime */
+  readonly data: Record<string, unknown>;
   readonly notes?: string;
 }
 
 /**
  * Update unit request
+ * 
+ * Note: `data` is intentionally typed as Record<string, unknown> because:
+ * - It represents a serialized unit from various sources
+ * - The actual structure varies by unit type
+ * - Runtime validation is performed before persisting
  */
 export interface IUpdateUnitRequest {
-  readonly data: Record<string, unknown>; // ISerializedUnit
+  /** Serialized unit data (ISerializedUnit) - validated at runtime */
+  readonly data: Record<string, unknown>;
   readonly notes?: string;
 }
 
@@ -136,13 +149,23 @@ export interface ICloneNameSuggestion {
 
 /**
  * Serialized unit envelope for export/import
+ * 
+ * This is the top-level structure for unit export files (.mek, .json).
+ * The `unit` field contains the actual unit data, which varies by unit type.
+ * 
+ * Note: `unit` is intentionally typed as Record<string, unknown> because:
+ * - Import files come from external sources (user uploads, other apps, etc.)
+ * - Format must remain flexible for backward/forward compatibility
+ * - Strict validation happens during the import process
+ * - Type safety is enforced at the service layer, not the file format layer
  */
 export interface ISerializedUnitEnvelope {
   readonly formatVersion: string;
   readonly savedAt: string;
   readonly application: string;
   readonly applicationVersion: string;
-  readonly unit: Record<string, unknown>; // ISerializedUnit
+  /** Serialized unit data (ISerializedUnit) - structure varies by unit type */
+  readonly unit: Record<string, unknown>;
 }
 
 /**

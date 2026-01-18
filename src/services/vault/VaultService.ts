@@ -556,7 +556,6 @@ export class VaultService {
       await this.permissionService.getGrantsForGrantee(myFriendCode);
 
     const result: ISharedContent[] = [];
-    const _contactRepo = getContactRepository();
 
     for (const perm of permissions) {
       // Skip public permissions

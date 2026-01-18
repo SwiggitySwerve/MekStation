@@ -213,6 +213,27 @@ export interface IUnitValidationRuleResult {
 }
 
 /**
+ * Additional error details for validation errors.
+ * Provides structured information about the validation failure.
+ */
+export interface IValidationErrorDetails {
+  /** Numeric values involved in the error */
+  readonly values?: {
+    readonly expected?: number;
+    readonly actual?: number;
+    readonly min?: number;
+    readonly max?: number;
+    readonly [key: string]: number | undefined;
+  };
+  /** Related entity IDs */
+  readonly relatedIds?: readonly string[];
+  /** Location identifiers */
+  readonly locations?: readonly string[];
+  /** Any other contextual information */
+  readonly [key: string]: unknown;
+}
+
+/**
  * Unit validation error with enhanced details
  */
 export interface IUnitValidationError {
@@ -229,8 +250,8 @@ export interface IUnitValidationError {
   readonly actual?: string;
   /** Suggested fix */
   readonly suggestion?: string;
-  /** Additional details */
-  readonly details?: Record<string, unknown>;
+  /** Additional structured details about the error */
+  readonly details?: IValidationErrorDetails;
 }
 
 /**
@@ -346,7 +367,7 @@ export function createUnitValidationError(
     expected?: string;
     actual?: string;
     suggestion?: string;
-    details?: Record<string, unknown>;
+    details?: IValidationErrorDetails;
   }
 ): IUnitValidationError {
   return {

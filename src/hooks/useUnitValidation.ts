@@ -7,25 +7,22 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { useMemo, useEffect, useRef } from 'react';
-import { useUnitStore } from '@/stores/useUnitStore';
-import { getTotalAllocatedArmor, getTotalEquipmentWeight } from '@/stores/unitState';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
 import { initializeUnitValidationRules, areRulesInitialized } from '@/services/validation/initializeUnitValidation';
-import { getMaxTotalArmor } from '@/utils/construction/armorCalculations';
 import {
   IValidatableUnit,
   IUnitValidationResult,
   UnitValidationSeverity,
   IUnitValidationOptions,
 } from '@/types/validation/UnitValidationInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel, Era, getEraForYear } from '@/types/enums';
 import { ValidationStatus } from '@/utils/colors/statusColors';
-import { buildArmorByLocation } from '@/utils/validation/armorValidationUtils';
-import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
-import { calculateStructuralWeight } from '@/utils/validation/weightValidationUtils';
+import { useDebounce } from './useDebounce';
+import { useUnitMetadata } from './validation/useUnitMetadata';
+import { useWeightValidation } from './validation/useWeightValidation';
+import { useArmorValidation } from './validation/useArmorValidation';
+import { useEquipmentValidation } from './validation/useEquipmentValidation';
+import { useStructureValidation } from './validation/useStructureValidation';
 
 /**
  * Validation results formatted for UI consumption
@@ -47,6 +44,8 @@ export interface UnitValidationState {
   result: IUnitValidationResult | null;
   /** Whether validation is still initializing */
   isLoading: boolean;
+  /** Whether validation is pending (during debounce period) */
+  isValidating: boolean;
 }
 
 /**
@@ -61,6 +60,7 @@ const DEFAULT_STATE: UnitValidationState = {
   hasCriticalErrors: false,
   result: null,
   isLoading: true,
+  isValidating: false,
 };
 
 /**
@@ -83,7 +83,7 @@ function mapToValidationStatus(result: IUnitValidationResult): ValidationStatus 
  * Hook options
  */
 export interface UseUnitValidationOptions extends IUnitValidationOptions {
-  /** Debounce delay in ms (default: 100) */
+  /** Debounce delay in ms (default: 300) */
   debounceMs?: number;
   /** Disable validation (returns default state) */
   disabled?: boolean;
@@ -109,40 +109,14 @@ export interface UseUnitValidationOptions extends IUnitValidationOptions {
  */
 export function useUnitValidation(options?: UseUnitValidationOptions): UnitValidationState {
   const hasInitialized = useRef(false);
+  const debounceMs = options?.debounceMs ?? 300;
 
-  // Get unit state from store
-  const id = useUnitStore((s) => s.id);
-  const name = useUnitStore((s) => s.name);
-  const tonnage = useUnitStore((s) => s.tonnage);
-  const techBase = useUnitStore((s) => s.techBase);
-  const rulesLevel = useUnitStore((s) => s.rulesLevel);
-  const year = useUnitStore((s) => s.year);
-  const unitType = useUnitStore((s) => s.unitType);
-
-  // Mech component fields
-  const engineType = useUnitStore((s) => s.engineType);
-  const engineRating = useUnitStore((s) => s.engineRating);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
-  const heatSinkType = useUnitStore((s) => s.heatSinkType);
-  const armorAllocation = useUnitStore((s) => s.armorAllocation);
-  const armorTonnage = useUnitStore((s) => s.armorTonnage);
-  const configuration = useUnitStore((s) => s.configuration);
-  const equipment = useUnitStore((s) => s.equipment);
-
-  // Compute total armor points outside useMemo to ensure reactivity
-  // This primitive value will definitely trigger re-renders when armor changes
-  const totalArmorPointsComputed = getTotalAllocatedArmor(armorAllocation, configuration);
-
-  // Derive era from year using the era utility function
-  const era = year ? getEraForYear(year) : Era.DARK_AGE;
-
-  // Optional fields that might exist on the store
-  const extinctionYear = useUnitStore((s) => (s as { extinctionYear?: number }).extinctionYear);
-  const cost = useUnitStore((s) => (s as { cost?: number }).cost) ?? 0;
-  const battleValue = useUnitStore((s) => (s as { battleValue?: number }).battleValue) ?? 0;
+  // Use focused sub-hooks for validation data
+  const metadata = useUnitMetadata();
+  const weightData = useWeightValidation();
+  const armorData = useArmorValidation();
+  const equipmentData = useEquipmentValidation();
+  const structureData = useStructureValidation();
 
   // Initialize validation rules on first mount
   useEffect(() => {
@@ -152,11 +126,66 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     }
   }, []);
 
-  // Build validatable unit object and run validation
+  // Create a snapshot of all validation dependencies
+  const validationSnapshot = useMemo(
+    () => ({
+      metadata,
+      weightData,
+      armorData,
+      equipmentData,
+      structureData,
+      // Include validation options
+      disabled: options?.disabled,
+      campaignYear: options?.campaignYear,
+      rulesLevelFilter: options?.rulesLevelFilter,
+      skipRules: options?.skipRules,
+      maxErrors: options?.maxErrors,
+      categories: options?.categories,
+      unitCategories: options?.unitCategories,
+      strictMode: options?.strictMode,
+      includeWarnings: options?.includeWarnings,
+      includeInfos: options?.includeInfos,
+    }),
+    [
+      metadata,
+      weightData,
+      armorData,
+      equipmentData,
+      structureData,
+      options?.disabled,
+      options?.campaignYear,
+      options?.rulesLevelFilter,
+      options?.skipRules,
+      options?.maxErrors,
+      options?.categories,
+      options?.unitCategories,
+      options?.strictMode,
+      options?.includeWarnings,
+      options?.includeInfos,
+    ]
+  );
+
+  // Debounce the validation snapshot
+  const debouncedSnapshot = useDebounce(validationSnapshot, debounceMs);
+
+  // Track if validation is pending (during debounce period)
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Detect when snapshot changes (user is making changes)
+  useEffect(() => {
+    setIsValidating(true);
+  }, [validationSnapshot]);
+
+  // Clear validating state when debounced snapshot updates
+  useEffect(() => {
+    setIsValidating(false);
+  }, [debouncedSnapshot]);
+
+  // Build validatable unit object and run validation (using debounced snapshot)
   const validationState = useMemo<UnitValidationState>(() => {
     // Return default state if disabled
-    if (options?.disabled) {
-      return DEFAULT_STATE;
+    if (debouncedSnapshot.disabled) {
+      return { ...DEFAULT_STATE, isValidating: false };
     }
 
     // Ensure rules are initialized
@@ -164,74 +193,50 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       initializeUnitValidationRules();
     }
 
-    // Use the pre-computed total for reactivity (computed outside useMemo)
-    const totalArmorPoints = totalArmorPointsComputed;
-    const maxArmorPoints = getMaxTotalArmor(tonnage || 20, configuration);
-    const effectiveTonnage = tonnage || 20;
+    // Extract data from debounced snapshot
+    const { metadata, weightData, armorData, equipmentData, structureData } = debouncedSnapshot;
 
-    // Build per-location armor data for detailed validation
-    // Handles all mech configurations: Biped, Quad, Tripod, LAM, QuadVee
-    const armorByLocation = buildArmorByLocation(armorAllocation, effectiveTonnage, configuration);
-
-    // Build per-location slot data for critical slot validation
-    const slotsByLocation = buildSlotsByLocation(equipment, configuration);
-
-    // Calculate total weight for weight overflow validation
-    const structuralWeight = calculateStructuralWeight({
-      tonnage: effectiveTonnage,
-      engineType,
-      engineRating,
-      gyroType,
-      internalStructureType,
-      cockpitType,
-      heatSinkType,
-      heatSinkCount,
-      armorTonnage,
-    });
-    const equipmentWeight = getTotalEquipmentWeight(equipment);
-    const allocatedWeight = structuralWeight + equipmentWeight;
-
-    // Build validatable unit from store state
+    // Build validatable unit from sub-hook data
     const validatableUnit: IValidatableUnit = {
-      id: id || 'new-unit',
-      name: name || 'Unnamed',
-      unitType: (unitType as UnitType) || UnitType.BATTLEMECH,
-      techBase: (techBase as TechBase) || TechBase.INNER_SPHERE,
-      rulesLevel: (rulesLevel as RulesLevel) || RulesLevel.STANDARD,
-      era: era || Era.DARK_AGE,
-      introductionYear: year || 3025,
-      extinctionYear,
-      weight: tonnage || 0,
-      cost,
-      battleValue,
-      engineType,
-      gyroType,
-      cockpitType,
-      internalStructureType,
-      heatSinkCount,
-      heatSinkType,
-      totalArmorPoints,
-      maxArmorPoints,
-      armorByLocation,
+      id: metadata.id,
+      name: metadata.name,
+      unitType: metadata.unitType,
+      techBase: metadata.techBase,
+      rulesLevel: metadata.rulesLevel,
+      era: metadata.era,
+      introductionYear: metadata.year,
+      extinctionYear: metadata.extinctionYear,
+      weight: weightData.maxWeight,
+      cost: metadata.cost,
+      battleValue: metadata.battleValue,
+      engineType: structureData.engineType,
+      gyroType: structureData.gyroType,
+      cockpitType: structureData.cockpitType,
+      internalStructureType: structureData.internalStructureType,
+      heatSinkCount: structureData.heatSinkCount,
+      heatSinkType: structureData.heatSinkType,
+      totalArmorPoints: armorData.totalArmorPoints,
+      maxArmorPoints: armorData.maxArmorPoints,
+      armorByLocation: armorData.armorByLocation,
       // Weight validation fields
-      allocatedWeight,
-      maxWeight: effectiveTonnage,
+      allocatedWeight: weightData.allocatedWeight,
+      maxWeight: weightData.maxWeight,
       // Slot validation fields
-      slotsByLocation,
+      slotsByLocation: equipmentData.slotsByLocation,
     };
 
     try {
       // Run validation
       const result = validateUnit(validatableUnit, {
-        campaignYear: options?.campaignYear,
-        rulesLevelFilter: options?.rulesLevelFilter,
-        skipRules: options?.skipRules,
-        maxErrors: options?.maxErrors,
-        categories: options?.categories,
-        unitCategories: options?.unitCategories,
-        strictMode: options?.strictMode ?? true,
-        includeWarnings: options?.includeWarnings ?? true,
-        includeInfos: options?.includeInfos ?? true,
+        campaignYear: debouncedSnapshot.campaignYear,
+        rulesLevelFilter: debouncedSnapshot.rulesLevelFilter,
+        skipRules: debouncedSnapshot.skipRules,
+        maxErrors: debouncedSnapshot.maxErrors,
+        categories: debouncedSnapshot.categories,
+        unitCategories: debouncedSnapshot.unitCategories,
+        strictMode: debouncedSnapshot.strictMode ?? true,
+        includeWarnings: debouncedSnapshot.includeWarnings ?? true,
+        includeInfos: debouncedSnapshot.includeInfos ?? true,
       });
 
       // Count critical errors separately
@@ -257,6 +262,7 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
         hasCriticalErrors: result.hasCriticalErrors,
         result,
         isLoading: false,
+        isValidating: false,
       };
     } catch (error) {
       console.warn('Validation failed:', error);
@@ -269,45 +275,16 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
         hasCriticalErrors: true,
         result: null,
         isLoading: false,
+        isValidating: false,
       };
     }
-  }, [
-    id,
-    name,
-    tonnage,
-    techBase,
-    rulesLevel,
-    year,
-    era,
-    extinctionYear,
-    cost,
-    battleValue,
-    unitType,
-    engineType,
-    engineRating,
-    gyroType,
-    cockpitType,
-    internalStructureType,
-    heatSinkCount,
-    heatSinkType,
-    armorAllocation,
-    armorTonnage,
-    configuration,
-    equipment,
-    totalArmorPointsComputed,
-    options?.disabled,
-    options?.campaignYear,
-    options?.rulesLevelFilter,
-    options?.skipRules,
-    options?.maxErrors,
-    options?.categories,
-    options?.unitCategories,
-    options?.strictMode,
-    options?.includeWarnings,
-    options?.includeInfos,
-  ]);
+  }, [debouncedSnapshot]);
 
-  return validationState;
+  // Return validation state with current isValidating flag
+  return {
+    ...validationState,
+    isValidating,
+  };
 }
 
 /**
@@ -315,6 +292,9 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
  */
 export function getValidationSummary(state: UnitValidationState): string {
   if (state.isLoading) {
+    return 'Validating...';
+  }
+  if (state.isValidating) {
     return 'Validating...';
   }
   if (state.isValid) {

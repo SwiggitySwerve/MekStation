@@ -41,6 +41,7 @@ import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitIn
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import type { LoadoutEquipmentItem, AvailableLocation } from '@/components/customizer/equipment/GlobalLoadoutTray';
 import type { MobileLoadoutStats } from '@/components/customizer/mobile';
+import { ErrorBoundary } from '@/components/common';
 
 // Equipment
 import { EquipmentCategory } from '@/types/equipment';
@@ -658,40 +659,64 @@ export function UnitEditorWithRouting({
           
           {/* Tab content - scrollable area */}
           <div className="flex-1 overflow-auto min-h-0">
-            {activeTabId === 'overview' && <OverviewTab />}
-            {activeTabId === 'structure' && <StructureTab />}
-            {activeTabId === 'armor' && <ArmorTab />}
+            {activeTabId === 'overview' && (
+              <ErrorBoundary componentName="OverviewTab">
+                <OverviewTab />
+              </ErrorBoundary>
+            )}
+            {activeTabId === 'structure' && (
+              <ErrorBoundary componentName="StructureTab">
+                <StructureTab />
+              </ErrorBoundary>
+            )}
+            {activeTabId === 'armor' && (
+              <ErrorBoundary componentName="ArmorTab">
+                <ArmorTab />
+              </ErrorBoundary>
+            )}
             {activeTabId === 'weapons' && <PlaceholderTab name="Weapons" />}
-            {activeTabId === 'equipment' && <EquipmentTab />}
+            {activeTabId === 'equipment' && (
+              <ErrorBoundary componentName="EquipmentTab">
+                <EquipmentTab />
+              </ErrorBoundary>
+            )}
             {activeTabId === 'criticals' && (
-              <CriticalSlotsTab
-                selectedEquipmentId={selectedEquipmentId}
-                onSelectEquipment={handleSelectEquipment}
-              />
+              <ErrorBoundary componentName="CriticalSlotsTab">
+                <CriticalSlotsTab
+                  selectedEquipmentId={selectedEquipmentId}
+                  onSelectEquipment={handleSelectEquipment}
+                />
+              </ErrorBoundary>
             )}
             {activeTabId === 'fluff' && <PlaceholderTab name="Fluff" />}
-            {activeTabId === 'preview' && <PreviewTab />}
+            {activeTabId === 'preview' && (
+              <ErrorBoundary componentName="PreviewTab">
+                <PreviewTab />
+              </ErrorBoundary>
+            )}
           </div>
         </div>
         
         {/* Loadout Tray: Desktop sidebar / Mobile bottom sheet (hidden on Preview and Critical Slots tabs) */}
         {activeTabId !== 'preview' && activeTabId !== 'criticals' && (
-          <ResponsiveLoadoutTray
-            equipment={loadoutEquipment}
-            equipmentCount={equipment.length}
-            onRemoveEquipment={handleRemoveEquipment}
-            onRemoveAllEquipment={handleRemoveAllEquipment}
-            isExpanded={isTrayExpanded}
-            onToggleExpand={handleToggleTray}
-            selectedEquipmentId={selectedEquipmentId}
-            onSelectEquipment={handleSelectEquipment}
-            onUnassignEquipment={handleUnassignEquipment}
-            onQuickAssign={handleQuickAssign}
-            availableLocations={availableLocations}
-            getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
-            isOmni={isOmni}
-            mobileStats={mobileLoadoutStats}
-          />
+          <ErrorBoundary componentName="ResponsiveLoadoutTray">
+            <ResponsiveLoadoutTray
+              equipment={loadoutEquipment}
+              equipmentCount={equipment.length}
+              onRemoveEquipment={handleRemoveEquipment}
+              onRemoveAllEquipment={handleRemoveAllEquipment}
+              isExpanded={isTrayExpanded}
+              onToggleExpand={handleToggleTray}
+              selectedEquipmentId={selectedEquipmentId}
+              onSelectEquipment={handleSelectEquipment}
+              onUnassignEquipment={handleUnassignEquipment}
+              onQuickAssign={handleQuickAssign}
+              availableLocations={availableLocations}
+              getAvailableLocationsForEquipment={getAvailableLocationsForEquipment}
+              isOmni={isOmni}
+              mobileStats={mobileLoadoutStats}
+            />
+          </ErrorBoundary>
         )}
       </div>
     </div>

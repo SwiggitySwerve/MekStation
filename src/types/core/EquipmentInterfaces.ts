@@ -42,6 +42,21 @@ export interface IAmmunition extends IEquipment {
   readonly damagePerShot?: number;
 }
 
+/**
+ * Equipment configuration for variable equipment.
+ * Used for equipment that can be configured in different modes or with different settings.
+ */
+export interface IEquipmentConfiguration {
+  /** Operating mode (e.g., 'standard', 'alternate', 'precision', 'rapid-fire') */
+  readonly mode?: string;
+  /** Linked equipment IDs for weapon bays or linked weapons */
+  readonly linkedEquipment?: readonly string[];
+  /** Custom settings for specialized equipment */
+  readonly settings?: {
+    readonly [key: string]: number | boolean | string;
+  };
+}
+
 export interface IEquipmentInstance {
   readonly id: EntityId;
   readonly equipmentId: EntityId;
@@ -55,7 +70,11 @@ export interface IEquipmentInstance {
     destroyed: boolean;
     criticalHits: number;
   };
-  readonly configuration?: unknown;
+  /**
+   * Optional configuration for variable equipment.
+   * Most equipment doesn't need configuration and will have this as undefined.
+   */
+  readonly configuration?: IEquipmentConfiguration;
 }
 
 export interface IEquipmentAllocation {
