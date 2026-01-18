@@ -17,7 +17,8 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { VehicleLocation, VTOLLocation, AerospaceLocation, ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { GroundMotionType, SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { BattleArmorChassisType, BattleArmorWeightClass, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 
@@ -274,7 +275,7 @@ export class BlkExportService {
       lines.push('');
 
       // BA-specific
-      lines.push(this.tag('chassis', unit.chassisType));
+      lines.push(this.tag('chassis', this.formatBAChassisType(unit.chassisType)));
       lines.push(this.tag('Trooper Count', unit.squadSize.toString()));
       lines.push(this.tag('weightclass', this.formatBAWeightClass(unit.weightClass)));
       lines.push('');
@@ -350,7 +351,7 @@ export class BlkExportService {
       lines.push('');
 
       // Armor
-      if (unit.armorKit) {
+      if (unit.armorKit && unit.armorKit !== InfantryArmorKit.NONE) {
         lines.push(this.tag('armorKit', unit.armorKit));
       }
       lines.push('');
@@ -472,26 +473,31 @@ export class BlkExportService {
   /**
    * Format motion type for battle armor
    */
-  private formatBAMotionType(motionType: string): string {
-    // BA motion types are stored as enum strings
-    return motionType || 'Leg';
+  private formatBAMotionType(motionType: SquadMotionType): string {
+    // SquadMotionType enum values are already in BLK format
+    // e.g., SquadMotionType.FOOT = 'Foot', SquadMotionType.JUMP = 'Jump'
+    return motionType || SquadMotionType.FOOT;
+  }
+
+  /**
+   * Format chassis type for battle armor
+   */
+  private formatBAChassisType(chassisType: BattleArmorChassisType): string {
+    // BattleArmorChassisType enum values match BLK format
+    return chassisType || BattleArmorChassisType.BIPED;
   }
 
   /**
    * Format battle armor weight class
    */
-  private formatBAWeightClass(weightClass: number | string): string {
-    // Weight class is stored as enum, convert to BLK numeric code
-    if (typeof weightClass === 'number') {
-      return weightClass.toString();
-    }
-    // Map string enum values to numeric codes
-    const map: Record<string, string> = {
-      PA_L: '0',
-      LIGHT: '1',
-      MEDIUM: '2',
-      HEAVY: '3',
-      ASSAULT: '4',
+  private formatBAWeightClass(weightClass: BattleArmorWeightClass): string {
+    // Map BattleArmorWeightClass enum to BLK numeric codes
+    const map: Record<BattleArmorWeightClass, string> = {
+      [BattleArmorWeightClass.PA_L]: '0',
+      [BattleArmorWeightClass.LIGHT]: '1',
+      [BattleArmorWeightClass.MEDIUM]: '2',
+      [BattleArmorWeightClass.HEAVY]: '3',
+      [BattleArmorWeightClass.ASSAULT]: '4',
     };
     return map[weightClass] || '2'; // Default to medium
   }
@@ -499,8 +505,9 @@ export class BlkExportService {
   /**
    * Format motion type for infantry
    */
-  private formatInfantryMotionType(motionType: string): string {
-    return motionType || 'Foot';
+  private formatInfantryMotionType(motionType: SquadMotionType): string {
+    // SquadMotionType enum values are already in BLK format
+    return motionType || SquadMotionType.FOOT;
   }
 
   /**
@@ -668,7 +675,7 @@ export class BlkExportService {
    * Convert aerospace location enum to BLK block name
    */
   private aerospaceLocationToBlockName(location: AerospaceLocation): string {
-    const map: Record<string, string> = {
+    const map: Record<AerospaceLocation, string> = {
       [AerospaceLocation.NOSE]: 'Nose',
       [AerospaceLocation.LEFT_WING]: 'Left Wing',
       [AerospaceLocation.RIGHT_WING]: 'Right Wing',
