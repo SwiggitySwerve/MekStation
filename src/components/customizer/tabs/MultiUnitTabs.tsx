@@ -28,8 +28,9 @@ import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useToast } from '@/components/shared/Toast';
-import type { IExportableUnit } from '@/services/vault';
-import type { IImportHandlers } from '@/services/vault';
+import type { IExportableUnit, IImportHandlers, IImportSource } from '@/types/vault';
+import type { UnitState } from '@/stores/unitState';
+import { generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Types
@@ -106,6 +107,7 @@ export function MultiUnitTabs({
   const storeCloseTab = useTabManagerStore((s) => s.closeTab);
   const renameTab = useTabManagerStore((s) => s.renameTab);
   const createTab = useTabManagerStore((s) => s.createTab);
+  const addTab = useTabManagerStore((s) => s.addTab);
   const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
   const closeNewTabModal = useTabManagerStore((s) => s.closeNewTabModal);
   
@@ -354,8 +356,8 @@ export function MultiUnitTabs({
     return {
       id: activeTabId,
       name: state.name,
-      chassis: state.name.split(' ')[0] || state.name,
-      model: state.name.split(' ').slice(1).join(' ') || '',
+      chassis: state.chassis || state.name,
+      model: state.model || '',
       data: state,
     };
   }, [activeTabId]);
@@ -369,14 +371,28 @@ export function MultiUnitTabs({
       const existing = tabs.find(t => t.name === name);
       return existing ? { id: existing.id, name: existing.name } : null;
     },
-    save: async (item: IExportableUnit) => {
-      const newId = `import-${Date.now()}`;
-      // Create a new tab with the imported unit data
-      const template = UNIT_TEMPLATES.find(t => t.tonnage === (item.data as { tonnage?: number })?.tonnage) || UNIT_TEMPLATES[1];
-      createTab({ ...template, name: item.name });
+    save: async (item: IExportableUnit, source: IImportSource) => {
+      const importedState = item.data as UnitState;
+      const newId = generateUUID();
+      
+      // Create unit store with full imported state
+      createUnitFromFullState({
+        ...importedState,
+        id: newId,
+        isModified: false,
+      });
+      
+      // Add tab entry for the imported unit
+      addTab({
+        id: newId,
+        name: item.name,
+        tonnage: importedState.tonnage,
+        techBase: importedState.techBase,
+      });
+      
       return newId;
     },
-  }), [tabs, createTab]);
+  }), [tabs, addTab]);
   
   // Transform tabs to format expected by TabBar
   // Read name and isModified directly from unit stores for live updates
