@@ -14,7 +14,7 @@
 
 ### Pilots & Display
 - [x] `add-pilot-system` - Pilot creation, skills, abilities (archived 2026-01-18)
-- [ ] `add-unit-card-view` - Quick reference unit cards
+- [x] `add-unit-card-view` - Quick reference unit cards (archived 2026-01-18)
 
 ## Phase 2 - Organize & Collaborate
 
@@ -46,7 +46,7 @@
 | 1 | `add-vault-sharing` | **Archived** | Export/import with signatures |
 | 1 | `add-unit-export-integration` | **Archived** | BlkExportService. UI, record sheets pending. |
 | 1 | `add-pilot-system` | **Archived** | Full pilot system. Tests pending. |
-| 1 | `add-unit-card-view` | Pending | Not started |
+| 1 | `add-unit-card-view` | **Archived** | Unit card components (2026-01-18) |
 | 2 | `add-force-management` | Pending | Proposal created |
 | 2 | `add-pilot-mech-card` | Pending | Proposal created |
 | 3 | `add-game-session-core` | Pending | Proposal created |
@@ -55,7 +55,7 @@
 | 3 | `add-encounter-system` | Pending | Proposal created |
 | 3 | `add-gameplay-ui` | Pending | Proposal created |
 
-**Phase 1 Status: 7/8 archived, 1 pending (unit-card-view)**
+**Phase 1 Status: 8/8 archived - COMPLETE**
 
 ### PRs Merged (2026-01-18)
 - PR #95: Aerospace & Personnel Customizer Integration
