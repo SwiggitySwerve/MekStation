@@ -8,8 +8,7 @@
 
 import React, { useCallback, useRef } from 'react';
 import { useVaultImport } from '@/hooks/useVaultImport';
-import type { IImportConflict } from '@/types/vault';
-import type { IImportHandlers } from '@/services/vault';
+import type { IImportConflict, IImportHandlers } from '@/types/vault';
 
 // =============================================================================
 // Types

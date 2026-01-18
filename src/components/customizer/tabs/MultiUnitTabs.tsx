@@ -16,6 +16,8 @@ import { NewTabModal } from './NewTabModal';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
 import { UnitLoadDialog, LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
+import { ExportDialog } from '@/components/vault/ExportDialog';
+import { ImportDialog } from '@/components/vault/ImportDialog';
 import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistry';
@@ -26,6 +28,8 @@ import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useToast } from '@/components/shared/Toast';
+import type { IExportableUnit } from '@/services/vault';
+import type { IImportHandlers } from '@/services/vault';
 
 // =============================================================================
 // Types
@@ -85,6 +89,10 @@ export function MultiUnitTabs({
   // Load dialog state
   const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
   const [, setIsLoadingUnit] = useState(false);
+  
+  // Export/Import dialog state
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   
   // Use individual selectors for primitives and stable references
   // This avoids creating new objects on each render
@@ -337,6 +345,39 @@ export function MultiUnitTabs({
     return newTabId;
   }, [createTab, router]);
   
+  // Get exportable unit data from active tab
+  const activeUnitExportData = useMemo((): IExportableUnit | null => {
+    if (!activeTabId) return null;
+    const unitStore = getUnitStore(activeTabId);
+    if (!unitStore) return null;
+    const state = unitStore.getState();
+    return {
+      id: activeTabId,
+      name: state.name,
+      chassis: state.name.split(' ')[0] || state.name,
+      model: state.name.split(' ').slice(1).join(' ') || '',
+      data: state,
+    };
+  }, [activeTabId]);
+  
+  // Import handlers for unit bundles
+  const unitImportHandlers = useMemo((): IImportHandlers<IExportableUnit> => ({
+    checkExists: async (id: string) => {
+      return tabs.some(t => t.id === id);
+    },
+    checkNameConflict: async (name: string) => {
+      const existing = tabs.find(t => t.name === name);
+      return existing ? { id: existing.id, name: existing.name } : null;
+    },
+    save: async (item: IExportableUnit) => {
+      const newId = `import-${Date.now()}`;
+      // Create a new tab with the imported unit data
+      const template = UNIT_TEMPLATES.find(t => t.tonnage === (item.data as { tonnage?: number })?.tonnage) || UNIT_TEMPLATES[1];
+      createTab({ ...template, name: item.name });
+      return newId;
+    },
+  }), [tabs, createTab]);
+  
   // Transform tabs to format expected by TabBar
   // Read name and isModified directly from unit stores for live updates
   const tabBarTabs = useMemo(() => 
@@ -449,6 +490,9 @@ export function MultiUnitTabs({
         onRenameTab={renameTab}
         onNewTab={openNewTabModal}
         onLoadUnit={openLoadDialog}
+        onExport={() => setIsExportDialogOpen(true)}
+        onImport={() => setIsImportDialogOpen(true)}
+        canExport={!!activeUnitExportData}
       />
       
       {/* Tab content */}
@@ -487,6 +531,30 @@ export function MultiUnitTabs({
         isOpen={isLoadDialogOpen}
         onLoadUnit={handleLoadUnit}
         onCancel={() => setIsLoadDialogOpen(false)}
+      />
+      
+      {/* Export dialog */}
+      {activeUnitExportData && (
+        <ExportDialog
+          isOpen={isExportDialogOpen}
+          onClose={() => setIsExportDialogOpen(false)}
+          contentType="unit"
+          content={activeUnitExportData}
+          onExportComplete={() => {
+            showToast({ message: 'Unit exported successfully', variant: 'success' });
+          }}
+        />
+      )}
+      
+      {/* Import dialog */}
+      <ImportDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        handlers={unitImportHandlers}
+        onImportComplete={(count) => {
+          showToast({ message: `Imported ${count} unit(s)`, variant: 'success' });
+          setIsImportDialogOpen(false);
+        }}
       />
     </div>
   );

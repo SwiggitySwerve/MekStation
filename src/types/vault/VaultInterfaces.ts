@@ -256,6 +256,89 @@ export interface IImportSource {
 }
 
 // =============================================================================
+// Exportable Content Types
+// =============================================================================
+
+/**
+ * Exportable unit data (subset of full unit for sharing)
+ */
+export interface IExportableUnit {
+  /** Original unit ID (will be remapped on import) */
+  id: string;
+
+  /** Unit name */
+  name: string;
+
+  /** Unit chassis */
+  chassis: string;
+
+  /** Unit model/variant */
+  model: string;
+
+  /** Full serialized unit data */
+  data: unknown;
+
+  /** Source of the unit (custom, imported, etc.) */
+  source?: string;
+}
+
+/**
+ * Exportable pilot data
+ */
+export interface IExportablePilot {
+  /** Original pilot ID */
+  id: string;
+
+  /** Pilot name */
+  name: string;
+
+  /** Pilot callsign */
+  callsign?: string;
+
+  /** Full serialized pilot data */
+  data: unknown;
+}
+
+/**
+ * Exportable force data (with nested pilots and units)
+ */
+export interface IExportableForce {
+  /** Original force ID */
+  id: string;
+
+  /** Force name */
+  name: string;
+
+  /** Force description */
+  description?: string;
+
+  /** Full serialized force data */
+  data: unknown;
+
+  /** Nested pilots (if includeNested) */
+  pilots?: IExportablePilot[];
+
+  /** Nested units (if includeNested) */
+  units?: IExportableUnit[];
+}
+
+// =============================================================================
+// Import Handler Types
+// =============================================================================
+
+export type ExistsChecker = (id: string) => Promise<boolean>;
+
+export type NameChecker = (name: string) => Promise<{ id: string; name: string } | null>;
+
+export type ItemSaver<T> = (item: T, source: IImportSource) => Promise<string>;
+
+export interface IImportHandlers<T> {
+  checkExists: ExistsChecker;
+  checkNameConflict: NameChecker;
+  save: ItemSaver<T>;
+}
+
+// =============================================================================
 // Storage Types
 // =============================================================================
 

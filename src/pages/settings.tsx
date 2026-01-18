@@ -23,11 +23,12 @@ import {
 } from '@/stores/useAppSettingsStore';
 import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
 import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
+import { VaultIdentitySection } from '@/components/vault/VaultIdentitySection';
 
 /**
  * Section configuration for navigation and state
  */
-type SectionId = 'appearance' | 'customizer' | 'ui-behavior' | 'accessibility' | 'reset';
+type SectionId = 'appearance' | 'customizer' | 'vault' | 'ui-behavior' | 'accessibility' | 'reset';
 
 interface SectionConfig {
   id: SectionId;
@@ -54,6 +55,16 @@ const SECTIONS: SectionConfig[] = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
         <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'vault',
+    title: 'Vault & Sharing',
+    description: 'Manage your vault identity for sharing content',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
       </svg>
     ),
   },
@@ -406,7 +417,7 @@ function UIThemePicker({
 
 
 // Valid section IDs for type checking
-const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'ui-behavior', 'accessibility', 'reset'];
+const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'vault', 'ui-behavior', 'accessibility', 'reset'];
 
 function isValidSectionId(hash: string): hash is SectionId {
   return VALID_SECTION_IDS.includes(hash as SectionId);
@@ -426,6 +437,7 @@ export default function SettingsPage(): React.ReactElement {
   const sectionRefs = useRef<Record<SectionId, HTMLDivElement | null>>({
     appearance: null,
     customizer: null,
+    vault: null,
     'ui-behavior': null,
     accessibility: null,
     reset: null,
@@ -704,6 +716,18 @@ export default function SettingsPage(): React.ReactElement {
               checked={settings.showArmorDiagramSelector}
               onChange={settings.setShowArmorDiagramSelector}
             />
+          </SettingsSection>
+
+          {/* Vault & Sharing Section */}
+          <SettingsSection
+            id="vault"
+            title="Vault & Sharing"
+            description="Manage your vault identity for sharing content"
+            isExpanded={activeSection === 'vault'}
+            onToggle={() => toggleSection('vault')}
+            onRef={createSectionRef('vault')}
+          >
+            <VaultIdentitySection />
           </SettingsSection>
 
           {/* UI Behavior Section */}
