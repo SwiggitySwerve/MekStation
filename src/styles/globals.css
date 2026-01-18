@@ -1368,3 +1368,222 @@ button:disabled {
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
 }
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+/*
+ * Print-friendly styles for unit cards and other components.
+ * Ensures clean output when printing/saving as PDF.
+ */
+
+@media print {
+  /* Reset background colors for print */
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+    --surface-deep: #ffffff;
+    --surface-base: #ffffff;
+    --surface-raised: #f5f5f5;
+    --border-subtle: #cccccc;
+    --border-default: #999999;
+    --border-strong: #666666;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --accent-primary: #b45309;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  /* Hide non-essential elements */
+  .no-print,
+  nav,
+  aside,
+  .sidebar,
+  button:not(.print-visible),
+  .dialog,
+  .modal,
+  .toast,
+  .tooltip {
+    display: none !important;
+  }
+
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .avoid-page-break {
+    page-break-inside: avoid;
+  }
+
+  /* Unit Card Print Styles */
+  .unit-card-print,
+  [class*="UnitCard"] {
+    background: white !important;
+    border: 1px solid #333 !important;
+    color: black !important;
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+    padding: 1rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Card headers */
+  [class*="UnitCard"] h2,
+  [class*="UnitCard"] h3 {
+    color: black !important;
+    border-bottom: 1px solid #999;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Stats and values */
+  [class*="UnitCard"] .font-mono {
+    font-family: "Courier New", Courier, monospace !important;
+  }
+
+  /* Badges - convert to bordered text */
+  [class*="Badge"],
+  .badge {
+    background: transparent !important;
+    border: 1px solid #666 !important;
+    color: black !important;
+    padding: 0.125rem 0.5rem !important;
+  }
+
+  /* Tables */
+  [class*="UnitCard"] table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  [class*="UnitCard"] th,
+  [class*="UnitCard"] td {
+    border: 1px solid #ccc;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+  }
+
+  [class*="UnitCard"] th {
+    background: #f0f0f0 !important;
+    font-weight: bold;
+  }
+
+  /* Weapons table specific */
+  [class*="UnitCard"] [class*="weapons"] th,
+  [class*="UnitCard"] [class*="weapons"] td {
+    font-size: 10pt;
+  }
+
+  /* Heat indicators - use text instead of colors */
+  .text-rose-400,
+  .text-red-400 {
+    color: black !important;
+    font-weight: bold;
+  }
+
+  .text-cyan-400,
+  .text-blue-400 {
+    color: black !important;
+  }
+
+  .text-emerald-400,
+  .text-green-400 {
+    color: black !important;
+  }
+
+  .text-amber-400,
+  .text-yellow-400 {
+    color: black !important;
+  }
+
+  /* Critical slots progress bars - convert to text */
+  [class*="critical"] [class*="bar"],
+  .progress-bar {
+    display: none !important;
+  }
+
+  /* Links - remove underlines and colors */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  /* Remove hover effects */
+  *:hover {
+    background: inherit !important;
+    color: inherit !important;
+    transform: none !important;
+  }
+
+  /* Compact spacing for print */
+  .p-6 {
+    padding: 0.75rem !important;
+  }
+
+  .p-4 {
+    padding: 0.5rem !important;
+  }
+
+  .mb-4 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .gap-4 {
+    gap: 0.5rem !important;
+  }
+
+  /* Force single column for cards */
+  .grid {
+    display: block !important;
+  }
+
+  .grid > * {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Equipment list - compact */
+  [class*="equipment"] li,
+  [class*="Equipment"] li {
+    padding: 0.125rem 0;
+    border-bottom: 1px dotted #ccc;
+  }
+
+  /* Quirks as comma-separated list */
+  [class*="quirks"] .flex-wrap {
+    display: inline !important;
+  }
+
+  [class*="quirks"] .badge {
+    display: inline !important;
+    margin-right: 0.25rem;
+  }
+
+  [class*="quirks"] .badge::after {
+    content: ",";
+  }
+
+  [class*="quirks"] .badge:last-child::after {
+    content: "";
+  }
+
+  /* Notes/fluff text */
+  [class*="notes"],
+  [class*="overview"] {
+    font-style: italic;
+    border-left: 2px solid #999;
+    padding-left: 0.5rem;
+  }
+}

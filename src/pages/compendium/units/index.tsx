@@ -5,6 +5,7 @@
  * Similar pattern to Equipment Browser but for unit database.
  */
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui';
 import type { ViewMode } from '@/components/ui';
 import { CompendiumLayout } from '@/components/compendium';
+import { UnitCardCompact } from '@/components/unit-card';
 
 interface UnitEntry {
   id: string;
@@ -328,7 +330,7 @@ export default function UnitListPage(): React.ReactElement {
       ) : (
         <>
           {viewMode === 'grid' && <UnitGridView units={displayedUnits} />}
-          {viewMode === 'list' && <UnitListView units={displayedUnits} />}
+          {viewMode === 'list' && <UnitCardListView units={displayedUnits} />}
           {viewMode === 'table' && <UnitTableView units={displayedUnits} />}
         </>
       )}
@@ -406,45 +408,38 @@ function UnitGridView({ units }: ViewProps): React.ReactElement {
   );
 }
 
-// List View - Ultra compact rows
-function UnitListView({ units }: ViewProps): React.ReactElement {
+// Card List View - Uses UnitCardCompact components
+function UnitCardListView({ units }: ViewProps): React.ReactElement {
+  const router = useRouter();
+  
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {units.map((unit) => {
-        const typeDisplay = getUnitTypeDisplay(unit.unitType);
         const weightDisplay = getWeightClassDisplay(unit.weightClass);
+        // TODO: These fields are not in UnitEntry yet - would need API update
+        // For now, use placeholder values
+        const battleValue = 0;
+        const walkMP = 0;
+        const runMP = 0;
+        const jumpMP = 0;
 
         return (
-          <Link key={unit.id} href={`/compendium/units/${encodeURIComponent(unit.id)}`}>
-            <div className="flex items-center gap-3 px-3 py-2 bg-surface-base/30 border border-transparent rounded hover:bg-surface-base/50 hover:border-border-theme-subtle/50 transition-all cursor-pointer group">
-              {/* Type indicator bar */}
-              <div className={`w-0.5 h-8 rounded-full ${typeDisplay.color}`} />
-
-              {/* Name */}
-              <span className="flex-1 text-sm text-text-theme-primary group-hover:text-accent/90 truncate min-w-0">
-                {unit.chassis} <span className="text-text-theme-secondary">{unit.variant}</span>
-              </span>
-
-              {/* Quick stats */}
-              <div className="hidden sm:flex items-center gap-3 text-xs text-text-theme-muted flex-shrink-0">
-                <span className={`font-mono ${weightDisplay.color}`}>{unit.tonnage}t</span>
-                <span className="text-text-theme-muted">{weightDisplay.label}</span>
-              </div>
-
-              {/* Badges */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <Badge variant={typeDisplay.badgeVariant as 'emerald' | 'teal' | 'slate' | 'violet' | 'amber' | 'sky' | 'cyan' | 'fuchsia' | 'rose' | 'lime' | 'yellow'} size="sm">
-                  {typeDisplay.label}
-                </Badge>
-                <TechBaseBadge techBase={unit.techBase} />
-              </div>
-
-              {/* Arrow */}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-border-theme group-hover:text-text-theme-secondary flex-shrink-0">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </div>
-          </Link>
+          <UnitCardCompact
+            key={unit.id}
+            id={unit.id}
+            name={`${unit.chassis} ${unit.variant}`}
+            chassis={unit.chassis}
+            model={unit.variant}
+            tonnage={unit.tonnage}
+            weightClassName={weightDisplay.label}
+            techBaseName={unit.techBase}
+            battleValue={battleValue}
+            rulesLevelName={unit.rulesLevel}
+            walkMP={walkMP}
+            runMP={runMP}
+            jumpMP={jumpMP}
+            onClick={() => router.push(`/compendium/units/${encodeURIComponent(unit.id)}`)}
+          />
         );
       })}
     </div>
