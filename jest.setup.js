@@ -4,6 +4,11 @@
 // Import Jest DOM matchers
 import '@testing-library/jest-dom';
 
+// Polyfill TextEncoder/TextDecoder for jsdom (used by P2PTransport)
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Polyfill fetch for Node.js test environment
 if (typeof global.fetch === 'undefined') {
   // Mock fetch for tests - return empty arrays for equipment JSON files
