@@ -36,3 +36,8 @@ export {
 } from './ParityReportWriter';
 
 export * from './types/ParityValidation';
+
+export {
+  BlkParserService,
+  getBlkParserService,
+} from './BlkParserService';

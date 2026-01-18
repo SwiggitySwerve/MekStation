@@ -142,6 +142,25 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Special rules for this ammunition type"
+    },
+    "flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Equipment behavior flags (e.g., EXPLOSIVE, INCENDIARY)"
+    },
+    "allowedUnitTypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
+          "Vehicle", "VTOL", "Support Vehicle",
+          "Aerospace", "Conventional Fighter", "Small Craft",
+          "DropShip", "JumpShip", "WarShip", "Space Station",
+          "Infantry", "Battle Armor"
+        ]
+      },
+      "description": "Unit types that can use this ammunition. If omitted, defaults to BattleMech, Vehicle, Aerospace."
     }
   },
   "additionalProperties": false

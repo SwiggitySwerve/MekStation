@@ -11,6 +11,8 @@
 
 import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { EquipmentFlag } from '../enums/EquipmentFlag';
+import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
  * Ammunition category
@@ -69,6 +71,18 @@ export interface IAmmunition {
   readonly rangeModifier?: number;
   readonly introductionYear: number;
   readonly special?: readonly string[];
+
+  /**
+   * Unit types that can use this ammunition.
+   * Typically matches the allowedUnitTypes of compatible weapons.
+   */
+  readonly allowedUnitTypes?: readonly UnitType[];
+
+  /**
+   * Equipment flags defining behavior and properties.
+   * @see EquipmentFlag
+   */
+  readonly flags?: readonly EquipmentFlag[];
 }
 
 // ============================================================================

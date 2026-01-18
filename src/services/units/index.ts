@@ -69,3 +69,22 @@ export {
   type ISerializedUnit,
   type ILoadUnitResult,
 } from './unitLoaderService';
+
+export {
+  UnitTypeRegistry,
+  getUnitTypeRegistry,
+  registerUnitTypeHandler,
+  getUnitTypeHandler,
+  isUnitTypeSupported,
+} from './UnitTypeRegistry';
+
+// Unit type handlers
+export {
+  AbstractUnitTypeHandler,
+  createSuccessResult,
+  createFailureResult,
+  parseNumericField,
+  parseIntField,
+  parseBooleanField,
+  parseArrayField,
+} from './handlers';

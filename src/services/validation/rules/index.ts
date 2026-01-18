@@ -29,3 +29,7 @@ export * from './aerospace/AerospaceCategoryRules';
 // Personnel category rules
 export { PERSONNEL_CATEGORY_RULES } from './personnel/PersonnelCategoryRules';
 export * from './personnel/PersonnelCategoryRules';
+
+// Equipment unit type rules (cross-cutting, apply to all unit types)
+export { EQUIPMENT_UNIT_TYPE_RULES } from './equipment/EquipmentUnitTypeRules';
+export * from './equipment/EquipmentUnitTypeRules';

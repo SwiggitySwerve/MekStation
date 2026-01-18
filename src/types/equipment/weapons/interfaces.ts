@@ -8,6 +8,8 @@
 
 import { TechBase } from '../../enums/TechBase';
 import { RulesLevel } from '../../enums/RulesLevel';
+import { EquipmentFlag } from '../../enums/EquipmentFlag';
+import { UnitType } from '../../unit/BattleMechInterfaces';
 
 /**
  * Weapon category enumeration
@@ -98,5 +100,23 @@ export interface IWeapon {
   readonly introductionYear: number;
   readonly isExplosive?: boolean;
   readonly special?: readonly string[];
+
+  /**
+   * Unit types that can mount this weapon.
+   * If empty or undefined, defaults to [BATTLEMECH, VEHICLE, AEROSPACE] for backwards compatibility.
+   */
+  readonly allowedUnitTypes?: readonly UnitType[];
+
+  /**
+   * Equipment flags defining behavior and properties.
+   * @see EquipmentFlag
+   */
+  readonly flags?: readonly EquipmentFlag[];
+
+  /**
+   * Locations where this weapon can be mounted.
+   * If undefined, weapon can be mounted in any valid weapon location for the unit type.
+   */
+  readonly allowedLocations?: readonly string[];
 }
 

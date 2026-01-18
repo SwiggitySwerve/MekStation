@@ -150,7 +150,26 @@
     "flags": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Equipment flags for rules processing"
+      "description": "Equipment behavior flags for rules processing (e.g., PULSE, DIRECT_FIRE, AMS)"
+    },
+    "allowedUnitTypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BattleMech", "OmniMech", "IndustrialMech", "ProtoMech",
+          "Vehicle", "VTOL", "Support Vehicle",
+          "Aerospace", "Conventional Fighter", "Small Craft",
+          "DropShip", "JumpShip", "WarShip", "Space Station",
+          "Infantry", "Battle Armor"
+        ]
+      },
+      "description": "Unit types that can mount this weapon. If omitted, defaults to BattleMech, Vehicle, Aerospace."
+    },
+    "allowedLocations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific locations where this weapon can be mounted. If omitted, any valid weapon location is allowed."
     }
   },
   "additionalProperties": false

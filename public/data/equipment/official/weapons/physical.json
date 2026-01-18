@@ -21,7 +21,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 2515
+      "introductionYear": 2515,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "sword",
@@ -41,7 +42,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3058
+      "introductionYear": 3058,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "claws",
@@ -60,7 +62,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3060
+      "introductionYear": 3060,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "mace",
@@ -79,7 +82,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3061
+      "introductionYear": 3061,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "lance",
@@ -98,7 +102,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3064
+      "introductionYear": 3064,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "talons",
@@ -118,7 +123,8 @@
         "Left Leg",
         "Right Leg"
       ],
-      "introductionYear": 3072
+      "introductionYear": 3072,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "retractable-blade",
@@ -137,7 +143,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3069
+      "introductionYear": 3069,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "flail",
@@ -156,7 +163,8 @@
         "Left Arm",
         "Right Arm"
       ],
-      "introductionYear": 3064
+      "introductionYear": 3064,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "wrecking-ball",
@@ -175,7 +183,8 @@
         "Left Torso",
         "Right Torso"
       ],
-      "introductionYear": 3054
+      "introductionYear": 3054,
+      "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     }
   ]
 }
