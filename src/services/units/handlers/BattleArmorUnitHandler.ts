@@ -386,7 +386,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IBattleArmor> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IBattleArmor> {
     return createFailureResult(['Battle Armor deserialization not yet implemented']);
   }
 

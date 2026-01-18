@@ -503,7 +503,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IJumpShip> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IJumpShip> {
     return createFailureResult(['JumpShip deserialization not yet implemented']);
   }
 

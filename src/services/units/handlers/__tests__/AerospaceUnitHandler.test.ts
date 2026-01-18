@@ -8,7 +8,7 @@ import { AerospaceUnitHandler, createAerospaceHandler } from '../AerospaceUnitHa
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { AerospaceCockpitType } from '../../../../types/unit/AerospaceInterfaces';
+
 
 // ============================================================================
 // Test Fixtures

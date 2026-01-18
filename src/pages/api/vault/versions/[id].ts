@@ -34,7 +34,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<VersionResponse | DeleteResponse | ErrorResponse>
-) {
+): Promise<void> {
   const { id } = req.query;
 
   if (typeof id !== 'string') {

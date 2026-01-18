@@ -41,7 +41,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ListFoldersResponse | CreateFolderResponse | ErrorResponse>
-) {
+): Promise<void> {
   try {
     const vaultService = getVaultService();
 

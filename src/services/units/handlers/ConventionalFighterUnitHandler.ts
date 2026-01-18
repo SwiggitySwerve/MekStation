@@ -340,7 +340,7 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IConventionalFighter> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IConventionalFighter> {
     return createFailureResult(['Conventional Fighter deserialization not yet implemented']);
   }
 

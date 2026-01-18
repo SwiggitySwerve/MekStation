@@ -40,7 +40,7 @@ import {
 /**
  * WarShip armor arc order for array parsing (includes broadsides)
  */
-const WARSHIP_ARMOR_ARCS = [
+const _WARSHIP_ARMOR_ARCS = [
   'nose',
   'frontLeftSide',
   'frontRightSide',
@@ -517,7 +517,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IWarShip> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IWarShip> {
     return createFailureResult(['WarShip deserialization not yet implemented']);
   }
 

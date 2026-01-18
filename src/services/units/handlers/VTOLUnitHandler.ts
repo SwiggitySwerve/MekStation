@@ -324,7 +324,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    * Determine weight class from tonnage
    * VTOLs are always light (max 30 tons)
    */
-  private getWeightClass(tonnage: number): WeightClass {
+  private getWeightClass(_tonnage: number): WeightClass {
     return WeightClass.LIGHT;
   }
 
@@ -372,7 +372,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IVTOL> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IVTOL> {
     return createFailureResult(['VTOL deserialization not yet implemented']);
   }
 

@@ -322,7 +322,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IProtoMech> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IProtoMech> {
     return createFailureResult(['ProtoMech deserialization not yet implemented']);
   }
 

@@ -35,7 +35,7 @@ import {
  * Aerospace armor arc order for array parsing
  * BLK format: Nose, Left Wing, Right Wing, Aft
  */
-const AEROSPACE_ARMOR_ARCS = ['nose', 'leftWing', 'rightWing', 'aft'] as const;
+const _AEROSPACE_ARMOR_ARCS = ['nose', 'leftWing', 'rightWing', 'aft'] as const;
 
 /**
  * Map location strings to AerospaceLocation enum
@@ -362,7 +362,7 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IAerospace> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IAerospace> {
     return createFailureResult(['Aerospace deserialization not yet implemented']);
   }
 

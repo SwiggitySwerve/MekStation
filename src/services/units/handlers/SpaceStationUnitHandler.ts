@@ -527,7 +527,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<ISpaceStation> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISpaceStation> {
     return createFailureResult(['Space Station deserialization not yet implemented']);
   }
 

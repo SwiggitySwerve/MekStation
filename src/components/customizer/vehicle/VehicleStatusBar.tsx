@@ -10,7 +10,7 @@
 import React, { useMemo } from 'react';
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
+
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
