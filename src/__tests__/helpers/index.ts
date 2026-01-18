@@ -49,3 +49,6 @@ export {
   type MockImplementation,
   type PartialMock,
 } from './apiTestHelpers';
+
+// Vault test helpers
+export * from './vault';
