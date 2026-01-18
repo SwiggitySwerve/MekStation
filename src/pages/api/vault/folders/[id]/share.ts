@@ -57,7 +57,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SharesResponse | SuccessResponse | ErrorResponse>
-) {
+): Promise<void> {
   const { id } = req.query;
 
   if (typeof id !== 'string') {

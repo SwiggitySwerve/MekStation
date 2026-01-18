@@ -7,7 +7,7 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.2
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
 import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';

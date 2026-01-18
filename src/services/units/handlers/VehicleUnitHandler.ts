@@ -25,8 +25,6 @@ import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
 import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
-  parseIntField,
-  parseNumericField,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
 
@@ -421,7 +419,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IVehicle> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IVehicle> {
     // Full deserialization would require mapping all serialized fields back
     return createFailureResult(['Vehicle deserialization not yet implemented']);
   }

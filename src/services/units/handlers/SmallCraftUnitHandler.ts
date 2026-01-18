@@ -309,7 +309,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<ISmallCraft> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISmallCraft> {
     return createFailureResult(['Small Craft deserialization not yet implemented']);
   }
 

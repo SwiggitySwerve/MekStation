@@ -39,7 +39,7 @@ interface RollbackResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<RollbackResponse>
-) {
+): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }

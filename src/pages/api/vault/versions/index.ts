@@ -44,7 +44,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ListVersionsResponse | CreateVersionResponse | ErrorResponse>
-) {
+): Promise<void> {
   try {
     const versionService = getVersionHistoryService();
 

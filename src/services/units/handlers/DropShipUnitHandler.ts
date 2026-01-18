@@ -39,7 +39,7 @@ import {
 /**
  * DropShip armor arc order for array parsing
  */
-const DROPSHIP_ARMOR_ARCS = [
+const _DROPSHIP_ARMOR_ARCS = [
   'nose',
   'frontLeftSide',
   'frontRightSide',
@@ -454,7 +454,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IDropShip> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IDropShip> {
     return createFailureResult(['DropShip deserialization not yet implemented']);
   }
 

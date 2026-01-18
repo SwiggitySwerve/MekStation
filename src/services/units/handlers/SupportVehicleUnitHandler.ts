@@ -14,8 +14,6 @@ import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   ISupportVehicle,
   IVehicleMountedEquipment,
-  ITurretConfiguration,
-  TurretType,
   SupportVehicleSizeClass,
 } from '../../../types/unit/VehicleInterfaces';
 import {
@@ -357,7 +355,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<ISupportVehicle> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISupportVehicle> {
     return createFailureResult(['Support Vehicle deserialization not yet implemented']);
   }
 

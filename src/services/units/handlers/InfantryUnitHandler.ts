@@ -308,7 +308,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   /**
    * Deserialize from standard format
    */
-  deserialize(serialized: ISerializedUnit): IUnitParseResult<IInfantry> {
+  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IInfantry> {
     return createFailureResult(['Infantry deserialization not yet implemented']);
   }
 
@@ -364,7 +364,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     let weight = unit.platoonStrength * soldierWeight;
 
     // Add field gun weight
-    for (const gun of unit.fieldGuns) {
+    for (const _gun of unit.fieldGuns) {
       weight += 0.5; // Assume 0.5 tons per field gun
     }
 
@@ -420,7 +420,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
 
     // Field gun cost
     let fieldGunCost = 0;
-    for (const gun of unit.fieldGuns) {
+    for (const _gun of unit.fieldGuns) {
       fieldGunCost += 50000;
     }
 
