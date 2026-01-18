@@ -2,8 +2,14 @@
 
 ## 1. Phase 1 Proposals - Build & Share MVP
 - [x] 1.1 Create and validate `add-multi-unit-types` proposal
+  - [x] 1.1a `add-multi-unit-type-support` foundation (archived 2026-01-18)
+  - [x] 1.1b `add-vehicle-customizer` UI integration (PR #91)
+  - [ ] 1.1c `add-aerospace-customizer` (pending)
+  - [ ] 1.1d `add-infantry-customizer` (pending)
+  - [ ] 1.1e `add-battle-armor-customizer` (pending)
 - [x] 1.2 Create and validate `add-pilot-system` proposal
 - [x] 1.3 Create and validate `add-vault-sharing` proposal (Phase 1 scope)
+  - [x] 1.3a `add-vault-sharing` Phase 1 UI (archived 2026-01-18)
 - [x] 1.4 Create and validate `add-unit-card-view` proposal
 - [ ] 1.5 Review Phase 1 proposals for consistency
 
@@ -24,15 +30,31 @@
 - [ ] 4.1 Verify all cross-references between proposals
 - [ ] 4.2 Confirm dependency graph is acyclic
 - [ ] 4.3 Get approval on roadmap priorities
-- [ ] 4.4 Begin Phase 1 implementation
+- [x] 4.4 Begin Phase 1 implementation
+
+## Implementation Progress
+
+### Phase 1 Implementation Status
+
+| Component | Proposal | Status | Notes |
+|-----------|----------|--------|-------|
+| Multi-Unit Foundation | add-multi-unit-type-support | **Archived** | BLK parsing, handlers for all 13 unit types |
+| Vehicle Customizer | add-vehicle-customizer | **In Review** | PR #91 - tab integration, store registry |
+| Aerospace Customizer | add-aerospace-customizer | Pending | Requires proposal |
+| Infantry Customizer | add-infantry-customizer | Pending | Requires proposal |
+| Battle Armor Customizer | add-battle-armor-customizer | Pending | Requires proposal |
+| Pilot System | add-pilot-system | Created | Awaiting implementation |
+| Vault Sharing Phase 1 | add-vault-sharing | **Archived** | File export/import with signatures |
+| Unit Card View | add-unit-card-view | Created | Awaiting implementation |
 
 ## Proposal Summary
 
 | Phase | Proposal | Tasks | Status |
 |-------|----------|-------|--------|
-| 1 | add-multi-unit-types | 37 | Created |
+| 1 | add-multi-unit-type-support | 37 | **Archived** |
+| 1 | add-vehicle-customizer | 51 | **In Review** |
 | 1 | add-pilot-system | 38 | Created |
-| 1 | add-vault-sharing | 57 | Created |
+| 1 | add-vault-sharing | 57 | **Archived** |
 | 1 | add-unit-card-view | 27 | Created |
 | 2 | add-force-management | 34 | Created |
 | 2 | add-pilot-mech-card | 33 | Created |
@@ -42,4 +64,4 @@
 | 3 | add-encounter-system | 39 | Created |
 | 3 | add-gameplay-ui | 66 | Created |
 
-**Total: 11 proposals, 472 tasks**
+**Total: 12 proposals, 523 tasks (2 archived, 1 in review, 9 pending)**
