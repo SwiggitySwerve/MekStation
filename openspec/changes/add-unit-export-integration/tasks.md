@@ -2,12 +2,12 @@
 
 ## 1. BLK Export
 
-- [ ] 1.1 Create `BlkExporter` class in `src/services/exporters/`
-- [ ] 1.2 Implement `export()` for vehicles
-- [ ] 1.3 Implement `export()` for aerospace
-- [ ] 1.4 Implement `export()` for battle armor
-- [ ] 1.5 Implement `export()` for infantry
-- [ ] 1.6 Implement `export()` for protomechs
+- [x] 1.1 Create `BlkExportService` class in `src/services/conversion/`
+- [x] 1.2 Implement `export()` for vehicles
+- [x] 1.3 Implement `export()` for aerospace
+- [x] 1.4 Implement `export()` for battle armor
+- [x] 1.5 Implement `export()` for infantry
+- [x] 1.6 Implement `export()` for protomechs
 - [ ] 1.7 Ensure round-trip fidelity with mm-data files
 - [ ] 1.8 Add export option to customizer UI
 

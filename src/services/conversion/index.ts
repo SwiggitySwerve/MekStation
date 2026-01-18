@@ -41,3 +41,10 @@ export {
   BlkParserService,
   getBlkParserService,
 } from './BlkParserService';
+
+export {
+  BlkExportService,
+  getBlkExportService,
+  type IBlkExportResult,
+  type ExportableUnitState,
+} from './BlkExportService';
