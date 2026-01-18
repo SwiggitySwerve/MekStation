@@ -11,14 +11,14 @@ import type {
   IImportOptions,
   IImportResult,
   IImportConflict,
+  IImportHandlers,
 } from '@/types/vault';
 import {
   importFromString,
   readBundleFromFile,
   validateBundleFile,
   previewBundle,
-  type IImportHandlers,
-} from '@/services/vault';
+} from '@/services/vault/ImportService';
 
 // =============================================================================
 // Types

@@ -13,6 +13,10 @@ import type {
   IImportConflict,
   IImportSource,
   ShareableContentType,
+  IImportHandlers,
+  ExistsChecker,
+  NameChecker,
+  ItemSaver,
 } from '@/types/vault';
 import {
   parseBundle,
@@ -21,33 +25,7 @@ import {
   validateBundleMetadata,
 } from './BundleService';
 
-// =============================================================================
-// Types
-// =============================================================================
-
-/**
- * Function to check if an ID already exists
- */
-export type ExistsChecker = (id: string) => Promise<boolean>;
-
-/**
- * Function to find item by name for conflict detection
- */
-export type NameChecker = (name: string) => Promise<{ id: string; name: string } | null>;
-
-/**
- * Function to save an imported item
- */
-export type ItemSaver<T> = (item: T, source: IImportSource) => Promise<string>;
-
-/**
- * Import handlers for different content types
- */
-export interface IImportHandlers<T> {
-  checkExists: ExistsChecker;
-  checkNameConflict: NameChecker;
-  save: ItemSaver<T>;
-}
+export type { IImportHandlers, ExistsChecker, NameChecker, ItemSaver };
 
 // =============================================================================
 // Import Processing

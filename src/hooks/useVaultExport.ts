@@ -9,13 +9,15 @@
 
 import { useState, useCallback } from 'react';
 import { useIdentityStore } from '@/stores/useIdentityStore';
-import type { IExportResult, IShareableBundle, ShareableContentType } from '@/types/vault';
-import { serializeBundle } from '@/services/vault';
 import type {
+  IExportResult,
+  IShareableBundle,
+  ShareableContentType,
   IExportableUnit,
   IExportablePilot,
   IExportableForce,
-} from '@/services/vault';
+} from '@/types/vault';
+import { serializeBundle } from '@/services/vault/BundleService';
 
 // =============================================================================
 // API Response Types

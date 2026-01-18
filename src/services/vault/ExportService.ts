@@ -11,39 +11,18 @@ import type {
   IExportOptions,
   IExportResult,
   ShareableContentType,
+  IExportableUnit,
+  IExportablePilot,
+  IExportableForce,
 } from '@/types/vault';
 import { createBundle, serializeBundle } from './BundleService';
+
+export type { IExportableUnit, IExportablePilot, IExportableForce };
 
 // =============================================================================
 // Unit Export
 // =============================================================================
 
-/**
- * Exportable unit data (subset of full unit for sharing)
- */
-export interface IExportableUnit {
-  /** Original unit ID (will be remapped on import) */
-  id: string;
-
-  /** Unit name */
-  name: string;
-
-  /** Unit chassis */
-  chassis: string;
-
-  /** Unit model/variant */
-  model: string;
-
-  /** Full serialized unit data */
-  data: unknown;
-
-  /** Source of the unit (custom, imported, etc.) */
-  source?: string;
-}
-
-/**
- * Export a single unit
- */
 export async function exportUnit(
   unit: IExportableUnit,
   identity: IVaultIdentity,
@@ -74,26 +53,6 @@ export async function exportUnits(
 // Pilot Export
 // =============================================================================
 
-/**
- * Exportable pilot data
- */
-export interface IExportablePilot {
-  /** Original pilot ID */
-  id: string;
-
-  /** Pilot name */
-  name: string;
-
-  /** Pilot callsign */
-  callsign?: string;
-
-  /** Full serialized pilot data */
-  data: unknown;
-}
-
-/**
- * Export a single pilot
- */
 export async function exportPilot(
   pilot: IExportablePilot,
   identity: IVaultIdentity,
@@ -124,32 +83,6 @@ export async function exportPilots(
 // Force Export
 // =============================================================================
 
-/**
- * Exportable force data (with nested pilots and units)
- */
-export interface IExportableForce {
-  /** Original force ID */
-  id: string;
-
-  /** Force name */
-  name: string;
-
-  /** Force description */
-  description?: string;
-
-  /** Full serialized force data */
-  data: unknown;
-
-  /** Nested pilots (if includeNested) */
-  pilots?: IExportablePilot[];
-
-  /** Nested units (if includeNested) */
-  units?: IExportableUnit[];
-}
-
-/**
- * Export a force with optional nested content
- */
 export async function exportForce(
   force: IExportableForce,
   identity: IVaultIdentity,

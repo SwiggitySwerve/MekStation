@@ -16,6 +16,8 @@ import { NewTabModal } from './NewTabModal';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
 import { UnitLoadDialog, LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
+import { ExportDialog } from '@/components/vault/ExportDialog';
+import { ImportDialog } from '@/components/vault/ImportDialog';
 import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistry';
@@ -26,6 +28,9 @@ import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useToast } from '@/components/shared/Toast';
+import type { IExportableUnit, IImportHandlers, IImportSource } from '@/types/vault';
+import type { UnitState } from '@/stores/unitState';
+import { generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Types
@@ -86,6 +91,10 @@ export function MultiUnitTabs({
   const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
   const [, setIsLoadingUnit] = useState(false);
   
+  // Export/Import dialog state
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  
   // Use individual selectors for primitives and stable references
   // This avoids creating new objects on each render
   const tabs = useTabManagerStore((s) => s.tabs);
@@ -98,6 +107,7 @@ export function MultiUnitTabs({
   const storeCloseTab = useTabManagerStore((s) => s.closeTab);
   const renameTab = useTabManagerStore((s) => s.renameTab);
   const createTab = useTabManagerStore((s) => s.createTab);
+  const addTab = useTabManagerStore((s) => s.addTab);
   const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
   const closeNewTabModal = useTabManagerStore((s) => s.closeNewTabModal);
   
@@ -337,6 +347,53 @@ export function MultiUnitTabs({
     return newTabId;
   }, [createTab, router]);
   
+  // Get exportable unit data from active tab
+  const activeUnitExportData = useMemo((): IExportableUnit | null => {
+    if (!activeTabId) return null;
+    const unitStore = getUnitStore(activeTabId);
+    if (!unitStore) return null;
+    const state = unitStore.getState();
+    return {
+      id: activeTabId,
+      name: state.name,
+      chassis: state.chassis || state.name,
+      model: state.model || '',
+      data: state,
+    };
+  }, [activeTabId]);
+  
+  // Import handlers for unit bundles
+  const unitImportHandlers = useMemo((): IImportHandlers<IExportableUnit> => ({
+    checkExists: async (id: string) => {
+      return tabs.some(t => t.id === id);
+    },
+    checkNameConflict: async (name: string) => {
+      const existing = tabs.find(t => t.name === name);
+      return existing ? { id: existing.id, name: existing.name } : null;
+    },
+    save: async (item: IExportableUnit, source: IImportSource) => {
+      const importedState = item.data as UnitState;
+      const newId = generateUUID();
+      
+      // Create unit store with full imported state
+      createUnitFromFullState({
+        ...importedState,
+        id: newId,
+        isModified: false,
+      });
+      
+      // Add tab entry for the imported unit
+      addTab({
+        id: newId,
+        name: item.name,
+        tonnage: importedState.tonnage,
+        techBase: importedState.techBase,
+      });
+      
+      return newId;
+    },
+  }), [tabs, addTab]);
+  
   // Transform tabs to format expected by TabBar
   // Read name and isModified directly from unit stores for live updates
   const tabBarTabs = useMemo(() => 
@@ -449,6 +506,9 @@ export function MultiUnitTabs({
         onRenameTab={renameTab}
         onNewTab={openNewTabModal}
         onLoadUnit={openLoadDialog}
+        onExport={() => setIsExportDialogOpen(true)}
+        onImport={() => setIsImportDialogOpen(true)}
+        canExport={!!activeUnitExportData}
       />
       
       {/* Tab content */}
@@ -487,6 +547,30 @@ export function MultiUnitTabs({
         isOpen={isLoadDialogOpen}
         onLoadUnit={handleLoadUnit}
         onCancel={() => setIsLoadDialogOpen(false)}
+      />
+      
+      {/* Export dialog */}
+      {activeUnitExportData && (
+        <ExportDialog
+          isOpen={isExportDialogOpen}
+          onClose={() => setIsExportDialogOpen(false)}
+          contentType="unit"
+          content={activeUnitExportData}
+          onExportComplete={() => {
+            showToast({ message: 'Unit exported successfully', variant: 'success' });
+          }}
+        />
+      )}
+      
+      {/* Import dialog */}
+      <ImportDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        handlers={unitImportHandlers}
+        onImportComplete={(count) => {
+          showToast({ message: `Imported ${count} unit(s)`, variant: 'success' });
+          setIsImportDialogOpen(false);
+        }}
       />
     </div>
   );

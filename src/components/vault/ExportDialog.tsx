@@ -14,7 +14,7 @@ import type {
   IExportableUnit,
   IExportablePilot,
   IExportableForce,
-} from '@/services/vault';
+} from '@/types/vault';
 
 // =============================================================================
 // Types
