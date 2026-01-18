@@ -4,6 +4,7 @@ import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
 import { useTabManagerStore, TabManagerState, TabInfo } from '@/stores/useTabManagerStore';
 import { useRouter } from 'next/router';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ToastProvider } from '@/components/shared/Toast';
 
 // Mock dependencies
@@ -47,6 +48,7 @@ describe('MultiUnitTabs', () => {
     name: 'Atlas AS7-D',
     tonnage: 100,
     techBase: TechBase.INNER_SPHERE,
+    unitType: UnitType.BATTLEMECH,
   };
 
   const mockTabManager: TabManagerState = {

@@ -21,9 +21,11 @@ import { ImportDialog } from '@/components/vault/ImportDialog';
 import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistry';
+import { createAndRegisterVehicle, getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { unitLoaderService } from '@/services/units/unitLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
@@ -135,22 +137,25 @@ export function MultiUnitTabs({
     }
   }, [storeCloseTab, router]);
   
-  // Close tab with unsaved changes check
   const closeTab = useCallback((tabId: string) => {
-    // Check if the unit has unsaved changes
-    const unitStore = getUnitStore(tabId);
-    const isModified = unitStore?.getState().isModified ?? false;
     const tabInfo = tabs.find((t) => t.id === tabId);
     
+    let isModified = false;
+    if (tabInfo?.unitType === UnitType.VEHICLE || tabInfo?.unitType === UnitType.VTOL) {
+      const vehicleStore = getVehicleStore(tabId);
+      isModified = vehicleStore?.getState().isModified ?? false;
+    } else {
+      const unitStore = getUnitStore(tabId);
+      isModified = unitStore?.getState().isModified ?? false;
+    }
+    
     if (isModified) {
-      // Show confirmation dialog
       setCloseDialog({
         isOpen: true,
         tabId,
         tabName: tabInfo?.name ?? 'Unknown Unit',
       });
     } else {
-      // No unsaved changes, close directly
       performCloseTab(tabId);
     }
   }, [tabs, performCloseTab]);
@@ -337,15 +342,38 @@ export function MultiUnitTabs({
     }
   }, [createTab, router, showToast]);
   
-  // Create unit from template with URL navigation
-  const createNewUnit = useCallback((tonnage: number, techBase: TechBase = TechBase.INNER_SPHERE) => {
+  const createNewUnit = useCallback((
+    tonnage: number,
+    techBase: TechBase = TechBase.INNER_SPHERE,
+    unitType: UnitType = UnitType.BATTLEMECH
+  ) => {
+    if (unitType === UnitType.VEHICLE || unitType === UnitType.VTOL) {
+      const vehicleStore = createAndRegisterVehicle({
+        name: `New ${tonnage}t Vehicle`,
+        tonnage,
+        techBase,
+        unitType: unitType as UnitType.VEHICLE | UnitType.VTOL,
+      });
+      const vehicleState = vehicleStore.getState();
+      
+      addTab({
+        id: vehicleState.id,
+        name: vehicleState.name,
+        tonnage: vehicleState.tonnage,
+        techBase: vehicleState.techBase,
+        unitType: vehicleState.unitType,
+      });
+      
+      router.push(`/customizer/${vehicleState.id}/${DEFAULT_TAB}`, undefined, { shallow: true });
+      return vehicleState.id;
+    }
+    
     const template = UNIT_TEMPLATES.find(t => t.tonnage === tonnage) || UNIT_TEMPLATES[1];
     const templateWithTechBase = { ...template, techBase };
     const newTabId = createTab(templateWithTechBase);
-    // Navigate to the new unit URL
     router.push(`/customizer/${newTabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
     return newTabId;
-  }, [createTab, router]);
+  }, [createTab, addTab, router]);
   
   // Get exportable unit data from active tab
   const activeUnitExportData = useMemo((): IExportableUnit | null => {
@@ -371,7 +399,7 @@ export function MultiUnitTabs({
       const existing = tabs.find(t => t.name === name);
       return existing ? { id: existing.id, name: existing.name } : null;
     },
-    save: async (item: IExportableUnit, source: IImportSource) => {
+    save: async (item: IExportableUnit, _source: IImportSource) => {
       const importedState = item.data as UnitState;
       const newId = generateUUID();
       
@@ -394,15 +422,24 @@ export function MultiUnitTabs({
     },
   }), [tabs, addTab]);
   
-  // Transform tabs to format expected by TabBar
-  // Read name and isModified directly from unit stores for live updates
   const tabBarTabs = useMemo(() => 
     tabs.map((tab) => {
+      const isVehicle = tab.unitType === UnitType.VEHICLE || tab.unitType === UnitType.VTOL;
+      
+      if (isVehicle) {
+        const vehicleStore = getVehicleStore(tab.id);
+        const state = vehicleStore?.getState();
+        return {
+          id: tab.id,
+          name: state?.name ?? tab.name,
+          isModified: state?.isModified ?? false,
+        };
+      }
+      
       const unitStore = getUnitStore(tab.id);
       const state = unitStore?.getState();
       return {
         id: tab.id,
-        // Use name from unit store for live updates when chassis/model changes
         name: state?.name ?? tab.name,
         isModified: state?.isModified ?? false,
       };

@@ -6,19 +6,34 @@
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { UNIT_TEMPLATES, UnitTemplate } from '@/stores/useMultiUnitStore';
 
 type CreationMode = 'new' | 'copy' | 'import';
 
+type SupportedUnitType = UnitType.BATTLEMECH | UnitType.VEHICLE;
+
+interface VehicleTemplate {
+  readonly id: string;
+  readonly name: string;
+  readonly tonnage: number;
+  readonly techBase: TechBase;
+  readonly cruiseMP: number;
+}
+
+const VEHICLE_TEMPLATES: readonly VehicleTemplate[] = [
+  { id: 'light-veh', name: 'Light Vehicle', tonnage: 20, techBase: TechBase.INNER_SPHERE, cruiseMP: 6 },
+  { id: 'medium-veh', name: 'Medium Vehicle', tonnage: 40, techBase: TechBase.INNER_SPHERE, cruiseMP: 5 },
+  { id: 'heavy-veh', name: 'Heavy Vehicle', tonnage: 60, techBase: TechBase.INNER_SPHERE, cruiseMP: 4 },
+  { id: 'assault-veh', name: 'Assault Vehicle', tonnage: 80, techBase: TechBase.INNER_SPHERE, cruiseMP: 3 },
+];
+
 interface NewTabModalProps {
-  /** Whether modal is open */
   isOpen: boolean;
-  /** Called when modal is closed */
   onClose: () => void;
-  /** Called when a unit is created */
-  onCreateUnit: (tonnage: number, techBase?: TechBase) => string;
+  onCreateUnit: (tonnage: number, techBase?: TechBase, unitType?: UnitType) => string;
 }
 
 /**
@@ -30,13 +45,21 @@ export function NewTabModal({
   onCreateUnit,
 }: NewTabModalProps): React.ReactElement | null {
   const [mode, setMode] = useState<CreationMode>('new');
-  const [selectedTemplate, setSelectedTemplate] = useState<UnitTemplate>(UNIT_TEMPLATES[1]); // Medium
+  const [unitType, setUnitType] = useState<SupportedUnitType>(UnitType.BATTLEMECH);
+  const [selectedMechTemplate, setSelectedMechTemplate] = useState<UnitTemplate>(UNIT_TEMPLATES[1]);
+  const [selectedVehicleTemplate, setSelectedVehicleTemplate] = useState<VehicleTemplate>(VEHICLE_TEMPLATES[1]);
   const [techBase, setTechBase] = useState<TechBase>(TechBase.INNER_SPHERE);
+  
+  const selectedTonnage = useMemo(() => {
+    return unitType === UnitType.BATTLEMECH 
+      ? selectedMechTemplate.tonnage 
+      : selectedVehicleTemplate.tonnage;
+  }, [unitType, selectedMechTemplate, selectedVehicleTemplate]);
   
   if (!isOpen) return null;
   
   const handleCreate = () => {
-    onCreateUnit(selectedTemplate.tonnage, techBase);
+    onCreateUnit(selectedTonnage, techBase, unitType);
     onClose();
   };
   
@@ -95,30 +118,88 @@ export function NewTabModal({
         <div className="p-4">
           {mode === 'new' && (
             <div className="space-y-4">
-              {/* Template selection */}
+              {/* Unit Type Selection */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Select Template
+                  Unit Type
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {UNIT_TEMPLATES.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => setSelectedTemplate(template)}
-                      className={`p-3 rounded-lg border text-left transition-colors ${
-                        selectedTemplate.id === template.id
-                          ? 'border-blue-500 bg-blue-900/30'
-                          : 'border-border-theme hover:border-border-theme-subtle'
-                      }`}
-                    >
-                      <div className="text-sm font-medium text-white">{template.name}</div>
-                      <div className="text-xs text-text-theme-secondary">
-                        {template.tonnage}t • {template.walkMP}/{Math.ceil(template.walkMP * 1.5)}/{template.jumpMP} MP
-                      </div>
-                    </button>
-                  ))}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setUnitType(UnitType.BATTLEMECH)}
+                    className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      unitType === UnitType.BATTLEMECH
+                        ? 'border-amber-500 bg-amber-900/30 text-amber-300'
+                        : 'border-border-theme text-text-theme-secondary hover:border-border-theme-subtle'
+                    }`}
+                  >
+                    BattleMech
+                  </button>
+                  <button
+                    onClick={() => setUnitType(UnitType.VEHICLE)}
+                    className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      unitType === UnitType.VEHICLE
+                        ? 'border-cyan-500 bg-cyan-900/30 text-cyan-300'
+                        : 'border-border-theme text-text-theme-secondary hover:border-border-theme-subtle'
+                    }`}
+                  >
+                    Vehicle
+                  </button>
                 </div>
               </div>
+
+              {/* Template selection - BattleMechs */}
+              {unitType === UnitType.BATTLEMECH && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Select Template
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {UNIT_TEMPLATES.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => setSelectedMechTemplate(template)}
+                        className={`p-3 rounded-lg border text-left transition-colors ${
+                          selectedMechTemplate.id === template.id
+                            ? 'border-blue-500 bg-blue-900/30'
+                            : 'border-border-theme hover:border-border-theme-subtle'
+                        }`}
+                      >
+                        <div className="text-sm font-medium text-white">{template.name}</div>
+                        <div className="text-xs text-text-theme-secondary">
+                          {template.tonnage}t • {template.walkMP}/{Math.ceil(template.walkMP * 1.5)}/{template.jumpMP} MP
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Template selection - Vehicles */}
+              {unitType === UnitType.VEHICLE && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Select Template
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {VEHICLE_TEMPLATES.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => setSelectedVehicleTemplate(template)}
+                        className={`p-3 rounded-lg border text-left transition-colors ${
+                          selectedVehicleTemplate.id === template.id
+                            ? 'border-blue-500 bg-blue-900/30'
+                            : 'border-border-theme hover:border-border-theme-subtle'
+                        }`}
+                      >
+                        <div className="text-sm font-medium text-white">{template.name}</div>
+                        <div className="text-xs text-text-theme-secondary">
+                          {template.tonnage}t • {template.cruiseMP}/{Math.floor(template.cruiseMP * 1.5)} MP
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* Tech base selection */}
               <div>

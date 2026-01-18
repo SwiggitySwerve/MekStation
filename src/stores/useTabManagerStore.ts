@@ -14,6 +14,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 import {
   createAndRegisterUnit,
@@ -60,6 +61,8 @@ export interface TabInfo {
   readonly tonnage: number;
   /** Tech base (cached for tab display) */
   readonly techBase: TechBase;
+  /** Unit type (defaults to BATTLEMECH for backwards compatibility) */
+  readonly unitType: UnitType;
   /** Last active sub-tab for this unit (structure, armor, etc.) */
   lastSubTab?: string;
 }
@@ -132,7 +135,7 @@ export interface TabManagerState {
   reorderTabs: (fromIndex: number, toIndex: number) => void;
 
   /** Add a tab directly (for loaded units with pre-existing store) */
-  addTab: (tabInfo: Omit<TabInfo, 'tonnage' | 'techBase'> & { tonnage?: number; techBase?: TechBase }) => void;
+  addTab: (tabInfo: Omit<TabInfo, 'tonnage' | 'techBase' | 'unitType'> & { tonnage?: number; techBase?: TechBase; unitType?: UnitType }) => void;
 
   /** Update the last active sub-tab for a unit */
   setLastSubTab: (tabId: string, subTab: string) => void;
@@ -206,10 +209,15 @@ function sanitizeTabsOnHydration(
       return {
         ...tab,
         id: newId,
-      } as TabInfo;
+        unitType: tab.unitType ?? UnitType.BATTLEMECH,
+      };
     }
     
-    return tab;
+    // Ensure unitType is present (backwards compatibility)
+    return {
+      ...tab,
+      unitType: tab.unitType ?? UnitType.BATTLEMECH,
+    };
   });
   
   // Update activeTabId if it was repaired
@@ -276,6 +284,7 @@ export const useTabManagerStore = create<TabManagerState>()(
           name: unitState.name,
           tonnage: unitState.tonnage,
           techBase: unitState.techBase,
+          unitType: UnitType.BATTLEMECH,
         };
         
         set((state) => ({
@@ -292,11 +301,13 @@ export const useTabManagerStore = create<TabManagerState>()(
         if (!store) return null;
         
         const unitState = store.getState();
+        const originalTab = get().tabs.find((t) => t.id === tabId);
         const tabInfo: TabInfo = {
           id: unitState.id,
           name: unitState.name,
           tonnage: unitState.tonnage,
           techBase: unitState.techBase,
+          unitType: originalTab?.unitType ?? UnitType.BATTLEMECH,
         };
         
         set((state) => ({
@@ -384,6 +395,7 @@ export const useTabManagerStore = create<TabManagerState>()(
           name: tabInfo.name,
           tonnage: tabInfo.tonnage ?? unitState?.tonnage ?? 50,
           techBase: tabInfo.techBase ?? unitState?.techBase ?? TechBase.INNER_SPHERE,
+          unitType: tabInfo.unitType ?? UnitType.BATTLEMECH,
         };
 
         set((state) => ({
