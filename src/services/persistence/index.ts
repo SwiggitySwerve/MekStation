@@ -4,10 +4,21 @@
  * @spec openspec/specs/persistence-services/spec.md
  */
 
-export { IndexedDBService, indexedDBService, STORES } from './IndexedDBService';
+export { 
+  IndexedDBService, 
+  indexedDBService, 
+  getIndexedDBService,
+  _resetIndexedDBService,
+  STORES,
+} from './IndexedDBService';
 export type { IIndexedDBService } from './IndexedDBService';
 
-export { FileService, fileService } from './FileService';
+export { 
+  FileService, 
+  fileService,
+  getFileService,
+  _resetFileService,
+} from './FileService';
 export type { IFileService } from './FileService';
 
 export { 

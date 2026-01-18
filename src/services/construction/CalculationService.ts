@@ -578,6 +578,29 @@ export class CalculationService implements ICalculationService {
   }
 }
 
-// Singleton instance
-export const calculationService = new CalculationService();
+// Singleton instance with lazy initialization
+let _instance: CalculationService | null = null;
+
+/**
+ * Get the singleton CalculationService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getCalculationService(): CalculationService {
+  if (!_instance) {
+    _instance = new CalculationService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetCalculationService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getCalculationService() instead
+export const calculationService = getCalculationService();
 

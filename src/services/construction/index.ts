@@ -4,7 +4,12 @@
  * @spec openspec/specs/construction-services/spec.md
  */
 
-export { MechBuilderService, mechBuilderService } from './MechBuilderService';
+export { 
+  MechBuilderService, 
+  mechBuilderService,
+  getMechBuilderService,
+  _resetMechBuilderService,
+} from './MechBuilderService';
 export type { 
   IMechBuilderService, 
   IEditableMech, 
@@ -13,10 +18,20 @@ export type {
   IMechChanges 
 } from './MechBuilderService';
 
-export { ValidationService, validationService } from './ValidationService';
+export { 
+  ValidationService, 
+  validationService,
+  getValidationService,
+  _resetValidationService,
+} from './ValidationService';
 export type { IValidationService } from './ValidationService';
 
-export { CalculationService, calculationService } from './CalculationService';
+export { 
+  CalculationService, 
+  calculationService,
+  getCalculationService,
+  _resetCalculationService,
+} from './CalculationService';
 export type { 
   ICalculationService, 
   IMechTotals, 

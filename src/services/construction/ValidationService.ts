@@ -374,6 +374,29 @@ export class ValidationService implements IValidationService {
   }
 }
 
-// Singleton instance
-export const validationService = new ValidationService();
+// Singleton instance with lazy initialization
+let _instance: ValidationService | null = null;
+
+/**
+ * Get the singleton ValidationService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getValidationService(): ValidationService {
+  if (!_instance) {
+    _instance = new ValidationService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetValidationService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getValidationService() instead
+export const validationService = getValidationService();
 

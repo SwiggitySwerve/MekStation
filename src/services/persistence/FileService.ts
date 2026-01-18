@@ -221,6 +221,29 @@ export class FileService implements IFileService {
   }
 }
 
-// Singleton instance
-export const fileService = new FileService();
+// Singleton instance with lazy initialization
+let _instance: FileService | null = null;
+
+/**
+ * Get the singleton FileService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getFileService(): FileService {
+  if (!_instance) {
+    _instance = new FileService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetFileService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getFileService() instead
+export const fileService = getFileService();
 

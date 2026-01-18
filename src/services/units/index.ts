@@ -15,6 +15,8 @@ export {
 export {
   CanonicalUnitService,
   canonicalUnitService,
+  getCanonicalUnitService,
+  _resetCanonicalUnitService,
   type ICanonicalUnitService,
   type IFullUnit,
 } from './CanonicalUnitService';
@@ -22,6 +24,8 @@ export {
 export {
   CustomUnitService,
   customUnitService,
+  getCustomUnitService,
+  _resetCustomUnitService,
   type ICustomUnitService,
   type IUnitNameEntry,
 } from './CustomUnitService';
@@ -88,3 +92,22 @@ export {
   parseBooleanField,
   parseArrayField,
 } from './handlers';
+
+// Enum parsing utilities
+export {
+  getEnumParserRegistry,
+  _resetEnumParserRegistry,
+  parseEngineType,
+  parseGyroType,
+  parseCockpitType,
+  parseStructureType,
+  parseArmorType,
+  parseHeatSinkType,
+  parseTechBase,
+  parseRulesLevel,
+  parseEra,
+  parseMechConfiguration,
+  parseMechLocation,
+  getWeightClass,
+  type IEnumParserRegistry,
+} from './EnumParserRegistry';

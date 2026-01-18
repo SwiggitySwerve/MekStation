@@ -234,6 +234,29 @@ export class IndexedDBService implements IIndexedDBService {
   }
 }
 
-// Singleton instance
-export const indexedDBService = new IndexedDBService();
+// Singleton instance with lazy initialization
+let _instance: IndexedDBService | null = null;
+
+/**
+ * Get the singleton IndexedDBService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getIndexedDBService(): IndexedDBService {
+  if (!_instance) {
+    _instance = new IndexedDBService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetIndexedDBService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getIndexedDBService() instead
+export const indexedDBService = getIndexedDBService();
 

@@ -269,6 +269,29 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   }
 }
 
-// Singleton instance
-export const canonicalUnitService = new CanonicalUnitService();
+// Singleton instance with lazy initialization
+let _instance: CanonicalUnitService | null = null;
+
+/**
+ * Get the singleton CanonicalUnitService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getCanonicalUnitService(): CanonicalUnitService {
+  if (!_instance) {
+    _instance = new CanonicalUnitService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetCanonicalUnitService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getCanonicalUnitService() instead
+export const canonicalUnitService = getCanonicalUnitService();
 

@@ -38,51 +38,52 @@ export * from './pilots';
 // SERVICE REGISTRY
 // ============================================================================
 
-import { indexedDBService, fileService } from './persistence';
+import { getIndexedDBService, getFileService } from './persistence';
 import { getEquipmentLoader, getEquipmentRegistry, getEquipmentNameMapper } from './equipment';
 import { getUnitFactory } from './units';
-import { mechBuilderService, validationService, calculationService } from './construction';
+import { getMechBuilderService, getValidationService, getCalculationService } from './construction';
 import { getMTFImportService } from './conversion';
 import { getPilotService, getPilotRepository } from './pilots';
 
 /**
  * Centralized service registry for singleton access
+ * Uses factory functions for lazy initialization and better testability
  */
 export const services = {
   // Persistence
   persistence: {
-    db: indexedDBService,
-    file: fileService,
+    get db() { return getIndexedDBService(); },
+    get file() { return getFileService(); },
   },
 
   // Equipment
   equipment: {
-    loader: getEquipmentLoader(),
-    registry: getEquipmentRegistry(),
-    nameMapper: getEquipmentNameMapper(),
+    get loader() { return getEquipmentLoader(); },
+    get registry() { return getEquipmentRegistry(); },
+    get nameMapper() { return getEquipmentNameMapper(); },
   },
 
   // Units
   units: {
-    factory: getUnitFactory(),
+    get factory() { return getUnitFactory(); },
   },
 
   // Construction
   construction: {
-    builder: mechBuilderService,
-    validation: validationService,
-    calculation: calculationService,
+    get builder() { return getMechBuilderService(); },
+    get validation() { return getValidationService(); },
+    get calculation() { return getCalculationService(); },
   },
 
   // Conversion
   conversion: {
-    importer: getMTFImportService(),
+    get importer() { return getMTFImportService(); },
   },
 
   // Pilots
   pilots: {
-    service: getPilotService(),
-    repository: getPilotRepository(),
+    get service() { return getPilotService(); },
+    get repository() { return getPilotRepository(); },
   },
 } as const;
 
