@@ -22,6 +22,10 @@ import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore'
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getUnitStore, createUnitFromFullState } from '@/stores/unitStoreRegistry';
 import { createAndRegisterVehicle, getVehicleStore } from '@/stores/vehicleStoreRegistry';
+import { createAndRegisterAerospace, getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
+import { createAndRegisterBattleArmor, getBattleArmorStore } from '@/stores/battleArmorStoreRegistry';
+import { createAndRegisterInfantry, getInfantryStore } from '@/stores/infantryStoreRegistry';
+import { createAndRegisterProtoMech, getProtoMechStore } from '@/stores/protoMechStoreRegistry';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { unitLoaderService } from '@/services/units/unitLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
@@ -140,13 +144,22 @@ export function MultiUnitTabs({
   const closeTab = useCallback((tabId: string) => {
     const tabInfo = tabs.find((t) => t.id === tabId);
     
+    // Check if modified based on unit type
     let isModified = false;
-    if (tabInfo?.unitType === UnitType.VEHICLE || tabInfo?.unitType === UnitType.VTOL) {
-      const vehicleStore = getVehicleStore(tabId);
-      isModified = vehicleStore?.getState().isModified ?? false;
+    const ut = tabInfo?.unitType;
+    
+    if (ut === UnitType.VEHICLE || ut === UnitType.VTOL) {
+      isModified = getVehicleStore(tabId)?.getState().isModified ?? false;
+    } else if (ut === UnitType.AEROSPACE || ut === UnitType.CONVENTIONAL_FIGHTER) {
+      isModified = getAerospaceStore(tabId)?.getState().isModified ?? false;
+    } else if (ut === UnitType.BATTLE_ARMOR) {
+      isModified = getBattleArmorStore(tabId)?.getState().isModified ?? false;
+    } else if (ut === UnitType.INFANTRY) {
+      isModified = getInfantryStore(tabId)?.getState().isModified ?? false;
+    } else if (ut === UnitType.PROTOMECH) {
+      isModified = getProtoMechStore(tabId)?.getState().isModified ?? false;
     } else {
-      const unitStore = getUnitStore(tabId);
-      isModified = unitStore?.getState().isModified ?? false;
+      isModified = getUnitStore(tabId)?.getState().isModified ?? false;
     }
     
     if (isModified) {
@@ -347,6 +360,7 @@ export function MultiUnitTabs({
     techBase: TechBase = TechBase.INNER_SPHERE,
     unitType: UnitType = UnitType.BATTLEMECH
   ) => {
+    // Vehicle / VTOL
     if (unitType === UnitType.VEHICLE || unitType === UnitType.VTOL) {
       const vehicleStore = createAndRegisterVehicle({
         name: `New ${tonnage}t Vehicle`,
@@ -368,6 +382,89 @@ export function MultiUnitTabs({
       return vehicleState.id;
     }
     
+    // Aerospace / Conventional Fighter
+    if (unitType === UnitType.AEROSPACE || unitType === UnitType.CONVENTIONAL_FIGHTER) {
+      const aerospaceStore = createAndRegisterAerospace({
+        name: `New ${tonnage}t Fighter`,
+        tonnage,
+        techBase,
+        isConventional: unitType === UnitType.CONVENTIONAL_FIGHTER,
+      });
+      const aerospaceState = aerospaceStore.getState();
+      
+      addTab({
+        id: aerospaceState.id,
+        name: aerospaceState.name,
+        tonnage: aerospaceState.tonnage,
+        techBase: aerospaceState.techBase,
+        unitType: aerospaceState.unitType,
+      });
+      
+      router.push(`/customizer/${aerospaceState.id}/${DEFAULT_TAB}`, undefined, { shallow: true });
+      return aerospaceState.id;
+    }
+    
+    // Battle Armor
+    if (unitType === UnitType.BATTLE_ARMOR) {
+      const battleArmorStore = createAndRegisterBattleArmor({
+        name: 'New Battle Armor',
+        techBase,
+      });
+      const battleArmorState = battleArmorStore.getState();
+      
+      addTab({
+        id: battleArmorState.id,
+        name: battleArmorState.name,
+        tonnage: 0, // BA doesn't use tonnage the same way
+        techBase: battleArmorState.techBase,
+        unitType: battleArmorState.unitType,
+      });
+      
+      router.push(`/customizer/${battleArmorState.id}/${DEFAULT_TAB}`, undefined, { shallow: true });
+      return battleArmorState.id;
+    }
+    
+    // Infantry
+    if (unitType === UnitType.INFANTRY) {
+      const infantryStore = createAndRegisterInfantry({
+        name: 'New Infantry Platoon',
+        techBase,
+      });
+      const infantryState = infantryStore.getState();
+      
+      addTab({
+        id: infantryState.id,
+        name: infantryState.name,
+        tonnage: 0, // Infantry doesn't use tonnage
+        techBase: infantryState.techBase,
+        unitType: infantryState.unitType,
+      });
+      
+      router.push(`/customizer/${infantryState.id}/${DEFAULT_TAB}`, undefined, { shallow: true });
+      return infantryState.id;
+    }
+    
+    // ProtoMech
+    if (unitType === UnitType.PROTOMECH) {
+      const protoMechStore = createAndRegisterProtoMech({
+        name: `New ${tonnage}t ProtoMech`,
+        tonnage,
+      });
+      const protoMechState = protoMechStore.getState();
+      
+      addTab({
+        id: protoMechState.id,
+        name: protoMechState.name,
+        tonnage: protoMechState.tonnage,
+        techBase: protoMechState.techBase,
+        unitType: protoMechState.unitType,
+      });
+      
+      router.push(`/customizer/${protoMechState.id}/${DEFAULT_TAB}`, undefined, { shallow: true });
+      return protoMechState.id;
+    }
+    
+    // Default: BattleMech
     const template = UNIT_TEMPLATES.find(t => t.tonnage === tonnage) || UNIT_TEMPLATES[1];
     const templateWithTechBase = { ...template, techBase };
     const newTabId = createTab(templateWithTechBase);
@@ -424,25 +521,39 @@ export function MultiUnitTabs({
   
   const tabBarTabs = useMemo(() => 
     tabs.map((tab) => {
-      const isVehicle = tab.unitType === UnitType.VEHICLE || tab.unitType === UnitType.VTOL;
+      const ut = tab.unitType;
       
-      if (isVehicle) {
-        const vehicleStore = getVehicleStore(tab.id);
-        const state = vehicleStore?.getState();
-        return {
-          id: tab.id,
-          name: state?.name ?? tab.name,
-          isModified: state?.isModified ?? false,
-        };
+      // Get name and isModified based on unit type
+      let name = tab.name;
+      let isModified = false;
+      
+      if (ut === UnitType.VEHICLE || ut === UnitType.VTOL) {
+        const state = getVehicleStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
+      } else if (ut === UnitType.AEROSPACE || ut === UnitType.CONVENTIONAL_FIGHTER) {
+        const state = getAerospaceStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
+      } else if (ut === UnitType.BATTLE_ARMOR) {
+        const state = getBattleArmorStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
+      } else if (ut === UnitType.INFANTRY) {
+        const state = getInfantryStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
+      } else if (ut === UnitType.PROTOMECH) {
+        const state = getProtoMechStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
+      } else {
+        const state = getUnitStore(tab.id)?.getState();
+        name = state?.name ?? tab.name;
+        isModified = state?.isModified ?? false;
       }
       
-      const unitStore = getUnitStore(tab.id);
-      const state = unitStore?.getState();
-      return {
-        id: tab.id,
-        name: state?.name ?? tab.name,
-        isModified: state?.isModified ?? false,
-      };
+      return { id: tab.id, name, isModified };
     }),
     [tabs]
   );
