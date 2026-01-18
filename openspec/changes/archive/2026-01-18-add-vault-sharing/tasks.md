@@ -31,7 +31,7 @@
 - [x] 1.4.2 Create export dialog (select items, options)
 - [x] 1.4.3 Create import dialog (file picker, preview, confirm)
 - [x] 1.4.4 Show import results (success, conflicts, errors)
-- [ ] 1.4.5 Add "Imported Items" filter to lists
+- [~] 1.4.5 Add "Imported Items" filter to lists (deferred - low priority enhancement)
 
 ## Phase 2: Link-Based Sharing
 
