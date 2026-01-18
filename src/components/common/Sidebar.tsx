@@ -17,6 +17,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   GithubIcon,
+  PilotIcon,
 } from './icons/NavigationIcons';
 
 interface SidebarProps {
@@ -159,6 +160,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
+  const gameplayItems = [
+    {
+      href: '/gameplay/pilots',
+      icon: <PilotIcon />,
+      label: 'Pilots',
+    },
+  ];
+
   const settingsItems = [
     {
       href: '/settings',
@@ -257,6 +266,22 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Tools Section */}
         <NavSection title="Tools" isCollapsed={effectiveCollapsed}>
           {toolsItems.map((item) => (
+            <NavItem
+              key={item.href}
+              {...item}
+              isCollapsed={effectiveCollapsed}
+              isActive={isPathActive(item.href)}
+              onClick={handleNavClick}
+            />
+          ))}
+        </NavSection>
+
+        {/* Divider */}
+        {!effectiveCollapsed && <div className="mx-4 border-t border-surface-base my-4" />}
+
+        {/* Gameplay Section */}
+        <NavSection title="Gameplay" isCollapsed={effectiveCollapsed}>
+          {gameplayItems.map((item) => (
             <NavItem
               key={item.href}
               {...item}
