@@ -344,6 +344,29 @@ export class MechBuilderService implements IMechBuilderService {
   }
 }
 
-// Singleton instance
-export const mechBuilderService = new MechBuilderService();
+// Singleton instance with lazy initialization
+let _instance: MechBuilderService | null = null;
+
+/**
+ * Get the singleton MechBuilderService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getMechBuilderService(): MechBuilderService {
+  if (!_instance) {
+    _instance = new MechBuilderService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetMechBuilderService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getMechBuilderService() instead
+export const mechBuilderService = getMechBuilderService();
 

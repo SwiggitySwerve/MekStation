@@ -19,27 +19,32 @@ import {
   ICriticalSlotAssignment,
   ICriticalSlot,
   UnitType,
-  MechConfiguration,
 } from '@/types/unit/BattleMechInterfaces';
 import {
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
 import {
-  EngineType,
   GyroType,
-  InternalStructureType,
   HeatSinkType,
-  ArmorTypeEnum,
-  CockpitType,
   MechLocation,
   IArmorAllocation,
 } from '@/types/construction';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/enums/Era';
-import { WeightClass } from '@/types/enums/WeightClass';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import {
+  parseEngineType,
+  parseGyroType,
+  parseCockpitType,
+  parseStructureType,
+  parseArmorType,
+  parseHeatSinkType,
+  parseTechBase,
+  parseRulesLevel,
+  parseEra,
+  parseMechConfiguration,
+  parseMechLocation,
+  getWeightClass,
+} from './EnumParserRegistry';
 
 /**
  * Factory result
@@ -51,256 +56,8 @@ export interface IUnitFactoryResult {
   readonly warnings: string[];
 }
 
-/**
- * Parse engine type from string
- */
-function parseEngineType(value: string): EngineType {
-  switch (value.toUpperCase()) {
-    case 'FUSION':
-    case 'STANDARD':
-      return EngineType.STANDARD;
-    case 'XL':
-    case 'XL_IS':
-      return EngineType.XL_IS;
-    case 'CLAN_XL':
-    case 'XL_CLAN':
-      return EngineType.XL_CLAN;
-    case 'LIGHT':
-      return EngineType.LIGHT;
-    case 'COMPACT':
-      return EngineType.COMPACT;
-    case 'XXL':
-      return EngineType.XXL;
-    case 'ICE':
-      return EngineType.ICE;
-    case 'FUEL_CELL':
-      return EngineType.FUEL_CELL;
-    case 'FISSION':
-      return EngineType.FISSION;
-    default:
-      return EngineType.STANDARD;
-  }
-}
-
-/**
- * Parse gyro type from string
- */
-function parseGyroType(value: string): GyroType {
-  switch (value.toUpperCase()) {
-    case 'STANDARD':
-      return GyroType.STANDARD;
-    case 'XL':
-      return GyroType.XL;
-    case 'COMPACT':
-      return GyroType.COMPACT;
-    case 'HEAVY_DUTY':
-      return GyroType.HEAVY_DUTY;
-    default:
-      return GyroType.STANDARD;
-  }
-}
-
-/**
- * Parse cockpit type from string
- */
-function parseCockpitType(value: string): CockpitType {
-  switch (value.toUpperCase()) {
-    case 'STANDARD': return CockpitType.STANDARD;
-    case 'SMALL': return CockpitType.SMALL;
-    case 'COMMAND_CONSOLE': return CockpitType.COMMAND_CONSOLE;
-    case 'TORSO_MOUNTED': return CockpitType.TORSO_MOUNTED;
-    case 'PRIMITIVE': return CockpitType.PRIMITIVE;
-    case 'INDUSTRIAL': return CockpitType.INDUSTRIAL;
-    default: return CockpitType.STANDARD;
-  }
-}
-
-/**
- * Parse structure type from string
- */
-function parseStructureType(value: string): InternalStructureType {
-  switch (value.toUpperCase()) {
-    case 'STANDARD':
-      return InternalStructureType.STANDARD;
-    case 'ENDO_STEEL':
-    case 'ENDO_STEEL_IS':
-      return InternalStructureType.ENDO_STEEL_IS;
-    case 'ENDO_STEEL_CLAN':
-      return InternalStructureType.ENDO_STEEL_CLAN;
-    case 'ENDO_COMPOSITE':
-      return InternalStructureType.ENDO_COMPOSITE;
-    case 'REINFORCED':
-      return InternalStructureType.REINFORCED;
-    case 'COMPOSITE':
-      return InternalStructureType.COMPOSITE;
-    case 'INDUSTRIAL':
-      return InternalStructureType.INDUSTRIAL;
-    default:
-      return InternalStructureType.STANDARD;
-  }
-}
-
-/**
- * Parse armor type from string
- */
-function parseArmorType(value: string): ArmorTypeEnum {
-  switch (value.toUpperCase()) {
-    case 'STANDARD':
-      return ArmorTypeEnum.STANDARD;
-    case 'FERRO_FIBROUS':
-    case 'FERRO_FIBROUS_IS':
-      return ArmorTypeEnum.FERRO_FIBROUS_IS;
-    case 'FERRO_FIBROUS_CLAN':
-      return ArmorTypeEnum.FERRO_FIBROUS_CLAN;
-    case 'LIGHT_FERRO_FIBROUS':
-    case 'LIGHT_FERRO':
-      return ArmorTypeEnum.LIGHT_FERRO;
-    case 'HEAVY_FERRO_FIBROUS':
-    case 'HEAVY_FERRO':
-      return ArmorTypeEnum.HEAVY_FERRO;
-    case 'STEALTH':
-      return ArmorTypeEnum.STEALTH;
-    case 'REACTIVE':
-      return ArmorTypeEnum.REACTIVE;
-    case 'REFLECTIVE':
-      return ArmorTypeEnum.REFLECTIVE;
-    case 'HARDENED':
-      return ArmorTypeEnum.HARDENED;
-    default:
-      return ArmorTypeEnum.STANDARD;
-  }
-}
-
-/**
- * Parse heat sink type from string
- */
-function parseHeatSinkType(value: string): HeatSinkType {
-  switch (value.toUpperCase()) {
-    case 'SINGLE':
-      return HeatSinkType.SINGLE;
-    case 'DOUBLE':
-    case 'DOUBLE_IS':
-      return HeatSinkType.DOUBLE_IS;
-    case 'DOUBLE_CLAN':
-      return HeatSinkType.DOUBLE_CLAN;
-    case 'COMPACT':
-      return HeatSinkType.COMPACT;
-    case 'LASER':
-      return HeatSinkType.LASER;
-    default:
-      return HeatSinkType.SINGLE;
-  }
-}
-
-/**
- * Parse tech base from string
- * Per spec VAL-ENUM-004: Components must have binary tech base (IS or Clan).
- * MIXED/BOTH from import sources default to INNER_SPHERE.
- */
-function parseTechBase(value: string): TechBase {
-  switch (value.toUpperCase()) {
-    case 'CLAN':
-      return TechBase.CLAN;
-    case 'INNER_SPHERE':
-    case 'IS':
-    case 'BOTH':
-    case 'MIXED':
-    default:
-      // Per spec: Default to IS for mixed/unknown
-      return TechBase.INNER_SPHERE;
-  }
-}
-
-/**
- * Parse rules level from string
- */
-function parseRulesLevel(value: string): RulesLevel {
-  switch (value.toUpperCase()) {
-    case 'INTRODUCTORY':
-      return RulesLevel.INTRODUCTORY;
-    case 'STANDARD':
-      return RulesLevel.STANDARD;
-    case 'ADVANCED':
-      return RulesLevel.ADVANCED;
-    case 'EXPERIMENTAL':
-    case 'UNOFFICIAL':
-      return RulesLevel.EXPERIMENTAL;
-    default:
-      return RulesLevel.STANDARD;
-  }
-}
-
-/**
- * Parse era from string
- */
-function parseEra(value: string): Era {
-  switch (value.toUpperCase()) {
-    case 'AGE_OF_WAR':
-      return Era.AGE_OF_WAR;
-    case 'STAR_LEAGUE':
-      return Era.STAR_LEAGUE;
-    case 'EARLY_SUCCESSION_WARS':
-      return Era.EARLY_SUCCESSION_WARS;
-    case 'LATE_SUCCESSION_WARS':
-      return Era.LATE_SUCCESSION_WARS;
-    case 'RENAISSANCE':
-      return Era.RENAISSANCE;
-    case 'CLAN_INVASION':
-      return Era.CLAN_INVASION;
-    case 'CIVIL_WAR':
-      return Era.CIVIL_WAR;
-    case 'JIHAD':
-      return Era.JIHAD;
-    case 'DARK_AGE':
-      return Era.DARK_AGE;
-    case 'ILCLAN':
-    case 'IL_CLAN':
-      return Era.IL_CLAN;
-    default:
-      return Era.LATE_SUCCESSION_WARS;
-  }
-}
-
-/**
- * Parse mech configuration from string
- */
-function parseMechConfiguration(value: string): MechConfiguration {
-  switch (value) {
-    case 'Biped': return MechConfiguration.BIPED;
-    case 'Quad': return MechConfiguration.QUAD;
-    case 'Tripod': return MechConfiguration.TRIPOD;
-    case 'LAM': return MechConfiguration.LAM;
-    case 'QuadVee': return MechConfiguration.QUADVEE;
-    default: return MechConfiguration.BIPED;
-  }
-}
-
-/**
- * Parse mech location from string
- */
-function parseMechLocation(value: string): MechLocation {
-  switch (value.toUpperCase()) {
-    case 'HEAD': return MechLocation.HEAD;
-    case 'CENTER_TORSO': return MechLocation.CENTER_TORSO;
-    case 'LEFT_TORSO': return MechLocation.LEFT_TORSO;
-    case 'RIGHT_TORSO': return MechLocation.RIGHT_TORSO;
-    case 'LEFT_ARM': return MechLocation.LEFT_ARM;
-    case 'RIGHT_ARM': return MechLocation.RIGHT_ARM;
-    case 'LEFT_LEG': return MechLocation.LEFT_LEG;
-    case 'RIGHT_LEG': return MechLocation.RIGHT_LEG;
-    default: return MechLocation.CENTER_TORSO;
-  }
-}
-
-/**
- * Get weight class from tonnage
- */
-function getWeightClass(tonnage: number): WeightClass {
-  if (tonnage <= 35) return WeightClass.LIGHT;
-  if (tonnage <= 55) return WeightClass.MEDIUM;
-  if (tonnage <= 75) return WeightClass.HEAVY;
-  return WeightClass.ASSAULT;
-}
+// Parsing functions are now imported from EnumParserRegistry
+// This improves extensibility (OCP) and testability
 
 /**
  * Calculate structure points for a location

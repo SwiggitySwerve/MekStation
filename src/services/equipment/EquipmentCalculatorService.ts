@@ -164,8 +164,31 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
   }
 }
 
-// Singleton instance
-export const equipmentCalculatorService = new EquipmentCalculatorService();
+// Singleton instance with lazy initialization
+let _instance: EquipmentCalculatorService | null = null;
+
+/**
+ * Get the singleton EquipmentCalculatorService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getEquipmentCalculatorService(): EquipmentCalculatorService {
+  if (!_instance) {
+    _instance = new EquipmentCalculatorService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetEquipmentCalculatorService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getEquipmentCalculatorService() instead
+export const equipmentCalculatorService = getEquipmentCalculatorService();
 
 /**
  * Variable equipment ID constants

@@ -182,6 +182,29 @@ export class CustomUnitService implements ICustomUnitService {
   }
 }
 
-// Singleton instance
-export const customUnitService = new CustomUnitService();
+// Singleton instance with lazy initialization
+let _instance: CustomUnitService | null = null;
+
+/**
+ * Get the singleton CustomUnitService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getCustomUnitService(): CustomUnitService {
+  if (!_instance) {
+    _instance = new CustomUnitService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetCustomUnitService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getCustomUnitService() instead
+export const customUnitService = getCustomUnitService();
 

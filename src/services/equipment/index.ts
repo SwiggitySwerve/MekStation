@@ -29,3 +29,20 @@ export {
   type INameMappingResult,
   type IMappingStats,
 } from './EquipmentNameMapper';
+
+export {
+  EquipmentCalculatorService,
+  equipmentCalculatorService,
+  getEquipmentCalculatorService,
+  _resetEquipmentCalculatorService,
+  type IEquipmentCalculatorService,
+  VARIABLE_EQUIPMENT,
+} from './EquipmentCalculatorService';
+
+export {
+  EquipmentLookupService,
+  equipmentLookupService,
+  getEquipmentLookupService,
+  _resetEquipmentLookupService,
+  type IEquipmentLookupService,
+} from './EquipmentLookupService';

@@ -20,6 +20,10 @@ import { IAmmunition, AmmoCategory, AmmoVariant } from '@/types/equipment/Ammuni
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  parseTechBase as parseEnumTechBase,
+  parseRulesLevel as parseEnumRulesLevel,
+} from '@/services/units/EnumParserRegistry';
 
 /**
  * Detect if we're running in a server (Node.js) environment
@@ -237,46 +241,9 @@ interface IEquipmentFile<T> {
   items: T[];
 }
 
-/**
- * Convert string to TechBase enum
- */
-/**
- * Parse tech base from string
- * Per spec VAL-ENUM-004: Components must have binary tech base (IS or Clan).
- * MIXED/BOTH from import sources default to INNER_SPHERE.
- */
-function parseTechBase(value: string): TechBase {
-  switch (value.toUpperCase()) {
-    case 'CLAN':
-      return TechBase.CLAN;
-    case 'INNER_SPHERE':
-    case 'IS':
-    case 'BOTH':
-    case 'MIXED':
-    default:
-      // Per spec: Default to IS for mixed/unknown
-      return TechBase.INNER_SPHERE;
-  }
-}
-
-/**
- * Convert string to RulesLevel enum
- */
-function parseRulesLevel(value: string): RulesLevel {
-  switch (value.toUpperCase()) {
-    case 'INTRODUCTORY':
-      return RulesLevel.INTRODUCTORY;
-    case 'STANDARD':
-      return RulesLevel.STANDARD;
-    case 'ADVANCED':
-      return RulesLevel.ADVANCED;
-    case 'EXPERIMENTAL':
-    case 'UNOFFICIAL':
-      return RulesLevel.EXPERIMENTAL;
-    default:
-      return RulesLevel.STANDARD;
-  }
-}
+// Use EnumParserRegistry for standard enum parsing (OCP compliant)
+const parseTechBase = parseEnumTechBase;
+const parseRulesLevel = parseEnumRulesLevel;
 
 /**
  * Convert string to WeaponCategory enum

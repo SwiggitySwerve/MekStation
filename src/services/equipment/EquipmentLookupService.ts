@@ -375,6 +375,29 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   }
 }
 
-// Singleton instance
-export const equipmentLookupService = new EquipmentLookupService();
+// Singleton instance with lazy initialization
+let _instance: EquipmentLookupService | null = null;
+
+/**
+ * Get the singleton EquipmentLookupService instance
+ * Provides lazy initialization for better testability and DI support
+ */
+export function getEquipmentLookupService(): EquipmentLookupService {
+  if (!_instance) {
+    _instance = new EquipmentLookupService();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ * @internal
+ */
+export function _resetEquipmentLookupService(): void {
+  _instance = null;
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getEquipmentLookupService() instead
+export const equipmentLookupService = getEquipmentLookupService();
 
