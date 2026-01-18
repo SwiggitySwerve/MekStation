@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useCallback, useContext, useState } from 'react';
 import { useEquipmentStore, SortColumn } from '@/stores/useEquipmentStore';
 import { UnitStoreContext, type UnitStore } from '@/stores/useUnitStore';
+import { VehicleStoreContext, type VehicleStore } from '@/stores/useVehicleStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -85,6 +86,7 @@ export interface EquipmentBrowserState {
 
 /**
  * Hook to safely get unit store values if within a unit context
+ * Supports both BattleMech (UnitStoreContext) and Vehicle (VehicleStoreContext)
  * Uses subscription pattern to avoid conditional hook calls
  */
 function useUnitContextValues(): { 
@@ -93,6 +95,7 @@ function useUnitContextValues(): {
   weaponIds: readonly string[];
 } {
   const unitStore = useContext(UnitStoreContext);
+  const vehicleStore = useContext(VehicleStoreContext);
   const [values, setValues] = useState<{ 
     year: number | null; 
     techBase: TechBase | null;
@@ -104,29 +107,45 @@ function useUnitContextValues(): {
   });
   
   useEffect(() => {
-    if (!unitStore) {
-      setValues({ year: null, techBase: null, weaponIds: [] });
-      return;
-    }
-    
-    // Get initial values
-    const state = unitStore.getState();
-    // Extract weapon IDs from equipment (non-ammo items with weapon-like categories)
-    const weaponIds = state.equipment
-      .filter(eq => !eq.equipmentId.toLowerCase().includes('ammo'))
-      .map(eq => eq.equipmentId);
-    setValues({ year: state.year, techBase: state.techBase, weaponIds });
-    
-    // Subscribe to changes
-    const unsubscribe = unitStore.subscribe((state: UnitStore) => {
+    // Check for BattleMech context first
+    if (unitStore) {
+      const state = unitStore.getState();
       const weaponIds = state.equipment
         .filter(eq => !eq.equipmentId.toLowerCase().includes('ammo'))
         .map(eq => eq.equipmentId);
       setValues({ year: state.year, techBase: state.techBase, weaponIds });
-    });
+      
+      const unsubscribe = unitStore.subscribe((state: UnitStore) => {
+        const weaponIds = state.equipment
+          .filter(eq => !eq.equipmentId.toLowerCase().includes('ammo'))
+          .map(eq => eq.equipmentId);
+        setValues({ year: state.year, techBase: state.techBase, weaponIds });
+      });
+      
+      return unsubscribe;
+    }
     
-    return unsubscribe;
-  }, [unitStore]);
+    // Check for Vehicle context
+    if (vehicleStore) {
+      const state = vehicleStore.getState();
+      const weaponIds = state.equipment
+        .filter(eq => !eq.equipmentId.toLowerCase().includes('ammo'))
+        .map(eq => eq.equipmentId);
+      setValues({ year: state.year, techBase: state.techBase, weaponIds });
+      
+      const unsubscribe = vehicleStore.subscribe((state: VehicleStore) => {
+        const weaponIds = state.equipment
+          .filter(eq => !eq.equipmentId.toLowerCase().includes('ammo'))
+          .map(eq => eq.equipmentId);
+        setValues({ year: state.year, techBase: state.techBase, weaponIds });
+      });
+      
+      return unsubscribe;
+    }
+    
+    // No context available
+    setValues({ year: null, techBase: null, weaponIds: [] });
+  }, [unitStore, vehicleStore]);
   
   return values;
 }

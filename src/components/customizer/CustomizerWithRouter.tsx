@@ -16,12 +16,11 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useCustomizerRouter, CustomizerTabId, isValidTabId } from '@/hooks/useCustomizerRouter';
 
 // Stores
-import { useTabManagerStore } from '@/stores/useTabManagerStore';
-import { UnitStoreProvider, ActiveTabInfo } from '@/stores/UnitStoreProvider';
+import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
 
 // Components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
-import { UnitEditorWithRouting } from './UnitEditorWithRouting';
+import { UnitTypeRouter } from './UnitTypeRouter';
 
 // =============================================================================
 // Main Component
@@ -136,11 +135,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     }
   }, [isHydrated, isLoading, activeTabId, routerUnitId, routerTabId, routerSyncUrl]);
   
-  // ==========================================================================
-  // Derive active tab info for provider
-  // ==========================================================================
-  
-  const activeTab: ActiveTabInfo | null = useMemo(() => {
+  const activeTab: TabInfo | null = useMemo(() => {
     if (!activeTabId || tabs.length === 0) {
       return null;
     }
@@ -182,32 +177,17 @@ export default function CustomizerWithRouter(): React.ReactElement {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="min-h-screen bg-surface-deep flex flex-col">
-        {/* Multi-unit tabs at top */}
         <MultiUnitTabs>
-          {/* UnitStoreProvider - activeTab passed as prop */}
-          <UnitStoreProvider
+          <UnitTypeRouter
             activeTab={activeTab}
-            fallback={
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center text-text-theme-secondary p-8">
-                  <p className="text-lg mb-2">No unit selected</p>
-                  <p className="text-sm">Click &quot;New Unit&quot; to create a new BattleMech</p>
-                </div>
-              </div>
-            }
-          >
-            {/* Unit editor with routing support */}
-            <UnitEditorWithRouting
-              activeTabId={effectiveTabId}
-              onTabChange={(tabId) => {
-                // Save the last sub-tab for this unit
-                if (activeTabId) {
-                  setLastSubTab(activeTabId, tabId);
-                }
-                router.navigateToTab(tabId);
-              }}
-            />
-          </UnitStoreProvider>
+            activeTabId={effectiveTabId}
+            onTabChange={(tabId) => {
+              if (activeTabId) {
+                setLastSubTab(activeTabId, tabId);
+              }
+              router.navigateToTab(tabId);
+            }}
+          />
         </MultiUnitTabs>
       </div>
     </DndProvider>
