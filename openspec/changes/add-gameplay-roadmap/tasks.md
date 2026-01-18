@@ -4,7 +4,7 @@
 
 ### Unit Customizers
 - [x] `add-multi-unit-type-support` - Foundation for all unit types (archived 2026-01-18)
-- [x] `add-vehicle-customizer` - Vehicle customizer UI integration (PR #91)
+- [x] `add-vehicle-customizer` - Vehicle customizer UI integration (archived 2026-01-18)
 - [ ] `add-aerospace-customizer` - Aerospace/fighter customizer
 - [ ] `add-personnel-customizer` - Infantry & Battle Armor customizer
 
@@ -40,7 +40,7 @@
 | Phase | Proposal | Status | Notes |
 |-------|----------|--------|-------|
 | 1 | `add-multi-unit-type-support` | **Archived** | BLK parsing, 13 unit type handlers |
-| 1 | `add-vehicle-customizer` | **In Review** | PR #91 - tab integration |
+| 1 | `add-vehicle-customizer` | **Archived** | Tab integration, store registry |
 | 1 | `add-aerospace-customizer` | Pending | Proposal created |
 | 1 | `add-personnel-customizer` | Pending | Proposal created |
 | 1 | `add-vault-sharing` | **Archived** | Export/import with signatures |
@@ -55,4 +55,4 @@
 | 3 | `add-encounter-system` | Pending | Proposal created |
 | 3 | `add-gameplay-ui` | Pending | Proposal created |
 
-**Total: 15 proposals (2 archived, 1 in review, 12 pending)**
+**Total: 15 proposals (3 archived, 12 pending)**
