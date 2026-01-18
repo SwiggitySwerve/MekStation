@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge } from '@/components/ui';
 import { IAssignment, ForcePosition } from '@/types/force';
 import { IPilot, IPilotSkills } from '@/types/pilot';
 

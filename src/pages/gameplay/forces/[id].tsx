@@ -6,14 +6,12 @@
  */
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import {
   PageLayout,
   PageLoading,
   PageError,
-  Card,
-  CardSection,
   Button,
-  Badge,
   Input,
 } from '@/components/ui';
 import { ForceBuilder, PilotSelector, UnitSelector, UnitInfo } from '@/components/force';
@@ -22,7 +20,6 @@ import { usePilotStore } from '@/stores/usePilotStore';
 import {
   IForce,
   IForceValidation,
-  ForceStatus,
   getForceTypeName,
 } from '@/types/force';
 import { IPilot, PilotStatus } from '@/types/pilot';
@@ -545,7 +542,7 @@ export default function ForceDetailPage(): React.ReactElement {
       {/* Link to pilots */}
       <div className="mt-8 pt-6 border-t border-border-theme-subtle">
         <div className="flex items-center gap-6">
-          <a
+          <Link
             href="/gameplay/pilots"
             className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
           >
@@ -563,7 +560,7 @@ export default function ForceDetailPage(): React.ReactElement {
               />
             </svg>
             Manage Pilots
-          </a>
+          </Link>
           <span className="text-text-theme-muted">•</span>
           <span className="text-sm text-text-theme-secondary">
             {pilots.filter((p) => p.status === PilotStatus.Active).length} active pilots available

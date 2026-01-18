@@ -13,12 +13,11 @@ import {
   Card,
   Input,
   Button,
-  Badge,
   EmptyState,
 } from '@/components/ui';
 import { ForceCard } from '@/components/force';
 import { useForceStore } from '@/stores/useForceStore';
-import { IForce, ForceStatus, getForceTypeName } from '@/types/force';
+import { IForce } from '@/types/force';
 
 // =============================================================================
 // Main Page Component

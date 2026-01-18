@@ -9,7 +9,6 @@
 import {
   IForce,
   IAssignment,
-  IForceStats,
   ForceType,
   ForceStatus,
   ForcePosition,
@@ -193,7 +192,7 @@ jest.mock('../ForceRepository', () => ({
 }));
 
 // Import after mocks
-import { ForceService, getForceService } from '../ForceService';
+import { ForceService } from '../ForceService';
 
 // =============================================================================
 // Helper Functions

@@ -10,7 +10,7 @@
 import React, { useState, useMemo } from 'react';
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { IPilot, PilotStatus, PilotType, getSkillLabel, getPilotRating } from '@/types/pilot';
+import { IPilot, PilotStatus, getSkillLabel } from '@/types/pilot';
 
 // =============================================================================
 // Types

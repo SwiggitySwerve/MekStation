@@ -14,7 +14,6 @@ import {
   IForceValidation,
   ICreateForceRequest,
   IUpdateForceRequest,
-  ForceType,
   ForcePosition,
 } from '@/types/force';
 
@@ -149,7 +148,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       if (!response.ok) {
         throw new Error('Failed to load forces');
       }
-      const data: ListForcesResponse = await response.json();
+      const data = (await response.json()) as ListForcesResponse;
       set({ forces: data.forces, isLoading: false });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -171,7 +170,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       });
-      const data: CreateForceResponse = await response.json();
+      const data = (await response.json()) as CreateForceResponse;
       if (!data.success || !data.id) {
         set({ error: data.error ?? 'Failed to create force', isLoading: false });
         return null;
@@ -195,7 +194,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       });
-      const data: UpdateForceResponse = await response.json();
+      const data = (await response.json()) as UpdateForceResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to update force', isLoading: false });
         return false;
@@ -216,7 +215,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       const response = await fetch(`/api/forces/${id}`, {
         method: 'DELETE',
       });
-      const data: DeleteForceResponse = await response.json();
+      const data = (await response.json()) as DeleteForceResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to delete force', isLoading: false });
         return false;
@@ -255,7 +254,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pilotId }),
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to assign pilot', isLoading: false });
         return false;
@@ -277,7 +276,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ unitId }),
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to assign unit', isLoading: false });
         return false;
@@ -303,7 +302,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pilotId, unitId }),
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to assign', isLoading: false });
         return false;
@@ -323,7 +322,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       const response = await fetch(`/api/forces/assignments/${assignmentId}`, {
         method: 'DELETE',
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to clear assignment', isLoading: false });
         return false;
@@ -345,7 +344,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assignmentId1, assignmentId2 }),
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to swap assignments', isLoading: false });
         return false;
@@ -367,7 +366,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ position }),
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to set position', isLoading: false });
         return false;
@@ -387,7 +386,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       const response = await fetch(`/api/forces/assignments/${assignmentId}/promote`, {
         method: 'POST',
       });
-      const data: AssignmentResponse = await response.json();
+      const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to promote', isLoading: false });
         return false;
@@ -408,7 +407,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       if (!response.ok) {
         return null;
       }
-      const data: ValidateForceResponse = await response.json();
+      const data = (await response.json()) as ValidateForceResponse;
       // Cache the validation
       const validations = new Map(get().validations);
       validations.set(id, data.validation);
@@ -428,7 +427,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newName }),
       });
-      const data: CreateForceResponse = await response.json();
+      const data = (await response.json()) as CreateForceResponse;
       if (!data.success || !data.id) {
         set({ error: data.error ?? 'Failed to clone force', isLoading: false });
         return null;

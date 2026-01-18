@@ -16,11 +16,7 @@ import {
   IForceValidationWarning,
   ICreateForceRequest,
   IUpdateForceRequest,
-  IUpdateAssignmentRequest,
-  ForceType,
-  ForceStatus,
   ForcePosition,
-  getDefaultSlotCount,
   canHaveSubForces,
 } from '@/types/force';
 import {

@@ -6,7 +6,6 @@
  */
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import {
   PageLayout,
   Card,
@@ -16,11 +15,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
-import {
-  ForceType,
-  getForceTypeName,
-  getDefaultSlotCount,
-} from '@/types/force';
+import { ForceType } from '@/types/force';
 
 // =============================================================================
 // Force Type Options

@@ -13,9 +13,7 @@ import { Card, Badge, Button } from '@/components/ui';
 import { AssignmentSlot } from './AssignmentSlot';
 import {
   IForce,
-  IAssignment,
   IForceValidation,
-  ForceType,
   ForceStatus,
   getForceTypeName,
 } from '@/types/force';
