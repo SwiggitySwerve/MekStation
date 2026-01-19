@@ -20,6 +20,7 @@ import {
   IPhaseChangedPayload,
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
+  IMovementLockedPayload,
   IAttackDeclaredPayload,
   IAttackResolvedPayload,
   IDamageAppliedPayload,
@@ -212,15 +213,7 @@ export function createMovementLockedEvent(
   turn: number,
   unitId: string
 ): IGameEvent {
-  const payload: IMovementDeclaredPayload = {
-    unitId,
-    from: { q: 0, r: 0 },
-    to: { q: 0, r: 0 },
-    facing: Facing.North,
-    movementType: MovementType.Stationary,
-    mpUsed: 0,
-    heatGenerated: 0,
-  };
+  const payload: IMovementLockedPayload = { unitId };
   return {
     ...createEventBase(gameId, sequence, GameEventType.MovementLocked, turn, GamePhase.Movement, unitId),
     payload,

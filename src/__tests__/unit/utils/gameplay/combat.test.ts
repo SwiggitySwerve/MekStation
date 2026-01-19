@@ -43,6 +43,7 @@ import {
   applyPilotDamage,
   checkUnitDestruction,
   createDamageState,
+  IUnitDamageState,
 } from '@/utils/gameplay/damage';
 
 // Cluster Weapons
@@ -347,7 +348,7 @@ describe('Damage Application', () => {
   describe('applyDamageToLocation', () => {
     it('should apply damage to armor first', () => {
       const state = createTestState();
-      const result = applyDamageToLocation(state, 'left_arm', 10);
+      const { result } = applyDamageToLocation(state, 'left_arm', 10);
       
       expect(result.armorDamage).toBe(10);
       expect(result.structureDamage).toBe(0);
@@ -357,7 +358,7 @@ describe('Damage Application', () => {
 
     it('should apply excess damage to structure', () => {
       const state = createTestState();
-      const result = applyDamageToLocation(state, 'left_arm', 20);
+      const { result } = applyDamageToLocation(state, 'left_arm', 20);
       
       expect(result.armorDamage).toBe(16);
       expect(result.structureDamage).toBe(4);
@@ -366,16 +367,16 @@ describe('Damage Application', () => {
 
     it('should destroy location when structure depleted', () => {
       const state = createTestState();
-      const result = applyDamageToLocation(state, 'left_arm', 30);
+      const { state: newState, result } = applyDamageToLocation(state, 'left_arm', 30);
       
       expect(result.destroyed).toBe(true);
-      expect(state.destroyedLocations.has('left_arm')).toBe(true);
+      expect(newState.destroyedLocations.includes('left_arm')).toBe(true);
     });
 
     it('should transfer damage from destroyed location', () => {
       const state = createTestState();
       // Destroy the arm with 30 damage (16 armor + 8 structure = 24, so 6 excess)
-      const result = applyDamageToLocation(state, 'left_arm', 30);
+      const { result } = applyDamageToLocation(state, 'left_arm', 30);
       
       expect(result.destroyed).toBe(true);
       expect(result.transferredDamage).toBe(6);
@@ -385,13 +386,15 @@ describe('Damage Application', () => {
 
   describe('applyDamageWithTransfer', () => {
     it('should apply damage through transfer chain', () => {
-      const state = createTestState();
+      // Create a state with weakened arm (low armor and structure)
+      const baseState = createTestState();
+      const weakenedState: IUnitDamageState = {
+        ...baseState,
+        armor: { ...baseState.armor, 'left_arm': 0 },
+        structure: { ...baseState.structure, 'left_arm': 1 },
+      };
       
-      // First destroy the arm
-      state.armor['left_arm'] = 0;
-      state.structure['left_arm'] = 1;
-      
-      const results = applyDamageWithTransfer(state, 'left_arm', 10);
+      const { results } = applyDamageWithTransfer(weakenedState, 'left_arm', 10);
       
       // Should have hit arm and transferred to torso
       expect(results.length).toBeGreaterThanOrEqual(1);
@@ -418,7 +421,7 @@ describe('Damage Application', () => {
   describe('applyPilotDamage', () => {
     it('should apply wounds to pilot', () => {
       const state = createTestState();
-      const result = applyPilotDamage(state, 1, 'head_hit');
+      const { result } = applyPilotDamage(state, 1, 'head_hit');
       
       expect(result.woundsInflicted).toBe(1);
       expect(result.totalWounds).toBe(1);
@@ -426,42 +429,58 @@ describe('Damage Application', () => {
     });
 
     it('should kill pilot at 6 wounds', () => {
-      const state = createTestState();
-      state.pilotWounds = 5;
+      // Create state with 5 existing wounds
+      const baseState = createTestState();
+      const woundedState: IUnitDamageState = {
+        ...baseState,
+        pilotWounds: 5,
+      };
       
-      const result = applyPilotDamage(state, 1, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(woundedState, 1, 'head_hit');
       
       expect(result.dead).toBe(true);
-      expect(state.destroyed).toBe(true);
-      expect(state.destructionCause).toBe('pilot_death');
+      expect(newState.destroyed).toBe(true);
+      expect(newState.destructionCause).toBe('pilot_death');
     });
   });
 
   describe('checkUnitDestruction', () => {
     it('should detect head destruction', () => {
-      const state = createTestState();
-      state.destroyedLocations.add('head');
+      // Create state with destroyed head
+      const baseState = createTestState();
+      const stateWithDestroyedHead: IUnitDamageState = {
+        ...baseState,
+        destroyedLocations: ['head'],
+      };
       
-      const result = checkUnitDestruction(state);
+      const result = checkUnitDestruction(stateWithDestroyedHead);
       
       expect(result.destroyed).toBe(true);
       expect(result.cause).toBe('damage');
     });
 
     it('should detect center torso destruction', () => {
-      const state = createTestState();
-      state.destroyedLocations.add('center_torso');
+      // Create state with destroyed center torso
+      const baseState = createTestState();
+      const stateWithDestroyedCT: IUnitDamageState = {
+        ...baseState,
+        destroyedLocations: ['center_torso'],
+      };
       
-      const result = checkUnitDestruction(state);
+      const result = checkUnitDestruction(stateWithDestroyedCT);
       
       expect(result.destroyed).toBe(true);
     });
 
     it('should not destroy for limb loss', () => {
-      const state = createTestState();
-      state.destroyedLocations.add('left_arm');
+      // Create state with destroyed arm (not fatal)
+      const baseState = createTestState();
+      const stateWithDestroyedArm: IUnitDamageState = {
+        ...baseState,
+        destroyedLocations: ['left_arm'],
+      };
       
-      const result = checkUnitDestruction(state);
+      const result = checkUnitDestruction(stateWithDestroyedArm);
       
       expect(result.destroyed).toBe(false);
     });

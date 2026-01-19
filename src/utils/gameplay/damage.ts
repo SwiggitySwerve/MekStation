@@ -3,6 +3,9 @@
  * Implements BattleTech damage application including armor, structure,
  * damage transfer, and unit destruction.
  *
+ * All functions follow immutable patterns - they return new state objects
+ * instead of mutating the input state.
+ *
  * @spec openspec/changes/add-combat-resolution/specs/combat-resolution/spec.md
  */
 
@@ -24,24 +27,77 @@ import { roll2d6, isHeadHit } from './hitLocation';
 
 /**
  * Unit damage state for tracking armor and structure.
+ * All properties are treated as immutable - functions return new state objects.
  */
 export interface IUnitDamageState {
   /** Armor values by location */
-  armor: Record<CombatLocation, number>;
+  readonly armor: Readonly<Record<CombatLocation, number>>;
   /** Rear armor values (for torso locations) */
-  rearArmor: Record<'center_torso' | 'left_torso' | 'right_torso', number>;
+  readonly rearArmor: Readonly<Record<'center_torso' | 'left_torso' | 'right_torso', number>>;
   /** Internal structure values by location */
-  structure: Record<CombatLocation, number>;
+  readonly structure: Readonly<Record<CombatLocation, number>>;
   /** Destroyed locations */
-  destroyedLocations: Set<CombatLocation>;
+  readonly destroyedLocations: readonly CombatLocation[];
   /** Pilot wounds */
-  pilotWounds: number;
+  readonly pilotWounds: number;
   /** Is pilot conscious? */
-  pilotConscious: boolean;
+  readonly pilotConscious: boolean;
   /** Is unit destroyed? */
-  destroyed: boolean;
+  readonly destroyed: boolean;
   /** Destruction cause */
-  destructionCause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+  readonly destructionCause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+}
+
+/**
+ * Result of applying damage to a location, including the updated state.
+ */
+export interface ILocationDamageResult {
+  /** Updated state after applying damage */
+  state: IUnitDamageState;
+  /** Damage details for this location */
+  result: ILocationDamage;
+}
+
+/**
+ * Result of applying damage with transfer chain.
+ */
+export interface IDamageWithTransferResult {
+  /** Updated state after all damage applied */
+  state: IUnitDamageState;
+  /** Damage details for each location in the transfer chain */
+  results: ILocationDamage[];
+}
+
+/**
+ * Result of applying pilot damage.
+ */
+export interface IPilotDamageResultWithState {
+  /** Updated state after pilot damage */
+  state: IUnitDamageState;
+  /** Pilot damage details */
+  result: IPilotDamageResult;
+}
+
+/**
+ * Result of checking unit destruction.
+ */
+export interface IDestructionCheckResult {
+  /** Updated state (may have destruction flags set) */
+  state: IUnitDamageState;
+  /** Whether unit is destroyed */
+  destroyed: boolean;
+  /** Cause of destruction if destroyed */
+  cause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+}
+
+/**
+ * Result of complete damage resolution.
+ */
+export interface IResolveDamageResult {
+  /** Updated state after all damage resolved */
+  state: IUnitDamageState;
+  /** Full damage result details */
+  result: IDamageResult;
 }
 
 // =============================================================================
@@ -79,24 +135,66 @@ export const STANDARD_STRUCTURE_TABLE: Readonly<Record<number, {
 };
 
 // =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Check if a location is in the destroyed locations array.
+ */
+function isLocationDestroyed(state: IUnitDamageState, location: CombatLocation): boolean {
+  return state.destroyedLocations.includes(location);
+}
+
+/**
+ * Add a location to the destroyed locations array (immutably).
+ */
+function addDestroyedLocation(
+  destroyedLocations: readonly CombatLocation[],
+  location: CombatLocation
+): readonly CombatLocation[] {
+  if (destroyedLocations.includes(location)) {
+    return destroyedLocations;
+  }
+  return [...destroyedLocations, location];
+}
+
+// =============================================================================
 // Damage Application
 // =============================================================================
 
 /**
  * Apply damage to a single location.
- * Returns the damage result and updates the state.
+ * Returns new state and the damage result (immutable).
  */
 export function applyDamageToLocation(
   state: IUnitDamageState,
   location: CombatLocation,
   damage: number
-): ILocationDamage {
+): ILocationDamageResult {
   // Check if location is already destroyed
-  if (state.destroyedLocations.has(location)) {
+  if (isLocationDestroyed(state, location)) {
     // Damage transfers to next location
     const transferTo = getTransferCombatLocation(location);
     if (transferTo) {
       return {
+        state,
+        result: {
+          location,
+          damage,
+          armorDamage: 0,
+          structureDamage: 0,
+          armorRemaining: 0,
+          structureRemaining: 0,
+          destroyed: true,
+          transferredDamage: damage,
+          transferLocation: transferTo,
+        },
+      };
+    }
+    // No transfer location (head, CT) - unit destroyed
+    return {
+      state,
+      result: {
         location,
         damage,
         armorDamage: 0,
@@ -104,20 +202,8 @@ export function applyDamageToLocation(
         armorRemaining: 0,
         structureRemaining: 0,
         destroyed: true,
-        transferredDamage: damage,
-        transferLocation: transferTo,
-      };
-    }
-    // No transfer location (head, CT) - unit destroyed
-    return {
-      location,
-      damage,
-      armorDamage: 0,
-      structureDamage: 0,
-      armorRemaining: 0,
-      structureRemaining: 0,
-      destroyed: true,
-      transferredDamage: 0,
+        transferredDamage: 0,
+      },
     };
   }
 
@@ -141,17 +227,23 @@ export function applyDamageToLocation(
   let destroyed = false;
   let transferredDamage = 0;
 
+  // Build new state incrementally
+  let newArmor = { ...state.armor };
+  let newRearArmor = { ...state.rearArmor };
+  let newStructure = { ...state.structure };
+  let newDestroyedLocations = state.destroyedLocations;
+
   // Apply to armor first
   if (currentArmor > 0) {
     armorDamage = Math.min(currentArmor, remainingDamage);
     remainingDamage -= armorDamage;
     
-    // Update state
+    // Update armor (immutably)
     if (isRear) {
       const rearKey = armorKey as 'center_torso' | 'left_torso' | 'right_torso';
-      state.rearArmor[rearKey] = currentArmor - armorDamage;
+      newRearArmor = { ...newRearArmor, [rearKey]: currentArmor - armorDamage };
     } else {
-      state.armor[location] = currentArmor - armorDamage;
+      newArmor = { ...newArmor, [location]: currentArmor - armorDamage };
     }
   }
 
@@ -160,16 +252,16 @@ export function applyDamageToLocation(
     structureDamage = Math.min(currentStructure, remainingDamage);
     remainingDamage -= structureDamage;
     
-    // Update state
-    state.structure[armorKey] = currentStructure - structureDamage;
+    // Update structure (immutably)
+    newStructure = { ...newStructure, [armorKey]: currentStructure - structureDamage };
     
     // Check for destruction
-    if (state.structure[armorKey] <= 0) {
+    if (newStructure[armorKey] <= 0) {
       destroyed = true;
-      state.destroyedLocations.add(location);
+      newDestroyedLocations = addDestroyedLocation(newDestroyedLocations, location);
       if (isRear) {
         // Also mark front as destroyed
-        state.destroyedLocations.add(armorKey);
+        newDestroyedLocations = addDestroyedLocation(newDestroyedLocations, armorKey);
       }
       
       // Transfer remaining damage
@@ -184,38 +276,51 @@ export function applyDamageToLocation(
 
   // Calculate remaining values
   const armorRemaining = isRear 
-    ? state.rearArmor[armorKey as 'center_torso' | 'left_torso' | 'right_torso']
-    : state.armor[location];
-  const structureRemaining = state.structure[armorKey];
+    ? newRearArmor[armorKey as 'center_torso' | 'left_torso' | 'right_torso']
+    : newArmor[location];
+  const structureRemaining = newStructure[armorKey];
+
+  const newState: IUnitDamageState = {
+    ...state,
+    armor: newArmor,
+    rearArmor: newRearArmor,
+    structure: newStructure,
+    destroyedLocations: newDestroyedLocations,
+  };
 
   return {
-    location,
-    damage,
-    armorDamage,
-    structureDamage,
-    armorRemaining,
-    structureRemaining,
-    destroyed,
-    transferredDamage,
-    transferLocation: transferredDamage > 0 ? getTransferCombatLocation(location) ?? undefined : undefined,
+    state: newState,
+    result: {
+      location,
+      damage,
+      armorDamage,
+      structureDamage,
+      armorRemaining,
+      structureRemaining,
+      destroyed,
+      transferredDamage,
+      transferLocation: transferredDamage > 0 ? getTransferCombatLocation(location) ?? undefined : undefined,
+    },
   };
 }
 
 /**
  * Apply damage with full transfer chain.
- * Handles damage transfer when locations are destroyed.
+ * Handles damage transfer when locations are destroyed (immutable).
  */
 export function applyDamageWithTransfer(
   state: IUnitDamageState,
   location: CombatLocation,
   damage: number
-): ILocationDamage[] {
+): IDamageWithTransferResult {
   const results: ILocationDamage[] = [];
+  let currentState = state;
   let currentLocation: CombatLocation | null = location;
   let currentDamage = damage;
 
   while (currentLocation && currentDamage > 0) {
-    const result = applyDamageToLocation(state, currentLocation, currentDamage);
+    const { state: newState, result } = applyDamageToLocation(currentState, currentLocation, currentDamage);
+    currentState = newState;
     results.push(result);
 
     if (result.transferredDamage > 0 && result.transferLocation) {
@@ -226,7 +331,10 @@ export function applyDamageWithTransfer(
     }
   }
 
-  return results;
+  return {
+    state: currentState,
+    results,
+  };
 }
 
 // =============================================================================
@@ -268,50 +376,62 @@ export function getCriticalHitCount(roll: number): number {
 // =============================================================================
 
 /**
- * Apply pilot damage from various sources.
+ * Apply pilot damage from various sources (immutable).
  */
 export function applyPilotDamage(
   state: IUnitDamageState,
   wounds: number,
   source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'fall' | 'physical_attack' | 'heat'
-): IPilotDamageResult {
-  const _previousWounds = state.pilotWounds;
-  state.pilotWounds += wounds;
-  
-  const dead = state.pilotWounds >= 6;
+): IPilotDamageResultWithState {
+  const newPilotWounds = state.pilotWounds + wounds;
+  const dead = newPilotWounds >= 6;
   
   // Consciousness check required if wounded
   const consciousnessCheckRequired = wounds > 0 && !dead;
   let consciousnessRoll: ReturnType<typeof roll2d6> | undefined;
   let consciousnessTarget: number | undefined;
   let conscious: boolean | undefined;
+  let newPilotConscious = state.pilotConscious;
+  let newDestroyed = state.destroyed;
+  let newDestructionCause = state.destructionCause;
 
   if (consciousnessCheckRequired) {
     // Target number: 3 + total wounds
-    consciousnessTarget = 3 + state.pilotWounds;
+    consciousnessTarget = 3 + newPilotWounds;
     consciousnessRoll = roll2d6();
     conscious = consciousnessRoll.total > consciousnessTarget;
     
     if (!conscious) {
-      state.pilotConscious = false;
+      newPilotConscious = false;
     }
   }
 
   if (dead) {
-    state.pilotConscious = false;
-    state.destroyed = true;
-    state.destructionCause = 'pilot_death';
+    newPilotConscious = false;
+    newDestroyed = true;
+    newDestructionCause = 'pilot_death';
   }
 
+  const newState: IUnitDamageState = {
+    ...state,
+    pilotWounds: newPilotWounds,
+    pilotConscious: newPilotConscious,
+    destroyed: newDestroyed,
+    destructionCause: newDestructionCause,
+  };
+
   return {
-    source,
-    woundsInflicted: wounds,
-    totalWounds: state.pilotWounds,
-    consciousnessCheckRequired,
-    consciousnessRoll,
-    consciousnessTarget,
-    conscious,
-    dead,
+    state: newState,
+    result: {
+      source,
+      woundsInflicted: wounds,
+      totalWounds: newPilotWounds,
+      consciousnessCheckRequired,
+      consciousnessRoll,
+      consciousnessTarget,
+      conscious,
+      dead,
+    },
   };
 }
 
@@ -320,39 +440,49 @@ export function applyPilotDamage(
 // =============================================================================
 
 /**
- * Check if unit is destroyed based on current state.
+ * Check if unit is destroyed based on current state (immutable).
  */
-export function checkUnitDestruction(state: IUnitDamageState): {
-  destroyed: boolean;
-  cause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
-} {
+export function checkUnitDestruction(state: IUnitDamageState): IDestructionCheckResult {
   // Already destroyed
   if (state.destroyed) {
-    return { destroyed: true, cause: state.destructionCause ?? 'damage' };
+    return { 
+      state, 
+      destroyed: true, 
+      cause: state.destructionCause ?? 'damage' 
+    };
   }
 
   // Head destroyed
-  if (state.destroyedLocations.has('head')) {
-    state.destroyed = true;
-    state.destructionCause = 'damage';
-    return { destroyed: true, cause: 'damage' };
+  if (isLocationDestroyed(state, 'head')) {
+    const newState: IUnitDamageState = {
+      ...state,
+      destroyed: true,
+      destructionCause: 'damage',
+    };
+    return { state: newState, destroyed: true, cause: 'damage' };
   }
 
   // Center torso destroyed
-  if (state.destroyedLocations.has('center_torso')) {
-    state.destroyed = true;
-    state.destructionCause = 'damage';
-    return { destroyed: true, cause: 'damage' };
+  if (isLocationDestroyed(state, 'center_torso')) {
+    const newState: IUnitDamageState = {
+      ...state,
+      destroyed: true,
+      destructionCause: 'damage',
+    };
+    return { state: newState, destroyed: true, cause: 'damage' };
   }
 
   // Pilot dead
   if (state.pilotWounds >= 6) {
-    state.destroyed = true;
-    state.destructionCause = 'pilot_death';
-    return { destroyed: true, cause: 'pilot_death' };
+    const newState: IUnitDamageState = {
+      ...state,
+      destroyed: true,
+      destructionCause: 'pilot_death',
+    };
+    return { state: newState, destroyed: true, cause: 'pilot_death' };
   }
 
-  return { destroyed: false };
+  return { state, destroyed: false };
 }
 
 // =============================================================================
@@ -360,21 +490,27 @@ export function checkUnitDestruction(state: IUnitDamageState): {
 // =============================================================================
 
 /**
- * Apply complete damage from an attack.
+ * Apply complete damage from an attack (immutable).
  * Handles armor, structure, transfer, criticals, and pilot damage.
  */
 export function resolveDamage(
   state: IUnitDamageState,
   location: CombatLocation,
   damage: number
-): IDamageResult {
-  const locationDamages = applyDamageWithTransfer(state, location, damage);
+): IResolveDamageResult {
+  let currentState = state;
+  
+  const { state: stateAfterDamage, results: locationDamages } = applyDamageWithTransfer(currentState, location, damage);
+  currentState = stateAfterDamage;
+  
   const criticalHits: ICriticalHitResult[] = [];
   let pilotDamage: IPilotDamageResult | undefined;
 
   // Check for pilot damage from head hit
   if (isHeadHit(location) && damage > 0) {
-    pilotDamage = applyPilotDamage(state, 1, 'head_hit');
+    const { state: stateAfterPilot, result } = applyPilotDamage(currentState, 1, 'head_hit');
+    currentState = stateAfterPilot;
+    pilotDamage = result;
   }
 
   // Check for critical hits on structure damage
@@ -389,14 +525,18 @@ export function resolveDamage(
   }
 
   // Check for unit destruction
-  const destruction = checkUnitDestruction(state);
+  const { state: stateAfterDestruction, destroyed, cause } = checkUnitDestruction(currentState);
+  currentState = stateAfterDestruction;
 
   return {
-    locationDamages,
-    criticalHits,
-    pilotDamage,
-    unitDestroyed: destruction.destroyed,
-    destructionCause: destruction.cause,
+    state: currentState,
+    result: {
+      locationDamages,
+      criticalHits,
+      pilotDamage,
+      unitDestroyed: destroyed,
+      destructionCause: cause,
+    },
   };
 }
 
@@ -432,7 +572,7 @@ export function createDamageState(
     armor: { ...armorValues },
     rearArmor: { ...rearArmorValues },
     structure,
-    destroyedLocations: new Set(),
+    destroyedLocations: [],
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
