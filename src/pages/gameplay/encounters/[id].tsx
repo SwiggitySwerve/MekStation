@@ -1,0 +1,385 @@
+/**
+ * Encounter Detail Page
+ * View and edit a single encounter configuration.
+ *
+ * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
+ */
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import {
+  PageLayout,
+  PageLoading,
+  Card,
+  Button,
+  Badge,
+} from '@/components/ui';
+import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useForceStore } from '@/stores/useForceStore';
+import {
+  EncounterStatus,
+  VictoryConditionType,
+  SCENARIO_TEMPLATES,
+} from '@/types/encounter';
+
+// =============================================================================
+// Status Badge Colors
+// =============================================================================
+
+function getStatusColor(status: EncounterStatus): 'slate' | 'success' | 'warning' | 'info' {
+  switch (status) {
+    case EncounterStatus.Draft:
+      return 'slate';
+    case EncounterStatus.Ready:
+      return 'success';
+    case EncounterStatus.Launched:
+      return 'info';
+    case EncounterStatus.Completed:
+      return 'slate';
+    default:
+      return 'slate';
+  }
+}
+
+function getStatusLabel(status: EncounterStatus): string {
+  switch (status) {
+    case EncounterStatus.Draft:
+      return 'Draft';
+    case EncounterStatus.Ready:
+      return 'Ready to Launch';
+    case EncounterStatus.Launched:
+      return 'In Progress';
+    case EncounterStatus.Completed:
+      return 'Completed';
+    default:
+      return status;
+  }
+}
+
+function getVictoryConditionLabel(type: VictoryConditionType): string {
+  switch (type) {
+    case VictoryConditionType.DestroyAll:
+      return 'Destroy All Enemies';
+    case VictoryConditionType.Cripple:
+      return 'Cripple Enemy Force';
+    case VictoryConditionType.Retreat:
+      return 'Force Enemy Retreat';
+    case VictoryConditionType.TurnLimit:
+      return 'Turn Limit';
+    case VictoryConditionType.Custom:
+      return 'Custom Objective';
+    default:
+      return type;
+  }
+}
+
+// =============================================================================
+// Main Page Component
+// =============================================================================
+
+export default function EncounterDetailPage(): React.ReactElement {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const {
+    getEncounter,
+    loadEncounters,
+    launchEncounter,
+    deleteEncounter,
+    validateEncounter,
+    validations,
+    isLoading,
+    error,
+    clearError,
+  } = useEncounterStore();
+
+  const { forces, loadForces } = useForceStore();
+
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const encounter = id && typeof id === 'string' ? getEncounter(id) : null;
+  const validation = id && typeof id === 'string' ? validations.get(id) : null;
+
+  const template = encounter?.template
+    ? SCENARIO_TEMPLATES.find((t) => t.type === encounter.template)
+    : null;
+
+  // Load data on mount
+  useEffect(() => {
+    const initialize = async () => {
+      await Promise.all([loadEncounters(), loadForces()]);
+      setIsInitialized(true);
+    };
+    initialize();
+  }, [loadEncounters, loadForces]);
+
+  // Validate on load
+  useEffect(() => {
+    if (isInitialized && id && typeof id === 'string') {
+      validateEncounter(id);
+    }
+  }, [isInitialized, id, validateEncounter]);
+
+  // Handle launch
+  const handleLaunch = useCallback(async () => {
+    if (!id || typeof id !== 'string') return;
+    clearError();
+    const success = await launchEncounter(id);
+    if (success) {
+      // Navigate to game session (placeholder for now)
+      router.push('/gameplay/encounters');
+    }
+  }, [id, launchEncounter, router, clearError]);
+
+  // Handle delete
+  const handleDelete = useCallback(async () => {
+    if (!id || typeof id !== 'string') return;
+    clearError();
+    const success = await deleteEncounter(id);
+    if (success) {
+      router.push('/gameplay/encounters');
+    }
+  }, [id, deleteEncounter, router, clearError]);
+
+  if (!isInitialized || isLoading) {
+    return <PageLoading message="Loading encounter..." />;
+  }
+
+  if (!encounter) {
+    return (
+      <PageLayout title="Encounter Not Found" backLink="/gameplay/encounters">
+        <Card>
+          <p className="text-text-theme-secondary">
+            The requested encounter could not be found.
+          </p>
+          <Link href="/gameplay/encounters" className="text-accent hover:underline mt-4 inline-block">
+            Return to Encounters
+          </Link>
+        </Card>
+      </PageLayout>
+    );
+  }
+
+  const canLaunch = validation?.valid === true;
+  const isLaunched = encounter.status === EncounterStatus.Launched;
+  const isCompleted = encounter.status === EncounterStatus.Completed;
+
+  return (
+    <PageLayout
+      title={encounter.name}
+      subtitle={encounter.description}
+      backLink="/gameplay/encounters"
+      backLabel="Back to Encounters"
+      headerContent={
+        <div className="flex items-center gap-3">
+          <Badge variant={getStatusColor(encounter.status)}>
+            {getStatusLabel(encounter.status)}
+          </Badge>
+          
+          {!isLaunched && !isCompleted && (
+            <Button
+              variant="primary"
+              disabled={!canLaunch}
+              onClick={handleLaunch}
+              title={canLaunch ? 'Launch this encounter' : 'Fix validation errors first'}
+            >
+              Launch Battle
+            </Button>
+          )}
+        </div>
+      }
+    >
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Validation Warnings/Errors */}
+      {validation && (!validation.valid || validation.warnings.length > 0) && (
+        <Card className="mb-6 border-yellow-600/30 bg-yellow-900/10">
+          {validation.errors.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-red-400 mb-2">Configuration Required</h3>
+              <ul className="space-y-1">
+                {validation.errors.map((err, i) => (
+                  <li key={i} className="text-sm text-red-300 flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">•</span>
+                    {err}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {validation.warnings.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-yellow-400 mb-2">Warnings</h3>
+              <ul className="space-y-1">
+                {validation.warnings.map((warn, i) => (
+                  <li key={i} className="text-sm text-yellow-300 flex items-start gap-2">
+                    <span className="text-yellow-400 mt-0.5">•</span>
+                    {warn}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Forces Section */}
+        <Card>
+          <h2 className="text-lg font-medium text-text-theme-primary mb-4">Forces</h2>
+          
+          {/* Player Force */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Player Force</h3>
+            {encounter.playerForce ? (
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
+                <div className="font-medium text-text-theme-primary">
+                  {encounter.playerForce.forceName || 'Selected'}
+                </div>
+                <div className="text-sm text-text-theme-muted mt-1">
+                  {encounter.playerForce.unitCount} units • {encounter.playerForce.totalBV.toLocaleString()} BV
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle">
+                <p className="text-sm text-text-theme-muted">No player force selected</p>
+                <Link
+                  href={`/gameplay/encounters/${id}/select-force?type=player`}
+                  className="text-sm text-accent hover:underline mt-2 inline-block"
+                >
+                  Select Player Force
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Opponent Force */}
+          <div>
+            <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Opponent Force</h3>
+            {encounter.opponentForce ? (
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
+                <div className="font-medium text-text-theme-primary">
+                  {encounter.opponentForce.forceName || 'Selected'}
+                </div>
+                <div className="text-sm text-text-theme-muted mt-1">
+                  {encounter.opponentForce.unitCount} units • {encounter.opponentForce.totalBV.toLocaleString()} BV
+                </div>
+              </div>
+            ) : encounter.opForConfig ? (
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
+                <div className="font-medium text-text-theme-primary">Generated OpFor</div>
+                <div className="text-sm text-text-theme-muted mt-1">
+                  Target BV: {encounter.opForConfig.targetBV?.toLocaleString() || 
+                    `${encounter.opForConfig.targetBVPercent}% of player`}
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle">
+                <p className="text-sm text-text-theme-muted">No opponent configured</p>
+                <Link
+                  href={`/gameplay/encounters/${id}/select-force?type=opponent`}
+                  className="text-sm text-accent hover:underline mt-2 inline-block"
+                >
+                  Select Opponent Force
+                </Link>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Map & Victory Conditions */}
+        <Card>
+          <h2 className="text-lg font-medium text-text-theme-primary mb-4">Battle Settings</h2>
+          
+          {/* Template */}
+          {template && (
+            <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/20">
+              <div className="text-sm text-accent">Using Template: {template.name}</div>
+            </div>
+          )}
+
+          {/* Map Config */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Map</h3>
+            <div className="text-sm text-text-theme-primary">
+              {encounter.mapConfig.radius * 2 + 1}x{encounter.mapConfig.radius * 2 + 1} hex grid
+            </div>
+            <div className="text-sm text-text-theme-muted">
+              Terrain: {encounter.mapConfig.terrain}
+            </div>
+            <div className="text-sm text-text-theme-muted">
+              Player deploys: {encounter.mapConfig.playerDeploymentZone} |{' '}
+              Opponent: {encounter.mapConfig.opponentDeploymentZone}
+            </div>
+          </div>
+
+          {/* Victory Conditions */}
+          <div>
+            <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Victory Conditions</h3>
+            {encounter.victoryConditions.length > 0 ? (
+              <ul className="space-y-1">
+                {encounter.victoryConditions.map((vc, i) => (
+                  <li key={i} className="text-sm text-text-theme-primary flex items-center gap-2">
+                    <span className="text-accent">•</span>
+                    {getVictoryConditionLabel(vc.type)}
+                    {vc.turnLimit && ` (${vc.turnLimit} turns)`}
+                    {vc.threshold && ` (${vc.threshold}%)`}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-text-theme-muted">No victory conditions set</p>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Actions */}
+      {!isLaunched && !isCompleted && (
+        <div className="mt-6 pt-6 border-t border-border-theme-subtle flex justify-between">
+          <Button
+            variant="ghost"
+            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            Delete Encounter
+          </Button>
+
+          <Link href={`/gameplay/encounters/${id}/edit`}>
+            <Button variant="secondary">Edit Settings</Button>
+          </Link>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="max-w-md mx-4">
+            <h3 className="text-lg font-medium text-text-theme-primary mb-2">Delete Encounter?</h3>
+            <p className="text-sm text-text-theme-secondary mb-4">
+              This will permanently delete &quot;{encounter.name}&quot;. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+    </PageLayout>
+  );
+}
