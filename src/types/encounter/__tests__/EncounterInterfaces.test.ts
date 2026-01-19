@@ -9,8 +9,6 @@
 import {
   IEncounter,
   IVictoryCondition,
-  IMapConfiguration,
-  IOpForConfig,
   IForceReference,
   EncounterStatus,
   VictoryConditionType,

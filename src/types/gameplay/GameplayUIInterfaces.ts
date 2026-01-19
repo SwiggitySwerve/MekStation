@@ -6,7 +6,7 @@
  */
 
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
-import { GamePhase, GameSide, IGameEvent, IUnitGameState, IToHitModifier } from './GameSessionInterfaces';
+import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
 
 // =============================================================================
 // Layout Types
