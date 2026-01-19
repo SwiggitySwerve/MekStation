@@ -12,3 +12,6 @@ export * from './HexGridInterfaces';
 
 // Game Session Core
 export * from './GameSessionInterfaces';
+
+// Combat Resolution
+export * from './CombatInterfaces';
