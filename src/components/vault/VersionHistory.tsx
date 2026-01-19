@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Select } from '@/components/ui/Input';
+import { formatBytes, formatRelativeTime, formatFullDateTime } from '@/utils/formatting';
 
 // =============================================================================
 // Types
@@ -196,55 +197,6 @@ function UserCircleIcon({ className = 'w-5 h-5' }: { className?: string }) {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/**
- * Format bytes into human-readable size
- */
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
-
-/**
- * Format date into relative time or locale string
- */
-function formatRelativeTime(isoDate: string): string {
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffSecs < 60) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-  });
-}
-
-/**
- * Format full date for tooltips
- */
-function formatFullDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
 
 /**
  * Get content type color
@@ -515,7 +467,7 @@ export function VersionHistoryPanel({
                           )}
                           <span
                             className="text-gray-500 text-sm"
-                            title={formatFullDate(version.createdAt)}
+                            title={formatFullDateTime(version.createdAt)}
                           >
                             {formatRelativeTime(version.createdAt)}
                           </span>
@@ -972,8 +924,8 @@ export function VersionPreview({
             </div>
             <div className="flex items-center gap-2 text-gray-400">
               <ClockIcon className="w-4 h-4" />
-              <span title={formatFullDate(version.createdAt)}>
-                {formatFullDate(version.createdAt)}
+              <span title={formatFullDateTime(version.createdAt)}>
+                {formatFullDateTime(version.createdAt)}
               </span>
             </div>
             <div className="flex items-center gap-2 text-gray-400">

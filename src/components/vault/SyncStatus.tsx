@@ -15,6 +15,7 @@ import type {
 } from '@/types/vault';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { formatBytes, formatNumber, formatRelativeTime } from '@/utils/formatting';
 
 // =============================================================================
 // Types
@@ -191,56 +192,6 @@ function PaperAirplaneIcon({ className = 'w-5 h-5' }: { className?: string }) {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/**
- * Format bytes into human-readable size
- */
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
-
-/**
- * Format number with K/M suffix
- */
-function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-  }
-  return num.toString();
-}
-
-/**
- * Format date into relative time
- */
-function formatRelativeTime(isoDate: string | null | undefined): string {
-  if (!isoDate) return 'Never';
-
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffSecs < 10) return 'Just now';
-  if (diffSecs < 60) return `${diffSecs}s ago`;
-  if (diffMins < 60) return `${diffMins} min ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-}
 
 /**
  * Truncate friend code for display
