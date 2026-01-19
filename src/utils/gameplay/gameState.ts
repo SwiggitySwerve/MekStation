@@ -43,6 +43,7 @@ export function createInitialUnitState(
 ): IUnitGameState {
   return {
     id: unit.id,
+    side: unit.side,
     position: startPosition,
     facing: startFacing,
     heat: 0,
@@ -440,9 +441,9 @@ export function deriveStateAtTurn(
 /**
  * Get active (non-destroyed) units for a side.
  */
-export function getActiveUnits(state: IGameState, _side: GameSide): readonly IUnitGameState[] {
+export function getActiveUnits(state: IGameState, side: GameSide): readonly IUnitGameState[] {
   return Object.values(state.units).filter(
-    u => !u.destroyed && u.pilotConscious
+    u => u.side === side && !u.destroyed && u.pilotConscious
   );
 }
 
@@ -472,23 +473,84 @@ export function isGameOver(state: IGameState): boolean {
   return state.status === GameStatus.Completed || state.status === GameStatus.Abandoned;
 }
 
+// =============================================================================
+// Victory Condition Helpers
+// =============================================================================
+
 /**
- * Check victory conditions.
+ * Get surviving (non-destroyed) units for a specific side.
+ * Note: This differs from getActiveUnits which also checks pilotConscious.
  */
-export function checkVictoryConditions(state: IGameState, config: IGameConfig): GameSide | 'draw' | null {
-  // Check destruction victory
-  const playerUnits = Object.values(state.units).filter(
-    u => !u.destroyed // Would need side info
+function getSurvivingUnitsForSide(
+  state: IGameState,
+  side: GameSide
+): readonly IUnitGameState[] {
+  return Object.values(state.units).filter(
+    u => !u.destroyed && u.side === side
   );
+}
+
+/**
+ * Count surviving units for a side.
+ */
+function countSurvivingUnits(state: IGameState, side: GameSide): number {
+  return getSurvivingUnitsForSide(state, side).length;
+}
+
+/**
+ * Check if a side has been eliminated (all units destroyed).
+ */
+function isSideEliminated(state: IGameState, side: GameSide): boolean {
+  return countSurvivingUnits(state, side) === 0;
+}
+
+/**
+ * Determine winner by comparing surviving forces.
+ * Uses unit count as a simple comparison metric.
+ * Returns the side with more surviving units, or 'draw' if equal.
+ */
+function determineWinnerByForces(state: IGameState): GameSide | 'draw' {
+  const playerCount = countSurvivingUnits(state, GameSide.Player);
+  const opponentCount = countSurvivingUnits(state, GameSide.Opponent);
   
-  // Simplified: if only one side has units, that side wins
-  if (playerUnits.length === 0) {
-    return 'draw'; // Would return opponent if we tracked sides
+  if (playerCount > opponentCount) {
+    return GameSide.Player;
+  } else if (opponentCount > playerCount) {
+    return GameSide.Opponent;
   }
   
-  // Check turn limit
+  return 'draw';
+}
+
+/**
+ * Check victory conditions.
+ * 
+ * Victory is determined by:
+ * 1. Elimination - if all units of one side are destroyed, the other side wins
+ * 2. Mutual destruction - if both sides are eliminated, it's a draw
+ * 3. Turn limit - if turn limit is reached, winner is determined by surviving forces
+ */
+export function checkVictoryConditions(state: IGameState, config: IGameConfig): GameSide | 'draw' | null {
+  const playerEliminated = isSideEliminated(state, GameSide.Player);
+  const opponentEliminated = isSideEliminated(state, GameSide.Opponent);
+  
+  // Check for mutual destruction (both sides eliminated)
+  if (playerEliminated && opponentEliminated) {
+    return 'draw';
+  }
+  
+  // Check for elimination victory
+  if (playerEliminated) {
+    return GameSide.Opponent;
+  }
+  
+  if (opponentEliminated) {
+    return GameSide.Player;
+  }
+  
+  // Check turn limit - determine winner by comparing surviving forces
   if (config.turnLimit > 0 && state.turn > config.turnLimit) {
-    return 'draw'; // Would compare BV totals
+    return determineWinnerByForces(state);
   }
   
   return null; // Game continues

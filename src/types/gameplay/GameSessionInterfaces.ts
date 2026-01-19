@@ -206,6 +206,14 @@ export interface IMovementDeclaredPayload {
 }
 
 /**
+ * Movement locked event payload.
+ */
+export interface IMovementLockedPayload {
+  /** Unit whose movement was locked */
+  readonly unitId: string;
+}
+
+/**
  * Attack declared event payload.
  */
 export interface IAttackDeclaredPayload {
@@ -327,6 +335,7 @@ export type GameEventPayload =
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
   | IMovementDeclaredPayload
+  | IMovementLockedPayload
   | IAttackDeclaredPayload
   | IAttackResolvedPayload
   | IDamageAppliedPayload
@@ -389,6 +398,8 @@ export interface IGameUnit {
 export interface IUnitGameState {
   /** Unit ID */
   readonly id: string;
+  /** Which side this unit belongs to */
+  readonly side: GameSide;
   /** Current position */
   readonly position: IHexCoordinate;
   /** Current facing */
