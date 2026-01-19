@@ -29,3 +29,6 @@ export type { EraDefinition } from './temporal';
 
 // Pilot types (spec-driven implementation)
 export * from './pilot';
+
+// Gameplay types (spec-driven implementation)
+export * from './gameplay';
