@@ -31,5 +31,47 @@ export * from './gameEvents';
 // Game State - State derivation from events
 export * from './gameState';
 
-// Game Session - Session management
-export * from './gameSession';
+// Game Session - Session management (excluding roll2d6 which conflicts with hitLocation)
+export {
+  createGameSession,
+  startGame,
+  endGame,
+  advancePhase,
+  getNextPhase,
+  rollInitiative,
+  declareMovement,
+  lockMovement,
+  replayToSequence,
+  replayToTurn,
+  generateGameLog,
+} from './gameSession';
+
+// Combat Resolution - To-hit, hit location, damage
+// Note: toHit has its own versions of calculateTMM and getRangeBracket for modifier objects
+export {
+  RANGE_MODIFIERS,
+  ATTACKER_MOVEMENT_MODIFIERS,
+  HEAT_THRESHOLDS,
+  PROBABILITY_TABLE,
+  createBaseModifier,
+  calculateRangeModifier,
+  getRangeModifierForBracket,
+  calculateAttackerMovementModifier,
+  calculateTMM as calculateTMMModifier, // Renamed to avoid conflict with movement.ts
+  calculateHeatModifier,
+  calculateMinimumRangeModifier,
+  calculateProneModifier,
+  calculateImmobileModifier,
+  calculatePartialCoverModifier,
+  calculateToHit,
+  calculateToHitFromContext,
+  aggregateModifiers,
+  getProbability,
+  getRangeBracket as getToHitRangeBracket, // Renamed to avoid conflict with range.ts
+  simpleToHit,
+  formatToHitBreakdown,
+} from './toHit';
+
+export * from './hitLocation';
+export * from './damage';
+export * from './clusterWeapons';
