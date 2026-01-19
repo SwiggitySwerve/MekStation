@@ -21,40 +21,7 @@ import {
   VictoryConditionType,
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
-
-// =============================================================================
-// Status Badge Colors
-// =============================================================================
-
-function getStatusColor(status: EncounterStatus): 'slate' | 'success' | 'warning' | 'info' {
-  switch (status) {
-    case EncounterStatus.Draft:
-      return 'slate';
-    case EncounterStatus.Ready:
-      return 'success';
-    case EncounterStatus.Launched:
-      return 'info';
-    case EncounterStatus.Completed:
-      return 'slate';
-    default:
-      return 'slate';
-  }
-}
-
-function getStatusLabel(status: EncounterStatus): string {
-  switch (status) {
-    case EncounterStatus.Draft:
-      return 'Draft';
-    case EncounterStatus.Ready:
-      return 'Ready to Launch';
-    case EncounterStatus.Launched:
-      return 'In Progress';
-    case EncounterStatus.Completed:
-      return 'Completed';
-    default:
-      return status;
-  }
-}
+import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
 
 function getVictoryConditionLabel(type: VictoryConditionType): string {
   switch (type) {
@@ -93,7 +60,7 @@ export default function EncounterDetailPage(): React.ReactElement {
     clearError,
   } = useEncounterStore();
 
-  const { forces, loadForces } = useForceStore();
+  const { forces: _forces, loadForces } = useForceStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -173,8 +140,8 @@ export default function EncounterDetailPage(): React.ReactElement {
       backLabel="Back to Encounters"
       headerContent={
         <div className="flex items-center gap-3">
-          <Badge variant={getStatusColor(encounter.status)}>
-            {getStatusLabel(encounter.status)}
+<Badge variant={getStatusColor(encounter.status)}>
+            {getStatusLabel(encounter.status, true)}
           </Badge>
           
           {!isLaunched && !isCompleted && (

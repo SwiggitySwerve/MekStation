@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, no-restricted-syntax */
+/* eslint-disable no-restricted-syntax */
 import { renderHook } from '@testing-library/react';
 import { useWeightValidation } from '../useWeightValidation';
 import { useUnitStore } from '@/stores/useUnitStore';

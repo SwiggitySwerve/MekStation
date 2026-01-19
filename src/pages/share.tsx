@@ -14,6 +14,7 @@ import {
   Badge,
 } from '@/components/ui';
 import type { IShareLink } from '@/types/vault';
+import { formatExpiry } from '@/utils/formatting';
 
 // =============================================================================
 // Types
@@ -38,48 +39,6 @@ interface ActionState {
  */
 function buildShareUrl(token: string): string {
   return `mekstation://share/${token}`;
-}
-
-/**
- * Format date for display
- */
-function formatDate(isoDate: string): string {
-  const date = new Date(isoDate);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
-/**
- * Format relative time for expiry
- */
-function formatExpiry(expiresAt: string | null): { text: string; isExpired: boolean } {
-  if (!expiresAt) {
-    return { text: 'Never', isExpired: false };
-  }
-
-  const expiry = new Date(expiresAt);
-  const now = new Date();
-  const diffMs = expiry.getTime() - now.getTime();
-
-  if (diffMs < 0) {
-    return { text: 'Expired', isExpired: true };
-  }
-
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-  if (diffDays > 30) {
-    return { text: formatDate(expiresAt), isExpired: false };
-  } else if (diffDays > 0) {
-    return { text: `${diffDays}d`, isExpired: false };
-  } else if (diffHours > 0) {
-    return { text: `${diffHours}h`, isExpired: false };
-  } else {
-    return { text: '<1h', isExpired: false };
-  }
 }
 
 /**

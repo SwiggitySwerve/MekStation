@@ -7,6 +7,7 @@
 
 import React, { useMemo } from 'react';
 import { IUnitGameState, IWeaponStatus } from '@/types/gameplay';
+import { MAX_HEAT, getHeatColorClass, getActiveHeatEffects } from '@/constants/heat';
 
 // =============================================================================
 // Types
@@ -78,8 +79,9 @@ const REAR_ARMOR_LOCATIONS = ['center_torso', 'left_torso', 'right_torso'];
 
 /**
  * Get damage percentage for a location.
+ * @internal Reserved for future damage visualization
  */
-function getDamagePercent(current: number, max: number): number {
+function _getDamagePercent(current: number, max: number): number {
   if (max === 0) return 0;
   return Math.round((1 - current / max) * 100);
 }
@@ -211,31 +213,8 @@ interface SimpleHeatDisplayProps {
 }
 
 function SimpleHeatDisplay({ heat, heatSinks }: SimpleHeatDisplayProps): React.ReactElement {
-  const maxHeat = 30;
-  const heatPercent = Math.min((heat / maxHeat) * 100, 100);
-  
-  // Heat effect thresholds
-  const getHeatColor = () => {
-    if (heat >= 30) return 'bg-red-600';
-    if (heat >= 23) return 'bg-red-500';
-    if (heat >= 17) return 'bg-orange-500';
-    if (heat >= 13) return 'bg-yellow-500';
-    if (heat >= 8) return 'bg-yellow-400';
-    return 'bg-green-500';
-  };
-
-  const getHeatEffects = () => {
-    const effects: string[] = [];
-    if (heat >= 30) effects.push('SHUTDOWN');
-    if (heat >= 26) effects.push('+5 to-hit penalty');
-    if (heat >= 24) effects.push('Ammo explosion risk');
-    if (heat >= 18) effects.push('+4 to-hit penalty');
-    if (heat >= 13) effects.push('+2 to-hit penalty');
-    if (heat >= 8) effects.push('+1 to-hit penalty');
-    return effects;
-  };
-
-  const effects = getHeatEffects();
+  const heatPercent = Math.min((heat / MAX_HEAT) * 100, 100);
+  const effects = getActiveHeatEffects(heat);
 
   return (
     <div className="bg-gray-50 p-2 rounded">
@@ -243,14 +222,14 @@ function SimpleHeatDisplay({ heat, heatSinks }: SimpleHeatDisplayProps): React.R
         <div className="flex-1">
           <div className="h-4 bg-gray-200 rounded overflow-hidden">
             <div
-              className={`h-full ${getHeatColor()} transition-all`}
+              className={`h-full ${getHeatColorClass(heat)} transition-all`}
               style={{ width: `${heatPercent}%` }}
             />
           </div>
         </div>
         <div className="text-sm font-mono">
           <span className="font-bold">{heat}</span>
-          <span className="text-gray-500">/{maxHeat}</span>
+          <span className="text-gray-500">/{MAX_HEAT}</span>
         </div>
       </div>
       {effects.length > 0 && (

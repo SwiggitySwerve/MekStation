@@ -286,7 +286,7 @@ function EventRow({ event }: EventRowProps): React.ReactElement {
 export function EventLogDisplay({
   events,
   filter = {},
-  onFilterChange,
+  onFilterChange: _onFilterChange,
   collapsed = false,
   onCollapsedChange,
   maxHeight = 200,
