@@ -20,6 +20,7 @@ import {
   IWeaponStatus,
   Facing,
   MovementType,
+  ITurnStartedPayload,
 } from '@/types/gameplay';
 
 // =============================================================================
@@ -227,7 +228,7 @@ function createDemoSession(): IGameSession {
       type: GameEventType.TurnStarted,
       turn: 3,
       phase: GamePhase.Initiative,
-      payload: {} as never,
+      payload: {} as ITurnStartedPayload,
     },
     {
       id: 'evt-2',

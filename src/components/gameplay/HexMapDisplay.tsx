@@ -13,6 +13,12 @@ import {
   IUnitToken,
   IMovementRangeHex,
 } from '@/types/gameplay';
+import {
+  HEX_SIZE,
+  HEX_WIDTH,
+  HEX_HEIGHT,
+  HEX_COLORS,
+} from '@/constants/hexMap';
 
 // =============================================================================
 // Types
@@ -44,28 +50,8 @@ export interface HexMapDisplayProps {
 }
 
 // =============================================================================
-// Constants
+// Constants (using imported HEX_SIZE, HEX_WIDTH, HEX_HEIGHT, HEX_HEX_COLORS)
 // =============================================================================
-
-/** Hex dimensions for flat-top hexes */
-const HEX_SIZE = 40;
-const HEX_WIDTH = HEX_SIZE * 2;
-const HEX_HEIGHT = Math.sqrt(3) * HEX_SIZE;
-
-/** Colors */
-const COLORS = {
-  gridLine: '#94a3b8',
-  hexFill: '#f8fafc',
-  hexHover: '#e2e8f0',
-  hexSelected: '#bfdbfe',
-  movementRange: '#86efac',
-  movementRangeUnreachable: '#fca5a5',
-  attackRange: '#fecaca',
-  pathHighlight: '#60a5fa',
-  playerToken: '#3b82f6',
-  opponentToken: '#ef4444',
-  destroyedToken: '#6b7280',
-};
 
 // =============================================================================
 // Helper Functions
@@ -202,17 +188,17 @@ function HexCell({
   const { x, y } = hexToPixel(hex);
 
   // Determine fill color
-  let fill = COLORS.hexFill;
+  let fill = HEX_COLORS.hexFill;
   if (isSelected) {
-    fill = COLORS.hexSelected;
+    fill = HEX_COLORS.hexSelected;
   } else if (isInPath) {
-    fill = COLORS.pathHighlight;
+    fill = HEX_COLORS.pathHighlight;
   } else if (movementInfo) {
-    fill = movementInfo.reachable ? COLORS.movementRange : COLORS.movementRangeUnreachable;
+    fill = movementInfo.reachable ? HEX_COLORS.movementRange : HEX_COLORS.movementRangeUnreachable;
   } else if (isInAttackRange) {
-    fill = COLORS.attackRange;
+    fill = HEX_COLORS.attackRange;
   } else if (isHovered) {
-    fill = COLORS.hexHover;
+    fill = HEX_COLORS.hexHover;
   }
 
   return (
@@ -225,7 +211,7 @@ function HexCell({
       <path
         d={hexPath(x, y)}
         fill={fill}
-        stroke={COLORS.gridLine}
+        stroke={HEX_COLORS.gridLine}
         strokeWidth={1}
       />
       {showCoordinate && (
@@ -264,9 +250,9 @@ function UnitTokenComponent({ token, onClick }: UnitTokenComponentProps): React.
   const rotation = getFacingRotation(token.facing);
 
   // Determine token color
-  let color = token.side === GameSide.Player ? COLORS.playerToken : COLORS.opponentToken;
+  let color = token.side === GameSide.Player ? HEX_COLORS.playerToken : HEX_COLORS.opponentToken;
   if (token.isDestroyed) {
-    color = COLORS.destroyedToken;
+    color = HEX_COLORS.destroyedToken;
   }
 
   // Selection ring

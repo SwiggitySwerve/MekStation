@@ -162,6 +162,24 @@ export interface IGameEndedPayload {
 }
 
 /**
+ * Turn started event payload.
+ * Empty object for events that don't carry additional data.
+ */
+export interface ITurnStartedPayload {
+  /** Intentionally empty - turn number is in the event base */
+  readonly _type?: 'turn_started';
+}
+
+/**
+ * Turn ended event payload.
+ * Empty object for events that don't carry additional data.
+ */
+export interface ITurnEndedPayload {
+  /** Intentionally empty - turn number is in the event base */
+  readonly _type?: 'turn_ended';
+}
+
+/**
  * Phase changed event payload.
  */
 export interface IPhaseChangedPayload {
@@ -332,6 +350,8 @@ export type GameEventPayload =
   | IGameCreatedPayload
   | IGameStartedPayload
   | IGameEndedPayload
+  | ITurnStartedPayload
+  | ITurnEndedPayload
   | IPhaseChangedPayload
   | IInitiativeRolledPayload
   | IMovementDeclaredPayload
