@@ -9,3 +9,6 @@
 
 // Hex Grid System
 export * from './HexGridInterfaces';
+
+// Game Session Core
+export * from './GameSessionInterfaces';
