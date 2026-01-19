@@ -85,7 +85,7 @@ function getPhaseColor(phase: GamePhase): string {
 export function PhaseBanner({
   phase,
   turn,
-  activeSide,
+  activeSide: _activeSide,
   isPlayerTurn,
   statusText,
   className = '',

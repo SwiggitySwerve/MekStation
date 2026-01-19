@@ -60,7 +60,7 @@ export default function EncounterDetailPage(): React.ReactElement {
     clearError,
   } = useEncounterStore();
 
-  const { forces, loadForces } = useForceStore();
+  const { forces: _forces, loadForces } = useForceStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

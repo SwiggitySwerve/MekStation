@@ -79,8 +79,9 @@ const REAR_ARMOR_LOCATIONS = ['center_torso', 'left_torso', 'right_torso'];
 
 /**
  * Get damage percentage for a location.
+ * @internal Reserved for future damage visualization
  */
-function getDamagePercent(current: number, max: number): number {
+function _getDamagePercent(current: number, max: number): number {
   if (max === 0) return 0;
   return Math.round((1 - current / max) * 100);
 }

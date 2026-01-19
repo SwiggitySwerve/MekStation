@@ -13,12 +13,7 @@ import {
   IUnitToken,
   IMovementRangeHex,
 } from '@/types/gameplay';
-import {
-  HEX_SIZE,
-  HEX_WIDTH,
-  HEX_HEIGHT,
-  HEX_COLORS,
-} from '@/constants/hexMap';
+import { HEX_SIZE, HEX_WIDTH, HEX_HEIGHT, HEX_COLORS } from '@/constants/hexMap';
 
 // =============================================================================
 // Types
@@ -68,17 +63,19 @@ function hexToPixel(hex: IHexCoordinate): { x: number; y: number } {
 
 /**
  * Convert pixel position to axial hex coordinates.
+ * @internal Reserved for future mouse interaction support
  */
-function pixelToHex(x: number, y: number): IHexCoordinate {
+function _pixelToHex(x: number, y: number): IHexCoordinate {
   const q = (2 / 3 * x) / HEX_SIZE;
   const r = (-1 / 3 * x + Math.sqrt(3) / 3 * y) / HEX_SIZE;
-  return roundHex(q, r);
+  return _roundHex(q, r);
 }
 
 /**
  * Round fractional hex coordinates to nearest hex.
+ * @internal Used by _pixelToHex
  */
-function roundHex(q: number, r: number): IHexCoordinate {
+function _roundHex(q: number, r: number): IHexCoordinate {
   const s = -q - r;
   let rq = Math.round(q);
   let rr = Math.round(r);
