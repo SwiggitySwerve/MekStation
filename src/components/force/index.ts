@@ -20,3 +20,9 @@ export type { UnitSelectorProps, UnitInfo } from './UnitSelector';
 
 export { ForceCard } from './ForceCard';
 export type { ForceCardProps } from './ForceCard';
+
+// Re-export PilotMechCard components for force roster integration
+export {
+  PilotMechCard,
+  PilotMechCardCompact,
+} from '@/components/pilot-mech-card';
