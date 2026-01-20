@@ -170,7 +170,7 @@ interface HexCellProps {
   onMouseLeave: () => void;
 }
 
-function HexCell({
+const HexCell = React.memo(function HexCell({
   hex,
   isSelected,
   isHovered,
@@ -235,14 +235,14 @@ function HexCell({
       )}
     </g>
   );
-}
+});
 
 interface UnitTokenComponentProps {
   token: IUnitToken;
   onClick: () => void;
 }
 
-function UnitTokenComponent({ token, onClick }: UnitTokenComponentProps): React.ReactElement {
+const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onClick }: UnitTokenComponentProps): React.ReactElement {
   const { x, y } = hexToPixel(token.position);
   const rotation = getFacingRotation(token.facing);
 
@@ -300,7 +300,7 @@ function UnitTokenComponent({ token, onClick }: UnitTokenComponentProps): React.
       )}
     </g>
   );
-}
+});
 
 // =============================================================================
 // Component

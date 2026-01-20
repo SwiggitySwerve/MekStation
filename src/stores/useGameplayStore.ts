@@ -11,7 +11,17 @@ import {
   IGameplayUIState,
   DEFAULT_UI_STATE,
   IWeaponStatus,
+  GamePhase,
+  GameSide,
 } from '@/types/gameplay';
+import {
+  lockMovement,
+  advancePhase,
+  canAdvancePhase,
+  rollInitiative,
+  endGame,
+  replayToSequence,
+} from '@/utils/gameplay/gameSession';
 import {
   createDemoSession,
   createDemoWeapons,
@@ -135,33 +145,75 @@ createDemoSession: () => {
   },
 
 handleAction: (actionId: string) => {
-    const { session } = get();
+    const { session, ui } = get();
     if (!session) return;
 
+    const { phase } = session.currentState;
+
     switch (actionId) {
-      case 'lock':
-        // Lock current action (movement or attacks)
-        console.log('Locking action for phase:', session.currentState.phase);
+      case 'lock': {
+        // Lock current action for selected unit
+        const unitId = ui.selectedUnitId;
+        if (!unitId) return;
+
+        if (phase === GamePhase.Movement) {
+          const updatedSession = lockMovement(session, unitId);
+          set({ session: updatedSession });
+        }
+        // TODO: Add lockAttacks when combat phase is active
         break;
-      case 'undo':
-        console.log('Undoing last action');
+      }
+      case 'undo': {
+        // Replay to previous event (remove last event)
+        if (session.events.length <= 1) return; // Keep at least the created event
+        const previousSequence = session.events.length - 2;
+        const replayedState = replayToSequence(session, previousSequence);
+        const updatedSession: IGameSession = {
+          ...session,
+          events: session.events.slice(0, -1),
+          currentState: replayedState,
+          updatedAt: new Date().toISOString(),
+        };
+        set({ session: updatedSession });
         break;
-      case 'skip':
-        console.log('Skipping phase');
+      }
+      case 'skip': {
+        // Advance to next phase
+        if (canAdvancePhase(session)) {
+          const updatedSession = advancePhase(session);
+          set({ session: updatedSession });
+        }
         break;
+      }
       case 'clear':
         set((state) => ({
           ui: { ...state.ui, queuedWeaponIds: [] },
         }));
         break;
-      case 'next-turn':
-        console.log('Starting next turn');
+      case 'next-turn': {
+        // Roll initiative and advance to next turn
+        if (phase === GamePhase.End || phase === GamePhase.Initiative) {
+          let updatedSession = session;
+          // If at end phase, advance to initiative first
+          if (phase === GamePhase.End) {
+            updatedSession = advancePhase(updatedSession);
+          }
+          // Roll initiative
+          updatedSession = rollInitiative(updatedSession);
+          // Advance to movement phase
+          updatedSession = advancePhase(updatedSession);
+          set({ session: updatedSession });
+        }
         break;
-      case 'concede':
-        console.log('Conceding game');
+      }
+      case 'concede': {
+        // End game with concession
+        const updatedSession = endGame(session, GameSide.Opponent, 'concede');
+        set({ session: updatedSession });
         break;
+      }
       default:
-        console.log('Unknown action:', actionId);
+        console.warn('Unknown action:', actionId);
     }
   },
 

@@ -61,13 +61,27 @@ Implemented components:
 
 **Phase 4 Status: COMPLETE - 351 tests passing**
 
-## Phase 5 - Advanced Features (FUTURE)
+## Phase 5 - Foundation (SPECS CREATED)
 
-- [ ] `add-vault-sharing` Phase 3 - P2P real-time sync
-- [ ] `add-campaign-system` - Multi-mission arcs, persistent state
-- [ ] `add-multiplayer-support` - Real-time multiplayer sessions
-- [ ] `add-awards-system` - Medals, achievements, pilot decorations
-- [ ] `add-repair-system` - Post-battle damage, repair costs
+### Auditability Infrastructure (implement first)
+- [ ] `add-unified-event-store` - Base event types, chunked storage, checkpoints, verification (spec created 2026-01-20)
+- [ ] `add-audit-timeline` - Timeline view, diff view, query builder, replay player (spec created 2026-01-20)
+
+### Feature Specs (depend on event store)
+- [ ] `add-campaign-system` - Multi-mission arcs, persistent state (spec created 2026-01-20)
+- [ ] `add-awards-system` - Medals, achievements, pilot decorations (spec created 2026-01-20)
+- [ ] `add-repair-system` - Post-battle damage, repair costs (spec created 2026-01-20)
+- [ ] `add-p2p-vault-sync` - P2P real-time sync (spec created 2026-01-20)
+- [ ] `add-multiplayer-support` - Real-time multiplayer sessions (spec created 2026-01-20)
+
+**Phase 5 Status: Specs created, implementation pending**
+
+**Implementation Order:**
+1. `add-unified-event-store` (foundation - all others depend on this)
+2. `add-audit-timeline` (viewing layer for events)
+3. `add-campaign-system` + `add-repair-system` (core campaign loop)
+4. `add-awards-system` (progression layer)
+5. `add-p2p-vault-sync` + `add-multiplayer-support` (networking layer)
 
 ## Implementation Status
 
@@ -88,6 +102,13 @@ Implemented components:
 | 3 | `add-combat-resolution` | **Complete** | 42/52 tasks (equipment deferred) |
 | 4 | `add-encounter-system` | **Complete** | Full implementation |
 | 4 | `add-gameplay-ui` | **Complete** | Full implementation, 351 tests |
+| 5 | `add-unified-event-store` | **Spec Created** | Foundation: event sourcing infrastructure |
+| 5 | `add-audit-timeline` | **Spec Created** | Foundation: timeline, diff, replay views |
+| 5 | `add-campaign-system` | **Spec Created** | Multi-mission campaigns |
+| 5 | `add-awards-system` | **Spec Created** | Pilot medals and achievements |
+| 5 | `add-repair-system` | **Spec Created** | Post-battle repairs |
+| 5 | `add-p2p-vault-sync` | **Spec Created** | P2P sync for vault items |
+| 5 | `add-multiplayer-support` | **Spec Created** | Real-time multiplayer |
 
 ## Milestones
 
