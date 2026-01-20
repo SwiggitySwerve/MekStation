@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { PageLayout } from '@/components/ui/PageLayout';
 import {
@@ -28,7 +29,7 @@ import { VaultIdentitySection } from '@/components/vault/VaultIdentitySection';
 /**
  * Section configuration for navigation and state
  */
-type SectionId = 'appearance' | 'customizer' | 'vault' | 'ui-behavior' | 'accessibility' | 'reset';
+type SectionId = 'appearance' | 'customizer' | 'vault' | 'ui-behavior' | 'accessibility' | 'audit' | 'reset';
 
 interface SectionConfig {
   id: SectionId;
@@ -86,6 +87,16 @@ const SECTIONS: SectionConfig[] = [
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'audit',
+    title: 'Audit Log',
+    description: 'View event history and system logs',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
@@ -417,7 +428,7 @@ function UIThemePicker({
 
 
 // Valid section IDs for type checking
-const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'vault', 'ui-behavior', 'accessibility', 'reset'];
+const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'vault', 'ui-behavior', 'accessibility', 'audit', 'reset'];
 
 function isValidSectionId(hash: string): hash is SectionId {
   return VALID_SECTION_IDS.includes(hash as SectionId);
@@ -440,6 +451,7 @@ export default function SettingsPage(): React.ReactElement {
     vault: null,
     'ui-behavior': null,
     accessibility: null,
+    audit: null,
     reset: null,
   });
 
@@ -783,6 +795,67 @@ export default function SettingsPage(): React.ReactElement {
               checked={settings.reduceMotion}
               onChange={settings.setReduceMotion}
             />
+          </SettingsSection>
+
+          {/* Audit Log Section */}
+          <SettingsSection
+            id="audit"
+            title="Audit Log"
+            description="View event history and system logs"
+            isExpanded={activeSection === 'audit'}
+            onToggle={() => toggleSection('audit')}
+            onRef={createSectionRef('audit')}
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-text-theme-secondary">
+                Browse the full event history of your campaigns, pilots, and games. 
+                Track changes, review decisions, and replay past sessions.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Link
+                  href="/audit/timeline"
+                  className="flex items-center gap-3 p-4 rounded-lg bg-surface-raised/50 border border-border-theme-subtle hover:bg-surface-raised hover:border-border-theme transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-text-theme-primary group-hover:text-accent transition-colors">
+                      Event Timeline
+                    </div>
+                    <div className="text-xs text-text-theme-muted">
+                      Browse all events
+                    </div>
+                  </div>
+                </Link>
+
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-surface-raised/30 border border-border-theme-subtle/50 opacity-60">
+                  <div className="w-10 h-10 rounded-lg bg-surface-raised flex items-center justify-center text-text-theme-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 019 14.437V9.564z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-text-theme-secondary">
+                      Replay Player
+                    </div>
+                    <div className="text-xs text-text-theme-muted">
+                      Coming soon
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border-theme-subtle">
+                <div className="text-xs text-text-theme-muted">
+                  <strong className="text-text-theme-secondary">Tip:</strong> You can also access event history from individual pilot and force detail pages.
+                </div>
+              </div>
+            </div>
           </SettingsSection>
 
           {/* Reset Section */}
