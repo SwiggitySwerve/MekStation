@@ -29,24 +29,30 @@ This ensures users get value from construction and sharing before we tackle the 
 | `add-vault-sharing` | File-based export/import with signatures | Archived |
 | `add-unit-card-view` | Quick reference sheet for unit stats/capabilities | Archived |
 
-### Phase 2: Organize & Collaborate (IN PROGRESS)
+### Phase 2: Organize & Collaborate (COMPLETE)
 | Proposal | Description | Status |
 |----------|-------------|--------|
 | `add-force-management` | Force roster, pilot-mech assignment, hierarchy | Archived (49/50) |
-| `add-pilot-mech-card` | Combined pilot+mech "character sheet" view | Active (0/40) |
+| `add-pilot-mech-card` | Combined pilot+mech "character sheet" view | Archived (36/40) |
 
-### Phase 3: Gameplay Core (IN PROGRESS)
+### Phase 3: Gameplay Core (COMPLETE)
 | Proposal | Description | Status |
 |----------|-------------|--------|
-| `add-game-session-core` | Event sourcing, turns, phases | Active (32/48) |
-| `add-hex-grid-system` | Positioning, movement, facing | Active (35/41) |
-| `add-combat-resolution` | Attacks, damage, critical hits | Active (42/52) |
+| `add-game-session-core` | Event sourcing, turns, phases | Archived (32/48) |
+| `add-hex-grid-system` | Positioning, movement, facing | Archived (35/41) |
+| `add-combat-resolution` | Attacks, damage, critical hits | Archived (42/52) |
 
-### Phase 4: Gameplay Integration & Advanced (PENDING)
+Note: DB/API layers deferred - MVP uses in-memory state.
+
+### Phase 4: Gameplay Integration (COMPLETE)
+| Proposal | Description | Status |
+|----------|-------------|--------|
+| `add-encounter-system` | Scenario setup, victory conditions | Implemented |
+| `add-gameplay-ui` | Map, record sheet, action controls | Implemented |
+
+### Phase 5: Advanced Features (FUTURE)
 | Proposal | Description | Dependencies |
 |----------|-------------|--------------|
-| `add-encounter-system` | Scenario setup, victory conditions | Force mgmt, Game session |
-| `add-gameplay-ui` | Map, record sheet, action controls | All Phase 3 core |
 | `add-vault-sharing` (P2P) | Real-time sync | Vault Phase 2 |
 | `add-campaign-system` | Multi-mission arcs, persistent state | Encounter system |
 | `add-multiplayer-support` | Real-time multiplayer sessions | Vault P2P, Game session |
@@ -62,18 +68,20 @@ Phase 1 - Build & Share MVP (COMPLETE):
 ├── add-vault-sharing [DONE]
 └── add-unit-card-view [DONE]
 
-Phase 2 - Organize & Collaborate (IN PROGRESS):
+Phase 2 - Organize & Collaborate (COMPLETE):
 ├── add-force-management [DONE]
-└── add-pilot-mech-card (requires: pilot-system, force-mgmt)
+└── add-pilot-mech-card [DONE]
 
-Phase 3 - Gameplay Core (IN PROGRESS):
-├── add-game-session-core (32/48 - DB/API deferred for MVP)
-├── add-hex-grid-system (35/41 - rendering deferred to UI)
-└── add-combat-resolution (42/52 - equipment integration deferred)
+Phase 3 - Gameplay Core (COMPLETE):
+├── add-game-session-core [DONE - in-memory MVP]
+├── add-hex-grid-system [DONE - logic complete]
+└── add-combat-resolution [DONE - core mechanics]
 
-Phase 4 - Gameplay Integration & Advanced:
-├── add-encounter-system (moved from Phase 3)
-├── add-gameplay-ui (moved from Phase 3)
+Phase 4 - Gameplay Integration (COMPLETE):
+├── add-encounter-system [DONE]
+└── add-gameplay-ui [DONE]
+
+Phase 5 - Advanced (FUTURE):
 ├── add-vault-sharing P2P sync
 ├── add-campaign-system
 ├── add-multiplayer-support
@@ -89,20 +97,20 @@ Phase 4 - Gameplay Integration & Advanced:
 - [x] Import shared units/pilots from others
 - [x] View unit stats in quick reference card
 
-### MVP 2: "Organize" (IN PROGRESS)
+### MVP 2: "Organize" (COMPLETE)
 - [x] Organize units and pilots into forces/lances
-- [ ] View combined pilot+mech character sheets
+- [x] View combined pilot+mech character sheets
 
-### MVP 3: "Play Core" (IN PROGRESS)
-- [ ] Event-sourced game state with turn/phase structure
-- [ ] Hex-based movement and positioning calculations
-- [ ] Combat resolution with damage tracking and critical hits
+### MVP 3: "Play Core" (COMPLETE)
+- [x] Event-sourced game state with turn/phase structure
+- [x] Hex-based movement and positioning calculations
+- [x] Combat resolution with damage tracking and critical hits
 
-### MVP 4: "Play Complete" (PENDING)
-- [ ] Scenario/encounter setup with victory conditions
-- [ ] Full gameplay UI (hex map, record sheet, action controls)
-- [ ] 1v1 BattleMech duel with complete turn cycle
-- [ ] Event log and replay capability
+### MVP 4: "Play Complete" (COMPLETE)
+- [x] Scenario/encounter setup with victory conditions
+- [x] Full gameplay UI (hex map, record sheet, action controls)
+- [x] 1v1 BattleMech duel with complete turn cycle
+- [x] Event log and replay capability
 
 ## Impact
 
@@ -114,7 +122,7 @@ Phase 4 - Gameplay Integration & Advanced:
 ## Success Criteria
 
 - [x] Phase 1: Users can build diverse units, create pilots, share builds
-- [ ] Phase 2: Users can organize forces and view pilot+mech cards
-- [ ] Phase 3: Core gameplay logic complete (events, hex math, combat)
-- [ ] Phase 4: Users can simulate 1v1 combat with full UI
-- [ ] Each phase delivers standalone value before next phase starts
+- [x] Phase 2: Users can organize forces and view pilot+mech cards
+- [x] Phase 3: Core gameplay logic complete (events, hex math, combat)
+- [x] Phase 4: Users can simulate 1v1 combat with full UI
+- [x] Each phase delivers standalone value before next phase starts
