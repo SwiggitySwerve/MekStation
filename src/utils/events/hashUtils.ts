@@ -58,8 +58,14 @@ export async function sha256(data: string): Promise<string> {
 }
 
 /**
- * Synchronous SHA-256 hash using a simple implementation.
+ * Synchronous hash using a simple implementation.
  * For environments where async is not practical.
+ *
+ * TODO: Replace with real SHA-256 for production (e.g., js-sha256 or Node crypto).
+ * Current implementation uses a 32-bit hash repeated for consistent output length,
+ * which is sufficient for development/testing but not cryptographically secure.
+ *
+ * @see https://github.com/nickyout/fast-sha256-js for a sync SHA-256 option
  */
 export function sha256Sync(data: string): string {
   // Simple hash implementation for synchronous use
