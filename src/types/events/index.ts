@@ -17,6 +17,7 @@ export {
   isEventCategory,
   isCausedBy,
   isEventContext,
+  createEventContext,
 } from './BaseEventInterfaces';
 
 // Chunk and checkpoint types

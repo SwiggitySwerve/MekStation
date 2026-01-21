@@ -144,6 +144,14 @@ export function isEventContext(obj: unknown): obj is IEventContext {
   return true;
 }
 
+/**
+ * Create an event context with the specified scope IDs.
+ * Helper function for building context objects.
+ */
+export function createEventContext(scopes: Partial<IEventContext>): IEventContext {
+  return { ...scopes };
+}
+
 // =============================================================================
 // Event Factory Types
 // =============================================================================
