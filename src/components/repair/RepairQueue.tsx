@@ -92,6 +92,7 @@ function QueueItem({
 
   return (
     <div
+      data-testid={`repair-queue-item-${job.id}`}
       className={`
         group relative flex items-stretch gap-3 p-4 rounded-xl border transition-all cursor-pointer
         ${isInProgress 
@@ -112,6 +113,7 @@ function QueueItem({
         {isPending && (
           <div className="flex flex-col gap-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
+              data-testid={`repair-queue-up-${job.id}`}
               onClick={(e) => { e.stopPropagation(); onMoveUp?.(job.id); }}
               disabled={isFirst}
               className={`
@@ -125,6 +127,7 @@ function QueueItem({
               </svg>
             </button>
             <button
+              data-testid={`repair-queue-down-${job.id}`}
               onClick={(e) => { e.stopPropagation(); onMoveDown?.(job.id); }}
               disabled={isLast}
               className={`
@@ -153,7 +156,7 @@ function QueueItem({
               {job.items.filter(i => i.selected).length} repairs selected
             </p>
           </div>
-          <Badge variant={statusVariants[job.status]} size="sm">
+          <Badge data-testid={`repair-queue-status-${job.id}`} variant={statusVariants[job.status]} size="sm">
             {job.status === RepairJobStatus.InProgress ? 'ACTIVE' : job.status.toUpperCase()}
           </Badge>
         </div>
@@ -193,6 +196,7 @@ function QueueItem({
       {/* Cancel button */}
       {(isPending || isInProgress) && (
         <button
+          data-testid={`repair-queue-cancel-${job.id}`}
           onClick={(e) => { e.stopPropagation(); onCancel?.(job.id); }}
           className="
             self-start p-2 rounded-lg opacity-0 group-hover:opacity-100
@@ -275,7 +279,7 @@ export function RepairQueue({
   }
 
   return (
-    <Card className={`${className} space-y-6`}>
+    <Card data-testid="repair-queue" className={`${className} space-y-6`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -345,7 +349,7 @@ export function RepairQueue({
       {/* Completed Jobs (collapsed) */}
       {completedJobs.length > 0 && (
         <details className="group">
-          <summary className="cursor-pointer list-none">
+          <summary data-testid="repair-queue-completed-toggle" className="cursor-pointer list-none">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-500 hover:text-emerald-400 transition-colors">
               <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -72,6 +72,7 @@ function UnitRepairCard({ job, onClick, isSelected = false }: UnitRepairCardProp
 
   return (
     <div
+      data-testid={`repair-unit-card-${job.id}`}
       onClick={onClick}
       className={`
         group relative p-4 rounded-xl border-l-4 cursor-pointer transition-all duration-200
@@ -86,7 +87,7 @@ function UnitRepairCard({ job, onClick, isSelected = false }: UnitRepairCardProp
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-bold text-text-theme-primary truncate group-hover:text-accent transition-colors">
+          <h4 data-testid="repair-unit-name" className="text-sm font-bold text-text-theme-primary truncate group-hover:text-accent transition-colors">
             {job.unitName}
           </h4>
           <p className="text-xs text-text-theme-muted">
@@ -327,6 +328,7 @@ export default function RepairBayPage(): React.ReactElement {
       headerContent={
         <div className="flex items-center gap-3">
           <Button
+            data-testid="repair-field-btn"
             variant="secondary"
             onClick={handleFieldRepair}
             leftIcon={
@@ -339,6 +341,7 @@ export default function RepairBayPage(): React.ReactElement {
             Field Repair
           </Button>
           <Button
+            data-testid="repair-all-btn"
             variant="primary"
             onClick={handleRepairAll}
             disabled={stats.pending === 0}
@@ -354,30 +357,31 @@ export default function RepairBayPage(): React.ReactElement {
       }
     >
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" data-testid="repair-stats">
         <Card className="!p-4">
           <div className="text-xs text-text-theme-muted uppercase tracking-wider mb-1">Active</div>
-          <div className="text-2xl font-bold text-cyan-400 tabular-nums">{stats.active}</div>
+          <div data-testid="repair-stats-active" className="text-2xl font-bold text-cyan-400 tabular-nums">{stats.active}</div>
         </Card>
         <Card className="!p-4">
           <div className="text-xs text-text-theme-muted uppercase tracking-wider mb-1">Pending</div>
-          <div className="text-2xl font-bold text-amber-400 tabular-nums">{stats.pending}</div>
+          <div data-testid="repair-stats-pending" className="text-2xl font-bold text-amber-400 tabular-nums">{stats.pending}</div>
         </Card>
         <Card className="!p-4">
           <div className="text-xs text-text-theme-muted uppercase tracking-wider mb-1">Completed</div>
-          <div className="text-2xl font-bold text-emerald-400 tabular-nums">{stats.complete}</div>
+          <div data-testid="repair-stats-completed" className="text-2xl font-bold text-emerald-400 tabular-nums">{stats.complete}</div>
         </Card>
         <Card className="!p-4">
           <div className="text-xs text-text-theme-muted uppercase tracking-wider mb-1">Est. Cost</div>
-          <div className="text-2xl font-bold text-accent tabular-nums">{stats.totalCost.toLocaleString()}</div>
+          <div data-testid="repair-stats-cost" className="text-2xl font-bold text-accent tabular-nums">{stats.totalCost.toLocaleString()}</div>
         </Card>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30 flex items-center justify-between">
+        <div data-testid="repair-error" className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30 flex items-center justify-between">
           <p className="text-sm text-red-400">{error}</p>
           <button
+            data-testid="repair-error-dismiss"
             onClick={clearError}
             className="text-red-400 hover:text-red-300 transition-colors"
           >
@@ -389,11 +393,12 @@ export default function RepairBayPage(): React.ReactElement {
       )}
 
       {/* Filters */}
-      <Card className="mb-6">
+      <Card className="mb-6" data-testid="repair-filters">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
             <Input
+              data-testid="repair-search-input"
               type="text"
               placeholder="Search units..."
               value={searchQuery}
@@ -407,6 +412,7 @@ export default function RepairBayPage(): React.ReactElement {
             {(['all', 'pending', 'in-progress', 'complete'] as const).map((status) => (
               <Button
                 key={status}
+                data-testid={`repair-status-filter-${status}`}
                 variant={statusFilter === status ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => setStatusFilter(status)}
@@ -420,7 +426,7 @@ export default function RepairBayPage(): React.ReactElement {
         </div>
 
         {/* Results count */}
-        <div className="mt-4 text-sm text-text-theme-secondary">
+        <div data-testid="repair-results-count" className="mt-4 text-sm text-text-theme-secondary">
           Showing {filteredJobs.length} unit{filteredJobs.length !== 1 ? 's' : ''}
           {(searchQuery || statusFilter !== 'all') && (
             <span className="text-accent ml-1">(filtered)</span>
@@ -431,6 +437,7 @@ export default function RepairBayPage(): React.ReactElement {
       {/* Main Content */}
       {allJobs.length === 0 ? (
         <EmptyState
+          data-testid="repair-all-operational"
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,6 +450,7 @@ export default function RepairBayPage(): React.ReactElement {
         />
       ) : filteredJobs.length === 0 ? (
         <EmptyState
+          data-testid="repair-empty-state"
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -461,7 +469,7 @@ export default function RepairBayPage(): React.ReactElement {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Unit List */}
-          <div className="xl:col-span-1 space-y-3">
+          <div className="xl:col-span-1 space-y-3" data-testid="repair-unit-list">
             <h3 className="text-sm font-semibold text-text-theme-muted uppercase tracking-wider mb-3">
               Units Requiring Repair
             </h3>
@@ -480,7 +488,7 @@ export default function RepairBayPage(): React.ReactElement {
           {/* Detail Panel */}
           <div className="xl:col-span-2">
             {selectedJob ? (
-              <div className="space-y-6">
+              <div className="space-y-6" data-testid="repair-detail-panel">
                 <DamageAssessmentPanel
                   job={selectedJob}
                   onToggleItem={handleToggleItem}
@@ -496,7 +504,7 @@ export default function RepairBayPage(): React.ReactElement {
                 />
               </div>
             ) : (
-              <Card className="h-full min-h-[400px] flex items-center justify-center">
+              <Card className="h-full min-h-[400px] flex items-center justify-center" data-testid="repair-select-prompt">
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-deep flex items-center justify-center">
                     <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -518,7 +526,7 @@ export default function RepairBayPage(): React.ReactElement {
 
       {/* Repair Queue (when there are active/pending jobs) */}
       {(stats.active > 0 || stats.pending > 0) && (
-        <div className="mt-8">
+        <div className="mt-8" data-testid="repair-queue-section">
           <RepairQueue
             jobs={allJobs.filter(j => 
               j.status === RepairJobStatus.InProgress ||

@@ -159,7 +159,7 @@ export function RepairCostBreakdown({
   const hasTimeWarning = breakdown.total.time > 48;
 
   return (
-    <Card className={className}>
+    <Card data-testid="repair-cost-breakdown" className={className}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-border-theme-subtle">
         <div>
@@ -174,7 +174,7 @@ export function RepairCostBreakdown({
       </div>
 
       {/* Itemized Costs */}
-      <div className="mb-6">
+      <div className="mb-6" data-testid="repair-cost-items">
         <CostRow
           label="Armor Repairs"
           count={breakdown.armor.count}

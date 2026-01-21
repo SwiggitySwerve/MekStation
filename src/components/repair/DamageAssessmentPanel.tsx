@@ -225,6 +225,7 @@ function RepairItemRow({ item, onToggle, disabled }: RepairItemRowProps): React.
 
   return (
     <label
+      data-testid={`repair-item-row-${item.id}`}
       className={`
         flex items-center gap-2 p-2 rounded-md transition-all cursor-pointer
         ${item.selected 
@@ -235,6 +236,7 @@ function RepairItemRow({ item, onToggle, disabled }: RepairItemRowProps): React.
       `}
     >
       <input
+        data-testid={`repair-item-checkbox-${item.id}`}
         type="checkbox"
         checked={item.selected}
         onChange={() => onToggle?.(item.id)}
@@ -316,11 +318,11 @@ export function DamageAssessmentPanel({
   ];
 
   return (
-    <Card className={`overflow-hidden ${className}`}>
+    <Card data-testid="damage-assessment-panel" className={`overflow-hidden ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-border-theme-subtle">
         <div>
-          <h3 className="text-lg font-bold text-text-theme-primary">{job.unitName}</h3>
+          <h3 data-testid="damage-assessment-unit-name" className="text-lg font-bold text-text-theme-primary">{job.unitName}</h3>
           <p className="text-sm text-text-theme-secondary">Damage Assessment</p>
         </div>
         <Badge
@@ -339,6 +341,7 @@ export function DamageAssessmentPanel({
       {!isDisabled && (
         <div className="flex gap-2 mb-4">
           <button
+            data-testid="repair-select-all-btn"
             onClick={onSelectAll}
             className="text-xs text-accent hover:text-accent/80 transition-colors"
           >
@@ -346,6 +349,7 @@ export function DamageAssessmentPanel({
           </button>
           <span className="text-text-theme-muted">|</span>
           <button
+            data-testid="repair-deselect-all-btn"
             onClick={onDeselectAll}
             className="text-xs text-accent hover:text-accent/80 transition-colors"
           >
@@ -389,27 +393,27 @@ export function DamageAssessmentPanel({
       )}
 
       {/* Cost Summary */}
-      <div className="p-4 rounded-lg bg-surface-deep border border-border-theme-subtle mb-4">
+      <div className="p-4 rounded-lg bg-surface-deep border border-border-theme-subtle mb-4" data-testid="repair-cost-summary">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-text-theme-muted block mb-1">Selected Items</span>
-            <span className="text-xl font-bold text-text-theme-primary">
+            <span data-testid="repair-selected-count" className="text-xl font-bold text-text-theme-primary">
               {selectedItems.length} / {job.items.length}
             </span>
           </div>
           <div>
             <span className="text-text-theme-muted block mb-1">Est. Time</span>
-            <span className="text-xl font-bold text-text-theme-primary">
+            <span data-testid="repair-estimated-time" className="text-xl font-bold text-text-theme-primary">
               {totalTime}h
             </span>
           </div>
           <div className="col-span-2">
             <span className="text-text-theme-muted block mb-1">Total Cost</span>
-            <span className={`text-2xl font-bold ${canAfford ? 'text-accent' : 'text-red-400'}`}>
+            <span data-testid="repair-total-cost" className={`text-2xl font-bold ${canAfford ? 'text-accent' : 'text-red-400'}`}>
               {totalCost.toLocaleString()} C-Bills
             </span>
             {!canAfford && (
-              <span className="text-xs text-red-400 block mt-1">
+              <span data-testid="repair-insufficient-funds" className="text-xs text-red-400 block mt-1">
                 Insufficient funds (need {(totalCost - availableCBills).toLocaleString()} more)
               </span>
             )}
@@ -421,6 +425,7 @@ export function DamageAssessmentPanel({
       {!isDisabled && (
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
+            data-testid="repair-start-full-btn"
             variant="primary"
             className="flex-1"
             onClick={onStartRepair}
@@ -432,6 +437,7 @@ export function DamageAssessmentPanel({
             Start Full Repair
           </Button>
           <Button
+            data-testid="repair-partial-btn"
             variant="secondary"
             className="flex-1"
             onClick={onPartialRepair}
