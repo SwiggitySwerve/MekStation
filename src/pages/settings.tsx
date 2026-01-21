@@ -25,11 +25,14 @@ import {
 import { ArmorDiagramModePreview } from '@/components/customizer/armor/ArmorDiagramPreview';
 import { ArmorDiagramSettings } from '@/components/customizer/armor/ArmorDiagramSettings';
 import { VaultIdentitySection } from '@/components/vault/VaultIdentitySection';
+import { SyncStatusIndicator, PeerList, RoomCodeDialog } from '@/components/sync';
+import { useSyncRoomStore, useConnectionState, usePeers, useRoomCode } from '@/lib/p2p/useSyncRoomStore';
+import { ConnectionState } from '@/lib/p2p';
 
 /**
  * Section configuration for navigation and state
  */
-type SectionId = 'appearance' | 'customizer' | 'vault' | 'ui-behavior' | 'accessibility' | 'audit' | 'reset';
+type SectionId = 'appearance' | 'customizer' | 'vault' | 'p2p-sync' | 'ui-behavior' | 'accessibility' | 'audit' | 'reset';
 
 interface SectionConfig {
   id: SectionId;
@@ -66,6 +69,16 @@ const SECTIONS: SectionConfig[] = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
         <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'p2p-sync',
+    title: 'P2P Sync',
+    description: 'Real-time peer-to-peer synchronization for collaborative play',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
       </svg>
     ),
   },
@@ -428,10 +441,195 @@ function UIThemePicker({
 
 
 // Valid section IDs for type checking
-const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'vault', 'ui-behavior', 'accessibility', 'audit', 'reset'];
+const VALID_SECTION_IDS: SectionId[] = ['appearance', 'customizer', 'vault', 'p2p-sync', 'ui-behavior', 'accessibility', 'audit', 'reset'];
 
 function isValidSectionId(hash: string): hash is SectionId {
   return VALID_SECTION_IDS.includes(hash as SectionId);
+}
+
+/**
+ * P2P Sync settings section
+ */
+function P2PSyncSection({
+  isExpanded,
+  onToggle,
+  onRef,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+  onRef: (el: HTMLDivElement | null) => void;
+}): React.ReactElement {
+  const connectionState = useConnectionState();
+  const peers = usePeers();
+  const roomCode = useRoomCode();
+  const { localPeerName, localPeerId, setLocalPeerName, createRoom, joinRoom, leaveRoom, error, clearError } = useSyncRoomStore();
+
+  const [showRoomDialog, setShowRoomDialog] = React.useState(false);
+  const [peerNameInput, setPeerNameInput] = React.useState(localPeerName);
+
+  const isConnected = connectionState === ConnectionState.Connected;
+  const isConnecting = connectionState === ConnectionState.Connecting;
+
+  const handleSavePeerName = () => {
+    if (peerNameInput.trim()) {
+      setLocalPeerName(peerNameInput.trim());
+    }
+  };
+
+  return (
+    <SettingsSection
+      id="p2p-sync"
+      title="P2P Sync"
+      description="Real-time peer-to-peer synchronization for collaborative play"
+      isExpanded={isExpanded}
+      onToggle={onToggle}
+      onRef={onRef}
+    >
+      {/* Connection Status */}
+      <div className="flex items-center justify-between p-4 rounded-lg bg-surface-raised/50 border border-border-theme-subtle">
+        <div className="flex items-center gap-4">
+          <SyncStatusIndicator
+            connectionState={connectionState}
+            peerCount={peers.length}
+          />
+          {roomCode && (
+            <div className="text-sm">
+              <span className="text-text-theme-muted">Room: </span>
+              <code className="text-accent font-mono font-bold">{roomCode}</code>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {isConnected ? (
+            <button
+              onClick={leaveRoom}
+              className="px-3 py-1.5 text-sm font-medium bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-md transition-colors border border-red-500/30"
+            >
+              Disconnect
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowRoomDialog(true)}
+              disabled={isConnecting}
+              className="px-3 py-1.5 text-sm font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors disabled:opacity-50"
+            >
+              {isConnecting ? 'Connecting...' : 'Connect'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="flex items-center gap-2 text-red-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-sm">{error}</span>
+          </div>
+          <button onClick={clearError} className="text-red-400 hover:text-red-300">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Peer Name Setting */}
+      <div>
+        <div className="text-sm font-medium text-text-theme-primary mb-1">Your Display Name</div>
+        <div className="text-xs text-text-theme-secondary mb-2">
+          How you appear to other peers in sync rooms
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={peerNameInput}
+            onChange={(e) => setPeerNameInput(e.target.value)}
+            placeholder="Enter your name"
+            className="flex-1 px-3 py-2 text-sm bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent"
+          />
+          <button
+            onClick={handleSavePeerName}
+            disabled={!peerNameInput.trim() || peerNameInput === localPeerName}
+            className="px-4 py-2 text-sm font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+
+      {/* Connected Peers */}
+      {isConnected && (
+        <div>
+          <div className="text-sm font-medium text-text-theme-primary mb-2">Connected Peers</div>
+          {peers.length > 0 ? (
+            <PeerList peers={peers} localPeerId={localPeerId} localPeerName={localPeerName} />
+          ) : (
+            <div className="p-4 text-center text-sm text-text-theme-muted bg-surface-deep/50 rounded-lg border border-border-theme-subtle">
+              Waiting for peers to join...
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* How it Works */}
+      <div className="pt-4 border-t border-border-theme-subtle">
+        <div className="text-sm font-medium text-text-theme-primary mb-2">How P2P Sync Works</div>
+        <ul className="space-y-2 text-xs text-text-theme-secondary">
+          <li className="flex items-start gap-2">
+            <span className="text-accent">1.</span>
+            Create a room or join with a room code
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-accent">2.</span>
+            Share the room code with your gaming group
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-accent">3.</span>
+            Enable sync on vault items you want to share
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-accent">4.</span>
+            Changes sync automatically in real-time
+          </li>
+        </ul>
+        <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+          <div className="flex items-start gap-2">
+            <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-xs text-amber-200">
+              P2P sync uses WebRTC for direct peer connections. All data stays between you and your peers - no server storage.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Room Dialog */}
+      <RoomCodeDialog
+        isOpen={showRoomDialog}
+        onClose={() => setShowRoomDialog(false)}
+        onCreateRoom={async (password) => {
+          const code = await createRoom(password ? { password } : undefined);
+          return code;
+        }}
+        onJoinRoom={async (code, password) => {
+          await joinRoom(code, password);
+        }}
+        onLeaveRoom={leaveRoom}
+        isConnected={isConnected}
+        isConnecting={isConnecting}
+        currentRoomCode={roomCode}
+        peers={peers}
+        localPeerId={localPeerId}
+        localPeerName={localPeerName}
+        error={error}
+        onClearError={clearError}
+      />
+    </SettingsSection>
+  );
 }
 
 export default function SettingsPage(): React.ReactElement {
@@ -449,6 +647,7 @@ export default function SettingsPage(): React.ReactElement {
     appearance: null,
     customizer: null,
     vault: null,
+    'p2p-sync': null,
     'ui-behavior': null,
     accessibility: null,
     audit: null,
@@ -741,6 +940,13 @@ export default function SettingsPage(): React.ReactElement {
           >
             <VaultIdentitySection />
           </SettingsSection>
+
+          {/* P2P Sync Section */}
+          <P2PSyncSection
+            isExpanded={activeSection === 'p2p-sync'}
+            onToggle={() => toggleSection('p2p-sync')}
+            onRef={createSectionRef('p2p-sync')}
+          />
 
           {/* UI Behavior Section */}
           <SettingsSection

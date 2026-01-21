@@ -21,3 +21,4 @@ export * from './useOfflineStatus';
 export * from './useTouchTarget';
 export * from './useEquipmentFiltering';
 export * from './useMovementCalculations';
+export * from './useSyncToasts';

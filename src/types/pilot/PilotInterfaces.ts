@@ -6,6 +6,7 @@
  */
 
 import { IEntity } from '../core/IEntity';
+import type { IPilotAward, IPilotStats } from '../award/AwardInterfaces';
 
 // =============================================================================
 // Enums
@@ -337,6 +338,10 @@ export interface IPilot extends IEntity, IPilotIdentity {
   readonly career?: IPilotCareer;
   /** Special abilities owned */
   readonly abilities: readonly IPilotAbilityRef[];
+  /** Awards earned by this pilot */
+  readonly awards?: readonly IPilotAward[];
+  /** Detailed combat and career statistics for award tracking */
+  readonly stats?: IPilotStats;
   /** Creation timestamp */
   readonly createdAt: string;
   /** Last update timestamp */
