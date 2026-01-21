@@ -74,32 +74,36 @@
 - [x] 6.1 Unit tests for connection manager
 - [x] 6.2 Unit tests for CRDT sync logic
 - [x] 6.3 Integration tests for store-to-Yjs sync
-- [ ] 6.4 E2E tests for peer connection flow
-- [ ] 6.5 Test offline/reconnect scenarios
+- [x] 6.4 E2E tests for peer connection flow
+- [x] 6.5 Test offline/reconnect scenarios
 
 **Implementation:**
 - `src/lib/p2p/__tests__/roomCodes.test.ts` (165 lines)
 - `src/lib/p2p/__tests__/types.test.ts` (68 lines)
 - `src/lib/p2p/__tests__/useSyncedVaultStore.test.ts` - Store integration tests
+- `e2e/p2p-sync.spec.ts` - Full E2E tests with dual browser contexts
+- `src/pages/e2e/sync-test.tsx` - Test harness page for E2E
 
 ## 7. Documentation
 
-- [ ] 7.1 Add sync feature documentation
-- [ ] 7.2 Document room code format
-- [ ] 7.3 Add troubleshooting guide for connection issues
+- [x] 7.1 Add sync feature documentation
+- [x] 7.2 Document room code format
+- [x] 7.3 Add troubleshooting guide for connection issues
+
+**Implementation:**
+- `docs/features/p2p-vault-sync.md` - Main feature documentation
+- `docs/features/room-codes.md` - Room code format specification
+- `docs/features/sync-troubleshooting.md` - Troubleshooting guide
 
 ---
 
 ## Summary
 
-Core P2P vault sync (31/36 tasks) complete:
+All 36 tasks complete. P2P vault sync fully implemented with:
 - WebRTC infrastructure with y-webrtc
 - CRDT sync layer with Yjs + IndexedDB persistence
 - Full vault integration (toggle, state tracking, selective sync)
 - UI components (status indicator, peer list, room dialog, badges)
 - Error handling with retry logic, toasts, and conflict resolution
-- Unit and integration tests for sync logic
-
-### Deferred (Lower Priority)
-- **6.4-6.5** - E2E/offline tests (requires Playwright + WebRTC mocking)
-- **7.1-7.3** - Documentation (sync feature guide, room codes, troubleshooting)
+- Unit, integration, and E2E tests
+- Complete documentation
