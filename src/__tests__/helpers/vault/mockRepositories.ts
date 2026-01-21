@@ -447,6 +447,15 @@ export class MockOfflineQueueRepository {
     return true;
   }
 
+  async markSending(id: string): Promise<boolean> {
+    const message = this.messages.get(id);
+    if (!message) return false;
+    message.status = 'sending';
+    message.attempts++;
+    message.lastAttemptAt = new Date().toISOString();
+    return true;
+  }
+
   async markSent(id: string): Promise<boolean> {
     const message = this.messages.get(id);
     if (!message) return false;
