@@ -1,0 +1,393 @@
+/**
+ * Game Replay Page
+ * Replay completed games with VCR-style controls.
+ *
+ * @spec openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md
+ */
+
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import Link from 'next/link';
+import { Button, Card } from '@/components/ui';
+import {
+  useReplayPlayer,
+  useGameTimeline,
+  PLAYBACK_SPEEDS,
+  formatSpeed,
+  type IEventMarker,
+} from '@/hooks/audit';
+import {
+  ReplayControls,
+  ReplayTimeline,
+  ReplaySpeedSelector,
+  ReplayEventOverlay,
+  useReplayKeyboardShortcuts,
+  KeyboardShortcutsHelp,
+} from '@/components/audit/replay';
+import { EventTimeline } from '@/components/audit/timeline';
+import { IBaseEvent } from '@/types/events';
+
+// =============================================================================
+// Loading Component
+// =============================================================================
+
+function ReplayLoading(): React.ReactElement {
+  return (
+    <div className="h-screen flex items-center justify-center bg-gray-900">
+      <div className="text-center">
+        <div className="animate-spin w-12 h-12 border-4 border-accent border-t-transparent rounded-full mx-auto mb-4" />
+        <p className="text-text-theme-secondary">Loading game replay...</p>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Error Component
+// =============================================================================
+
+interface ReplayErrorProps {
+  message: string;
+  gameId?: string;
+}
+
+function ReplayError({ message, gameId }: ReplayErrorProps): React.ReactElement {
+  return (
+    <div className="h-screen flex items-center justify-center bg-gray-900">
+      <div className="text-center max-w-md">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/20 flex items-center justify-center">
+          <svg
+            className="w-8 h-8 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-text-theme-primary mb-2">Replay Error</h2>
+        <p className="text-text-theme-secondary mb-4">{message}</p>
+        <Link href={gameId ? `/gameplay/games/${gameId}` : '/gameplay/games'}>
+          <Button variant="primary">
+            {gameId ? 'Back to Game' : 'Back to Games'}
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Replay View Tab Type
+// =============================================================================
+
+type ReplayViewTab = 'timeline' | 'events';
+
+// =============================================================================
+// Main Page Component
+// =============================================================================
+
+export default function GameReplayPage(): React.ReactElement {
+  const router = useRouter();
+  const { id } = router.query;
+  const gameId = typeof id === 'string' ? id : '';
+
+  const [isClient, setIsClient] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+  const [activeTab, setActiveTab] = useState<ReplayViewTab>('timeline');
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Hydration fix
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Load game events for display
+  const {
+    allEvents,
+    isLoading: eventsLoading,
+    error: eventsError,
+    pagination,
+    loadMore,
+  } = useGameTimeline(gameId, {
+    pageSize: 1000, // Load all events for replay
+    infiniteScroll: false,
+  });
+
+  // Initialize replay player
+  const replay = useReplayPlayer<Record<string, unknown>>({
+    gameId,
+    reducers: {} as never, // No state reducers needed for visualization
+    initialState: {},
+    autoPlay: false,
+    baseInterval: 1000,
+  });
+
+  // Keyboard shortcuts
+  useReplayKeyboardShortcuts({
+    onPlay: replay.play,
+    onPause: replay.pause,
+    onStepForward: replay.stepForward,
+    onStepBackward: replay.stepBackward,
+    onSpeedUp: () => {
+      const currentIdx = PLAYBACK_SPEEDS.indexOf(replay.speed);
+      if (currentIdx < PLAYBACK_SPEEDS.length - 1) {
+        replay.setSpeed(PLAYBACK_SPEEDS[currentIdx + 1]);
+      }
+    },
+    onSpeedDown: () => {
+      const currentIdx = PLAYBACK_SPEEDS.indexOf(replay.speed);
+      if (currentIdx > 0) {
+        replay.setSpeed(PLAYBACK_SPEEDS[currentIdx - 1]);
+      }
+    },
+    onGoToStart: replay.stop,
+    onGoToEnd: () => replay.jumpToIndex(replay.totalEvents - 1),
+    playbackState: replay.playbackState,
+    enabled: !showKeyboardHelp,
+  });
+
+  // Handle event click in timeline
+  const handleEventClick = useCallback((event: IBaseEvent) => {
+    setSelectedEventId((prev) => (prev === event.id ? null : event.id));
+    replay.jumpToEvent(event.id);
+  }, [replay]);
+
+  // Handle marker click in timeline
+  const handleMarkerClick = useCallback((marker: IEventMarker) => {
+    replay.jumpToEvent(marker.id);
+  }, [replay]);
+
+  // Loading states
+  if (!isClient || eventsLoading) {
+    return <ReplayLoading />;
+  }
+
+  // Error state
+  if (eventsError) {
+    return <ReplayError message={eventsError.message} gameId={gameId || undefined} />;
+  }
+
+  // No events
+  if (allEvents.length === 0) {
+    return <ReplayError message="No events found for this game." gameId={gameId || undefined} />;
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Game Replay - MekStation</title>
+      </Head>
+
+      <div className="h-screen flex flex-col bg-gray-900">
+        {/* Header */}
+        <div className="flex-shrink-0 h-14 px-4 bg-surface-base border-b border-border-theme-subtle flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              href={gameId ? `/gameplay/games/${gameId}` : '/gameplay/games'}
+              className="text-text-theme-secondary hover:text-text-theme-primary transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </Link>
+            <h1 className="text-lg font-semibold text-text-theme-primary">
+              Game Replay
+            </h1>
+            <span className="text-sm text-text-theme-muted">
+              {replay.totalEvents} events
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Speed Selector */}
+            <ReplaySpeedSelector
+              speed={replay.speed}
+              onSpeedChange={replay.setSpeed}
+            />
+
+            {/* Keyboard Help Toggle */}
+            <button
+              onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+              className={`p-2 rounded-lg transition-colors ${
+                showKeyboardHelp
+                  ? 'bg-accent/20 text-accent'
+                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised'
+              }`}
+              title="Keyboard shortcuts (?)"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Panel - Event Info */}
+          <div className="w-80 flex-shrink-0 border-r border-border-theme-subtle overflow-y-auto bg-surface-deep">
+            {/* Tabs */}
+            <div className="flex border-b border-border-theme-subtle">
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'timeline'
+                    ? 'text-accent border-b-2 border-accent bg-surface-base/50'
+                    : 'text-text-theme-secondary hover:text-text-theme-primary'
+                }`}
+              >
+                Current Event
+              </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'events'
+                    ? 'text-accent border-b-2 border-accent bg-surface-base/50'
+                    : 'text-text-theme-secondary hover:text-text-theme-primary'
+                }`}
+              >
+                All Events
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-4">
+              {activeTab === 'timeline' ? (
+                /* Current Event Display */
+                replay.currentEvent ? (
+                  <ReplayEventOverlay
+                    event={replay.currentEvent}
+                    sequenceNumber={replay.currentSequence}
+                    totalEvents={replay.totalEvents}
+                    position="top-left"
+                  />
+                ) : (
+                  <div className="text-center py-8 text-text-theme-muted">
+                    <p>No event at current position</p>
+                    <p className="text-sm mt-1">Use controls to navigate</p>
+                  </div>
+                )
+              ) : (
+                /* All Events List */
+                <EventTimeline
+                  events={allEvents as IBaseEvent[]}
+                  onEventClick={handleEventClick}
+                  onLoadMore={loadMore}
+                  hasMore={pagination.hasMore}
+                  isLoading={eventsLoading}
+                  selectedEventId={selectedEventId || replay.currentEvent?.id}
+                  maxHeight="calc(100vh - 200px)"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Center - Game Visualization Placeholder */}
+          <div className="flex-1 flex flex-col">
+            {/* Game State Visualization Area */}
+            <div className="flex-1 flex items-center justify-center bg-surface-base/30">
+              <Card className="max-w-lg text-center p-8">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-surface-raised flex items-center justify-center">
+                  <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-text-theme-primary mb-3">
+                  Event {replay.currentIndex + 1} of {replay.totalEvents}
+                </h2>
+                {replay.currentEvent && (
+                  <div className="space-y-2 text-sm">
+                    <p className="text-text-theme-secondary">
+                      <span className="text-text-theme-muted">Type:</span>{' '}
+                      <span className="text-accent font-medium">{replay.currentEvent.type}</span>
+                    </p>
+                    <p className="text-text-theme-secondary">
+                      <span className="text-text-theme-muted">Category:</span>{' '}
+                      {replay.currentEvent.category}
+                    </p>
+                    <p className="text-text-theme-secondary">
+                      <span className="text-text-theme-muted">Sequence:</span>{' '}
+                      #{replay.currentSequence}
+                    </p>
+                  </div>
+                )}
+                <div className="mt-6 pt-4 border-t border-border-theme-subtle">
+                  <p className="text-xs text-text-theme-muted">
+                    Full game state visualization coming soon.
+                    <br />
+                    Use the controls below to step through events.
+                  </p>
+                </div>
+              </Card>
+            </div>
+
+            {/* Bottom Controls */}
+            <div className="flex-shrink-0 p-4 bg-surface-base border-t border-border-theme-subtle">
+              {/* Timeline Scrubber */}
+              <div className="mb-4">
+                <ReplayTimeline
+                  progress={replay.progress}
+                  markers={replay.markers}
+                  onSeek={replay.seek}
+                  currentSequence={replay.currentSequence}
+                />
+              </div>
+
+              {/* Playback Controls */}
+              <div className="flex items-center justify-center">
+                <ReplayControls
+                  playbackState={replay.playbackState}
+                  canStepBackward={replay.currentIndex > 0}
+                  canStepForward={replay.currentIndex < replay.totalEvents - 1}
+                  onPlay={replay.play}
+                  onPause={replay.pause}
+                  onStop={replay.stop}
+                  onStepForward={replay.stepForward}
+                  onStepBackward={replay.stepBackward}
+                />
+              </div>
+
+              {/* Progress Info */}
+              <div className="mt-3 text-center text-sm text-text-theme-muted">
+                {replay.playbackState === 'playing' && (
+                  <span className="text-emerald-400">Playing at {formatSpeed(replay.speed)}</span>
+                )}
+                {replay.playbackState === 'paused' && (
+                  <span className="text-amber-400">Paused</span>
+                )}
+                {replay.playbackState === 'stopped' && (
+                  <span>Press Play to start</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Keyboard Help Modal */}
+        {showKeyboardHelp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <div className="relative">
+              <KeyboardShortcutsHelp />
+              <button
+                onClick={() => setShowKeyboardHelp(false)}
+                className="absolute top-4 right-4 p-2 text-text-theme-secondary hover:text-text-theme-primary transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
