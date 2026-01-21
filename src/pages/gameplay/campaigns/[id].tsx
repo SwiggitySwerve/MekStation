@@ -1,8 +1,9 @@
 /**
  * Campaign Detail Page
- * View and manage a single campaign.
+ * View and manage a single campaign with audit timeline.
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
+ * @spec openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md
  */
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -22,6 +23,15 @@ import {
 } from '@/types/campaign';
 import { MissionTreeView } from '@/components/campaign/MissionTreeView';
 import { RosterStateDisplay } from '@/components/campaign/RosterStateDisplay';
+import { useCampaignTimeline } from '@/hooks/audit';
+import { EventTimeline, TimelineFilters } from '@/components/audit/timeline';
+import { IBaseEvent, EventCategory } from '@/types/events';
+
+// =============================================================================
+// Tab Types
+// =============================================================================
+
+type CampaignTab = 'overview' | 'audit';
 
 // =============================================================================
 // Status Helpers
@@ -179,12 +189,230 @@ function MissionHistory({ missions }: MissionHistoryProps): React.ReactElement {
 }
 
 // =============================================================================
+// Campaign Audit Tab Component
+// =============================================================================
+
+interface CampaignAuditTabProps {
+  campaignId: string;
+  campaignName: string;
+}
+
+function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): React.ReactElement {
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<EventCategory | undefined>(undefined);
+  const [rootEventsOnly, setRootEventsOnly] = useState(false);
+
+  const {
+    allEvents,
+    isLoading,
+    error,
+    filters,
+    pagination,
+    setFilters,
+    loadMore,
+    refresh,
+  } = useCampaignTimeline(campaignId, {
+    pageSize: 50,
+    infiniteScroll: true,
+  });
+
+  const handleEventClick = useCallback((event: IBaseEvent) => {
+    setSelectedEventId((prev) => (prev === event.id ? null : event.id));
+  }, []);
+
+  const handleFiltersChange = useCallback((newFilters: { category?: EventCategory; rootEventsOnly?: boolean }) => {
+    setCategoryFilter(newFilters.category);
+    setRootEventsOnly(newFilters.rootEventsOnly || false);
+    setFilters({
+      ...filters,
+      category: newFilters.category,
+      rootEventsOnly: newFilters.rootEventsOnly || undefined,
+    });
+  }, [filters, setFilters]);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-text-theme-primary">Campaign Timeline</h2>
+          <p className="text-sm text-text-theme-secondary">
+            Event history for {campaignName}
+          </p>
+        </div>
+        <button
+          onClick={refresh}
+          disabled={isLoading}
+          className="p-2 rounded-lg bg-surface-raised border border-border-theme-subtle hover:border-border-theme transition-colors disabled:opacity-50"
+          aria-label="Refresh timeline"
+        >
+          <svg
+            className={`w-5 h-5 text-text-theme-secondary ${isLoading ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Filters */}
+      <Card className="p-4">
+        <TimelineFilters
+          filters={{
+            category: categoryFilter,
+            rootEventsOnly,
+          }}
+          onChange={handleFiltersChange}
+        />
+      </Card>
+
+      {/* Error State */}
+      {error && (
+        <Card className="border-red-500/50 bg-red-500/10">
+          <div className="flex items-center gap-3 text-red-400 p-4" role="alert">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{error.message}</span>
+          </div>
+        </Card>
+      )}
+
+      {/* Results Count */}
+      <div className="text-text-theme-secondary text-sm" aria-live="polite">
+        {isLoading ? (
+          <span className="flex items-center gap-2">
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Loading...
+          </span>
+        ) : (
+          <span>
+            <span className="font-medium text-text-theme-primary">{pagination.total}</span> events
+          </span>
+        )}
+      </div>
+
+      {/* Empty State */}
+      {!isLoading && allEvents.length === 0 && (
+        <Card className="p-8 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-text-theme-primary mb-2">
+            No Events Yet
+          </h3>
+          <p className="text-text-theme-secondary text-sm max-w-md mx-auto">
+            This campaign has no recorded events. Events will appear here as missions are completed.
+          </p>
+        </Card>
+      )}
+
+      {/* Timeline */}
+      {allEvents.length > 0 && (
+        <Card className="p-0 overflow-hidden">
+          <EventTimeline
+            events={allEvents as IBaseEvent[]}
+            onEventClick={handleEventClick}
+            onLoadMore={loadMore}
+            hasMore={pagination.hasMore}
+            isLoading={isLoading}
+            selectedEventId={selectedEventId || undefined}
+            maxHeight="calc(100vh - 400px)"
+          />
+        </Card>
+      )}
+
+      {/* Selected Event Details */}
+      {selectedEventId && (
+        <Card>
+          <h3 className="text-lg font-semibold text-text-theme-primary mb-4">
+            Event Details
+          </h3>
+          {(() => {
+            const event = allEvents.find((e) => e.id === selectedEventId);
+            if (!event) return null;
+            return (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-text-theme-muted">ID:</span>{' '}
+                    <code className="text-text-theme-secondary">{event.id}</code>
+                  </div>
+                  <div>
+                    <span className="text-text-theme-muted">Sequence:</span>{' '}
+                    <span className="text-text-theme-primary font-medium">{event.sequence}</span>
+                  </div>
+                  <div>
+                    <span className="text-text-theme-muted">Category:</span>{' '}
+                    <span className="text-text-theme-primary">{event.category}</span>
+                  </div>
+                  <div>
+                    <span className="text-text-theme-muted">Type:</span>{' '}
+                    <span className="text-text-theme-primary">{event.type}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-text-theme-muted">Timestamp:</span>{' '}
+                    <span className="text-text-theme-secondary">{event.timestamp}</span>
+                  </div>
+                </div>
+                {event.causedBy && (
+                  <div className="pt-3 border-t border-border-theme-subtle">
+                    <span className="text-text-theme-muted">Caused by:</span>{' '}
+                    <code className="text-cyan-400">{event.causedBy.eventId}</code>{' '}
+                    <span className="text-text-theme-muted">({event.causedBy.relationship})</span>
+                  </div>
+                )}
+                <div className="pt-3 border-t border-border-theme-subtle">
+                  <span className="text-text-theme-muted block mb-2">Payload:</span>
+                  <pre className="text-xs bg-surface-base/50 p-3 rounded-lg overflow-x-auto">
+                    {JSON.stringify(event.payload, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            );
+          })()}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
 // Main Page Component
 // =============================================================================
 
 export default function CampaignDetailPage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, tab: queryTab } = router.query;
 
   const {
     getCampaign,
@@ -200,6 +428,28 @@ export default function CampaignDetailPage(): React.ReactElement {
   const [isClient, setIsClient] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedMission, setSelectedMission] = useState<ICampaignMission | null>(null);
+  
+  // Tab state - default to overview, can be set via query param
+  const [activeTab, setActiveTab] = useState<CampaignTab>('overview');
+  
+  // Sync tab from query param
+  useEffect(() => {
+    if (queryTab === 'audit') {
+      setActiveTab('audit');
+    } else {
+      setActiveTab('overview');
+    }
+  }, [queryTab]);
+
+  // Update URL when tab changes
+  const handleTabChange = useCallback((tab: CampaignTab) => {
+    setActiveTab(tab);
+    // Update URL without full navigation
+    const url = tab === 'overview' 
+      ? `/gameplay/campaigns/${id}` 
+      : `/gameplay/campaigns/${id}?tab=${tab}`;
+    router.replace(url, undefined, { shallow: true });
+  }, [id, router]);
 
   const campaign = id && typeof id === 'string' ? getCampaign(id) : null;
   const validation = id && typeof id === 'string' ? validations.get(id) : null;
@@ -317,14 +567,52 @@ export default function CampaignDetailPage(): React.ReactElement {
         </div>
       }
     >
-      {/* Error Display */}
-      {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
-          <p className="text-sm text-red-400">{error}</p>
-        </div>
-      )}
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1 mb-6 border-b border-border-theme-subtle">
+        <button
+          onClick={() => handleTabChange('overview')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'overview'
+              ? 'text-accent'
+              : 'text-text-theme-secondary hover:text-text-theme-primary'
+          }`}
+        >
+          Overview
+          {activeTab === 'overview' && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+          )}
+        </button>
+        <button
+          onClick={() => handleTabChange('audit')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'audit'
+              ? 'text-accent'
+              : 'text-text-theme-secondary hover:text-text-theme-primary'
+          }`}
+        >
+          Audit Timeline
+          {activeTab === 'audit' && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+          )}
+        </button>
+      </div>
 
-      {/* Validation Warnings */}
+      {/* Tab Content */}
+      {activeTab === 'audit' ? (
+        <CampaignAuditTab
+          campaignId={id as string}
+          campaignName={campaign.name}
+        />
+      ) : (
+        <>
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+              <p className="text-sm text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* Validation Warnings */}
       {validation && (!validation.valid || validation.warnings.length > 0) && (
         <Card className="mb-6 border-yellow-600/30 bg-yellow-900/10">
           {validation.errors.length > 0 && (
@@ -493,6 +781,8 @@ export default function CampaignDetailPage(): React.ReactElement {
             </Button>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Delete Confirmation Modal */}
