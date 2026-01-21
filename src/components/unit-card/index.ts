@@ -5,6 +5,8 @@
  * - UnitCardCompact: Minimal info for list views
  * - UnitCardStandard: Full combat details
  * - UnitCardExpanded: Complete equipment and fluff
+ *
+ * Note: Print styles are imported in globals.css (@import '../components/unit-card/UnitCard.print.css')
  */
 
 export { UnitCardCompact } from './UnitCardCompact';

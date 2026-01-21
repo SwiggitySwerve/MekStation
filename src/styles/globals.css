@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Print styles for unit cards */
+@import "../components/unit-card/UnitCard.print.css";
+
 /*
  * Tailwind v4 @theme block for CSS-first configuration.
  * These define theme tokens that Tailwind needs to know about at build time
