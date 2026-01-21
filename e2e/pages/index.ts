@@ -53,3 +53,6 @@ export {
   UnitDetailPage,
   EquipmentDetailPage,
 } from './compendium.page';
+
+// Repair pages
+export { RepairBayPage } from './repair.page';
