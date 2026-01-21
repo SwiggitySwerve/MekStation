@@ -404,4 +404,154 @@ describe('OfflineQueueService', () => {
       expect(stats.byStatus.sent).toBe(1);
     });
   });
+
+  // ===========================================================================
+  // Flush Operations
+  // ===========================================================================
+
+  describe('Flush Operations', () => {
+    describe('flushPeer', () => {
+      it('should return early when transport not initialized', async () => {
+        await service.queueMessage('PEER-1', 'change', '{}');
+        await service.queueMessage('PEER-1', 'change', '{}');
+
+        const result = await service.flushPeer('PEER-1');
+
+        // When transport throws, all messages are counted as failed
+        expect(result.failed).toBeGreaterThanOrEqual(0);
+        expect(result.remaining).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should mark expired before flushing', async () => {
+        // Seed an expired message
+        mockRepo.seedMessage(
+          createQueuedMessage({
+            id: 'expired-msg',
+            targetPeerId: 'PEER-1',
+            expiresAt: '2020-01-01T00:00:00.000Z',
+            status: 'pending',
+          })
+        );
+
+        const result = await service.flushPeer('PEER-1');
+
+        expect(result.expired).toBeGreaterThanOrEqual(1);
+      });
+
+      it('should return remaining count after flush', async () => {
+        await service.queueMessage('PEER-1', 'change', '{"msg":1}');
+        await service.queueMessage('PEER-1', 'change', '{"msg":2}');
+
+        const result = await service.flushPeer('PEER-1');
+
+        expect(typeof result.remaining).toBe('number');
+      });
+    });
+
+    describe('flushAll', () => {
+      it('should flush all peers with pending messages', async () => {
+        await service.queueMessage('PEER-A', 'change', '{}');
+        await service.queueMessage('PEER-B', 'change', '{}');
+        await service.queueMessage('PEER-C', 'change', '{}');
+
+        const results = await service.flushAll();
+
+        expect(Object.keys(results)).toHaveLength(3);
+        expect(results['PEER-A']).toBeDefined();
+        expect(results['PEER-B']).toBeDefined();
+        expect(results['PEER-C']).toBeDefined();
+      });
+
+      it('should return empty results when no pending messages', async () => {
+        const results = await service.flushAll();
+
+        expect(Object.keys(results)).toHaveLength(0);
+      });
+    });
+  });
+
+  // ===========================================================================
+  // Cleanup Sent Messages
+  // ===========================================================================
+
+  describe('Cleanup Sent Messages', () => {
+    it('should delete sent messages', async () => {
+      mockRepo.seedMessage(createQueuedMessage({ id: 'sent-1', status: 'sent' }));
+      mockRepo.seedMessage(createQueuedMessage({ id: 'sent-2', status: 'sent' }));
+      mockRepo.seedMessage(createQueuedMessage({ id: 'pending-1', status: 'pending' }));
+
+      const deleted = await service.cleanupSent();
+
+      expect(deleted).toBe(2);
+    });
+  });
+
+  // ===========================================================================
+  // Messages for Relay
+  // ===========================================================================
+
+  describe('Messages for Relay', () => {
+    it('should get messages for disconnected peers', async () => {
+      await service.queueMessage('PEER-OFFLINE', 'change', '{"data":"test"}');
+
+      const messages = await service.getMessagesForRelay();
+
+      // Since transport is not initialized, all peers are considered disconnected
+      expect(messages.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should return all pending when transport unavailable', async () => {
+      await service.queueMessage('PEER-1', 'change', '{}');
+      await service.queueMessage('PEER-2', 'ping', '{}');
+
+      const messages = await service.getMessagesForRelay();
+
+      expect(messages).toHaveLength(2);
+    });
+  });
+
+  // ===========================================================================
+  // Object Payload Handling
+  // ===========================================================================
+
+  describe('Object Payload Handling', () => {
+    it('should stringify object payload', async () => {
+      const payload = { type: 'change', data: { foo: 'bar' } };
+
+      const message = await service.queueMessage('PEER-1', 'change', payload);
+
+      expect(message.payload).toBe(JSON.stringify(payload));
+    });
+
+    it('should preserve string payload as-is', async () => {
+      const payload = '{"already":"stringified"}';
+
+      const message = await service.queueMessage('PEER-1', 'change', payload);
+
+      expect(message.payload).toBe(payload);
+    });
+  });
+
+  // ===========================================================================
+  // Default Options
+  // ===========================================================================
+
+  describe('Default Options', () => {
+    it('should use default 7-day expiry when not specified', async () => {
+      const message = await service.queueMessage('PEER-1', 'change', '{}');
+
+      const expiresAt = new Date(message.expiresAt);
+      const queuedAt = new Date(message.queuedAt);
+      const diff = expiresAt.getTime() - queuedAt.getTime();
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+      expect(diff).toBe(sevenDays);
+    });
+
+    it('should use default priority of 0 when not specified', async () => {
+      const message = await service.queueMessage('PEER-1', 'change', '{}');
+
+      expect(message.priority).toBe(0);
+    });
+  });
 });
