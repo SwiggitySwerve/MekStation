@@ -43,3 +43,13 @@ export {
 
 // Customizer pages
 export { CustomizerPage, AerospaceCustomizerPage } from './customizer.page';
+
+// Compendium pages
+export {
+  CompendiumPage,
+  UnitBrowserPage,
+  EquipmentBrowserPage,
+  RulesReferencePage,
+  UnitDetailPage,
+  EquipmentDetailPage,
+} from './compendium.page';
