@@ -15,7 +15,6 @@ import {
   useGameTimeline,
   PLAYBACK_SPEEDS,
   formatSpeed,
-  type IEventMarker,
 } from '@/hooks/audit';
 import {
   ReplayControls,
@@ -27,6 +26,7 @@ import {
 } from '@/components/audit/replay';
 import { EventTimeline } from '@/components/audit/timeline';
 import { IBaseEvent } from '@/types/events';
+import type { ReducerMap } from '@/utils/events/stateDerivation';
 
 // =============================================================================
 // Loading Component
@@ -109,6 +109,7 @@ export default function GameReplayPage(): React.ReactElement {
   }, []);
 
   // Load game events for display
+  // TODO: Consider virtualized loading for games with >1000 events to reduce memory usage
   const {
     allEvents,
     isLoading: eventsLoading,
@@ -116,14 +117,16 @@ export default function GameReplayPage(): React.ReactElement {
     pagination,
     loadMore,
   } = useGameTimeline(gameId, {
-    pageSize: 1000, // Load all events for replay
+    pageSize: 1000,
     infiniteScroll: false,
   });
 
   // Initialize replay player
+  // Note: Empty reducers map - visualization only, no state derivation
+  const emptyReducers: ReducerMap<Record<string, unknown>> = {};
   const replay = useReplayPlayer<Record<string, unknown>>({
     gameId,
-    reducers: {} as never, // No state reducers needed for visualization
+    reducers: emptyReducers,
     initialState: {},
     autoPlay: false,
     baseInterval: 1000,
@@ -148,7 +151,11 @@ export default function GameReplayPage(): React.ReactElement {
       }
     },
     onGoToStart: replay.stop,
-    onGoToEnd: () => replay.jumpToIndex(replay.totalEvents - 1),
+    onGoToEnd: () => {
+      if (replay.totalEvents > 0) {
+        replay.jumpToIndex(replay.totalEvents - 1);
+      }
+    },
     playbackState: replay.playbackState,
     enabled: !showKeyboardHelp,
   });
@@ -157,11 +164,6 @@ export default function GameReplayPage(): React.ReactElement {
   const handleEventClick = useCallback((event: IBaseEvent) => {
     setSelectedEventId((prev) => (prev === event.id ? null : event.id));
     replay.jumpToEvent(event.id);
-  }, [replay]);
-
-  // Handle marker click in timeline
-  const handleMarkerClick = useCallback((marker: IEventMarker) => {
-    replay.jumpToEvent(marker.id);
   }, [replay]);
 
   // Loading states
@@ -192,8 +194,9 @@ export default function GameReplayPage(): React.ReactElement {
             <Link
               href={gameId ? `/gameplay/games/${gameId}` : '/gameplay/games'}
               className="text-text-theme-secondary hover:text-text-theme-primary transition-colors"
+              aria-label="Back to game details"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </Link>
@@ -221,8 +224,10 @@ export default function GameReplayPage(): React.ReactElement {
                   : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised'
               }`}
               title="Keyboard shortcuts (?)"
+              aria-label="Show keyboard shortcuts"
+              aria-expanded={showKeyboardHelp}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
@@ -373,14 +378,20 @@ export default function GameReplayPage(): React.ReactElement {
 
         {/* Keyboard Help Modal */}
         {showKeyboardHelp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="keyboard-shortcuts-title"
+          >
             <div className="relative">
               <KeyboardShortcutsHelp />
               <button
                 onClick={() => setShowKeyboardHelp(false)}
                 className="absolute top-4 right-4 p-2 text-text-theme-secondary hover:text-text-theme-primary transition-colors"
+                aria-label="Close keyboard shortcuts"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

@@ -106,24 +106,24 @@ test.describe('Pilot Career Timeline Tab', () => {
   test('pilot detail page has Career History tab', async ({ page }) => {
     await navigateToPilots(page);
     
-    // If there are pilots, click on one
     const pilotCards = page.locator('[data-testid="pilot-card"], a[href*="/gameplay/pilots/"]');
     const pilotCount = await pilotCards.count();
     
-    if (pilotCount > 0) {
-      await pilotCards.first().click();
-      await page.waitForLoadState('networkidle');
-      
-      // Check for Career History tab
-      const careerTab = page.getByRole('button', { name: /Career History/i });
-      await expect(careerTab).toBeVisible({ timeout: 5000 });
-      
-      // Click career tab
-      await careerTab.click();
-      
-      // Should show career history content
-      await expect(page.locator('text=Career History').first()).toBeVisible();
-    }
+    // Skip if no pilots exist - this test requires seed data
+    test.skip(pilotCount === 0, 'No pilots available - test requires pilot data');
+    
+    await pilotCards.first().click();
+    await page.waitForLoadState('networkidle');
+    
+    // Check for Career History tab
+    const careerTab = page.getByRole('button', { name: /Career History/i });
+    await expect(careerTab).toBeVisible({ timeout: 5000 });
+    
+    // Click career tab
+    await careerTab.click();
+    
+    // Should show career history content
+    await expect(page.locator('text=Career History').first()).toBeVisible();
   });
 });
 
@@ -135,24 +135,24 @@ test.describe('Campaign Audit Timeline Tab', () => {
   test('campaign detail page has Audit Timeline tab', async ({ page }) => {
     await navigateToCampaigns(page);
     
-    // If there are campaigns, click on one
     const campaignCards = page.locator('[data-testid="campaign-card"], a[href*="/gameplay/campaigns/"]');
     const campaignCount = await campaignCards.count();
     
-    if (campaignCount > 0) {
-      await campaignCards.first().click();
-      await page.waitForLoadState('networkidle');
-      
-      // Check for Audit Timeline tab
-      const auditTab = page.getByRole('button', { name: /Audit Timeline/i });
-      await expect(auditTab).toBeVisible({ timeout: 5000 });
-      
-      // Click audit tab
-      await auditTab.click();
-      
-      // Should show campaign timeline content
-      await expect(page.locator('text=Campaign Timeline').first()).toBeVisible();
-    }
+    // Skip if no campaigns exist - this test requires seed data
+    test.skip(campaignCount === 0, 'No campaigns available - test requires campaign data');
+    
+    await campaignCards.first().click();
+    await page.waitForLoadState('networkidle');
+    
+    // Check for Audit Timeline tab
+    const auditTab = page.getByRole('button', { name: /Audit Timeline/i });
+    await expect(auditTab).toBeVisible({ timeout: 5000 });
+    
+    // Click audit tab
+    await auditTab.click();
+    
+    // Should show campaign timeline content
+    await expect(page.locator('text=Campaign Timeline').first()).toBeVisible();
   });
 });
 
@@ -185,12 +185,11 @@ test.describe('Game Replay Page', () => {
     const replayButtons = page.locator('a[href*="/replay"], button:has-text("Replay")');
     const replayCount = await replayButtons.count();
     
-    // If there are completed games, they should have replay options
-    // This test passes even if there are no completed games
-    if (replayCount > 0) {
-      const firstReplay = replayButtons.first();
-      await expect(firstReplay).toBeVisible();
-    }
+    // Skip if no completed games with replay buttons exist
+    test.skip(replayCount === 0, 'No completed games with replay buttons - test requires game data');
+    
+    const firstReplay = replayButtons.first();
+    await expect(firstReplay).toBeVisible();
   });
 });
 
@@ -204,22 +203,25 @@ test.describe('Replay Keyboard Shortcuts', () => {
     await page.goto('/gameplay/games/test-game/replay');
     await page.waitForLoadState('networkidle');
     
-    // Look for keyboard help button
-    const helpButton = page.locator('button[title*="Keyboard"]');
+    // Look for keyboard help button - uses updated aria-label
+    const helpButton = page.locator('button[aria-label="Show keyboard shortcuts"]');
     const hasHelpButton = await helpButton.isVisible({ timeout: 3000 }).catch(() => false);
     
-    if (hasHelpButton) {
-      await helpButton.click();
-      
-      // Should show keyboard shortcuts help
-      await expect(page.locator('text=Keyboard Shortcuts').first()).toBeVisible({ timeout: 3000 });
-      
-      // Close it
-      const closeButton = page.locator('button:has(svg path[d*="M6 18L18 6"])');
-      if (await closeButton.isVisible()) {
-        await closeButton.click();
-      }
-    }
+    // Skip if keyboard help button not visible (page shows error state)
+    test.skip(!hasHelpButton, 'Keyboard help button not visible - page may be in error state');
+    
+    await helpButton.click();
+    
+    // Should show keyboard shortcuts help
+    await expect(page.locator('text=Keyboard Shortcuts').first()).toBeVisible({ timeout: 3000 });
+    
+    // Close it using the close button with aria-label
+    const closeButton = page.locator('button[aria-label="Close keyboard shortcuts"]');
+    await expect(closeButton).toBeVisible();
+    await closeButton.click();
+    
+    // Modal should be closed
+    await expect(page.locator('text=Keyboard Shortcuts').first()).not.toBeVisible({ timeout: 3000 });
   });
 });
 
@@ -231,27 +233,28 @@ test.describe('Timeline Export Functionality', () => {
   test('export button is visible on timeline page', async ({ page }) => {
     await navigateToTimeline(page);
     
-    // Look for export button
+    // Export button should be present - this is a core UI element
     const exportButton = page.locator('button:has-text("Export"), [aria-label*="Export"]');
-    const hasExport = await exportButton.isVisible({ timeout: 3000 }).catch(() => false);
     
-    // Export button should be present in header
-    if (hasExport) {
-      await expect(exportButton.first()).toBeVisible();
+    // Allow export to be optional for now, but track if it's missing
+    const hasExport = await exportButton.first().isVisible({ timeout: 3000 }).catch(() => false);
+    if (!hasExport) {
+      console.warn('Export button not found on timeline page - may need implementation');
     }
+    // Test passes - export is optional until fully implemented
   });
 
   test('refresh button works on timeline', async ({ page }) => {
     await navigateToTimeline(page);
     
-    // Look for refresh button
+    // Refresh button should exist on timeline page
     const refreshButton = page.locator('button[aria-label="Refresh timeline"]');
-    const hasRefresh = await refreshButton.isVisible({ timeout: 3000 }).catch(() => false);
+    await expect(refreshButton).toBeVisible({ timeout: 5000 });
     
-    if (hasRefresh) {
-      await refreshButton.click();
-      // Should trigger refresh (may show loading state briefly)
-      await page.waitForTimeout(500);
-    }
+    // Click refresh and verify it doesn't cause errors
+    await refreshButton.click();
+    
+    // Page should remain functional after refresh
+    await expect(page.locator('h1')).toContainText('Event Timeline');
   });
 });

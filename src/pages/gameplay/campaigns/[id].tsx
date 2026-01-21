@@ -220,14 +220,14 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
     setSelectedEventId((prev) => (prev === event.id ? null : event.id));
   }, []);
 
-  const handleCategoryChange = useCallback((category: EventCategory | undefined) => {
-    setCategoryFilter(category);
-    setFilters({ ...filters, category });
-  }, [filters, setFilters]);
-
-  const handleRootEventsToggle = useCallback((rootOnly: boolean) => {
-    setRootEventsOnly(rootOnly);
-    setFilters({ ...filters, rootEventsOnly: rootOnly || undefined });
+  const handleFiltersChange = useCallback((newFilters: { category?: EventCategory; rootEventsOnly?: boolean }) => {
+    setCategoryFilter(newFilters.category);
+    setRootEventsOnly(newFilters.rootEventsOnly || false);
+    setFilters({
+      ...filters,
+      category: newFilters.category,
+      rootEventsOnly: newFilters.rootEventsOnly || undefined,
+    });
   }, [filters, setFilters]);
 
   return (
@@ -251,6 +251,7 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -269,18 +270,15 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
             category: categoryFilter,
             rootEventsOnly,
           }}
-          onChange={(f) => {
-            handleCategoryChange(f.category);
-            handleRootEventsToggle(f.rootEventsOnly || false);
-          }}
+          onChange={handleFiltersChange}
         />
       </Card>
 
       {/* Error State */}
       {error && (
         <Card className="border-red-500/50 bg-red-500/10">
-          <div className="flex items-center gap-3 text-red-400 p-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-3 text-red-400 p-4" role="alert">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -294,10 +292,10 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
       )}
 
       {/* Results Count */}
-      <div className="text-text-theme-secondary text-sm">
+      <div className="text-text-theme-secondary text-sm" aria-live="polite">
         {isLoading ? (
           <span className="flex items-center gap-2">
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
               <circle
                 className="opacity-25"
                 cx="12"
@@ -325,7 +323,7 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
       {!isLoading && allEvents.length === 0 && (
         <Card className="p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-raised/50 flex items-center justify-center">
-            <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
