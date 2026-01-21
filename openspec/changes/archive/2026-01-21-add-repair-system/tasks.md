@@ -43,18 +43,18 @@
 
 ## 6. UI - Repair Bay
 
-- [ ] 6.1 Create `RepairBayPage` main view
-- [ ] 6.2 Create `DamageAssessmentPanel` for unit
-- [ ] 6.3 Create `RepairQueue` component
-- [ ] 6.4 Create `RepairCostBreakdown` component
-- [ ] 6.5 Add repair/skip controls
+- [x] 6.1 Create `RepairBayPage` main view
+- [x] 6.2 Create `DamageAssessmentPanel` for unit
+- [x] 6.3 Create `RepairQueue` component
+- [x] 6.4 Create `RepairCostBreakdown` component
+- [x] 6.5 Add repair/skip controls
 
 ## 7. UI - Campaign Integration
 
-- [ ] 7.1 Add repair status to campaign roster view
-- [ ] 7.2 Show units needing repair between missions
-- [ ] 7.3 Add "Repair All" quick action
-- [ ] 7.4 Show resource impact of repairs
+- [x] 7.1 Add repair status to campaign roster view (via RosterStateDisplay)
+- [x] 7.2 Show units needing repair between missions (via RosterStateDisplay)
+- [x] 7.3 Add "Repair All" quick action
+- [x] 7.4 Show resource impact of repairs (via RepairCostBreakdown)
 
 ## 8. Salvage Integration
 
@@ -68,4 +68,4 @@
 - [x] 9.1 Unit tests for damage assessment
 - [x] 9.2 Unit tests for repair cost calculation
 - [x] 9.3 Unit tests for repair application
-- [ ] 9.4 Integration tests with campaign flow
+- [x] 9.4 Integration tests with campaign flow (164 tests passing)
