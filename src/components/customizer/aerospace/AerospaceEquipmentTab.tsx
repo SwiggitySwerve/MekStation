@@ -84,9 +84,9 @@ export function AerospaceEquipmentTab({
   }, [clearAllEquipment, readOnly]);
 
   return (
-    <div className={`flex flex-col h-full gap-4 ${className}`}>
+    <div className={`flex flex-col h-full gap-4 ${className}`} data-testid="aerospace-equipment-tab">
       {/* Equipment Browser */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0" data-testid="aerospace-equipment-browser">
         <EquipmentBrowser
           onAddEquipment={handleAddEquipment}
           className="h-full"
@@ -94,15 +94,16 @@ export function AerospaceEquipmentTab({
       </div>
 
       {/* Mounted Equipment Section */}
-      <div className={cs.panel.main}>
+      <div className={cs.panel.main} data-testid="aerospace-mounted-equipment">
         <div className="flex items-center justify-between mb-3">
           <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
-            Mounted Equipment ({equipment.length})
+            Mounted Equipment (<span data-testid="aerospace-equipment-count">{equipment.length}</span>)
           </h3>
           {equipment.length > 0 && !readOnly && (
             <button
               onClick={handleClearAll}
               className={`${cs.button.action} bg-red-600 hover:bg-red-500`}
+              data-testid="aerospace-equipment-clear-all"
             >
               Clear All
             </button>
@@ -110,14 +111,14 @@ export function AerospaceEquipmentTab({
         </div>
 
         {equipment.length === 0 ? (
-          <div className={cs.panel.empty}>
+          <div className={cs.panel.empty} data-testid="aerospace-equipment-empty">
             <p className="text-text-theme-secondary">No equipment mounted</p>
             <p className="text-xs text-text-theme-secondary/70 mt-1">
               Add equipment from the browser above
             </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-auto">
+          <div className="space-y-2 max-h-64 overflow-auto" data-testid="aerospace-equipment-list">
             {equipment.map((item) => (
               <MountedEquipmentRow
                 key={item.id}
@@ -158,10 +159,10 @@ function MountedEquipmentRow({
   onRemove,
 }: MountedEquipmentRowProps): React.ReactElement {
   return (
-    <div className="flex items-center gap-2 p-2 bg-surface-raised/50 rounded border border-border-theme-subtle">
+    <div className="flex items-center gap-2 p-2 bg-surface-raised/50 rounded border border-border-theme-subtle" data-testid={`aerospace-equipment-row-${item.id}`}>
       {/* Equipment Name */}
       <div className="flex-1 min-w-0">
-        <span className="text-sm text-white truncate block">{item.name}</span>
+        <span className="text-sm text-white truncate block" data-testid={`aerospace-equipment-name-${item.id}`}>{item.name}</span>
       </div>
 
       {/* Arc Selector */}
@@ -170,6 +171,7 @@ function MountedEquipmentRow({
         onChange={(e) => onArcChange(item.id, e.target.value as AerospaceLocation)}
         disabled={readOnly}
         className={`${cs.select.inline} w-28`}
+        data-testid={`aerospace-equipment-arc-${item.id}`}
       >
         {AEROSPACE_ARC_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -184,6 +186,7 @@ function MountedEquipmentRow({
         disabled={readOnly}
         className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors disabled:opacity-50"
         title="Remove"
+        data-testid={`aerospace-equipment-remove-${item.id}`}
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -40,3 +40,6 @@ export {
   EncounterDetailPage,
   EncounterCreatePage,
 } from './encounter.page';
+
+// Customizer pages
+export { CustomizerPage, AerospaceCustomizerPage } from './customizer.page';

@@ -115,10 +115,10 @@ export function AerospaceStructureTab({
   );
 
   return (
-    <div className={`${cs.panel.main} ${className}`}>
+    <div className={`${cs.panel.main} ${className}`} data-testid="aerospace-structure-tab">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chassis Section */}
-        <section>
+        <section data-testid="aerospace-chassis-section">
           <h3 className={cs.text.sectionTitle}>Chassis</h3>
 
           {/* Tonnage */}
@@ -129,6 +129,7 @@ export function AerospaceStructureTab({
               onChange={handleTonnageChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="aerospace-tonnage-select"
             >
               {TONNAGE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
@@ -155,6 +156,7 @@ export function AerospaceStructureTab({
                 onChange={(e) => setIsOmni(e.target.checked)}
                 disabled={readOnly}
                 className="w-4 h-4"
+                data-testid="aerospace-omni-checkbox"
               />
               <span className={cs.text.label}>OmniFighter</span>
             </label>
@@ -165,7 +167,7 @@ export function AerospaceStructureTab({
         </section>
 
         {/* Engine & Movement Section */}
-        <section>
+        <section data-testid="aerospace-engine-section">
           <h3 className={cs.text.sectionTitle}>Engine & Movement</h3>
 
           {/* Engine Type */}
@@ -176,6 +178,7 @@ export function AerospaceStructureTab({
               onChange={handleEngineTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="aerospace-engine-type-select"
             >
               {ENGINE_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -193,6 +196,7 @@ export function AerospaceStructureTab({
                 onClick={() => handleThrustChange(-1)}
                 disabled={readOnly || safeThrust <= 1}
                 className={cs.button.stepperLeft}
+                data-testid="aerospace-thrust-decrease"
               >
                 -
               </button>
@@ -201,15 +205,17 @@ export function AerospaceStructureTab({
                 value={safeThrust}
                 readOnly
                 className={`${cs.input.number} w-16`}
+                data-testid="aerospace-safe-thrust-input"
               />
               <button
                 onClick={() => handleThrustChange(1)}
                 disabled={readOnly || safeThrust >= 12}
                 className={cs.button.stepperRight}
+                data-testid="aerospace-thrust-increase"
               >
                 +
               </button>
-              <span className={cs.text.secondary}>
+              <span className={cs.text.secondary} data-testid="aerospace-max-thrust">
                 (Max: {maxThrust})
               </span>
             </div>
@@ -234,12 +240,13 @@ export function AerospaceStructureTab({
               max={tonnage * 10}
               disabled={readOnly}
               className={`${cs.input.full} mt-1`}
+              data-testid="aerospace-fuel-input"
             />
           </div>
         </section>
 
         {/* Structure & Cockpit Section */}
-        <section>
+        <section data-testid="aerospace-cockpit-section">
           <h3 className={cs.text.sectionTitle}>Structure & Cockpit</h3>
 
           {/* Structural Integrity */}
@@ -250,6 +257,7 @@ export function AerospaceStructureTab({
                 onClick={() => setStructuralIntegrity(structuralIntegrity - 1)}
                 disabled={readOnly || structuralIntegrity <= 1}
                 className={cs.button.stepperLeft}
+                data-testid="aerospace-si-decrease"
               >
                 -
               </button>
@@ -258,11 +266,13 @@ export function AerospaceStructureTab({
                 value={structuralIntegrity}
                 readOnly
                 className={`${cs.input.number} w-16`}
+                data-testid="aerospace-si-input"
               />
               <button
                 onClick={() => setStructuralIntegrity(structuralIntegrity + 1)}
                 disabled={readOnly}
                 className={cs.button.stepperRight}
+                data-testid="aerospace-si-increase"
               >
                 +
               </button>
@@ -277,6 +287,7 @@ export function AerospaceStructureTab({
               onChange={handleCockpitTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="aerospace-cockpit-type-select"
             >
               {COCKPIT_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -312,7 +323,7 @@ export function AerospaceStructureTab({
         </section>
 
         {/* Heat Sinks & Special Section */}
-        <section>
+        <section data-testid="aerospace-heat-section">
           <h3 className={cs.text.sectionTitle}>Heat Management & Special</h3>
 
           {/* Heat Sinks */}
@@ -323,6 +334,7 @@ export function AerospaceStructureTab({
                 onClick={() => setHeatSinks(heatSinks - 1)}
                 disabled={readOnly || heatSinks <= 0}
                 className={cs.button.stepperLeft}
+                data-testid="aerospace-heatsinks-decrease"
               >
                 -
               </button>
@@ -331,11 +343,13 @@ export function AerospaceStructureTab({
                 value={heatSinks}
                 readOnly
                 className={`${cs.input.number} w-16`}
+                data-testid="aerospace-heatsinks-input"
               />
               <button
                 onClick={() => setHeatSinks(heatSinks + 1)}
                 disabled={readOnly}
                 className={cs.button.stepperRight}
+                data-testid="aerospace-heatsinks-increase"
               >
                 +
               </button>
@@ -351,10 +365,11 @@ export function AerospaceStructureTab({
                 onChange={(e) => setDoubleHeatSinks(e.target.checked)}
                 disabled={readOnly}
                 className="w-4 h-4"
+                data-testid="aerospace-double-heatsinks-checkbox"
               />
               <span className={cs.text.label}>Double Heat Sinks</span>
             </label>
-            <p className="text-xs text-text-theme-secondary mt-1">
+            <p className="text-xs text-text-theme-secondary mt-1" data-testid="aerospace-heat-dissipation">
               {doubleHeatSinks ? `${heatSinks * 2} heat dissipation` : `${heatSinks} heat dissipation`}
             </p>
           </div>
@@ -368,6 +383,7 @@ export function AerospaceStructureTab({
                 onChange={(e) => setHasBombBay(e.target.checked)}
                 disabled={readOnly}
                 className="w-4 h-4"
+                data-testid="aerospace-bombbay-checkbox"
               />
               <span className={cs.text.label}>Bomb Bay</span>
             </label>
