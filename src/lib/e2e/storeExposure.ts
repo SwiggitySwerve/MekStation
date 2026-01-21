@@ -12,6 +12,8 @@ import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { useAwardStore } from '@/stores/useAwardStore';
+import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
+import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 
 declare global {
   interface Window {
@@ -23,7 +25,10 @@ declare global {
       gameplay: typeof useGameplayStore;
       repair: typeof useRepairStore;
       award: typeof useAwardStore;
+      tabManager: typeof useTabManagerStore;
     };
+    __AEROSPACE_REGISTRY__?: typeof aerospaceRegistry;
+    __UNIT_TEMPLATES__?: typeof UNIT_TEMPLATES;
     __E2E_MODE__?: boolean;
   }
 }
@@ -41,7 +46,10 @@ export function exposeStoresForE2E(): void {
     gameplay: useGameplayStore,
     repair: useRepairStore,
     award: useAwardStore,
+    tabManager: useTabManagerStore,
   };
+  window.__AEROSPACE_REGISTRY__ = aerospaceRegistry;
+  window.__UNIT_TEMPLATES__ = UNIT_TEMPLATES;
 
   console.log('[E2E] Stores exposed for testing');
 }

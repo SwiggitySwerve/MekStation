@@ -147,3 +147,17 @@ export {
   type TestRepairJobOptions,
   type TestRepairItemOptions,
 } from './repair';
+
+// Customizer fixtures
+export {
+  waitForTabManagerStoreReady,
+  createMechUnit,
+  createAerospaceUnit,
+  getActiveTabId,
+  getOpenTabs,
+  closeTab,
+  selectTab,
+  getAerospaceState,
+  type CreateAerospaceOptions,
+  type CreateMechOptions,
+} from './customizer';

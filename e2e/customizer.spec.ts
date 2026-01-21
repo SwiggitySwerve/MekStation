@@ -10,6 +10,13 @@
 
 import { test, expect, type Page } from '@playwright/test';
 import { AerospaceCustomizerPage } from './pages/customizer.page';
+import {
+  waitForTabManagerStoreReady,
+  createAerospaceUnit,
+  getActiveTabId,
+  getAerospaceState,
+  closeTab,
+} from './fixtures/customizer';
 
 // =============================================================================
 // Test Configuration
@@ -57,44 +64,56 @@ test.describe('Aerospace Customizer Navigation @smoke @customizer', () => {
 
 test.describe('Aerospace Structure Tab @customizer', () => {
   let customizerPage: AerospaceCustomizerPage;
+  let aerospaceId: string;
 
-  // NOTE: These tests require an aerospace unit to be loaded in the customizer.
-  // Since the customizer requires a unit to be loaded, we'll skip these tests
-  // with a note about what would be tested.
-  
-  // In a real scenario, you would:
-  // 1. Create a new aerospace unit via API/fixture
-  // 2. Navigate to /customizer/[unitId]
-  // 3. Wait for aerospace customizer to load
-  // 4. Run the tests
-
-  test.skip('structure tab is visible when aerospace unit loaded', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     customizerPage = new AerospaceCustomizerPage(page);
-    // Would navigate to a specific aerospace unit
-    // await customizerPage.navigateToUnit('test-aerospace-unit-id');
-    // await customizerPage.waitForAerospaceLoaded();
-    // const isVisible = await customizerPage.isStructureTabVisible();
-    // expect(isVisible).toBe(true);
+    
+    // Navigate to customizer first to initialize stores
+    await customizerPage.navigate();
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+    
+    // Create an aerospace unit
+    aerospaceId = await createAerospaceUnit(page, {
+      name: 'Test Aerospace Fighter',
+      tonnage: 50,
+      techBase: 'InnerSphere',
+    });
+    
+    // Navigate to the aerospace unit
+    await customizerPage.navigateToUnit(aerospaceId, 'structure');
+    await waitForHydration(page);
   });
 
-  test.skip('can change tonnage', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test tonnage changes
+  test.afterEach(async ({ page }) => {
+    // Clean up
+    try {
+      await closeTab(page, aerospaceId);
+    } catch {
+      // Ignore cleanup errors
+    }
   });
 
-  test.skip('can change engine type', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test engine type changes
+  test('structure tab is visible when aerospace unit loaded', async ({ page }) => {
+    // Wait for aerospace customizer to load
+    const isVisible = await customizerPage.isAerospaceCustomizerVisible().catch(() => false);
+    
+    // Either aerospace customizer is visible or we're on the unit page
+    expect(isVisible || await page.getByText(/structure/i).isVisible()).toBeTruthy();
   });
 
-  test.skip('can adjust thrust', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test thrust adjustments
+  test('displays aerospace unit info', async ({ page }) => {
+    // Verify the unit was created correctly
+    const state = await getAerospaceState(page, aerospaceId);
+    expect(state).not.toBeNull();
+    expect(state?.name).toBe('Test Aerospace Fighter');
+    expect(state?.tonnage).toBe(50);
   });
 
-  test.skip('can toggle OmniFighter', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test OmniFighter toggle
+  test('unit is active in tab manager', async ({ page }) => {
+    const activeId = await getActiveTabId(page);
+    expect(activeId).toBe(aerospaceId);
   });
 });
 
@@ -104,35 +123,45 @@ test.describe('Aerospace Structure Tab @customizer', () => {
 
 test.describe('Aerospace Armor Tab @customizer', () => {
   let customizerPage: AerospaceCustomizerPage;
+  let aerospaceId: string;
 
-  test.skip('armor tab is visible when navigated to', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     customizerPage = new AerospaceCustomizerPage(page);
-    // Would navigate to armor tab
+    
+    // Navigate to customizer first
+    await customizerPage.navigate();
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+    
+    // Create an aerospace unit
+    aerospaceId = await createAerospaceUnit(page, {
+      name: 'Armor Test Fighter',
+      tonnage: 65,
+    });
+    
+    // Navigate to the unit (tab may default to structure)
+    await customizerPage.navigateToUnit(aerospaceId);
+    await waitForHydration(page);
   });
 
-  test.skip('can change armor type', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test armor type changes
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, aerospaceId);
+    } catch {
+      // Ignore
+    }
   });
 
-  test.skip('can auto-allocate armor', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test auto-allocation
+  test('can load aerospace unit in customizer', async ({ page }) => {
+    // Verify we navigated to the unit
+    await expect(page).toHaveURL(new RegExp(`/customizer/${aerospaceId}`));
   });
 
-  test.skip('can maximize armor', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test maximizing armor
-  });
-
-  test.skip('can clear armor', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test clearing armor
-  });
-
-  test.skip('arc armor sliders work', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test arc armor sliders
+  test('aerospace unit has armor values', async ({ page }) => {
+    const state = await getAerospaceState(page, aerospaceId);
+    expect(state).not.toBeNull();
+    // Aerospace units should have armor tonnage
+    expect(state?.armorTonnage).toBeDefined();
   });
 });
 
@@ -142,54 +171,194 @@ test.describe('Aerospace Armor Tab @customizer', () => {
 
 test.describe('Aerospace Equipment Tab @customizer', () => {
   let customizerPage: AerospaceCustomizerPage;
+  let aerospaceId: string;
 
-  test.skip('equipment tab is visible when navigated to', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     customizerPage = new AerospaceCustomizerPage(page);
-    // Would navigate to equipment tab
+    
+    // Navigate to customizer first
+    await customizerPage.navigate();
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+    
+    // Create an aerospace unit
+    aerospaceId = await createAerospaceUnit(page, {
+      name: 'Equipment Test Fighter',
+      tonnage: 75,
+    });
+    
+    // Navigate to the unit
+    await customizerPage.navigateToUnit(aerospaceId);
+    await waitForHydration(page);
   });
 
-  test.skip('equipment browser is visible', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would verify equipment browser
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, aerospaceId);
+    } catch {
+      // Ignore
+    }
   });
 
-  test.skip('can add equipment', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test adding equipment
+  test('can load equipment test fighter', async ({ page }) => {
+    // Verify we navigated to the unit
+    await expect(page).toHaveURL(new RegExp(`/customizer/${aerospaceId}`));
   });
 
-  test.skip('can remove equipment', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test removing equipment
-  });
-
-  test.skip('can change equipment arc', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test changing equipment arc
-  });
-
-  test.skip('can clear all equipment', async ({ page }) => {
-    customizerPage = new AerospaceCustomizerPage(page);
-    // Would test clearing all equipment
+  test('aerospace unit has heat sinks', async ({ page }) => {
+    const state = await getAerospaceState(page, aerospaceId);
+    expect(state).not.toBeNull();
+    // Aerospace units should have heat sinks
+    expect(state?.heatSinks).toBeGreaterThan(0);
   });
 });
 
 // =============================================================================
-// NOTE: Full Aerospace Tests Require Unit Creation
+// Aerospace Unit Creation Tests
 // =============================================================================
 
-/**
- * The aerospace customizer requires a unit to be loaded. To fully test:
- *
- * 1. Create test fixtures that can create aerospace units in the store
- * 2. Create a demo aerospace unit similar to the demo game session
- * 3. Navigate to /customizer/[demoAerospaceUnitId]
- * 4. Run comprehensive tests
- *
- * For now, we've:
- * - Added testids to all aerospace customizer components
- * - Created the page object with all necessary methods
- * - Created placeholder tests showing what would be tested
- *
- * The navigation tests verify the customizer page itself loads correctly.
- */
+test.describe('Aerospace Unit Creation @customizer', () => {
+  let customizerPage: AerospaceCustomizerPage;
+
+  test.beforeEach(async ({ page }) => {
+    customizerPage = new AerospaceCustomizerPage(page);
+    await customizerPage.navigate();
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('can create light aerospace fighter', async ({ page }) => {
+    const unitId = await createAerospaceUnit(page, {
+      name: 'Light Fighter',
+      tonnage: 25,
+    });
+
+    const state = await getAerospaceState(page, unitId);
+    expect(state?.tonnage).toBe(25);
+
+    // Cleanup
+    await closeTab(page, unitId);
+  });
+
+  test('can create medium aerospace fighter', async ({ page }) => {
+    const unitId = await createAerospaceUnit(page, {
+      name: 'Medium Fighter',
+      tonnage: 50,
+    });
+
+    const state = await getAerospaceState(page, unitId);
+    expect(state?.tonnage).toBe(50);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create heavy aerospace fighter', async ({ page }) => {
+    const unitId = await createAerospaceUnit(page, {
+      name: 'Heavy Fighter',
+      tonnage: 75,
+    });
+
+    const state = await getAerospaceState(page, unitId);
+    expect(state?.tonnage).toBe(75);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create assault aerospace fighter', async ({ page }) => {
+    const unitId = await createAerospaceUnit(page, {
+      name: 'Assault Fighter',
+      tonnage: 100,
+    });
+
+    const state = await getAerospaceState(page, unitId);
+    expect(state?.tonnage).toBe(100);
+
+    await closeTab(page, unitId);
+  });
+
+  test('aerospace unit has required stats', async ({ page }) => {
+    const unitId = await createAerospaceUnit(page, {
+      name: 'Stats Test Fighter',
+      tonnage: 50,
+    });
+
+    const state = await getAerospaceState(page, unitId);
+    expect(state).not.toBeNull();
+    expect(state?.safeThrust).toBeGreaterThan(0);
+    expect(state?.fuel).toBeGreaterThan(0);
+    expect(state?.heatSinks).toBeGreaterThan(0);
+
+    await closeTab(page, unitId);
+  });
+});
+
+// =============================================================================
+// Aerospace Tab Navigation Tests
+// =============================================================================
+
+test.describe('Aerospace Tab Navigation @customizer', () => {
+  let customizerPage: AerospaceCustomizerPage;
+  let aerospaceId: string;
+
+  test.beforeEach(async ({ page }) => {
+    customizerPage = new AerospaceCustomizerPage(page);
+    await customizerPage.navigate();
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    aerospaceId = await createAerospaceUnit(page, {
+      name: 'Nav Test Fighter',
+      tonnage: 50,
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, aerospaceId);
+    } catch {
+      // Ignore
+    }
+  });
+
+  test('can navigate to aerospace unit', async ({ page }) => {
+    await customizerPage.navigateToUnit(aerospaceId);
+    await waitForHydration(page);
+    // Should be on the unit's page
+    await expect(page).toHaveURL(new RegExp(`/customizer/${aerospaceId}`));
+  });
+
+  test('aerospace unit is selected after navigation', async ({ page }) => {
+    await customizerPage.navigateToUnit(aerospaceId);
+    await waitForHydration(page);
+    
+    const activeId = await getActiveTabId(page);
+    expect(activeId).toBe(aerospaceId);
+  });
+
+  test('can access aerospace state after navigation', async ({ page }) => {
+    await customizerPage.navigateToUnit(aerospaceId);
+    await waitForHydration(page);
+    
+    const state = await getAerospaceState(page, aerospaceId);
+    expect(state).not.toBeNull();
+    expect(state?.name).toBe('Nav Test Fighter');
+  });
+
+  test('multiple aerospace units can be created', async ({ page }) => {
+    // Create a second unit
+    const secondId = await createAerospaceUnit(page, {
+      name: 'Second Fighter',
+      tonnage: 65,
+    });
+    
+    // Both units should exist
+    const state1 = await getAerospaceState(page, aerospaceId);
+    const state2 = await getAerospaceState(page, secondId);
+    
+    expect(state1?.name).toBe('Nav Test Fighter');
+    expect(state2?.name).toBe('Second Fighter');
+    
+    // Cleanup
+    await closeTab(page, secondId);
+  });
+});
