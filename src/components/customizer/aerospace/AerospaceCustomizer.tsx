@@ -76,6 +76,8 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps): React.ReactEleme
           : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised/50'
         }
       `}
+      data-testid={`aerospace-tab-${tab.id}`}
+      data-active={isActive}
     >
       <span className="hidden sm:inline">{tab.label}</span>
       <span className="sm:hidden">{tab.shortLabel}</span>
@@ -125,12 +127,12 @@ export function AerospaceCustomizer({
 
   return (
     <AerospaceStoreContext.Provider value={store}>
-      <div className={`flex flex-col h-full ${className}`}>
+      <div className={`flex flex-col h-full ${className}`} data-testid="aerospace-customizer">
         {/* Status Bar */}
         <AerospaceStatusBar />
 
         {/* Tab Bar */}
-        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto">
+        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto" data-testid="aerospace-tab-bar">
           {AEROSPACE_TABS.map((tab) => (
             <TabButton
               key={tab.id}
@@ -144,12 +146,12 @@ export function AerospaceCustomizer({
         {/* Main Content Area */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Tab Content */}
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto p-4" data-testid="aerospace-tab-content">
             {tabContent}
           </div>
 
           {/* Aerospace Diagram Sidebar (visible on large screens) */}
-          <div className="hidden lg:block w-64 border-l border-border-theme bg-surface-base p-4 overflow-auto">
+          <div className="hidden lg:block w-64 border-l border-border-theme bg-surface-base p-4 overflow-auto" data-testid="aerospace-diagram-sidebar">
             <h3 className="text-sm font-semibold text-white mb-3">Fighter Overview</h3>
             <AerospaceDiagram />
           </div>

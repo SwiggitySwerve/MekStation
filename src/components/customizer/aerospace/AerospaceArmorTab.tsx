@@ -148,10 +148,10 @@ export function AerospaceArmorTab({
   }, [setArmorTonnage, maxUsefulTonnage]);
 
   return (
-    <div className={`${cs.panel.main} ${className}`}>
+    <div className={`${cs.panel.main} ${className}`} data-testid="aerospace-armor-tab">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Armor Configuration Section */}
-        <section>
+        <section data-testid="aerospace-armor-config-section">
           <h3 className={cs.text.sectionTitle}>Armor Configuration</h3>
 
           {/* Armor Type */}
@@ -162,6 +162,7 @@ export function AerospaceArmorTab({
               onChange={handleArmorTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="aerospace-armor-type-select"
             >
               {ARMOR_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -184,17 +185,18 @@ export function AerospaceArmorTab({
                 step={0.5}
                 disabled={readOnly}
                 className={`${cs.input.number} w-20`}
+                data-testid="aerospace-armor-tonnage-input"
               />
-              <span className={cs.text.secondary}>/ {maxUsefulTonnage} tons max</span>
+              <span className={cs.text.secondary} data-testid="aerospace-armor-max-tonnage">/ {maxUsefulTonnage} tons max</span>
             </div>
           </div>
 
           {/* Points Summary */}
-          <div className={`${cs.panel.summary} mb-4`}>
+          <div className={`${cs.panel.summary} mb-4`} data-testid="aerospace-armor-summary">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <span className={cs.text.label}>Available Points:</span>
-                <span className={`${cs.text.value} ml-2`}>{availablePoints}</span>
+                <span className={`${cs.text.value} ml-2`} data-testid="aerospace-armor-available">{availablePoints}</span>
               </div>
               <div>
                 <span className={cs.text.label}>Allocated:</span>
@@ -204,6 +206,7 @@ export function AerospaceArmorTab({
                       ? cs.text.valueNegative
                       : cs.text.value
                   }`}
+                  data-testid="aerospace-armor-allocated"
                 >
                   {allocatedPoints}
                 </span>
@@ -218,13 +221,14 @@ export function AerospaceArmorTab({
                       ? cs.text.valueWarning
                       : cs.text.value
                   }`}
+                  data-testid="aerospace-armor-unallocated"
                 >
                   {unallocatedPoints}
                 </span>
               </div>
               <div>
                 <span className={cs.text.label}>Points/Ton:</span>
-                <span className={`${cs.text.value} ml-2`}>{pointsPerTon}</span>
+                <span className={`${cs.text.value} ml-2`} data-testid="aerospace-armor-points-per-ton">{pointsPerTon}</span>
               </div>
             </div>
           </div>
@@ -235,6 +239,7 @@ export function AerospaceArmorTab({
               onClick={autoAllocateArmor}
               disabled={readOnly || availablePoints === 0}
               className={cs.button.action}
+              data-testid="aerospace-armor-auto-allocate"
             >
               Auto-Allocate
             </button>
@@ -242,6 +247,7 @@ export function AerospaceArmorTab({
               onClick={handleMaximizeArmor}
               disabled={readOnly}
               className={cs.button.action}
+              data-testid="aerospace-armor-maximize"
             >
               Maximize
             </button>
@@ -249,6 +255,7 @@ export function AerospaceArmorTab({
               onClick={clearAllArmor}
               disabled={readOnly}
               className={`${cs.button.action} bg-red-600 hover:bg-red-500`}
+              data-testid="aerospace-armor-clear"
             >
               Clear
             </button>
@@ -256,7 +263,7 @@ export function AerospaceArmorTab({
         </section>
 
         {/* Arc Allocation Section */}
-        <section>
+        <section data-testid="aerospace-arc-allocation-section">
           <h3 className={cs.text.sectionTitle}>Arc Allocation</h3>
 
           <div className="space-y-3">
@@ -265,7 +272,7 @@ export function AerospaceArmorTab({
               const maxValue = getMaxAerospaceArmorForArc(tonnage, arc);
 
               return (
-                <div key={arc} className="flex items-center gap-3">
+                <div key={arc} className="flex items-center gap-3" data-testid={`aerospace-arc-row-${arc}`}>
                   <span className={`${cs.text.label} w-24`}>{label}</span>
                   <input
                     type="range"
@@ -275,6 +282,7 @@ export function AerospaceArmorTab({
                     max={maxValue}
                     disabled={readOnly || maxValue === 0}
                     className="flex-1"
+                    data-testid={`aerospace-arc-slider-${arc}`}
                   />
                   <div className="flex items-center gap-1 w-20">
                     <input
@@ -285,6 +293,7 @@ export function AerospaceArmorTab({
                       max={maxValue}
                       disabled={readOnly || maxValue === 0}
                       className={`${cs.input.number} w-12`}
+                      data-testid={`aerospace-arc-input-${arc}`}
                     />
                     <span className={cs.text.secondary}>/{maxValue}</span>
                   </div>
@@ -294,7 +303,7 @@ export function AerospaceArmorTab({
           </div>
 
           {/* Simple Arc Diagram */}
-          <div className="mt-6 p-4 bg-surface-raised/30 rounded-lg">
+          <div className="mt-6 p-4 bg-surface-raised/30 rounded-lg" data-testid="aerospace-armor-diagram">
             <AerospaceArmorDiagramSimple allocation={armorAllocation} />
           </div>
         </section>

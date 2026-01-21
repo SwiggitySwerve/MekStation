@@ -92,13 +92,17 @@ These E2E tests focus on verifying the UI correctly displays combat data.
 
 ## 8. Customizer: Aerospace Tests
 
-- [ ] 8.1 Create `e2e/pages/customizer.page.ts` page object (shared)
-- [ ] 8.2 Test: Navigate to aerospace customizer
-- [ ] 8.3 Test: Create new aerospace unit
-- [ ] 8.4 Test: Configure aerospace armor
-- [ ] 8.5 Test: Add weapons to aerospace unit
-- [ ] 8.6 Test: Validate aerospace construction rules
-- [ ] 8.7 Test: Save aerospace unit
+Note: Aerospace customizer E2E foundation complete. Full unit tests require
+fixture/API support for creating aerospace units in the store.
+
+- [x] 8.1 Add testids to aerospace customizer components (AerospaceCustomizer, StructureTab, ArmorTab, EquipmentTab)
+- [x] 8.2 Create `e2e/pages/customizer.page.ts` page object with AerospaceCustomizerPage class
+- [x] 8.3 Test: Navigate to aerospace customizer (2 passing tests)
+- [ ] 8.4 Test: Create new aerospace unit (requires unit creation fixture)
+- [ ] 8.5 Test: Configure aerospace armor (requires loaded unit)
+- [ ] 8.6 Test: Add weapons to aerospace unit (requires loaded unit)
+- [ ] 8.7 Test: Validate aerospace construction rules (requires loaded unit)
+- [ ] 8.8 Test: Save aerospace unit (requires loaded unit)
 
 ## 9. Customizer: Vehicle Tests
 
