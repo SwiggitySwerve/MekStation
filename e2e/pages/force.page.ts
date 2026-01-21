@@ -1,5 +1,9 @@
-import { Page, expect } from '@playwright/test';
+import type { Page as _Page } from '@playwright/test';
+import { expect as _expect } from '@playwright/test';
 import { BasePage } from './base.page';
+
+// Re-export to silence unused warnings (types kept for documentation)
+void _expect;
 
 /**
  * Page object for the force list page (/gameplay/forces).

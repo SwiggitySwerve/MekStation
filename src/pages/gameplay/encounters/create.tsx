@@ -34,6 +34,7 @@ function TemplateCard({ template, selected, onSelect }: TemplateCardProps): Reac
           : 'hover:border-accent/50'
       }`}
       onClick={onSelect}
+      data-testid={`template-${template.type}`}
     >
       <h3 className="font-medium text-text-theme-primary mb-1">{template.name}</h3>
       <p className="text-sm text-text-theme-secondary mb-3">{template.description}</p>
@@ -115,7 +116,11 @@ export default function CreateEncounterPage(): React.ReactElement {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                data-testid="encounter-name-input"
               />
+              {localError && localError.includes('name') && (
+                <p className="mt-1 text-sm text-red-400" data-testid="name-error">{localError}</p>
+              )}
             </div>
 
             <div>
@@ -129,6 +134,7 @@ export default function CreateEncounterPage(): React.ReactElement {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
+                data-testid="encounter-description-input"
               />
             </div>
           </div>
@@ -175,10 +181,10 @@ export default function CreateEncounterPage(): React.ReactElement {
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={handleCancel}>
+          <Button type="button" variant="secondary" onClick={handleCancel} data-testid="cancel-btn">
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={isLoading}>
+          <Button type="submit" variant="primary" disabled={isLoading} data-testid="submit-encounter-btn">
             {isLoading ? 'Creating...' : 'Create Encounter'}
           </Button>
         </div>

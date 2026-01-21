@@ -221,7 +221,7 @@ export async function getEncounter(
   description?: string;
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { encounters: Map<string, {
+    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { encounters: Array<{
       id: string;
       name: string;
       status: string;
@@ -234,7 +234,8 @@ export async function getEncounter(
     }
 
     const state = stores.encounter.getState();
-    return state.encounters.get(id) || null;
+    // encounters is an array, not a Map
+    return state.encounters.find((e) => e.id === id) || null;
   }, encounterId);
 }
 

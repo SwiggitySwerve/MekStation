@@ -138,9 +138,10 @@ export default function EncounterDetailPage(): React.ReactElement {
       subtitle={encounter.description}
       backLink="/gameplay/encounters"
       backLabel="Back to Encounters"
+      data-testid="encounter-detail-page"
       headerContent={
         <div className="flex items-center gap-3">
-<Badge variant={getStatusColor(encounter.status)}>
+<Badge variant={getStatusColor(encounter.status)} data-testid="encounter-status">
             {getStatusLabel(encounter.status, true)}
           </Badge>
           
@@ -150,6 +151,7 @@ export default function EncounterDetailPage(): React.ReactElement {
               disabled={!canLaunch}
               onClick={handleLaunch}
               title={canLaunch ? 'Launch this encounter' : 'Fix validation errors first'}
+              data-testid="launch-encounter-btn"
             >
               Launch Battle
             </Button>
@@ -198,27 +200,28 @@ export default function EncounterDetailPage(): React.ReactElement {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Forces Section */}
-        <Card>
+        <Card data-testid="forces-card">
           <h2 className="text-lg font-medium text-text-theme-primary mb-4">Forces</h2>
           
           {/* Player Force */}
-          <div className="mb-4">
+          <div className="mb-4" data-testid="player-force-section">
             <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Player Force</h3>
             {encounter.playerForce ? (
-              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
-                <div className="font-medium text-text-theme-primary">
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle" data-testid="player-force-info">
+                <div className="font-medium text-text-theme-primary" data-testid="player-force-name">
                   {encounter.playerForce.forceName || 'Selected'}
                 </div>
-                <div className="text-sm text-text-theme-muted mt-1">
+                <div className="text-sm text-text-theme-muted mt-1" data-testid="player-force-stats">
                   {encounter.playerForce.unitCount} units • {encounter.playerForce.totalBV.toLocaleString()} BV
                 </div>
               </div>
             ) : (
-              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle">
+              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle" data-testid="player-force-empty">
                 <p className="text-sm text-text-theme-muted">No player force selected</p>
                 <Link
                   href={`/gameplay/encounters/${id}/select-force?type=player`}
                   className="text-sm text-accent hover:underline mt-2 inline-block"
+                  data-testid="select-player-force-link"
                 >
                   Select Player Force
                 </Link>
@@ -227,19 +230,19 @@ export default function EncounterDetailPage(): React.ReactElement {
           </div>
 
           {/* Opponent Force */}
-          <div>
+          <div data-testid="opponent-force-section">
             <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Opponent Force</h3>
             {encounter.opponentForce ? (
-              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
-                <div className="font-medium text-text-theme-primary">
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle" data-testid="opponent-force-info">
+                <div className="font-medium text-text-theme-primary" data-testid="opponent-force-name">
                   {encounter.opponentForce.forceName || 'Selected'}
                 </div>
-                <div className="text-sm text-text-theme-muted mt-1">
+                <div className="text-sm text-text-theme-muted mt-1" data-testid="opponent-force-stats">
                   {encounter.opponentForce.unitCount} units • {encounter.opponentForce.totalBV.toLocaleString()} BV
                 </div>
               </div>
             ) : encounter.opForConfig ? (
-              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle">
+              <div className="p-3 rounded-lg bg-surface-raised border border-border-theme-subtle" data-testid="opfor-config-info">
                 <div className="font-medium text-text-theme-primary">Generated OpFor</div>
                 <div className="text-sm text-text-theme-muted mt-1">
                   Target BV: {encounter.opForConfig.targetBV?.toLocaleString() || 
@@ -247,11 +250,12 @@ export default function EncounterDetailPage(): React.ReactElement {
                 </div>
               </div>
             ) : (
-              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle">
+              <div className="p-3 rounded-lg border-2 border-dashed border-border-theme-subtle" data-testid="opponent-force-empty">
                 <p className="text-sm text-text-theme-muted">No opponent configured</p>
                 <Link
                   href={`/gameplay/encounters/${id}/select-force?type=opponent`}
                   className="text-sm text-accent hover:underline mt-2 inline-block"
+                  data-testid="select-opponent-force-link"
                 >
                   Select Opponent Force
                 </Link>
@@ -261,38 +265,38 @@ export default function EncounterDetailPage(): React.ReactElement {
         </Card>
 
         {/* Map & Victory Conditions */}
-        <Card>
+        <Card data-testid="battle-settings-card">
           <h2 className="text-lg font-medium text-text-theme-primary mb-4">Battle Settings</h2>
           
           {/* Template */}
           {template && (
-            <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/20">
+            <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/20" data-testid="encounter-template">
               <div className="text-sm text-accent">Using Template: {template.name}</div>
             </div>
           )}
 
           {/* Map Config */}
-          <div className="mb-4">
+          <div className="mb-4" data-testid="map-config-section">
             <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Map</h3>
-            <div className="text-sm text-text-theme-primary">
+            <div className="text-sm text-text-theme-primary" data-testid="map-size">
               {encounter.mapConfig.radius * 2 + 1}x{encounter.mapConfig.radius * 2 + 1} hex grid
             </div>
-            <div className="text-sm text-text-theme-muted">
+            <div className="text-sm text-text-theme-muted" data-testid="map-terrain">
               Terrain: {encounter.mapConfig.terrain}
             </div>
-            <div className="text-sm text-text-theme-muted">
+            <div className="text-sm text-text-theme-muted" data-testid="deployment-zones">
               Player deploys: {encounter.mapConfig.playerDeploymentZone} |{' '}
               Opponent: {encounter.mapConfig.opponentDeploymentZone}
             </div>
           </div>
 
           {/* Victory Conditions */}
-          <div>
+          <div data-testid="victory-conditions-section">
             <h3 className="text-sm font-medium text-text-theme-secondary mb-2">Victory Conditions</h3>
             {encounter.victoryConditions.length > 0 ? (
-              <ul className="space-y-1">
+              <ul className="space-y-1" data-testid="victory-conditions-list">
                 {encounter.victoryConditions.map((vc, i) => (
-                  <li key={i} className="text-sm text-text-theme-primary flex items-center gap-2">
+                  <li key={i} className="text-sm text-text-theme-primary flex items-center gap-2" data-testid={`victory-condition-${i}`}>
                     <span className="text-accent">•</span>
                     {getVictoryConditionLabel(vc.type)}
                     {vc.turnLimit && ` (${vc.turnLimit} turns)`}
@@ -301,7 +305,7 @@ export default function EncounterDetailPage(): React.ReactElement {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-text-theme-muted">No victory conditions set</p>
+              <p className="text-sm text-text-theme-muted" data-testid="no-victory-conditions">No victory conditions set</p>
             )}
           </div>
         </Card>
@@ -314,32 +318,34 @@ export default function EncounterDetailPage(): React.ReactElement {
             variant="ghost"
             className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
             onClick={() => setShowDeleteConfirm(true)}
+            data-testid="delete-encounter-btn"
           >
             Delete Encounter
           </Button>
 
           <Link href={`/gameplay/encounters/${id}/edit`}>
-            <Button variant="secondary">Edit Settings</Button>
+            <Button variant="secondary" data-testid="edit-encounter-btn">Edit Settings</Button>
           </Link>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" data-testid="delete-confirm-dialog">
           <Card className="max-w-md mx-4">
             <h3 className="text-lg font-medium text-text-theme-primary mb-2">Delete Encounter?</h3>
             <p className="text-sm text-text-theme-secondary mb-4">
               This will permanently delete &quot;{encounter.name}&quot;. This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} data-testid="cancel-delete-btn">
                 Cancel
               </Button>
               <Button
                 variant="primary"
                 className="bg-red-600 hover:bg-red-700"
                 onClick={handleDelete}
+                data-testid="confirm-delete-btn"
               >
                 Delete
               </Button>
