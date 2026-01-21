@@ -159,5 +159,21 @@ export default [
       sourceType: 'module',
     },
   },
+  
+  // E2E test files - more lenient rules
+  {
+    files: ['e2e/**/*.ts'],
+    rules: {
+      // Allow double type assertions for window object access in E2E tests
+      'no-restricted-syntax': 'off',
+      // E2E tests may need to access untyped window properties
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      // Allow any in E2E test utilities
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
+  },
 ];
 

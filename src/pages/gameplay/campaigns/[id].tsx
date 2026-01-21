@@ -83,25 +83,25 @@ interface ResourcesCardProps {
 
 function ResourcesCard({ cBills, supplies, morale, salvageParts }: ResourcesCardProps): React.ReactElement {
   return (
-    <Card className="mb-6">
+    <Card className="mb-6" data-testid="resources-card">
       <h2 className="text-lg font-semibold text-text-theme-primary mb-4">Resources</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center p-3 rounded-lg bg-surface-deep">
-          <div className="text-2xl font-bold text-accent">{(cBills / 1000000).toFixed(2)}M</div>
+          <div className="text-2xl font-bold text-accent" data-testid="resource-cbills">{(cBills / 1000000).toFixed(2)}M</div>
           <div className="text-xs text-text-theme-muted uppercase tracking-wide mt-1">C-Bills</div>
         </div>
         <div className="text-center p-3 rounded-lg bg-surface-deep">
-          <div className="text-2xl font-bold text-cyan-400">{supplies}</div>
+          <div className="text-2xl font-bold text-cyan-400" data-testid="resource-supplies">{supplies}</div>
           <div className="text-xs text-text-theme-muted uppercase tracking-wide mt-1">Supplies</div>
         </div>
         <div className="text-center p-3 rounded-lg bg-surface-deep">
-          <div className={`text-2xl font-bold ${morale >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>
+          <div className={`text-2xl font-bold ${morale >= 50 ? 'text-emerald-400' : 'text-red-400'}`} data-testid="resource-morale">
             {morale}%
           </div>
           <div className="text-xs text-text-theme-muted uppercase tracking-wide mt-1">Morale</div>
         </div>
         <div className="text-center p-3 rounded-lg bg-surface-deep">
-          <div className="text-2xl font-bold text-violet-400">{salvageParts}</div>
+          <div className="text-2xl font-bold text-violet-400" data-testid="resource-salvage">{salvageParts}</div>
           <div className="text-xs text-text-theme-muted uppercase tracking-wide mt-1">Salvage</div>
         </div>
       </div>
@@ -544,7 +544,7 @@ export default function CampaignDetailPage(): React.ReactElement {
       maxWidth="wide"
       headerContent={
         <div className="flex items-center gap-3">
-          <Badge variant={getStatusColor(campaign.status)} size="lg">
+<Badge variant={getStatusColor(campaign.status)} size="lg" data-testid="campaign-status">
             {getStatusLabel(campaign.status)}
           </Badge>
           
@@ -569,8 +569,9 @@ export default function CampaignDetailPage(): React.ReactElement {
     >
       {/* Tab Navigation */}
       <div className="flex items-center gap-1 mb-6 border-b border-border-theme-subtle">
-        <button
+<button
           onClick={() => handleTabChange('overview')}
+          data-testid="tab-overview"
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'overview'
               ? 'text-accent'
@@ -584,6 +585,7 @@ export default function CampaignDetailPage(): React.ReactElement {
         </button>
         <button
           onClick={() => handleTabChange('audit')}
+          data-testid="tab-audit"
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'audit'
               ? 'text-accent'
@@ -664,9 +666,9 @@ export default function CampaignDetailPage(): React.ReactElement {
           />
         </Card>
 
-        {/* Mission Details Panel */}
-        <Card>
-          <h2 className="text-lg font-semibold text-text-theme-primary mb-4">
+{/* Mission Details Panel */}
+        <Card data-testid="mission-details-panel">
+          <h2 className="text-lg font-semibold text-text-theme-primary mb-4" data-testid="mission-details-name">
             {selectedMission ? selectedMission.name : 'Select a Mission'}
           </h2>
           {selectedMission ? (
@@ -765,10 +767,11 @@ export default function CampaignDetailPage(): React.ReactElement {
       {!isComplete && (
         <div className="mt-6 pt-6 border-t border-border-theme-subtle flex justify-between">
           <div className="flex gap-3">
-            <Button
+<Button
               variant="ghost"
               className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
               onClick={() => setShowDeleteConfirm(true)}
+              data-testid="delete-campaign-btn"
             >
               Delete Campaign
             </Button>
@@ -785,22 +788,23 @@ export default function CampaignDetailPage(): React.ReactElement {
         </>
       )}
 
-      {/* Delete Confirmation Modal */}
+{/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" data-testid="delete-confirm-dialog">
           <Card className="max-w-md mx-4">
             <h3 className="text-lg font-medium text-text-theme-primary mb-2">Delete Campaign?</h3>
             <p className="text-sm text-text-theme-secondary mb-4">
               This will permanently delete &quot;{campaign.name}&quot; and all its progress. This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+              <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} data-testid="cancel-delete-btn">
                 Cancel
               </Button>
               <Button
                 variant="primary"
                 className="bg-red-600 hover:bg-red-700"
                 onClick={handleDelete}
+                data-testid="confirm-delete-btn"
               >
                 Delete
               </Button>

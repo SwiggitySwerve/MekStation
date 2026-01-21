@@ -44,6 +44,7 @@ interface BadgeProps {
   size?: BadgeSize;
   pill?: boolean;
   className?: string;
+  'data-testid'?: string;
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
@@ -89,6 +90,7 @@ export function Badge({
   size = 'md',
   pill = false,
   className = '',
+  'data-testid': testId,
 }: BadgeProps): React.ReactElement {
   const baseClasses = 'font-medium border inline-flex items-center whitespace-nowrap';
   const shapeClasses = pill ? 'rounded-full' : 'rounded';
@@ -96,6 +98,7 @@ export function Badge({
   return (
     <span
       className={`${baseClasses} ${shapeClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      data-testid={testId}
     >
       {children}
     </span>
