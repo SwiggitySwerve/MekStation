@@ -67,6 +67,7 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
     <Card
       className="cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
       onClick={onClick}
+      data-testid={`game-card-${game.id}`}
     >
       <div className="flex items-start justify-between mb-3">
         <h3 className="font-bold text-lg">{game.name}</h3>
@@ -119,7 +120,7 @@ export default function GamesListPage(): React.ReactElement {
       subtitle="Active and completed game sessions"
       maxWidth="wide"
       headerContent={
-        <Button variant="primary" onClick={handleNewGame}>
+        <Button variant="primary" onClick={handleNewGame} data-testid="new-game-btn">
           New Game (Demo)
         </Button>
       }
@@ -127,6 +128,7 @@ export default function GamesListPage(): React.ReactElement {
       {/* Games Grid */}
       {DEMO_GAMES.length === 0 ? (
         <EmptyState
+          data-testid="games-empty-state"
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg

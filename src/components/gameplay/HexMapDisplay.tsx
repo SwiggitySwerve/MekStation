@@ -263,6 +263,7 @@ const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onCli
         onClick();
       }}
       style={{ cursor: 'pointer' }}
+      data-testid={`unit-token-${token.unitId}`}
     >
       {/* Selection/target ring */}
       <circle r={HEX_SIZE * 0.7} fill="none" stroke={ringColor} strokeWidth={3} />
@@ -423,7 +424,7 @@ export function HexMapDisplay({
   }, [viewBox, zoom, pan]);
 
   return (
-    <div className={`relative overflow-hidden bg-slate-100 ${className}`}>
+    <div className={`relative overflow-hidden bg-slate-100 ${className}`} data-testid="hex-map">
       <svg
         ref={svgRef}
         viewBox={transformedViewBox}
@@ -433,6 +434,7 @@ export function HexMapDisplay({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        data-testid="hex-grid"
       >
         {/* Hex grid */}
         <g>
@@ -475,12 +477,13 @@ export function HexMapDisplay({
       </svg>
 
       {/* Zoom controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-1" data-testid="zoom-controls">
         <button
           type="button"
           onClick={() => setZoom((z) => Math.min(3, z * 1.2))}
           className="bg-white p-2 rounded shadow hover:bg-gray-100"
           title="Zoom in"
+          data-testid="zoom-in-btn"
         >
           +
         </button>
@@ -489,6 +492,7 @@ export function HexMapDisplay({
           onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}
           className="bg-white p-2 rounded shadow hover:bg-gray-100"
           title="Zoom out"
+          data-testid="zoom-out-btn"
         >
           −
         </button>
@@ -500,6 +504,7 @@ export function HexMapDisplay({
           }}
           className="bg-white p-2 rounded shadow hover:bg-gray-100"
           title="Reset view"
+          data-testid="reset-view-btn"
         >
           ⟲
         </button>

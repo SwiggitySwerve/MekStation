@@ -187,9 +187,9 @@ export default function GameReplayPage(): React.ReactElement {
         <title>Game Replay - MekStation</title>
       </Head>
 
-      <div className="h-screen flex flex-col bg-gray-900">
+      <div className="h-screen flex flex-col bg-gray-900" data-testid="replay-page">
         {/* Header */}
-        <div className="flex-shrink-0 h-14 px-4 bg-surface-base border-b border-border-theme-subtle flex items-center justify-between">
+        <div className="flex-shrink-0 h-14 px-4 bg-surface-base border-b border-border-theme-subtle flex items-center justify-between" data-testid="replay-header">
           <div className="flex items-center gap-4">
             <Link
               href={gameId ? `/gameplay/games/${gameId}` : '/gameplay/games'}
@@ -200,10 +200,10 @@ export default function GameReplayPage(): React.ReactElement {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </Link>
-            <h1 className="text-lg font-semibold text-text-theme-primary">
+            <h1 className="text-lg font-semibold text-text-theme-primary" data-testid="replay-title">
               Game Replay
             </h1>
-            <span className="text-sm text-text-theme-muted">
+            <span className="text-sm text-text-theme-muted" data-testid="replay-event-count">
               {replay.totalEvents} events
             </span>
           </div>

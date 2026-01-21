@@ -99,7 +99,7 @@ export function ReplayControls({
   const isStopped = playbackState === 'stopped';
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
+    <div className={`flex items-center gap-1 ${className}`} data-testid="replay-controls">
       {/* Go to Start */}
       <Button
         variant="ghost"
@@ -108,6 +108,7 @@ export function ReplayControls({
         disabled={isStopped && !canStepBackward}
         title="Go to start (Home)"
         className="min-w-touch min-h-touch"
+        data-testid="replay-btn-skip-back"
       >
         <SkipBackIcon />
       </Button>
@@ -120,6 +121,7 @@ export function ReplayControls({
         disabled={!canStepBackward}
         title="Step backward (Left Arrow)"
         className="min-w-touch min-h-touch"
+        data-testid="replay-btn-step-back"
       >
         <StepBackIcon />
       </Button>
@@ -131,6 +133,7 @@ export function ReplayControls({
         onClick={isPlaying ? onPause : onPlay}
         title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
         className="min-w-[56px] min-h-touch"
+        data-testid="replay-btn-play-pause"
       >
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </Button>
@@ -143,6 +146,7 @@ export function ReplayControls({
         disabled={isStopped}
         title="Stop"
         className="min-w-touch min-h-touch"
+        data-testid="replay-btn-stop"
       >
         <StopIcon />
       </Button>
@@ -155,6 +159,7 @@ export function ReplayControls({
         disabled={!canStepForward}
         title="Step forward (Right Arrow)"
         className="min-w-touch min-h-touch"
+        data-testid="replay-btn-step-forward"
       >
         <StepForwardIcon />
       </Button>
@@ -173,6 +178,7 @@ export function ReplayControls({
         disabled={!canStepForward}
         title="Go to end (End)"
         className="min-w-touch min-h-touch"
+        data-testid="replay-btn-skip-forward"
       >
         <SkipForwardIcon />
       </Button>

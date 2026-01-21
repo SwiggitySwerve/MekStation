@@ -48,16 +48,22 @@
 
 ## 5. Gameplay: Game Session Tests
 
-- [ ] 5.1 Create `e2e/pages/game.page.ts` page object
-- [ ] 5.2 Test: Game page loads with hex grid
-- [ ] 5.3 Test: Unit placement phase
-- [ ] 5.4 Test: Movement phase - select unit
-- [ ] 5.5 Test: Movement phase - move unit
-- [ ] 5.6 Test: Combat phase - select target
-- [ ] 5.7 Test: Combat phase - execute attack
-- [ ] 5.8 Test: End turn advances phase
-- [ ] 5.9 Test: Game replay page loads (enhance existing)
-- [ ] 5.10 Test: Replay controls work correctly
+- [x] 5.1 Create `e2e/pages/game.page.ts` page object
+- [x] 5.2 Create `e2e/fixtures/game.ts` test data factory
+- [x] 5.3 Add data-testid attributes to game components
+- [x] 5.4 Test: Game list page navigation and display
+- [x] 5.5 Test: Demo game loads with correct initial state
+- [x] 5.6 Test: Game session displays phase banner, hex map, action bar
+- [x] 5.7 Test: Unit tokens visible on map
+- [x] 5.8 Test: Unit selection via store and UI
+- [x] 5.9 Test: Zoom controls functionality
+- [x] 5.10 Test: Action bar shows phase-appropriate actions
+- [x] 5.11 Test: Skip action respects lock state
+- [x] 5.12 Test: Game replay page navigation
+- [x] 5.13 Test: Error handling for non-existent games
+- [ ] 5.14 Test: Movement phase - move unit (requires game flow)
+- [ ] 5.15 Test: Combat phase - execute attack (requires game flow)
+- [ ] 5.16 Test: End turn advances phase (requires locked units)
 
 ## 6. Gameplay: Combat Resolution Tests
 

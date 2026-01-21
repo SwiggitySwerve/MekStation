@@ -202,7 +202,7 @@ export function GameplayLayout({
   );
 
   return (
-    <div className={`flex flex-col h-full bg-gray-100 ${className}`}>
+    <div className={`flex flex-col h-full bg-gray-100 ${className}`} data-testid="gameplay-layout">
       {/* Phase Banner */}
       <PhaseBanner
         phase={currentState.phase}
@@ -212,11 +212,12 @@ export function GameplayLayout({
       />
 
       {/* Main Content Area */}
-      <div ref={containerRef} className="flex-1 flex overflow-hidden">
+      <div ref={containerRef} className="flex-1 flex overflow-hidden" data-testid="gameplay-main-content">
         {/* Map Panel */}
         <div
           className="relative"
           style={{ width: `${layout.mapPanelWidth}%` }}
+          data-testid="map-panel"
         >
           <HexMapDisplay
             radius={config.mapRadius}
@@ -238,6 +239,7 @@ export function GameplayLayout({
         <div
           className="flex-1 overflow-hidden"
           style={{ width: `${100 - layout.mapPanelWidth}%` }}
+          data-testid="record-sheet-panel"
         >
           {selectedUnit && selectedUnitInfo && selectedUnitFromSession ? (
             <RecordSheetDisplay
@@ -254,7 +256,7 @@ export function GameplayLayout({
               className="h-full"
             />
           ) : (
-            <div className="h-full flex items-center justify-center text-gray-500">
+            <div className="h-full flex items-center justify-center text-gray-500" data-testid="no-unit-selected">
               <p>Select a unit to view details</p>
             </div>
           )}
