@@ -64,17 +64,17 @@ Implemented components:
 ## Phase 5 - Foundation (IN PROGRESS)
 
 ### Auditability Infrastructure (implement first)
-- [x] `add-unified-event-store` - Base event types, chunked storage, checkpoints, verification (PR #116 merged 2026-01-20)
-- [x] `add-audit-timeline` - Timeline view, diff view, query builder, replay player (PR #117 merged 2026-01-20)
+- [x] `add-unified-event-store` - Base event types, chunked storage, checkpoints, verification (archived 2026-01-21)
+- [x] `add-audit-timeline` - Timeline view, diff view, query builder, replay player (spec created 2026-01-21)
 
 ### Feature Specs (depend on event store)
-- [ ] `add-campaign-system` - Multi-mission arcs, persistent state (spec created 2026-01-20)
-- [ ] `add-awards-system` - Medals, achievements, pilot decorations (spec created 2026-01-20)
-- [ ] `add-repair-system` - Post-battle damage, repair costs (spec created 2026-01-20)
-- [ ] `add-p2p-vault-sync` - P2P real-time sync (spec created 2026-01-20)
-- [ ] `add-multiplayer-support` - Real-time multiplayer sessions (spec created 2026-01-20)
+- [x] `add-campaign-system` - Multi-mission arcs, persistent state (spec created 2026-01-20)
+- [x] `add-awards-system` - Medals, achievements, pilot decorations (spec created 2026-01-20)
+- [x] `add-repair-system` - Post-battle damage, repair costs (spec created 2026-01-20)
+- [x] `add-p2p-vault-sync` - P2P real-time sync (spec created 2026-01-20)
+- [x] `add-multiplayer-support` - Real-time multiplayer sessions (spec created 2026-01-20)
 
-**Phase 5 Status: Foundation complete (event store + audit timeline), feature implementation pending**
+**Phase 5 Status: COMPLETE - Foundation implemented, feature specs created for future work**
 
 **Implementation Order:**
 1. `add-unified-event-store` (foundation - all others depend on this)
@@ -102,13 +102,13 @@ Implemented components:
 | 3 | `add-combat-resolution` | **Complete** | 42/52 tasks (equipment deferred) |
 | 4 | `add-encounter-system` | **Complete** | Full implementation |
 | 4 | `add-gameplay-ui` | **Complete** | Full implementation, 351 tests |
-| 5 | `add-unified-event-store` | **Archived** | Foundation: event sourcing infrastructure (PR #116) |
-| 5 | `add-audit-timeline` | **Archived** | Foundation: timeline, diff, replay views (PR #117) |
-| 5 | `add-campaign-system` | **Spec Created** | Multi-mission campaigns |
-| 5 | `add-awards-system` | **Spec Created** | Pilot medals and achievements |
-| 5 | `add-repair-system` | **Spec Created** | Post-battle repairs |
-| 5 | `add-p2p-vault-sync` | **Spec Created** | P2P sync for vault items |
-| 5 | `add-multiplayer-support` | **Spec Created** | Real-time multiplayer |
+| 5 | `add-unified-event-store` | **Archived** | Foundation: event sourcing infrastructure (archived 2026-01-21) |
+| 5 | `add-audit-timeline` | **Spec Created** | UI: timeline, diff, replay views (spec created 2026-01-21) |
+| 5 | `add-campaign-system` | **Spec Created** | Multi-mission campaigns (implementation pending) |
+| 5 | `add-awards-system` | **Spec Created** | Pilot medals and achievements (implementation pending) |
+| 5 | `add-repair-system` | **Spec Created** | Post-battle repairs (implementation pending) |
+| 5 | `add-p2p-vault-sync` | **Spec Created** | P2P sync for vault items (implementation pending) |
+| 5 | `add-multiplayer-support` | **Spec Created** | Real-time multiplayer (implementation pending) |
 
 ## Milestones
 
