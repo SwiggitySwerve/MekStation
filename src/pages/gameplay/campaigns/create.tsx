@@ -261,13 +261,14 @@ export default function CreateCampaignPage(): React.ReactElement {
                 <label htmlFor="name" className="block text-sm font-medium text-text-theme-primary mb-2">
                   Campaign Name *
                 </label>
-                <Input
+<Input
                   id="name"
                   type="text"
                   placeholder="e.g., Operation Steel Thunder"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  data-testid="campaign-name-input"
                 />
               </div>
 
@@ -275,13 +276,14 @@ export default function CreateCampaignPage(): React.ReactElement {
                 <label htmlFor="description" className="block text-sm font-medium text-text-theme-primary mb-2">
                   Description
                 </label>
-                <textarea
+<textarea
                   id="description"
                   className="w-full px-4 py-3 rounded-lg border border-border-theme-subtle bg-surface-raised text-text-theme-primary placeholder:text-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
                   placeholder="What is this campaign about? Set the stage for your mercenary company..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
+                  data-testid="campaign-description-input"
                 />
               </div>
             </div>
@@ -305,10 +307,12 @@ export default function CreateCampaignPage(): React.ReactElement {
                   onSelect={() => handleTemplateSelect(template.id)}
                 />
               ))}
-              <CustomCampaignCard
-                selected={isCustom}
-                onSelect={handleCustomSelect}
-              />
+<div data-testid="template-custom">
+                <CustomCampaignCard
+                  selected={isCustom}
+                  onSelect={handleCustomSelect}
+                />
+              </div>
             </div>
           </div>
         );
@@ -468,25 +472,26 @@ export default function CreateCampaignPage(): React.ReactElement {
         {renderStepContent()}
       </div>
 
-      {/* Error Display */}
+{/* Error Display */}
       {(error || localError) && (
-        <div className="max-w-2xl mx-auto mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+        <div className="max-w-2xl mx-auto mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30" data-testid="name-error">
           <p className="text-sm text-red-400">{error || localError}</p>
         </div>
       )}
 
-      {/* Navigation Buttons */}
+{/* Navigation Buttons */}
       <div className="max-w-2xl mx-auto flex justify-between">
         <Button
           type="button"
           variant="secondary"
           onClick={currentStep === 0 ? handleCancel : handleBack}
+          data-testid={currentStep === 0 ? 'wizard-cancel-btn' : 'wizard-back-btn'}
         >
           {currentStep === 0 ? 'Cancel' : 'Back'}
         </Button>
 
         {currentStep < WIZARD_STEPS.length - 1 ? (
-          <Button type="button" variant="primary" onClick={handleNext}>
+          <Button type="button" variant="primary" onClick={handleNext} data-testid="wizard-next-btn">
             Continue
           </Button>
         ) : (
@@ -495,6 +500,7 @@ export default function CreateCampaignPage(): React.ReactElement {
             variant="primary"
             onClick={handleSubmit}
             disabled={isSubmitting}
+            data-testid="wizard-submit-btn"
           >
             {isSubmitting ? 'Creating...' : 'Create Campaign'}
           </Button>

@@ -79,6 +79,7 @@ function CampaignCard({ campaign, onClick }: CampaignCardProps): React.ReactElem
     <Card
       className="cursor-pointer hover:border-accent/50 transition-all group relative overflow-hidden"
       onClick={onClick}
+      data-testid={`campaign-card-${campaign.id}`}
     >
       {/* Progress bar background */}
       <div 
@@ -88,7 +89,7 @@ function CampaignCard({ campaign, onClick }: CampaignCardProps): React.ReactElem
       
       <div className="relative">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="font-semibold text-text-theme-primary truncate text-lg group-hover:text-accent transition-colors">
+<h3 className="font-semibold text-text-theme-primary truncate text-lg group-hover:text-accent transition-colors" data-testid="campaign-name">
             {campaign.name}
           </h3>
           <Badge variant={getStatusColor(campaign.status)}>
@@ -223,9 +224,10 @@ export default function CampaignsListPage(): React.ReactElement {
       subtitle="Multi-mission operations with persistent roster and resources"
       maxWidth="wide"
       headerContent={
-        <Button
+<Button
           variant="primary"
           onClick={handleCreateCampaign}
+          data-testid="create-campaign-btn"
           leftIcon={
             <svg
               className="w-4 h-4"
@@ -251,12 +253,13 @@ export default function CampaignsListPage(): React.ReactElement {
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
-            <Input
+<Input
               type="text"
               placeholder="Search campaigns..."
               value={searchQuery}
               onChange={handleSearchChange}
               aria-label="Search campaigns"
+              data-testid="campaign-search"
             />
           </div>
 
@@ -289,7 +292,7 @@ export default function CampaignsListPage(): React.ReactElement {
 
       {/* Campaigns Grid */}
       {filteredCampaigns.length === 0 ? (
-        <EmptyState
+<EmptyState
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg
@@ -320,6 +323,7 @@ export default function CampaignsListPage(): React.ReactElement {
               </Button>
             )
           }
+          data-testid="campaigns-empty-state"
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

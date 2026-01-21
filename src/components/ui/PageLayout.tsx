@@ -81,7 +81,7 @@ export function PageLayout({
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-text-theme-primary mb-2">{title}</h1>
+              <h1 className="text-3xl font-bold text-text-theme-primary mb-2" data-testid="page-title">{title}</h1>
               {subtitle && <p className="text-text-theme-secondary">{subtitle}</p>}
             </div>
             {headerContent}
@@ -144,11 +144,12 @@ interface EmptyStateProps {
   title: string;
   message?: string;
   action?: React.ReactNode;
+  'data-testid'?: string;
 }
 
-export function EmptyState({ icon, title, message, action }: EmptyStateProps): React.ReactElement {
+export function EmptyState({ icon, title, message, action, 'data-testid': testId }: EmptyStateProps): React.ReactElement {
   return (
-    <div className="bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary border border-dashed border-border-theme">
+    <div className="bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary border border-dashed border-border-theme" data-testid={testId}>
       {icon && <div className="mb-3">{icon}</div>}
       <p className="font-medium">{title}</p>
       {message && <p className="text-sm mt-1">{message}</p>}

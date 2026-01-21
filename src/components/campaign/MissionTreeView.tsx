@@ -154,7 +154,7 @@ function MissionNode({
         </div>
       )}
 
-      {/* Node */}
+{/* Node */}
       <div
         className={`flex-1 flex items-center gap-3 p-3 rounded-lg transition-all ${
           styles.bg
@@ -166,6 +166,8 @@ function MissionNode({
             : ''
         }`}
         onClick={isClickable ? onClick : undefined}
+        data-testid={`mission-node-${mission.id}`}
+        data-mission-id={mission.id}
       >
         {/* Status icon */}
         <div
@@ -270,8 +272,8 @@ export function MissionTreeView({
     );
   }
 
-  return (
-    <div className="space-y-4 pl-4">
+return (
+    <div className="space-y-4 pl-4" data-testid="mission-tree">
       {mainPath.map((mission, index) => {
         const missionBranches = branches.get(mission.id);
         const isLast = index === mainPath.length - 1 && !missionBranches;

@@ -23,6 +23,8 @@ interface CardProps {
   as?: 'div' | 'section' | 'article';
   /** Accent color for accent-left and accent-bottom variants */
   accentColor?: CardAccentColor;
+  /** Test ID for E2E testing */
+  'data-testid'?: string;
 }
 
 const variantClasses: Record<CardVariant, string> = {
@@ -60,6 +62,7 @@ export function Card({
   onClick,
   as: Component = 'div',
   accentColor = 'amber',
+  'data-testid': testId,
 }: CardProps): React.ReactElement {
   // Build classes based on variant
   let classes = variantClasses[variant];
@@ -69,12 +72,13 @@ export function Card({
     classes = `${classes} ${accentLeftClasses[accentColor]}`;
   }
 
-  // For accent-bottom, we wrap children with the bottom bar
+// For accent-bottom, we wrap children with the bottom bar
   if (variant === 'accent-bottom') {
     return (
       <Component
         className={`${classes} ${className}`}
         onClick={onClick}
+        data-testid={testId}
       >
         <div className="p-4">
           {children}
@@ -90,6 +94,7 @@ export function Card({
     <Component
       className={`${classes} ${className}`}
       onClick={onClick}
+      data-testid={testId}
     >
       {children}
     </Component>

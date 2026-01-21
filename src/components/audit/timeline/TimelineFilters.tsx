@@ -81,8 +81,8 @@ export function TimelineFilters({
     });
   }, [filters, onChange]);
 
-  return (
-    <div className={`space-y-4 ${className}`}>
+return (
+    <div className={`space-y-4 ${className}`} data-testid="timeline-filters">
       {/* Category Filter - Button Group */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-theme-secondary">
