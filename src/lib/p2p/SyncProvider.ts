@@ -51,6 +51,64 @@ function emitEvent(event: SyncEvent): void {
 }
 
 // =============================================================================
+// Retry State
+// =============================================================================
+
+interface RetryState {
+  attempts: number;
+  lastAttemptAt: number;
+  timeoutId: ReturnType<typeof setTimeout> | null;
+  isRetrying: boolean;
+}
+
+let retryState: RetryState = {
+  attempts: 0,
+  lastAttemptAt: 0,
+  timeoutId: null,
+  isRetrying: false,
+};
+
+/**
+ * Calculate delay for exponential backoff.
+ * @param attempt Current attempt number (0-based)
+ * @returns Delay in milliseconds
+ */
+function calculateRetryDelay(attempt: number): number {
+  const baseDelay = P2P_CONFIG.reconnectBaseDelay;
+  const maxDelay = 30000; // Cap at 30 seconds
+  const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
+  // Add jitter (0-20% of delay)
+  const jitter = delay * Math.random() * 0.2;
+  return Math.floor(delay + jitter);
+}
+
+/**
+ * Reset retry state.
+ */
+function resetRetryState(): void {
+  if (retryState.timeoutId) {
+    clearTimeout(retryState.timeoutId);
+  }
+  retryState = {
+    attempts: 0,
+    lastAttemptAt: 0,
+    timeoutId: null,
+    isRetrying: false,
+  };
+}
+
+/**
+ * Get current retry state for UI display.
+ */
+export function getRetryState(): { isRetrying: boolean; attempts: number; maxAttempts: number } {
+  return {
+    isRetrying: retryState.isRetrying,
+    attempts: retryState.attempts,
+    maxAttempts: P2P_CONFIG.maxReconnectAttempts,
+  };
+}
+
+// =============================================================================
 // Active Room Management
 // =============================================================================
 
@@ -68,6 +126,69 @@ export function getActiveRoom(): ISyncRoom | null {
  */
 export function hasActiveRoom(): boolean {
   return activeRoom !== null;
+}
+
+// =============================================================================
+// Reconnection Logic
+// =============================================================================
+
+/**
+ * Attempt to reconnect with exponential backoff.
+ */
+function attemptReconnect(roomCode: string, password?: string): void {
+  // Check if we've exceeded max attempts
+  if (retryState.attempts >= P2P_CONFIG.maxReconnectAttempts) {
+    emitEvent({
+      type: 'error',
+      message: `Connection failed after ${retryState.attempts} attempts. Please try again.`,
+    });
+    resetRetryState();
+    return;
+  }
+
+  retryState.isRetrying = true;
+  retryState.attempts++;
+  retryState.lastAttemptAt = Date.now();
+
+  const delay = calculateRetryDelay(retryState.attempts - 1);
+
+  console.log(
+    `[SyncProvider] Reconnect attempt ${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts} in ${delay}ms`
+  );
+
+  emitEvent({
+    type: 'error',
+    message: `Connection lost. Retrying in ${Math.round(delay / 1000)}s (${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts})...`,
+  });
+
+  retryState.timeoutId = setTimeout(() => {
+    try {
+      // Clean up current room if exists
+      if (activeRoom) {
+        try {
+          activeRoom.webrtcProvider.disconnect();
+        } catch {
+          // Ignore cleanup errors
+        }
+      }
+
+      // Attempt to reconnect
+      createSyncRoom({ roomCode, password });
+      retryState.isRetrying = false;
+    } catch (error) {
+      console.error('[SyncProvider] Reconnect failed:', error);
+      retryState.isRetrying = false;
+      // Schedule next retry
+      attemptReconnect(roomCode, password);
+    }
+  }, delay);
+}
+
+/**
+ * Cancel any pending reconnection attempts.
+ */
+export function cancelReconnect(): void {
+  resetRetryState();
 }
 
 // =============================================================================
@@ -105,6 +226,8 @@ export function createSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
 
   // Set up event handlers
   webrtcProvider.on('synced', () => {
+    // Connection successful, reset retry state
+    resetRetryState();
     emitEvent({ type: 'connected', roomCode });
   });
 
@@ -121,6 +244,14 @@ export function createSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
     }
     for (const peerId of event.removed) {
       emitEvent({ type: 'peer-left', peerId });
+    }
+  });
+
+  // Handle connection status changes for retry logic
+  webrtcProvider.on('status', (event: { connected: boolean }) => {
+    if (!event.connected && activeRoom && !retryState.isRetrying) {
+      // Connection lost, start retry sequence
+      attemptReconnect(activeRoom.roomCode, activeRoom.password);
     }
   });
 

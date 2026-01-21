@@ -1,6 +1,6 @@
 /**
  * AwardBadge Component
- * Single award display with icon placeholder, name, and rarity-based styling.
+ * Single award display with icon, name, and rarity-based styling.
  *
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
@@ -11,6 +11,7 @@ import {
   getRarityColor,
   getRarityBackground,
 } from '@/types/award';
+import { getAwardIcon, getRarityStrokeWidth } from '@/types/award/awardIcons';
 
 // =============================================================================
 // Types
@@ -105,8 +106,12 @@ export function AwardBadge({
   const isClickable = onClick !== undefined;
   const isLegendary = award.rarity === AwardRarity.Legendary;
 
-  // Get first letter for icon placeholder
-  const iconLetter = award.name.charAt(0).toUpperCase();
+  // Get icon component and stroke width based on rarity
+  const IconComponent = getAwardIcon(award.icon);
+  const strokeWidth = getRarityStrokeWidth(award.rarity);
+
+  // Icon size based on container size (approximately 50% of container)
+  const iconSize = size === 'sm' ? 20 : size === 'md' ? 28 : 40;
 
   return (
     <div
@@ -133,7 +138,7 @@ export function AwardBadge({
         `}
       >
         {earned ? (
-          iconLetter
+          <IconComponent size={iconSize} strokeWidth={strokeWidth} />
         ) : (
           <svg
             className="w-1/2 h-1/2 opacity-50"

@@ -17,6 +17,7 @@ import {
   StatList,
 } from '@/components/ui';
 import { PilotProgressionPanel } from '@/components/pilots';
+import { AwardGrid } from '@/components/award';
 import { usePilotStore, usePilotById } from '@/stores/usePilotStore';
 import {
   IPilot,
@@ -743,6 +744,15 @@ export default function PilotDetailPage(): React.ReactElement {
                 <StatRow label="Total Kills" value={careerStats.totalKills} />
               </StatList>
             </Card>
+          )}
+
+          {/* Awards Section */}
+          {isPersistent && (
+            <AwardGrid
+              pilotId={pilotId!}
+              showUnearned={true}
+              columns={3}
+            />
           )}
         </div>
 

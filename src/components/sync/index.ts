@@ -30,3 +30,6 @@ export { SyncStatusIndicator } from './SyncStatusIndicator';
 export { PeerList } from './PeerList';
 export { RoomCodeDialog } from './RoomCodeDialog';
 export { SyncBadge } from './SyncBadge';
+export { ConflictResolutionDialog } from './ConflictResolutionDialog';
+export { PeerItemList } from './PeerItemList';
+export { ConnectionQualityIndicator, type ConnectionQuality } from './ConnectionQualityIndicator';

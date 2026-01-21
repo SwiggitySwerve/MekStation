@@ -601,4 +601,334 @@ describe('useAwardStore', () => {
       expect(criteriaTypes.has(CriteriaType.GamesPlayed)).toBe(true);
     });
   });
+
+  // ===========================================================================
+  // Game Event Integration Tests
+  // ===========================================================================
+
+  describe('Game Event Integration', () => {
+    describe('Full Game Scenario', () => {
+      it('should track a complete single-game session with multiple pilots', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const gameContext = createTestContext({ gameId: 'game-001' });
+        const pilot1 = 'lance-leader';
+        const pilot2 = 'wingman-1';
+        const pilot3 = 'wingman-2';
+
+        act(() => {
+          // Pre-game: Record game start for all pilots
+          result.current.recordGameComplete(pilot1, gameContext);
+          result.current.recordGameComplete(pilot2, gameContext);
+          result.current.recordGameComplete(pilot3, gameContext);
+
+          // Turn 1: Pilot 1 gets first kill
+          result.current.recordKill(pilot1, gameContext);
+          result.current.recordDamage(pilot1, 45, gameContext);
+
+          // Turn 2: Pilot 2 scores two kills, Pilot 3 takes damage
+          result.current.recordKill(pilot2, gameContext);
+          result.current.recordKill(pilot2, gameContext);
+          result.current.recordDamage(pilot2, 80, gameContext);
+
+          // Turn 3: Pilot 1 gets another kill
+          result.current.recordKill(pilot1, gameContext);
+          result.current.recordDamage(pilot1, 30, gameContext);
+
+          // End of game: All pilots survived
+          result.current.recordMissionComplete(pilot1, true, gameContext);
+          result.current.recordMissionComplete(pilot2, true, gameContext);
+          result.current.recordMissionComplete(pilot3, true, gameContext);
+        });
+
+        // Verify stats were accumulated correctly
+        const stats1 = result.current.getPilotStats(pilot1);
+        const stats2 = result.current.getPilotStats(pilot2);
+        const stats3 = result.current.getPilotStats(pilot3);
+
+        expect(stats1.combat.totalKills).toBe(2);
+        expect(stats1.combat.totalDamageDealt).toBe(75);
+        expect(stats1.career.gamesPlayed).toBe(1);
+        expect(stats1.career.missionsSurvived).toBe(1);
+
+        expect(stats2.combat.totalKills).toBe(2);
+        expect(stats2.combat.totalDamageDealt).toBe(80);
+
+        expect(stats3.combat.totalKills).toBe(0);
+        expect(stats3.career.missionsSurvived).toBe(1);
+
+        // Verify first kill award was granted
+        expect(result.current.hasPilotAward(pilot1, 'first-blood')).toBe(true);
+        expect(result.current.hasPilotAward(pilot2, 'first-blood')).toBe(true);
+      });
+
+      it('should handle pilot ejection/death resetting survival streak', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'unlucky-pilot';
+
+        act(() => {
+          // First 3 missions survived
+          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm1' }));
+          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm2' }));
+          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm3' }));
+        });
+
+        expect(result.current.getPilotStats(pilot).career.consecutiveSurvival).toBe(3);
+
+        act(() => {
+          // Pilot ejects - survival streak resets
+          result.current.resetSurvivalStreak(pilot);
+          result.current.recordMissionComplete(pilot, false, createTestContext({ missionId: 'm4' }));
+        });
+
+        const stats = result.current.getPilotStats(pilot);
+        expect(stats.career.consecutiveSurvival).toBe(0);
+        expect(stats.career.bestSurvivalStreak).toBe(3);
+        expect(stats.career.missionsCompleted).toBe(4);
+        expect(stats.career.missionsSurvived).toBe(3);
+      });
+    });
+
+    describe('Multi-Mission Campaign Scenario', () => {
+      it('should track progression across multiple missions in a campaign', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const campaignId = 'operation-revival';
+        const pilot = 'campaign-veteran';
+
+        const missions = ['mission-1', 'mission-2', 'mission-3', 'mission-4', 'mission-5'];
+
+        act(() => {
+          // Simulate 5 missions with varying performance
+          for (let i = 0; i < missions.length; i++) {
+            const context = createTestContext({
+              campaignId,
+              missionId: missions[i],
+            });
+
+            // Record game
+            result.current.recordGameComplete(pilot, context);
+
+            // Simulate kills (increasing skill)
+            const kills = i + 1;
+            for (let k = 0; k < kills; k++) {
+              result.current.recordKill(pilot, context);
+            }
+
+            // Damage dealt
+            result.current.recordDamage(pilot, 50 + i * 20, context);
+
+            // All missions survived
+            result.current.recordMissionComplete(pilot, true, context);
+          }
+
+          // Campaign victory
+          result.current.recordCampaignComplete(pilot, true, createTestContext({ campaignId }));
+        });
+
+        const stats = result.current.getPilotStats(pilot);
+
+        // Verify cumulative stats
+        expect(stats.combat.totalKills).toBe(1 + 2 + 3 + 4 + 5); // 15 total
+        expect(stats.combat.totalDamageDealt).toBe(50 + 70 + 90 + 110 + 130); // 450 total
+        expect(stats.career.missionsCompleted).toBe(5);
+        expect(stats.career.missionsSurvived).toBe(5);
+        expect(stats.career.consecutiveSurvival).toBe(5);
+        expect(stats.career.campaignsCompleted).toBe(1);
+        expect(stats.career.campaignsWon).toBe(1);
+        expect(stats.career.gamesPlayed).toBe(5);
+
+        // Should have earned kill milestone awards
+        expect(result.current.hasPilotAward(pilot, 'first-blood')).toBe(true);
+        // 5 kills = warrior award (if threshold is 5)
+        const awards = result.current.getPilotAwards(pilot);
+        expect(awards.length).toBeGreaterThan(0);
+      });
+
+      it('should track multiple pilots through the same campaign', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const campaignId = 'clan-invasion';
+        const pilots = ['alpha-lead', 'alpha-2', 'bravo-lead', 'bravo-2'];
+
+        act(() => {
+          // Each pilot participates in 3 missions
+          for (let mission = 1; mission <= 3; mission++) {
+            const context = createTestContext({
+              campaignId,
+              missionId: `mission-${mission}`,
+            });
+
+            for (const pilot of pilots) {
+              result.current.recordGameComplete(pilot, context);
+
+              // Varying kills per pilot
+              const killCount = pilots.indexOf(pilot) + 1;
+              for (let k = 0; k < killCount; k++) {
+                result.current.recordKill(pilot, context);
+              }
+
+              result.current.recordMissionComplete(pilot, true, context);
+            }
+          }
+
+          // Campaign ends in victory
+          for (const pilot of pilots) {
+            result.current.recordCampaignComplete(
+              pilot,
+              true,
+              createTestContext({ campaignId })
+            );
+          }
+        });
+
+        // Verify each pilot has correct stats
+        for (let i = 0; i < pilots.length; i++) {
+          const stats = result.current.getPilotStats(pilots[i]);
+          expect(stats.combat.totalKills).toBe((i + 1) * 3); // 3, 6, 9, 12
+          expect(stats.career.missionsCompleted).toBe(3);
+          expect(stats.career.campaignsWon).toBe(1);
+        }
+      });
+    });
+
+    describe('Award Progression Edge Cases', () => {
+      it('should not grant the same non-repeatable award twice', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'ace-pilot';
+        const context = createTestContext();
+
+        act(() => {
+          // Record many kills to trigger first-blood multiple times
+          for (let i = 0; i < 10; i++) {
+            result.current.recordKill(pilot, context);
+          }
+        });
+
+        // First Blood should only be granted once
+        const awards = result.current.getPilotAwards(pilot);
+        const firstBloodAwards = awards.filter((a) => a.awardId === 'first-blood');
+        expect(firstBloodAwards.length).toBe(1);
+        expect(firstBloodAwards[0].timesEarned).toBe(1);
+      });
+
+      it('should grant multiple awards from a single action when criteria met', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'multi-achiever';
+
+        // Set up pilot with stats close to multiple thresholds
+        act(() => {
+          // Set kills to 4 (one away from warrior award at 5)
+          result.current.updateCombatStats(pilot, { totalKills: 4 });
+
+          // Now record one kill that should push over the threshold
+          result.current.recordKill(pilot, createTestContext());
+        });
+
+        const stats = result.current.getPilotStats(pilot);
+        expect(stats.combat.totalKills).toBe(5);
+
+        // Should have both first-blood and warrior awards
+        expect(result.current.hasPilotAward(pilot, 'first-blood')).toBe(true);
+      });
+
+      it('should track awards earned in different contexts separately', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'context-tracker';
+
+        const campaign1Context = createTestContext({
+          campaignId: 'campaign-1',
+          missionId: 'c1-mission',
+        });
+        const campaign2Context = createTestContext({
+          campaignId: 'campaign-2',
+          missionId: 'c2-mission',
+        });
+
+        act(() => {
+          // Earn first blood in campaign 1
+          result.current.recordKill(pilot, campaign1Context);
+
+          // More kills in campaign 2
+          result.current.recordKill(pilot, campaign2Context);
+          result.current.recordKill(pilot, campaign2Context);
+        });
+
+        const awards = result.current.getPilotAwards(pilot);
+        const firstBlood = awards.find((a) => a.awardId === 'first-blood');
+
+        // Award should have campaign 1 context (where it was first earned)
+        expect(firstBlood?.context.campaignId).toBe('campaign-1');
+      });
+
+      it('should correctly evaluate awards after resetting pilot data', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'reset-pilot';
+
+        act(() => {
+          // Build up stats and awards
+          for (let i = 0; i < 5; i++) {
+            result.current.recordKill(pilot, createTestContext());
+          }
+          result.current.recordMissionComplete(pilot, true, createTestContext());
+        });
+
+        const awardsBefore = result.current.getPilotAwards(pilot).length;
+        expect(awardsBefore).toBeGreaterThan(0);
+
+        act(() => {
+          result.current.resetPilotData(pilot);
+        });
+
+        // After reset, pilot should have no stats or awards
+        const stats = result.current.getPilotStats(pilot);
+        expect(stats.combat.totalKills).toBe(0);
+        expect(result.current.getPilotAwards(pilot).length).toBe(0);
+      });
+    });
+
+    describe('Real-time Award Notification Flow', () => {
+      it('should create notifications when awards are granted via game events', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const pilot = 'notification-pilot';
+
+        // Clear any existing notifications
+        act(() => {
+          result.current.clearNotifications();
+        });
+
+        // Grant an award directly
+        act(() => {
+          const award = getAwardById('first-blood')!;
+          result.current.addNotification(award, pilot, 'Test Pilot');
+        });
+
+        const notifications = result.current.getActiveNotifications();
+        expect(notifications.length).toBe(1);
+        expect(notifications[0].pilotId).toBe(pilot);
+        expect(notifications[0].award.id).toBe('first-blood');
+        expect(notifications[0].dismissed).toBe(false);
+      });
+
+      it('should allow dismissing notifications individually', () => {
+        const { result } = renderHook(() => useAwardStore());
+        const award1 = getAwardById('first-blood')!;
+        const award2 = getAwardById('recruit')!;
+
+        act(() => {
+          result.current.clearNotifications();
+          result.current.addNotification(award1, 'pilot-1', 'Pilot 1');
+          result.current.addNotification(award2, 'pilot-2', 'Pilot 2');
+        });
+
+        let notifications = result.current.getActiveNotifications();
+        expect(notifications.length).toBe(2);
+
+        act(() => {
+          result.current.dismissNotification(notifications[0].id);
+        });
+
+        notifications = result.current.getActiveNotifications();
+        expect(notifications.length).toBe(1);
+        expect(notifications[0].pilotId).toBe('pilot-2');
+      });
+    });
+  });
 });

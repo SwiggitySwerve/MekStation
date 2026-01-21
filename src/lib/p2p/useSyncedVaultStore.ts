@@ -233,6 +233,40 @@ export const useSyncedVaultStore = create<SyncedVaultStore>()((set, get) => {
     getSyncState: (id: string) => {
       return get().items[id]?.syncState ?? SyncState.Disabled;
     },
+
+    /**
+     * Import an item from a peer (one-time copy, sync disabled).
+     * Creates a new local copy with a new ID.
+     */
+    importFromPeer: (item: ISyncableVaultItem): string => {
+      const now = Date.now();
+      // Generate new ID to avoid conflicts with the original
+      const newId = `${item.type}-${now}-${Math.random().toString(36).slice(2, 9)}`;
+
+      const importedItem: ISyncableVaultItem = {
+        ...item,
+        id: newId,
+        syncEnabled: false, // Disable sync for imported items
+        syncState: SyncState.Disabled,
+        lastModified: now,
+        lastSynced: undefined, // Clear sync metadata
+        lastModifiedBy: undefined,
+      };
+
+      set((state) => ({
+        items: { ...state.items, [newId]: importedItem },
+        metadata: {
+          ...state.metadata,
+          [newId]: {
+            itemId: newId,
+            syncState: SyncState.Disabled,
+            version: 1,
+          },
+        },
+      }));
+
+      return newId;
+    },
   };
 });
 

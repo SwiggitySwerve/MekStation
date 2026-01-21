@@ -62,6 +62,9 @@ export {
   getYMap,
   getYArray,
   onSyncEvent,
+  // Retry management
+  getRetryState,
+  cancelReconnect,
 } from './SyncProvider';
 
 // Stores

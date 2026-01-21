@@ -203,6 +203,8 @@ export interface ISyncedVaultActions {
   getItemsByType: (type: SyncableItemType) => readonly ISyncableVaultItem[];
   /** Get sync state for an item */
   getSyncState: (id: string) => SyncState;
+  /** Import an item from a peer (one-time copy, sync disabled) */
+  importFromPeer: (item: ISyncableVaultItem) => string;
 }
 
 // =============================================================================

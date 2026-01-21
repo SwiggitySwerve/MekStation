@@ -19,3 +19,9 @@ export { AwardRibbon } from './AwardRibbon';
 
 // AwardEarnedToast - Toast notification when award is earned
 export { AwardEarnedToast, AwardToastContainer } from './AwardEarnedToast';
+
+// AwardSummary - Post-game award summary display
+export { AwardSummary } from './AwardSummary';
+
+// AwardProgress - Progress toward earning awards
+export { AwardProgress, AwardProgressCompact } from './AwardProgress';
