@@ -37,10 +37,11 @@ function EncounterCard({ encounter, onClick }: EncounterCardProps): React.ReactE
     <Card
       className="cursor-pointer hover:border-accent/50 transition-all"
       onClick={onClick}
+      data-testid={`encounter-card-${encounter.id}`}
     >
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-medium text-text-theme-primary truncate">{encounter.name}</h3>
-        <Badge variant={getStatusColor(encounter.status)}>
+        <h3 className="font-medium text-text-theme-primary truncate" data-testid="encounter-name">{encounter.name}</h3>
+        <Badge variant={getStatusColor(encounter.status)} data-testid="encounter-status">
           {getStatusLabel(encounter.status)}
         </Badge>
       </div>
@@ -155,6 +156,7 @@ export default function EncountersListPage(): React.ReactElement {
         <Button
           variant="primary"
           onClick={handleCreateEncounter}
+          data-testid="create-encounter-btn"
           leftIcon={
             <svg
               className="w-4 h-4"
@@ -186,11 +188,12 @@ export default function EncountersListPage(): React.ReactElement {
               value={searchQuery}
               onChange={handleSearchChange}
               aria-label="Search encounters"
+              data-testid="encounter-search"
             />
           </div>
 
           {/* Status Filter */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-testid="status-filter">
             {(['all', EncounterStatus.Draft, EncounterStatus.Ready, EncounterStatus.Launched] as const).map(
               (status) => (
                 <Button
@@ -198,6 +201,7 @@ export default function EncountersListPage(): React.ReactElement {
                   variant={statusFilter === status ? 'primary' : 'secondary'}
                   size="sm"
                   onClick={() => setStatusFilter(status)}
+                  data-testid={`status-option-${status}`}
                 >
                   {status === 'all' ? 'All' : getStatusLabel(status as EncounterStatus)}
                 </Button>
@@ -226,6 +230,7 @@ export default function EncountersListPage(): React.ReactElement {
       {/* Encounters Grid */}
       {filteredEncounters.length === 0 ? (
         <EmptyState
+          data-testid="encounters-empty-state"
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg

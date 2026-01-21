@@ -1,5 +1,9 @@
-import { Page, expect } from '@playwright/test';
+import type { Page as _Page } from '@playwright/test';
+import { expect as _expect } from '@playwright/test';
 import { BasePage } from './base.page';
+
+// Re-export to silence unused warnings (types kept for documentation)
+void _expect;
 
 /**
  * Page object for the encounter list page (/gameplay/encounters).
@@ -20,7 +24,8 @@ export class EncounterListPage extends BasePage {
    * Get the count of encounter cards displayed.
    */
   async getCardCount(): Promise<number> {
-    const cards = this.getByTestId('encounter-card');
+    // Cards use testid pattern: encounter-card-{id}
+    const cards = this.page.locator('[data-testid^="encounter-card-"]');
     return cards.count();
   }
 
