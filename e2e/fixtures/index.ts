@@ -66,7 +66,9 @@ export {
   createTestStar,
   createTestCompany,
   getForce,
-  addAssignmentToForce,
+  assignPilotAndUnit,
+  clearAssignment,
+  cloneForce,
   deleteForce,
   type TestForceOptions,
   type TestAssignment,
@@ -109,3 +111,25 @@ export {
   type TerrainPreset,
   type DeploymentZone,
 } from './encounter';
+
+// Game fixtures
+export {
+  waitForGameplayStoreReady,
+  createDemoSession,
+  getGameSession,
+  getGameplayState,
+  selectUnit,
+  setTarget,
+  handleAction,
+  toggleWeapon,
+  resetGameplay,
+  getSelectedUnitId,
+  DEMO_UNITS,
+  DEMO_INITIAL_STATE,
+  type GamePhase,
+  type GameStatus,
+  type GameSide,
+  type E2EUnitGameState,
+  type E2EGameSession,
+  type E2EGameplayState,
+} from './game';

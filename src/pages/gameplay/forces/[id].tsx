@@ -51,7 +51,7 @@ function DeleteConfirmModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={!isDeleting ? onCancel : undefined}
       />
-      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl">
+      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl" data-testid="delete-confirm-dialog">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/30 flex items-center justify-center">
             <svg
@@ -79,7 +79,7 @@ function DeleteConfirmModal({
           </p>
 
           <div className="flex items-center justify-center gap-3">
-            <Button variant="ghost" onClick={onCancel} disabled={isDeleting}>
+            <Button variant="ghost" onClick={onCancel} disabled={isDeleting} data-testid="cancel-delete-btn">
               Cancel
             </Button>
             <Button
@@ -87,6 +87,7 @@ function DeleteConfirmModal({
               onClick={onConfirm}
               isLoading={isDeleting}
               className="bg-red-600 hover:bg-red-500"
+              data-testid="confirm-delete-btn"
             >
               Delete Force
             </Button>
@@ -455,6 +456,7 @@ export default function ForceDetailPage(): React.ReactElement {
             variant="secondary"
             size="sm"
             onClick={() => setIsEditModalOpen(true)}
+            data-testid="edit-force-btn"
             leftIcon={
               <svg
                 className="w-4 h-4"
@@ -478,6 +480,7 @@ export default function ForceDetailPage(): React.ReactElement {
             size="sm"
             onClick={() => setIsDeleteModalOpen(true)}
             className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+            data-testid="delete-force-btn"
             leftIcon={
               <svg
                 className="w-4 h-4"

@@ -24,7 +24,8 @@ export class ForceListPage extends BasePage {
    * Get the count of force cards displayed.
    */
   async getCardCount(): Promise<number> {
-    const cards = this.getByTestId('force-card');
+    // Cards use testid pattern: force-card-{id}
+    const cards = this.page.locator('[data-testid^="force-card-"]');
     return cards.count();
   }
 
@@ -228,29 +229,27 @@ export class ForceCreatePage extends BasePage {
   }
 
   /**
-   * Select a faction for the force.
-   * @param faction - The faction identifier
+   * Fill the affiliation field.
+   * @param affiliation - The affiliation/faction name
    */
-  async selectFaction(faction: string): Promise<void> {
-    await this.clickByTestId('faction-select');
-    await this.clickByTestId(`faction-option-${faction}`);
+  async fillAffiliation(affiliation: string): Promise<void> {
+    await this.fillByTestId('force-affiliation-input', affiliation);
   }
 
   /**
-   * Set the BV limit for the force.
-   * @param limit - The BV limit value
+   * Fill the description field.
+   * @param description - The force description
    */
-  async setBVLimit(limit: number): Promise<void> {
-    await this.fillByTestId('bv-limit-input', limit.toString());
+  async fillDescription(description: string): Promise<void> {
+    await this.page.locator('[data-testid="force-description-input"]').fill(description);
   }
 
   /**
-   * Select an era for the force.
-   * @param era - The era identifier
+   * Select a force type.
+   * @param forceType - The force type (lance, star, level_ii, company, binary, custom)
    */
-  async selectEra(era: string): Promise<void> {
-    await this.clickByTestId('era-select');
-    await this.clickByTestId(`era-option-${era}`);
+  async selectForceType(forceType: string): Promise<void> {
+    await this.clickByTestId(`force-type-${forceType}`);
   }
 
   /**
@@ -268,24 +267,24 @@ export class ForceCreatePage extends BasePage {
   }
 
   /**
-   * Check if form validation error is displayed.
-   * @param field - The field name to check for errors
+   * Check if submit button is enabled.
    */
-  async hasFieldError(field: string): Promise<boolean> {
-    return this.isVisibleByTestId(`${field}-error`);
+  async isSubmitEnabled(): Promise<boolean> {
+    const btn = this.getByTestId('submit-force-btn');
+    return !(await btn.isDisabled());
   }
 
   /**
    * Create a force with the given details (convenience method).
    * @param name - The force name
-   * @param faction - The faction
-   * @param bvLimit - Optional BV limit
+   * @param forceType - The force type (defaults to 'lance')
+   * @param affiliation - Optional affiliation
    */
-  async createForce(name: string, faction: string, bvLimit?: number): Promise<void> {
+  async createForce(name: string, forceType: string = 'lance', affiliation?: string): Promise<void> {
     await this.fillName(name);
-    await this.selectFaction(faction);
-    if (bvLimit) {
-      await this.setBVLimit(bvLimit);
+    await this.selectForceType(forceType);
+    if (affiliation) {
+      await this.fillAffiliation(affiliation);
     }
     await this.submit();
   }

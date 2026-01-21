@@ -55,6 +55,7 @@ function ActionButton({ action, onClick, disabled }: ActionButtonProps): React.R
       disabled={disabled || !action.enabled}
       className={`${baseClasses} ${primaryClasses} ${disabledClasses}`}
       title={action.tooltip || (action.shortcut ? `${action.label} (${action.shortcut})` : action.label)}
+      data-testid={`action-btn-${action.id}`}
     >
       {action.label}
       {action.shortcut && (
@@ -129,6 +130,7 @@ export function ActionBar({
       className={`bg-gray-100 border-t border-gray-300 px-4 py-3 flex items-center justify-between ${className}`}
       role="toolbar"
       aria-label="Game actions"
+      data-testid="action-bar"
     >
       <div className="flex items-center gap-2">
         {actions.map((action) => (

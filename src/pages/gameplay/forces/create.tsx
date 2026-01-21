@@ -93,6 +93,7 @@ function ForceTypeCard({
     <button
       type="button"
       onClick={onClick}
+      data-testid={`force-type-${option.type}`}
       className={`
         text-left p-4 rounded-lg border-2 transition-all duration-200
         ${
@@ -196,6 +197,7 @@ export default function CreateForcePage(): React.ReactElement {
                 placeholder="Enter force name..."
                 required
                 autoFocus
+                data-testid="force-name-input"
               />
               <p className="mt-1 text-xs text-text-theme-muted">
                 Minimum 2 characters
@@ -215,6 +217,7 @@ export default function CreateForcePage(): React.ReactElement {
                 value={affiliation}
                 onChange={(e) => setAffiliation(e.target.value)}
                 placeholder="e.g., House Steiner, Clan Wolf..."
+                data-testid="force-affiliation-input"
               />
             </div>
 
@@ -231,6 +234,7 @@ export default function CreateForcePage(): React.ReactElement {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional notes about this force..."
                 rows={3}
+                data-testid="force-description-input"
                 className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 resize-none"
               />
             </div>
@@ -280,6 +284,7 @@ export default function CreateForcePage(): React.ReactElement {
             variant="ghost"
             onClick={handleCancel}
             disabled={isLoading}
+            data-testid="cancel-btn"
           >
             Cancel
           </Button>
@@ -288,6 +293,7 @@ export default function CreateForcePage(): React.ReactElement {
             variant="primary"
             disabled={!isValid}
             isLoading={isLoading}
+            data-testid="submit-force-btn"
             leftIcon={
               <svg
                 className="w-4 h-4"

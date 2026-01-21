@@ -21,7 +21,7 @@ import { Button } from '@/components/ui';
 
 function GameLoading(): React.ReactElement {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
+    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-loading">
       <div className="text-center">
         <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
         <p className="text-gray-400">Loading game session...</p>
@@ -54,7 +54,7 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
       : 'text-red-400';
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
+    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-completed">
       <div className="text-center max-w-lg">
         <div className={`text-6xl font-bold mb-4 ${winnerColor}`}>
           {winnerText}
@@ -68,6 +68,7 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
             <Button
               variant="primary"
               size="lg"
+              data-testid="replay-game-btn"
               leftIcon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -79,7 +80,7 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
             </Button>
           </Link>
           <Link href="/gameplay/games">
-            <Button variant="secondary" size="lg">
+            <Button variant="secondary" size="lg" data-testid="back-to-games-btn">
               Back to Games
             </Button>
           </Link>
@@ -114,7 +115,7 @@ interface GameErrorProps {
 
 function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
+    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-error">
       <div className="text-center max-w-md">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/20 flex items-center justify-center">
           <svg
@@ -133,7 +134,7 @@ function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
         </div>
         <h2 className="text-xl font-bold text-white mb-2">Failed to Load Game</h2>
         <p className="text-gray-400 mb-4">{message}</p>
-        <Button variant="primary" onClick={onRetry}>
+        <Button variant="primary" onClick={onRetry} data-testid="game-retry-btn">
           Try Again
         </Button>
       </div>
@@ -228,7 +229,7 @@ export default function GameSessionPage(): React.ReactElement {
       <Head>
         <title>Game Session - MekStation</title>
       </Head>
-      <div className="h-screen overflow-hidden">
+      <div className="h-screen overflow-hidden" data-testid="game-session">
         <GameplayLayout
           session={session}
           selectedUnitId={ui.selectedUnitId}

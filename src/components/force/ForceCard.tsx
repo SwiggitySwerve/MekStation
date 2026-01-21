@@ -32,6 +32,8 @@ export interface ForceCardProps {
   depth?: number;
   /** Additional CSS classes */
   className?: string;
+  /** Test ID for E2E testing */
+  'data-testid'?: string;
 }
 
 // =============================================================================
@@ -99,6 +101,7 @@ export function ForceCard({
   onClick,
   depth = 0,
   className = '',
+  'data-testid': testId,
 }: ForceCardProps): React.ReactElement {
   const stats = force.stats;
   const readyCount = Math.min(stats.assignedPilots, stats.assignedUnits);
@@ -115,6 +118,7 @@ export function ForceCard({
     <Card
       variant={isSelected ? 'interactive' : 'default'}
       onClick={onClick}
+      data-testid={testId}
       className={`group transition-all ${isSelected ? 'ring-2 ring-accent' : ''} ${className}`}
     >
       <div
