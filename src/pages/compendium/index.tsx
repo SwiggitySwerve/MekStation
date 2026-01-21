@@ -89,6 +89,7 @@ export default function CompendiumPage(): React.ReactElement {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="pl-9 pr-4 py-2 bg-surface-base/50 border border-border-theme-subtle rounded-lg text-sm text-text-theme-primary placeholder-text-theme-secondary focus:outline-none focus:border-accent transition-colors w-48"
+        data-testid="compendium-search"
       />
     </div>
   );
@@ -99,9 +100,10 @@ export default function CompendiumPage(): React.ReactElement {
       subtitle="Equipment catalog, construction rules, and game mechanics"
       breadcrumbs={[]}
       headerActions={headerActions}
+      data-testid="compendium-hub"
     >
       {/* Units Section */}
-      <section className="mb-8">
+      <section className="mb-8" data-testid="compendium-units-section">
         <h2 className="text-category-label text-text-theme-secondary mb-4">UNITS</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <CategoryCard
@@ -115,7 +117,7 @@ export default function CompendiumPage(): React.ReactElement {
       </section>
 
       {/* Equipment Section */}
-      <section className="mb-8">
+      <section className="mb-8" data-testid="compendium-equipment-section">
         <h2 className="text-category-label text-text-theme-secondary mb-4">EQUIPMENT</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <CategoryCard
@@ -129,7 +131,7 @@ export default function CompendiumPage(): React.ReactElement {
       </section>
 
       {/* Rules Section */}
-      <section className="mb-8">
+      <section className="mb-8" data-testid="compendium-rules-section">
         <h2 className="text-category-label text-text-theme-secondary mb-4">CONSTRUCTION RULES</h2>
         <nav aria-label="Construction rules sections">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -141,6 +143,7 @@ export default function CompendiumPage(): React.ReactElement {
                 subtitle={section.description}
                 href={`/compendium/rules/${section.id}`}
                 accentColor={section.accentColor}
+                data-testid={`rule-category-${section.id}`}
               />
             ))}
           </div>
@@ -161,7 +164,7 @@ export default function CompendiumPage(): React.ReactElement {
       </section>
 
       {/* Quick Reference Stats */}
-      <Card variant="dark" className="mt-8">
+      <Card variant="dark" className="mt-8" data-testid="compendium-quick-reference">
         <h3 className="text-category-label text-text-theme-secondary mb-4">Quick Reference</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="bg-surface-raised/30 rounded-lg p-3">
