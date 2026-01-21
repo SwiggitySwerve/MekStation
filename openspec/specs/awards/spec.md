@@ -1,7 +1,8 @@
-# Specification: Awards System
+# awards Specification
 
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change add-awards-system. Update Purpose after archive.
+## Requirements
 ### Requirement: Award Definitions
 
 The system SHALL define awards that pilots can earn through gameplay.
@@ -101,3 +102,4 @@ The system SHALL track pilot statistics for award evaluation.
 - **WHEN** the mission ends
 - **THEN** the survival count increments
 - **AND** survival rate is updated
+

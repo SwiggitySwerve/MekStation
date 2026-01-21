@@ -1,7 +1,8 @@
-# Specification: P2P Vault Sync
+# vault-sync Specification
 
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change add-p2p-vault-sync. Update Purpose after archive.
+## Requirements
 ### Requirement: Peer Connection Management
 
 The system SHALL provide peer-to-peer connection capabilities for real-time vault synchronization.
@@ -90,3 +91,4 @@ The system SHALL display sync status for vault items and connections.
 - **WHEN** viewing the sync panel
 - **THEN** connection quality is displayed
 - **AND** connected peer count is shown
+
