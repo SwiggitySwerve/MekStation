@@ -106,6 +106,7 @@ export function getActiveHeatEffects(heat: number): string[] {
   if (heat >= HEAT_THRESHOLDS.PENALTY_5) effects.push('+5 to-hit penalty');
   if (heat >= HEAT_THRESHOLDS.AMMO_EXPLOSION_RISK) effects.push('Ammo explosion risk');
   if (heat >= HEAT_THRESHOLDS.PENALTY_4) effects.push('+4 to-hit penalty');
+  if (heat >= HEAT_THRESHOLDS.PENALTY_3) effects.push('+3 to-hit penalty');
   if (heat >= HEAT_THRESHOLDS.PENALTY_2) effects.push('+2 to-hit penalty');
   if (heat >= HEAT_THRESHOLDS.PENALTY_1) effects.push('+1 to-hit penalty');
   return effects;
