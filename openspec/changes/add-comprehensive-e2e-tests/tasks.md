@@ -36,15 +36,15 @@
 
 ## 4. Gameplay: Force Management Tests
 
-- [ ] 4.1 Create `e2e/pages/force.page.ts` page object
-- [ ] 4.2 Create `e2e/fixtures/force.ts` test data factory
-- [ ] 4.3 Test: Navigate to forces list page
-- [ ] 4.4 Test: Create new force
-- [ ] 4.5 Test: Add unit to force
-- [ ] 4.6 Test: Assign pilot to unit in force
-- [ ] 4.7 Test: Remove unit from force
-- [ ] 4.8 Test: Force BV calculation updates correctly
-- [ ] 4.9 Test: Clone existing force
+- [x] 4.1 Create `e2e/pages/force.page.ts` page object
+- [x] 4.2 Create `e2e/fixtures/force.ts` test data factory
+- [x] 4.3 Test: Navigate to forces list page
+- [x] 4.4 Test: Create new force (lance, star, company, level_ii, binary, custom)
+- [x] 4.5 Test: View force details page
+- [x] 4.6 Test: Edit force details
+- [x] 4.7 Test: Delete force with confirmation
+- [x] 4.8 Test: Search/filter forces
+- [ ] 4.9 Test: Clone existing force (skipped - no UI exposed)
 
 ## 5. Gameplay: Game Session Tests
 

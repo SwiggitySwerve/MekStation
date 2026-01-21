@@ -195,7 +195,7 @@ export async function getForce(
   affiliation?: string;
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { forces: Map<string, {
+    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { forces: Array<{
       id: string;
       name: string;
       forceType: string;
@@ -208,40 +208,93 @@ export async function getForce(
     }
 
     const state = stores.force.getState();
-    return state.forces.get(id) || null;
+    // forces is an array, not a Map
+    return state.forces.find((f) => f.id === id) || null;
   }, forceId);
 }
 
 /**
- * Adds an assignment (pilot + unit) to a force.
+ * Assigns a pilot and unit to an existing assignment slot.
+ * Note: Forces are created with empty assignment slots. Use this to populate them.
  *
  * @param page - Playwright page object
- * @param forceId - The force ID to add assignment to
- * @param assignment - The assignment details
- * @returns The assignment ID or null
+ * @param assignmentId - The assignment slot ID to update
+ * @param pilotId - The pilot ID to assign
+ * @param unitId - The unit ID to assign
+ * @returns True if successful
  */
-export async function addAssignmentToForce(
+export async function assignPilotAndUnit(
   page: Page,
-  forceId: string,
-  assignment: TestAssignment
-): Promise<string | null> {
+  assignmentId: string,
+  pilotId: string,
+  unitId: string
+): Promise<boolean> {
   return page.evaluate(
-    async ({ forceId, assignment }) => {
-      const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { addAssignment: (forceId: string, assignment: {
-        pilotId: string | null;
-        unitId: string | null;
-        position: string;
-        slot: number;
-        notes?: string;
-      }) => Promise<string | null> } } } }).__ZUSTAND_STORES__;
+    async ({ assignmentId, pilotId, unitId }) => {
+      const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
+        assignPilotAndUnit: (assignmentId: string, pilotId: string, unitId: string) => Promise<boolean>;
+      } } } }).__ZUSTAND_STORES__;
 
       if (!stores?.force) {
         throw new Error('Force store not exposed');
       }
 
-      return stores.force.getState().addAssignment(forceId, assignment);
+      return stores.force.getState().assignPilotAndUnit(assignmentId, pilotId, unitId);
     },
-    { forceId, assignment }
+    { assignmentId, pilotId, unitId }
+  );
+}
+
+/**
+ * Clears an assignment slot.
+ *
+ * @param page - Playwright page object
+ * @param assignmentId - The assignment slot ID to clear
+ * @returns True if successful
+ */
+export async function clearAssignment(
+  page: Page,
+  assignmentId: string
+): Promise<boolean> {
+  return page.evaluate(async (id) => {
+    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
+      clearAssignment: (id: string) => Promise<boolean>;
+    } } } }).__ZUSTAND_STORES__;
+
+    if (!stores?.force) {
+      throw new Error('Force store not exposed');
+    }
+
+    return stores.force.getState().clearAssignment(id);
+  }, assignmentId);
+}
+
+/**
+ * Clones a force with a new name.
+ *
+ * @param page - Playwright page object
+ * @param forceId - The force ID to clone
+ * @param newName - The name for the cloned force
+ * @returns The new force ID or null
+ */
+export async function cloneForce(
+  page: Page,
+  forceId: string,
+  newName: string
+): Promise<string | null> {
+  return page.evaluate(
+    async ({ forceId, newName }) => {
+      const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
+        cloneForce: (id: string, newName: string) => Promise<string | null>;
+      } } } }).__ZUSTAND_STORES__;
+
+      if (!stores?.force) {
+        throw new Error('Force store not exposed');
+      }
+
+      return stores.force.getState().cloneForce(forceId, newName);
+    },
+    { forceId, newName }
   );
 }
 

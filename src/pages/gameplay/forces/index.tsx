@@ -85,6 +85,7 @@ export default function ForceRosterPage(): React.ReactElement {
         <Button
           variant="primary"
           onClick={handleCreateForce}
+          data-testid="create-force-btn"
           leftIcon={
             <svg
               className="w-4 h-4"
@@ -116,6 +117,7 @@ export default function ForceRosterPage(): React.ReactElement {
               value={searchQuery}
               onChange={handleSearchChange}
               aria-label="Search forces"
+              data-testid="force-search"
             />
           </div>
         </div>
@@ -138,6 +140,7 @@ export default function ForceRosterPage(): React.ReactElement {
       {/* Force Grid */}
       {filteredForces.length === 0 ? (
         <EmptyState
+          data-testid="forces-empty-state"
           icon={
             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
               <svg
@@ -176,6 +179,7 @@ export default function ForceRosterPage(): React.ReactElement {
               key={force.id}
               force={force}
               onClick={() => handleForceClick(force)}
+              data-testid={`force-card-${force.id}`}
             />
           ))}
         </div>
