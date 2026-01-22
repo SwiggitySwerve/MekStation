@@ -95,12 +95,15 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
+/* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: 'npm run dev:e2e',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    // Pipe stdout to help with process cleanup on Windows
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: {
       NEXT_PUBLIC_E2E_MODE: 'true',
     },
