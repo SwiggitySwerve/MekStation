@@ -18,6 +18,7 @@ import {
   createTestLance,
   getForce,
   deleteForce,
+  cloneForce,
 } from './fixtures/force';
 
 // =============================================================================
@@ -502,5 +503,103 @@ test.describe('Force Type Variations @force', () => {
     if (match) {
       createdForceIds.push(match[1]);
     }
+  });
+});
+
+// =============================================================================
+// Force Clone Tests
+// =============================================================================
+
+test.describe('Force Clone @force', () => {
+  let listPage: ForceListPage;
+  let originalForceId: string | null;
+  let clonedForceId: string | null;
+
+  test.beforeEach(async ({ page }) => {
+    listPage = new ForceListPage(page);
+    await listPage.navigate();
+    await waitForStoreReady(page);
+    
+    // Create a force to clone
+    originalForceId = await createTestForce(page, {
+      name: 'Original Force',
+      forceType: 'lance',
+      affiliation: 'House Davion',
+    });
+    
+    clonedForceId = null;
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Cleanup
+    if (originalForceId) {
+      try {
+        await deleteForce(page, originalForceId);
+      } catch {
+        // Ignore
+      }
+    }
+    if (clonedForceId) {
+      try {
+        await deleteForce(page, clonedForceId);
+      } catch {
+        // Ignore
+      }
+    }
+  });
+
+  test('can clone a force via store', async ({ page }) => {
+    // Clone the force
+    clonedForceId = await cloneForce(page, originalForceId!, 'Cloned Force');
+
+    // Verify the clone was created
+    expect(clonedForceId).not.toBeNull();
+    expect(clonedForceId).not.toBe(originalForceId);
+
+    // Verify the cloned force exists
+    const clonedForce = await getForce(page, clonedForceId!);
+    expect(clonedForce).not.toBeNull();
+    expect(clonedForce?.name).toBe('Cloned Force');
+  });
+
+  test('cloned force has same type as original', async ({ page }) => {
+    // Clone the force
+    clonedForceId = await cloneForce(page, originalForceId!, 'Type Test Clone');
+
+    // Get both forces
+    const original = await getForce(page, originalForceId!);
+    const cloned = await getForce(page, clonedForceId!);
+
+    // Should have same type
+    expect(cloned?.forceType).toBe(original?.forceType);
+    expect(cloned?.forceType).toBe('lance');
+  });
+
+  test('cloned force appears in force list', async ({ page }) => {
+    // Clone the force
+    clonedForceId = await cloneForce(page, originalForceId!, 'List Test Clone');
+
+    // Refresh the list
+    await listPage.navigate();
+    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+
+    // Both forces should be visible
+    await expect(page.getByTestId(`force-card-${originalForceId}`)).toBeVisible();
+    await expect(page.getByTestId(`force-card-${clonedForceId}`)).toBeVisible();
+  });
+
+  test('cloned force has unique ID', async ({ page }) => {
+    // Clone the same force twice
+    const clone1Id = await cloneForce(page, originalForceId!, 'Clone 1');
+    const clone2Id = await cloneForce(page, originalForceId!, 'Clone 2');
+
+    // IDs should all be unique
+    expect(clone1Id).not.toBe(originalForceId);
+    expect(clone2Id).not.toBe(originalForceId);
+    expect(clone1Id).not.toBe(clone2Id);
+
+    // Cleanup extra clones
+    if (clone1Id) await deleteForce(page, clone1Id);
+    if (clone2Id) await deleteForce(page, clone2Id);
   });
 });
