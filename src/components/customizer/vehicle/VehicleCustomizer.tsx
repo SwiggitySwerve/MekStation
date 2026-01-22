@@ -71,6 +71,7 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps): React.ReactEleme
   return (
     <button
       onClick={onClick}
+      data-testid={`vehicle-tab-${tab.id}`}
       className={`
         px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap
         ${isActive
@@ -129,12 +130,12 @@ export function VehicleCustomizer({
 
   return (
     <VehicleStoreContext.Provider value={store}>
-      <div className={`flex flex-col h-full ${className}`}>
+      <div className={`flex flex-col h-full ${className}`} data-testid="vehicle-customizer">
         {/* Status Bar */}
         <VehicleStatusBar />
 
         {/* Tab Bar */}
-        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto">
+        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto" data-testid="vehicle-tab-bar">
           {VEHICLE_TABS.map((tab) => (
             <TabButton
               key={tab.id}
@@ -148,7 +149,7 @@ export function VehicleCustomizer({
         {/* Main Content Area */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Tab Content */}
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto p-4" data-testid="vehicle-tab-content">
             {tabContent}
           </div>
 

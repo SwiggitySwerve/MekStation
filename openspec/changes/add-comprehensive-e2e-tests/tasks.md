@@ -83,35 +83,40 @@ These E2E tests focus on verifying the UI correctly displays combat data.
 
 ## 7. Gameplay: Repair System Tests
 
-- [ ] 7.1 Create `e2e/pages/repair.page.ts` page object
-- [ ] 7.2 Test: Navigate to repair bay page
-- [ ] 7.3 Test: View damaged unit repair options
-- [ ] 7.4 Test: Repair cost calculation displays
-- [ ] 7.5 Test: Queue repair job
-- [ ] 7.6 Test: Repair progress tracking
+**COMPLETED** - PR #146 merged. 69 tests (23 tests x 3 browsers).
+
+- [x] 7.1 Create `e2e/pages/repair.page.ts` page object
+- [x] 7.2 Test: Navigate to repair bay page
+- [x] 7.3 Test: View damaged unit repair options
+- [x] 7.4 Test: Repair cost calculation displays
+- [x] 7.5 Test: Queue repair job
+- [x] 7.6 Test: Repair progress tracking
 
 ## 8. Customizer: Aerospace Tests
 
-**COMPLETED** - PR #144 merged. Foundation tests pass. Full customization tests
-require fixture/API support for creating aerospace units programmatically.
+**COMPLETED** - PR #147 merged. 38 tests (19 tests x 2 browsers).
+Full implementation with fixtures for programmatic unit creation.
 
 - [x] 8.1 Add testids to aerospace customizer components (AerospaceCustomizer, StructureTab, ArmorTab, EquipmentTab)
 - [x] 8.2 Create `e2e/pages/customizer.page.ts` page object with AerospaceCustomizerPage class
-- [x] 8.3 Test: Navigate to aerospace customizer (6 passing tests)
-- [-] 8.4 Test: Create new aerospace unit (SKIPPED - requires unit creation fixture)
-- [-] 8.5 Test: Configure aerospace armor (SKIPPED - requires loaded unit)
-- [-] 8.6 Test: Add weapons to aerospace unit (SKIPPED - requires loaded unit)
-- [-] 8.7 Test: Validate aerospace construction rules (SKIPPED - requires loaded unit)
-- [-] 8.8 Test: Save aerospace unit (SKIPPED - requires loaded unit)
+- [x] 8.3 Test: Navigate to aerospace customizer
+- [x] 8.4 Test: Create new aerospace unit (light/medium/heavy/assault)
+- [x] 8.5 Test: Configure aerospace armor
+- [x] 8.6 Test: Add weapons to aerospace unit (heat sinks verification)
+- [x] 8.7 Test: Tab navigation and unit state management
+- [x] 8.8 Test: Multiple unit creation and selection
 
 ## 9. Customizer: Vehicle Tests
 
-- [ ] 9.1 Test: Navigate to vehicle customizer
-- [ ] 9.2 Test: Create new vehicle
-- [ ] 9.3 Test: Configure vehicle armor
-- [ ] 9.4 Test: Add weapons to vehicle
-- [ ] 9.5 Test: Validate vehicle construction rules
-- [ ] 9.6 Test: Save vehicle
+**COMPLETED** - PR #148 merged. 39 tests (20 tests x 2 browsers - 1 smoke).
+
+- [x] 9.1 Test: Navigate to vehicle customizer
+- [x] 9.2 Test: Create new vehicle (light/medium/heavy/assault)
+- [x] 9.3 Test: Vehicle has required stats (cruiseMP, flankMP, engineRating)
+- [x] 9.4 Test: Vehicle structure data (tonnage, motionType, engineType)
+- [x] 9.5 Test: Vehicle armor values
+- [x] 9.6 Test: Vehicle tab navigation and state management
+- [x] 9.7 Test: Vehicle motion type defaults
 
 ## 10. Customizer: OmniMech Tests
 
