@@ -278,7 +278,7 @@ export function OverviewTab({
           </div>
 
           {/* OmniMech Toggle */}
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2" data-testid="omnimech-section">
             <input
               type="checkbox"
               id="omniMech"
@@ -286,6 +286,7 @@ export function OverviewTab({
               onChange={handleOmniMechChange}
               disabled={readOnly}
               className="w-4 h-4 rounded border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent"
+              data-testid="omnimech-checkbox"
             />
             <label htmlFor="omniMech" className={cs.text.label}>
               OmniMech
@@ -298,6 +299,7 @@ export function OverviewTab({
                 type="button"
                 onClick={handleResetChassis}
                 className="ml-4 px-3 py-1 text-sm rounded border border-border-theme-subtle bg-surface-deep hover:bg-surface-default text-content-secondary hover:text-content-primary transition-colors"
+                data-testid="reset-chassis-button"
               >
                 Reset Chassis
               </button>

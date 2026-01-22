@@ -15,6 +15,7 @@ import { useAwardStore } from '@/stores/useAwardStore';
 import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 import * as vehicleRegistry from '@/stores/vehicleStoreRegistry';
+import * as unitRegistry from '@/stores/unitStoreRegistry';
 
 declare global {
   interface Window {
@@ -30,6 +31,7 @@ declare global {
     };
     __AEROSPACE_REGISTRY__?: typeof aerospaceRegistry;
     __VEHICLE_REGISTRY__?: typeof vehicleRegistry;
+    __UNIT_REGISTRY__?: typeof unitRegistry;
     __UNIT_TEMPLATES__?: typeof UNIT_TEMPLATES;
     __E2E_MODE__?: boolean;
   }
@@ -52,6 +54,7 @@ export function exposeStoresForE2E(): void {
   };
   window.__AEROSPACE_REGISTRY__ = aerospaceRegistry;
   window.__VEHICLE_REGISTRY__ = vehicleRegistry;
+  window.__UNIT_REGISTRY__ = unitRegistry;
   window.__UNIT_TEMPLATES__ = UNIT_TEMPLATES;
 
   console.log('[E2E] Stores exposed for testing');

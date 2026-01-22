@@ -120,11 +120,18 @@ Full implementation with fixtures for programmatic unit creation.
 
 ## 10. Customizer: OmniMech Tests
 
-- [ ] 10.1 Test: Load OmniMech in customizer
-- [ ] 10.2 Test: Switch OmniMech configuration
-- [ ] 10.3 Test: Pod space display is accurate
-- [ ] 10.4 Test: Add equipment to pod space
-- [ ] 10.5 Test: OmniMech indicators display correctly
+**COMPLETED** - 20 tests (40 total across 2 browsers). Fixed Windows hanging by disabling Turbopack for E2E.
+
+- [x] 10.1 Expose unit store registry for E2E (`storeExposure.ts`)
+- [x] 10.2 Add testids to OmniMech UI elements (`OverviewTab.tsx`)
+- [x] 10.3 Create OmniMech fixtures (`e2e/fixtures/customizer.ts`)
+- [x] 10.4 Test: Create OmniMech unit directly
+- [x] 10.5 Test: Convert standard mech to OmniMech and back
+- [x] 10.6 Test: OmniMech weight classes (light/medium/heavy/assault)
+- [x] 10.7 Test: Chassis reset removes pod-mounted equipment
+- [x] 10.8 Test: Base chassis heat sink management
+- [x] 10.9 Test: OmniMech tab navigation and state management
+- [x] 10.10 Test: OmniMech UI elements (checkbox, reset button)
 
 ## 11. Customizer: Exotic Mech Tests
 

@@ -1,6 +1,22 @@
 import { Page } from '@playwright/test';
 
 /**
+ * Options for creating an OmniMech unit
+ */
+export interface CreateOmniMechOptions {
+  /** Unit name */
+  name?: string;
+  /** Tonnage (20-100) */
+  tonnage?: number;
+  /** Tech base: 'InnerSphere' | 'Clan' */
+  techBase?: string;
+  /** Walk MP */
+  walkMP?: number;
+  /** Base chassis heat sinks (fixed to chassis, -1 = use engine integral) */
+  baseChassisHeatSinks?: number;
+}
+
+/**
  * Options for creating an aerospace unit
  */
 export interface CreateAerospaceOptions {
@@ -121,8 +137,16 @@ export async function createMechUnit(
       };
     }
 
+    // Override template values with requested options
+    const finalTemplate = {
+      ...template,
+      tonnage: opts.tonnage ?? template.tonnage,
+      techBase: opts.techBase ?? template.techBase,
+      walkMP: opts.walkMP ?? template.walkMP,
+    };
+
     const store = stores.tabManager.getState();
-    return store.createTab(template, opts.name ?? `Test Mech ${Date.now()}`);
+    return store.createTab(finalTemplate, opts.name ?? `Test Mech ${Date.now()}`);
   }, options);
 
   return unitId;
@@ -508,6 +532,285 @@ export async function getAerospaceState(
       fuel: state.fuel,
       armorTonnage: state.armorTonnage,
       heatSinks: state.heatSinks,
+    };
+  }, unitId);
+}
+
+// =============================================================================
+// OmniMech Fixtures
+// =============================================================================
+
+/**
+ * Creates a new OmniMech unit in the customizer and opens it as a tab.
+ * Creates a standard BattleMech first, then converts it to OmniMech.
+ *
+ * @param page - Playwright page object
+ * @param options - OmniMech creation options
+ * @returns The created unit ID
+ */
+export async function createOmniMechUnit(
+  page: Page,
+  options: CreateOmniMechOptions = {}
+): Promise<string> {
+  // First create a standard mech
+  const unitId = await createMechUnit(page, {
+    name: options.name ?? `Test OmniMech ${Date.now()}`,
+    tonnage: options.tonnage,
+    techBase: options.techBase,
+    walkMP: options.walkMP,
+  });
+
+  // Then convert it to OmniMech via store action
+  await page.evaluate(
+    ({ id, baseChassisHeatSinks }) => {
+      const registry = (window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  setIsOmni: (isOmni: boolean) => void;
+                  setBaseChassisHeatSinks: (count: number) => void;
+                };
+              }
+            | undefined;
+        };
+      }).__UNIT_REGISTRY__;
+
+      if (!registry) {
+        throw new Error('Unit registry not exposed');
+      }
+
+      const store = registry.getUnitStore(id);
+      if (!store) {
+        throw new Error(`Unit store not found for ID: ${id}`);
+      }
+
+      const state = store.getState();
+      state.setIsOmni(true);
+
+      if (baseChassisHeatSinks !== undefined && baseChassisHeatSinks >= 0) {
+        state.setBaseChassisHeatSinks(baseChassisHeatSinks);
+      }
+    },
+    { id: unitId, baseChassisHeatSinks: options.baseChassisHeatSinks }
+  );
+
+  return unitId;
+}
+
+/**
+ * Gets OmniMech-specific state for a unit
+ */
+export async function getOmniMechState(
+  page: Page,
+  unitId: string
+): Promise<{
+  id: string;
+  name: string;
+  tonnage: number;
+  isOmni: boolean;
+  baseChassisHeatSinks: number;
+  equipmentCount: number;
+  podMountedCount: number;
+  fixedCount: number;
+} | null> {
+  return page.evaluate((id) => {
+    const registry = (window as unknown as {
+      __UNIT_REGISTRY__?: {
+        getUnitStore: (id: string) =>
+          | {
+              getState: () => {
+                id: string;
+                name: string;
+                tonnage: number;
+                isOmni: boolean;
+                baseChassisHeatSinks: number;
+                equipment: Array<{ isOmniPodMounted: boolean }>;
+              };
+            }
+          | undefined;
+      };
+    }).__UNIT_REGISTRY__;
+
+    if (!registry) {
+      return null;
+    }
+
+    const store = registry.getUnitStore(id);
+    if (!store) {
+      return null;
+    }
+
+    const state = store.getState();
+    const podMountedCount = state.equipment.filter((eq) => eq.isOmniPodMounted).length;
+    const fixedCount = state.equipment.filter((eq) => !eq.isOmniPodMounted).length;
+
+    return {
+      id: state.id,
+      name: state.name,
+      tonnage: state.tonnage,
+      isOmni: state.isOmni,
+      baseChassisHeatSinks: state.baseChassisHeatSinks,
+      equipmentCount: state.equipment.length,
+      podMountedCount,
+      fixedCount,
+    };
+  }, unitId);
+}
+
+/**
+ * Sets whether a unit is an OmniMech
+ */
+export async function setUnitIsOmni(page: Page, unitId: string, isOmni: boolean): Promise<void> {
+  await page.evaluate(
+    ({ id, isOmni }) => {
+      const registry = (window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  setIsOmni: (isOmni: boolean) => void;
+                };
+              }
+            | undefined;
+        };
+      }).__UNIT_REGISTRY__;
+
+      if (!registry) {
+        throw new Error('Unit registry not exposed');
+      }
+
+      const store = registry.getUnitStore(id);
+      if (!store) {
+        throw new Error(`Unit store not found for ID: ${id}`);
+      }
+
+      store.getState().setIsOmni(isOmni);
+    },
+    { id: unitId, isOmni }
+  );
+}
+
+/**
+ * Resets an OmniMech chassis, removing all pod-mounted equipment
+ */
+export async function resetOmniChassis(page: Page, unitId: string): Promise<void> {
+  await page.evaluate((id) => {
+    const registry = (window as unknown as {
+      __UNIT_REGISTRY__?: {
+        getUnitStore: (id: string) =>
+          | {
+              getState: () => {
+                resetChassis: () => void;
+              };
+            }
+          | undefined;
+      };
+    }).__UNIT_REGISTRY__;
+
+    if (!registry) {
+      throw new Error('Unit registry not exposed');
+    }
+
+    const store = registry.getUnitStore(id);
+    if (!store) {
+      throw new Error(`Unit store not found for ID: ${id}`);
+    }
+
+    store.getState().resetChassis();
+  }, unitId);
+}
+
+/**
+ * Sets base chassis heat sinks for an OmniMech
+ */
+export async function setBaseChassisHeatSinks(
+  page: Page,
+  unitId: string,
+  count: number
+): Promise<void> {
+  await page.evaluate(
+    ({ id, count }) => {
+      const registry = (window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  setBaseChassisHeatSinks: (count: number) => void;
+                };
+              }
+            | undefined;
+        };
+      }).__UNIT_REGISTRY__;
+
+      if (!registry) {
+        throw new Error('Unit registry not exposed');
+      }
+
+      const store = registry.getUnitStore(id);
+      if (!store) {
+        throw new Error(`Unit store not found for ID: ${id}`);
+      }
+
+      store.getState().setBaseChassisHeatSinks(count);
+    },
+    { id: unitId, count }
+  );
+}
+
+/**
+ * Gets the basic mech unit state by ID (includes isOmni)
+ */
+export async function getMechState(
+  page: Page,
+  unitId: string
+): Promise<{
+  id: string;
+  name: string;
+  tonnage: number;
+  isOmni: boolean;
+  walkMP: number;
+  engineRating: number;
+  heatSinkCount: number;
+} | null> {
+  return page.evaluate((id) => {
+    const registry = (window as unknown as {
+      __UNIT_REGISTRY__?: {
+        getUnitStore: (id: string) =>
+          | {
+              getState: () => {
+                id: string;
+                name: string;
+                tonnage: number;
+                isOmni: boolean;
+                engineRating: number;
+                heatSinkCount: number;
+              };
+            }
+          | undefined;
+      };
+    }).__UNIT_REGISTRY__;
+
+    if (!registry) {
+      return null;
+    }
+
+    const store = registry.getUnitStore(id);
+    if (!store) {
+      return null;
+    }
+
+    const state = store.getState();
+    const walkMP = Math.floor(state.engineRating / state.tonnage);
+
+    return {
+      id: state.id,
+      name: state.name,
+      tonnage: state.tonnage,
+      isOmni: state.isOmni,
+      walkMP,
+      engineRating: state.engineRating,
+      heatSinkCount: state.heatSinkCount,
     };
   }, unitId);
 }

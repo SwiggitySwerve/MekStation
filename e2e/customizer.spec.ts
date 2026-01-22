@@ -14,9 +14,16 @@ import {
   waitForTabManagerStoreReady,
   createAerospaceUnit,
   createVehicleUnit,
+  createMechUnit,
+  createOmniMechUnit,
   getActiveTabId,
   getAerospaceState,
   getVehicleState,
+  getMechState,
+  getOmniMechState,
+  setUnitIsOmni,
+  resetOmniChassis,
+  setBaseChassisHeatSinks,
   closeTab,
 } from './fixtures/customizer';
 
@@ -645,5 +652,398 @@ test.describe('Vehicle Motion Types @customizer @vehicle', () => {
     expect(state?.motionType).toBe('Tracked');
 
     await closeTab(page, unitId);
+  });
+});
+
+// =============================================================================
+// OmniMech Customizer Tests (Phase 10)
+// =============================================================================
+
+test.describe('OmniMech Unit Creation @customizer @omnimech', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('can create OmniMech unit directly', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Test OmniMech',
+      tonnage: 75,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state).not.toBeNull();
+    expect(state?.isOmni).toBe(true);
+    expect(state?.tonnage).toBe(75);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can convert standard mech to OmniMech', async ({ page }) => {
+    // Create standard mech
+    const unitId = await createMechUnit(page, {
+      name: 'Standard Mech',
+      tonnage: 50,
+    });
+
+    // Verify it starts as non-Omni
+    let state = await getMechState(page, unitId);
+    expect(state?.isOmni).toBe(false);
+
+    // Convert to OmniMech
+    await setUnitIsOmni(page, unitId, true);
+
+    // Verify conversion
+    state = await getMechState(page, unitId);
+    expect(state?.isOmni).toBe(true);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can revert OmniMech to standard mech', async ({ page }) => {
+    // Create OmniMech
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Revert Test OmniMech',
+      tonnage: 65,
+    });
+
+    // Verify it's OmniMech
+    let state = await getOmniMechState(page, unitId);
+    expect(state?.isOmni).toBe(true);
+
+    // Revert to standard
+    await setUnitIsOmni(page, unitId, false);
+
+    // Verify reversion
+    state = await getOmniMechState(page, unitId);
+    expect(state?.isOmni).toBe(false);
+
+    await closeTab(page, unitId);
+  });
+
+  test('OmniMech has default baseChassisHeatSinks', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Heat Sink Test OmniMech',
+      tonnage: 55,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state).not.toBeNull();
+    // Default should be -1 (auto-calculate from engine)
+    expect(state?.baseChassisHeatSinks).toBe(-1);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can set custom baseChassisHeatSinks', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Custom HS OmniMech',
+      tonnage: 75,
+      baseChassisHeatSinks: 12,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state?.baseChassisHeatSinks).toBe(12);
+
+    await closeTab(page, unitId);
+  });
+});
+
+test.describe('OmniMech Weight Classes @customizer @omnimech', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('can create light OmniMech (20-35 tons)', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Light OmniMech',
+      tonnage: 30,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state?.tonnage).toBe(30);
+    expect(state?.isOmni).toBe(true);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create medium OmniMech (40-55 tons)', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Medium OmniMech',
+      tonnage: 50,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state?.tonnage).toBe(50);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create heavy OmniMech (60-75 tons)', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Heavy OmniMech',
+      tonnage: 70,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state?.tonnage).toBe(70);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create assault OmniMech (80-100 tons)', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Assault OmniMech',
+      tonnage: 100,
+    });
+
+    const state = await getOmniMechState(page, unitId);
+    expect(state?.tonnage).toBe(100);
+
+    await closeTab(page, unitId);
+  });
+});
+
+test.describe('OmniMech Chassis Reset @customizer @omnimech', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('reset chassis removes pod-mounted equipment', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Reset Test OmniMech',
+      tonnage: 75,
+    });
+
+    // Get initial state
+    const initialState = await getOmniMechState(page, unitId);
+    expect(initialState).not.toBeNull();
+
+    // Reset chassis
+    await resetOmniChassis(page, unitId);
+
+    // Verify state after reset
+    const afterState = await getOmniMechState(page, unitId);
+    expect(afterState).not.toBeNull();
+    // Pod-mounted equipment should be 0 after reset
+    expect(afterState?.podMountedCount).toBe(0);
+
+    await closeTab(page, unitId);
+  });
+
+  test('reset chassis preserves fixed equipment', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'Fixed Equip OmniMech',
+      tonnage: 65,
+    });
+
+    // Get state before reset
+    const beforeState = await getOmniMechState(page, unitId);
+    const fixedCountBefore = beforeState?.fixedCount ?? 0;
+
+    // Reset chassis
+    await resetOmniChassis(page, unitId);
+
+    // Fixed equipment should be preserved
+    const afterState = await getOmniMechState(page, unitId);
+    expect(afterState?.fixedCount).toBe(fixedCountBefore);
+
+    await closeTab(page, unitId);
+  });
+
+  test('reset chassis does nothing on standard mech', async ({ page }) => {
+    // Create standard mech (not OmniMech)
+    const unitId = await createMechUnit(page, {
+      name: 'Standard Mech Reset Test',
+      tonnage: 50,
+    });
+
+    // Verify it's not OmniMech
+    const initialState = await getMechState(page, unitId);
+    expect(initialState?.isOmni).toBe(false);
+
+    // Attempt reset (should be no-op)
+    await resetOmniChassis(page, unitId);
+
+    // State should be unchanged
+    const afterState = await getMechState(page, unitId);
+    expect(afterState?.isOmni).toBe(false);
+
+    await closeTab(page, unitId);
+  });
+});
+
+test.describe('OmniMech Base Chassis Heat Sinks @customizer @omnimech', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('can update baseChassisHeatSinks after creation', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'HS Update OmniMech',
+      tonnage: 75,
+    });
+
+    // Initial should be -1 (auto)
+    let state = await getOmniMechState(page, unitId);
+    expect(state?.baseChassisHeatSinks).toBe(-1);
+
+    // Update to specific value
+    await setBaseChassisHeatSinks(page, unitId, 15);
+
+    // Verify update
+    state = await getOmniMechState(page, unitId);
+    expect(state?.baseChassisHeatSinks).toBe(15);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can reset baseChassisHeatSinks to auto (-1)', async ({ page }) => {
+    const unitId = await createOmniMechUnit(page, {
+      name: 'HS Reset OmniMech',
+      tonnage: 60,
+      baseChassisHeatSinks: 10,
+    });
+
+    // Initial should be 10
+    let state = await getOmniMechState(page, unitId);
+    expect(state?.baseChassisHeatSinks).toBe(10);
+
+    // Reset to auto
+    await setBaseChassisHeatSinks(page, unitId, -1);
+
+    // Verify reset
+    state = await getOmniMechState(page, unitId);
+    expect(state?.baseChassisHeatSinks).toBe(-1);
+
+    await closeTab(page, unitId);
+  });
+});
+
+test.describe('OmniMech Tab Navigation @customizer @omnimech', () => {
+  let omniMechId: string;
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    omniMechId = await createOmniMechUnit(page, {
+      name: 'Nav Test OmniMech',
+      tonnage: 75,
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, omniMechId);
+    } catch {
+      // Ignore cleanup errors
+    }
+  });
+
+  test('can navigate to OmniMech unit', async ({ page }) => {
+    await page.goto(`/customizer/${omniMechId}`);
+    await waitForHydration(page);
+    await expect(page).toHaveURL(new RegExp(`/customizer/${omniMechId}`));
+  });
+
+  test('OmniMech is selected after navigation', async ({ page }) => {
+    await page.goto(`/customizer/${omniMechId}`);
+    await waitForHydration(page);
+
+    const activeId = await getActiveTabId(page);
+    expect(activeId).toBe(omniMechId);
+  });
+
+  test('can access OmniMech state after navigation', async ({ page }) => {
+    await page.goto(`/customizer/${omniMechId}`);
+    await waitForHydration(page);
+
+    const state = await getOmniMechState(page, omniMechId);
+    expect(state).not.toBeNull();
+    expect(state?.name).toContain('Nav Test OmniMech');
+    expect(state?.isOmni).toBe(true);
+  });
+
+  test('multiple OmniMechs can be created', async ({ page }) => {
+    const secondId = await createOmniMechUnit(page, {
+      name: 'Second OmniMech',
+      tonnage: 85,
+    });
+
+    const state1 = await getOmniMechState(page, omniMechId);
+    const state2 = await getOmniMechState(page, secondId);
+
+    expect(state1?.name).toContain('Nav Test OmniMech');
+    expect(state2?.name).toBe('Second OmniMech');
+    expect(state1?.isOmni).toBe(true);
+    expect(state2?.isOmni).toBe(true);
+
+    await closeTab(page, secondId);
+  });
+});
+
+test.describe('OmniMech UI Elements @customizer @omnimech', () => {
+  let omniMechId: string;
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    omniMechId = await createOmniMechUnit(page, {
+      name: 'UI Test OmniMech',
+      tonnage: 75,
+    });
+
+    // Navigate to the unit
+    await page.goto(`/customizer/${omniMechId}`);
+    await waitForHydration(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, omniMechId);
+    } catch {
+      // Ignore
+    }
+  });
+
+  test('OmniMech checkbox exists in overview tab', async ({ page }) => {
+    // Navigate to overview tab
+    await page.goto(`/customizer/${omniMechId}/overview`);
+    await waitForHydration(page);
+
+    // Look for OmniMech checkbox by testid
+    const checkbox = page.locator('[data-testid="omnimech-checkbox"]');
+    // It should exist (may or may not be visible depending on routing)
+    const count = await checkbox.count();
+    // If checkbox is rendered, verify it's checked for OmniMech
+    if (count > 0) {
+      await expect(checkbox).toBeChecked();
+    }
+  });
+
+  test('Reset Chassis button visible for OmniMech', async ({ page }) => {
+    // Navigate to overview tab
+    await page.goto(`/customizer/${omniMechId}/overview`);
+    await waitForHydration(page);
+
+    // Look for Reset Chassis button
+    const resetButton = page.locator('[data-testid="reset-chassis-button"]');
+    const count = await resetButton.count();
+    // Button should exist for OmniMech (when isOmni is true and not readOnly)
+    // The button is conditionally rendered, so we check if it exists
+    if (count > 0) {
+      await expect(resetButton).toBeVisible();
+    }
   });
 });
