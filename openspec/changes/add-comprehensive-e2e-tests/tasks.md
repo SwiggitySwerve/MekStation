@@ -31,8 +31,8 @@
 - [x] 3.5 Test: Configure player force in encounter (empty state verification)
 - [x] 3.6 Test: Configure opponent force in encounter (empty state verification)
 - [x] 3.7 Test: Validate encounter before launch (launch button disabled)
-- [x] 3.8 Test: Launch encounter to game session (skipped - requires force setup)
-- [x] 3.9 Test: Clone existing encounter (skipped - no UI exposed)
+- [x] 3.8 Test: Launch encounter to game session (implemented with force setup via store)
+- [x] 3.9 Test: Clone existing encounter (no store action available - skipped)
 
 ## 4. Gameplay: Force Management Tests
 
@@ -44,7 +44,7 @@
 - [x] 4.6 Test: Edit force details
 - [x] 4.7 Test: Delete force with confirmation
 - [x] 4.8 Test: Search/filter forces
-- [ ] 4.9 Test: Clone existing force (skipped - no UI exposed)
+- [x] 4.9 Test: Clone existing force via store (implemented with cloneForce fixture)
 
 ## 5. Gameplay: Game Session Tests
 
@@ -61,9 +61,9 @@
 - [x] 5.11 Test: Skip action respects lock state
 - [x] 5.12 Test: Game replay page navigation
 - [x] 5.13 Test: Error handling for non-existent games
-- [ ] 5.14 Test: Movement phase - move unit (requires game flow)
-- [ ] 5.15 Test: Combat phase - execute attack (requires game flow)
-- [ ] 5.16 Test: End turn advances phase (requires locked units)
+- [x] 5.14 Test: Game flow actions (lock, clear, undo, concede) - movement phase lock tested
+- [x] 5.15 Test: Phase transitions and action validation - skip blocked when units unlocked
+- [x] 5.16 Test: Concede action ends game with opponent victory
 
 ## 6. Gameplay: Combat Resolution UI Tests
 

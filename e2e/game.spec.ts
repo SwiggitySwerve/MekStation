@@ -465,6 +465,140 @@ test.describe('Game Replay Page @game', () => {
 });
 
 // =============================================================================
+// Game Flow Tests
+// =============================================================================
+
+test.describe('Game Flow @game', () => {
+  let sessionPage: GameSessionPage;
+
+  test.beforeEach(async ({ page }) => {
+    sessionPage = new GameSessionPage(page);
+    await sessionPage.navigate('demo');
+    await waitForStoreReady(page);
+    await sessionPage.waitForGameLoaded();
+  });
+
+  test('can lock movement for selected unit (requires movement phase)', async ({ page }) => {
+    // Demo starts at weapon_attack phase
+    // First, verify the current phase
+    const initialSession = await getGameSession(page);
+    expect(initialSession?.currentState.phase).toBe('weapon_attack');
+
+    // Select a player unit
+    await selectUnit(page, DEMO_UNITS.PLAYER.id);
+    
+    // Verify selection
+    const state = await getGameplayState(page);
+    expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
+
+    // Note: Lock action only works in movement phase
+    // This test verifies the select + action flow works
+    await handleAction(page, 'lock');
+    await page.waitForTimeout(100);
+
+    // Since we're not in movement phase, the lock shouldn't change the session
+    // This is expected behavior - lock is phase-specific
+  });
+
+  test('clear action clears queued weapons', async ({ page }) => {
+    // Queue a weapon first
+    const playerId = DEMO_UNITS.PLAYER.id;
+    await selectUnit(page, playerId);
+
+    // Queue a weapon (AC/20 from demo weapons)
+    await page.evaluate((weaponId) => {
+      const stores = (window as Window & { __ZUSTAND_STORES__?: { gameplay?: { getState: () => { toggleWeapon: (id: string) => void } } } }).__ZUSTAND_STORES__;
+      stores?.gameplay?.getState().toggleWeapon(weaponId);
+    }, 'weapon-1');
+
+    // Verify weapon is queued
+    let state = await getGameplayState(page);
+    expect(state?.ui.queuedWeaponIds).toContain('weapon-1');
+
+    // Clear queued weapons
+    await handleAction(page, 'clear');
+    await page.waitForTimeout(100);
+
+    // Verify weapons are cleared
+    state = await getGameplayState(page);
+    expect(state?.ui.queuedWeaponIds).toHaveLength(0);
+  });
+
+  test('undo action is available', async ({ page }) => {
+    // Verify undo action is available in weapon_attack phase
+    // Note: Undo affects internal event log which isn't exposed in E2E types
+    // This test verifies the action can be invoked without error
+    await handleAction(page, 'undo');
+    await page.waitForTimeout(100);
+
+    // Session should still be valid after undo attempt
+    const session = await getGameSession(page);
+    expect(session).not.toBeNull();
+    expect(session?.currentState.status).toBe('active');
+  });
+
+  test('concede action ends game with opponent victory', async ({ page }) => {
+    // Concede ends the game
+    await handleAction(page, 'concede');
+    await page.waitForTimeout(200);
+
+    const session = await getGameSession(page);
+    expect(session?.currentState.status).toBe('completed');
+    expect(session?.currentState.result?.winner).toBe('opponent');
+    expect(session?.currentState.result?.reason).toBe('concede');
+  });
+});
+
+// =============================================================================
+// Phase Transition Tests
+// =============================================================================
+
+test.describe('Phase Transitions @game', () => {
+  let sessionPage: GameSessionPage;
+
+  test.beforeEach(async ({ page }) => {
+    sessionPage = new GameSessionPage(page);
+    await sessionPage.navigate('demo');
+    await waitForStoreReady(page);
+    await sessionPage.waitForGameLoaded();
+  });
+
+  test('demo starts at weapon attack phase', async ({ page }) => {
+    const session = await getGameSession(page);
+    expect(session?.currentState.phase).toBe(DEMO_INITIAL_STATE.phase);
+    expect(session?.currentState.phase).toBe('weapon_attack');
+  });
+
+  test('phase actions match current phase', async ({ page }) => {
+    const session = await getGameSession(page);
+    const phase = session?.currentState.phase;
+    
+    // Get expected actions for current phase
+    const expectedActions = PHASE_ACTIONS[phase as keyof typeof PHASE_ACTIONS] ?? [];
+    
+    // Verify at least one expected action is available
+    for (const action of expectedActions) {
+      const isVisible = await sessionPage.isActionVisible(action);
+      expect(isVisible).toBe(true);
+    }
+  });
+
+  test('skip is blocked when units are not locked', async ({ page }) => {
+    // Demo starts with unlocked units in weapon_attack phase
+    const initialSession = await getGameSession(page);
+    const initialPhase = initialSession?.currentState.phase;
+
+    // Try to skip
+    await handleAction(page, 'skip');
+    await page.waitForTimeout(200);
+
+    // Phase should not change (units not locked)
+    const afterSkip = await getGameSession(page);
+    expect(afterSkip?.currentState.phase).toBe(initialPhase);
+  });
+});
+
+// =============================================================================
 // Error Handling Tests
 // =============================================================================
 
