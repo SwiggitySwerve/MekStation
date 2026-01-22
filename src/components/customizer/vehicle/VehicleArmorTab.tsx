@@ -214,10 +214,10 @@ export function VehicleArmorTab({
   }, [hasTurret, isVTOL]);
 
   return (
-    <div className={`${cs.panel.main} ${className}`}>
+    <div className={`${cs.panel.main} ${className}`} data-testid="vehicle-armor-tab">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Armor Configuration Section */}
-        <section>
+        <section data-testid="vehicle-armor-config-section">
           <h3 className={cs.text.sectionTitle}>Armor Configuration</h3>
 
           {/* Armor Type */}
@@ -228,6 +228,7 @@ export function VehicleArmorTab({
               onChange={handleArmorTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="vehicle-armor-type-select"
             >
               {ARMOR_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -250,13 +251,14 @@ export function VehicleArmorTab({
                 step={0.5}
                 disabled={readOnly}
                 className={`${cs.input.number} w-20`}
+                data-testid="vehicle-armor-tonnage-input"
               />
               <span className={cs.text.secondary}>/ {maxUsefulTonnage} tons max</span>
             </div>
           </div>
 
           {/* Points Summary */}
-          <div className={`${cs.panel.summary} mb-4`}>
+          <div className={`${cs.panel.summary} mb-4`} data-testid="vehicle-armor-summary">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <span className={cs.text.label}>Available Points:</span>
@@ -327,7 +329,7 @@ export function VehicleArmorTab({
         </section>
 
         {/* Location Allocation Section */}
-        <section>
+        <section data-testid="vehicle-armor-allocation-section">
           <h3 className={cs.text.sectionTitle}>Location Allocation</h3>
 
           <div className="space-y-3">

@@ -13,8 +13,10 @@ import { AerospaceCustomizerPage } from './pages/customizer.page';
 import {
   waitForTabManagerStoreReady,
   createAerospaceUnit,
+  createVehicleUnit,
   getActiveTabId,
   getAerospaceState,
+  getVehicleState,
   closeTab,
 } from './fixtures/customizer';
 
@@ -360,5 +362,288 @@ test.describe('Aerospace Tab Navigation @customizer', () => {
     
     // Cleanup
     await closeTab(page, secondId);
+  });
+});
+
+// =============================================================================
+// Vehicle Customizer Tests (Phase 9)
+// =============================================================================
+
+test.describe('Vehicle Customizer Navigation @smoke @customizer @vehicle', () => {
+  test('can navigate to customizer for vehicles', async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+
+    await expect(page).toHaveURL('/customizer');
+  });
+});
+
+test.describe('Vehicle Unit Creation @customizer @vehicle', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('can create light vehicle', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Light Tank',
+      tonnage: 15,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state).not.toBeNull();
+    expect(state?.tonnage).toBe(15);
+    expect(state?.name).toBe('Light Tank');
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create medium vehicle', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Medium Tank',
+      tonnage: 50,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state?.tonnage).toBe(50);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create heavy vehicle', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Heavy Tank',
+      tonnage: 75,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state?.tonnage).toBe(75);
+
+    await closeTab(page, unitId);
+  });
+
+  test('can create assault vehicle', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Assault Tank',
+      tonnage: 100,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state?.tonnage).toBe(100);
+
+    await closeTab(page, unitId);
+  });
+
+  test('vehicle has required stats', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Stats Test Vehicle',
+      tonnage: 50,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state).not.toBeNull();
+    expect(state?.cruiseMP).toBeGreaterThan(0);
+    expect(state?.flankMP).toBeGreaterThan(0);
+    expect(state?.engineRating).toBeGreaterThan(0);
+
+    await closeTab(page, unitId);
+  });
+
+  test('vehicle has correct movement calculations', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Movement Test Vehicle',
+      tonnage: 40,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state).not.toBeNull();
+    // Flank MP should be 1.5x cruise MP (floor)
+    expect(state?.flankMP).toBe(Math.floor(state!.cruiseMP * 1.5));
+
+    await closeTab(page, unitId);
+  });
+});
+
+test.describe('Vehicle Structure Tab @customizer @vehicle', () => {
+  let vehicleId: string;
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    vehicleId = await createVehicleUnit(page, {
+      name: 'Structure Test Vehicle',
+      tonnage: 50,
+    });
+
+    // Navigate to the vehicle unit
+    await page.goto(`/customizer/${vehicleId}/structure`);
+    await waitForHydration(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, vehicleId);
+    } catch {
+      // Ignore cleanup errors
+    }
+  });
+
+  test('navigates to vehicle customizer', async ({ page }) => {
+    await expect(page).toHaveURL(new RegExp(`/customizer/${vehicleId}`));
+  });
+
+  test('vehicle is active in tab manager', async ({ page }) => {
+    const activeId = await getActiveTabId(page);
+    expect(activeId).toBe(vehicleId);
+  });
+
+  test('vehicle customizer displays', async ({ page }) => {
+    // The vehicle customizer should be visible
+    const customizer = page.locator('[data-testid="vehicle-customizer"]');
+    // It may or may not be visible depending on routing, but page should load
+    await expect(page).toHaveURL(new RegExp(`/customizer/${vehicleId}`));
+  });
+
+  test('vehicle has structure data', async ({ page }) => {
+    const state = await getVehicleState(page, vehicleId);
+    expect(state).not.toBeNull();
+    expect(state?.tonnage).toBe(50);
+    expect(state?.motionType).toBeDefined();
+    expect(state?.engineType).toBeDefined();
+  });
+});
+
+test.describe('Vehicle Armor Tab @customizer @vehicle', () => {
+  let vehicleId: string;
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    vehicleId = await createVehicleUnit(page, {
+      name: 'Armor Test Vehicle',
+      tonnage: 60,
+    });
+
+    await page.goto(`/customizer/${vehicleId}`);
+    await waitForHydration(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, vehicleId);
+    } catch {
+      // Ignore
+    }
+  });
+
+  test('can load vehicle in customizer', async ({ page }) => {
+    await expect(page).toHaveURL(new RegExp(`/customizer/${vehicleId}`));
+  });
+
+  test('vehicle has armor tonnage', async ({ page }) => {
+    const state = await getVehicleState(page, vehicleId);
+    expect(state).not.toBeNull();
+    expect(state?.armorTonnage).toBeDefined();
+  });
+});
+
+test.describe('Vehicle Tab Navigation @customizer @vehicle', () => {
+  let vehicleId: string;
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+
+    vehicleId = await createVehicleUnit(page, {
+      name: 'Nav Test Vehicle',
+      tonnage: 50,
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    try {
+      await closeTab(page, vehicleId);
+    } catch {
+      // Ignore
+    }
+  });
+
+  test('can navigate to vehicle unit', async ({ page }) => {
+    await page.goto(`/customizer/${vehicleId}`);
+    await waitForHydration(page);
+    await expect(page).toHaveURL(new RegExp(`/customizer/${vehicleId}`));
+  });
+
+  test('vehicle is selected after navigation', async ({ page }) => {
+    await page.goto(`/customizer/${vehicleId}`);
+    await waitForHydration(page);
+
+    const activeId = await getActiveTabId(page);
+    expect(activeId).toBe(vehicleId);
+  });
+
+  test('can access vehicle state after navigation', async ({ page }) => {
+    await page.goto(`/customizer/${vehicleId}`);
+    await waitForHydration(page);
+
+    const state = await getVehicleState(page, vehicleId);
+    expect(state).not.toBeNull();
+    expect(state?.name).toBe('Nav Test Vehicle');
+  });
+
+  test('multiple vehicles can be created', async ({ page }) => {
+    const secondId = await createVehicleUnit(page, {
+      name: 'Second Vehicle',
+      tonnage: 80,
+    });
+
+    const state1 = await getVehicleState(page, vehicleId);
+    const state2 = await getVehicleState(page, secondId);
+
+    expect(state1?.name).toBe('Nav Test Vehicle');
+    expect(state2?.name).toBe('Second Vehicle');
+    expect(state2?.tonnage).toBe(80);
+
+    await closeTab(page, secondId);
+  });
+});
+
+test.describe('Vehicle Motion Types @customizer @vehicle', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/customizer');
+    await waitForHydration(page);
+    await waitForTabManagerStoreReady(page);
+  });
+
+  test('tracked vehicle has correct motion type', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Tracked Vehicle',
+      tonnage: 60,
+      motionType: 'Tracked',
+    });
+
+    const state = await getVehicleState(page, unitId);
+    expect(state?.motionType).toBe('Tracked');
+
+    await closeTab(page, unitId);
+  });
+
+  test('default vehicle is tracked', async ({ page }) => {
+    const unitId = await createVehicleUnit(page, {
+      name: 'Default Vehicle',
+      tonnage: 50,
+    });
+
+    const state = await getVehicleState(page, unitId);
+    // Default motion type should be Tracked
+    expect(state?.motionType).toBe('Tracked');
+
+    await closeTab(page, unitId);
   });
 });

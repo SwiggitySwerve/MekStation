@@ -168,10 +168,10 @@ export function VehicleStructureTab({
       : TURRET_TYPE_OPTIONS.filter((t) => t.value !== TurretType.CHIN);
 
   return (
-    <div className={`${cs.panel.main} ${className}`}>
+    <div className={`${cs.panel.main} ${className}`} data-testid="vehicle-structure-tab">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chassis Section */}
-        <section>
+        <section data-testid="vehicle-chassis-section">
           <h3 className={cs.text.sectionTitle}>Chassis</h3>
 
           {/* Tonnage */}
@@ -187,6 +187,7 @@ export function VehicleStructureTab({
                 step={VEHICLE_TONNAGE.step}
                 disabled={readOnly}
                 className={`${cs.input.number} w-20`}
+                data-testid="vehicle-tonnage-input"
               />
               <span className={cs.text.secondary}>tons</span>
             </div>
@@ -203,6 +204,7 @@ export function VehicleStructureTab({
               onChange={handleMotionTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
+              data-testid="vehicle-motion-type-select"
             >
               {MOTION_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -245,7 +247,7 @@ export function VehicleStructureTab({
         </section>
 
         {/* Engine & Movement Section */}
-        <section>
+        <section data-testid="vehicle-engine-section">
           <h3 className={cs.text.sectionTitle}>Engine & Movement</h3>
 
           {/* Engine Type */}
@@ -256,6 +258,7 @@ export function VehicleStructureTab({
               onChange={handleEngineTypeChange}
               disabled={readOnly || isTrailer}
               className={`${cs.select.full} mt-1`}
+              data-testid="vehicle-engine-type-select"
             >
               {ENGINE_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -269,7 +272,7 @@ export function VehicleStructureTab({
           {/* Engine Rating (read-only, derived) */}
           <div className="mb-4">
             <label className={cs.text.label}>Engine Rating</label>
-            <div className={`${cs.text.value} mt-1`}>{engineRating}</div>
+            <div className={`${cs.text.value} mt-1`} data-testid="vehicle-engine-rating">{engineRating}</div>
           </div>
 
           {/* Cruise MP */}
@@ -285,6 +288,7 @@ export function VehicleStructureTab({
                 step={1}
                 disabled={readOnly || isTrailer}
                 className={`${cs.input.number} w-16`}
+                data-testid="vehicle-cruise-mp-input"
               />
               <span className={cs.text.secondary}>hexes</span>
             </div>
@@ -293,7 +297,7 @@ export function VehicleStructureTab({
           {/* Flank MP (read-only, derived) */}
           <div className="mb-4">
             <label className={cs.text.label}>Flank MP</label>
-            <div className={`${cs.text.value} mt-1`}>{flankMP}</div>
+            <div className={`${cs.text.value} mt-1`} data-testid="vehicle-flank-mp">{flankMP}</div>
           </div>
         </section>
 

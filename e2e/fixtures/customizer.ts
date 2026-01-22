@@ -29,6 +29,22 @@ export interface CreateMechOptions {
 }
 
 /**
+ * Options for creating a vehicle unit
+ */
+export interface CreateVehicleOptions {
+  /** Unit name */
+  name?: string;
+  /** Tonnage (1-200) */
+  tonnage?: number;
+  /** Tech base: 'InnerSphere' | 'Clan' */
+  techBase?: string;
+  /** Motion type: 'Tracked' | 'Wheeled' | 'Hover' | 'VTOL' | 'Naval' etc */
+  motionType?: string;
+  /** Is VTOL (auto-set if motionType is VTOL) */
+  isVTOL?: boolean;
+}
+
+/**
  * Helper to wait for tab manager store to be ready
  */
 export async function waitForTabManagerStoreReady(page: Page): Promise<void> {
@@ -291,6 +307,152 @@ export async function selectTab(page: Page, unitId: string): Promise<void> {
     if (stores?.tabManager) {
       stores.tabManager.getState().selectTab(id);
     }
+  }, unitId);
+}
+
+/**
+ * Creates a new Vehicle unit in the customizer and opens it as a tab.
+ *
+ * @param page - Playwright page object
+ * @param options - Vehicle creation options
+ * @returns The created unit ID
+ */
+export async function createVehicleUnit(
+  page: Page,
+  options: CreateVehicleOptions = {}
+): Promise<string> {
+  const unitId = await page.evaluate((opts) => {
+    const stores = (window as unknown as {
+      __ZUSTAND_STORES__?: {
+        tabManager?: {
+          getState: () => {
+            addTab: (tabInfo: {
+              id: string;
+              name: string;
+              tonnage?: number;
+              techBase?: string;
+              unitType?: string;
+            }) => void;
+          };
+        };
+      };
+      __VEHICLE_REGISTRY__?: {
+        createAndRegisterVehicle: (options: {
+          name: string;
+          tonnage: number;
+          techBase: string;
+          motionType?: string;
+        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string; motionType: string } };
+      };
+    }).__ZUSTAND_STORES__;
+
+    if (!stores?.tabManager) {
+      throw new Error('Tab manager store not exposed');
+    }
+
+    const vehicleRegistry = (window as unknown as {
+      __VEHICLE_REGISTRY__?: {
+        createAndRegisterVehicle: (options: {
+          name: string;
+          tonnage: number;
+          techBase: string;
+          motionType?: string;
+        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string; motionType: string } };
+      };
+    }).__VEHICLE_REGISTRY__;
+
+    if (!vehicleRegistry) {
+      throw new Error('Vehicle registry not exposed');
+    }
+
+    // Determine unit type based on motion type
+    const isVTOL = opts.isVTOL || opts.motionType === 'VTOL';
+    const unitType = isVTOL ? 'VTOL' : 'Vehicle';
+
+    // Create vehicle unit in registry
+    const vehicleStore = vehicleRegistry.createAndRegisterVehicle({
+      name: opts.name ?? `Test Vehicle ${Date.now()}`,
+      tonnage: opts.tonnage ?? 50,
+      techBase: opts.techBase ?? 'InnerSphere',
+      motionType: opts.motionType,
+    });
+
+    const state = vehicleStore.getState();
+
+    // Add tab for the vehicle unit
+    stores.tabManager.getState().addTab({
+      id: state.id,
+      name: state.name,
+      tonnage: state.tonnage,
+      techBase: state.techBase,
+      unitType: unitType,
+    });
+
+    return state.id;
+  }, options);
+
+  return unitId;
+}
+
+/**
+ * Gets vehicle unit state by ID
+ */
+export async function getVehicleState(
+  page: Page,
+  unitId: string
+): Promise<{
+  id: string;
+  name: string;
+  tonnage: number;
+  motionType: string;
+  cruiseMP: number;
+  flankMP: number;
+  armorTonnage: number;
+  engineType: string;
+  engineRating: number;
+} | null> {
+  return page.evaluate((id) => {
+    const registry = (window as unknown as {
+      __VEHICLE_REGISTRY__?: {
+        getVehicleStore: (id: string) =>
+          | {
+              getState: () => {
+                id: string;
+                name: string;
+                tonnage: number;
+                motionType: string;
+                cruiseMP: number;
+                flankMP: number;
+                armorTonnage: number;
+                engineType: string;
+                engineRating: number;
+              };
+            }
+          | undefined;
+      };
+    }).__VEHICLE_REGISTRY__;
+
+    if (!registry) {
+      return null;
+    }
+
+    const store = registry.getVehicleStore(id);
+    if (!store) {
+      return null;
+    }
+
+    const state = store.getState();
+    return {
+      id: state.id,
+      name: state.name,
+      tonnage: state.tonnage,
+      motionType: state.motionType,
+      cruiseMP: state.cruiseMP,
+      flankMP: state.flankMP,
+      armorTonnage: state.armorTonnage,
+      engineType: state.engineType,
+      engineRating: state.engineRating,
+    };
   }, unitId);
 }
 

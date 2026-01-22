@@ -130,9 +130,9 @@ export function VehicleEquipmentTab({
   }, [clearAllEquipment, readOnly]);
 
   return (
-    <div className={`flex flex-col h-full gap-4 ${className}`}>
+    <div className={`flex flex-col h-full gap-4 ${className}`} data-testid="vehicle-equipment-tab">
       {/* Equipment Browser Section */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0" data-testid="vehicle-equipment-browser">
         <EquipmentBrowser
           onAddEquipment={handleAddEquipment}
           className="h-full"
@@ -140,7 +140,7 @@ export function VehicleEquipmentTab({
       </div>
 
       {/* Mounted Equipment Section */}
-      <div className={cs.panel.main}>
+      <div className={cs.panel.main} data-testid="vehicle-mounted-equipment">
         <div className="flex items-center justify-between mb-3">
           <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
             Mounted Equipment ({equipment.length})
