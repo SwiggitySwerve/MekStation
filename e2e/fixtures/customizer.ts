@@ -814,3 +814,238 @@ export async function getMechState(
     };
   }, unitId);
 }
+
+// =============================================================================
+// Exotic Mech Fixtures (Quad, LAM, Tripod)
+// =============================================================================
+
+/**
+ * Mech configuration types
+ */
+export type MechConfigurationType = 'Biped' | 'Quad' | 'Tripod' | 'LAM' | 'QuadVee';
+
+/**
+ * LAM operating modes
+ */
+export type LAMModeType = 'Mech' | 'AirMech' | 'Fighter';
+
+/**
+ * Options for creating an exotic mech
+ */
+export interface CreateExoticMechOptions {
+  /** Unit name */
+  name?: string;
+  /** Tonnage (20-100, LAM max 55) */
+  tonnage?: number;
+  /** Tech base: 'InnerSphere' | 'Clan' */
+  techBase?: string;
+  /** Walk MP */
+  walkMP?: number;
+  /** Configuration type */
+  configuration: MechConfigurationType;
+  /** Initial LAM mode (for LAM only) */
+  lamMode?: LAMModeType;
+}
+
+/**
+ * Creates a QuadMech unit in the customizer
+ */
+export async function createQuadMech(
+  page: Page,
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+): Promise<string> {
+  return createExoticMech(page, { ...options, configuration: 'Quad' });
+}
+
+/**
+ * Creates a LAM (Land-Air Mech) unit in the customizer
+ * Note: LAMs are limited to 55 tons max
+ */
+export async function createLAM(
+  page: Page,
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+): Promise<string> {
+  // LAMs are limited to 55 tons
+  const tonnage = Math.min(options.tonnage ?? 50, 55);
+  return createExoticMech(page, { ...options, tonnage, configuration: 'LAM' });
+}
+
+/**
+ * Creates a Tripod mech unit in the customizer
+ */
+export async function createTripodMech(
+  page: Page,
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+): Promise<string> {
+  return createExoticMech(page, { ...options, configuration: 'Tripod' });
+}
+
+/**
+ * Creates an exotic mech unit with specified configuration
+ */
+export async function createExoticMech(
+  page: Page,
+  options: CreateExoticMechOptions
+): Promise<string> {
+  // First create a standard mech
+  const unitId = await createMechUnit(page, {
+    name: options.name ?? `Test ${options.configuration} ${Date.now()}`,
+    tonnage: options.tonnage,
+    techBase: options.techBase,
+    walkMP: options.walkMP,
+  });
+
+  // Then set the configuration via store action
+  await page.evaluate(
+    ({ id, configuration, lamMode }) => {
+      const registry = (window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  setConfiguration: (config: string) => void;
+                  setLAMMode?: (mode: string) => void;
+                };
+              }
+            | undefined;
+        };
+      }).__UNIT_REGISTRY__;
+
+      if (!registry) {
+        throw new Error('Unit registry not exposed');
+      }
+
+      const store = registry.getUnitStore(id);
+      if (!store) {
+        throw new Error(`Unit store not found for ID: ${id}`);
+      }
+
+      const state = store.getState();
+      state.setConfiguration(configuration);
+
+      // Set LAM mode if applicable
+      if (configuration === 'LAM' && lamMode && state.setLAMMode) {
+        state.setLAMMode(lamMode);
+      }
+    },
+    { id: unitId, configuration: options.configuration, lamMode: options.lamMode }
+  );
+
+  return unitId;
+}
+
+/**
+ * Gets exotic mech state including configuration-specific fields
+ */
+export async function getExoticMechState(
+  page: Page,
+  unitId: string
+): Promise<{
+  id: string;
+  name: string;
+  tonnage: number;
+  configuration: MechConfigurationType;
+  lamMode?: LAMModeType;
+  quadVeeMode?: string;
+  armorAllocation: Record<string, number>;
+} | null> {
+  return page.evaluate((id) => {
+    const registry = (window as unknown as {
+      __UNIT_REGISTRY__?: {
+        getUnitStore: (id: string) =>
+          | {
+              getState: () => {
+                id: string;
+                name: string;
+                tonnage: number;
+                configuration: string;
+                lamMode?: string;
+                quadVeeMode?: string;
+                armorAllocation: Record<string, number>;
+              };
+            }
+          | undefined;
+      };
+    }).__UNIT_REGISTRY__;
+
+    if (!registry) {
+      return null;
+    }
+
+    const store = registry.getUnitStore(id);
+    if (!store) {
+      return null;
+    }
+
+    const state = store.getState();
+    return {
+      id: state.id,
+      name: state.name,
+      tonnage: state.tonnage,
+      configuration: state.configuration as 'Biped' | 'Quad' | 'Tripod' | 'LAM' | 'QuadVee',
+      lamMode: state.lamMode as 'Mech' | 'AirMech' | 'Fighter' | undefined,
+      quadVeeMode: state.quadVeeMode,
+      armorAllocation: state.armorAllocation,
+    };
+  }, unitId);
+}
+
+/**
+ * Sets the LAM operating mode
+ */
+export async function setLAMMode(
+  page: Page,
+  unitId: string,
+  mode: LAMModeType
+): Promise<void> {
+  await page.evaluate(
+    ({ id, mode }) => {
+      const registry = (window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  setLAMMode: (mode: string) => void;
+                };
+              }
+            | undefined;
+        };
+      }).__UNIT_REGISTRY__;
+
+      if (!registry) {
+        throw new Error('Unit registry not exposed');
+      }
+
+      const store = registry.getUnitStore(id);
+      if (!store) {
+        throw new Error(`Unit store not found for ID: ${id}`);
+      }
+
+      store.getState().setLAMMode(mode);
+    },
+    { id: unitId, mode }
+  );
+}
+
+/**
+ * Gets the locations available for a mech configuration
+ * Uses MechLocation enum string values
+ */
+export function getConfigurationLocations(configuration: MechConfigurationType): string[] {
+  const coreLocations = ['Head', 'Center Torso', 'Left Torso', 'Right Torso'];
+  
+  switch (configuration) {
+    case 'Biped':
+      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+    case 'Quad':
+      return [...coreLocations, 'Front Left Leg', 'Front Right Leg', 'Rear Left Leg', 'Rear Right Leg'];
+    case 'Tripod':
+      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg', 'Center Leg'];
+    case 'LAM':
+      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+    case 'QuadVee':
+      return [...coreLocations, 'Front Left Leg', 'Front Right Leg', 'Rear Left Leg', 'Rear Right Leg'];
+    default:
+      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+  }
+}
