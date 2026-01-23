@@ -10,6 +10,8 @@ import {
   useGameTimeline,
   usePilotTimeline,
   useCampaignTimeline,
+  useUnitInstanceTimeline,
+  usePilotInstanceTimeline,
 } from '../useEventTimeline';
 import { EventStoreService } from '@/services/events';
 import { EventCategory, IBaseEvent } from '@/types/events';
@@ -429,5 +431,47 @@ describe('useCampaignTimeline', () => {
     });
 
     expect(result.current.events.every((e) => e.context.campaignId === 'campaign-1')).toBe(true);
+  });
+});
+
+describe('useUnitInstanceTimeline', () => {
+  it('should filter to unitId context', async () => {
+    const events = [
+      createMockEvent({ sequence: 1, context: { unitId: 'unit-inst-1' } }),
+      createMockEvent({ sequence: 2, context: { unitId: 'unit-inst-2' } }),
+      createMockEvent({ sequence: 3, context: { unitId: 'unit-inst-1' } }),
+    ];
+    const eventStore = createMockEventStore(events);
+
+    const { result } = renderHook(() =>
+      useUnitInstanceTimeline('unit-inst-1', { eventStore })
+    );
+
+    await waitFor(() => {
+      expect(result.current.events.length).toBe(2);
+    });
+
+    expect(result.current.events.every((e) => e.context.unitId === 'unit-inst-1')).toBe(true);
+  });
+});
+
+describe('usePilotInstanceTimeline', () => {
+  it('should filter to pilotId context', async () => {
+    const events = [
+      createMockEvent({ sequence: 1, context: { pilotId: 'pilot-inst-1' } }),
+      createMockEvent({ sequence: 2, context: { pilotId: 'pilot-inst-2' } }),
+      createMockEvent({ sequence: 3, context: { pilotId: 'pilot-inst-1' } }),
+    ];
+    const eventStore = createMockEventStore(events);
+
+    const { result } = renderHook(() =>
+      usePilotInstanceTimeline('pilot-inst-1', { eventStore })
+    );
+
+    await waitFor(() => {
+      expect(result.current.events.length).toBe(2);
+    });
+
+    expect(result.current.events.every((e) => e.context.pilotId === 'pilot-inst-1')).toBe(true);
   });
 });

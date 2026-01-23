@@ -438,3 +438,41 @@ export function useCampaignTimeline(
     },
   });
 }
+
+/**
+ * Hook for unit instance event timeline.
+ * Filters events by unit instance ID (stored in context.unitId).
+ *
+ * @param unitInstanceId - The campaign unit instance ID
+ * @param options - Additional timeline options
+ */
+export function useUnitInstanceTimeline(
+  unitInstanceId: string,
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+): UseEventTimelineReturn {
+  return useEventTimeline({
+    ...options,
+    initialFilters: {
+      context: { unitId: unitInstanceId },
+    },
+  });
+}
+
+/**
+ * Hook for pilot instance event timeline.
+ * Filters events by pilot instance ID (stored in context.pilotId).
+ *
+ * @param pilotInstanceId - The campaign pilot instance ID
+ * @param options - Additional timeline options
+ */
+export function usePilotInstanceTimeline(
+  pilotInstanceId: string,
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+): UseEventTimelineReturn {
+  return useEventTimeline({
+    ...options,
+    initialFilters: {
+      context: { pilotId: pilotInstanceId },
+    },
+  });
+}

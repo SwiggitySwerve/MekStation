@@ -62,10 +62,14 @@
 
 ## 4. State Updates
 
-- [ ] 4.1 Update instance damage after battle (from game events)
-- [ ] 4.2 Update instance status based on damage level
-- [ ] 4.3 Update pilot XP/wounds from mission events
-- [ ] 4.4 Track pilot assignment changes on instance
+- [x] 4.1 Update instance damage after battle (from game events)
+  - **Implemented in:** `CampaignInstanceStateService.applyDamage()`
+- [x] 4.2 Update instance status based on damage level
+  - **Implemented in:** `CampaignInstanceStateService.applyDamage()` - auto-updates status via `determineUnitStatus()`
+- [x] 4.3 Update pilot XP/wounds from mission events
+  - **Implemented in:** `CampaignInstanceStateService.awardXP()`, `applyWounds()`, `recordKill()`, `completeMission()`
+- [x] 4.4 Track pilot assignment changes on instance
+  - **Implemented in:** `CampaignInstanceStateService.assignPilotToUnit()`, `unassignPilot()`
 
 ## 5. Event Integration
 
@@ -92,7 +96,10 @@
   - Pilot: create from vault, create from statblock, get, update, delete, list
   - Assignments: assignPilotToUnit, unassignPilot (bidirectional)
   - Bulk: deleteInstancesForCampaign
-- [ ] 6.3 Add instance-filtered Timeline queries
+- [x] 6.3 Add instance-filtered Timeline queries
+  - **Implemented in:** `src/hooks/audit/useEventTimeline.ts`
+  - Added `useUnitInstanceTimeline(unitInstanceId)` hook
+  - Added `usePilotInstanceTimeline(pilotInstanceId)` hook
 
 ## 7. Testing
 
@@ -107,4 +114,10 @@
 - [x] 7.4 Event factory tests
   - **Implemented in:** `src/utils/events/__tests__/campaignInstanceEvents.test.ts`
   - 15 tests covering all event emit functions, causality, context linking
-- [ ] 7.5 Integration tests for event chain
+- [x] 7.5 Integration tests for event chain
+  - **Implemented in:** `src/services/campaign/__tests__/CampaignInstanceStateService.test.ts`
+  - Tests for damage -> status change -> destruction chain
+  - Tests for wounds -> status change -> death chain
+  - Tests for kill -> XP award chain
+  - Tests for mission completion -> XP awards chain
+  - 50 tests covering all state service operations
