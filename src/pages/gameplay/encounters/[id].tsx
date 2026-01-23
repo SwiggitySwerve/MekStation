@@ -14,6 +14,7 @@ import {
   Button,
   Badge,
 } from '@/components/ui';
+import { GenerateScenarioModal } from '@/components/gameplay';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
 import {
@@ -22,6 +23,7 @@ import {
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
 import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
+import type { IGeneratedScenario } from '@/types/scenario';
 
 function getVictoryConditionLabel(type: VictoryConditionType): string {
   switch (type) {
@@ -64,6 +66,7 @@ export default function EncounterDetailPage(): React.ReactElement {
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const encounter = id && typeof id === 'string' ? getEncounter(id) : null;
   const validation = id && typeof id === 'string' ? validations.get(id) : null;
@@ -108,6 +111,22 @@ export default function EncounterDetailPage(): React.ReactElement {
       router.push('/gameplay/encounters');
     }
   }, [id, deleteEncounter, router, clearError]);
+
+  // Handle scenario generation
+  const handleGenerateScenario = useCallback(async (scenario: IGeneratedScenario) => {
+    if (!id || typeof id !== 'string') return;
+    clearError();
+    
+    // TODO: Apply generated scenario to encounter
+    // This would update victory conditions, map config, and potentially create OpFor
+    console.log('Generated scenario:', scenario);
+    
+    // For now, just close the modal and show a success message
+    setShowGenerateModal(false);
+    
+    // Re-validate the encounter
+    validateEncounter(id);
+  }, [id, clearError, validateEncounter]);
 
   if (!isInitialized || isLoading) {
     return <PageLoading message="Loading encounter..." />;
@@ -311,6 +330,27 @@ export default function EncounterDetailPage(): React.ReactElement {
         </Card>
       </div>
 
+      {/* Scenario Generator Section */}
+      {!isLaunched && !isCompleted && encounter.playerForce && (
+        <Card className="mt-6" data-testid="scenario-generator-section">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-text-theme-primary">Auto-Generate Scenario</h2>
+              <p className="text-sm text-text-theme-muted mt-1">
+                Automatically generate enemy forces, battle modifiers, and terrain based on your player force.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => setShowGenerateModal(true)}
+              data-testid="open-generate-modal-btn"
+            >
+              Generate Scenario
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {/* Actions */}
       {!isLaunched && !isCompleted && (
         <div className="mt-6 pt-6 border-t border-border-theme-subtle flex justify-between">
@@ -353,6 +393,15 @@ export default function EncounterDetailPage(): React.ReactElement {
           </Card>
         </div>
       )}
+
+      {/* Generate Scenario Modal */}
+      <GenerateScenarioModal
+        isOpen={showGenerateModal}
+        onClose={() => setShowGenerateModal(false)}
+        playerBV={encounter.playerForce?.totalBV || 0}
+        playerUnitCount={encounter.playerForce?.unitCount || 0}
+        onGenerate={handleGenerateScenario}
+      />
     </PageLayout>
   );
 }

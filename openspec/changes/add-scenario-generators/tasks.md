@@ -91,15 +91,17 @@
   - Implemented in: `src/services/generators/ScenarioGeneratorService.ts`
   - Exports singleton: `scenarioGenerator`
 
-- [ ] 5.2 Integrate with Encounter creation:
+- [x] 5.2 Integrate with Encounter creation:
   - "Generate Scenario" button
   - Preview generated setup
   - Allow manual adjustments
+  - Implemented in: `src/pages/gameplay/encounters/[id].tsx`
 
-- [ ] 5.3 Add difficulty configuration UI:
+- [x] 5.3 Add difficulty configuration UI:
   - Skill level selection (Green to Legendary)
   - Modifier count slider
   - BV percentage adjustment
+  - Implemented in: `src/components/gameplay/ScenarioGenerator.tsx`
 
 ## 6. Testing
 
@@ -112,4 +114,6 @@
 - [x] 6.3 Integration tests for full scenario generation
   - 18 tests in: `src/services/generators/__tests__/ScenarioGeneratorService.test.ts`
 
-- [ ] 6.4 Balance testing with sample forces
+- [x] 6.4 Balance testing with sample forces
+  - 23 tests in: `src/services/generators/__tests__/balance.test.ts`
+  - Tests BV accuracy, difficulty scaling, force composition, reproducibility

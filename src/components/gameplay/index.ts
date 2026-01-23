@@ -18,3 +18,7 @@ export { RecordSheetDisplay } from './RecordSheetDisplay';
 export type { RecordSheetDisplayProps } from './RecordSheetDisplay';
 export { GameplayLayout } from './GameplayLayout';
 export type { GameplayLayoutProps } from './GameplayLayout';
+export { ScenarioGenerator } from './ScenarioGenerator';
+export type { ScenarioGeneratorProps } from './ScenarioGenerator';
+export { GenerateScenarioModal } from './GenerateScenarioModal';
+export type { GenerateScenarioModalProps } from './GenerateScenarioModal';
