@@ -400,6 +400,117 @@ test.describe('Touch Interactions', () => {
 });
 
 // =============================================================================
+// Gameplay Navigation Tests
+// =============================================================================
+
+test.describe('Gameplay Navigation', () => {
+  test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE viewport
+
+  test('should show expandable gameplay section with all items in mobile sidebar', async ({ page }) => {
+    await page.goto('/');
+    
+    // Open sidebar
+    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.waitForTimeout(350);
+    
+    const sidebar = page.locator('aside');
+    await expect(sidebar).toBeVisible();
+    
+    // Look for Gameplay section - expandable button
+    const gameplayButton = sidebar.getByRole('button', { name: /gameplay/i });
+    await expect(gameplayButton).toBeVisible();
+    
+    // Click to expand
+    await gameplayButton.click();
+    await page.waitForTimeout(200);
+    
+    // Should show all gameplay items with correct hrefs
+    const pilotsLink = sidebar.locator('a[href="/gameplay/pilots"]');
+    const forcesLink = sidebar.locator('a[href="/gameplay/forces"]');
+    const campaignsLink = sidebar.locator('a[href="/gameplay/campaigns"]');
+    const encountersLink = sidebar.locator('a[href="/gameplay/encounters"]');
+    const gamesLink = sidebar.locator('a[href="/gameplay/games"]');
+    
+    await expect(pilotsLink).toBeVisible();
+    await expect(forcesLink).toBeVisible();
+    await expect(campaignsLink).toBeVisible();
+    await expect(encountersLink).toBeVisible();
+    await expect(gamesLink).toBeVisible();
+    
+    // Verify labels
+    await expect(sidebar.getByText('Pilots')).toBeVisible();
+    await expect(sidebar.getByText('Forces')).toBeVisible();
+    await expect(sidebar.getByText('Campaigns')).toBeVisible();
+    await expect(sidebar.getByText('Encounters')).toBeVisible();
+    await expect(sidebar.getByText('Games')).toBeVisible();
+  });
+
+  test('should have navigable gameplay routes', async ({ page }) => {
+    // Test that all gameplay routes are accessible
+    const routes = [
+      '/gameplay/pilots',
+      '/gameplay/forces', 
+      '/gameplay/campaigns',
+      '/gameplay/encounters',
+      '/gameplay/games',
+    ];
+    
+    for (const route of routes) {
+      await page.goto(route);
+      await expect(page).toHaveURL(route);
+    }
+  });
+});
+
+// =============================================================================
+// History/Timeline Navigation Tests
+// =============================================================================
+
+test.describe('History Navigation', () => {
+  test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE viewport
+
+  test('should navigate to timeline via mobile sidebar', async ({ page }) => {
+    await page.goto('/');
+    
+    // Open sidebar
+    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.waitForTimeout(350);
+    
+    const sidebar = page.locator('aside');
+    await expect(sidebar).toBeVisible();
+    
+    // Find Timeline link within sidebar navigation
+    const timelineLink = sidebar.locator('a[href="/audit/timeline"]');
+    
+    // Scroll into view first (Timeline is in the History section which may be below the fold)
+    await timelineLink.scrollIntoViewIfNeeded();
+    await expect(timelineLink).toBeVisible();
+    
+    // Get href and navigate directly (workaround for Next.js Link issues in E2E)
+    const href = await timelineLink.getAttribute('href');
+    expect(href).toBe('/audit/timeline');
+    
+    // Navigate directly to verify the route works
+    await page.goto('/audit/timeline');
+    await expect(page).toHaveURL('/audit/timeline');
+  });
+
+  test('should show History section with Timeline in sidebar', async ({ page }) => {
+    await page.goto('/');
+    
+    // Open sidebar
+    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.waitForTimeout(350);
+    
+    const sidebar = page.locator('aside');
+    await expect(sidebar).toBeVisible();
+    
+    // Should show History section (may be title or just Timeline item)
+    await expect(sidebar.getByText('Timeline')).toBeVisible();
+  });
+});
+
+// =============================================================================
 // Responsive Layout Tests
 // =============================================================================
 

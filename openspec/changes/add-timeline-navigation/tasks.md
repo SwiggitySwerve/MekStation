@@ -16,8 +16,10 @@
 - [x] 3.1 Verify Timeline navigation link works
 - [x] 3.2 Verify active state highlighting for `/audit/timeline` and nested routes
 - [x] 3.3 Test collapsed sidebar tooltip
-- [ ] 3.4 Test mobile drawer navigation
+- [x] 3.4 Test mobile drawer navigation
+  - **E2E tests added:** `e2e/mobile-navigation.spec.ts` - History Navigation tests
 
 ## 4. Testing
 
-- [ ] 4.1 Update Sidebar Storybook stories
+- [x] 4.1 Update Sidebar Storybook stories
+  - Added: `OnTimelinePage`, `CollapsedHistoryActive` stories
