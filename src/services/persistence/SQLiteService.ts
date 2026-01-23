@@ -172,6 +172,73 @@ const MIGRATIONS: readonly IMigration[] = [
       CREATE INDEX IF NOT EXISTS idx_pilot_missions_pilot_id ON pilot_missions(pilot_id);
     `,
   },
+  {
+    version: 3,
+    name: 'campaign_instances_schema',
+    up: `
+      -- Campaign unit instances table
+      -- Tracks deployed units within campaigns with damage state
+      CREATE TABLE IF NOT EXISTS campaign_unit_instances (
+        id TEXT PRIMARY KEY,
+        campaign_id TEXT NOT NULL,
+        vault_unit_id TEXT NOT NULL,
+        vault_unit_version INTEGER NOT NULL,
+        unit_name TEXT NOT NULL,
+        unit_chassis TEXT NOT NULL,
+        unit_variant TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'operational',
+        damage_state TEXT NOT NULL,
+        assigned_pilot_instance_id TEXT,
+        force_id TEXT,
+        force_slot INTEGER,
+        total_kills INTEGER NOT NULL DEFAULT 0,
+        missions_participated INTEGER NOT NULL DEFAULT 0,
+        estimated_repair_cost INTEGER NOT NULL DEFAULT 0,
+        estimated_repair_time INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (assigned_pilot_instance_id) REFERENCES campaign_pilot_instances(id) ON DELETE SET NULL
+      );
+
+      -- Campaign pilot instances table
+      -- Tracks deployed pilots within campaigns with XP/wounds
+      CREATE TABLE IF NOT EXISTS campaign_pilot_instances (
+        id TEXT PRIMARY KEY,
+        campaign_id TEXT NOT NULL,
+        vault_pilot_id TEXT,
+        statblock_data TEXT,
+        pilot_name TEXT NOT NULL,
+        pilot_callsign TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        gunnery INTEGER NOT NULL DEFAULT 4,
+        piloting INTEGER NOT NULL DEFAULT 5,
+        wounds INTEGER NOT NULL DEFAULT 0,
+        current_xp INTEGER NOT NULL DEFAULT 0,
+        campaign_xp_earned INTEGER NOT NULL DEFAULT 0,
+        kill_count INTEGER NOT NULL DEFAULT 0,
+        missions_participated INTEGER NOT NULL DEFAULT 0,
+        assigned_unit_instance_id TEXT,
+        recovery_time INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (vault_pilot_id) REFERENCES pilots(id) ON DELETE SET NULL,
+        FOREIGN KEY (assigned_unit_instance_id) REFERENCES campaign_unit_instances(id) ON DELETE SET NULL,
+        -- Ensure XOR: either vault_pilot_id or statblock_data, not both or neither
+        CHECK ((vault_pilot_id IS NOT NULL AND statblock_data IS NULL) OR (vault_pilot_id IS NULL AND statblock_data IS NOT NULL))
+      );
+
+      -- Indexes for campaign instance queries
+      CREATE INDEX IF NOT EXISTS idx_unit_instances_campaign ON campaign_unit_instances(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_unit_instances_vault_unit ON campaign_unit_instances(vault_unit_id);
+      CREATE INDEX IF NOT EXISTS idx_unit_instances_status ON campaign_unit_instances(status);
+      CREATE INDEX IF NOT EXISTS idx_unit_instances_force ON campaign_unit_instances(force_id);
+      CREATE INDEX IF NOT EXISTS idx_pilot_instances_campaign ON campaign_pilot_instances(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_pilot_instances_vault_pilot ON campaign_pilot_instances(vault_pilot_id);
+      CREATE INDEX IF NOT EXISTS idx_pilot_instances_status ON campaign_pilot_instances(status);
+    `,
+  },
 ];
 
 /**

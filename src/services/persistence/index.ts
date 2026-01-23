@@ -32,3 +32,15 @@ export type { ISQLiteService, IDatabaseConfig, IMigration } from './SQLiteServic
 export { MigrationService, migrationService } from './MigrationService';
 export type { IMigrationService, IMigrationResult, IMigrationError } from './MigrationService';
 
+export {
+  CampaignInstanceService,
+  getCampaignInstanceService,
+  _resetCampaignInstanceService,
+} from './CampaignInstanceService';
+export type {
+  ICampaignInstanceService,
+  IInstanceQueryOptions,
+  IUpdateUnitInstanceInput,
+  IUpdatePilotInstanceInput,
+} from './CampaignInstanceService';
+

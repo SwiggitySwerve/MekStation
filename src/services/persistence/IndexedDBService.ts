@@ -9,7 +9,7 @@
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
-const DB_VERSION = 3;  // Bumped for pilots store
+const DB_VERSION = 4;  // Bumped for campaign instances stores
 
 /**
  * Object store names
@@ -19,6 +19,8 @@ export const STORES = {
   UNIT_METADATA: 'unit-metadata',
   CUSTOM_FORMULAS: 'custom-formulas',
   PILOTS: 'pilots',
+  CAMPAIGN_UNIT_INSTANCES: 'campaign-unit-instances',
+  CAMPAIGN_PILOT_INSTANCES: 'campaign-pilot-instances',
 } as const;
 
 type StoreName = typeof STORES[keyof typeof STORES];
@@ -92,6 +94,13 @@ export class IndexedDBService implements IIndexedDBService {
         }
         if (!db.objectStoreNames.contains(STORES.PILOTS)) {
           db.createObjectStore(STORES.PILOTS);
+        }
+        // Campaign instance stores (added in v4)
+        if (!db.objectStoreNames.contains(STORES.CAMPAIGN_UNIT_INSTANCES)) {
+          db.createObjectStore(STORES.CAMPAIGN_UNIT_INSTANCES);
+        }
+        if (!db.objectStoreNames.contains(STORES.CAMPAIGN_PILOT_INSTANCES)) {
+          db.createObjectStore(STORES.CAMPAIGN_PILOT_INSTANCES);
         }
       };
     });

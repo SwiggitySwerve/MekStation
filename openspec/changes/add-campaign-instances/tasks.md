@@ -38,17 +38,27 @@
 
 ## 2. Database Schema
 
-- [ ] 2.1 Add `campaign_unit_instances` table
-- [ ] 2.2 Add `campaign_pilot_instances` table
-- [ ] 2.3 Add foreign keys to campaigns and vault entities
-- [ ] 2.4 Create migration script
+- [x] 2.1 Add `campaign_unit_instances` table
+  - **IndexedDB:** Added store in `src/services/persistence/IndexedDBService.ts` (DB_VERSION 4)
+  - **SQLite:** Added table in migration 3 in `src/services/persistence/SQLiteService.ts`
+- [x] 2.2 Add `campaign_pilot_instances` table
+  - **IndexedDB:** Added store in `src/services/persistence/IndexedDBService.ts`
+  - **SQLite:** Added table in migration 3 with XOR constraint for vault_pilot_id/statblock_data
+- [x] 2.3 Add foreign keys to campaigns and vault entities
+  - SQLite schema includes foreign keys to `pilots` table and between instances
+- [x] 2.4 Create migration script
+  - SQLite migration 3: `campaign_instances_schema` with indexes for common queries
 
 ## 3. Instance Creation
 
-- [ ] 3.1 Create instance when unit is assigned to campaign force
-- [ ] 3.2 Snapshot vault unit version at assignment time
-- [ ] 3.3 Create pilot instance when pilot is assigned
-- [ ] 3.4 Handle statblock pilots (inline data, no vault reference)
+- [x] 3.1 Create instance when unit is assigned to campaign force
+  - **Implemented in:** `CampaignInstanceService.createUnitInstance()`
+- [x] 3.2 Snapshot vault unit version at assignment time
+  - `vaultUnitVersion` parameter captured at creation time
+- [x] 3.3 Create pilot instance when pilot is assigned
+  - **Implemented in:** `CampaignInstanceService.createPilotInstanceFromVault()`
+- [x] 3.4 Handle statblock pilots (inline data, no vault reference)
+  - **Implemented in:** `CampaignInstanceService.createPilotInstanceFromStatblock()`
 
 ## 4. State Updates
 
@@ -65,8 +75,14 @@
 
 ## 6. API & Store
 
-- [ ] 6.1 Add campaign instance queries to store
-- [ ] 6.2 Add instance CRUD operations
+- [x] 6.1 Add campaign instance queries to store
+  - **Implemented in:** `CampaignInstanceService.listUnitInstances()`, `listPilotInstances()` with filters
+- [x] 6.2 Add instance CRUD operations
+  - **Implemented in:** `src/services/persistence/CampaignInstanceService.ts`
+  - Unit: create, get, update, delete, list
+  - Pilot: create from vault, create from statblock, get, update, delete, list
+  - Assignments: assignPilotToUnit, unassignPilot (bidirectional)
+  - Bulk: deleteInstancesForCampaign
 - [ ] 6.3 Add instance-filtered Timeline queries
 
 ## 7. Testing
@@ -76,4 +92,7 @@
   - 42 tests covering type guards, factory functions, damage calculations, availability checks
 - [x] 7.2 Unit tests for damage state updates
   - `calculateDamagePercentage` and `determineUnitStatus` tests included
-- [ ] 7.3 Integration tests for event chain
+- [x] 7.3 Service layer tests
+  - **Implemented in:** `src/services/persistence/__tests__/CampaignInstanceService.test.ts`
+  - 21 tests covering CRUD operations, filtering, assignments, bulk operations
+- [ ] 7.4 Integration tests for event chain
