@@ -21,9 +21,12 @@
 - [x] 3.1 Verify each navigation link works correctly
 - [x] 3.2 Verify active state highlighting for each route
 - [x] 3.3 Verify collapsed sidebar tooltip shows all items
-- [ ] 3.4 Test mobile drawer navigation
+- [x] 3.4 Test mobile drawer navigation
+  - **E2E tests added:** `e2e/mobile-navigation.spec.ts` - Gameplay Navigation tests
 
 ## 4. Testing
 
-- [ ] 4.1 Update Sidebar Storybook stories if needed
-- [ ] 4.2 Add/update E2E tests for navigation
+- [x] 4.1 Update Sidebar Storybook stories if needed
+  - Added: `OnPilotsPage`, `OnForcesPage`, `OnCampaignsPage`, `OnEncountersPage`, `OnGamesPage`, `CollapsedGameplayActive` stories
+- [x] 4.2 Add/update E2E tests for navigation
+  - 2 new Gameplay Navigation tests: expandable section, navigable routes

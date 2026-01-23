@@ -115,3 +115,119 @@ export const CollapsedWithTooltip: Story = {
     },
   },
 };
+
+// Gameplay section stories
+export const OnPilotsPage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/pilots',
+    },
+    docs: {
+      description: {
+        story: 'Gameplay section with Pilots page active. The expandable Gameplay section highlights when any child route is active.',
+      },
+    },
+  },
+};
+
+export const OnForcesPage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/forces',
+    },
+    docs: {
+      description: {
+        story: 'Forces page under the Gameplay expandable section.',
+      },
+    },
+  },
+};
+
+export const OnCampaignsPage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/campaigns',
+    },
+    docs: {
+      description: {
+        story: 'Campaigns page under the Gameplay expandable section.',
+      },
+    },
+  },
+};
+
+export const OnEncountersPage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/encounters',
+    },
+    docs: {
+      description: {
+        story: 'Encounters page under the Gameplay expandable section.',
+      },
+    },
+  },
+};
+
+export const OnGamesPage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/games',
+    },
+    docs: {
+      description: {
+        story: 'Games page under the Gameplay expandable section.',
+      },
+    },
+  },
+};
+
+// History/Timeline section stories
+export const OnTimelinePage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/audit/timeline',
+    },
+    docs: {
+      description: {
+        story: 'Timeline page under the History section. Provides aggregate event history across all campaigns.',
+      },
+    },
+  },
+};
+
+// Collapsed with gameplay active (shows tooltip with links)
+export const CollapsedGameplayActive: Story = {
+  render: () => <SidebarWrapper initialCollapsed={true} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/campaigns',
+    },
+    docs: {
+      description: {
+        story: 'When collapsed with a Gameplay page active, the Gameplay icon shows an active indicator. Hover to see the tooltip with all Gameplay links.',
+      },
+    },
+  },
+};
+
+// Collapsed with History active
+export const CollapsedHistoryActive: Story = {
+  render: () => <SidebarWrapper initialCollapsed={true} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/audit/timeline',
+    },
+    docs: {
+      description: {
+        story: 'Collapsed sidebar with Timeline page active in the History section.',
+      },
+    },
+  },
+};
