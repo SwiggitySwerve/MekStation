@@ -10,7 +10,7 @@
   "private": true,
   "scripts": {
     "dev": "npx kill-port 3000 --silent && next dev",
-    "dev:e2e": "npx kill-port 3000 --silent && next dev --turbo=false",
+    "dev:e2e": "npx kill-port 3000 --silent && next dev --webpack",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
