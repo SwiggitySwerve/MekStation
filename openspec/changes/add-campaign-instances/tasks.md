@@ -69,9 +69,18 @@
 
 ## 5. Event Integration
 
-- [ ] 5.1 Emit events for instance state changes
-- [ ] 5.2 Link instance events to campaign/game context
-- [ ] 5.3 Support causality tracking (damage_applied -> status_changed)
+- [x] 5.1 Emit events for instance state changes
+  - **Implemented in:** `src/types/events/CampaignInstanceEvents.ts` (payload types)
+  - **Implemented in:** `src/utils/events/campaignInstanceEvents.ts` (emit functions)
+  - Unit events: created, damage_applied, status_changed, pilot_assigned/unassigned, destroyed, repair_started/completed
+  - Pilot events: created, xp_gained, skill_improved, wounded, status_changed, kill_recorded, mission_completed, deceased
+- [x] 5.2 Link instance events to campaign/game context
+  - All events include campaignId in context
+  - Game events include gameId
+  - Mission events include missionId
+- [x] 5.3 Support causality tracking (damage_applied -> status_changed)
+  - All emit functions accept optional `causedBy` parameter
+  - Supports relationships: triggered, derived, undone, superseded
 
 ## 6. API & Store
 
@@ -95,4 +104,7 @@
 - [x] 7.3 Service layer tests
   - **Implemented in:** `src/services/persistence/__tests__/CampaignInstanceService.test.ts`
   - 21 tests covering CRUD operations, filtering, assignments, bulk operations
-- [ ] 7.4 Integration tests for event chain
+- [x] 7.4 Event factory tests
+  - **Implemented in:** `src/utils/events/__tests__/campaignInstanceEvents.test.ts`
+  - 15 tests covering all event emit functions, causality, context linking
+- [ ] 7.5 Integration tests for event chain
