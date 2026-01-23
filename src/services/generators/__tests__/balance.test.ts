@@ -5,7 +5,7 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-import { describe, it, expect } from 'vitest';
+
 import { Era } from '../../../types/temporal/Era';
 import { OpForSkillLevel, ScenarioObjectiveType } from '../../../types/scenario';
 import { OpForGeneratorService, getDefaultOpForConfig } from '../OpForGeneratorService';

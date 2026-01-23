@@ -4,7 +4,7 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+
 import { Era } from '../../../types/temporal/Era';
 import { BiomeType, ScenarioObjectiveType } from '../../../types/scenario';
 import {

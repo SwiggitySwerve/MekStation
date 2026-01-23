@@ -12,7 +12,6 @@ import { Era } from '@/types/temporal/Era';
 import {
   BiomeType,
   type IGeneratedScenario,
-  type IScenarioTemplate,
   OpForSkillLevel,
   ScenarioObjectiveType,
 } from '@/types/scenario';
