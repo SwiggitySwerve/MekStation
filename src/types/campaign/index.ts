@@ -4,3 +4,4 @@
  */
 
 export * from './CampaignInterfaces';
+export * from './CampaignInstanceInterfaces';

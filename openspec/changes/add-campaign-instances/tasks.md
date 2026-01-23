@@ -2,32 +2,39 @@
 
 ## 1. Type Definitions
 
-- [ ] 1.1 Define `ICampaignUnitInstance` interface:
+- [x] 1.1 Define `ICampaignUnitInstance` interface:
   - `id: string` (instance ID)
   - `campaignId: string`
   - `vaultUnitId: string` (reference to vault design)
   - `vaultUnitVersion: number` (snapshot of design version at assignment)
-  - `currentDamage: IUnitDamageState`
-  - `status: 'operational' | 'damaged' | 'destroyed' | 'repairing'`
+  - `damageState: IUnitDamageState`
+  - `status: CampaignUnitStatus` (operational, damaged, destroyed, repairing, salvage)
   - `assignedPilotInstanceId?: string`
-  - `createdAt: string`
-  - `updatedAt: string`
+  - `forceId?: string`, `forceSlot?: number`
+  - `totalKills`, `missionsParticipated`, `estimatedRepairCost`, `estimatedRepairTime`
+  - `createdAt: string`, `updatedAt: string`
+  - **Implemented in:** `src/types/campaign/CampaignInstanceInterfaces.ts`
 
-- [ ] 1.2 Define `ICampaignPilotInstance` interface:
+- [x] 1.2 Define `ICampaignPilotInstance` interface:
   - `id: string` (instance ID)
   - `campaignId: string`
-  - `vaultPilotId?: string` (reference to pilot template, optional for statblock pilots)
-  - `statblockData?: IStatblockPilot` (inline pilot data if no vault reference)
-  - `currentXP: number`
+  - `vaultPilotId: string | null` (reference to pilot template, null for statblock pilots)
+  - `statblockData: IPilotStatblock | null` (inline pilot data if no vault reference)
+  - `currentXP: number`, `campaignXPEarned: number`
   - `currentSkills: IPilotSkills`
   - `wounds: number`
-  - `status: 'active' | 'wounded' | 'incapacitated' | 'deceased'`
-  - `killCount: number`
-  - `missionsParticipated: number`
-  - `createdAt: string`
-  - `updatedAt: string`
+  - `status: CampaignPilotStatus` (active, wounded, critical, mia, kia)
+  - `killCount: number`, `missionsParticipated: number`
+  - `recoveryTime: number`
+  - `createdAt: string`, `updatedAt: string`
+  - **Implemented in:** `src/types/campaign/CampaignInstanceInterfaces.ts`
 
-- [ ] 1.3 Define `IUnitDamageState` interface for tracking damage
+- [x] 1.3 Define `IUnitDamageState` interface for tracking damage
+  - `ILocationDamageState` for per-location armor/structure/components
+  - `IComponentDamage` with `ComponentStatus` enum
+  - Engine/gyro/sensor/life-support hits tracking
+  - Ammo expenditure and heat tracking
+  - **Implemented in:** `src/types/campaign/CampaignInstanceInterfaces.ts`
 
 ## 2. Database Schema
 
@@ -64,6 +71,9 @@
 
 ## 7. Testing
 
-- [ ] 7.1 Unit tests for instance creation
-- [ ] 7.2 Unit tests for damage state updates
+- [x] 7.1 Unit tests for instance creation
+  - **Implemented in:** `src/types/campaign/__tests__/CampaignInstanceInterfaces.test.ts`
+  - 42 tests covering type guards, factory functions, damage calculations, availability checks
+- [x] 7.2 Unit tests for damage state updates
+  - `calculateDamagePercentage` and `determineUnitStatus` tests included
 - [ ] 7.3 Integration tests for event chain
