@@ -172,6 +172,13 @@ export interface ICampaignInstanceStateService {
 }
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Recovery time in days per wound level */
+const RECOVERY_DAYS_PER_WOUND = 7;
+
+// =============================================================================
 // Implementation
 // =============================================================================
 
@@ -179,8 +186,7 @@ export interface ICampaignInstanceStateService {
  * Calculate recovery time based on wounds.
  */
 function calculateRecoveryTime(wounds: number): number {
-  // 7 days per wound, cumulative
-  return wounds * 7;
+  return wounds * RECOVERY_DAYS_PER_WOUND;
 }
 
 /**
@@ -348,7 +354,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     });
 
     // Emit repair started event
-    emitUnitInstanceRepairStarted({
+    const repairEvent = emitUnitInstanceRepairStarted({
       instanceId,
       campaignId: instance.campaignId,
       estimatedCost,
@@ -356,14 +362,17 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
       repairItems,
     });
 
-    // Emit status changed
-    emitUnitInstanceStatusChanged({
-      instanceId,
-      campaignId: instance.campaignId,
-      previousStatus: instance.status,
-      newStatus: CampaignUnitStatus.Repairing,
-      reason: 'Repair initiated',
-    });
+    // Emit status changed (linked to repair event)
+    emitUnitInstanceStatusChanged(
+      {
+        instanceId,
+        campaignId: instance.campaignId,
+        previousStatus: instance.status,
+        newStatus: CampaignUnitStatus.Repairing,
+        reason: 'Repair initiated',
+      },
+      { eventId: repairEvent.id, relationship: 'triggered' }
+    );
 
     return updated;
   }
