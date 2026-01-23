@@ -11,6 +11,8 @@ export {
   useGameTimeline,
   usePilotTimeline,
   useCampaignTimeline,
+  useUnitInstanceTimeline,
+  usePilotInstanceTimeline,
   type ITimelineFilters,
   type ITimelinePagination,
   type ITimelineState,
