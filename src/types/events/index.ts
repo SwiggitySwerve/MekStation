@@ -44,3 +44,26 @@ export {
   type IEventQueryOptions,
   type IEventQueryResult,
 } from './QueryInterfaces';
+
+// Campaign instance event types
+export {
+  CampaignInstanceEventTypes,
+  type CampaignInstanceEventType,
+  type IUnitInstanceCreatedPayload,
+  type IUnitInstanceDamageAppliedPayload,
+  type IUnitInstanceStatusChangedPayload,
+  type IUnitInstancePilotAssignedPayload,
+  type IUnitInstancePilotUnassignedPayload,
+  type IUnitInstanceDestroyedPayload,
+  type IUnitInstanceRepairStartedPayload,
+  type IUnitInstanceRepairCompletedPayload,
+  type IPilotInstanceCreatedPayload,
+  type IPilotInstanceXPGainedPayload,
+  type IPilotInstanceSkillImprovedPayload,
+  type IPilotInstanceWoundedPayload,
+  type IPilotInstanceStatusChangedPayload,
+  type IPilotInstanceKillRecordedPayload,
+  type IPilotInstanceMissionCompletedPayload,
+  type IPilotInstanceDeceasedPayload,
+  type CampaignInstanceEventPayload,
+} from './CampaignInstanceEvents';
