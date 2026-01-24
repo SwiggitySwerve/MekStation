@@ -1,6 +1,12 @@
-# MekStation
+<p align="center">
+  <img src="public/mekstation-logo.png" alt="MekStation" width="200" />
+</p>
 
-**The modern BattleTech unit construction and gameplay companion.**
+<h1 align="center">MekStation</h1>
+
+<p align="center">
+  <strong>The modern BattleTech unit construction and gameplay companion.</strong>
+</p>
 
 MekStation is a comprehensive toolkit for browsing, building, and battling with BattleMech units. Built with TechManual-accurate construction rules and powered by 4,200+ canonical units from the BattleTech universe.
 
