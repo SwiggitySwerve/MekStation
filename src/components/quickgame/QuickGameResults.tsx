@@ -5,9 +5,11 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { Button, Card } from '@/components/ui';
+import { QuickGameTimeline } from './QuickGameTimeline';
 
 // =============================================================================
 // Result Banner Component
@@ -139,6 +141,7 @@ function BattleSummary(): React.ReactElement {
 export function QuickGameResults(): React.ReactElement {
   const router = useRouter();
   const { game, playAgain, clearGame } = useQuickGameStore();
+  const [showTimeline, setShowTimeline] = useState(false);
 
   if (!game) {
     return (
@@ -193,26 +196,30 @@ export function QuickGameResults(): React.ReactElement {
         </div>
       </Card>
 
-      {/* Event timeline link */}
+      {/* Event timeline */}
       {game.events.length > 0 && (
-        <Card className="mb-6">
-          <div className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-white text-sm font-medium">Battle Timeline</p>
-              <p className="text-xs text-gray-500">{game.events.length} events recorded</p>
+        <div className="mb-6">
+          <Card>
+            <div className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-white text-sm font-medium">Battle Timeline</p>
+                <p className="text-xs text-gray-500">{game.events.length} events recorded</p>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowTimeline(!showTimeline)}
+              >
+                {showTimeline ? 'Hide Timeline' : 'View Timeline'}
+              </Button>
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                // In a full implementation, this would link to a replay view
-                console.log('View timeline');
-              }}
-            >
-              View Timeline
-            </Button>
-          </div>
-        </Card>
+          </Card>
+          {showTimeline && (
+            <div className="mt-4">
+              <QuickGameTimeline />
+            </div>
+          )}
+        </div>
       )}
 
       {/* Actions */}

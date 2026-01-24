@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { Button, Card } from '@/components/ui';
 import { GamePhase } from '@/types/gameplay';
+import { QuickGameTimeline } from './QuickGameTimeline';
 
 // =============================================================================
 // Unit Card Component
@@ -272,6 +273,13 @@ export function QuickGamePlay(): React.ReactElement {
             </Button>
           </div>
         </Card>
+
+        {/* Session timeline */}
+        {game.events.length > 0 && (
+          <div className="mt-4">
+            <QuickGameTimeline />
+          </div>
+        )}
       </div>
 
       {/* End game modal */}

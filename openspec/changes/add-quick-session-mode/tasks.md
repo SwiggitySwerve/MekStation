@@ -50,9 +50,11 @@
   - Supports game replay within session
   - Events stored in IQuickGameInstance.events
 
-- [ ] 4.2 Implement session timeline view:
+- [x] 4.2 Implement session timeline view:
   - View events from current quick game
   - Support replay (same as campaign games)
+  - Implemented in: `src/components/quickgame/QuickGameTimeline.tsx`
+  - Integrated in QuickGamePlay and QuickGameResults
 
 ## 5. Quick Game Flow
 
