@@ -192,14 +192,7 @@ export default function HomePage(): React.ReactElement {
               ))}
             </div>
 
-            {/* Footer info */}
-            <div className="text-center mt-16 text-text-theme-muted text-sm">
-              <p>
-                Powered by OpenSpec-driven development
-                <span className="mx-2">•</span>
-                <span className="text-text-theme-muted">v0.1.0</span>
-              </p>
-            </div>
+
           </div>
         </div>
       </div>
