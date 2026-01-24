@@ -1,137 +1,125 @@
 /**
- * Unit Browser Page (Compendium Section)
- * Browse and search custom units with filtering by type, tech base, and rules level.
- *
- * Similar pattern to Equipment Browser but for unit database.
+ * Canonical Units Browser Page (Compendium Section)
+ * Browse and search the canonical unit database with filtering and sorting.
  */
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
+import { IUnitEntry } from '@/types/pages';
 import {
   PageLoading,
   PageError,
-  Badge,
-  TechBaseBadge,
-  Button,
-  PaginationButtons,
+  Card,
   Input,
   Select,
-  EmptyState,
-  ViewModeToggle,
+  Button,
+  PaginationButtons,
+  TechBaseBadge,
+  WeightClassBadge,
 } from '@/components/ui';
-import type { ViewMode } from '@/components/ui';
 import { CompendiumLayout } from '@/components/compendium';
-import { UnitCardCompact } from '@/components/unit-card';
-
-interface UnitEntry {
-  id: string;
-  chassis: string;
-  variant: string;
-  tonnage: number;
-  techBase: TechBase;
-  era: string;
-  rulesLevel: RulesLevel;
-  unitType: string;
-  weightClass: WeightClass;
-  currentVersion: number;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface FilterState {
   search: string;
-  unitType: string;
-  techBase: TechBase | '';
-  rulesLevel: RulesLevel | '';
-  weightClass: WeightClass | '';
+  techBase: string;
+  weightClass: string;
+  rulesLevel: string;
+  yearMin: string;
+  yearMax: string;
+  tonnageMin: string;
+  tonnageMax: string;
+  bvMin: string;
+  bvMax: string;
 }
 
-const ITEMS_PER_PAGE = 36;
+type SortColumn = 'chassis' | 'variant' | 'tonnage' | 'year' | 'weightClass' | 'techBase' | 'unitType' | 'rulesLevel' | 'cost' | 'bv';
+type SortDirection = 'asc' | 'desc';
 
-// Unit type display configuration
-const UNIT_TYPE_CONFIG: Record<string, { label: string; badgeVariant: string; color: string }> = {
-  [UnitType.BATTLEMECH]: { label: 'BattleMech', badgeVariant: 'emerald', color: 'bg-emerald-500' },
-  [UnitType.OMNIMECH]: { label: 'OmniMech', badgeVariant: 'teal', color: 'bg-teal-500' },
-  [UnitType.INDUSTRIALMECH]: { label: 'IndustrialMech', badgeVariant: 'slate', color: 'bg-slate-500' },
-  [UnitType.PROTOMECH]: { label: 'ProtoMech', badgeVariant: 'violet', color: 'bg-violet-500' },
-  [UnitType.VEHICLE]: { label: 'Vehicle', badgeVariant: 'amber', color: 'bg-amber-500' },
-  [UnitType.VTOL]: { label: 'VTOL', badgeVariant: 'sky', color: 'bg-sky-500' },
-  [UnitType.SUPPORT_VEHICLE]: { label: 'Support Vehicle', badgeVariant: 'slate', color: 'bg-slate-400' },
-  [UnitType.AEROSPACE]: { label: 'Aerospace', badgeVariant: 'cyan', color: 'bg-cyan-500' },
-  [UnitType.CONVENTIONAL_FIGHTER]: { label: 'Conv. Fighter', badgeVariant: 'sky', color: 'bg-sky-400' },
-  [UnitType.SMALL_CRAFT]: { label: 'Small Craft', badgeVariant: 'indigo', color: 'bg-indigo-500' },
-  [UnitType.DROPSHIP]: { label: 'DropShip', badgeVariant: 'fuchsia', color: 'bg-fuchsia-500' },
-  [UnitType.JUMPSHIP]: { label: 'JumpShip', badgeVariant: 'purple', color: 'bg-purple-500' },
-  [UnitType.WARSHIP]: { label: 'WarShip', badgeVariant: 'rose', color: 'bg-rose-500' },
-  [UnitType.SPACE_STATION]: { label: 'Space Station', badgeVariant: 'pink', color: 'bg-pink-500' },
-  [UnitType.INFANTRY]: { label: 'Infantry', badgeVariant: 'lime', color: 'bg-lime-500' },
-  [UnitType.BATTLE_ARMOR]: { label: 'Battle Armor', badgeVariant: 'yellow', color: 'bg-yellow-500' },
+interface SortState {
+  column: SortColumn;
+  direction: SortDirection;
+}
+
+const ITEMS_PER_PAGE = 50;
+
+// Weight class sort order
+const WEIGHT_CLASS_ORDER: Record<string, number> = {
+  [WeightClass.ULTRALIGHT]: 0,
+  [WeightClass.LIGHT]: 1,
+  [WeightClass.MEDIUM]: 2,
+  [WeightClass.HEAVY]: 3,
+  [WeightClass.ASSAULT]: 4,
+  [WeightClass.SUPERHEAVY]: 5,
 };
 
-// Weight class display configuration
-const WEIGHT_CLASS_CONFIG: Record<WeightClass, { label: string; color: string }> = {
-  [WeightClass.ULTRALIGHT]: { label: 'Ultralight', color: 'text-slate-400' },
-  [WeightClass.LIGHT]: { label: 'Light', color: 'text-green-400' },
-  [WeightClass.MEDIUM]: { label: 'Medium', color: 'text-yellow-400' },
-  [WeightClass.HEAVY]: { label: 'Heavy', color: 'text-orange-400' },
-  [WeightClass.ASSAULT]: { label: 'Assault', color: 'text-red-400' },
-  [WeightClass.SUPERHEAVY]: { label: 'Superheavy', color: 'text-rose-500' },
+// Rules level sort order (ascending complexity)
+const RULES_LEVEL_ORDER: Record<string, number> = {
+  [RulesLevel.INTRODUCTORY]: 0,
+  [RulesLevel.STANDARD]: 1,
+  [RulesLevel.ADVANCED]: 2,
+  [RulesLevel.EXPERIMENTAL]: 3,
 };
 
-export default function UnitListPage(): React.ReactElement {
-  const [units, setUnits] = useState<UnitEntry[]>([]);
-  const [filteredUnits, setFilteredUnits] = useState<UnitEntry[]>([]);
+// Rules level display labels
+const RULES_LEVEL_LABELS: Record<string, string> = {
+  [RulesLevel.INTRODUCTORY]: 'Intro',
+  [RulesLevel.STANDARD]: 'Std',
+  [RulesLevel.ADVANCED]: 'Adv',
+  [RulesLevel.EXPERIMENTAL]: 'Exp',
+};
+
+const TECH_BASE_OPTIONS = [
+  { value: '', label: 'All Tech' },
+  { value: TechBase.INNER_SPHERE, label: 'Inner Sphere' },
+  { value: TechBase.CLAN, label: 'Clan' },
+];
+
+const WEIGHT_CLASS_OPTIONS = [
+  { value: '', label: 'All Classes' },
+  ...Object.values(WeightClass).map(wc => ({ value: wc, label: wc })),
+];
+
+const RULES_LEVEL_OPTIONS = [
+  { value: '', label: 'All Levels' },
+  ...ALL_RULES_LEVELS.map(rl => ({ value: rl, label: rl })),
+];
+
+export default function CanonicalUnitsListPage(): React.ReactElement {
+  const [units, setUnits] = useState<IUnitEntry[]>([]);
+  const [filteredUnits, setFilteredUnits] = useState<IUnitEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    unitType: '',
     techBase: '',
-    rulesLevel: '',
     weightClass: '',
+    rulesLevel: '',
+    yearMin: '',
+    yearMax: '',
+    tonnageMin: '',
+    tonnageMax: '',
+    bvMin: '',
+    bvMax: '',
   });
-
-  const hasActiveFilters = filters.unitType || filters.techBase || filters.rulesLevel || filters.weightClass;
-  const activeFilterCount = [filters.unitType, filters.techBase, filters.rulesLevel, filters.weightClass].filter(Boolean).length;
-
-  // Build select options
-  const unitTypeOptions = Object.values(UnitType).map(ut => ({
-    value: ut,
-    label: UNIT_TYPE_CONFIG[ut]?.label ?? ut,
-  }));
-
-  const techBaseOptions = Object.values(TechBase).map(tb => ({
-    value: tb,
-    label: tb,
-  }));
-
-  const rulesLevelOptions = Object.values(RulesLevel).map(rl => ({
-    value: rl,
-    label: rl,
-  }));
-
-  const weightClassOptions = Object.values(WeightClass).map(wc => ({
-    value: wc,
-    label: WEIGHT_CLASS_CONFIG[wc]?.label ?? wc,
-  }));
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [sort, setSort] = useState<SortState>({
+    column: 'chassis',
+    direction: 'asc',
+  });
 
   // Fetch units on mount
   useEffect(() => {
     async function fetchUnits() {
       try {
-        const response = await fetch('/api/units/custom');
-        const data = await response.json() as { units?: UnitEntry[]; error?: string };
-
-        if (data.units) {
-          setUnits(data.units);
-          setFilteredUnits(data.units);
+        const response = await fetch('/api/catalog');
+        const data = await response.json() as { success: boolean; data?: IUnitEntry[]; error?: string };
+        
+        if (data.success) {
+          setUnits(data.data || []);
+          setFilteredUnits(data.data || []);
         } else {
           setError(data.error || 'Failed to load units');
         }
@@ -149,29 +137,71 @@ export default function UnitListPage(): React.ReactElement {
   const applyFilters = useCallback(() => {
     let result = [...units];
 
+    // Text search
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       result = result.filter(unit =>
+        unit.name.toLowerCase().includes(searchLower) ||
         unit.chassis.toLowerCase().includes(searchLower) ||
-        unit.variant.toLowerCase().includes(searchLower) ||
-        `${unit.chassis} ${unit.variant}`.toLowerCase().includes(searchLower)
+        unit.variant.toLowerCase().includes(searchLower)
       );
     }
 
-    if (filters.unitType) {
-      result = result.filter(unit => unit.unitType === filters.unitType);
-    }
-
+    // Tech base filter
     if (filters.techBase) {
       result = result.filter(unit => unit.techBase === filters.techBase);
     }
 
+    // Weight class filter
+    if (filters.weightClass) {
+      result = result.filter(unit => unit.weightClass === filters.weightClass);
+    }
+
+    // Rules level filter
     if (filters.rulesLevel) {
       result = result.filter(unit => unit.rulesLevel === filters.rulesLevel);
     }
 
-    if (filters.weightClass) {
-      result = result.filter(unit => unit.weightClass === filters.weightClass);
+    // Year range filter
+    if (filters.yearMin) {
+      const minYear = parseInt(filters.yearMin, 10);
+      if (!isNaN(minYear)) {
+        result = result.filter(unit => (unit.year ?? 0) >= minYear);
+      }
+    }
+    if (filters.yearMax) {
+      const maxYear = parseInt(filters.yearMax, 10);
+      if (!isNaN(maxYear)) {
+        result = result.filter(unit => (unit.year ?? 9999) <= maxYear);
+      }
+    }
+
+    // Tonnage range filter
+    if (filters.tonnageMin) {
+      const minTon = parseInt(filters.tonnageMin, 10);
+      if (!isNaN(minTon)) {
+        result = result.filter(unit => unit.tonnage >= minTon);
+      }
+    }
+    if (filters.tonnageMax) {
+      const maxTon = parseInt(filters.tonnageMax, 10);
+      if (!isNaN(maxTon)) {
+        result = result.filter(unit => unit.tonnage <= maxTon);
+      }
+    }
+
+    // BV range filter
+    if (filters.bvMin) {
+      const minBV = parseInt(filters.bvMin, 10);
+      if (!isNaN(minBV)) {
+        result = result.filter(unit => (unit.bv ?? 0) >= minBV);
+      }
+    }
+    if (filters.bvMax) {
+      const maxBV = parseInt(filters.bvMax, 10);
+      if (!isNaN(maxBV)) {
+        result = result.filter(unit => (unit.bv ?? 99999) <= maxBV);
+      }
     }
 
     setFilteredUnits(result);
@@ -182,18 +212,108 @@ export default function UnitListPage(): React.ReactElement {
     applyFilters();
   }, [applyFilters]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredUnits.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedUnits = filteredUnits.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  // Sort filtered units
+  const sortedUnits = useMemo(() => {
+    const sorted = [...filteredUnits];
+    const { column, direction } = sort;
+    const multiplier = direction === 'asc' ? 1 : -1;
 
-  const handleFilterChange = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+    sorted.sort((a, b) => {
+      let aVal: string | number;
+      let bVal: string | number;
+
+      switch (column) {
+        case 'chassis':
+          aVal = a.chassis.toLowerCase();
+          bVal = b.chassis.toLowerCase();
+          break;
+        case 'variant':
+          aVal = a.variant.toLowerCase();
+          bVal = b.variant.toLowerCase();
+          break;
+        case 'tonnage':
+          aVal = a.tonnage;
+          bVal = b.tonnage;
+          break;
+        case 'year':
+          aVal = a.year ?? 9999;
+          bVal = b.year ?? 9999;
+          break;
+        case 'weightClass':
+          aVal = WEIGHT_CLASS_ORDER[a.weightClass] ?? 99;
+          bVal = WEIGHT_CLASS_ORDER[b.weightClass] ?? 99;
+          break;
+        case 'techBase':
+          aVal = a.techBase;
+          bVal = b.techBase;
+          break;
+        case 'unitType':
+          aVal = a.unitType;
+          bVal = b.unitType;
+          break;
+        case 'rulesLevel':
+          aVal = RULES_LEVEL_ORDER[a.rulesLevel ?? ''] ?? 99;
+          bVal = RULES_LEVEL_ORDER[b.rulesLevel ?? ''] ?? 99;
+          break;
+        case 'cost':
+          aVal = a.cost ?? 0;
+          bVal = b.cost ?? 0;
+          break;
+        case 'bv':
+          aVal = a.bv ?? 0;
+          bVal = b.bv ?? 0;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return -1 * multiplier;
+      if (aVal > bVal) return 1 * multiplier;
+      return 0;
+    });
+
+    return sorted;
+  }, [filteredUnits, sort]);
+
+  // Handle sort column click
+  const handleSort = (column: SortColumn) => {
+    setSort(prev => ({
+      column,
+      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+    setCurrentPage(1);
+  };
+
+  // Pagination
+  const totalPages = Math.ceil(sortedUnits.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const displayedUnits = sortedUnits.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const clearFilters = () => {
-    setFilters({ search: '', unitType: '', techBase: '', rulesLevel: '', weightClass: '' });
+    setFilters({
+      search: '',
+      techBase: '',
+      weightClass: '',
+      rulesLevel: '',
+      yearMin: '',
+      yearMax: '',
+      tonnageMin: '',
+      tonnageMax: '',
+      bvMin: '',
+      bvMax: '',
+    });
   };
+
+  // Check if any advanced filters are active
+  const hasAdvancedFilters = Boolean(
+    filters.yearMin || filters.yearMax ||
+    filters.tonnageMin || filters.tonnageMax ||
+    filters.bvMin || filters.bvMax
+  );
 
   if (loading) {
     return <PageLoading message="Loading unit database..." />;
@@ -210,137 +330,320 @@ export default function UnitListPage(): React.ReactElement {
     );
   }
 
-  // Header actions for the layout
-  const headerActions = (
-    <div className="flex items-center gap-3">
-      {/* View Mode Toggle */}
-      <ViewModeToggle mode={viewMode} onChange={setViewMode} />
-
-      {/* Search */}
-      <div className="w-64">
-        <Input
-          type="text"
-          placeholder="Search units..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange('search', e.target.value)}
-          accent="emerald"
-          aria-label="Search units"
-          className="!py-1.5 text-sm"
-        />
-      </div>
-
-      {/* Filter Toggle Button */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-          showFilters || hasActiveFilters
-            ? 'bg-accent text-text-theme-primary'
-            : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-        </svg>
-        Filters
-        {activeFilterCount > 0 && (
-          <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
-            {activeFilterCount}
-          </span>
-        )}
-      </button>
-    </div>
-  );
-
   return (
     <CompendiumLayout
       title="Unit Database"
-      subtitle={`${filteredUnits.length} units`}
+      subtitle={`Browse ${units.length.toLocaleString()} canonical units from all eras`}
       breadcrumbs={[{ label: 'Units' }]}
-      headerActions={headerActions}
-      maxWidth="wide"
+      maxWidth="full"
     >
-      {/* Collapsible Filter Panel */}
-      {showFilters && (
-        <div className="mb-4 p-3 bg-surface-base/40 border border-border-theme-subtle/50 rounded-lg animate-fadeIn">
-          <div className="flex flex-wrap items-center gap-3">
-            <Select
-              value={filters.unitType}
-              onChange={(e) => handleFilterChange('unitType', e.target.value)}
-              options={unitTypeOptions}
-              placeholder="Unit Type"
-              accent="emerald"
-              aria-label="Filter by unit type"
-              className="w-40"
+      {/* Filters */}
+      <Card className="mb-6">
+        {/* Primary Filters Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div className="lg:col-span-2">
+            <Input
+              type="text"
+              placeholder="Search chassis, model, or variant..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              aria-label="Search units"
             />
-            <Select
-              value={filters.techBase}
-              onChange={(e) => handleFilterChange('techBase', e.target.value as TechBase | '')}
-              options={techBaseOptions}
-              placeholder="Tech Base"
-              accent="emerald"
-              aria-label="Filter by tech base"
-              className="w-36"
-            />
-            <Select
-              value={filters.rulesLevel}
-              onChange={(e) => handleFilterChange('rulesLevel', e.target.value as RulesLevel | '')}
-              options={rulesLevelOptions}
-              placeholder="Rules Level"
-              accent="emerald"
-              aria-label="Filter by rules level"
-              className="w-36"
-            />
-            <Select
-              value={filters.weightClass}
-              onChange={(e) => handleFilterChange('weightClass', e.target.value as WeightClass | '')}
-              options={weightClassOptions}
-              placeholder="Weight Class"
-              accent="emerald"
-              aria-label="Filter by weight class"
-              className="w-36"
-            />
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-text-theme-secondary hover:text-text-theme-primary">
-                Clear All
-              </Button>
-            )}
+          </div>
+
+          <Select
+            value={filters.techBase}
+            onChange={(e) => handleFilterChange('techBase', e.target.value)}
+            options={TECH_BASE_OPTIONS}
+            aria-label="Filter by tech base"
+          />
+
+          <Select
+            value={filters.weightClass}
+            onChange={(e) => handleFilterChange('weightClass', e.target.value)}
+            options={WEIGHT_CLASS_OPTIONS}
+            aria-label="Filter by weight class"
+          />
+
+          <Select
+            value={filters.rulesLevel}
+            onChange={(e) => handleFilterChange('rulesLevel', e.target.value)}
+            options={RULES_LEVEL_OPTIONS}
+            aria-label="Filter by rules level"
+          />
+
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={`flex-1 text-xs ${hasAdvancedFilters ? 'text-accent' : ''}`}
+            >
+              {showAdvancedFilters ? '▼' : '▶'} Filters
+              {hasAdvancedFilters && ' •'}
+            </Button>
+            <Button variant="secondary" onClick={clearFilters} className="text-xs px-3">
+              Clear
+            </Button>
           </div>
         </div>
-      )}
 
-      {/* Empty State for no units */}
-      {units.length === 0 ? (
-        <EmptyState
-          title="No units yet"
-          message="Create custom units using the unit builder or import existing units."
-          action={
-            <div className="flex gap-3">
-              <Link href="/customizer">
-                <Button variant="primary">Create Unit</Button>
-              </Link>
+        {/* Advanced Filters Panel */}
+        {showAdvancedFilters && (
+          <div className="mt-4 pt-4 border-t border-border-theme-subtle">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Year Range */}
+              <div>
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                  Design Year
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.yearMin}
+                    onChange={(e) => handleFilterChange('yearMin', e.target.value)}
+                    className="text-center text-sm"
+                    min={2000}
+                    max={3150}
+                  />
+                  <span className="text-text-theme-muted">–</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.yearMax}
+                    onChange={(e) => handleFilterChange('yearMax', e.target.value)}
+                    className="text-center text-sm"
+                    min={2000}
+                    max={3150}
+                  />
+                </div>
+              </div>
+
+              {/* Tonnage Range */}
+              <div>
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                  Tonnage
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.tonnageMin}
+                    onChange={(e) => handleFilterChange('tonnageMin', e.target.value)}
+                    className="text-center text-sm"
+                    min={10}
+                    max={200}
+                    step={5}
+                  />
+                  <span className="text-text-theme-muted">–</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.tonnageMax}
+                    onChange={(e) => handleFilterChange('tonnageMax', e.target.value)}
+                    className="text-center text-sm"
+                    min={10}
+                    max={200}
+                    step={5}
+                  />
+                </div>
+              </div>
+
+              {/* BV Range */}
+              <div>
+                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                  Battle Value
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.bvMin}
+                    onChange={(e) => handleFilterChange('bvMin', e.target.value)}
+                    className="text-center text-sm"
+                    min={0}
+                    max={5000}
+                    step={50}
+                  />
+                  <span className="text-text-theme-muted">–</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.bvMax}
+                    onChange={(e) => handleFilterChange('bvMax', e.target.value)}
+                    className="text-center text-sm"
+                    min={0}
+                    max={5000}
+                    step={50}
+                  />
+                </div>
+              </div>
             </div>
-          }
-        />
-      ) : displayedUnits.length === 0 ? (
-        <EmptyState
-          title="No units found"
-          message="Try adjusting your filters or search terms."
-          action={<Button variant="secondary" onClick={clearFilters}>Clear Filters</Button>}
-        />
-      ) : (
-        <>
-          {viewMode === 'grid' && <UnitGridView units={displayedUnits} />}
-          {viewMode === 'list' && <UnitCardListView units={displayedUnits} />}
-          {viewMode === 'table' && <UnitTableView units={displayedUnits} />}
-        </>
-      )}
+          </div>
+        )}
 
-      {/* Pagination - Compact */}
+        {/* Results Count */}
+        <div className="mt-4 flex items-center justify-between text-sm text-text-theme-secondary">
+          <div>
+            Showing {displayedUnits.length} of {filteredUnits.length} results
+            {filteredUnits.length !== units.length && (
+              <span className="text-accent ml-2">
+                (filtered from {units.length.toLocaleString()} total)
+              </span>
+            )}
+          </div>
+          {hasAdvancedFilters && (
+            <div className="text-xs text-accent/70">
+              Advanced filters active
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Units Table - Compact */}
+      <Card variant="dark" className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1000px]">
+            <thead className="bg-surface-base">
+              <tr className="text-left text-text-theme-secondary text-xs uppercase tracking-wide">
+                <SortableHeader
+                  label="Chassis"
+                  column="chassis"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Model"
+                  column="variant"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Weight"
+                  column="tonnage"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-20 text-right"
+                />
+                <SortableHeader
+                  label="Year"
+                  column="year"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-16 text-right"
+                />
+                <SortableHeader
+                  label="Class"
+                  column="weightClass"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-24"
+                />
+                <SortableHeader
+                  label="Tech"
+                  column="techBase"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-28"
+                />
+                <SortableHeader
+                  label="Type"
+                  column="unitType"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-28"
+                />
+                <SortableHeader
+                  label="Level"
+                  column="rulesLevel"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-16"
+                />
+                <SortableHeader
+                  label="Price"
+                  column="cost"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-24 text-right"
+                />
+                <SortableHeader
+                  label="BV"
+                  column="bv"
+                  currentColumn={sort.column}
+                  direction={sort.direction}
+                  onSort={handleSort}
+                  className="w-16 text-right"
+                />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-theme-subtle/50">
+              {displayedUnits.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-3 py-8 text-center text-text-theme-secondary">
+                    No units found matching your filters
+                  </td>
+                </tr>
+              ) : (
+                displayedUnits.map((unit) => (
+                  <tr
+                    key={unit.id}
+                    className="hover:bg-surface-raised/30 transition-colors"
+                  >
+                    <td className="px-3 py-2">
+                      <Link href={`/compendium/units/${unit.id}`} className="group">
+                        <span className="font-medium text-sm text-text-theme-primary group-hover:text-accent transition-colors whitespace-nowrap">
+                          {unit.chassis}
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-primary/80 text-sm whitespace-nowrap">
+                      {unit.variant}
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-primary/80 font-mono text-sm text-right">
+                      {unit.tonnage} t
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-secondary font-mono text-sm text-right">
+                      {unit.year ?? '—'}
+                    </td>
+                    <td className="px-3 py-2">
+                      <WeightClassBadge weightClass={unit.weightClass} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <TechBaseBadge techBase={unit.techBase} />
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-secondary text-sm whitespace-nowrap">
+                      {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-secondary text-xs font-mono whitespace-nowrap">
+                      {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ?? unit.rulesLevel ?? '—'}
+                    </td>
+                    <td className="px-3 py-2 text-text-theme-primary/80 text-xs font-mono text-right whitespace-nowrap">
+                      {unit.cost ? `${(unit.cost / 1000000).toPrecision(3)}M` : '—'}
+                    </td>
+                    <td className="px-3 py-2 text-accent text-xs font-mono text-right whitespace-nowrap font-medium">
+                      {unit.bv?.toLocaleString() ?? '—'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs text-text-theme-muted">
-            Page {currentPage} of {totalPages}
-          </span>
+        <div className="flex justify-center mt-6">
           <PaginationButtons
             currentPage={currentPage}
             totalPages={totalPages}
@@ -352,156 +655,40 @@ export default function UnitListPage(): React.ReactElement {
   );
 }
 
-// ============================================================================
-// View Components
-// ============================================================================
-
-interface ViewProps {
-  units: UnitEntry[];
+// Sortable table header component
+interface SortableHeaderProps {
+  label: string;
+  column: SortColumn;
+  currentColumn: SortColumn;
+  direction: SortDirection;
+  onSort: (column: SortColumn) => void;
+  className?: string;
 }
 
-function getUnitTypeDisplay(unitType: string) {
-  return UNIT_TYPE_CONFIG[unitType] || { label: unitType, badgeVariant: 'slate', color: 'bg-slate-500' };
-}
+function SortableHeader({
+  label,
+  column,
+  currentColumn,
+  direction,
+  onSort,
+  className = '',
+}: SortableHeaderProps) {
+  const isActive = column === currentColumn;
+  const isRightAligned = className.includes('text-right');
 
-function getWeightClassDisplay(weightClass: WeightClass) {
-  return WEIGHT_CLASS_CONFIG[weightClass] || { label: weightClass, color: 'text-slate-400' };
-}
-
-// Grid View - Compact cards
-function UnitGridView({ units }: ViewProps): React.ReactElement {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-      {units.map((unit) => {
-        const typeDisplay = getUnitTypeDisplay(unit.unitType);
-        const weightDisplay = getWeightClassDisplay(unit.weightClass);
-
-        return (
-          <Link key={unit.id} href={`/compendium/units/${encodeURIComponent(unit.id)}`}>
-            <div className="group p-3 bg-surface-base/40 border border-border-theme-subtle/50 rounded-lg hover:bg-surface-base/60 hover:border-accent/50 transition-all cursor-pointer">
-              {/* Header row */}
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-medium text-text-theme-primary leading-tight group-hover:text-accent/90 line-clamp-1">
-                    {unit.chassis}
-                  </h3>
-                  <p className="text-xs text-text-theme-secondary truncate">{unit.variant}</p>
-                </div>
-                <TechBaseBadge techBase={unit.techBase} />
-              </div>
-
-              {/* Stats row */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-theme-secondary mb-2">
-                <span className={`font-medium ${weightDisplay.color}`}>{unit.tonnage}t</span>
-                <span className={weightDisplay.color}>{weightDisplay.label}</span>
-              </div>
-
-              {/* Type badge */}
-              <Badge variant={typeDisplay.badgeVariant as 'emerald' | 'teal' | 'slate' | 'violet' | 'amber' | 'sky' | 'cyan' | 'fuchsia' | 'rose' | 'lime' | 'yellow'} size="sm">
-                {typeDisplay.label}
-              </Badge>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-// Card List View - Uses UnitCardCompact components
-function UnitCardListView({ units }: ViewProps): React.ReactElement {
-  const router = useRouter();
-  
-  return (
-    <div className="space-y-2">
-      {units.map((unit) => {
-        const weightDisplay = getWeightClassDisplay(unit.weightClass);
-        // TODO: These fields are not in UnitEntry yet - would need API update
-        // For now, use placeholder values
-        const battleValue = 0;
-        const walkMP = 0;
-        const runMP = 0;
-        const jumpMP = 0;
-
-        return (
-          <UnitCardCompact
-            key={unit.id}
-            id={unit.id}
-            name={`${unit.chassis} ${unit.variant}`}
-            chassis={unit.chassis}
-            model={unit.variant}
-            tonnage={unit.tonnage}
-            weightClassName={weightDisplay.label}
-            techBaseName={unit.techBase}
-            battleValue={battleValue}
-            rulesLevelName={unit.rulesLevel}
-            walkMP={walkMP}
-            runMP={runMP}
-            jumpMP={jumpMP}
-            onClick={() => router.push(`/compendium/units/${encodeURIComponent(unit.id)}`)}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-// Table View - Compact data table
-function UnitTableView({ units }: ViewProps): React.ReactElement {
-  return (
-    <div className="bg-surface-base/30 border border-border-theme-subtle/50 rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-surface-base/60 border-b border-border-theme-subtle/50">
-              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Unit</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Type</th>
-              <th className="px-3 py-2 text-center text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Tech</th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Tons</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Class</th>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase tracking-wider">Era</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border-theme-subtle/30">
-            {units.map((unit) => {
-              const typeDisplay = getUnitTypeDisplay(unit.unitType);
-              const weightDisplay = getWeightClassDisplay(unit.weightClass);
-
-              return (
-                <tr
-                  key={unit.id}
-                  className="hover:bg-surface-raised/20 transition-colors cursor-pointer"
-                  onClick={() => window.location.href = `/compendium/units/${encodeURIComponent(unit.id)}`}
-                >
-                  <td className="px-3 py-2">
-                    <div>
-                      <span className="font-medium text-text-theme-primary">{unit.chassis}</span>
-                      <span className="text-text-theme-secondary ml-1">{unit.variant}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <Badge variant={typeDisplay.badgeVariant as 'emerald' | 'teal' | 'slate' | 'violet' | 'amber' | 'sky' | 'cyan' | 'fuchsia' | 'rose' | 'lime' | 'yellow'} size="sm">
-                      {typeDisplay.label}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    <TechBaseBadge techBase={unit.techBase} />
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono text-text-theme-primary/80">
-                    {unit.tonnage}
-                  </td>
-                  <td className={`px-3 py-2 ${weightDisplay.color}`}>
-                    {weightDisplay.label}
-                  </td>
-                  <td className="px-3 py-2 text-text-theme-secondary">
-                    {unit.era}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <th
+      className={`px-3 py-2 font-medium cursor-pointer hover:text-text-theme-primary transition-colors select-none ${className}`}
+      onClick={() => onSort(column)}
+    >
+      <span className={`flex items-center gap-1 ${isRightAligned ? 'justify-end' : ''}`}>
+        {label}
+        {isActive && (
+          <span className="text-accent text-[10px]">
+            {direction === 'asc' ? '▲' : '▼'}
+          </span>
+        )}
+      </span>
+    </th>
   );
 }

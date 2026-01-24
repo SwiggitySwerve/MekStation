@@ -11,31 +11,14 @@ import React from 'react';
 // Brand Icons
 // =============================================================================
 
-export function MekStationIcon(): React.ReactElement {
+export function MekStationIcon({ className = "w-5 h-5" }: { className?: string }): React.ReactElement {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-      {/* Mech silhouette */}
-      <g fill="#e8e8e8" stroke="#707070" strokeWidth="0.3">
-        {/* Head */}
-        <path d="M9.5 4 L14.5 4 L15.5 5.5 L15 7 L9 7 L8.5 5.5 Z"/>
-        {/* Cockpit visor */}
-        <rect x="10.5" y="4.8" width="3" height="1" rx="0.3" fill="#00bfff"/>
-        {/* Torso */}
-        <path d="M9.5 7.5 L14.5 7.5 L15 8.5 L15 13 L9 13 L9 8.5 Z"/>
-        {/* Left arm */}
-        <rect x="6" y="8" width="2.5" height="4" rx="0.5"/>
-        <rect x="5.5" y="12" width="3" height="2.5" rx="0.4"/>
-        {/* Right arm */}
-        <rect x="15.5" y="8" width="2.5" height="4" rx="0.5"/>
-        <rect x="15.5" y="12" width="3" height="2.5" rx="0.4"/>
-        {/* Left leg */}
-        <path d="M9.5 13.5 L11 13.5 L10.8 17 L9.2 17 Z"/>
-        <path d="M8.5 17.5 L11.5 17.5 L11.8 19 L8.2 19 Z"/>
-        {/* Right leg */}
-        <path d="M13 13.5 L14.5 13.5 L14.8 17 L13.2 17 Z"/>
-        <path d="M12.5 17.5 L15.5 17.5 L15.8 19 L12.2 19 Z"/>
-      </g>
-    </svg>
+    <img 
+      src="/mekstation-logo.png" 
+      alt="MekStation" 
+      className={className}
+      style={{ objectFit: 'contain' }}
+    />
   );
 }
 
@@ -152,9 +135,9 @@ export function PilotIcon(): React.ReactElement {
 // =============================================================================
 
 /** Chevron down icon for expandable sections */
-export function ChevronDownIcon(): React.ReactElement {
+export function ChevronDownIcon({ className = "w-4 h-4" }: { className?: string }): React.ReactElement {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
     </svg>
   );

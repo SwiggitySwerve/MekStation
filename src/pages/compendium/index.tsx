@@ -3,71 +3,23 @@
  * Main entry point for equipment catalog, construction rules, and game mechanics.
  */
 import React, { useState } from 'react';
-import {
-  Card,
-  CategoryCard,
-} from '@/components/ui';
-import type { AccentColor } from '@/components/ui';
+import Link from 'next/link';
 import { CompendiumLayout } from '@/components/compendium';
 
 interface RuleSection {
   id: string;
   title: string;
-  description: string;
   icon: React.ReactNode;
-  accentColor: AccentColor;
 }
 
 const ruleSections: RuleSection[] = [
-  {
-    id: 'structure',
-    title: 'Internal Structure',
-    description: 'Structure types and weight calculations',
-    icon: <StructureIcon />,
-    accentColor: 'amber',
-  },
-  {
-    id: 'engine',
-    title: 'Engine',
-    description: 'Engine types and rating calculations',
-    icon: <LightningIcon />,
-    accentColor: 'amber',
-  },
-  {
-    id: 'armor',
-    title: 'Armor',
-    description: 'Armor types and maximum allocations',
-    icon: <ShieldIcon />,
-    accentColor: 'rose',
-  },
-  {
-    id: 'heatsinks',
-    title: 'Heat Sinks',
-    description: 'Heat management and dissipation',
-    icon: <FlameIcon />,
-    accentColor: 'rose',
-  },
-  {
-    id: 'gyro',
-    title: 'Gyro',
-    description: 'Gyro types and stability',
-    icon: <GyroIcon />,
-    accentColor: 'amber',
-  },
-  {
-    id: 'movement',
-    title: 'Movement',
-    description: 'Movement points and jump jets',
-    icon: <RocketIcon />,
-    accentColor: 'emerald',
-  },
-  {
-    id: 'criticals',
-    title: 'Critical Slots',
-    description: 'Critical slot allocation by location',
-    icon: <ListIcon />,
-    accentColor: 'cyan',
-  },
+  { id: 'structure', title: 'Structure', icon: <StructureIcon /> },
+  { id: 'engine', title: 'Engine', icon: <LightningIcon /> },
+  { id: 'armor', title: 'Armor', icon: <ShieldIcon /> },
+  { id: 'heatsinks', title: 'Heat Sinks', icon: <FlameIcon /> },
+  { id: 'gyro', title: 'Gyro', icon: <GyroIcon /> },
+  { id: 'movement', title: 'Movement', icon: <RocketIcon /> },
+  { id: 'criticals', title: 'Criticals', icon: <ListIcon /> },
 ];
 
 export default function CompendiumPage(): React.ReactElement {
@@ -75,8 +27,7 @@ export default function CompendiumPage(): React.ReactElement {
 
   // Filter sections based on search
   const filteredSections = ruleSections.filter(section =>
-    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.description.toLowerCase().includes(searchQuery.toLowerCase())
+    section.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Header actions with search
@@ -97,101 +48,171 @@ export default function CompendiumPage(): React.ReactElement {
   return (
     <CompendiumLayout
       title="COMPENDIUM"
-      subtitle="Equipment catalog, construction rules, and game mechanics"
+      subtitle="Canonical reference for units, equipment, and construction rules"
       breadcrumbs={[]}
       headerActions={headerActions}
       data-testid="compendium-hub"
     >
-      {/* Units Section */}
-      <section className="mb-8" data-testid="compendium-units-section">
-        <h2 className="text-category-label text-text-theme-secondary mb-4">UNITS</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <CategoryCard
-            icon={<MechIcon />}
-            title="Unit Database"
-            subtitle="Browse BattleMechs, vehicles, aerospace, and more"
-            href="/compendium/units"
-            accentColor="emerald"
-          />
+      {/* Hero Feature Cards - Primary Navigation */}
+      <section className="mb-12" data-testid="compendium-units-section">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Units Card - Featured */}
+          <Link href="/compendium/units" className="group">
+            <div className="relative h-48 bg-gradient-to-br from-emerald-950/80 via-surface-base/60 to-surface-base/40 border border-emerald-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-emerald-400/50 hover:shadow-lg hover:shadow-emerald-500/10">
+              {/* Decorative grid */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="h-full w-full" style={{
+                  backgroundImage: 'linear-gradient(rgba(16, 185, 129, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.3) 1px, transparent 1px)',
+                  backgroundSize: '24px 24px',
+                }} />
+              </div>
+              {/* Gradient glow */}
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-colors" />
+              
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <MechIcon />
+                  </div>
+                  <ArrowIcon className="w-5 h-5 text-emerald-500/50 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-text-theme-primary group-hover:text-emerald-300 transition-colors">Unit Database</h3>
+                  <p className="text-text-theme-secondary text-sm mt-1">Browse BattleMechs, vehicles, aerospace, and more</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Equipment Card - Featured */}
+          <Link href="/compendium/equipment" className="group" data-testid="compendium-equipment-section">
+            <div className="relative h-48 bg-gradient-to-br from-cyan-950/80 via-surface-base/60 to-surface-base/40 border border-cyan-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10">
+              {/* Decorative grid */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="h-full w-full" style={{
+                  backgroundImage: 'linear-gradient(rgba(6, 182, 212, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.3) 1px, transparent 1px)',
+                  backgroundSize: '24px 24px',
+                }} />
+              </div>
+              {/* Gradient glow */}
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl group-hover:bg-cyan-500/30 transition-colors" />
+              
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                    <EquipmentIcon />
+                  </div>
+                  <ArrowIcon className="w-5 h-5 text-cyan-500/50 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-text-theme-primary group-hover:text-cyan-300 transition-colors">Equipment Catalog</h3>
+                  <p className="text-text-theme-secondary text-sm mt-1">Browse weapons, electronics, and mech components</p>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* Equipment Section */}
-      <section className="mb-8" data-testid="compendium-equipment-section">
-        <h2 className="text-category-label text-text-theme-secondary mb-4">EQUIPMENT</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <CategoryCard
-            icon={<EquipmentIcon />}
-            title="Equipment Catalog"
-            subtitle="Browse weapons, electronics, and mech components"
-            href="/compendium/equipment"
-            accentColor="cyan"
-          />
-        </div>
-      </section>
+      {/* Split Layout: Quick Reference + Construction Rules */}
+      <section className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-12">
+        {/* Quick Reference Panel - Prominent sidebar */}
+        <div className="xl:col-span-2 order-2 xl:order-1" data-testid="compendium-quick-reference">
+          <div className="sticky top-6">
+            <div className="bg-gradient-to-b from-amber-950/50 via-surface-base/40 to-surface-base/30 border border-amber-500/20 rounded-2xl p-6 overflow-hidden relative">
+              {/* Corner accent */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 blur-2xl" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
+                    <ChartIcon />
+                  </div>
+                  <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wider">Quick Reference</h3>
+                </div>
 
-      {/* Rules Section */}
-      <section className="mb-8" data-testid="compendium-rules-section">
-        <h2 className="text-category-label text-text-theme-secondary mb-4">CONSTRUCTION RULES</h2>
-        <nav aria-label="Construction rules sections">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSections.map((section) => (
-              <CategoryCard
-                key={section.id}
-                icon={section.icon}
-                title={section.title}
-                subtitle={section.description}
-                href={`/compendium/rules/${section.id}`}
-                accentColor={section.accentColor}
-                data-testid={`rule-category-${section.id}`}
-              />
-            ))}
-          </div>
-        </nav>
-
-        {/* Empty state when search yields no results */}
-        {filteredSections.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-text-theme-secondary">No sections match your search.</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="mt-4 text-accent hover:text-accent/80 transition-colors"
-            >
-              Clear search
-            </button>
-          </div>
-        )}
-      </section>
-
-      {/* Quick Reference Stats */}
-      <Card variant="dark" className="mt-8" data-testid="compendium-quick-reference">
-        <h3 className="text-category-label text-text-theme-secondary mb-4">Quick Reference</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="bg-surface-raised/30 rounded-lg p-3">
-            <div className="text-text-theme-secondary">Total Critical Slots</div>
-            <div className="text-2xl font-bold text-text-theme-primary mt-1">78</div>
-          </div>
-          <div className="bg-surface-raised/30 rounded-lg p-3">
-            <div className="text-text-theme-secondary">Min Heat Sinks</div>
-            <div className="text-2xl font-bold text-text-theme-primary mt-1">10</div>
-          </div>
-          <div className="bg-surface-raised/30 rounded-lg p-3">
-            <div className="text-text-theme-secondary">Max Head Armor</div>
-            <div className="text-2xl font-bold text-text-theme-primary mt-1">9</div>
-          </div>
-          <div className="bg-surface-raised/30 rounded-lg p-3">
-            <div className="text-text-theme-secondary">Structure Weight</div>
-            <div className="text-2xl font-bold text-text-theme-primary mt-1">10%</div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-3 px-4 bg-surface-deep/50 rounded-xl border border-border-theme-subtle/30">
+                    <span className="text-text-theme-secondary text-sm">Total Critical Slots</span>
+                    <span className="text-2xl font-bold text-amber-400 tabular-nums">78</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 px-4 bg-surface-deep/50 rounded-xl border border-border-theme-subtle/30">
+                    <span className="text-text-theme-secondary text-sm">Min Heat Sinks</span>
+                    <span className="text-2xl font-bold text-rose-400 tabular-nums">10</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 px-4 bg-surface-deep/50 rounded-xl border border-border-theme-subtle/30">
+                    <span className="text-text-theme-secondary text-sm">Max Head Armor</span>
+                    <span className="text-2xl font-bold text-cyan-400 tabular-nums">9</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 px-4 bg-surface-deep/50 rounded-xl border border-border-theme-subtle/30">
+                    <span className="text-text-theme-secondary text-sm">Structure Weight</span>
+                    <span className="text-2xl font-bold text-emerald-400 tabular-nums">10%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </Card>
+
+        {/* Construction Rules - Compact inline navigation */}
+        <div className="xl:col-span-3 order-1 xl:order-2" data-testid="compendium-rules-section">
+          <div className="bg-surface-base/30 border border-border-theme-subtle/50 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400">
+                  <BookIcon />
+                </div>
+                <h3 className="text-sm font-semibold text-text-theme-secondary uppercase tracking-wider">Construction Rules</h3>
+              </div>
+              <Link 
+                href="/compendium/rules" 
+                className="text-xs text-text-theme-muted hover:text-accent transition-colors flex items-center gap-1"
+              >
+                View all
+                <ArrowIcon className="w-3 h-3" />
+              </Link>
+            </div>
+
+            <nav aria-label="Construction rules sections">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {filteredSections.map((section) => (
+                  <Link
+                    key={section.id}
+                    href={`/compendium/rules#${section.id}`}
+                    className="group flex items-center gap-3 px-4 py-3 bg-surface-deep/40 hover:bg-surface-base/60 border border-border-theme-subtle/30 hover:border-border-theme rounded-xl transition-all"
+                    data-testid={`rule-category-${section.id}`}
+                  >
+                    <span className="text-text-theme-muted group-hover:text-amber-400 transition-colors flex-shrink-0">
+                      {section.icon}
+                    </span>
+                    <span className="text-sm text-text-theme-secondary group-hover:text-text-theme-primary transition-colors">
+                      {section.title}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </nav>
+
+            {/* Empty state when search yields no results */}
+            {filteredSections.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-text-theme-secondary text-sm">No sections match your search.</p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="mt-3 text-sm text-accent hover:text-accent/80 transition-colors"
+                >
+                  Clear search
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="mt-16 text-center">
-        <p className="text-text-theme-muted text-sm">
-          Rules reference based on BattleTech TechManual.
-          <br />
-          For complete rules, consult the official rulebooks.
+      <footer className="pt-8 border-t border-border-theme-subtle/30">
+        <p className="text-text-theme-muted text-xs text-center">
+          Rules reference based on BattleTech TechManual. For complete rules, consult the official rulebooks.
         </p>
       </footer>
     </CompendiumLayout>
@@ -275,6 +296,30 @@ function MechIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 14.5M14.25 3.104c.251.023.501.05.75.082M19.8 14.5l-4.5 4.5-3.3-3.3-3.3 3.3-4.5-4.5m0 0l-2.25 2.25M19.8 14.5l2.25 2.25" />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
     </svg>
   );
 }

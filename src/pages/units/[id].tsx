@@ -1,10 +1,14 @@
 /**
- * Unit Detail Page
- * Displays full details for a single unit.
+ * Custom Unit Detail Page
+ * Displays full specifications for a single user-created unit.
  */
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { IUnitDetails, isArmorFrontRear, calculateTotalArmor } from '@/types/pages';
+import Link from 'next/link';
+import { TechBase } from '@/types/enums/TechBase';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { WeightClass } from '@/types/enums/WeightClass';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   PageLayout,
   PageLoading,
@@ -12,17 +16,61 @@ import {
   Card,
   CardSection,
   Badge,
+  TechBaseBadge,
+  WeightClassBadge,
   StatRow,
   StatList,
   StatCard,
   StatGrid,
+  Button,
 } from '@/components/ui';
 
-export default function UnitDetailPage(): React.ReactElement {
+interface UnitData {
+  id: string;
+  chassis: string;
+  variant: string;
+  tonnage: number;
+  techBase: TechBase;
+  era: string;
+  rulesLevel: RulesLevel;
+  unitType: string;
+  weightClass: WeightClass;
+  currentVersion: number;
+  createdAt: string;
+  updatedAt: string;
+  data: string;
+  parsedData: Record<string, unknown>;
+}
+
+// Unit type display configuration
+const UNIT_TYPE_CONFIG: Record<string, { label: string; badgeVariant: string }> = {
+  [UnitType.BATTLEMECH]: { label: 'BattleMech', badgeVariant: 'emerald' },
+  [UnitType.OMNIMECH]: { label: 'OmniMech', badgeVariant: 'teal' },
+  [UnitType.INDUSTRIALMECH]: { label: 'IndustrialMech', badgeVariant: 'slate' },
+  [UnitType.PROTOMECH]: { label: 'ProtoMech', badgeVariant: 'violet' },
+  [UnitType.VEHICLE]: { label: 'Vehicle', badgeVariant: 'amber' },
+  [UnitType.VTOL]: { label: 'VTOL', badgeVariant: 'sky' },
+  [UnitType.SUPPORT_VEHICLE]: { label: 'Support Vehicle', badgeVariant: 'slate' },
+  [UnitType.AEROSPACE]: { label: 'Aerospace', badgeVariant: 'cyan' },
+  [UnitType.CONVENTIONAL_FIGHTER]: { label: 'Conv. Fighter', badgeVariant: 'sky' },
+  [UnitType.SMALL_CRAFT]: { label: 'Small Craft', badgeVariant: 'indigo' },
+  [UnitType.DROPSHIP]: { label: 'DropShip', badgeVariant: 'fuchsia' },
+  [UnitType.JUMPSHIP]: { label: 'JumpShip', badgeVariant: 'purple' },
+  [UnitType.WARSHIP]: { label: 'WarShip', badgeVariant: 'rose' },
+  [UnitType.SPACE_STATION]: { label: 'Space Station', badgeVariant: 'pink' },
+  [UnitType.INFANTRY]: { label: 'Infantry', badgeVariant: 'lime' },
+  [UnitType.BATTLE_ARMOR]: { label: 'Battle Armor', badgeVariant: 'yellow' },
+};
+
+function getUnitTypeDisplay(unitType: string) {
+  return UNIT_TYPE_CONFIG[unitType] || { label: unitType, badgeVariant: 'slate' };
+}
+
+export default function CustomUnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
-  
-  const [unit, setUnit] = useState<IUnitDetails | null>(null);
+
+  const [unit, setUnit] = useState<UnitData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,11 +79,11 @@ export default function UnitDetailPage(): React.ReactElement {
 
     async function fetchUnit() {
       try {
-        const response = await fetch(`/api/units?id=${encodeURIComponent(id as string)}`);
-        const data = await response.json() as { success: boolean; data?: IUnitDetails; error?: string };
-        
-        if (data.success && data.data) {
-          setUnit(data.data);
+        const response = await fetch(`/api/units/custom/${encodeURIComponent(id as string)}`);
+        const data = await response.json() as UnitData & { error?: string };
+
+        if (response.ok && data.chassis) {
+          setUnit(data);
         } else {
           setError(data.error || 'Unit not found');
         }
@@ -59,164 +107,136 @@ export default function UnitDetailPage(): React.ReactElement {
         title="Unit Not Found"
         message={error || 'The requested unit could not be found.'}
         backLink="/units"
-        backLabel="Back to Units"
+        backLabel="Back to Custom Units"
       />
     );
   }
 
-  const displayName = unit.name || `${unit.chassis || ''} ${unit.model || unit.variant || ''}`.trim();
-  const totalArmor = calculateTotalArmor(unit.armor);
+  const typeDisplay = getUnitTypeDisplay(unit.unitType);
+  const unitName = `${unit.chassis} ${unit.variant}`;
+  const parsedData = unit.parsedData;
+
+  // Extract common fields from parsed data
+  const engine = parsedData.engine as { type?: string; rating?: number } | undefined;
+  const movement = parsedData.movement as { walkMP?: number; runMP?: number; jumpMP?: number } | undefined;
+  const armor = parsedData.armorAllocation as Record<string, number> | undefined;
+  const totalArmor = parsedData.totalArmorPoints as number | undefined;
+  const equipment = parsedData.equipment as Array<{ name: string; location: string }> | undefined;
+  const heatSinks = parsedData.heatSinks as { type?: string; total?: number } | undefined;
+  const structure = parsedData.structure as { type?: string } | undefined;
+  const quirks = parsedData.quirks as string[] | undefined;
+  const role = (parsedData.metadata as { role?: string } | undefined)?.role;
 
   return (
     <PageLayout
-      title={displayName}
+      title={unitName}
+      subtitle={role ? `Role: ${role}` : `${unit.tonnage} tons • ${unit.techBase}`}
       backLink="/units"
-      backLabel="Back to Units"
+      backLabel="Back to Custom Units"
     >
-      {/* Header Card */}
-      <Card className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">{displayName}</h1>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <Badge variant="warning">{unit.tonnage} tons</Badge>
-              {unit.techBase && (
-                <Badge variant="info">{unit.techBase.replace(/_/g, ' ')}</Badge>
-              )}
-              {unit.unitType && (
-                <Badge variant="muted">{unit.unitType}</Badge>
-              )}
-              {unit.configuration && (
-                <Badge variant="muted">{unit.configuration}</Badge>
-              )}
-            </div>
-          </div>
-          <div className="text-right text-text-theme-secondary text-sm">
-            {unit.era && <div>Era: {unit.era.replace(/_/g, ' ')}</div>}
-            {unit.year && <div>Year: {unit.year}</div>}
-            {unit.rulesLevel && <div>Rules: {unit.rulesLevel.replace(/_/g, ' ')}</div>}
-          </div>
+      {/* Header with badges and edit button */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={typeDisplay.badgeVariant as 'emerald' | 'teal' | 'slate' | 'violet' | 'amber' | 'sky' | 'cyan' | 'fuchsia' | 'rose' | 'lime' | 'yellow'}>
+            {typeDisplay.label}
+          </Badge>
+          <TechBaseBadge techBase={unit.techBase} />
+          <WeightClassBadge weightClass={unit.weightClass} />
+          <Badge variant="muted">{unit.rulesLevel.replace(/_/g, ' ')}</Badge>
         </div>
-      </Card>
+        <Link href={`/customizer?id=${encodeURIComponent(unit.id)}`}>
+          <Button variant="secondary" size="sm">
+            <EditIcon className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+        </Link>
+      </div>
 
-      {/* Stats Grid */}
-      <StatGrid cols={3} className="mb-6">
+      {/* Basic Stats */}
+      <StatGrid cols={2} className="mb-6">
+        {/* Physical Properties */}
+        <StatCard title="Physical Properties" icon={<CubeIcon />} variant="emerald">
+          <StatList>
+            <StatRow label="Tonnage" value={`${unit.tonnage} tons`} highlight />
+            <StatRow label="Weight Class" value={unit.weightClass} />
+            {structure?.type && (
+              <StatRow label="Internal Structure" value={structure.type.replace(/_/g, ' ')} />
+            )}
+            {engine?.type && (
+              <StatRow label="Engine Type" value={engine.type.replace(/_/g, ' ')} />
+            )}
+            {engine?.rating && (
+              <StatRow label="Engine Rating" value={engine.rating} />
+            )}
+          </StatList>
+        </StatCard>
+
         {/* Movement */}
-        <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
+        <StatCard title="Movement" icon={<SpeedIcon />} variant="cyan">
           <StatList>
-            <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
-            <StatRow
-              label="Run MP"
-              value={unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'}
-            />
-            <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
-            {unit.movement?.jumpJetType && (
-              <StatRow label="Jump Jets" value={unit.movement.jumpJetType} mono={false} />
+            {movement?.walkMP !== undefined && (
+              <StatRow label="Walk MP" value={movement.walkMP} highlight />
             )}
-          </StatList>
-          {unit.movement?.enhancements && unit.movement.enhancements.length > 0 && (
-            <div className="pt-3 mt-3 border-t border-border-theme">
-              <span className="text-text-theme-secondary text-sm">Enhancements:</span>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {unit.movement.enhancements.map((e, i) => (
-                  <Badge key={i} variant="success" size="sm">{e}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-        </StatCard>
-
-        {/* Engine & Structure */}
-        <StatCard title="Core Systems" icon={<GearIcon />} variant="cyan">
-          <StatList>
-            {unit.engine && (
-              <>
-                <StatRow label="Engine" value={unit.engine.type} mono={false} />
-                <StatRow label="Rating" value={unit.engine.rating} />
-              </>
+            {movement?.runMP !== undefined && (
+              <StatRow label="Run MP" value={movement.runMP} />
             )}
-            {unit.gyro && (
-              <StatRow label="Gyro" value={unit.gyro.type} mono={false} />
-            )}
-            {unit.cockpit && (
-              <StatRow label="Cockpit" value={unit.cockpit} mono={false} />
-            )}
-            {unit.structure && (
-              <StatRow label="Structure" value={unit.structure.type} mono={false} />
-            )}
-          </StatList>
-        </StatCard>
-
-        {/* Heat & Armor */}
-        <StatCard title="Heat & Armor" icon={<FlameIcon />} variant="rose">
-          <StatList>
-            {unit.heatSinks && (
-              <>
-                <StatRow label="Heat Sinks" value={unit.heatSinks.count} />
-                <StatRow label="Type" value={unit.heatSinks.type} mono={false} />
-              </>
-            )}
-            {unit.armor && (
-              <>
-                <StatRow label="Armor Type" value={unit.armor.type} mono={false} />
-                <StatRow label="Total Armor" value={`${totalArmor} pts`} />
-              </>
+            {movement?.jumpMP !== undefined && movement.jumpMP > 0 && (
+              <StatRow label="Jump MP" value={movement.jumpMP} />
             )}
           </StatList>
         </StatCard>
       </StatGrid>
 
-      {/* Armor Allocation */}
-      {unit.armor?.allocation && (
-        <Card variant="dark" className="mb-6">
-          <CardSection title="Armor Allocation" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Object.entries(unit.armor.allocation).map(([location, value]) => (
-              <div key={location} className="bg-surface-raised/30 rounded-lg p-3 text-center">
-                <div className="text-text-theme-secondary text-xs uppercase mb-1">
-                  {location.replace(/_/g, ' ')}
-                </div>
-                <div className="text-white font-mono">
-                  {typeof value === 'number' ? (
-                    value
-                  ) : isArmorFrontRear(value) ? (
-                    <>
-                      {value.front}
-                      {value.rear > 0 && (
-                        <span className="text-slate-500 text-sm"> / {value.rear}</span>
-                      )}
-                    </>
-                  ) : null}
-                </div>
-              </div>
+      {/* Armor & Heat Management */}
+      <StatGrid cols={2} className="mb-6">
+        {/* Armor */}
+        <StatCard title="Armor" icon={<ShieldIcon />} variant="rose">
+          <StatList>
+            {totalArmor !== undefined && (
+              <StatRow label="Total Armor" value={totalArmor} highlight />
+            )}
+            {armor && Object.entries(armor).map(([location, points]) => (
+              <StatRow
+                key={location}
+                label={location.replace(/_/g, ' ')}
+                value={points}
+              />
             ))}
-          </div>
-        </Card>
-      )}
+          </StatList>
+        </StatCard>
 
-      {/* Equipment */}
-      {unit.equipment && unit.equipment.length > 0 && (
-        <Card variant="dark" className="mb-6 overflow-hidden">
-          <CardSection title="Equipment" />
+        {/* Heat Management */}
+        {heatSinks && (
+          <StatCard title="Heat Management" icon={<FlameIcon />} variant="amber">
+            <StatList>
+              {heatSinks.total !== undefined && (
+                <StatRow label="Heat Sinks" value={heatSinks.total} highlight />
+              )}
+              {heatSinks.type && (
+                <StatRow label="Type" value={heatSinks.type.replace(/_/g, ' ')} />
+              )}
+            </StatList>
+          </StatCard>
+        )}
+      </StatGrid>
+
+      {/* Equipment List */}
+      {equipment && equipment.length > 0 && (
+        <Card variant="dark" className="mb-6">
+          <CardSection title="Mounted Equipment" />
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-surface-base/50">
-                <tr className="text-left text-text-theme-secondary text-sm uppercase">
-                  <th className="px-4 py-3">Equipment</th>
-                  <th className="px-4 py-3">Location</th>
-                  <th className="px-4 py-3">Notes</th>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-theme-subtle/50">
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase">Equipment</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-text-theme-secondary uppercase">Location</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-theme/50">
-                {unit.equipment.map((eq, index) => (
-                  <tr key={index} className="hover:bg-surface-raised/20">
-                    <td className="px-4 py-3 text-white">{eq.id}</td>
-                    <td className="px-4 py-3 text-text-theme-primary">{eq.location}</td>
-                    <td className="px-4 py-3 text-text-theme-secondary text-sm">
-                      {eq.isRearMounted && (
-                        <Badge variant="warning" size="sm">Rear</Badge>
-                      )}
-                    </td>
+              <tbody className="divide-y divide-border-theme-subtle/30">
+                {equipment.map((eq, index) => (
+                  <tr key={index} className="hover:bg-surface-raised/10">
+                    <td className="px-3 py-2 text-text-theme-primary">{eq.name}</td>
+                    <td className="px-3 py-2 text-text-theme-secondary">{eq.location?.replace(/_/g, ' ')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -226,22 +246,41 @@ export default function UnitDetailPage(): React.ReactElement {
       )}
 
       {/* Quirks */}
-      {unit.quirks && unit.quirks.length > 0 && (
-        <Card variant="dark">
+      {quirks && quirks.length > 0 && (
+        <Card variant="dark" className="mb-6">
           <CardSection title="Quirks" />
           <div className="flex flex-wrap gap-2">
-            {unit.quirks.map((quirk, index) => (
-              <Badge key={index} variant="purple">{quirk}</Badge>
+            {quirks.map((quirk, index) => (
+              <Badge key={index} variant="violet">{quirk}</Badge>
             ))}
           </div>
         </Card>
       )}
+
+      {/* Metadata */}
+      <Card variant="dark">
+        <CardSection title="Unit Information" />
+        <StatList>
+          <StatRow label="Era" value={unit.era} />
+          <StatRow label="Version" value={`v${unit.currentVersion}`} />
+          <StatRow label="Created" value={new Date(unit.createdAt).toLocaleDateString()} />
+          <StatRow label="Last Updated" value={new Date(unit.updatedAt).toLocaleDateString()} />
+        </StatList>
+      </Card>
     </PageLayout>
   );
 }
 
 // Icon Components
-function MovementIcon() {
+function CubeIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
+    </svg>
+  );
+}
+
+function SpeedIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -249,10 +288,10 @@ function MovementIcon() {
   );
 }
 
-function GearIcon() {
+function ShieldIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
     </svg>
   );
 }
@@ -261,7 +300,14 @@ function FlameIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+    </svg>
+  );
+}
+
+function EditIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
     </svg>
   );
 }

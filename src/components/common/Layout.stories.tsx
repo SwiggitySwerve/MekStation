@@ -13,25 +13,19 @@ export default meta;
 
 type Story = StoryObj<typeof Layout>;
 
-const MockSidebar = ({ collapsed = false }: { collapsed?: boolean }) => (
-  <div
-    className={`fixed top-0 left-0 h-full bg-surface-base border-r border-border-theme transition-all ${
-      collapsed ? 'w-16' : 'w-56'
-    } hidden md:block`}
-  >
-    <div className="p-4">
-      <div className="text-white font-bold mb-4">{collapsed ? 'MS' : 'MekStation'}</div>
-      <nav className="space-y-2">
-        {['Catalog', 'Editor', 'Settings'].map((item) => (
-          <div
-            key={item}
-            className="px-3 py-2 rounded text-slate-300 hover:bg-surface-raised cursor-pointer"
-          >
-            {collapsed ? item[0] : item}
-          </div>
-        ))}
-      </nav>
-    </div>
+const MockTopBar = () => (
+  <div className="h-12 bg-surface-base border-b border-border-theme flex items-center px-4">
+    <div className="text-white font-bold">MekStation</div>
+    <nav className="ml-8 flex gap-4">
+      {['Dashboard', 'Browse', 'Tools'].map((item) => (
+        <button
+          key={item}
+          className="px-3 py-1 rounded text-slate-300 hover:bg-surface-raised"
+        >
+          {item}
+        </button>
+      ))}
+    </nav>
   </div>
 );
 
@@ -80,29 +74,14 @@ export const Default: Story = {
   },
 };
 
-export const WithSidebar: Story = {
+export const WithTopBar: Story = {
   args: {
-    title: 'MekStation - With Sidebar',
-    sidebarComponent: <MockSidebar />,
-    isSidebarCollapsed: false,
+    title: 'MekStation - With Top Bar',
+    topBarComponent: <MockTopBar />,
     children: (
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white mb-4">Main Content</h1>
-        <p className="text-slate-300">Content with expanded sidebar navigation.</p>
-      </div>
-    ),
-  },
-};
-
-export const WithCollapsedSidebar: Story = {
-  args: {
-    title: 'MekStation - Collapsed Sidebar',
-    sidebarComponent: <MockSidebar collapsed />,
-    isSidebarCollapsed: true,
-    children: (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-white mb-4">Main Content</h1>
-        <p className="text-slate-300">Content with collapsed sidebar for more space.</p>
+        <p className="text-slate-300">Content with top bar navigation.</p>
       </div>
     ),
   },
@@ -111,25 +90,24 @@ export const WithCollapsedSidebar: Story = {
 export const WithSecondarySidebar: Story = {
   args: {
     title: 'MekStation - Secondary Sidebar',
-    sidebarComponent: <MockSidebar />,
-    isSidebarCollapsed: false,
+    topBarComponent: <MockTopBar />,
     secondarySidebar: <MockSecondarySidebar />,
     children: (
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white mb-4">Filtered Results</h1>
-        <p className="text-slate-300">Content with both primary and secondary sidebars.</p>
+        <p className="text-slate-300">Content with top bar and secondary sidebar for filters.</p>
       </div>
     ),
   },
 };
 
-export const NoSidebar: Story = {
+export const NoTopBar: Story = {
   args: {
-    title: 'MekStation - Full Width',
+    title: 'MekStation - Full Height',
     children: (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-white mb-4">Full Width Layout</h1>
-        <p className="text-slate-300">Layout without any sidebar, using full viewport width.</p>
+        <h1 className="text-2xl font-bold text-white mb-4">Full Height Layout</h1>
+        <p className="text-slate-300">Layout without top bar, using full viewport height.</p>
       </div>
     ),
   },
