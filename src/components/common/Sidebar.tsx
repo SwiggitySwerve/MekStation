@@ -25,6 +25,7 @@ import {
   GameIcon,
   TimelineIcon,
   GameplayIcon,
+  QuickGameIcon,
 } from './icons/NavigationIcons';
 
 interface SidebarProps {
@@ -321,6 +322,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Gameplay items - now in expandable section
   const gameplayItems: NavItemConfig[] = [
+    {
+      href: '/gameplay/quick',
+      icon: <QuickGameIcon />,
+      label: 'Quick Game',
+    },
     {
       href: '/gameplay/pilots',
       icon: <PilotIcon />,

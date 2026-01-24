@@ -34,6 +34,9 @@ export * from './assets';
 // Re-export pilot services
 export * from './pilots';
 
+// Re-export game resolution services
+export * from './game-resolution';
+
 // ============================================================================
 // SERVICE REGISTRY
 // ============================================================================
