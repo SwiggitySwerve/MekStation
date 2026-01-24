@@ -187,6 +187,20 @@ export const OnGamesPage: Story = {
   },
 };
 
+export const OnQuickGamePage: Story = {
+  render: () => <SidebarWrapper initialCollapsed={false} />,
+  parameters: {
+    nextRouter: {
+      pathname: '/gameplay/quick',
+    },
+    docs: {
+      description: {
+        story: 'Quick Game page for standalone battles without campaign context.',
+      },
+    },
+  },
+};
+
 // History/Timeline section stories
 export const OnTimelinePage: Story = {
   render: () => <SidebarWrapper initialCollapsed={false} />,

@@ -57,6 +57,10 @@ export interface IQuickGameUnit {
   readonly piloting: number;
   /** Pilot name (optional) */
   readonly pilotName?: string;
+  /** Maximum armor by location (for reset) */
+  readonly maxArmor: Record<string, number>;
+  /** Maximum internal structure by location (for reset) */
+  readonly maxStructure: Record<string, number>;
   /** Current armor by location */
   armor: Record<string, number>;
   /** Current internal structure by location */
@@ -274,6 +278,8 @@ export function createQuickGameUnit(request: IQuickGameUnitRequest): IQuickGameU
     gunnery: request.gunnery ?? 4,
     piloting: request.piloting ?? 5,
     pilotName: request.pilotName,
+    maxArmor: { ...request.maxArmor },
+    maxStructure: { ...request.maxStructure },
     armor: { ...request.maxArmor },
     structure: { ...request.maxStructure },
     heat: 0,

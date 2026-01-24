@@ -74,10 +74,11 @@ const LAST_NAMES = [
 
 /**
  * Generate a random pilot name.
+ * @param randomFn - Optional random function for seeded PRNG (defaults to Math.random)
  */
-function generatePilotName(): string {
-  const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
-  const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+function generatePilotName(randomFn: () => number = Math.random): string {
+  const firstName = FIRST_NAMES[Math.floor(randomFn() * FIRST_NAMES.length)];
+  const lastName = LAST_NAMES[Math.floor(randomFn() * LAST_NAMES.length)];
   return `${firstName} ${lastName}`;
 }
 
@@ -92,8 +93,10 @@ function generatePilotName(): string {
 export class OpForGeneratorService {
   /**
    * Generate an OpFor based on configuration.
+   * @param config - OpFor generation configuration
+   * @param randomFn - Optional random function for seeded PRNG (defaults to Math.random)
    */
-  generate(config: IOpForGeneratorConfig): IOpForGeneratorResult {
+  generate(config: IOpForGeneratorConfig, randomFn: () => number = Math.random): IOpForGeneratorResult {
     // Calculate target BV
     const targetBV = Math.round(config.playerBV * config.difficultyMultiplier);
 
@@ -101,10 +104,10 @@ export class OpForGeneratorService {
     const rat = getRAT(config.faction, config.era as Era);
 
     // Select units from RAT
-    const selectedEntries = this.selectUnits(rat, targetBV, config);
+    const selectedEntries = this.selectUnits(rat, targetBV, config, randomFn);
 
     // Convert to generated units with pilots
-    const units = this.createGeneratedUnits(selectedEntries, config);
+    const units = this.createGeneratedUnits(selectedEntries, config, randomFn);
 
     // Calculate totals
     const totalBV = units.reduce((sum, u) => sum + u.bv, 0);
@@ -130,7 +133,8 @@ export class OpForGeneratorService {
   private selectUnits(
     rat: ReturnType<typeof getRAT>,
     targetBV: number,
-    config: IOpForGeneratorConfig
+    config: IOpForGeneratorConfig,
+    randomFn: () => number
   ): readonly IRATEntry[] {
     // Determine unit type filter based on mix
     const unitTypesToSelect = this.getUnitTypesToSelect(config);
@@ -147,6 +151,7 @@ export class OpForGeneratorService {
         minUnits: 1,
         maxUnits: Math.ceil(config.maxLanceSize * (percentage / 100)),
         bvTolerance: 0.15,
+        randomFn,
       });
 
       allSelected.push(...typeUnits);
@@ -158,6 +163,7 @@ export class OpForGeneratorService {
         minUnits: config.minLanceSize,
         maxUnits: config.maxLanceSize,
         bvTolerance: 0.15,
+        randomFn,
       });
     }
 
@@ -194,7 +200,8 @@ export class OpForGeneratorService {
    */
   private createGeneratedUnits(
     entries: readonly IRATEntry[],
-    config: IOpForGeneratorConfig
+    config: IOpForGeneratorConfig,
+    randomFn: () => number
   ): readonly IGeneratedUnit[] {
     const units: IGeneratedUnit[] = [];
     let lanceId = 1;
@@ -202,7 +209,7 @@ export class OpForGeneratorService {
 
     for (const entry of entries) {
       // Create pilot with appropriate skills
-      const pilot = this.generatePilot(config);
+      const pilot = this.generatePilot(config, randomFn);
 
       // Assign to lance
       const currentLanceId = `lance-${lanceId}`;
@@ -232,7 +239,7 @@ export class OpForGeneratorService {
   /**
    * Generate a pilot with skills based on configuration.
    */
-  private generatePilot(config: IOpForGeneratorConfig): IGeneratedPilot {
+  private generatePilot(config: IOpForGeneratorConfig, randomFn: () => number): IGeneratedPilot {
     const base = SKILL_LEVEL_BASE[config.skillLevel];
     const variance = config.skillVariance || DEFAULT_SKILL_VARIANCE;
 
@@ -242,7 +249,7 @@ export class OpForGeneratorService {
     // Apply variance for mixed skill level
     if (config.skillLevel === OpForSkillLevel.Mixed) {
       // Roll for skill variance
-      const roll = Math.random();
+      const roll = randomFn();
 
       if (roll < variance.eliteChance) {
         // Elite pilot
@@ -254,15 +261,15 @@ export class OpForGeneratorService {
         piloting = Math.min(7, piloting + 1);
       } else {
         // Regular variance
-        const gunneryDelta = Math.floor(Math.random() * (variance.gunneryVariance * 2 + 1)) - variance.gunneryVariance;
-        const pilotingDelta = Math.floor(Math.random() * (variance.pilotingVariance * 2 + 1)) - variance.pilotingVariance;
+        const gunneryDelta = Math.floor(randomFn() * (variance.gunneryVariance * 2 + 1)) - variance.gunneryVariance;
+        const pilotingDelta = Math.floor(randomFn() * (variance.pilotingVariance * 2 + 1)) - variance.pilotingVariance;
         gunnery = Math.max(1, Math.min(6, gunnery + gunneryDelta));
         piloting = Math.max(2, Math.min(7, piloting + pilotingDelta));
       }
     }
 
     return {
-      name: generatePilotName(),
+      name: generatePilotName(randomFn),
       gunnery,
       piloting,
     };
@@ -271,20 +278,23 @@ export class OpForGeneratorService {
   /**
    * Estimate the BV adjustment for pilot skills.
    * Better skills = higher effective BV.
+   *
+   * TODO: This method is currently unused. Consider integrating it into OpFor generation
+   * to provide more accurate BV calculations that account for pilot skill differences.
    */
   estimateSkillBVMultiplier(gunnery: number, piloting: number): number {
     // Standard reference is 4/5 (Regular)
     const baseSkill = 4 + 5;
     const actualSkill = gunnery + piloting;
-    
+
     // Each point of improvement is roughly +10% BV
     // Each point worse is roughly -8% BV
     const skillDiff = baseSkill - actualSkill;
-    
+
     if (skillDiff > 0) {
-      return 1 + (skillDiff * 0.1);
+      return 1 + skillDiff * 0.1;
     } else {
-      return 1 + (skillDiff * 0.08);
+      return 1 + skillDiff * 0.08;
     }
   }
 }

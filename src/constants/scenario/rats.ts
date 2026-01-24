@@ -317,10 +317,14 @@ export function getAvailableErasForFaction(faction: string): readonly Era[] {
 
 /**
  * Select a random unit from a RAT based on weights.
+ * @param rat - The random assignment table to select from
+ * @param unitTypeFilter - Optional filter for unit type
+ * @param randomFn - Optional random function for seeded PRNG (defaults to Math.random)
  */
 export function selectUnitFromRAT(
   rat: IRandomAssignmentTable,
-  unitTypeFilter?: UnitTypeCategory
+  unitTypeFilter?: UnitTypeCategory,
+  randomFn: () => number = Math.random
 ): IRATEntry {
   // Filter entries if type specified
   const entries = unitTypeFilter
@@ -336,7 +340,7 @@ export function selectUnitFromRAT(
   const totalWeight = entries.reduce((sum, e) => sum + e.weight, 0);
 
   // Random roll
-  let roll = Math.random() * totalWeight;
+  let roll = randomFn() * totalWeight;
 
   for (const entry of entries) {
     roll -= entry.weight;
@@ -351,6 +355,9 @@ export function selectUnitFromRAT(
 
 /**
  * Select multiple units from a RAT targeting a BV budget.
+ * @param rat - The random assignment table to select from
+ * @param targetBV - Target battle value budget
+ * @param options - Selection options including randomFn for seeded PRNG
  */
 export function selectUnitsFromRAT(
   rat: IRandomAssignmentTable,
@@ -360,6 +367,7 @@ export function selectUnitsFromRAT(
     minUnits?: number;
     maxUnits?: number;
     bvTolerance?: number; // Percentage tolerance (default 10%)
+    randomFn?: () => number; // Optional random function for seeded PRNG
   } = {}
 ): readonly IRATEntry[] {
   const {
@@ -367,6 +375,7 @@ export function selectUnitsFromRAT(
     minUnits = 1,
     maxUnits = 12,
     bvTolerance = 0.1,
+    randomFn = Math.random,
   } = options;
 
   const selected: IRATEntry[] = [];
@@ -388,7 +397,8 @@ export function selectUnitsFromRAT(
 
     const unit = selectUnitFromRAT(
       { ...rat, entries: availableEntries, totalWeight: availableEntries.reduce((s, e) => s + e.weight, 0) },
-      unitTypeFilter
+      unitTypeFilter,
+      randomFn
     );
     
     selected.push(unit);

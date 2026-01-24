@@ -5,7 +5,7 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useState, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { QuickGameStep, IQuickGameUnitRequest } from '@/types/quickgame';
 import { Button, Card, Select } from '@/components/ui';
@@ -18,7 +18,6 @@ import { BiomeType } from '@/types/scenario';
 
 function UnitSelectionStep(): React.ReactElement {
   const { game, addUnit, removeUnit, updateUnitSkills, nextStep } = useQuickGameStore();
-  const [showAddUnit, setShowAddUnit] = useState(false);
 
   // Demo unit data - in production would come from compendium/vault
   const demoUnits: IQuickGameUnitRequest[] = [
@@ -98,7 +97,6 @@ function UnitSelectionStep(): React.ReactElement {
 
   const handleAddUnit = (unit: IQuickGameUnitRequest) => {
     addUnit(unit);
-    setShowAddUnit(false);
   };
 
   const playerUnits = game?.playerForce.units ?? [];
@@ -230,12 +228,21 @@ function UnitSelectionStep(): React.ReactElement {
 function ScenarioConfigStep(): React.ReactElement {
   const { game, setScenarioConfig, generateScenario, previousStep, nextStep, isLoading } =
     useQuickGameStore();
+  const wasLoadingRef = useRef(false);
+
+  // Advance to next step after scenario generation completes
+  useEffect(() => {
+    if (wasLoadingRef.current && !isLoading && game?.scenario) {
+      nextStep();
+    }
+    wasLoadingRef.current = isLoading;
+  }, [isLoading, game?.scenario, nextStep]);
 
   const config = game?.scenarioConfig;
 
   const handleGenerate = () => {
     generateScenario();
-    nextStep();
+    // nextStep() is called via useEffect after scenario generation completes
   };
 
   const factionOptions = Object.values(Faction).map((f) => ({
