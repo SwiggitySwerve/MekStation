@@ -14,7 +14,7 @@ import React from 'react';
 export function MekStationIcon({ className = "w-5 h-5" }: { className?: string }): React.ReactElement {
   return (
     <img 
-      src="/mekstation-logo-transparent.png" 
+      src="/mekstation-logo.png" 
       alt="MekStation" 
       className={className}
       style={{ objectFit: 'contain' }}
