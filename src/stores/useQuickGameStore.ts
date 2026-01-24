@@ -10,7 +10,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { GameStatus, GamePhase, IGameEvent } from '@/types/gameplay';
 import {
-  IQuickGameInstance,
   IQuickGameState,
   IQuickGameActions,
   IQuickGameUnitRequest,
@@ -358,14 +357,15 @@ export const useQuickGameStore = create<QuickGameStore>()(
         const newGame = createQuickGameInstance();
 
         if (!resetUnits) {
-          // Keep the same units but reset their damage
+          // Keep the same units but reset their damage and restore armor/structure to max
           const resetPlayerUnits = game.playerForce.units.map((unit) => ({
             ...unit,
             instanceId: `unit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
             heat: 0,
             isDestroyed: false,
             isWithdrawn: false,
-            // Note: armor/structure would need to be reset to max values
+            armor: { ...unit.maxArmor },
+            structure: { ...unit.maxStructure },
           }));
 
           newGame.playerForce = {

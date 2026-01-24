@@ -430,12 +430,14 @@ test.describe('Gameplay Navigation', () => {
     const campaignsLink = sidebar.locator('a[href="/gameplay/campaigns"]');
     const encountersLink = sidebar.locator('a[href="/gameplay/encounters"]');
     const gamesLink = sidebar.locator('a[href="/gameplay/games"]');
+    const quickGameLink = sidebar.locator('a[href="/gameplay/quick"]');
     
     await expect(pilotsLink).toBeVisible();
     await expect(forcesLink).toBeVisible();
     await expect(campaignsLink).toBeVisible();
     await expect(encountersLink).toBeVisible();
     await expect(gamesLink).toBeVisible();
+    await expect(quickGameLink).toBeVisible();
     
     // Verify labels
     await expect(sidebar.getByText('Pilots')).toBeVisible();
@@ -443,6 +445,7 @@ test.describe('Gameplay Navigation', () => {
     await expect(sidebar.getByText('Campaigns')).toBeVisible();
     await expect(sidebar.getByText('Encounters')).toBeVisible();
     await expect(sidebar.getByText('Games')).toBeVisible();
+    await expect(sidebar.getByText('Quick Game')).toBeVisible();
   });
 
   test('should have navigable gameplay routes', async ({ page }) => {
@@ -453,6 +456,7 @@ test.describe('Gameplay Navigation', () => {
       '/gameplay/campaigns',
       '/gameplay/encounters',
       '/gameplay/games',
+      '/gameplay/quick',
     ];
     
     for (const route of routes) {

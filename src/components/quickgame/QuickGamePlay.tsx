@@ -151,17 +151,6 @@ export function QuickGamePlay(): React.ReactElement {
   const opponentAlive =
     game.opponentForce?.units.filter((u) => !u.isDestroyed && !u.isWithdrawn).length ?? 0;
 
-  // Check for victory conditions
-  const checkVictory = () => {
-    if (playerAlive === 0 && opponentAlive > 0) {
-      endGame('opponent', 'All player units destroyed');
-    } else if (opponentAlive === 0 && playerAlive > 0) {
-      endGame('player', 'All enemy units destroyed');
-    } else if (playerAlive === 0 && opponentAlive === 0) {
-      endGame('draw', 'Mutual destruction');
-    }
-  };
-
   const handleEndGame = (winner: 'player' | 'opponent' | 'draw') => {
     const reasons = {
       player: 'Player victory',

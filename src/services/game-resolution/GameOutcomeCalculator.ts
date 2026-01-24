@@ -112,14 +112,6 @@ function isSideEliminated(state: IGameState, side: GameSide): boolean {
 }
 
 /**
- * Map GameSide to simplified winner type.
- */
-function _gameSideToWinner(side: GameSide | 'draw'): 'player' | 'opponent' | 'draw' {
-  if (side === 'draw') return 'draw';
-  return side === GameSide.Player ? 'player' : 'opponent';
-}
-
-/**
  * Generate human-readable victory description.
  */
 function generateVictoryDescription(
@@ -335,7 +327,7 @@ export function isGameEnded(state: IGameState, config: IGameConfig): boolean {
   }
 
   // Turn limit reached
-  if (config.turnLimit > 0 && state.turn > config.turnLimit) {
+  if (config.turnLimit > 0 && state.turn >= config.turnLimit) {
     return true;
   }
 
@@ -368,7 +360,7 @@ export function determineWinner(
   }
 
   // Check turn limit
-  if (config.turnLimit > 0 && state.turn > config.turnLimit) {
+  if (config.turnLimit > 0 && state.turn >= config.turnLimit) {
     if (playerSurviving > opponentSurviving) {
       return 'player';
     } else if (opponentSurviving > playerSurviving) {

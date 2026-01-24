@@ -243,7 +243,7 @@ export function QuickGameReview(): React.ReactElement {
             </span>
           </div>
           <p className="text-center text-xs text-gray-500 mt-2">
-            Difficulty: {((game.opponentForce.totalBV / game.playerForce.totalBV) * 100).toFixed(0)}%
+            Difficulty: {game.playerForce.totalBV > 0 ? ((game.opponentForce.totalBV / game.playerForce.totalBV) * 100).toFixed(0) : 0}%
           </p>
         </div>
       </Card>

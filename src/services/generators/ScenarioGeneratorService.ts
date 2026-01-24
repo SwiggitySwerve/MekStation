@@ -26,10 +26,7 @@ import {
   getModifiersForBiome,
   getModifiersForScenarioType,
 } from '../../constants/scenario/modifiers';
-import {
-  getMapPresetsByBiome,
-  getRandomMapPresetForBiome,
-} from '../../constants/scenario/mapPresets';
+import { getMapPresetsByBiome } from '../../constants/scenario/mapPresets';
 import { opForGenerator } from './OpForGeneratorService';
 
 // =============================================================================
@@ -42,12 +39,15 @@ import { opForGenerator } from './OpForGeneratorService';
  */
 export class ScenarioGeneratorService {
   private seed: number | null = null;
+  /** Current state of the PRNG (separate from original seed for reproducibility) */
+  private prngState: number | null = null;
 
   /**
    * Set a seed for reproducible random generation.
    */
   setSeed(seed: number): void {
     this.seed = seed;
+    this.prngState = seed;
   }
 
   /**
@@ -55,16 +55,18 @@ export class ScenarioGeneratorService {
    */
   clearSeed(): void {
     this.seed = null;
+    this.prngState = null;
   }
 
   /**
    * Generate a random number (seeded or true random).
+   * Uses prngState to advance the sequence while preserving the original seed.
    */
   private random(): number {
-    if (this.seed !== null) {
+    if (this.prngState !== null) {
       // Simple seeded PRNG (LCG)
-      this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;
-      return this.seed / 4294967296;
+      this.prngState = (this.prngState * 1664525 + 1013904223) % 4294967296;
+      return this.prngState / 4294967296;
     }
     return Math.random();
   }
@@ -164,8 +166,9 @@ export class ScenarioGeneratorService {
     if (presets.length > 0) {
       return this.pickRandom(presets);
     }
-    // Fallback
-    return getRandomMapPresetForBiome(BiomeType.Plains);
+    // Fallback - use seeded random via pickRandom instead of unseeded getRandomMapPresetForBiome
+    const fallbackPresets = getMapPresetsByBiome(BiomeType.Plains);
+    return this.pickRandom(fallbackPresets);
   }
 
   /**
@@ -181,27 +184,30 @@ export class ScenarioGeneratorService {
     // Determine skill level from difficulty
     const skillLevel = this.difficultyToSkillLevel(config.difficulty);
 
-    return opForGenerator.generate({
-      playerBV: config.playerBV,
-      difficultyMultiplier: effectiveDifficulty,
-      faction: config.faction,
-      era: config.era,
-      unitTypeMix: {
-        [UnitTypeCategory.BattleMech]: 100,
+    return opForGenerator.generate(
+      {
+        playerBV: config.playerBV,
+        difficultyMultiplier: effectiveDifficulty,
+        faction: config.faction,
+        era: config.era,
+        unitTypeMix: {
+          [UnitTypeCategory.BattleMech]: 100,
+        },
+        skillLevel,
+        skillVariance: {
+          gunneryVariance: 1,
+          pilotingVariance: 1,
+          eliteChance: skillLevel === OpForSkillLevel.Mixed ? 0.15 : 0.05,
+          greenChance: skillLevel === OpForSkillLevel.Mixed ? 0.15 : 0.05,
+        },
+        minLanceSize: Math.max(1, Math.floor(config.playerUnitCount * 0.5)),
+        maxLanceSize: Math.ceil(config.playerUnitCount * 1.5),
+        bvFloor: config.playerBV * effectiveDifficulty * 0.85,
+        bvCeiling: config.playerBV * effectiveDifficulty * 1.15,
+        allowCombinedArms: false,
       },
-      skillLevel,
-      skillVariance: {
-        gunneryVariance: 1,
-        pilotingVariance: 1,
-        eliteChance: skillLevel === OpForSkillLevel.Mixed ? 0.15 : 0.05,
-        greenChance: skillLevel === OpForSkillLevel.Mixed ? 0.15 : 0.05,
-      },
-      minLanceSize: Math.max(1, Math.floor(config.playerUnitCount * 0.5)),
-      maxLanceSize: Math.ceil(config.playerUnitCount * 1.5),
-      bvFloor: config.playerBV * effectiveDifficulty * 0.85,
-      bvCeiling: config.playerBV * effectiveDifficulty * 1.15,
-      allowCombinedArms: false,
-    });
+      this.random.bind(this)
+    );
   }
 
   /**
