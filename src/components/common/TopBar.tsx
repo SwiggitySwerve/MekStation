@@ -43,6 +43,7 @@ interface DropdownProps {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
+  iconOnly?: boolean;
 }
 
 // Hook for detecting clicks outside an element
@@ -78,6 +79,7 @@ function DropdownMenu({
   isOpen,
   onOpen,
   onClose,
+  iconOnly = false,
 }: DropdownProps): ReactElement {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -95,12 +97,12 @@ function DropdownMenu({
   }, [isOpen, onClose]);
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <div ref={dropdownRef} className="relative group">
       <button
         onClick={() => (isOpen ? onClose() : onOpen())}
         onMouseEnter={onOpen}
         className={`
-          flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium
+          flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
           transition-colors duration-150
           ${
             isOpen || isAnyActive
@@ -110,13 +112,21 @@ function DropdownMenu({
         `}
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        title={iconOnly ? label : undefined}
       >
-        {icon && <span className="w-4 h-4">{icon}</span>}
-        <span>{label}</span>
+        {icon && <span className="w-5 h-5">{icon}</span>}
+        {!iconOnly && <span>{label}</span>}
         <ChevronDownIcon
           className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
+
+      {/* Tooltip for icon-only mode (when not open) */}
+      {iconOnly && !isOpen && (
+        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-surface-raised text-text-theme-primary text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40 whitespace-nowrap border border-border-theme-subtle pointer-events-none">
+          {label}
+        </div>
+      )}
 
       {/* Dropdown panel */}
       <div
@@ -134,7 +144,7 @@ function DropdownMenu({
           <Link key={item.href} href={item.href} legacyBehavior>
             <a
               className={`
-                flex items-center gap-2.5 px-3 py-2 text-sm
+                flex items-center gap-2.5 px-3 py-2.5 text-sm
                 transition-colors duration-150
                 ${
                   isPathActive(item.href)
@@ -144,7 +154,7 @@ function DropdownMenu({
               `}
               role="menuitem"
             >
-              <span className="w-4 h-4 flex-shrink-0">{item.icon}</span>
+              <span className="w-5 h-5 flex-shrink-0">{item.icon}</span>
               <span>{item.label}</span>
             </a>
           </Link>
@@ -160,27 +170,36 @@ function NavLink({
   icon,
   label,
   isActive,
+  iconOnly = false,
 }: {
   href: string;
   icon: ReactElement;
   label: string;
   isActive: boolean;
+  iconOnly?: boolean;
 }): ReactElement {
   return (
     <Link href={href} legacyBehavior>
       <a
         className={`
-          flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium
-          transition-colors duration-150
+          relative flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
+          transition-colors duration-150 group
           ${
             isActive
               ? 'text-accent bg-accent/10'
               : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
           }
         `}
+        title={iconOnly ? label : undefined}
       >
-        <span className="w-4 h-4">{icon}</span>
-        <span>{label}</span>
+        <span className="w-5 h-5">{icon}</span>
+        {!iconOnly && <span>{label}</span>}
+        {/* Tooltip for icon-only mode */}
+        {iconOnly && (
+          <div className="absolute top-full mt-2 px-2 py-1 bg-surface-raised text-text-theme-primary text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 whitespace-nowrap border border-border-theme-subtle">
+            {label}
+          </div>
+        )}
       </a>
     </Link>
   );
@@ -256,13 +275,13 @@ function MobileMenu({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+        className="fixed inset-0 bg-black/50 z-40 md:hidden"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Menu panel */}
-      <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-surface-deep">
+      <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-surface-deep">
         {/* Header */}
         <div className="flex items-center justify-between h-14 px-4 border-b border-border-theme-subtle bg-surface-base">
           <div className="flex items-center gap-3">
@@ -415,7 +434,7 @@ const TopBar: React.FC = () => {
         <div className="flex items-center h-full px-4">
           {/* Left: Logo + Brand */}
           <Link href="/" legacyBehavior>
-            <a className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+            <a className="flex items-center gap-3 hover:opacity-90 transition-opacity flex-shrink-0">
               <div className="w-8 h-8 bg-[#3a3a3c] rounded-lg flex items-center justify-center shadow-lg shadow-cyan-900/30 border-b-2 border-cyan-400/60">
                 <MekStationIcon />
               </div>
@@ -427,7 +446,7 @@ const TopBar: React.FC = () => {
             </a>
           </Link>
 
-          {/* Center: Desktop Navigation */}
+          {/* Center: Desktop Navigation (with labels) */}
           <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
             <NavLink
               href="/"
@@ -437,6 +456,7 @@ const TopBar: React.FC = () => {
             />
             <DropdownMenu
               label="Browse"
+              icon={<BookIcon />}
               items={browseItems}
               isAnyActive={isAnyBrowseActive}
               isPathActive={isPathActive}
@@ -446,6 +466,7 @@ const TopBar: React.FC = () => {
             />
             <DropdownMenu
               label="Tools"
+              icon={<CustomizerIcon />}
               items={toolsItems}
               isAnyActive={isAnyToolsActive}
               isPathActive={isPathActive}
@@ -471,10 +492,61 @@ const TopBar: React.FC = () => {
             />
           </nav>
 
+          {/* Center: Tablet Navigation (icons only) */}
+          <nav className="hidden md:flex lg:hidden items-center gap-1 flex-1 justify-center">
+            <NavLink
+              href="/"
+              icon={<HomeIcon />}
+              label="Dashboard"
+              isActive={isPathActive('/')}
+              iconOnly
+            />
+            <DropdownMenu
+              label="Browse"
+              icon={<BookIcon />}
+              items={browseItems}
+              isAnyActive={isAnyBrowseActive}
+              isPathActive={isPathActive}
+              isOpen={openDropdown === 'browse'}
+              onOpen={() => setOpenDropdown('browse')}
+              onClose={() => setOpenDropdown(null)}
+              iconOnly
+            />
+            <DropdownMenu
+              label="Tools"
+              icon={<CustomizerIcon />}
+              items={toolsItems}
+              isAnyActive={isAnyToolsActive}
+              isPathActive={isPathActive}
+              isOpen={openDropdown === 'tools'}
+              onOpen={() => setOpenDropdown('tools')}
+              onClose={() => setOpenDropdown(null)}
+              iconOnly
+            />
+            <DropdownMenu
+              label="Gameplay"
+              icon={<GameplayIcon />}
+              items={gameplayItems}
+              isAnyActive={isAnyGameplayActive}
+              isPathActive={isPathActive}
+              isOpen={openDropdown === 'gameplay'}
+              onOpen={() => setOpenDropdown('gameplay')}
+              onClose={() => setOpenDropdown(null)}
+              iconOnly
+            />
+            <NavLink
+              href="/audit/timeline"
+              icon={<TimelineIcon />}
+              label="Timeline"
+              isActive={isPathActive('/audit/timeline')}
+              iconOnly
+            />
+          </nav>
+
           {/* Right: Actions */}
-          <div className="flex items-center gap-2 ml-auto lg:ml-0">
-            {/* Desktop: Settings and GitHub */}
-            <div className="hidden lg:flex items-center gap-1">
+          <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+            {/* Desktop/Tablet: Settings and GitHub */}
+            <div className="hidden md:flex items-center gap-1">
               <Link href="/settings" legacyBehavior>
                 <a
                   className={`
@@ -504,7 +576,7 @@ const TopBar: React.FC = () => {
             {/* Mobile: Hamburger */}
             <button
               onClick={openMobile}
-              className="lg:hidden p-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
+              className="md:hidden p-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
               aria-label="Open menu"
             >
               <HamburgerIcon />
