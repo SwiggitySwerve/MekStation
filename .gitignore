@@ -127,3 +127,10 @@ pip-comparison-output/
 # Storybook
 storybook-static/
 .opencode/
+
+# mm-data assets (fetched at build time - uncomment when ready to externalize)
+# public/record-sheets/biped_pips/
+# public/record-sheets/quad_pips/
+# public/record-sheets/templates_us/
+# public/record-sheets/templates_iso/
+# public/record-sheets/templates/
