@@ -370,6 +370,234 @@ describe('useQuickGameStore', () => {
   });
 });
 
+describe('Event Tracking and Replay', () => {
+  it('should record multiple events in order', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result.current.startNewGame();
+    });
+
+    const gameId = result.current.game!.id;
+
+    // Record multiple events
+    const events = [
+      {
+        id: 'event-1',
+        gameId,
+        sequence: 1,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.GameCreated,
+        turn: 0,
+        phase: GamePhase.Initiative,
+        payload: {},
+      },
+      {
+        id: 'event-2',
+        gameId,
+        sequence: 2,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.GameStarted,
+        turn: 1,
+        phase: GamePhase.Initiative,
+        payload: {},
+      },
+      {
+        id: 'event-3',
+        gameId,
+        sequence: 3,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.TurnStarted,
+        turn: 1,
+        phase: GamePhase.Initiative,
+        payload: {},
+      },
+    ];
+
+    act(() => {
+      events.forEach((event) => result.current.recordEvent(event));
+    });
+
+    expect(result.current.game?.events).toHaveLength(3);
+    expect(result.current.game?.events[0].sequence).toBe(1);
+    expect(result.current.game?.events[1].sequence).toBe(2);
+    expect(result.current.game?.events[2].sequence).toBe(3);
+  });
+
+  it('should preserve events after game ends', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result.current.startNewGame();
+    });
+
+    const gameId = result.current.game!.id;
+
+    // Record an event
+    act(() => {
+      result.current.recordEvent({
+        id: 'event-1',
+        gameId,
+        sequence: 1,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.GameStarted,
+        turn: 1,
+        phase: GamePhase.Initiative,
+        payload: {},
+      });
+    });
+
+    // End the game
+    act(() => {
+      result.current.endGame('player', 'elimination');
+    });
+
+    // Events should still be there
+    expect(result.current.game?.events).toHaveLength(1);
+    expect(result.current.game?.status).toBe(GameStatus.Completed);
+  });
+
+  it('should clear events when starting a new game', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result.current.startNewGame();
+    });
+
+    const gameId = result.current.game!.id;
+
+    // Record events
+    act(() => {
+      result.current.recordEvent({
+        id: 'event-1',
+        gameId,
+        sequence: 1,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.GameStarted,
+        turn: 1,
+        phase: GamePhase.Initiative,
+        payload: {},
+      });
+    });
+
+    expect(result.current.game?.events).toHaveLength(1);
+
+    // Start a new game
+    act(() => {
+      result.current.startNewGame();
+    });
+
+    // New game should have no events
+    expect(result.current.game?.events).toHaveLength(0);
+  });
+
+  it('should clear events on playAgain', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result.current.startNewGame();
+      result.current.addUnit(sampleUnit);
+    });
+
+    const gameId = result.current.game!.id;
+
+    // Record events and end game
+    act(() => {
+      result.current.recordEvent({
+        id: 'event-1',
+        gameId,
+        sequence: 1,
+        timestamp: new Date().toISOString(),
+        type: GameEventType.GameStarted,
+        turn: 1,
+        phase: GamePhase.Initiative,
+        payload: {},
+      });
+      result.current.endGame('player', 'elimination');
+    });
+
+    expect(result.current.game?.events).toHaveLength(1);
+
+    // Play again
+    act(() => {
+      result.current.playAgain(false);
+    });
+
+    // New game instance should have no events
+    expect(result.current.game?.events).toHaveLength(0);
+    expect(result.current.game?.id).not.toBe(gameId);
+  });
+});
+
+describe('Session Persistence Cleanup', () => {
+  it('should clear game state from session storage on clearGame', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result.current.startNewGame();
+      result.current.addUnit(sampleUnit);
+    });
+
+    // Verify game exists
+    expect(result.current.game).not.toBeNull();
+
+    // Clear the game
+    act(() => {
+      result.current.clearGame();
+    });
+
+    // Game should be null
+    expect(result.current.game).toBeNull();
+
+    // Check that session storage is cleared
+    // The zustand persist middleware will update the storage
+    const storedData = mockSessionStorage.getItem('mekstation-quick-game');
+    if (storedData) {
+      const parsed = JSON.parse(storedData) as { state?: { game: unknown } };
+      expect(parsed.state?.game).toBeNull();
+    }
+  });
+
+  it('should not persist game state after explicit clear', () => {
+    const { result: result1 } = renderHook(() => useQuickGameStore());
+
+    act(() => {
+      result1.current.startNewGame();
+      result1.current.addUnit(sampleUnit);
+    });
+
+    // Clear the game
+    act(() => {
+      result1.current.clearGame();
+    });
+
+    // Create a new hook instance (simulating page refresh)
+    const { result: result2 } = renderHook(() => useQuickGameStore());
+
+    // Should not have a game
+    expect(result2.current.game).toBeNull();
+  });
+
+  it('should have independent game instances', () => {
+    const { result } = renderHook(() => useQuickGameStore());
+
+    // Create first game
+    act(() => {
+      result.current.startNewGame();
+    });
+    const firstGameId = result.current.game?.id;
+
+    // Create second game
+    act(() => {
+      result.current.startNewGame();
+    });
+    const secondGameId = result.current.game?.id;
+
+    // IDs should be different
+    expect(firstGameId).not.toBe(secondGameId);
+  });
+});
+
 describe('Quick Game Helper Functions', () => {
   describe('createQuickGameInstance', () => {
     it('should create valid instance', () => {

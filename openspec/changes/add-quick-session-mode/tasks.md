@@ -82,14 +82,27 @@
 
 - [x] 6.1 Share scenario generation with campaigns
   - Uses ScenarioGeneratorService from feat/scenario-generators
-- [ ] 6.2 Share game resolution logic with campaigns
-- [ ] 6.3 Share replay viewer with campaigns
+- [x] 6.2 Share game resolution logic with campaigns
+  - Created `src/services/game-resolution/` module:
+    - `GameOutcomeCalculator.ts` - Victory determination, outcome calculation
+    - `XPCalculator.ts` - XP awards and progression
+    - `DamageCalculator.ts` - Damage assessment and repair estimates
+  - 58 tests in: `src/services/game-resolution/__tests__/`
+- [x] 6.3 Share replay viewer with campaigns
+  - Created `src/hooks/replay/useSharedReplayPlayer.ts` - Unified replay hook
+  - Created `src/components/shared/replay/SharedReplayViewer.tsx` - Shared component
+  - Works with both direct event arrays (quick games) and EventStore (campaigns)
 
 ## 7. Testing
 
 - [x] 7.1 Test quick game setup flow
-  - 21 tests in: `src/stores/__tests__/useQuickGameStore.test.ts`
+  - 28 tests in: `src/stores/__tests__/useQuickGameStore.test.ts`
 - [x] 7.2 Test session persistence (refresh survival)
   - Covered by store tests
-- [ ] 7.3 Test event tracking and replay
-- [ ] 7.4 Test that no data persists after session ends
+- [x] 7.3 Test event tracking and replay
+  - Added tests for multiple event recording
+  - Tests for event preservation after game ends
+  - Tests for event clearing on new game/playAgain
+- [x] 7.4 Test that no data persists after session ends
+  - Added tests for clearGame clearing session storage
+  - Tests for independent game instances
