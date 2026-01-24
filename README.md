@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/mekstation-logo.png" alt="MekStation" width="200" />
+  <img src="public/mekstation-logo.png" alt="MekStation" width="500" />
 </p>
 
 <h1 align="center">MekStation</h1>
