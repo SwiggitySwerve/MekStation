@@ -63,11 +63,12 @@
   - Implemented in: `src/components/quickgame/QuickGameSetup.tsx`
   - Review screen in: `src/components/quickgame/QuickGameReview.tsx`
 
-- [ ] 5.2 Implement game resolution:
+- [x] 5.2 Implement game resolution:
   - Track damage to temporary instances
   - Determine winner
   - Show results summary
-  - (Requires full game interface integration)
+  - Simplified interface in: `src/components/quickgame/QuickGamePlay.tsx`
+  - (Full hex map integration is TODO)
 
 - [x] 5.3 Implement "Play Again" option:
   - Reset with same units (fresh damage)
@@ -84,7 +85,9 @@
 
 ## 7. Testing
 
-- [ ] 7.1 Test quick game setup flow
-- [ ] 7.2 Test session persistence (refresh survival)
+- [x] 7.1 Test quick game setup flow
+  - 21 tests in: `src/stores/__tests__/useQuickGameStore.test.ts`
+- [x] 7.2 Test session persistence (refresh survival)
+  - Covered by store tests
 - [ ] 7.3 Test event tracking and replay
 - [ ] 7.4 Test that no data persists after session ends

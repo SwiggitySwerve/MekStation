@@ -10,7 +10,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { QuickGameStep } from '@/types/quickgame';
-import { QuickGameSetup, QuickGameReview, QuickGameResults } from '@/components/quickgame';
+import { QuickGameSetup, QuickGameReview, QuickGamePlay, QuickGameResults } from '@/components/quickgame';
 import { Button, Card } from '@/components/ui';
 
 // =============================================================================
@@ -195,18 +195,7 @@ export default function QuickGamePage(): React.ReactElement {
         return <QuickGameReview />;
 
       case QuickGameStep.Playing:
-        // For now, redirect to the game interface
-        // In a full implementation, this would render the game
-        return (
-          <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-            <Card className="p-8 text-center">
-              <p className="text-gray-400 mb-4">Game in progress...</p>
-              <p className="text-xs text-gray-500">
-                (Full game interface would be rendered here)
-              </p>
-            </Card>
-          </div>
-        );
+        return <QuickGamePlay />;
 
       case QuickGameStep.Results:
         return <QuickGameResults />;
