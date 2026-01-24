@@ -401,7 +401,7 @@ const TopBar: React.FC = () => {
 
   // Navigation config
   const browseItems: NavItemConfig[] = [
-    { href: '/units', icon: <MechIcon />, label: 'Units' },
+    { href: '/units', icon: <MechIcon />, label: 'My Units' },
     { href: '/compendium', icon: <BookIcon />, label: 'Compendium' },
   ];
 
