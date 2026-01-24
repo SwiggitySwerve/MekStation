@@ -92,3 +92,130 @@ The mobile sidebar state SHALL be managed globally and synchronized across compo
 - **AND** the viewport is below mobile breakpoint
 - **THEN** the mobile sidebar closes automatically
 
+### Requirement: History Navigation Section
+
+The sidebar SHALL include a History section for timeline and audit features.
+
+#### Scenario: History section display
+
+- **WHEN** the sidebar is rendered
+- **THEN** a "History" section appears between Gameplay and Settings
+- **AND** the section contains a Timeline navigation item
+
+#### Scenario: Navigate to Timeline
+
+- **WHEN** the user clicks the "Timeline" navigation item
+- **THEN** navigation proceeds to `/audit/timeline`
+- **AND** the Timeline item is highlighted as active
+
+#### Scenario: Timeline active on nested routes
+
+- **WHEN** the current route is `/audit/timeline` or any nested audit route
+- **THEN** the Timeline navigation item is highlighted as active
+
+#### Scenario: Collapsed sidebar Timeline
+
+- **WHEN** the sidebar is in collapsed (icon-only) mode
+- **THEN** the Timeline icon is displayed
+- **AND** hovering shows a tooltip with "Timeline"
+
+### Requirement: Gameplay Section Navigation Items
+
+The Gameplay navigation section SHALL include items for all gameplay features.
+
+#### Scenario: Gameplay section contents
+
+- **WHEN** the Gameplay section is expanded
+- **THEN** the following navigation items are displayed in order:
+  - Pilots (`/gameplay/pilots`) with PilotIcon
+  - Forces (`/gameplay/forces`) with ForceIcon
+  - Campaigns (`/gameplay/campaigns`) with CampaignIcon
+  - Encounters (`/gameplay/encounters`) with EncounterIcon
+  - Games (`/gameplay/games`) with GameIcon
+
+#### Scenario: Navigate to Forces
+
+- **WHEN** the user clicks the "Forces" navigation item
+- **THEN** navigation proceeds to `/gameplay/forces`
+- **AND** the Forces item is highlighted as active
+- **AND** the Gameplay section header is highlighted
+
+#### Scenario: Navigate to Campaigns
+
+- **WHEN** the user clicks the "Campaigns" navigation item
+- **THEN** navigation proceeds to `/gameplay/campaigns`
+- **AND** the Campaigns item is highlighted as active
+
+#### Scenario: Navigate to Encounters
+
+- **WHEN** the user clicks the "Encounters" navigation item
+- **THEN** navigation proceeds to `/gameplay/encounters`
+- **AND** the Encounters item is highlighted as active
+
+#### Scenario: Navigate to Games
+
+- **WHEN** the user clicks the "Games" navigation item
+- **THEN** navigation proceeds to `/gameplay/games`
+- **AND** the Games item is highlighted as active
+
+#### Scenario: Deep route active state
+
+- **WHEN** the current route is `/gameplay/campaigns/abc123`
+- **THEN** the Campaigns navigation item is highlighted as active
+- **AND** the Gameplay section header is highlighted
+
+### Requirement: Expandable Navigation Section
+
+The sidebar SHALL support expandable/collapsible navigation sections for grouping related pages.
+
+#### Scenario: Expand section on click
+
+- **WHEN** a collapsed expandable section header is clicked
+- **THEN** the section expands to show child navigation items
+- **AND** the chevron icon rotates from right-pointing to down-pointing
+- **AND** the expansion is animated smoothly (max-height transition)
+
+#### Scenario: Collapse section on click
+
+- **WHEN** an expanded section header is clicked
+- **THEN** the section collapses to hide child navigation items
+- **AND** the chevron icon rotates from down-pointing to right-pointing
+- **AND** the collapse is animated smoothly
+
+#### Scenario: Default to collapsed state
+
+- **WHEN** the sidebar is first rendered
+- **THEN** expandable sections are collapsed by default
+- **AND** only the section header (icon, title, chevron) is visible
+
+#### Scenario: Active state highlighting
+
+- **WHEN** the current route matches any child item in an expandable section
+- **THEN** the section header is highlighted with accent styling
+- **AND** if the section is expanded, the active child item is also highlighted
+
+### Requirement: Collapsed Sidebar Expandable Behavior
+
+When the sidebar is in icon-only (collapsed) mode, expandable sections SHALL show a tooltip with clickable links.
+
+#### Scenario: Hover tooltip with links
+
+- **WHEN** the sidebar is collapsed (icon-only mode)
+- **AND** the user hovers over an expandable section icon
+- **THEN** a tooltip appears showing the section title and all child items as links
+- **AND** each link navigates to the corresponding page when clicked
+
+#### Scenario: Tooltip link navigation
+
+- **WHEN** a link in the expandable section tooltip is clicked
+- **THEN** navigation proceeds to the selected page
+- **AND** the tooltip closes
+- **AND** on mobile, the sidebar drawer closes
+
+#### Scenario: Mobile drawer shows expanded
+
+- **WHEN** the mobile sidebar drawer is open
+- **THEN** expandable sections display in their current expand/collapse state
+- **AND** the collapse/expand toggle remains functional
+- **AND** the tooltip-with-links behavior is NOT used (full labels visible)
+
