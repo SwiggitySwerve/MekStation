@@ -12,16 +12,7 @@ import { AerospaceStore, AerospaceState, createDefaultAerospaceState, CreateAero
 import { createAerospaceStore, createNewAerospaceStore } from './useAerospaceStore';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-
-function safeGetItem(key: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(key);
-}
-
-function safeRemoveItem(key: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(key);
-}
+import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 
 const aerospaceStores = new Map<string, StoreApi<AerospaceStore>>();
 

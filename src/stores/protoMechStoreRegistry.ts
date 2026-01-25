@@ -11,16 +11,7 @@ import { StoreApi } from 'zustand';
 import { ProtoMechStore, ProtoMechState, createDefaultProtoMechState, CreateProtoMechOptions } from './protoMechState';
 import { createProtoMechStore, createNewProtoMechStore } from './useProtoMechStore';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
-
-function safeGetItem(key: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(key);
-}
-
-function safeRemoveItem(key: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(key);
-}
+import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 
 const protoMechStores = new Map<string, StoreApi<ProtoMechStore>>();
 

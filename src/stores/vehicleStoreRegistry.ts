@@ -9,16 +9,7 @@ import { StoreApi } from 'zustand';
 import { VehicleStore, VehicleState, createDefaultVehicleState, CreateVehicleOptions } from './vehicleState';
 import { createVehicleStore, createNewVehicleStore } from './useVehicleStore';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
-
-function safeGetItem(key: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(key);
-}
-
-function safeRemoveItem(key: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(key);
-}
+import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 
 const vehicleStores = new Map<string, StoreApi<VehicleStore>>();
 

@@ -43,3 +43,34 @@ export const clientSafeStorage: StateStorage = {
     localStorage.removeItem(name);
   },
 };
+
+// =============================================================================
+// Simple SSR-Safe Helpers
+// =============================================================================
+
+/**
+ * Safely get item from localStorage (returns null during SSR).
+ * Use this for one-off reads outside of Zustand persist middleware.
+ */
+export function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(key);
+}
+
+/**
+ * Safely set item in localStorage (no-op during SSR).
+ * Use this for one-off writes outside of Zustand persist middleware.
+ */
+export function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(key, value);
+}
+
+/**
+ * Safely remove item from localStorage (no-op during SSR).
+ * Use this for one-off deletions outside of Zustand persist middleware.
+ */
+export function safeRemoveItem(key: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(key);
+}

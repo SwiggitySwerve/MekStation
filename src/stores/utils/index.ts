@@ -4,7 +4,12 @@
  * Shared utilities for Zustand stores.
  */
 
-export { clientSafeStorage } from './clientSafeStorage';
+export {
+  clientSafeStorage,
+  safeGetItem,
+  safeSetItem,
+  safeRemoveItem,
+} from './clientSafeStorage';
 export {
   createStoreRegistry,
   type BaseStoreState,
