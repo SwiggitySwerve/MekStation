@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ModalOverlay } from './ModalOverlay';
+import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import {
   unitNameValidator,
   INameValidationResult,
@@ -246,35 +246,73 @@ export function SaveUnitDialog({
   };
   
   return (
-    <ModalOverlay
+    <DialogTemplate
       isOpen={isOpen}
       onClose={onCancel}
+      title="Save Unit"
       className="w-full max-w-lg mx-4"
+      footer={
+        <>
+          <button onClick={onCancel} className={cs.dialog.btnGhost}>
+            Cancel
+          </button>
+          
+          {status === 'custom-conflict' && validationResult?.suggestedName && (
+            <button onClick={handleSaveAsNew} className={cs.dialog.btnSecondary}>
+              Save As New
+            </button>
+          )}
+          
+          <button
+            onClick={handleSave}
+            disabled={!canSave}
+            className={`min-w-[100px] ${
+              canSave
+                ? status === 'custom-conflict'
+                  ? cs.dialog.btnWarning
+                  : cs.dialog.btnPrimary
+                : cs.dialog.btnPrimary
+            }`}
+          >
+            {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
+          </button>
+        </>
+      }
     >
-      {/* Header */}
-      <div className={cs.dialog.header}>
-        <h3 className={cs.dialog.headerTitle}>Save Unit</h3>
-        <button onClick={onCancel} className={cs.dialog.closeBtn}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+      {/* Chassis input */}
+      <div>
+        <label htmlFor="chassis" className="block text-sm font-medium text-slate-300 mb-1">
+          Chassis Name
+        </label>
+        <input
+          id="chassis"
+          type="text"
+          value={chassis}
+          onChange={handleChassisChange}
+          placeholder="e.g., Atlas, Timber Wolf"
+          className={`${cs.dialog.input} ${
+            isBlocked 
+              ? 'border-red-500 focus:ring-red-500' 
+              : status === 'custom-conflict'
+                ? 'border-amber-500 focus:ring-amber-500'
+                : ''
+          }`}
+        />
       </div>
       
-      {/* Form */}
-      <div className={cs.dialog.content}>
-        {/* Chassis input */}
-        <div>
-          <label htmlFor="chassis" className="block text-sm font-medium text-slate-300 mb-1">
-            Chassis Name
-          </label>
+      {/* Variant input */}
+      <div>
+        <label htmlFor="variant" className="block text-sm font-medium text-slate-300 mb-1">
+          Variant Designation
+        </label>
+        <div className="flex gap-2">
           <input
-            id="chassis"
+            id="variant"
             type="text"
-            value={chassis}
-            onChange={handleChassisChange}
-            placeholder="e.g., Atlas, Timber Wolf"
-            className={`${cs.dialog.input} ${
+            value={variant}
+            onChange={handleVariantChange}
+            placeholder="e.g., AS7-D, Prime"
+            className={`flex-1 ${cs.dialog.input} ${
               isBlocked 
                 ? 'border-red-500 focus:ring-red-500' 
                 : status === 'custom-conflict'
@@ -282,83 +320,33 @@ export function SaveUnitDialog({
                   : ''
             }`}
           />
+          {hasConflict && (
+            <button
+              onClick={handleAutoSuggest}
+              className={cs.dialog.btnSecondary}
+              title="Suggest unique name"
+            >
+              Suggest
+            </button>
+          )}
         </div>
-        
-        {/* Variant input */}
-        <div>
-          <label htmlFor="variant" className="block text-sm font-medium text-slate-300 mb-1">
-            Variant Designation
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="variant"
-              type="text"
-              value={variant}
-              onChange={handleVariantChange}
-              placeholder="e.g., AS7-D, Prime"
-              className={`flex-1 ${cs.dialog.input} ${
-                isBlocked 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : status === 'custom-conflict'
-                    ? 'border-amber-500 focus:ring-amber-500'
-                    : ''
-              }`}
-            />
-            {hasConflict && (
-              <button
-                onClick={handleAutoSuggest}
-                className={cs.dialog.btnSecondary}
-                title="Suggest unique name"
-              >
-                Suggest
-              </button>
-            )}
-          </div>
-        </div>
-        
-        {/* Validation status */}
-        <div className="min-h-[24px]">
-          {getStatusIndicator()}
-        </div>
-        
-        {/* Preview */}
-        {chassis.trim() && variant.trim() && (
-          <div className={cs.dialog.infoPanel}>
-            <div className="text-xs text-slate-400 mb-1">Full Unit Name:</div>
-            <div className="text-white font-medium">
-              {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
-            </div>
-          </div>
-        )}
       </div>
       
-      {/* Footer */}
-      <div className={cs.dialog.footer}>
-        <button onClick={onCancel} className={cs.dialog.btnGhost}>
-          Cancel
-        </button>
-        
-        {status === 'custom-conflict' && validationResult?.suggestedName && (
-          <button onClick={handleSaveAsNew} className={cs.dialog.btnSecondary}>
-            Save As New
-          </button>
-        )}
-        
-        <button
-          onClick={handleSave}
-          disabled={!canSave}
-          className={`min-w-[100px] ${
-            canSave
-              ? status === 'custom-conflict'
-                ? cs.dialog.btnWarning
-                : cs.dialog.btnPrimary
-              : cs.dialog.btnPrimary
-          }`}
-        >
-          {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
-        </button>
+      {/* Validation status */}
+      <div className="min-h-[24px]">
+        {getStatusIndicator()}
       </div>
-    </ModalOverlay>
+      
+      {/* Preview */}
+      {chassis.trim() && variant.trim() && (
+        <div className={cs.dialog.infoPanel}>
+          <div className="text-xs text-slate-400 mb-1">Full Unit Name:</div>
+          <div className="text-white font-medium">
+            {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
+          </div>
+        </div>
+      )}
+    </DialogTemplate>
   );
 }
 

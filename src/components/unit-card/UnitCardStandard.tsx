@@ -9,6 +9,7 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { getTechBaseDisplay } from '@/utils/techBase';
+import { getHeatDisplay } from '@/utils/heatCalculation';
 
 export interface WeaponEntry {
   name: string;
@@ -98,9 +99,7 @@ export function UnitCardStandard({
   const { variant: techBadgeVariant, label: techLabel } = getTechBaseDisplay(techBaseName);
   
   const armorPercentage = maxArmor > 0 ? Math.round((totalArmor / maxArmor) * 100) : 0;
-  const heatNet = heatGenerated - heatDissipation;
-  const heatNetDisplay = heatNet > 0 ? `+${heatNet}` : heatNet.toString();
-  const heatVariant = heatNet > 0 ? 'text-rose-400' : heatNet < 0 ? 'text-cyan-400' : 'text-text-theme-secondary';
+  const heat = getHeatDisplay(heatGenerated, heatDissipation);
 
   const hasActions = onEdit || onExport || onShare || onDuplicate || onDelete;
 
@@ -243,8 +242,8 @@ export function UnitCardStandard({
             <span className="text-text-theme-muted">/</span>
             <span className="text-cyan-400">{heatDissipation}</span>
             <span className="text-text-theme-muted">dissipated</span>
-            <span className={`font-semibold ${heatVariant}`}>
-              ({heatNetDisplay})
+            <span className={`font-semibold ${heat.className}`}>
+              ({heat.display})
             </span>
           </div>
         </div>

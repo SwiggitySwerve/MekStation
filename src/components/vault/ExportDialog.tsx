@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { useVaultExport, type ExportOptions } from '@/hooks/useVaultExport';
 import { useIdentityStore } from '@/stores/useIdentityStore';
 import type {
@@ -148,108 +149,75 @@ export function ExportDialog({
   // Not unlocked state
   if (!isUnlocked || !publicIdentity) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-          <h2 className="text-xl font-bold text-white mb-4">Export {contentLabel}</h2>
-          <p className="text-gray-300 mb-4">
-            You need to unlock your vault identity to export content.
-          </p>
-          <div className="flex justify-end">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
+      <DialogTemplate
+        isOpen={isOpen}
+        onClose={handleClose}
+        title={`Export ${contentLabel}`}
+        className="w-full max-w-md mx-4"
+        footer={
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+          >
+            Close
+          </button>
+        }
+      >
+        <p className="text-gray-300">
+          You need to unlock your vault identity to export content.
+        </p>
+      </DialogTemplate>
     );
   }
 
   // Export complete state
   if (result?.success) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-          <h2 className="text-xl font-bold text-green-400 mb-4">Export Complete</h2>
-          <p className="text-gray-300 mb-4">
-            Successfully exported {itemCount} {itemCount === 1 ? contentLabel : `${contentLabel}s`}.
-          </p>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={handleDownload}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-            >
-              Download File
-            </button>
-            <button
-              onClick={handleCopy}
-              className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
-            >
-              {copied ? 'Copied!' : 'Copy to Clipboard'}
-            </button>
-            <button
-              onClick={handleClose}
-              className="w-full px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-            >
-              Close
-            </button>
-          </div>
+      <DialogTemplate
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Export Complete"
+        className="w-full max-w-md mx-4"
+        footer={
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+          >
+            Close
+          </button>
+        }
+      >
+        <p className="text-gray-300 mb-4">
+          Successfully exported {itemCount} {itemCount === 1 ? contentLabel : `${contentLabel}s`}.
+        </p>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleDownload}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+          >
+            Download File
+          </button>
+          <button
+            onClick={handleCopy}
+            className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+          >
+            {copied ? 'Copied!' : 'Copy to Clipboard'}
+          </button>
         </div>
-      </div>
+      </DialogTemplate>
     );
   }
 
   // Main export form
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold text-white mb-4">
-          Export {itemCount} {itemCount === 1 ? contentLabel : `${contentLabel}s`}
-        </h2>
-
-        {error && (
-          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-2 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              Description (optional)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add a description for this export..."
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 resize-none"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              Password (required to sign)
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your vault password"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
-            />
-          </div>
-
-          <div className="text-sm text-gray-400">
-            Signed by: <span className="text-white">{publicIdentity.displayName}</span>
-            <br />
-            Friend code: <span className="font-mono text-xs">{publicIdentity.friendCode}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6">
+    <DialogTemplate
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={`Export ${itemCount} ${itemCount === 1 ? contentLabel : `${contentLabel}s`}`}
+      className="w-full max-w-md mx-4"
+      preventClose={exporting}
+      footer={
+        <>
           <button
             onClick={handleClose}
             disabled={exporting}
@@ -264,9 +232,49 @@ export function ExportDialog({
           >
             {exporting ? 'Exporting...' : 'Export'}
           </button>
+        </>
+      }
+    >
+      {error && (
+        <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-2 rounded mb-4">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm text-gray-400 mb-1">
+            Description (optional)
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Add a description for this export..."
+            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 resize-none"
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-1">
+            Password (required to sign)
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your vault password"
+            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+          />
+        </div>
+
+        <div className="text-sm text-gray-400">
+          Signed by: <span className="text-white">{publicIdentity.displayName}</span>
+          <br />
+          Friend code: <span className="font-mono text-xs">{publicIdentity.friendCode}</span>
         </div>
       </div>
-    </div>
+    </DialogTemplate>
   );
 }
 
