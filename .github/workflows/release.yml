@@ -102,6 +102,22 @@ jobs:
         working-directory: desktop
         run: npm ci
 
+      - name: Cache mm-data assets
+        uses: actions/cache@v4
+        id: mm-data-cache
+        with:
+          path: public/record-sheets
+          key: mm-data-assets-${{ hashFiles('config/mm-data-assets.json') }}
+          restore-keys: |
+            mm-data-assets-
+
+      - name: Fetch mm-data assets
+        if: steps.mm-data-cache.outputs.cache-hit != 'true'
+        run: npm run fetch:assets
+
+      - name: Validate assets
+        run: npm run validate:assets:strict
+
       - name: Build Next.js application
         run: npm run build
 
@@ -117,6 +133,7 @@ jobs:
             .next/standalone
             .next/static
             desktop/dist
+            public/record-sheets
           retention-days: 1
 
   build:
@@ -201,6 +218,8 @@ jobs:
           test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
           test -d .next/static || { echo "Missing .next/static"; exit 1; }
           test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
+          test -d public/record-sheets || { echo "Missing public/record-sheets"; exit 1; }
+          test -f public/record-sheets/mm-data-version.json || { echo "Missing mm-data-version.json"; exit 1; }
 
       - name: Rebuild native modules for platform
         working-directory: desktop

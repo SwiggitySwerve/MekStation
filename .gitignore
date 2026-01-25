@@ -127,3 +127,16 @@ pip-comparison-output/
 # Storybook
 storybook-static/
 .opencode/
+
+# mm-data assets (fetched at build time from jsDelivr CDN)
+# These are CC-BY-NC-SA-4.0 licensed assets from MegaMek/mm-data
+# Run `npm run fetch:assets` to download after clone
+public/record-sheets/biped_pips/
+public/record-sheets/quad_pips/
+public/record-sheets/templates_us/
+public/record-sheets/templates_iso/
+public/record-sheets/templates/
+public/record-sheets/mm-data-version.json
+
+# Generated config copy for browser access (source is config/mm-data-assets.json)
+public/config/

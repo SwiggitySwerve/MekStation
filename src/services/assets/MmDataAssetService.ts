@@ -1,5 +1,6 @@
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getLocationsForConfigurationString } from '@/utils/mech/mechLocationRegistry';
+import { ServiceError } from '@/services/common/errors';
 
 export enum MechConfiguration {
   BIPED = 'Biped',
@@ -12,6 +13,43 @@ export enum MechConfiguration {
 export enum PaperSize {
   LETTER = 'letter',
   A4 = 'a4',
+}
+
+/**
+ * Error thrown when an asset fails to load from all sources.
+ * Includes user-friendly message and recovery instructions.
+ */
+export class AssetLoadError extends ServiceError {
+  constructor(
+    public readonly assetPath: string,
+    public readonly attemptedSources: string[],
+    public readonly sourceErrors: Record<string, string>
+  ) {
+    const message = `Failed to load asset: ${assetPath}\n\n` +
+      `Attempted sources:\n${attemptedSources.map(s => `  - ${s}`).join('\n')}\n\n` +
+      `To fix this, try running: npm run fetch:assets\n` +
+      `This will download the required assets from the MegaMek mm-data repository.`;
+    
+    super(message, 'ASSET_LOAD_ERROR', {
+      assetPath,
+      attemptedSources,
+      sourceErrors,
+    });
+    this.name = 'AssetLoadError';
+  }
+}
+
+/**
+ * Configuration for mm-data assets loaded from config/mm-data-assets.json
+ */
+export interface MmDataAssetConfig {
+  version: string;
+  repository: string;
+  basePath: string;
+  cdnBase: string;
+  rawBase: string;
+  directories: string[];
+  patterns: Record<string, string[]>;
 }
 
 const LOCATION_TO_MM_DATA_CODE: Record<string, string> = {
@@ -48,6 +86,13 @@ const LOCATION_ABBREV_TO_MM_DATA_CODE: Record<string, string> = {
 
 const PIPS_BASE_PATH = '/record-sheets/biped_pips';
 
+// Default configuration values
+const DEFAULT_VERSION = 'v0.3.1';
+const DEFAULT_REPOSITORY = 'MegaMek/mm-data';
+const DEFAULT_BASE_PATH = 'data/images/recordsheets';
+const DEFAULT_CDN_BASE = 'https://cdn.jsdelivr.net/gh';
+const DEFAULT_RAW_BASE = 'https://raw.githubusercontent.com';
+
 const TEMPLATE_PATHS: Record<MechConfiguration, Record<PaperSize, string>> = {
   [MechConfiguration.BIPED]: {
     [PaperSize.LETTER]: '/record-sheets/templates_us/mek_biped_default.svg',
@@ -76,10 +121,17 @@ interface CachedSVG {
   timestamp: number;
 }
 
+/**
+ * Asset source used in the fallback chain
+ */
+type AssetSource = 'local' | 'cdn' | 'github-raw';
+
 class MmDataAssetService {
   private static instance: MmDataAssetService;
   private svgCache: Map<string, CachedSVG> = new Map();
   private readonly CACHE_TTL_MS = 5 * 60 * 1000;
+  private config: MmDataAssetConfig | null = null;
+  private configLoadPromise: Promise<MmDataAssetConfig> | null = null;
 
   private constructor() {}
 
@@ -88,6 +140,101 @@ class MmDataAssetService {
       MmDataAssetService.instance = new MmDataAssetService();
     }
     return MmDataAssetService.instance;
+  }
+
+  /**
+   * Get the mm-data version to use for CDN/GitHub URLs.
+   * Priority: MM_DATA_VERSION env var > config file > default
+   */
+  getVersion(): string {
+    // Environment variable takes precedence
+    if (typeof process !== 'undefined' && process.env?.MM_DATA_VERSION) {
+      return process.env.MM_DATA_VERSION;
+    }
+    // Fall back to config or default
+    return this.config?.version ?? DEFAULT_VERSION;
+  }
+
+  /**
+   * Load configuration from config/mm-data-assets.json.
+   * Returns cached config if already loaded.
+   */
+  async loadConfig(): Promise<MmDataAssetConfig> {
+    if (this.config) {
+      return this.config;
+    }
+
+    // Prevent concurrent loads
+    if (this.configLoadPromise) {
+      return this.configLoadPromise;
+    }
+
+    this.configLoadPromise = this.doLoadConfig();
+    try {
+      this.config = await this.configLoadPromise;
+      return this.config;
+    } finally {
+      this.configLoadPromise = null;
+    }
+  }
+
+  private async doLoadConfig(): Promise<MmDataAssetConfig> {
+    // Try multiple config paths in order of preference
+    const configPaths = [
+      '/config/mm-data-assets.json',    // Public config path
+      '/mm-data-assets.json',            // Root public path fallback
+    ];
+
+    for (const configPath of configPaths) {
+      try {
+        const response = await fetch(configPath);
+        if (response.ok) {
+          return (await response.json()) as MmDataAssetConfig;
+        }
+      } catch {
+        // Try next path
+      }
+    }
+
+    // Return default config when no config file is available
+    // This allows the app to work even without fetched assets
+    // (will fall back to CDN/GitHub at runtime)
+    return {
+      version: DEFAULT_VERSION,
+      repository: DEFAULT_REPOSITORY,
+      basePath: DEFAULT_BASE_PATH,
+      cdnBase: DEFAULT_CDN_BASE,
+      rawBase: DEFAULT_RAW_BASE,
+      directories: ['biped_pips', 'templates_us', 'templates_iso'],
+      patterns: {},
+    };
+  }
+
+  /**
+   * Build URLs for all fallback sources for a given asset path.
+   */
+  private buildSourceUrls(assetPath: string): { source: AssetSource; url: string }[] {
+    const version = this.getVersion();
+    const repository = this.config?.repository ?? DEFAULT_REPOSITORY;
+    const basePath = this.config?.basePath ?? DEFAULT_BASE_PATH;
+    const cdnBase = this.config?.cdnBase ?? DEFAULT_CDN_BASE;
+    const rawBase = this.config?.rawBase ?? DEFAULT_RAW_BASE;
+
+    // Remove leading slash for CDN/GitHub paths
+    const cleanPath = assetPath.startsWith('/record-sheets/') 
+      ? assetPath.slice('/record-sheets/'.length)
+      : assetPath.startsWith('/') 
+        ? assetPath.slice(1) 
+        : assetPath;
+
+    return [
+      // 1. Local bundled path (for desktop/bundled apps)
+      { source: 'local' as AssetSource, url: assetPath.startsWith('/') ? assetPath : `/${assetPath}` },
+      // 2. jsDelivr CDN
+      { source: 'cdn' as AssetSource, url: `${cdnBase}/${repository}@${version}/${basePath}/${cleanPath}` },
+      // 3. GitHub raw (fallback)
+      { source: 'github-raw' as AssetSource, url: `${rawBase}/${repository}/${version}/${basePath}/${cleanPath}` },
+    ];
   }
 
   getArmorPipPath(
@@ -112,20 +259,43 @@ class MmDataAssetService {
     return TEMPLATE_PATHS[config]?.[paperSize] ?? TEMPLATE_PATHS[MechConfiguration.BIPED][paperSize];
   }
 
+  /**
+   * Load SVG content with fallback chain.
+   * Tries: local bundled -> jsDelivr CDN -> GitHub raw
+   * 
+   * @throws AssetLoadError if all sources fail
+   */
   async loadSVG(path: string): Promise<string> {
     const cached = this.svgCache.get(path);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
       return cached.content;
     }
 
-    const response = await fetch(path);
-    if (!response.ok) {
-      throw new Error(`Failed to load SVG: ${path} (${response.status})`);
+    // Ensure config is loaded for fallback URLs
+    await this.loadConfig();
+
+    const sources = this.buildSourceUrls(path);
+    const sourceErrors: Record<string, string> = {};
+    const attemptedSources: string[] = [];
+
+    for (const { source, url } of sources) {
+      attemptedSources.push(`${source}: ${url}`);
+      
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          const content = await response.text();
+          this.svgCache.set(path, { content, timestamp: Date.now() });
+          return content;
+        }
+        sourceErrors[source] = `HTTP ${response.status}`;
+      } catch (error) {
+        sourceErrors[source] = error instanceof Error ? error.message : String(error);
+      }
     }
 
-    const content = await response.text();
-    this.svgCache.set(path, { content, timestamp: Date.now() });
-    return content;
+    // All sources failed - throw user-friendly error
+    throw new AssetLoadError(path, attemptedSources, sourceErrors);
   }
 
   async loadArmorPipSVG(
@@ -183,6 +353,8 @@ class MmDataAssetService {
 
   clearCache(): void {
     this.svgCache.clear();
+    this.config = null;
+    this.configLoadPromise = null;
   }
 
   private getLocationCode(location: MechLocation | string): string {

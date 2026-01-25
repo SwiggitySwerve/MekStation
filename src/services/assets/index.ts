@@ -1,1 +1,7 @@
-export { mmDataAssetService, MechConfiguration, PaperSize } from './MmDataAssetService';
+export { 
+  mmDataAssetService, 
+  MechConfiguration, 
+  PaperSize,
+  AssetLoadError,
+  type MmDataAssetConfig,
+} from './MmDataAssetService';

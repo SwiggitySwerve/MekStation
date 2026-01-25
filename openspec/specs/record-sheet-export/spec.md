@@ -29,11 +29,17 @@ The system SHALL define data structures for record sheet generation.
 
 ### Requirement: SVG Template Rendering
 
-The system SHALL use configuration-specific SVG templates from mm-data for all mech types.
+The system SHALL use configuration-specific SVG templates from mm-data CDN for all mech types.
 
-MODIFIED: Expand template support to all mech configurations.
+Templates are fetched from externalized mm-data assets at runtime, with proper error handling for network failures.
 
-#### Scenario: Configuration-specific template loading (MODIFIED)
+#### Scenario: Template loading from CDN
+- **WHEN** record sheet renders for a unit
+- **THEN** fetch template from `/record-sheets/templates_us/` (or `templates_iso/` for A4)
+- **AND** template URL is constructed based on MechConfiguration
+- **AND** network errors are caught and displayed to user
+
+#### Scenario: Configuration-specific template loading
 - **WHEN** record sheet renders for a unit
 - **THEN** load template based on unit's MechConfiguration:
   - BIPED → `mek_biped_default.svg`
@@ -41,29 +47,6 @@ MODIFIED: Expand template support to all mech configurations.
   - TRIPOD → `mek_tripod_default.svg`
   - LAM → `mek_lam_default.svg`
   - QUADVEE → `mek_quadvee_default.svg`
-- **AND** templates are loaded from `/record-sheets/templates_us/` (or `templates_iso/` for A4)
-
-#### Scenario: Quad template rendering (NEW)
-- **WHEN** record sheet renders for QUAD configuration
-- **THEN** template SHALL display quad mech silhouette
-- **AND** armor locations SHALL include FLL, FRL, RLL, RRL (not LA, RA, LL, RL)
-- **AND** pip positioning SHALL match quad template layout
-
-#### Scenario: Tripod template rendering (NEW)
-- **WHEN** record sheet renders for TRIPOD configuration
-- **THEN** template SHALL display tripod mech silhouette
-- **AND** armor locations SHALL include all 9 locations (including CENTER_LEG)
-- **AND** pip positioning SHALL match tripod template layout
-
-#### Scenario: LAM template rendering (NEW)
-- **WHEN** record sheet renders for LAM configuration
-- **THEN** template SHALL display LAM-specific layout
-- **AND** template SHALL include mode indicator area
-
-#### Scenario: QuadVee template rendering (NEW)
-- **WHEN** record sheet renders for QUADVEE configuration
-- **THEN** template SHALL display QuadVee-specific layout
-- **AND** template SHALL include mode indicator area
 
 ### Requirement: PDF Generation
 
@@ -114,7 +97,7 @@ The system SHALL render a live preview of the record sheet in the browser.
 
 **Priority**: High
 
-**Status**: IMPLEMENTED ✓
+**Status**: IMPLEMENTED
 
 #### Scenario: Preview display
 - **WHEN** PreviewTab is active
@@ -132,6 +115,14 @@ The system SHALL render a live preview of the record sheet in the browser.
 - **THEN** BV is calculated using CalculationService.calculateBattleValue()
 - **AND** BV is passed to unitConfig for template population
 - **AND** BV updates reactively when unit configuration changes
+
+#### Scenario: Preview updates on unit tab switch
+- **GIVEN** multiple unit tabs are open
+- **AND** user is on the Preview tab
+- **WHEN** user switches to a different unit tab
+- **THEN** the preview canvas SHALL re-render with the newly selected unit's data
+- **AND** all displayed values (tonnage, name, armor, equipment) SHALL match the active unit
+- **AND** no stale data from the previous unit SHALL appear in the preview
 
 ### Requirement: Zoom Controls
 
@@ -190,37 +181,29 @@ The system SHALL support browser print of the record sheet.
 
 ### Requirement: Armor Pip Visualization
 
-The system SHALL render armor pips using mm-data SVG assets for all mech configurations.
+The system SHALL render armor pips using mm-data SVG assets fetched from CDN for biped mechs, and ArmorPipLayout algorithm for other configurations.
 
-MODIFIED: Support all configuration types.
+#### Scenario: Biped armor pip loading from CDN
+- **WHEN** armor diagram renders for BIPED configuration
+- **THEN** fetch pip SVGs from `/record-sheets/biped_pips/Armor_<Location>_<Count>_Humanoid.svg`
+- **AND** extract path elements from `<switch><g>` structure in pip SVG
+- **AND** insert paths into template's `canonArmorPips` group
+- **AND** parent group transform handles correct positioning (no double-transform)
 
-#### Scenario: Quad armor pip loading (NEW)
-- **WHEN** armor diagram renders for QUAD configuration
-- **THEN** load pip SVGs for quad locations
-- **AND** file naming follows: `Armor_{QuadLocation}_{Count}_Quad.svg` if available
-- **OR** fallback to Humanoid pips with position mapping
-
-#### Scenario: Tripod armor pip loading (NEW)
-- **WHEN** armor diagram renders for TRIPOD configuration
-- **THEN** load pip SVGs for all 9 tripod locations
-- **AND** CENTER_LEG uses `Armor_CL_{Count}_Humanoid.svg` format
+#### Scenario: Non-biped armor pip generation
+- **WHEN** armor diagram renders for QUAD, TRIPOD, LAM, or QUADVEE configuration
+- **THEN** use ArmorPipLayout algorithm to generate pips dynamically
+- **AND** pips are positioned within template's pip area rect elements
 
 ### Requirement: Structure Pip Visualization
 
-The system SHALL render internal structure pips using mm-data SVG assets for all mech configurations.
+The system SHALL render internal structure pips using mm-data SVG assets fetched from CDN for biped mechs.
 
-MODIFIED: Support all configuration types.
-
-#### Scenario: Quad structure pip loading (NEW)
-- **GIVEN** a QUAD mech with specific tonnage
+#### Scenario: Biped structure pip loading from CDN
+- **GIVEN** a BIPED mech with specific tonnage
 - **WHEN** structure section renders
-- **THEN** load pip SVGs following: `QuadIS{Tonnage}_{Location}.svg` if available
-- **OR** fallback to BipedIS with appropriate position mapping
-
-#### Scenario: Tripod structure pip loading (NEW)
-- **GIVEN** a TRIPOD mech with specific tonnage
-- **WHEN** structure section renders
-- **THEN** load pip SVGs for all 9 locations including CENTER_LEG
+- **THEN** fetch pip SVGs from `/record-sheets/biped_pips/BipedIS<Tonnage>_<Location>.svg`
+- **AND** insert paths into template's structure pip group
 
 ### Requirement: Equipment Table Rendering
 
@@ -460,4 +443,20 @@ The system SHALL support armor allocation for all mech configuration types.
 - **AND** interface SHALL include quad locations (frontLeftLeg, frontRightLeg, rearLeftLeg, rearRightLeg)
 - **AND** interface SHALL include tripod location (centerLeg)
 - **AND** optional locations use TypeScript optional property syntax (?:)
+
+### Requirement: Asset Loading Error Handling
+
+The system SHALL handle missing or failed asset loads gracefully with user feedback.
+
+#### Scenario: Template fetch failure
+- **WHEN** template SVG fails to load from CDN
+- **THEN** display error message on preview canvas
+- **AND** log error to console with path and status code
+- **AND** do not crash the application
+
+#### Scenario: Pip SVG fetch failure
+- **WHEN** a pip SVG fails to load
+- **THEN** log warning to console
+- **AND** continue rendering without that location's pips
+- **AND** do not block other pip loading
 

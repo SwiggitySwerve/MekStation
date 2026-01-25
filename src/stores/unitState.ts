@@ -27,6 +27,13 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import {
+  getMaxTotalArmor,
+  calculateArmorWeight,
+  calculateArmorPoints,
+  calculateOptimalArmorAllocation,
+  ArmorAllocationResult,
+} from '@/utils/construction/armorCalculations';
 
 // =============================================================================
 // Armor Allocation Types
@@ -110,6 +117,35 @@ export function createEmptyArmorAllocation(): IArmorAllocation {
     [MechLocation.FRONT_RIGHT_LEG]: 0,
     [MechLocation.REAR_LEFT_LEG]: 0,
     [MechLocation.REAR_RIGHT_LEG]: 0,
+  };
+}
+
+/**
+ * Convert ArmorAllocationResult from calculation utility to IArmorAllocation format
+ * Maps the flat result structure to the keyed interface used in unit state
+ */
+export function armorResultToAllocation(result: ArmorAllocationResult): IArmorAllocation {
+  return {
+    // Universal locations
+    [MechLocation.HEAD]: result.head,
+    [MechLocation.CENTER_TORSO]: result.centerTorsoFront,
+    centerTorsoRear: result.centerTorsoRear,
+    [MechLocation.LEFT_TORSO]: result.leftTorsoFront,
+    leftTorsoRear: result.leftTorsoRear,
+    [MechLocation.RIGHT_TORSO]: result.rightTorsoFront,
+    rightTorsoRear: result.rightTorsoRear,
+    // Biped/Tripod/LAM locations
+    [MechLocation.LEFT_ARM]: result.leftArm,
+    [MechLocation.RIGHT_ARM]: result.rightArm,
+    [MechLocation.LEFT_LEG]: result.leftLeg,
+    [MechLocation.RIGHT_LEG]: result.rightLeg,
+    // Tripod-specific
+    [MechLocation.CENTER_LEG]: result.centerLeg,
+    // Quad/QuadVee-specific
+    [MechLocation.FRONT_LEFT_LEG]: result.frontLeftLeg,
+    [MechLocation.FRONT_RIGHT_LEG]: result.frontRightLeg,
+    [MechLocation.REAR_LEFT_LEG]: result.rearLeftLeg,
+    [MechLocation.REAR_RIGHT_LEG]: result.rearRightLeg,
   };
 }
 
@@ -565,6 +601,11 @@ export function generateUnitId(): string {
 }
 
 /**
+ * Default armor percentage for new units (70% of max)
+ */
+const DEFAULT_ARMOR_PERCENTAGE = 0.70;
+
+/**
  * Create default unit state
  */
 export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
@@ -578,6 +619,15 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
   const nameParts = options.name.split(' ');
   const defaultChassis = nameParts[0] || 'New Mech';
   const defaultModel = nameParts.slice(1).join(' ') || '';
+  
+  // Calculate default armor (70% of max, optimally allocated)
+  const configuration = MechConfiguration.BIPED; // Default configuration
+  const maxArmorPoints = getMaxTotalArmor(options.tonnage, configuration);
+  const targetArmorPoints = Math.floor(maxArmorPoints * DEFAULT_ARMOR_PERCENTAGE);
+  const armorTonnage = calculateArmorWeight(targetArmorPoints, ArmorTypeEnum.STANDARD);
+  const actualArmorPoints = calculateArmorPoints(armorTonnage, ArmorTypeEnum.STANDARD);
+  const allocationResult = calculateOptimalArmorAllocation(actualArmorPoints, options.tonnage, configuration);
+  const armorAllocation = armorResultToAllocation(allocationResult);
   
   return {
     // Identity (MegaMekLab format)
@@ -594,7 +644,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     
     // Configuration
     unitType: UnitType.BATTLEMECH,
-    configuration: MechConfiguration.BIPED,
+    configuration,
     lamMode: LAMMode.MECH, // Default to Mech mode for LAMs
     quadVeeMode: QuadVeeMode.MECH, // Default to Mech mode for QuadVees
     isOmni: false,
@@ -612,8 +662,8 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     heatSinkType: HeatSinkType.SINGLE,
     heatSinkCount: 10,
     armorType: ArmorTypeEnum.STANDARD,
-    armorTonnage: 0,
-    armorAllocation: createEmptyArmorAllocation(),
+    armorTonnage,
+    armorAllocation,
     enhancement: null,
     jumpMP: 0,
     jumpJetType: JumpJetType.STANDARD,

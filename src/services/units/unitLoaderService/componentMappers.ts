@@ -267,6 +267,7 @@ export function mapMechLocation(locationStr: string): MechLocation | undefined {
   const normalized = locationStr.toUpperCase().replace(/[_\s-]/g, '');
 
   const locationMap: Record<string, MechLocation> = {
+    // Universal locations
     'HEAD': MechLocation.HEAD,
     'HD': MechLocation.HEAD,
     'CENTERTORSO': MechLocation.CENTER_TORSO,
@@ -275,14 +276,28 @@ export function mapMechLocation(locationStr: string): MechLocation | undefined {
     'LT': MechLocation.LEFT_TORSO,
     'RIGHTTORSO': MechLocation.RIGHT_TORSO,
     'RT': MechLocation.RIGHT_TORSO,
+    // Biped/Tripod/LAM arm locations
     'LEFTARM': MechLocation.LEFT_ARM,
     'LA': MechLocation.LEFT_ARM,
     'RIGHTARM': MechLocation.RIGHT_ARM,
     'RA': MechLocation.RIGHT_ARM,
+    // Biped/Tripod/LAM leg locations
     'LEFTLEG': MechLocation.LEFT_LEG,
     'LL': MechLocation.LEFT_LEG,
     'RIGHTLEG': MechLocation.RIGHT_LEG,
     'RL': MechLocation.RIGHT_LEG,
+    // Tripod center leg
+    'CENTERLEG': MechLocation.CENTER_LEG,
+    'CL': MechLocation.CENTER_LEG,
+    // Quad/QuadVee leg locations
+    'FRONTLEFTLEG': MechLocation.FRONT_LEFT_LEG,
+    'FLL': MechLocation.FRONT_LEFT_LEG,
+    'FRONTRIGHTLEG': MechLocation.FRONT_RIGHT_LEG,
+    'FRL': MechLocation.FRONT_RIGHT_LEG,
+    'REARLEFTLEG': MechLocation.REAR_LEFT_LEG,
+    'RLL': MechLocation.REAR_LEFT_LEG,
+    'REARRIGHTLEG': MechLocation.REAR_RIGHT_LEG,
+    'RRL': MechLocation.REAR_RIGHT_LEG,
   };
 
   return locationMap[normalized];
@@ -320,6 +335,23 @@ function setArmorValue(
       break;
     case MechLocation.RIGHT_LEG:
       result[MechLocation.RIGHT_LEG] = value;
+      break;
+    // Tripod center leg
+    case MechLocation.CENTER_LEG:
+      result[MechLocation.CENTER_LEG] = value;
+      break;
+    // Quad/QuadVee leg locations
+    case MechLocation.FRONT_LEFT_LEG:
+      result[MechLocation.FRONT_LEFT_LEG] = value;
+      break;
+    case MechLocation.FRONT_RIGHT_LEG:
+      result[MechLocation.FRONT_RIGHT_LEG] = value;
+      break;
+    case MechLocation.REAR_LEFT_LEG:
+      result[MechLocation.REAR_LEFT_LEG] = value;
+      break;
+    case MechLocation.REAR_RIGHT_LEG:
+      result[MechLocation.REAR_RIGHT_LEG] = value;
       break;
   }
 }

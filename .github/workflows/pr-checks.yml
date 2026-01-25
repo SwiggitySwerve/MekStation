@@ -20,6 +20,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '20'
+          fetch-assets: 'true'
 
       - name: Run linter
         run: npm run lint
@@ -46,6 +47,10 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '20'
+          fetch-assets: 'true'
+
+      - name: Validate assets
+        run: npm run validate:assets:strict
 
       - name: Build Next.js application
         run: npm run build
@@ -62,6 +67,7 @@ jobs:
             .next/standalone
             .next/static
             desktop/dist
+            public/record-sheets
           retention-days: 1
 
   build-test:
@@ -103,6 +109,7 @@ jobs:
           # download-artifact extracts to current directory preserving structure
           # Verify the artifacts are in place
           test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
+          test -d public/record-sheets || { echo "Missing public/record-sheets"; exit 1; }
           test -d .next/static || { echo "Missing .next/static"; exit 1; }
           test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
 

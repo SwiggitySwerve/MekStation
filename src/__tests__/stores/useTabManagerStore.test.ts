@@ -532,6 +532,148 @@ describe('useTabManagerStore', () => {
     it('should return undefined for non-existent tab', () => {
       expect(useTabManagerStore.getState().getLastSubTab('non-existent')).toBeUndefined();
     });
+
+    it('should preserve lastSubTab for each unit independently', () => {
+      let tab1Id = '';
+      let tab2Id = '';
+      
+      act(() => {
+        tab1Id = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0], 'Unit 1');
+        tab2Id = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[1], 'Unit 2');
+      });
+      
+      // Set different sub-tabs for each unit
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tab1Id, 'preview');
+        useTabManagerStore.getState().setLastSubTab(tab2Id, 'armor');
+      });
+      
+      // Verify each unit has its own lastSubTab
+      expect(useTabManagerStore.getState().getLastSubTab(tab1Id)).toBe('preview');
+      expect(useTabManagerStore.getState().getLastSubTab(tab2Id)).toBe('armor');
+    });
+
+    it('should update lastSubTab when switching sub-tabs within a unit', () => {
+      let tabId = '';
+      act(() => {
+        tabId = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0]);
+      });
+      
+      // Navigate through multiple sub-tabs
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'structure');
+      });
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('structure');
+      
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'armor');
+      });
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('armor');
+      
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'equipment');
+      });
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('equipment');
+      
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'criticals');
+      });
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('criticals');
+      
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tabId, 'preview');
+      });
+      expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe('preview');
+    });
+
+    it('should preserve lastSubTab when switching between unit tabs', () => {
+      let tab1Id = '';
+      let tab2Id = '';
+      
+      act(() => {
+        tab1Id = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0], 'Scorpion');
+        tab2Id = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[3], 'Atlas');
+      });
+      
+      // Set sub-tabs for both units
+      act(() => {
+        useTabManagerStore.getState().setLastSubTab(tab1Id, 'preview');
+        useTabManagerStore.getState().setLastSubTab(tab2Id, 'armor');
+      });
+      
+      // Switch to first tab
+      act(() => {
+        useTabManagerStore.getState().selectTab(tab1Id);
+      });
+      expect(useTabManagerStore.getState().activeTabId).toBe(tab1Id);
+      expect(useTabManagerStore.getState().getLastSubTab(tab1Id)).toBe('preview');
+      
+      // Switch to second tab
+      act(() => {
+        useTabManagerStore.getState().selectTab(tab2Id);
+      });
+      expect(useTabManagerStore.getState().activeTabId).toBe(tab2Id);
+      expect(useTabManagerStore.getState().getLastSubTab(tab2Id)).toBe('armor');
+      
+      // Switch back to first tab - lastSubTab should still be preserved
+      act(() => {
+        useTabManagerStore.getState().selectTab(tab1Id);
+      });
+      expect(useTabManagerStore.getState().activeTabId).toBe(tab1Id);
+      expect(useTabManagerStore.getState().getLastSubTab(tab1Id)).toBe('preview');
+    });
+
+    it('should preserve lastSubTab across multiple rapid tab switches', () => {
+      const tabIds: string[] = [];
+      
+      // Create 5 tabs with different sub-tabs
+      act(() => {
+        tabIds.push(useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0], 'Tab 1'));
+        tabIds.push(useTabManagerStore.getState().createTab(UNIT_TEMPLATES[1], 'Tab 2'));
+        tabIds.push(useTabManagerStore.getState().createTab(UNIT_TEMPLATES[2], 'Tab 3'));
+        tabIds.push(useTabManagerStore.getState().createTab(UNIT_TEMPLATES[3], 'Tab 4'));
+        tabIds.push(useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0], 'Tab 5'));
+      });
+      
+      const subTabs = ['structure', 'armor', 'equipment', 'criticals', 'preview'];
+      
+      // Set different sub-tab for each unit
+      act(() => {
+        tabIds.forEach((id, index) => {
+          useTabManagerStore.getState().setLastSubTab(id, subTabs[index]);
+        });
+      });
+      
+      // Rapidly switch between tabs
+      act(() => {
+        useTabManagerStore.getState().selectTab(tabIds[2]);
+        useTabManagerStore.getState().selectTab(tabIds[0]);
+        useTabManagerStore.getState().selectTab(tabIds[4]);
+        useTabManagerStore.getState().selectTab(tabIds[1]);
+        useTabManagerStore.getState().selectTab(tabIds[3]);
+      });
+      
+      // Verify all sub-tabs are still preserved
+      tabIds.forEach((id, index) => {
+        expect(useTabManagerStore.getState().getLastSubTab(id)).toBe(subTabs[index]);
+      });
+    });
+
+    it('should handle all valid sub-tab types', () => {
+      let tabId = '';
+      act(() => {
+        tabId = useTabManagerStore.getState().createTab(UNIT_TEMPLATES[0]);
+      });
+      
+      const validSubTabs = ['overview', 'structure', 'armor', 'weapons', 'equipment', 'criticals', 'fluff', 'preview'];
+      
+      validSubTabs.forEach(subTab => {
+        act(() => {
+          useTabManagerStore.getState().setLastSubTab(tabId, subTab);
+        });
+        expect(useTabManagerStore.getState().getLastSubTab(tabId)).toBe(subTab);
+      });
+    });
   });
   
   // ===========================================================================
