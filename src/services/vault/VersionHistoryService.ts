@@ -17,6 +17,7 @@ import {
   VersionHistoryRepository,
   getVersionHistoryRepository,
 } from './VersionHistoryRepository';
+import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -430,18 +431,15 @@ export class VersionHistoryService {
 // Singleton
 // =============================================================================
 
-let versionHistoryService: VersionHistoryService | null = null;
+const versionHistoryServiceFactory = createSingleton(() => new VersionHistoryService());
 
 export function getVersionHistoryService(): VersionHistoryService {
-  if (!versionHistoryService) {
-    versionHistoryService = new VersionHistoryService();
-  }
-  return versionHistoryService;
+  return versionHistoryServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetVersionHistoryService(): void {
-  versionHistoryService = null;
+  versionHistoryServiceFactory.reset();
 }
