@@ -9,9 +9,9 @@
 
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { calculateGyroWeight } from '@/utils/construction/gyroCalculations';
+import { calculateHeatSinkWeight } from '@/utils/construction/heatSinkCalculations';
 import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
-import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -85,10 +85,7 @@ export function calculateStructuralWeight(params: StructuralWeightParams): numbe
   const cockpitWeight = cockpitDef?.weight ?? 3;
 
   // Heat sink weight (first 10 are free)
-  const heatSinkDef = getHeatSinkDefinition(heatSinkType as HeatSinkType);
-  const heatSinksRequiringWeight = Math.max(0, heatSinkCount - 10);
-  const weightPerHeatSink = heatSinkDef?.weight ?? 1.0;
-  const heatSinkWeight = heatSinksRequiringWeight * weightPerHeatSink;
+  const heatSinkWeight = calculateHeatSinkWeight(heatSinkCount, heatSinkType as HeatSinkType);
 
   // Armor weight
   const armorWeight = armorTonnage;
@@ -149,10 +146,7 @@ export function getCockpitWeight(cockpitType: string): number {
  * @returns Heat sink weight in tons
  */
 export function getHeatSinkWeight(heatSinkCount: number, heatSinkType: string): number {
-  const heatSinkDef = getHeatSinkDefinition(heatSinkType as HeatSinkType);
-  const heatSinksRequiringWeight = Math.max(0, heatSinkCount - 10);
-  const weightPerHeatSink = heatSinkDef?.weight ?? 1.0;
-  return heatSinksRequiringWeight * weightPerHeatSink;
+  return calculateHeatSinkWeight(heatSinkCount, heatSinkType as HeatSinkType);
 }
 
 /**
