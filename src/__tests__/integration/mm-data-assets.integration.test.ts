@@ -34,10 +34,10 @@ interface MmDataConfig {
 }
 
 interface VersionManifest {
-  syncedAt: string;
-  mmDataCommit: string;
-  mmDataDate: string;
-  syncScript: string;
+  version: string;
+  fetchedAt: string;
+  assetCount: number;
+  source: string;
 }
 
 // Path to assets
@@ -265,8 +265,8 @@ describeIfAssets('Complete Asset Inventory', () => {
     expect(fs.existsSync(manifestPath)).toBe(true);
     
     const manifest: VersionManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as VersionManifest;
-    expect(manifest.syncedAt).toBeDefined();
-    expect(manifest.mmDataCommit).toBeDefined();
+    expect(manifest.fetchedAt).toBeDefined();
+    expect(manifest.version).toBeDefined();
   });
 
   it('should have at least 500 SVG files total', () => {
