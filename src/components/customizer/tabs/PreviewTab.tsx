@@ -48,6 +48,7 @@ export function PreviewTab({
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
   
   // Get unit state from store
+  const unitId = useUnitStore((s) => s.id);
   const name = useUnitStore((s) => s.name);
   const chassis = useUnitStore((s) => s.chassis);
   const model = useUnitStore((s) => s.model);

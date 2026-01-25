@@ -80,6 +80,7 @@ export function RecordSheetPreview({
   const zoomOut = () => setZoom(z => Math.max(z - 0.15, 0.2));
   
   // Get unit state from store
+  const unitId = useUnitStore((s) => s.id);
   const name = useUnitStore((s) => s.name);
   const chassis = useUnitStore((s) => s.chassis);
   const model = useUnitStore((s) => s.model);
@@ -332,7 +333,7 @@ export function RecordSheetPreview({
       }
     }
   }, [
-    name, chassis, model, tonnage, techBase, rulesLevel, year, configuration,
+    unitId, name, chassis, model, tonnage, techBase, rulesLevel, year, configuration,
     engineType, engineRating, gyroType, internalStructureType,
     armorType, armorAllocation, heatSinkType, heatSinkCount,
     enhancement, walkMP, runMP, jumpMP,
