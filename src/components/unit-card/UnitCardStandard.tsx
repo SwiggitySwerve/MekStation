@@ -8,6 +8,7 @@ import React from 'react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { getTechBaseDisplay } from '@/utils/techBase';
 
 export interface WeaponEntry {
   name: string;
@@ -94,11 +95,7 @@ export function UnitCardStandard({
   onDelete,
   className = '',
 }: UnitCardStandardProps): React.ReactElement {
-  const isInnerSphere = techBaseName.toLowerCase().includes('inner sphere') || techBaseName.toLowerCase() === 'is';
-  const isClan = techBaseName.toLowerCase().includes('clan');
-  
-  const techBadgeVariant = isClan ? 'cyan' : isInnerSphere ? 'amber' : 'slate';
-  const techLabel = isClan ? 'Clan' : isInnerSphere ? 'IS' : techBaseName;
+  const { variant: techBadgeVariant, label: techLabel } = getTechBaseDisplay(techBaseName);
   
   const armorPercentage = maxArmor > 0 ? Math.round((totalArmor / maxArmor) * 100) : 0;
   const heatNet = heatGenerated - heatDissipation;
