@@ -1084,3 +1084,60 @@ This migration validates that the `ICrudRepository<T>` interface is:
 - Pattern can be applied to other repository domains (units, gameplay, etc.)
 - `ICrudRepository<T>` interface is production-ready and battle-tested
 - All 3 vault repositories now provide consistent CRUD interface
+
+
+## SERVICES-SIMPLIFICATION: FINAL SUMMARY
+
+### Work Plan Completed
+- **Plan**: services-simplification.md
+- **Tasks Completed**: 7/7 (100%)
+- **Status**: ✅ COMPLETE
+
+### Deliverables
+- ✅ createSingleton<T> factory created (70 lines, 20/20 tests passing)
+- ✅ ICrudRepository<T> interface created (135 lines with JSDoc)
+- ✅ 10 services migrated to factory pattern
+- ✅ 3 repositories implementing interface
+- ✅ Documentation created in src/services/README.md
+
+### Impact Metrics
+- **Tests**: 4000+/4000+ passing (100% pass rate)
+- **Code Reduction**: ~105 lines of singleton boilerplate removed (~55% reduction)
+- **Consistency**: Standardized patterns across 13 implementations
+- **Services Migrated**: 10 (VaultService, PermissionService, ContactService, OfflineQueueService, VersionHistoryService, EquipmentRegistry, EquipmentLoaderService, EquipmentNameMapper, UnitFactoryService, UnitTypeRegistry)
+- **Repositories Migrated**: 3 (ContactRepository, PermissionRepository, VaultFolderRepository)
+
+### Future Work
+- **Remaining Services**: ~30 services could adopt createSingleton pattern
+  - Validation services (StructureValidationService, ArmorValidationService, etc.)
+  - Construction services (BlkExportService, MtfExportService, etc.)
+  - Gameplay services (CampaignService, EncounterService, etc.)
+- **Additional Repositories**: Could implement ICrudRepository
+  - Custom variant repositories
+  - Campaign/encounter repositories
+- **Potential Extensions**: Query builder interface for ICrudRepository
+
+### Lessons Learned
+1. **Constructor Visibility**: Constructors must be public (not private) when using module-level factories
+2. **Type Annotations**: Explicit type annotations prevent ESLint no-unsafe-return errors
+3. **Cleanup Callbacks**: Optional cleanup parameter works perfectly for services with teardown logic
+4. **Test Isolation**: Reset functions are critical for test independence
+5. **Pattern Consistency**: Following exact migration pattern across all services ensures quality
+6. **Incremental Migration**: Migrating one service at a time with full verification prevents regressions
+7. **Interface Flexibility**: ICrudRepository's optional methods allow gradual adoption
+
+### Verification Results
+- ✅ TypeScript: 0 errors (npx tsc --noEmit --skipLibCheck)
+- ✅ All service tests: 100% pass rate
+- ✅ Build: Successful (Next.js production build)
+- ✅ Documentation: Complete and comprehensive
+
+### Commits
+1. refactor(services): add createSingleton factory
+2. refactor(services): add ICrudRepository interface
+3. refactor(vault): migrate vault services to createSingleton (5 services)
+4. refactor(equipment): migrate equipment services to createSingleton (3 services)
+5. refactor(units): migrate unit services to createSingleton (2 services)
+6. refactor(repositories): implement ICrudRepository interface (3 repositories)
+7. docs(services): add comprehensive README with patterns and migration guide
+
