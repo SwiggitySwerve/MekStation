@@ -7,13 +7,14 @@
  */
 
 import type {
-  IPermissionGrant,
-  IStoredPermission,
-  PermissionLevel,
-  PermissionScopeType,
-  ContentCategory,
-} from '@/types/vault';
+   IPermissionGrant,
+   IStoredPermission,
+   PermissionLevel,
+   PermissionScopeType,
+   ContentCategory,
+ } from '@/types/vault';
 import { getSQLiteService } from '@/services/persistence';
+import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
 // Repository
@@ -22,7 +23,7 @@ import { getSQLiteService } from '@/services/persistence';
 /**
  * Repository for vault permission persistence
  */
-export class PermissionRepository {
+export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
   private initialized = false;
 
   /**
@@ -234,13 +235,27 @@ export class PermissionRepository {
       return this.checkPermission('public', scopeType, scopeId, category);
     }
 
-    return null;
-  }
+     return null;
+   }
 
-  /**
-   * Update permission level
-   */
-  async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
+   /**
+    * Check if a permission exists (ICrudRepository optional method)
+    */
+   async exists(id: string): Promise<boolean> {
+     await this.initialize();
+     const db = getSQLiteService().getDatabase();
+
+     const row = db
+       .prepare('SELECT 1 FROM vault_permissions WHERE id = ?')
+       .get(id);
+
+     return !!row;
+   }
+
+   /**
+    * Update permission level
+    */
+   async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -251,24 +266,73 @@ export class PermissionRepository {
     return result.changes > 0;
   }
 
-  /**
-   * Update permission expiry
-   */
-  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
-    await this.initialize();
-    const db = getSQLiteService().getDatabase();
+   /**
+    * Update permission expiry
+    */
+   async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
+     await this.initialize();
+     const db = getSQLiteService().getDatabase();
 
-    const result = db
-      .prepare('UPDATE vault_permissions SET expires_at = ? WHERE id = ?')
-      .run(expiresAt, id);
+     const result = db
+       .prepare('UPDATE vault_permissions SET expires_at = ? WHERE id = ?')
+       .run(expiresAt, id);
 
-    return result.changes > 0;
-  }
+     return result.changes > 0;
+   }
 
-  /**
-   * Delete a permission
-   */
-  async delete(id: string): Promise<boolean> {
+   /**
+    * Update a permission (ICrudRepository interface method)
+    * Updates multiple fields of a permission at once
+    */
+   async update(id: string, data: Partial<IPermissionGrant>): Promise<IPermissionGrant> {
+     await this.initialize();
+     const db = getSQLiteService().getDatabase();
+
+     // Get current permission
+     const current = await this.getById(id);
+     if (!current) {
+       throw new Error(`Permission with id ${id} not found`);
+     }
+
+     // Build update statement dynamically based on provided fields
+     const updates: string[] = [];
+     const values: unknown[] = [];
+
+     if (data.level !== undefined) {
+       updates.push('level = ?');
+       values.push(data.level);
+     }
+     if (data.expiresAt !== undefined) {
+       updates.push('expires_at = ?');
+       values.push(data.expiresAt);
+     }
+     if (data.granteeName !== undefined) {
+       updates.push('grantee_name = ?');
+       values.push(data.granteeName || null);
+     }
+
+     // If no fields to update, return current permission
+     if (updates.length === 0) {
+       return current;
+     }
+
+     // Execute update
+     values.push(id);
+     const stmt = db.prepare(`UPDATE vault_permissions SET ${updates.join(', ')} WHERE id = ?`);
+     stmt.run(...values);
+
+     // Return updated permission
+     const updated = await this.getById(id);
+     if (!updated) {
+       throw new Error(`Failed to retrieve updated permission with id ${id}`);
+     }
+     return updated;
+   }
+
+   /**
+    * Delete a permission
+    */
+   async delete(id: string): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 

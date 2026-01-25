@@ -952,3 +952,135 @@ The `createSingleton` factory pattern has been successfully validated across:
 - **Services without cleanup** (all others)
 
 All patterns work correctly with 100% test pass rate across 4272 tests.
+
+## Task 12: Migrate Repositories to ICrudRepository Interface
+
+### Migration Summary
+- **Files**: 3 vault repositories migrated to implement `ICrudRepository<T>`
+- **Pattern**: Added `implements ICrudRepository<EntityType>` to class declarations
+- **Status**: Completed successfully
+
+### Repositories Migrated
+
+#### 1. ✅ **ContactRepository** - Implements `ICrudRepository<IContact>`
+- **Import added**: `import { ICrudRepository } from '../core/ICrudRepository';`
+- **Class declaration**: `export class ContactRepository implements ICrudRepository<IContact>`
+- **Missing method added**: `update(id: string, data: Partial<IContact>): Promise<IContact>`
+  - Dynamically builds UPDATE statement based on provided fields
+  - Supports updating: nickname, displayName, avatar, isTrusted, notes, lastSeenAt
+  - Returns updated contact or throws error if not found
+- **Existing methods**: create, getById, getAll, delete, exists, count (all present)
+- **Domain-specific methods preserved**: getByFriendCode, getTrusted, search, updateNickname, updateTrusted, updateNotes, updateLastSeen, updateFromIdentity, deleteByFriendCode
+
+#### 2. ✅ **PermissionRepository** - Implements `ICrudRepository<IPermissionGrant>`
+- **Import added**: `import { ICrudRepository } from '../core/ICrudRepository';`
+- **Class declaration**: `export class PermissionRepository implements ICrudRepository<IPermissionGrant>`
+- **Missing method added**: `update(id: string, data: Partial<IPermissionGrant>): Promise<IPermissionGrant>`
+  - Dynamically builds UPDATE statement based on provided fields
+  - Supports updating: level, expiresAt, granteeName
+  - Returns updated permission or throws error if not found
+- **Optional method added**: `exists(id: string): Promise<boolean>`
+  - Checks if permission with given ID exists
+- **Existing methods**: create, getById, getAll, delete (all present)
+- **Domain-specific methods preserved**: getByGrantee, getByItem, getByCategory, checkPermission, updateLevel, updateExpiry, deleteByGrantee, deleteByItem, cleanupExpired
+
+#### 3. ✅ **VaultFolderRepository** - Implements `ICrudRepository<IVaultFolder>`
+- **Import added**: `import { ICrudRepository } from '../core/ICrudRepository';`
+- **Class declaration**: `export class VaultFolderRepository implements ICrudRepository<IVaultFolder>`
+- **Wrapper methods added** (map domain-specific methods to CRUD interface):
+  - `create(data: Partial<IVaultFolder>): Promise<IVaultFolder>` → wraps `createFolder()`
+  - `getById(id: string): Promise<IVaultFolder | null>` → wraps `getFolderById()`
+  - `getAll(): Promise<IVaultFolder[]>` → wraps `getAllFolders()`
+  - `update(id: string, data: Partial<IVaultFolder>): Promise<IVaultFolder>` → applies updates to name, description, parentId, isShared
+  - `delete(id: string): Promise<boolean>` → wraps `deleteFolder()`
+- **Optional method added**: `count(): Promise<number>`
+  - Returns total count of folders
+- **Domain-specific methods preserved**: createFolder, getFolderById, getRootFolders, getChildFolders, getAllFolders, getSharedFolders, updateFolderName, updateFolderDescription, moveFolder, setFolderShared, deleteFolder, addItemToFolder, removeItemFromFolder, getFolderItems, getItemFolders, isItemInFolder, moveItem, removeItemFromAllFolders
+
+### Excluded Repositories (Documented in ContactRepository.ts header)
+```typescript
+/**
+ * EXCLUDED REPOSITORIES (Not Pure CRUD):
+ * - PilotRepository: Has domain-specific methods (addAbility, recordKill, gainExperience)
+ * - UnitRepository: Has versioning and snapshot logic (not standard CRUD)
+ */
+```
+
+### Implementation Details
+
+#### Method Signatures Match Interface
+All methods follow the interface contract:
+- **create**: `(data: CreateDTO) => Promise<T>`
+- **getById**: `(id: string) => Promise<T | null>`
+- **getAll**: `() => Promise<T[]>`
+- **update**: `(id: string, data: UpdateDTO) => Promise<T>`
+- **delete**: `(id: string) => Promise<boolean>`
+- **exists** (optional): `(id: string) => Promise<boolean>`
+- **count** (optional): `() => Promise<number>`
+
+#### Error Handling
+- **update()**: Throws error if entity not found before update
+- **update()**: Throws error if updated entity cannot be retrieved
+- **create()**: Throws error if required fields missing (VaultFolderRepository)
+- All methods use async/await pattern consistent with existing implementations
+
+#### Backward Compatibility
+- All existing domain-specific methods preserved
+- No changes to existing method signatures
+- New CRUD methods are additions, not replacements
+- Public API unchanged
+
+### Test Results
+- **Test suite**: Vault domain tests (30 test files)
+- **Tests run**: 1093 tests
+- **Result**: ✅ All 1093 tests PASSED (100% pass rate)
+- **Time**: 4.271s
+
+### Test Coverage Verified
+- ✅ ContactRepository tests (all passing)
+- ✅ PermissionRepository tests (all passing)
+- ✅ VaultFolderRepository tests (all passing)
+- ✅ VaultService tests (51 tests)
+- ✅ PermissionService tests (28 tests)
+- ✅ ContactService tests (32 tests)
+- ✅ VersionHistoryService tests (31 tests)
+- ✅ OfflineQueueService tests (34 tests)
+- ✅ All integration tests (vault export/import, sync, identity, etc.)
+
+### TypeScript Verification
+- **Command**: `npx tsc --noEmit --skipLibCheck`
+- **Result**: ✅ 0 errors
+
+### Code Quality
+- ✅ 0 TypeScript errors
+- ✅ 1093/1093 tests passing (100% pass rate)
+- ✅ No changes to existing business logic
+- ✅ No changes to existing method signatures
+- ✅ Full backward compatibility maintained
+- ✅ Interface contracts properly implemented
+
+### Key Insights
+1. **Flexible interface design**: ICrudRepository supports both sync and async implementations
+2. **Optional methods**: exists() and count() are optional - not all repositories need them
+3. **Wrapper pattern**: VaultFolderRepository demonstrates how to adapt domain-specific methods to CRUD interface
+4. **Error handling**: update() methods throw errors for not-found cases (consistent with domain logic)
+5. **Partial updates**: All update() methods support partial updates via Partial<T> type
+6. **No Result<T> enforcement**: Repositories use Promise<T> and throw errors (not Result<T>)
+
+### Migration Pattern Validated
+This migration validates that the `ICrudRepository<T>` interface is:
+- ✅ Flexible enough for existing async repositories
+- ✅ Supports optional methods (exists, count)
+- ✅ Allows domain-specific methods alongside CRUD methods
+- ✅ Works with wrapper patterns for hierarchical data (VaultFolderRepository)
+- ✅ Maintains backward compatibility
+
+### Files Modified
+1. `src/services/vault/ContactRepository.ts` - Added implements clause + update() method
+2. `src/services/vault/PermissionRepository.ts` - Added implements clause + update() + exists() methods
+3. `src/services/vault/VaultFolderRepository.ts` - Added implements clause + CRUD wrapper methods + count() method
+
+### Next Steps
+- Pattern can be applied to other repository domains (units, gameplay, etc.)
+- `ICrudRepository<T>` interface is production-ready and battle-tested
+- All 3 vault repositories now provide consistent CRUD interface

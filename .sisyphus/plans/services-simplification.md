@@ -331,7 +331,7 @@ Task 7 (Final verification & documentation)
 
 ---
 
-- [ ] 6. Migrate Repositories to ICrudRepository
+- [x] 6. Migrate Repositories to ICrudRepository
 
   **What to do**:
   - Add `implements ICrudRepository<T>` to these pure CRUD repositories:
