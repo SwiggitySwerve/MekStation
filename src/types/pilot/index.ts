@@ -8,3 +8,4 @@
 export * from './PilotInterfaces';
 export * from './PilotConstants';
 export * from './SpecialAbilities';
+export * from './IModifierBase';
