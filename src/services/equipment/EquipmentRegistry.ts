@@ -13,6 +13,7 @@ import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { EquipmentLoaderService, getEquipmentLoader } from './EquipmentLoaderService';
+import { createSingleton, type SingletonFactory } from '../core/createSingleton';
 import {
   addCommonWeaponAliases,
   addAmmunitionAliases,
@@ -65,8 +66,6 @@ export interface IEquipmentLookupResult {
  * Central registry for all equipment lookups with name aliasing support.
  */
 export class EquipmentRegistry {
-  private static instance: EquipmentRegistry | null = null;
-  
   // Name to ID mappings (for MTF name resolution)
   private nameToIdMap: Map<string, string> = new Map();
   
@@ -76,18 +75,8 @@ export class EquipmentRegistry {
   private loader: EquipmentLoaderService;
   private isInitialized = false;
   
-  private constructor() {
+  constructor() {
     this.loader = getEquipmentLoader();
-  }
-  
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): EquipmentRegistry {
-    if (!EquipmentRegistry.instance) {
-      EquipmentRegistry.instance = new EquipmentRegistry();
-    }
-    return EquipmentRegistry.instance;
   }
   
   /**
@@ -355,10 +344,19 @@ export class EquipmentRegistry {
   }
 }
 
+const equipmentRegistryFactory: SingletonFactory<EquipmentRegistry> = createSingleton((): EquipmentRegistry => new EquipmentRegistry());
+
 /**
  * Convenience function to get the registry instance
  */
 export function getEquipmentRegistry(): EquipmentRegistry {
-  return EquipmentRegistry.getInstance();
+  return equipmentRegistryFactory.get();
+}
+
+/**
+ * Reset the singleton (for testing)
+ */
+export function resetEquipmentRegistry(): void {
+  equipmentRegistryFactory.reset();
 }
 
