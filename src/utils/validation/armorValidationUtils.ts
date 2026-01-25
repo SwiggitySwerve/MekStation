@@ -11,6 +11,7 @@ import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { IArmorByLocation, IArmorLocationEntry } from '@/types/validation/UnitValidationInterfaces';
+import { ARMOR_RATIOS } from '@/utils/armor/armorRatios';
 
 /**
  * Armor allocation interface (per-location armor points)
@@ -23,9 +24,10 @@ export interface IArmorAllocationInput {
 /**
  * Standard front/rear armor distribution ratio (75/25 split)
  * Must match ArmorFills.tsx for consistent UI/validation behavior
+ * @deprecated Use ARMOR_RATIOS from @/utils/armor/armorRatios instead
  */
-export const FRONT_ARMOR_RATIO = 0.75;
-export const REAR_ARMOR_RATIO = 0.25;
+export const FRONT_ARMOR_RATIO = ARMOR_RATIOS.FRONT;
+export const REAR_ARMOR_RATIO = ARMOR_RATIOS.REAR;
 
 /**
  * Add a non-torso location with full max armor
