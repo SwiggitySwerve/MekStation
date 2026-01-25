@@ -21,6 +21,7 @@ import {
 } from './VaultFolderRepository';
 import { PermissionService, getPermissionService } from './PermissionService';
 import { getContactRepository } from './ContactRepository';
+import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -716,18 +717,15 @@ export class VaultService {
 // Singleton
 // =============================================================================
 
-let vaultService: VaultService | null = null;
+const vaultServiceFactory = createSingleton(() => new VaultService());
 
 export function getVaultService(): VaultService {
-  if (!vaultService) {
-    vaultService = new VaultService();
-  }
-  return vaultService;
+  return vaultServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetVaultService(): void {
-  vaultService = null;
+  vaultServiceFactory.reset();
 }
