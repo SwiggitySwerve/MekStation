@@ -14,6 +14,7 @@ import type {
   ContentCategory,
 } from '@/types/vault';
 import { getPermissionRepository, PermissionRepository } from './PermissionRepository';
+import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -294,18 +295,15 @@ export class PermissionService {
 // Singleton
 // =============================================================================
 
-let permissionService: PermissionService | null = null;
+const permissionServiceFactory = createSingleton(() => new PermissionService());
 
 export function getPermissionService(): PermissionService {
-  if (!permissionService) {
-    permissionService = new PermissionService();
-  }
-  return permissionService;
+  return permissionServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetPermissionService(): void {
-  permissionService = null;
+  permissionServiceFactory.reset();
 }
