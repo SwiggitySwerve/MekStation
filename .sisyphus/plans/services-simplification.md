@@ -294,7 +294,7 @@ Task 7 (Final verification & documentation)
 
 ---
 
-- [ ] 5. Migrate Unit Domain Singletons
+- [x] 5. Migrate Unit Domain Singletons
 
   **What to do**:
   - Migrate these services to use `createSingleton`:

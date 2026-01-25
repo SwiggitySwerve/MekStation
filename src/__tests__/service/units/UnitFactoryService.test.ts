@@ -2,7 +2,7 @@
  * Tests for Unit Factory Service
  */
 
-import { UnitFactoryService, getUnitFactory } from '@/services/units/UnitFactoryService';
+import { UnitFactoryService, getUnitFactory, resetUnitFactory } from '@/services/units/UnitFactoryService';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { EngineType, GyroType, HeatSinkType, MechLocation, InternalStructureType, ArmorTypeEnum, CockpitType } from '@/types/construction';
 import { TechBase } from '@/types/enums/TechBase';
@@ -88,15 +88,14 @@ describe('UnitFactoryService', () => {
 
   beforeEach(() => {
     // Reset singleton
-    // @ts-expect-error Accessing private static for testing
-    UnitFactoryService.instance = null;
-    factory = UnitFactoryService.getInstance();
+    resetUnitFactory();
+    factory = getUnitFactory();
   });
 
   describe('Singleton', () => {
     it('should return the same instance', () => {
-      const factory1 = UnitFactoryService.getInstance();
-      const factory2 = UnitFactoryService.getInstance();
+      const factory1 = getUnitFactory();
+      const factory2 = getUnitFactory();
       expect(factory1).toBe(factory2);
     });
 

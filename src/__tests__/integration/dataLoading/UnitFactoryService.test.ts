@@ -9,7 +9,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { UnitFactoryService } from '@/services/units/UnitFactoryService';
+import { getUnitFactory, resetUnitFactory } from '@/services/units/UnitFactoryService';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -18,10 +18,8 @@ import { Era } from '@/types/enums/Era';
 const UNITS_PATH = path.join(__dirname, '../../../../public/data/units/battlemechs');
 
 describe('UnitFactoryService', () => {
-  let factory: UnitFactoryService;
-
   beforeAll(() => {
-    factory = UnitFactoryService.getInstance();
+    resetUnitFactory();
   });
 
   // ============================================================================
@@ -37,7 +35,7 @@ describe('UnitFactoryService', () => {
     });
 
     it('should successfully convert Atlas AS7-D', () => {
-      const result = factory.createFromSerialized(atlasData);
+      const result = getUnitFactory().createFromSerialized(atlasData);
       
       expect(result.success).toBe(true);
       expect(result.unit).not.toBeNull();
@@ -45,7 +43,7 @@ describe('UnitFactoryService', () => {
     });
 
     it('should preserve identity fields', () => {
-      const result = factory.createFromSerialized(atlasData);
+      const result = getUnitFactory().createFromSerialized(atlasData);
       const unit = result.unit!;
 
       expect(unit.name).toContain('Atlas');
@@ -53,21 +51,21 @@ describe('UnitFactoryService', () => {
     });
 
     it('should parse tech base correctly', () => {
-      const result = factory.createFromSerialized(atlasData);
+      const result = getUnitFactory().createFromSerialized(atlasData);
       const unit = result.unit!;
 
       expect(unit.techBase).toBe(TechBase.INNER_SPHERE);
     });
 
     it('should parse rules level correctly', () => {
-      const result = factory.createFromSerialized(atlasData);
+      const result = getUnitFactory().createFromSerialized(atlasData);
       const unit = result.unit!;
 
       expect(unit.rulesLevel).toBe(RulesLevel.STANDARD);
     });
 
     it('should parse era correctly', () => {
-      const result = factory.createFromSerialized(atlasData);
+      const result = getUnitFactory().createFromSerialized(atlasData);
       const unit = result.unit!;
 
       expect(unit.era).toBe(Era.STAR_LEAGUE);
@@ -80,7 +78,7 @@ describe('UnitFactoryService', () => {
   describe('Engine Parsing', () => {
     it('should parse standard fusion engine', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.engine.rating).toBe(300);
@@ -89,7 +87,7 @@ describe('UnitFactoryService', () => {
 
     it('should have engine rating', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Standard 300 fusion engine
@@ -98,7 +96,7 @@ describe('UnitFactoryService', () => {
 
     it('should calculate engine weight correctly', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Standard 300 fusion engine = 19.0 tons (per TechManual table)
@@ -113,7 +111,7 @@ describe('UnitFactoryService', () => {
   describe('Gyro Parsing', () => {
     it('should parse standard gyro', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Standard gyro for 300 rating = 3 tons
@@ -127,7 +125,7 @@ describe('UnitFactoryService', () => {
   describe('Armor Allocation', () => {
     it('should build armor allocation correctly', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Check armor exists
@@ -137,7 +135,7 @@ describe('UnitFactoryService', () => {
 
     it('should have armor type', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.armorType).toBeDefined();
@@ -145,7 +143,7 @@ describe('UnitFactoryService', () => {
 
     it('should have armor allocation defined', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Check armor allocation exists
@@ -154,7 +152,7 @@ describe('UnitFactoryService', () => {
 
     it('should have front/rear torso armor', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Atlas AS7-D armor allocation per the JSON:
@@ -176,7 +174,7 @@ describe('UnitFactoryService', () => {
   describe('Critical Slots', () => {
     it('should build critical slot assignments', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.criticalSlots).toBeDefined();
@@ -185,7 +183,7 @@ describe('UnitFactoryService', () => {
 
     it('should have critical slots defined', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Check that we have some critical slots
@@ -194,7 +192,7 @@ describe('UnitFactoryService', () => {
 
     it('each critical slot assignment should have location and slots array', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Check critical slot assignments have expected structure
@@ -208,7 +206,7 @@ describe('UnitFactoryService', () => {
 
     it('each slot in assignment should have index and content', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Check a sample assignment's slots
@@ -228,7 +226,7 @@ describe('UnitFactoryService', () => {
   describe('Movement', () => {
     it('should parse walking MP', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.movement.walkMP).toBe(3);
@@ -236,7 +234,7 @@ describe('UnitFactoryService', () => {
 
     it('should calculate running MP', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       // Running = Walking * 1.5, rounded up
@@ -245,7 +243,7 @@ describe('UnitFactoryService', () => {
 
     it('should parse jump MP', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.movement.jumpMP).toBe(0);
@@ -258,7 +256,7 @@ describe('UnitFactoryService', () => {
   describe('Equipment', () => {
     it('should populate equipment list', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
       const unit = result.unit!;
 
       expect(unit.equipment).toBeDefined();
@@ -267,7 +265,7 @@ describe('UnitFactoryService', () => {
 
     it('should include warnings for unresolved equipment', () => {
       const data = loadUnit('2-star-league/standard/Atlas AS7-D.json');
-      const result = factory.createFromSerialized(data);
+      const result = getUnitFactory().createFromSerialized(data);
 
       // May have warnings if equipment IDs don't match registry
       // This is expected during initial implementation
@@ -287,7 +285,7 @@ describe('UnitFactoryService', () => {
         // Missing most required fields
       };
 
-      const result = factory.createFromSerialized(invalidData as ISerializedUnit);
+      const result = getUnitFactory().createFromSerialized(invalidData as ISerializedUnit);
       
       expect(result.success).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -300,7 +298,7 @@ describe('UnitFactoryService', () => {
         engine: { type: 'INVALID_ENGINE', rating: 300 },
       };
 
-      const result = factory.createFromSerialized(invalidData);
+      const result = getUnitFactory().createFromSerialized(invalidData);
       
       // Should still succeed but use default engine type
       expect(result.unit).not.toBeNull();
@@ -323,7 +321,7 @@ describe('UnitFactoryService', () => {
         if (fs.existsSync(fullPath)) {
           const content = fs.readFileSync(fullPath, 'utf-8');
           const data = JSON.parse(content) as ISerializedUnit;
-          const result = factory.createFromSerialized(data);
+          const result = getUnitFactory().createFromSerialized(data);
 
           expect(result.success).toBe(true);
           expect(result.unit).not.toBeNull();
@@ -339,7 +337,7 @@ describe('UnitFactoryService', () => {
         if (files.length > 0) {
           const content = fs.readFileSync(path.join(clanPath, files[0]), 'utf-8');
           const data = JSON.parse(content) as ISerializedUnit;
-          const result = factory.createFromSerialized(data);
+          const result = getUnitFactory().createFromSerialized(data);
 
           expect(result.success).toBe(true);
         }

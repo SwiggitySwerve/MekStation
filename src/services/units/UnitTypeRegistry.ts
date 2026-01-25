@@ -16,6 +16,7 @@ import {
   getUnitCategory,
 } from '../../types/unit/UnitTypeHandler';
 import { IBlkDocument } from '../../types/formats/BlkFormat';
+import { createSingleton, type SingletonFactory } from '../core/createSingleton';
 
 /**
  * Unit Type Registry Singleton
@@ -24,18 +25,9 @@ import { IBlkDocument } from '../../types/formats/BlkFormat';
  * Use getUnitTypeRegistry() to access the singleton instance.
  */
 class UnitTypeRegistry implements IUnitTypeRegistry {
-  private static instance: UnitTypeRegistry | null = null;
-
   private readonly handlers: Map<UnitType, IUnitTypeHandler> = new Map();
 
-  private constructor() {}
-
-  static getInstance(): UnitTypeRegistry {
-    if (!UnitTypeRegistry.instance) {
-      UnitTypeRegistry.instance = new UnitTypeRegistry();
-    }
-    return UnitTypeRegistry.instance;
-  }
+  constructor() {}
 
   /**
    * Register a handler for a unit type
@@ -148,11 +140,20 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
   }
 }
 
+const unitTypeRegistryFactory: SingletonFactory<UnitTypeRegistry> = createSingleton((): UnitTypeRegistry => new UnitTypeRegistry());
+
 /**
  * Get the singleton unit type registry instance
  */
 export function getUnitTypeRegistry(): IUnitTypeRegistry {
-  return UnitTypeRegistry.getInstance();
+  return unitTypeRegistryFactory.get();
+}
+
+/**
+ * Reset the singleton (for testing)
+ */
+export function resetUnitTypeRegistry(): void {
+  unitTypeRegistryFactory.reset();
 }
 
 /**
