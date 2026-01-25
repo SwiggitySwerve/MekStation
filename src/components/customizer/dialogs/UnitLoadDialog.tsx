@@ -154,7 +154,7 @@ export function UnitLoadDialog({
     <ModalOverlay
       isOpen={isOpen}
       onClose={onCancel}
-      className="w-full max-w-3xl mx-4 max-h-[80vh] flex flex-col"
+      className="w-full max-w-6xl mx-4 max-h-[80vh] flex flex-col"
     >
       {/* Header */}
       <div className={cs.dialog.header}>
@@ -247,6 +247,7 @@ export function UnitLoadDialog({
                 <th className="px-3 py-2 font-medium text-right">Weight</th>
                 <th className="px-3 py-2 font-medium text-right">Year</th>
                 <th className="px-3 py-2 font-medium">Tech</th>
+                <th className="px-3 py-2 font-medium">Role</th>
                 <th className="px-3 py-2 font-medium">Source</th>
                 <th className="w-8"></th>
               </tr>
@@ -280,6 +281,9 @@ export function UnitLoadDialog({
                     {unit.techBase === TechBase.INNER_SPHERE ? 'IS' 
                       : unit.techBase === TechBase.CLAN ? 'Clan' 
                       : 'Mix'}
+                  </td>
+                  <td className="px-3 py-1.5 text-text-theme-secondary">
+                    {unit.role ?? '-'}
                   </td>
                   <td className="px-3 py-1.5">
                     {unit.source === 'custom' ? (

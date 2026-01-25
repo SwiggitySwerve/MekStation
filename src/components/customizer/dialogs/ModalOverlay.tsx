@@ -98,7 +98,7 @@ export function ModalOverlay({
     >
       <div
         ref={modalRef}
-        className={`bg-surface-base rounded-lg border border-border-theme shadow-xl w-full max-w-lg max-h-[90vh] overflow-auto ${className}`}
+        className={`bg-surface-base rounded-lg border border-border-theme shadow-xl w-full max-h-[90vh] overflow-auto ${className}`}
         role="dialog"
         aria-modal="true"
       >
