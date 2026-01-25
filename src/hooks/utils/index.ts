@@ -7,3 +7,8 @@
  */
 
 export { useEventListener, type UseEventListenerOptions } from './useEventListener';
+export {
+  usePagination,
+  type UsePaginationOptions,
+  type UsePaginationResult,
+} from './usePagination';
