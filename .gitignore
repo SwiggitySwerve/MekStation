@@ -137,3 +137,6 @@ public/record-sheets/templates_us/
 public/record-sheets/templates_iso/
 public/record-sheets/templates/
 public/record-sheets/mm-data-version.json
+
+# Generated config copy for browser access (source is config/mm-data-assets.json)
+public/config/

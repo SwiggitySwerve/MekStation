@@ -32,6 +32,57 @@ import {
   PaperSize,
 } from '../MmDataAssetService';
 
+// Import AssetLoadError for type checking
+import { AssetLoadError } from '../MmDataAssetService';
+
+/**
+ * Helper to create a mock fetch implementation that:
+ * - Returns 404 for config file paths
+ * - Returns success for specific asset paths
+ */
+function _createMockFetch(responses: Record<string, { ok: boolean; content?: string; status?: number }>) {
+  return jest.fn().mockImplementation((url: string) => {
+    // Check for exact matches first
+    if (responses[url]) {
+      const response = responses[url];
+      if (response.ok) {
+        return Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve(response.content),
+          json: () => Promise.resolve(JSON.parse(response.content || '{}')),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: response.status || 404,
+      });
+    }
+    
+    // Check for partial matches (for CDN/GitHub URLs)
+    for (const [pattern, response] of Object.entries(responses)) {
+      if (url.includes(pattern) || pattern.includes(url.split('/').pop() || '')) {
+        if (response.ok) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(response.content),
+            json: () => Promise.resolve(JSON.parse(response.content || '{}')),
+          });
+        }
+        return Promise.resolve({
+          ok: false,
+          status: response.status || 404,
+        });
+      }
+    }
+    
+    // Default: return 404
+    return Promise.resolve({
+      ok: false,
+      status: 404,
+    });
+  });
+}
+
 describe('MmDataAssetService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,6 +91,10 @@ describe('MmDataAssetService', () => {
     
     // Reset mock paths
     mockPaths.length = 0;
+    
+    // Reset mockFetch to default behavior (404 for everything)
+    mockFetch.mockReset();
+    mockFetch.mockImplementation(() => Promise.resolve({ ok: false, status: 404 }));
   });
 
   describe('getInstance', () => {
@@ -217,70 +272,119 @@ describe('MmDataAssetService', () => {
   });
 
   describe('loadSVG', () => {
-    it('should fetch SVG content from path', async () => {
+    it('should fetch SVG content from local path (first in fallback chain)', async () => {
       const mockSVGContent = '<svg><path d="M0 0"/></svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      // Mock: config fails, but local path succeeds
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/test/path.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       const result = await mmDataAssetService.loadSVG('/test/path.svg');
 
+      // First call is for local path
       expect(mockFetch).toHaveBeenCalledWith('/test/path.svg');
       expect(result).toBe(mockSVGContent);
     });
 
-    it('should throw error when fetch fails', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
+    it('should fall back to CDN when local fails', async () => {
+      const mockSVGContent = '<svg>from cdn</svg>';
+      // Mock: config and local fail, CDN succeeds
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('cdn.jsdelivr.net')) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
+
+      const result = await mmDataAssetService.loadSVG('/record-sheets/test.svg');
+      expect(result).toBe(mockSVGContent);
+    });
+
+    it('should fall back to GitHub raw when local and CDN fail', async () => {
+      const mockSVGContent = '<svg>from github</svg>';
+      // Mock: config, local, and CDN fail, GitHub succeeds
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('raw.githubusercontent.com')) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
+
+      const result = await mmDataAssetService.loadSVG('/record-sheets/test.svg');
+      expect(result).toBe(mockSVGContent);
+    });
+
+    it('should throw AssetLoadError when all sources fail', async () => {
+      // All fetches fail
+      mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       await expect(
         mmDataAssetService.loadSVG('/nonexistent.svg')
-      ).rejects.toThrow('Failed to load SVG: /nonexistent.svg (404)');
+      ).rejects.toThrow(AssetLoadError);
     });
 
-    it('should throw error with different status codes', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-      });
+    it('should throw AssetLoadError with user-friendly message suggesting npm run fetch:assets', async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 404 });
 
       await expect(
-        mmDataAssetService.loadSVG('/server-error.svg')
-      ).rejects.toThrow('Failed to load SVG: /server-error.svg (500)');
+        mmDataAssetService.loadSVG('/nonexistent.svg')
+      ).rejects.toThrow('npm run fetch:assets');
     });
 
     it('should cache loaded SVG content', async () => {
       const mockSVGContent = '<svg>cached content</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/cached.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       // First call
       await mmDataAssetService.loadSVG('/cached.svg');
-      // Second call should use cache
+      const fetchCallCount = mockFetch.mock.calls.length;
+      
+      // Second call should use cache (no additional fetch calls)
       const result = await mmDataAssetService.loadSVG('/cached.svg');
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch.mock.calls.length).toBe(fetchCallCount); // No new calls
       expect(result).toBe(mockSVGContent);
     });
 
     it('should return cached content within TTL', async () => {
       const mockSVGContent = '<svg>ttl test</svg>';
-      mockFetch.mockResolvedValue({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/ttl-test.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       await mmDataAssetService.loadSVG('/ttl-test.svg');
+      const fetchCallCount = mockFetch.mock.calls.length;
       
       // Immediately fetch again - should use cache
       const result = await mmDataAssetService.loadSVG('/ttl-test.svg');
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch.mock.calls.length).toBe(fetchCallCount); // No new calls
       expect(result).toBe(mockSVGContent);
     });
   });
@@ -288,47 +392,59 @@ describe('MmDataAssetService', () => {
   describe('loadArmorPipSVG', () => {
     it('should load armor pip SVG for a location', async () => {
       const mockSVGContent = '<svg>armor pips</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      const expectedPath = '/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg';
+      mockFetch.mockImplementation((url: string) => {
+        if (url === expectedPath) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       const result = await mmDataAssetService.loadArmorPipSVG(MechLocation.HEAD, 9);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg'
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expectedPath);
       expect(result).toBe(mockSVGContent);
     });
 
     it('should load rear armor pip SVG when isRear is true', async () => {
       const mockSVGContent = '<svg>rear armor</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      const expectedPath = '/record-sheets/biped_pips/Armor_CT_R_12_Humanoid.svg';
+      mockFetch.mockImplementation((url: string) => {
+        if (url === expectedPath) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       await mmDataAssetService.loadArmorPipSVG(MechLocation.CENTER_TORSO, 12, true);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/record-sheets/biped_pips/Armor_CT_R_12_Humanoid.svg'
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expectedPath);
     });
   });
 
   describe('loadStructurePipSVG', () => {
     it('should load structure pip SVG for a tonnage and location', async () => {
       const mockSVGContent = '<svg>structure pips</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      const expectedPath = '/record-sheets/biped_pips/BipedIS75_CT.svg';
+      mockFetch.mockImplementation((url: string) => {
+        if (url === expectedPath) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       const result = await mmDataAssetService.loadStructurePipSVG(75, MechLocation.CENTER_TORSO);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/record-sheets/biped_pips/BipedIS75_CT.svg'
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expectedPath);
       expect(result).toBe(mockSVGContent);
     });
   });
@@ -336,45 +452,58 @@ describe('MmDataAssetService', () => {
   describe('loadRecordSheetTemplate', () => {
     it('should load record sheet template with default paper size', async () => {
       const mockSVGContent = '<svg>biped template</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      const expectedPath = '/record-sheets/templates_us/mek_biped_default.svg';
+      mockFetch.mockImplementation((url: string) => {
+        if (url === expectedPath) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       const result = await mmDataAssetService.loadRecordSheetTemplate(MechConfiguration.BIPED);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/record-sheets/templates_us/mek_biped_default.svg'
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expectedPath);
       expect(result).toBe(mockSVGContent);
     });
 
     it('should load record sheet template with A4 paper size', async () => {
       const mockSVGContent = '<svg>A4 template</svg>';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      const expectedPath = '/record-sheets/templates_iso/mek_quad_default.svg';
+      mockFetch.mockImplementation((url: string) => {
+        if (url === expectedPath) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       await mmDataAssetService.loadRecordSheetTemplate(MechConfiguration.QUAD, PaperSize.A4);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/record-sheets/templates_iso/mek_quad_default.svg'
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expectedPath);
     });
   });
 
   describe('preloadConfiguration', () => {
     it('should preload template and structure pips for biped configuration', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        text: jest.fn().mockResolvedValue('<svg></svg>'),
+      // All local assets succeed
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('/record-sheets/')) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg></svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       await mmDataAssetService.preloadConfiguration(MechConfiguration.BIPED, 50);
 
       // Should have called for template + 8 biped locations
-      // Template + structure pips for each location
       expect(mockFetch).toHaveBeenCalled();
       
       // Check template was loaded
@@ -384,9 +513,14 @@ describe('MmDataAssetService', () => {
     });
 
     it('should preload with A4 paper size', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        text: jest.fn().mockResolvedValue('<svg></svg>'),
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('/record-sheets/')) {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg></svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       await mmDataAssetService.preloadConfiguration(
@@ -401,15 +535,18 @@ describe('MmDataAssetService', () => {
     });
 
     it('should handle failed structure pip loads gracefully', async () => {
-      // Template succeeds, structure pips fail
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          text: jest.fn().mockResolvedValue('<svg>template</svg>'),
-        })
-        .mockRejectedValue(new Error('Failed to load'));
+      // Template succeeds (local path), structure pips fail (all sources)
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/record-sheets/templates_us/mek_biped_default.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg>template</svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
 
-      // Should not throw
+      // Should not throw because structure pip failures are caught
       await expect(
         mmDataAssetService.preloadConfiguration(MechConfiguration.BIPED, 50)
       ).resolves.toBeUndefined();
@@ -493,21 +630,196 @@ describe('MmDataAssetService', () => {
   describe('clearCache', () => {
     it('should clear cached SVG content', async () => {
       const mockSVGContent = '<svg>cached</svg>';
-      mockFetch.mockResolvedValue({
-        ok: true,
-        text: jest.fn().mockResolvedValue(mockSVGContent),
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/to-clear.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(mockSVGContent),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
       });
 
       // Load and cache
       await mmDataAssetService.loadSVG('/to-clear.svg');
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const firstCallCount = mockFetch.mock.calls.length;
 
       // Clear cache
       mmDataAssetService.clearCache();
 
-      // Load again - should fetch
+      // Load again - should fetch (including config reload)
       await mmDataAssetService.loadSVG('/to-clear.svg');
-      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch.mock.calls.length).toBeGreaterThan(firstCallCount);
+    });
+
+    it('should also clear config cache', async () => {
+      // First load to populate config cache
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/config/mm-data-assets.json') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ version: 'v1.0.0', repository: 'test/repo' }),
+            text: () => Promise.resolve('{}'),
+          });
+        }
+        if (url === '/test.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg></svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
+
+      await mmDataAssetService.loadSVG('/test.svg');
+      
+      // Clear cache
+      mmDataAssetService.clearCache();
+      
+      // Version should reset to default until config is reloaded
+      expect(mmDataAssetService.getVersion()).toBe('v0.3.1');
+    });
+  });
+
+  describe('version configuration', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      // Reset env for each test
+      process.env = { ...originalEnv };
+      delete process.env.MM_DATA_VERSION;
+      mmDataAssetService.clearCache();
+    });
+
+    afterAll(() => {
+      process.env = originalEnv;
+    });
+
+    it('should return default version when no config or env var', () => {
+      expect(mmDataAssetService.getVersion()).toBe('v0.3.1');
+    });
+
+    it('should use MM_DATA_VERSION env var when set', () => {
+      process.env.MM_DATA_VERSION = 'v1.0.0';
+      expect(mmDataAssetService.getVersion()).toBe('v1.0.0');
+    });
+
+    it('should load version from config file', async () => {
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/config/mm-data-assets.json') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              version: 'v2.0.0',
+              repository: 'MegaMek/mm-data',
+              basePath: 'data/images/recordsheets',
+              cdnBase: 'https://cdn.jsdelivr.net/gh',
+              rawBase: 'https://raw.githubusercontent.com',
+              directories: [],
+              patterns: {},
+            }),
+          });
+        }
+        if (url === '/test.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg></svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
+
+      // Loading an SVG triggers config load
+      await mmDataAssetService.loadSVG('/test.svg');
+      
+      // After config is loaded, version should come from config
+      expect(mmDataAssetService.getVersion()).toBe('v2.0.0');
+    });
+
+    it('should prefer env var over config file', async () => {
+      process.env.MM_DATA_VERSION = 'env-version';
+      
+      mockFetch.mockImplementation((url: string) => {
+        if (url === '/config/mm-data-assets.json') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              version: 'config-version',
+              repository: 'MegaMek/mm-data',
+            }),
+          });
+        }
+        if (url === '/test.svg') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve('<svg></svg>'),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
+
+      await mmDataAssetService.loadSVG('/test.svg');
+      
+      // Env var should take precedence
+      expect(mmDataAssetService.getVersion()).toBe('env-version');
+    });
+  });
+
+  describe('AssetLoadError', () => {
+    it('should include asset path in error message', async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 404 });
+
+      try {
+        await mmDataAssetService.loadSVG('/missing-asset.svg');
+        fail('Expected AssetLoadError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AssetLoadError);
+        const assetError = error as InstanceType<typeof AssetLoadError>;
+        expect(assetError.assetPath).toBe('/missing-asset.svg');
+        expect(assetError.message).toContain('/missing-asset.svg');
+      }
+    });
+
+    it('should include all attempted sources in error', async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 404 });
+
+      try {
+        await mmDataAssetService.loadSVG('/test.svg');
+        fail('Expected AssetLoadError to be thrown');
+      } catch (error) {
+        const assetError = error as InstanceType<typeof AssetLoadError>;
+        expect(assetError.attemptedSources).toHaveLength(3);
+        expect(assetError.attemptedSources.some(s => s.includes('local'))).toBe(true);
+        expect(assetError.attemptedSources.some(s => s.includes('cdn'))).toBe(true);
+        expect(assetError.attemptedSources.some(s => s.includes('github-raw'))).toBe(true);
+      }
+    });
+
+    it('should include recovery instructions in message', async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 404 });
+
+      try {
+        await mmDataAssetService.loadSVG('/test.svg');
+        fail('Expected AssetLoadError to be thrown');
+      } catch (error) {
+        const assetError = error as InstanceType<typeof AssetLoadError>;
+        expect(assetError.message).toContain('npm run fetch:assets');
+        expect(assetError.message).toContain('MegaMek mm-data repository');
+      }
+    });
+
+    it('should include error details for each source', async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 500 });
+
+      try {
+        await mmDataAssetService.loadSVG('/test.svg');
+        fail('Expected AssetLoadError to be thrown');
+      } catch (error) {
+        const assetError = error as InstanceType<typeof AssetLoadError>;
+        expect(assetError.sourceErrors).toHaveProperty('local');
+        expect(assetError.sourceErrors).toHaveProperty('cdn');
+        expect(assetError.sourceErrors).toHaveProperty('github-raw');
+      }
     });
   });
 

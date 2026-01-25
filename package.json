@@ -37,8 +37,7 @@
     "migrate:equipment": "node scripts/data-migration/split-equipment-files.js",
     "extract:equipment": "npx ts-node -P scripts/tsconfig.json -r tsconfig-paths/register scripts/data-migration/extract-equipment-to-json.ts",
     "convert:mtf": "python scripts/megameklab-conversion/mtf_converter.py",
-    "convert:mtf:cli": "npx ts-node -P scripts/tsconfig.json scripts/data-migration/convert-mtf-files.ts",
-    "sync:mm-data": "bash scripts/sync-mm-data-assets.sh",
+"convert:mtf:cli": "npx ts-node -P scripts/tsconfig.json scripts/data-migration/convert-mtf-files.ts",
     "fetch:assets": "npx tsx scripts/mm-data/fetch-assets.ts",
     "fetch:assets:local": "npx tsx scripts/mm-data/fetch-assets.ts --prefer-local",
     "fetch:assets:force": "npx tsx scripts/mm-data/fetch-assets.ts --force",
@@ -80,7 +79,10 @@
     "electron:icons": "cd desktop && node scripts/generate-icons.js",
     "package:docker": "npm run docker:build",
     "package:desktop": "npm run electron:dist:all",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "node scripts/mm-data/check-assets.js || true",
+    "validate:assets": "npx tsx scripts/mm-data/validate-assets.ts",
+    "validate:assets:strict": "npx tsx scripts/mm-data/validate-assets.ts --strict"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",

@@ -10,6 +10,10 @@ inputs:
     description: Skip Next.js build cache (use when downloading pre-built artifacts)
     required: false
     default: 'false'
+  fetch-assets:
+    description: Fetch mm-data assets after install
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -48,6 +52,16 @@ runs:
         restore-keys: |
           ${{ runner.os }}-electron-
 
+    - name: Cache mm-data assets
+      if: inputs.fetch-assets == 'true'
+      uses: actions/cache@v4
+      id: mm-data-cache
+      with:
+        path: public/record-sheets
+        key: mm-data-assets-${{ hashFiles('config/mm-data-assets.json') }}
+        restore-keys: |
+          mm-data-assets-
+
     - name: Install root dependencies
       shell: bash
       run: npm ci
@@ -56,3 +70,8 @@ runs:
       shell: bash
       working-directory: desktop
       run: npm ci
+
+    - name: Fetch mm-data assets
+      if: inputs.fetch-assets == 'true' && steps.mm-data-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm run fetch:assets

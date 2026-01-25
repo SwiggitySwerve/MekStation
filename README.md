@@ -62,8 +62,11 @@ Run MekStation anywhere.
 
 ```bash
 npm install
-npm run dev        # Start at http://localhost:3000
+npm run fetch:assets   # Download record sheet assets
+npm run dev            # Start at http://localhost:3000
 ```
+
+> **Note**: The `fetch:assets` command downloads record sheet templates and armor pips from the MegaMek mm-data repository via jsDelivr CDN. These assets are required for PDF export and record sheet rendering. See [Asset Management](#asset-management) below for details.
 
 ### Desktop Build
 
@@ -80,6 +83,30 @@ npm test           # Run test suite (11,000+ tests)
 npm run lint       # Lint codebase
 npm run storybook  # Component library at http://localhost:6006
 ```
+
+---
+
+## Asset Management
+
+MekStation uses record sheet SVG templates and armor pip graphics from MegaMek's [mm-data](https://github.com/MegaMek/mm-data) repository. These assets are externalized and fetched at build time rather than stored in the repository.
+
+### Fetching Assets
+
+```bash
+npm run fetch:assets         # Download from jsDelivr CDN (recommended)
+npm run fetch:assets:force   # Re-download all assets
+npm run fetch:assets:local   # Copy from local ../mm-data repo
+```
+
+Assets are downloaded to `public/record-sheets/` (git-ignored) and pinned to a specific version in `config/mm-data-assets.json`.
+
+### Asset Workflow
+
+1. **First setup**: Run `npm run fetch:assets` after `npm install`
+2. **Version updates**: Edit version in `config/mm-data-assets.json`, then re-run fetch
+3. **Active development**: Clone mm-data as sibling (`../mm-data`) and use `fetch:assets:local`
+
+See [Getting Started](docs/development/getting-started.md) for detailed setup instructions.
 
 ---
 
