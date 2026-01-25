@@ -130,11 +130,17 @@ export default function CustomizerWithRouter(): React.ReactElement {
       }
       
       isSyncingRef.current = true;
-      routerSyncUrl(activeTabId, routerTabId);
+      // When switching units, restore the last active sub-tab for that unit
+      // instead of carrying over the current URL's tab (which was for the old unit)
+      const storedTab = getLastSubTab(activeTabId);
+      const tabToSync: CustomizerTabId = storedTab && isValidTabId(storedTab) 
+        ? storedTab 
+        : 'structure';
+      routerSyncUrl(activeTabId, tabToSync);
       lastSyncedRef.current = { unitId: activeTabId, activeTabId };
       setTimeout(() => { isSyncingRef.current = false; }, 0);
     }
-  }, [isHydrated, isLoading, activeTabId, routerUnitId, routerTabId, routerSyncUrl]);
+  }, [isHydrated, isLoading, activeTabId, routerUnitId, routerSyncUrl, getLastSubTab]);
   
   const activeTab: TabInfo | null = useMemo(() => {
     if (!activeTabId || tabs.length === 0) {

@@ -32,7 +32,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { Era } from '@/types/temporal/Era';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
-import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+import { DEFAULT_TAB, isValidTabId, type CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { useToast } from '@/components/shared/Toast';
 import type { IExportableUnit, IImportHandlers, IImportSource } from '@/types/vault';
 import type { UnitState } from '@/stores/unitState';
@@ -116,13 +116,18 @@ export function MultiUnitTabs({
   const addTab = useTabManagerStore((s) => s.addTab);
   const openNewTabModal = useTabManagerStore((s) => s.openNewTabModal);
   const closeNewTabModal = useTabManagerStore((s) => s.closeNewTabModal);
+  const getLastSubTab = useTabManagerStore((s) => s.getLastSubTab);
   
   // Select tab with URL navigation
   const selectTab = useCallback((tabId: string) => {
     storeSelectTab(tabId);
-    // Navigate to the unit URL
-    router.push(`/customizer/${tabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
-  }, [storeSelectTab, router]);
+    // Navigate to the unit URL, restoring the last active sub-tab for this unit
+    const lastSubTab = getLastSubTab(tabId);
+    const tabToNavigate: CustomizerTabId = lastSubTab && isValidTabId(lastSubTab) 
+      ? lastSubTab 
+      : DEFAULT_TAB;
+    router.push(`/customizer/${tabId}/${tabToNavigate}`, undefined, { shallow: true });
+  }, [storeSelectTab, router, getLastSubTab]);
   
   // Actually close the tab and navigate
   const performCloseTab = useCallback((tabId: string) => {
