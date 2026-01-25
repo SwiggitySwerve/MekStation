@@ -5,3 +5,9 @@
  */
 
 export { clientSafeStorage } from './clientSafeStorage';
+export {
+  createStoreRegistry,
+  type BaseStoreState,
+  type StoreRegistryConfig,
+  type StoreRegistry,
+} from './createStoreRegistry';
