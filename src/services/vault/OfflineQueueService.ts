@@ -19,6 +19,7 @@ import {
   getOfflineQueueRepository,
 } from './OfflineQueueRepository';
 import { getP2PTransport } from './P2PTransport';
+import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -361,21 +362,18 @@ export class OfflineQueueService {
 // Singleton
 // =============================================================================
 
-let offlineQueueService: OfflineQueueService | null = null;
+const offlineQueueServiceFactory = createSingleton(
+  () => new OfflineQueueService(),
+  (instance) => instance.stopBackgroundProcessing()
+);
 
 export function getOfflineQueueService(): OfflineQueueService {
-  if (!offlineQueueService) {
-    offlineQueueService = new OfflineQueueService();
-  }
-  return offlineQueueService;
+  return offlineQueueServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetOfflineQueueService(): void {
-  if (offlineQueueService) {
-    offlineQueueService.stopBackgroundProcessing();
-  }
-  offlineQueueService = null;
+  offlineQueueServiceFactory.reset();
 }
