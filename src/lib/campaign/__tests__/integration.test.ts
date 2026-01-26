@@ -97,20 +97,21 @@ function createTestForce(
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   return {
-    id: 'campaign-001',
-    name: 'Test Mercenary Company',
-    currentDate: new Date('3025-06-15T00:00:00Z'),
-    factionId: 'mercenary',
-    personnel: new Map<string, IPerson>(),
-    forces: new Map<string, IForce>(),
-    rootForceId: 'force-root',
-    missions: new Map<string, IMission>(),
-    finances: { transactions: [], balance: new Money(1000000) },
-    options: createDefaultCampaignOptions(),
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    ...overrides,
-  };
+     id: 'campaign-001',
+     name: 'Test Mercenary Company',
+     currentDate: new Date('3025-06-15T00:00:00Z'),
+     factionId: 'mercenary',
+     personnel: new Map<string, IPerson>(),
+     forces: new Map<string, IForce>(),
+     rootForceId: 'force-root',
+     missions: new Map<string, IMission>(),
+     finances: { transactions: [], balance: new Money(1000000) },
+     factionStandings: {},
+     options: createDefaultCampaignOptions(),
+     createdAt: '2026-01-01T00:00:00Z',
+     updatedAt: '2026-01-01T00:00:00Z',
+     ...overrides,
+   };
 }
 
 /**

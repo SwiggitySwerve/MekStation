@@ -71,23 +71,24 @@ function createTestCampaign(overrides?: {
   const forces = overrides?.forces ?? new Map<string, IForce>();
   const rootForceId = overrides?.rootForceId ?? 'force-root';
 
-  return {
-    id: 'campaign-001',
-    name: 'Test Campaign',
-    currentDate: new Date('3025-06-15T00:00:00Z'),
-    factionId: 'mercenary',
-    personnel: new Map(),
-    forces,
-    rootForceId,
-    missions: overrides?.missions ?? new Map<string, IMission>(),
-    finances: {
-      transactions: [],
-      balance: new Money(1000000),
-    } as IFinances,
-    options: createDefaultCampaignOptions(),
-    createdAt: '2026-01-26T10:00:00Z',
-    updatedAt: '2026-01-26T10:00:00Z',
-  };
+   return {
+     id: 'campaign-001',
+     name: 'Test Campaign',
+     currentDate: new Date('3025-06-15T00:00:00Z'),
+     factionId: 'mercenary',
+     personnel: new Map(),
+     forces,
+     rootForceId,
+     missions: overrides?.missions ?? new Map<string, IMission>(),
+     finances: {
+       transactions: [],
+       balance: new Money(1000000),
+     } as IFinances,
+     factionStandings: {},
+     options: createDefaultCampaignOptions(),
+     createdAt: '2026-01-26T10:00:00Z',
+     updatedAt: '2026-01-26T10:00:00Z',
+   };
 }
 
 /**
