@@ -615,3 +615,52 @@ Convention discoveries, patterns, and best practices found during implementation
 - Re-export pattern in Campaign.ts maintains backwards compatibility during migration
 
 
+## Mission Store Expansion (Task 4.2)
+
+### Store Expansion Pattern
+- Expanded stub store from 130 lines → 210 lines with full query + scenario support
+- Added `scenarios: Map<string, IScenario>` as second Map alongside missions
+- Both Maps persist independently via partialize/merge
+- Import source changed from Campaign.ts (stub) to Mission.ts (full interface)
+
+### Contract Query Pattern
+- `isContract()` type guard from Mission.ts used for runtime type narrowing
+- `getActiveContracts()` filters by both `isContract(m) && m.status === ACTIVE`
+- `getContractsByEmployer()` filters by `isContract(m) && m.employerId === id`
+- Contracts stored in same missions Map (discriminated by `type: 'contract'`)
+- No separate Map needed for contracts - type guard handles filtering
+
+### Scenario Management Pattern
+- Scenarios stored in separate Map (not embedded in missions)
+- `getScenariosByMission(missionId)` filters by `s.missionId === missionId`
+- `clearScenarios()` independent of `clear()` (missions) - each clears its own Map
+- Scenario CRUD mirrors mission CRUD exactly (same immutable update pattern)
+
+### Persistence with Multiple Maps
+- `partialize` serializes both Maps: `{ missions: Array.from(...), scenarios: Array.from(...) }`
+- `merge` deserializes both: `{ missions: new Map(...), scenarios: new Map(...) }`
+- Both Maps share same storage key: `missions-${campaignId}`
+- No separate persistence key needed for scenarios
+
+### Test Helper Gotcha: Readonly Arrays
+- `Partial<IContract>` includes `readonly string[]` for scenarioIds
+- `createContract()` factory expects mutable `string[]` parameters
+- Solution: Use explicit parameter types in test helpers instead of `Partial<T>`
+- Same issue with `Partial<IScenario>` and `deployedForceIds`/`objectives`
+
+### Test Coverage (62 tests)
+- Store creation: 4 tests (includes scenarios Map check)
+- Mission CRUD: 14 tests (unchanged from stub)
+- Mission queries: 11 tests (getActiveMissions, getCompletedMissions, getMissionsByStatus, getActiveContracts, getContractsByEmployer)
+- Scenario CRUD: 15 tests (add, remove, update, get, getByMission, clear)
+- Persistence: 9 tests (includes scenario persistence, both Maps together)
+- Edge cases: 6 tests (contracts alongside missions, clear independence, scenario transitions)
+- Expanded from 27 → 62 tests (130% increase)
+
+### Verification Results
+- ✅ 62 tests pass
+- ✅ Zero TypeScript errors on typecheck
+- ✅ All existing patterns preserved (backwards compatible)
+- ✅ Both Maps serialize/deserialize correctly
+
+

@@ -422,7 +422,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 4.2 Create Mission Store
+- [x] 4.2 Create Mission Store
 
   **What to do**:
   - Create `src/stores/campaign/useMissionStore.ts`
