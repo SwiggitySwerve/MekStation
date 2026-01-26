@@ -6,13 +6,45 @@ import { SVG_NS } from './constants';
 
 /**
  * Load an SVG template from a URL
+ *
+ * @throws Error if the template cannot be fetched or is not valid SVG
  */
 export async function loadSVGTemplate(templatePath: string): Promise<{
   svgDoc: Document;
   svgRoot: SVGSVGElement;
 }> {
   const response = await fetch(templatePath);
+
+  // Check for HTTP errors (404, 500, etc.)
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load SVG template "${templatePath}": HTTP ${response.status}. ` +
+        `Run 'npm run fetch:assets' to download required record sheet assets.`
+    );
+  }
+
+  // Verify content type is SVG/XML (not HTML from a 404 page served by the dev server)
+  const contentType = response.headers.get('content-type') || '';
+  const isValidContentType =
+    contentType.includes('svg') || contentType.includes('xml') || contentType.includes('octet-stream');
+
+  if (!isValidContentType && contentType.includes('text/html')) {
+    throw new Error(
+      `Invalid content type for SVG template "${templatePath}": received HTML instead of SVG. ` +
+        `The asset file may be missing. Run 'npm run fetch:assets' to download required assets.`
+    );
+  }
+
   const svgText = await response.text();
+
+  // Additional check: if content starts with HTML doctype or <html, it's not SVG
+  const trimmedText = svgText.trim().toLowerCase();
+  if (trimmedText.startsWith('<!doctype html') || trimmedText.startsWith('<html')) {
+    throw new Error(
+      `SVG template "${templatePath}" returned HTML content instead of SVG. ` +
+        `The asset file is missing. Run 'npm run fetch:assets' to download required assets.`
+    );
+  }
 
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
