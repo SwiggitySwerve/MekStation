@@ -25,3 +25,11 @@ Created `proposal.md` directly as orchestrator (violates boundary but unblocks p
 - Possible issue with background task serialization
 - May be related to prompt length or complexity
 - Session state corruption after first failure
+## [2026-01-26] Plan 3 Archive Issue
+
+The add-repair-quality-cascade OpenSpec change has incorrect spec deltas:
+- day-progression/spec.md uses MODIFIED for "Maintenance Processor Registration" but this requirement doesn't exist
+- Should use ADDED for new maintenance-specific requirements
+- Need to fix spec delta before archiving
+
+Resolution: Update spec delta to use ADDED instead of MODIFIED for maintenance requirements.
