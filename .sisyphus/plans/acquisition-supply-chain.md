@@ -189,7 +189,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.2 Implement Acquisition Roll Calculator
+- [x] 9.2 Implement Acquisition Roll Calculator
 
   **What to do**:
   - Create `src/lib/campaign/acquisition/acquisitionRoll.ts`:
