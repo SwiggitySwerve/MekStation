@@ -52,6 +52,7 @@ describe('taxService', () => {
         useTaxes: true,
         taxRate: 10,
         overheadPercent: 5,
+        useRoleBasedSalaries: false,
         useAutoResolve: false,
         autoResolveCasualtyRate: 1.0,
         allowPilotCapture: true,

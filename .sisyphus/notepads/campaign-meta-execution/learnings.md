@@ -267,3 +267,165 @@ Preparing for Phase B (Implementation) of Plans 4, 5, 8:
 
 ### Recommendation
 Continue with task 4.2, then start fresh session for remaining tasks to avoid token exhaustion mid-task.
+
+## [2026-01-26] Plan 4 Task 4.3: Loan Service Implementation
+
+### Implementation Notes
+- **TDD Approach**: RED → GREEN → REFACTOR cycle followed successfully
+- **Amortization Formula**: Standard formula implemented with special case for 0% interest
+  - Formula: `payment = principal × (rate × (1 + rate)^n) / ((1 + rate)^n - 1)`
+  - Monthly rate = annualRate / 12
+  - Handles edge cases: 0% interest, 1-month term, 360-month term
+- **Money Class Pattern**: Confirmed `new Money(amount)` constructor (no `fromAmount` static method)
+- **UUID Generation**: Used `crypto.randomUUID()` for unique loan IDs
+- **Date Handling**: JavaScript Date.setMonth() for advancing payment dates (handles month overflow)
+- **Floating Point Precision**: Used `Math.abs(value) < 0.1` for final payment balance check (avoids rounding errors)
+
+### File Structure
+- `src/lib/finances/loanService.ts`: 6 exported functions + 2 interfaces
+  - calculateMonthlyPayment: Standard amortization formula
+  - createLoan: Initialize loan with unique ID and calculated payment
+  - makePayment: Process payment, return updated loan + breakdown
+  - getRemainingBalance: Return remaining principal
+  - isLoanPaidOff: Check if loan is fully paid
+  - getLoanDefaultPenalty: Calculate 10% penalty on remaining balance
+  - PaymentBreakdown interface: interestPortion, principalPortion, totalPayment
+  - PaymentResult interface: updatedLoan, paymentBreakdown
+- `src/lib/finances/__tests__/loanService.test.ts`: 32 tests covering all functions
+
+### Test Coverage
+- **32/32 tests passing** (100% pass rate)
+- Test cases include:
+  - Exact payment calculation: 100k @ 5% for 12 months = ~8,560.75/month ✅
+  - Payment breakdown: interest + principal = monthly payment ✅
+  - Amortization schedule: balance decreases after each payment ✅
+  - Loan paid off detection: paymentsRemaining = 0 or remainingPrincipal = 0 ✅
+  - Default penalty: 10% of remaining balance ✅
+  - Edge cases: 0% interest, 1-month term, 360-month term ✅
+
+### Test Results
+- loanService.test.ts: 32/32 pass
+- Full finances suite: 159/159 pass (32 loan + 79 salary + 48 finance service)
+- Full project suite: 13,252+ tests pass, 0 failures
+
+### Key Decisions
+1. **Immutable Loan Updates**: makePayment returns new ILoan object (spread operator) rather than mutating
+2. **Penalty Calculation**: Fixed 10% of remaining balance (simple, predictable)
+3. **Payment Rounding**: Money class handles internal rounding via cents storage
+4. **Date Arithmetic**: Used setMonth() for simplicity (handles month overflow automatically)
+
+### Lessons Learned
+- Amortization formula requires careful handling of 0% interest case (division by zero)
+- Floating point precision in financial calculations requires tolerance checks (not exact equality)
+- Date timezone handling: JavaScript Date constructor with ISO string handles UTC correctly
+- Test expectations must match actual formula output (not vice versa)
+
+
+## [2026-01-26] Task 4.4: Tax and Price Multiplier Services
+
+### Implementation Summary
+- **Status**: COMPLETE ✓
+- **Files Created**: 4
+  - `src/lib/finances/taxService.ts` - Tax calculation and overhead costs
+  - `src/lib/finances/priceService.ts` - Tech base and condition price multipliers
+  - `src/lib/finances/__tests__/taxService.test.ts` - 27 test cases
+  - `src/lib/finances/__tests__/priceService.test.ts` - 32 test cases
+
+### Key Implementation Details
+
+#### taxService.ts Functions
+1. **calculateTaxes(campaign)**: Flat-rate tax on profits (0 if negative/zero or useTaxes=false)
+2. **calculateProfits(campaign)**: currentBalance - startingCapital
+3. **calculateMonthlyOverhead(campaign)**: 5% of total monthly salary
+4. **calculateFoodAndHousing(campaign)**: Tiered costs per person
+   - Officer (ADMIN_COMMAND): 1,260 C-bills/month
+   - Enlisted: 552 C-bills/month
+   - Prisoner (POW status): 348 C-bills/month
+   - Skips non-alive personnel (KIA, RETIRED, DESERTED, etc.)
+
+#### priceService.ts Lookup Tables
+- **TECH_PRICE_MULTIPLIER**: Tech base multipliers (common/innerSphere=1.0, clan=2.0, mixed=1.5)
+- **CONDITION_MULTIPLIER**: Condition multipliers (new=1.0, used=0.5, damaged=0.33, unrepairable=0.1, cancelledOrder=0.5)
+- **calculateUnitPrice/calculatePartPrice**: Apply tech × condition multipliers
+
+### Campaign Interface Updates
+Added three new options to ICampaignOptions:
+- `useTaxes: boolean` - Enable/disable tax system
+- `taxRate: number` - Tax rate as percentage (default: 10)
+- `overheadPercent: number` - Overhead percentage of salary (default: 5)
+
+Updated `createDefaultCampaignOptions()` with new defaults.
+
+### Test Results
+- **taxService.test.ts**: 27 tests PASS
+  - Tax calculation on positive profit (10,000 profit at 10% = 1,000)
+  - No tax on negative/zero profit
+  - No tax when useTaxes=false
+  - Overhead = 5% of salary
+  - Food/housing per person (officer, enlisted, prisoner)
+  - Food/housing skips non-alive personnel
+  - Multiple personnel totals
+
+- **priceService.test.ts**: 32 tests PASS
+  - Tech base multipliers (Clan=2.0, mixed=1.5, etc.)
+  - Condition multipliers (damaged=0.33, used=0.5, etc.)
+  - Combined multipliers (tech × condition)
+  - Unit vs part pricing
+  - Edge cases (zero price, large prices, decimals)
+  - Unknown tech base/condition fallback to 1.0
+
+- **Full Test Suite**: 13,515 tests PASS (32 skipped)
+  - No regressions
+  - All existing tests still passing
+
+### Patterns & Conventions Followed
+1. **Module Structure**: Header docstring, types, lookup tables, functions (matches salaryService.ts)
+2. **JSDoc Style**: @param, @returns, @example tags on all exported functions
+3. **Money Class**: Used `new Money(amount)` constructor (not `fromAmount()`)
+4. **Array Iteration**: Used `Array.from(map.values())` for Map iteration (TypeScript compatibility)
+5. **Type Safety**: Proper type guards for unknown tech base/condition values
+6. **Test Coverage**: TDD approach with RED → GREEN → REFACTOR
+
+### Lessons Learned
+1. **Campaign Options**: New options must be added to both interface AND createDefaultCampaignOptions()
+2. **Personnel Filtering**: Dead/retired/deserted personnel have specific statuses to exclude
+3. **Officer Detection**: Used ADMIN_COMMAND role (not isCommander/isSecondInCommand properties)
+4. **Multiplier Fallback**: Unknown tech base/condition values default to 1.0 (safe default)
+5. **Money Precision**: Money class handles decimal amounts correctly via cents-based storage
+
+### Acceptance Criteria Met
+- ✓ Tax on 10,000 profit at 10% = 1,000
+- ✓ No tax on negative profit
+- ✓ Clan equipment = 2.0× price multiplier
+- ✓ Damaged condition = 0.33× multiplier
+- ✓ Overhead = 5% of salary total
+- ✓ Food/housing per person (officer vs enlisted)
+- ✓ All tests pass (13,515 total)
+- ✓ npm test passes
+
+### Next Steps
+- Task 4.5: Create Financial Day Processor (uses these services)
+- Task 4.6: Implement Campaign Financial Reporting
+
+## [2026-01-26] Task 4.5: Financial Day Processor
+
+### Implementation Notes
+- Created financialProcessor.ts with monthly (1st of month) and daily processing
+- Monthly: salaries, overhead (5%% of salary), food/housing, loan payments, taxes
+- Daily: maintenance costs (when payForMaintenance enabled)
+- Added useRoleBasedSalaries to ICampaignOptions (defaults false for backward compat)
+- Added optional loans?: ILoan[] to IFinances interface
+- Gated dailyCostsProcessor: returns early when useRoleBasedSalaries=true
+- Used FinancialStepResult internal type for clean step composition
+- Events use type='transaction' with data.transactionType for filtering
+
+### Test Results
+- 17 new tests, all passing
+- Full suite: 440 suites, 13,532 passed (up from 13,515)
+- Zero regressions
+
+### Key Patterns
+- filterByTransactionType helper avoids implicit any in test filters
+- IDayEvent.data is Record<string,unknown> - use typed helper for filtering
+- getAllUnits from Force.ts takes (rootForce, forceMap) not just campaign
+- DEFAULT_DAILY_MAINTENANCE exported from dayAdvancement.ts (100 C-bills)

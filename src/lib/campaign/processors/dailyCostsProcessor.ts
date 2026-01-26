@@ -13,6 +13,10 @@ export const dailyCostsProcessor: IDayProcessor = {
   displayName: 'Daily Costs',
 
   process(campaign: ICampaign): IDayProcessorResult {
+    if (campaign.options.useRoleBasedSalaries) {
+      return { events: [], campaign };
+    }
+
     const result = processDailyCosts(campaign);
 
     const events: IDayEvent[] = [];

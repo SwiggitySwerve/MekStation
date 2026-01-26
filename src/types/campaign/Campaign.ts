@@ -124,14 +124,17 @@ export interface ICampaignOptions {
    /** Whether to use loan system */
    readonly useLoanSystem: boolean;
 
-   /** Whether to use tax system */
-   readonly useTaxes: boolean;
+    /** Whether to use tax system */
+    readonly useTaxes: boolean;
 
-   /** Tax rate as percentage (e.g., 10 = 10%) */
-   readonly taxRate: number;
+    /** Tax rate as percentage (e.g., 10 = 10%) */
+    readonly taxRate: number;
 
-   /** Overhead percentage of salary (e.g., 5 = 5%) */
-   readonly overheadPercent: number;
+    /** Overhead percentage of salary (e.g., 5 = 5%) */
+    readonly overheadPercent: number;
+
+    /** Whether to use role-based salary system (monthly via financialProcessor) */
+    readonly useRoleBasedSalaries: boolean;
 
    // =========================================================================
    // Combat Options (~8)
@@ -635,9 +638,10 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     payForAmmunition: true,
      maintenanceCycleDays: 7,
      useLoanSystem: true,
-     useTaxes: true,
-     taxRate: 10,
-     overheadPercent: 5,
+      useTaxes: true,
+      taxRate: 10,
+      overheadPercent: 5,
+      useRoleBasedSalaries: false,
 
      // Combat options
     useAutoResolve: false,
