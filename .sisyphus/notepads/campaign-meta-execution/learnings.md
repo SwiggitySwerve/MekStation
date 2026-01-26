@@ -613,3 +613,49 @@ Updated `createDefaultCampaignOptions()` with new defaults.
 - Immutable data patterns (spread operator) prevent accidental mutations
 - Null return pattern is cleaner than throwing exceptions for "no escalation" case
 - Integration tests verify full escalation chains work correctly
+
+## [2026-01-26T00:00:00Z] Task 5.5: Faction Standing Day Processor
+
+### Implementation Notes
+- Created `factionStandingProcessor` with id='faction-standing', phase=DayPhase.EVENTS
+- Daily processing: Loops through all factionStandings and applies processRegardDecay()
+- Monthly processing (1st of month): Checks accolade/censure escalation, emits events, applies escalation
+- Skips processing when campaign.options.trackFactionStanding is false
+- Event creation: Separate functions for accolade and censure events with proper level names
+- Processor returns updated campaign with modified factionStandings map
+
+### Type System Updates
+- Added `trackFactionStanding: boolean` to ICampaignOptions
+- Added `regardChangeMultiplier: number` to ICampaignOptions (for future use)
+- Added `factionStandings: Record<string, IFactionStanding>` to ICampaign interface
+- Updated createDefaultCampaignOptions() with new options (trackFactionStanding=true, regardChangeMultiplier=1.0)
+- Updated createCampaign() to initialize factionStandings as empty object
+- Updated createCampaignWithData() to accept optional factionStandings parameter
+- Updated SerializedCampaignState in useCampaignStore to include factionStandings
+- Fixed all test helper functions (createTestCampaign) to include factionStandings
+
+### Test Results
+- 16 tests passing (100% pass rate)
+- Test coverage includes:
+  - Processor configuration (id, phase, displayName)
+  - Daily decay for multiple factions
+  - Monthly escalation checks (accolade and censure)
+  - Event emission with correct data
+  - Max level escalation prevention
+  - Skip when trackFactionStanding=false
+  - Empty standings handling
+  - Pipeline registration
+  - Combined daily+monthly processing
+
+### Key Patterns
+- Event creation uses enum-based level names for human-readable descriptions
+- Null checks for escalation results (checkAccoladeEscalation/checkCensureEscalation return null when not eligible)
+- Processor follows standard IDayProcessor interface pattern from turnoverProcessor
+- Registration function exports for pipeline integration
+
+### Decisions
+- Made trackFactionStanding default to true (enabled by default)
+- Used Record<string, IFactionStanding> for standings map (matches contract outcomes pattern)
+- Separate event creation functions for clarity and maintainability
+- Escalation checks happen after decay to ensure proper ordering
+

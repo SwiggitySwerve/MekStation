@@ -573,7 +573,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.7 Create Financial Dashboard UI
+- [~] 4.7 Create Financial Dashboard UI (BLOCKED: delegation system failure)
 
   **What to do**:
   - Create `src/components/campaign/FinancialSummaryPanel.tsx`:

@@ -13,6 +13,7 @@ import { IForce, getAllUnits as getForceUnits } from './Force';
 import { IFinances } from './IFinances';
 import { Money } from './Money';
 import { MissionStatus, PersonnelStatus } from './enums';
+import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import {
   IMission,
   IContract,
@@ -248,8 +249,18 @@ export interface ICampaignOptions {
   readonly turnoverCommanderImmune: boolean;
   readonly turnoverPayoutMultiplier: number;
   readonly turnoverUseSkillModifiers: boolean;
-  readonly turnoverUseAgeModifiers: boolean;
-  readonly turnoverUseMissionStatusModifiers: boolean;
+   readonly turnoverUseAgeModifiers: boolean;
+   readonly turnoverUseMissionStatusModifiers: boolean;
+
+   // =========================================================================
+   // Faction Standing Options (~2)
+   // =========================================================================
+
+   /** Whether to track faction standing */
+   readonly trackFactionStanding: boolean;
+
+   /** Multiplier for regard changes (1.0 = normal) */
+   readonly regardChangeMultiplier: number;
 }
 
 // =============================================================================
@@ -306,14 +317,17 @@ export interface ICampaign {
   /** ID of the root force (top of hierarchy) */
   readonly rootForceId: string;
 
-  /** All missions in the campaign */
-  readonly missions: Map<string, IMission>;
+   /** All missions in the campaign */
+   readonly missions: Map<string, IMission>;
 
-  /** Campaign finances */
-  readonly finances: IFinances;
+   /** Campaign finances */
+   readonly finances: IFinances;
 
-  /** Campaign options */
-  readonly options: ICampaignOptions;
+   /** Faction standings (regard tracking) */
+   readonly factionStandings: Record<string, IFactionStanding>;
+
+   /** Campaign options */
+   readonly options: ICampaignOptions;
 
   /** Campaign start date (when campaign was created in-game) */
   readonly campaignStartDate?: Date;
@@ -706,16 +720,20 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     useRandomEvents: false,
     enableDayReportNotifications: true,
 
-    // Turnover options
-    useTurnover: true,
-    turnoverFixedTargetNumber: 3,
-    turnoverCheckFrequency: 'monthly',
-    turnoverCommanderImmune: true,
-    turnoverPayoutMultiplier: 12,
-    turnoverUseSkillModifiers: true,
-    turnoverUseAgeModifiers: true,
-    turnoverUseMissionStatusModifiers: true,
-  };
+     // Turnover options
+     useTurnover: true,
+     turnoverFixedTargetNumber: 3,
+     turnoverCheckFrequency: 'monthly',
+     turnoverCommanderImmune: true,
+     turnoverPayoutMultiplier: 12,
+     turnoverUseSkillModifiers: true,
+     turnoverUseAgeModifiers: true,
+     turnoverUseMissionStatusModifiers: true,
+
+     // Faction standing options
+     trackFactionStanding: true,
+     regardChangeMultiplier: 1.0,
+   };
 }
 
 /**
@@ -806,24 +824,25 @@ export function createCampaign(
   // Create root force with unique ID
   const rootForceId = generateUniqueId('force');
 
-  return {
-    id: generateUniqueId('campaign'),
-    name,
-    currentDate: new Date(),
-    factionId,
-    personnel: new Map(),
-    forces: new Map(),
-    rootForceId,
-    missions: new Map(),
-    finances: {
-      transactions: [],
-      balance: new Money(mergedOptions.startingFunds),
-    },
-    options: mergedOptions,
-    campaignStartDate: new Date(),
-    createdAt: now,
-    updatedAt: now,
-  };
+   return {
+     id: generateUniqueId('campaign'),
+     name,
+     currentDate: new Date(),
+     factionId,
+     personnel: new Map(),
+     forces: new Map(),
+     rootForceId,
+     missions: new Map(),
+     finances: {
+       transactions: [],
+       balance: new Money(mergedOptions.startingFunds),
+     },
+     factionStandings: {},
+     options: mergedOptions,
+     campaignStartDate: new Date(),
+     createdAt: now,
+     updatedAt: now,
+   };
 }
 
 /**
@@ -849,36 +868,38 @@ export function createCampaign(
  * });
  */
 export function createCampaignWithData(params: {
-  id: string;
-  name: string;
-  currentDate: Date;
-  factionId: string;
-  personnel: Map<string, IPerson>;
-  forces: Map<string, IForce>;
-  rootForceId: string;
-  missions: Map<string, IMission>;
-  finances: IFinances;
-  options: ICampaignOptions;
-  campaignStartDate?: Date;
-  description?: string;
-  iconUrl?: string;
+   id: string;
+   name: string;
+   currentDate: Date;
+   factionId: string;
+   personnel: Map<string, IPerson>;
+   forces: Map<string, IForce>;
+   rootForceId: string;
+   missions: Map<string, IMission>;
+   finances: IFinances;
+   factionStandings?: Record<string, IFactionStanding>;
+   options: ICampaignOptions;
+   campaignStartDate?: Date;
+   description?: string;
+   iconUrl?: string;
 }): ICampaign {
-  const now = new Date().toISOString();
-  return {
-    id: params.id,
-    name: params.name,
-    currentDate: params.currentDate,
-    factionId: params.factionId,
-    personnel: params.personnel,
-    forces: params.forces,
-    rootForceId: params.rootForceId,
-    missions: params.missions,
-    finances: params.finances,
-    options: params.options,
-    campaignStartDate: params.campaignStartDate,
-    description: params.description,
-    iconUrl: params.iconUrl,
-    createdAt: now,
-    updatedAt: now,
-  };
+   const now = new Date().toISOString();
+   return {
+     id: params.id,
+     name: params.name,
+     currentDate: params.currentDate,
+     factionId: params.factionId,
+     personnel: params.personnel,
+     forces: params.forces,
+     rootForceId: params.rootForceId,
+     missions: params.missions,
+     finances: params.finances,
+     factionStandings: params.factionStandings ?? {},
+     options: params.options,
+     campaignStartDate: params.campaignStartDate,
+     description: params.description,
+     iconUrl: params.iconUrl,
+     createdAt: now,
+     updatedAt: now,
+   };
 }

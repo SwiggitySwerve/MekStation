@@ -112,7 +112,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ## TODOs
 
-- [ ] 5.1 Define Faction Standing Types
+- [x] 5.1 Define Faction Standing Types
 
   **What to do**:
   - Create `src/types/campaign/factionStanding/IFactionStanding.ts`:
@@ -202,7 +202,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.2 Implement Standing Calculation Logic
+- [x] 5.2 Implement Standing Calculation Logic
 
   **What to do**:
   - Create `src/lib/campaign/factionStanding/standingService.ts`:
@@ -276,7 +276,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.3 Implement 11 Gameplay Effect Modifiers
+- [x] 5.3 Implement 11 Gameplay Effect Modifiers
 
   **What to do**:
   - Create `src/lib/campaign/factionStanding/standingEffects.ts`:
@@ -375,7 +375,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.4 Implement Accolade/Censure Escalation
+- [x] 5.4 Implement Accolade/Censure Escalation
 
   **What to do**:
   - Create `src/lib/campaign/factionStanding/escalation.ts`:
