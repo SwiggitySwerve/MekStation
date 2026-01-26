@@ -51,8 +51,12 @@ export const DEFAULT_SKILLS_BY_ROLE: Record<
   CampaignPersonnelRole,
   IDefaultSkillSet
 > = {
+  // Combat roles
   [CampaignPersonnelRole.PILOT]: {
     skills: { gunnery: 4, piloting: 5 },
+  },
+  [CampaignPersonnelRole.LAM_PILOT]: {
+    skills: { gunnery: 4, piloting: 5, 'lam-piloting': 4 },
   },
   [CampaignPersonnelRole.AEROSPACE_PILOT]: {
     skills: { 'gunnery-aerospace': 4, 'piloting-aerospace': 5 },
@@ -60,23 +64,140 @@ export const DEFAULT_SKILLS_BY_ROLE: Record<
   [CampaignPersonnelRole.VEHICLE_DRIVER]: {
     skills: { 'gunnery-vehicle': 4, driving: 5 },
   },
+  [CampaignPersonnelRole.VEHICLE_CREW_NAVAL]: {
+    skills: { 'gunnery-vehicle': 4, driving: 5, 'naval-ops': 3 },
+  },
+  [CampaignPersonnelRole.VEHICLE_CREW_VTOL]: {
+    skills: { 'gunnery-vehicle': 4, 'vtol-piloting': 5 },
+  },
+  [CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT]: {
+    skills: { 'gunnery-aircraft': 4, 'aircraft-piloting': 5 },
+  },
+  [CampaignPersonnelRole.PROTOMEK_PILOT]: {
+    skills: { gunnery: 4, 'protomek-piloting': 5 },
+  },
+  [CampaignPersonnelRole.BATTLE_ARMOUR]: {
+    skills: { 'small-arms': 5, 'battle-armor': 5 },
+  },
+  [CampaignPersonnelRole.SOLDIER]: {
+    skills: { 'small-arms': 5, 'anti-mek': 7 },
+  },
+  [CampaignPersonnelRole.VESSEL_PILOT]: {
+    skills: { 'vessel-piloting': 5, navigation: 4 },
+  },
+  [CampaignPersonnelRole.VESSEL_GUNNER]: {
+    skills: { 'vessel-gunnery': 5, gunnery: 4 },
+  },
+  [CampaignPersonnelRole.VESSEL_CREW]: {
+    skills: { 'vessel-ops': 4 },
+  },
+  [CampaignPersonnelRole.VESSEL_NAVIGATOR]: {
+    skills: { navigation: 5, 'vessel-ops': 3 },
+  },
+
+  // Support roles
   [CampaignPersonnelRole.TECH]: {
     skills: { 'tech-mech': 5 },
+  },
+  [CampaignPersonnelRole.MEK_TECH]: {
+    skills: { 'tech-mech': 5 },
+  },
+  [CampaignPersonnelRole.MECHANIC]: {
+    skills: { 'tech-vehicle': 5 },
+  },
+  [CampaignPersonnelRole.AERO_TEK]: {
+    skills: { 'tech-aerospace': 5 },
+  },
+  [CampaignPersonnelRole.BA_TECH]: {
+    skills: { 'tech-ba': 5 },
+  },
+  [CampaignPersonnelRole.ASTECH]: {
+    skills: { astech: 5 },
   },
   [CampaignPersonnelRole.DOCTOR]: {
     skills: { medicine: 5 },
   },
-  [CampaignPersonnelRole.ADMIN]: {
-    skills: { administration: 5 },
-  },
   [CampaignPersonnelRole.MEDIC]: {
     skills: { medtech: 5 },
   },
+  [CampaignPersonnelRole.ADMIN_COMMAND]: {
+    skills: { administration: 5, leadership: 4 },
+  },
+  [CampaignPersonnelRole.ADMIN_LOGISTICS]: {
+    skills: { administration: 5, logistics: 4 },
+  },
+  [CampaignPersonnelRole.ADMIN_TRANSPORT]: {
+    skills: { administration: 5, logistics: 4 },
+  },
+  [CampaignPersonnelRole.ADMIN_HR]: {
+    skills: { administration: 5, 'personnel-mgmt': 4 },
+  },
+
+  // Civilian roles
+  [CampaignPersonnelRole.DEPENDENT]: {
+    skills: {},
+  },
+  [CampaignPersonnelRole.CIVILIAN_OTHER]: {
+    skills: {},
+  },
+  [CampaignPersonnelRole.MERCHANT]: {
+    skills: { trading: 4 },
+  },
+  [CampaignPersonnelRole.TEACHER]: {
+    skills: { education: 4 },
+  },
+  [CampaignPersonnelRole.LAWYER]: {
+    skills: { law: 4 },
+  },
+  [CampaignPersonnelRole.MUSICIAN]: {
+    skills: { music: 4 },
+  },
+  [CampaignPersonnelRole.CHEF]: {
+    skills: { cooking: 4 },
+  },
+  [CampaignPersonnelRole.BARTENDER]: {
+    skills: { bartending: 4 },
+  },
+  [CampaignPersonnelRole.FIREFIGHTER]: {
+    skills: { 'fire-fighting': 4 },
+  },
+  [CampaignPersonnelRole.FARMER]: {
+    skills: { farming: 4 },
+  },
+  [CampaignPersonnelRole.MINER]: {
+    skills: { mining: 4 },
+  },
+  [CampaignPersonnelRole.FACTORY_WORKER]: {
+    skills: { manufacturing: 4 },
+  },
+  [CampaignPersonnelRole.COURIER]: {
+    skills: { driving: 4 },
+  },
+  [CampaignPersonnelRole.GAMBLER]: {
+    skills: { gambling: 4 },
+  },
+  [CampaignPersonnelRole.HISTORIAN]: {
+    skills: { history: 4 },
+  },
+  [CampaignPersonnelRole.PAINTER]: {
+    skills: { art: 4 },
+  },
+  [CampaignPersonnelRole.RELIGIOUS_LEADER]: {
+    skills: { religion: 4 },
+  },
+  [CampaignPersonnelRole.PSYCHOLOGIST]: {
+    skills: { psychology: 4 },
+  },
+  [CampaignPersonnelRole.NOBLE]: {
+    skills: { administration: 4, leadership: 4 },
+  },
+
+  // Legacy roles
+  [CampaignPersonnelRole.ADMIN]: {
+    skills: { administration: 5 },
+  },
   [CampaignPersonnelRole.SUPPORT]: {
     skills: { astech: 5, administration: 7 },
-  },
-  [CampaignPersonnelRole.SOLDIER]: {
-    skills: { 'small-arms': 5, 'anti-mek': 7 },
   },
   [CampaignPersonnelRole.UNASSIGNED]: {
     skills: {},
