@@ -16,11 +16,12 @@ import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
-  ICampaign,
-  ICampaignOptions,
-  IMission,
-  createCampaign as createCampaignEntity,
-} from '@/types/campaign/Campaign';
+   ICampaign,
+   ICampaignOptions,
+   IMission,
+   createCampaign as createCampaignEntity,
+ } from '@/types/campaign/Campaign';
+import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { IForce } from '@/types/campaign/Force';
@@ -41,27 +42,28 @@ import { createMissionsStore, MissionsStore } from './useMissionsStore';
  * Maps are converted to arrays for JSON serialization.
  */
 interface SerializedCampaignState {
-  id: string;
-  name: string;
-  currentDate: string; // ISO 8601 string
-  factionId: string;
-  rootForceId: string;
-  finances: {
-    transactions: Array<{
-      id: string;
-      type: string;
-      amount: number;
-      date: string;
-      description: string;
-    }>;
-    balance: number;
-  };
-  options: ICampaignOptions;
-  campaignStartDate?: string;
-  description?: string;
-  iconUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+   id: string;
+   name: string;
+   currentDate: string; // ISO 8601 string
+   factionId: string;
+   rootForceId: string;
+   finances: {
+     transactions: Array<{
+       id: string;
+       type: string;
+       amount: number;
+       date: string;
+       description: string;
+     }>;
+     balance: number;
+   };
+   factionStandings?: Record<string, IFactionStanding>;
+   options: ICampaignOptions;
+   campaignStartDate?: string;
+   description?: string;
+   iconUrl?: string;
+   createdAt: string;
+   updatedAt: string;
 }
 
 // =============================================================================
@@ -177,15 +179,16 @@ function deserializeCampaign(
       })),
       balance: new Money(serialized.finances.balance),
     },
-    options: serialized.options,
-    campaignStartDate: serialized.campaignStartDate
-      ? new Date(serialized.campaignStartDate)
-      : undefined,
-    description: serialized.description,
-    iconUrl: serialized.iconUrl,
-    createdAt: serialized.createdAt,
-    updatedAt: serialized.updatedAt,
-  };
+     factionStandings: serialized.factionStandings ?? {},
+     options: serialized.options,
+     campaignStartDate: serialized.campaignStartDate
+       ? new Date(serialized.campaignStartDate)
+       : undefined,
+     description: serialized.description,
+     iconUrl: serialized.iconUrl,
+     createdAt: serialized.createdAt,
+     updatedAt: serialized.updatedAt,
+   };
 }
 
 // =============================================================================
