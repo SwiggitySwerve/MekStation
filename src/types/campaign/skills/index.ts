@@ -8,3 +8,4 @@ export * from './IAttributes';
 export * from './ISkillType';
 export * from './ISkill';
 export * from './experienceLevels';
+export * from './skillCatalog';
