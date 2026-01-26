@@ -73,12 +73,15 @@ Define the repeatable lifecycle every campaign plan follows, pre-map all change-
   - `openspec validate update-day-advancement-pipeline --strict`
   - `openspec archive update-day-advancement-pipeline --yes`
 
-- [ ] P3. Archive dangling `add-quick-session-mode` change
+- [x] P3. Archive dangling `add-quick-session-mode` change
   - `openspec archive add-quick-session-mode --yes`
 
-- [ ] P4. Verify `externalize-mm-data-assets` won't conflict
+- [x] P4. Verify `externalize-mm-data-assets` won't conflict
   - Check remaining 9 tasks — if CI/build related, note potential conflicts
   - Campaign branches should be created from main AFTER this merges if possible
+  - VERIFIED: Remaining 9 tasks are manual validation (desktop bundling, local mm-data workflow, fresh clone tests)
+  - NO CONFLICT: These tasks don't touch campaign code or specs
+  - SAFE TO PROCEED: Campaign branches can be created now
 
 ---
 
