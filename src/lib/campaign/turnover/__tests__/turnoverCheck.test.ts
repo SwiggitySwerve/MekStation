@@ -4,6 +4,7 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 import {
   roll2d6,
   checkTurnover,
@@ -43,8 +44,9 @@ function createTestOptions(): ICampaignOptions {
     salaryMultiplier: 1.0,
     retirementAge: 65,
     healingWaitingPeriod: 1,
-    useAdvancedMedical: false,
+    medicalSystem: MedicalSystem.STANDARD,
     maxPatientsPerDoctor: 25,
+    doctorsUseAdministration: false,
     xpPerMission: 1,
     xpPerKill: 1,
     xpCostMultiplier: 1.0,
@@ -58,9 +60,22 @@ function createTestOptions(): ICampaignOptions {
     payForRepairs: true,
     payForSalaries: true,
     payForAmmunition: true,
-    maintenanceCycleDays: 7,
-    useLoanSystem: true,
-    useAutoResolve: false,
+     maintenanceCycleDays: 7,
+      useLoanSystem: true,
+      useTaxes: true,
+       taxRate: 10,
+       overheadPercent: 5,
+       useRoleBasedSalaries: false,
+       payForSecondaryRole: true,
+       maxLoanPercent: 50,
+       defaultLoanRate: 5,
+       taxFrequency: 'annually',
+       useFoodAndHousing: true,
+       clanPriceMultiplier: 2.0,
+       mixedTechPriceMultiplier: 1.5,
+       usedEquipmentMultiplier: 0.5,
+       damagedEquipmentMultiplier: 0.33,
+       useAutoResolve: false,
     autoResolveCasualtyRate: 1.0,
     allowPilotCapture: true,
     useRandomInjuries: true,
@@ -86,28 +101,31 @@ function createTestOptions(): ICampaignOptions {
     turnoverCheckFrequency: 'monthly',
     turnoverCommanderImmune: true,
     turnoverPayoutMultiplier: 12,
-    turnoverUseSkillModifiers: true,
-    turnoverUseAgeModifiers: true,
-    turnoverUseMissionStatusModifiers: true,
-  };
+     turnoverUseSkillModifiers: true,
+     turnoverUseAgeModifiers: true,
+     turnoverUseMissionStatusModifiers: true,
+     trackFactionStanding: true,
+     regardChangeMultiplier: 1.0,
+   };
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-  return {
-    id: 'campaign-001',
-    name: 'Test Campaign',
-    currentDate: new Date('3025-06-15'),
-    factionId: 'mercenary',
-    personnel: new Map(),
-    forces: new Map(),
-    rootForceId: 'force-root',
-    missions: new Map(),
-    finances: { transactions: [], balance: new Money(0) },
-    options: createTestOptions(),
-    createdAt: '3020-01-01T00:00:00Z',
-    updatedAt: '3025-06-15T00:00:00Z',
-    ...overrides,
-  };
+   return {
+     id: 'campaign-001',
+     name: 'Test Campaign',
+     currentDate: new Date('3025-06-15'),
+     factionId: 'mercenary',
+     personnel: new Map(),
+     forces: new Map(),
+     rootForceId: 'force-root',
+     missions: new Map(),
+     finances: { transactions: [], balance: new Money(0) },
+     factionStandings: {},
+     options: createTestOptions(),
+     createdAt: '3020-01-01T00:00:00Z',
+     updatedAt: '3025-06-15T00:00:00Z',
+     ...overrides,
+   };
 }
 
 // Deterministic random that returns fixed values from a sequence

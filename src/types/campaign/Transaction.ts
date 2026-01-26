@@ -10,12 +10,24 @@ import { Money } from './Money';
  * Defines the category of a financial transaction
  */
 export enum TransactionType {
+  // Existing
   Income = 'income',
   Expense = 'expense',
   Repair = 'repair',
   Maintenance = 'maintenance',
   Salvage = 'salvage',
   Miscellaneous = 'miscellaneous',
+  // New
+  Salary = 'salary',
+  ContractPayment = 'contract_payment',
+  LoanPayment = 'loan_payment',
+  LoanDisbursement = 'loan_disbursement',
+  Tax = 'tax',
+  Overhead = 'overhead',
+  FoodAndHousing = 'food_and_housing',
+  UnitPurchase = 'unit_purchase',
+  PartPurchase = 'part_purchase',
+  TurnoverPayout = 'turnover_payout',
 }
 
 /**

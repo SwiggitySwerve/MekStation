@@ -283,7 +283,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.3 Implement Loan Service
+- [x] 4.3 Implement Loan Service
 
   **What to do**:
   - Create `src/lib/finances/loanService.ts`
@@ -343,7 +343,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.4 Implement Tax and Price Multiplier Services
+- [x] 4.4 Implement Tax and Price Multiplier Services
 
   **What to do**:
   - Create `src/lib/finances/taxService.ts`:
@@ -440,7 +440,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.5 Create Financial Day Processor
+- [x] 4.5 Create Financial Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/financialProcessor.ts`:
@@ -531,7 +531,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.6 Add Financial Campaign Options
+- [x] 4.6 Add Financial Campaign Options
 
   **What to do**:
   - Extend `ICampaignOptions`:
@@ -573,7 +573,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.7 Create Financial Dashboard UI
+- [~] 4.7 Create Financial Dashboard UI (BLOCKED: delegation system failure)
 
   **What to do**:
   - Create `src/components/campaign/FinancialSummaryPanel.tsx`:

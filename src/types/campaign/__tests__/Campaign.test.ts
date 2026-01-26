@@ -40,6 +40,7 @@ import { IPerson } from '../Person';
 import { IForce } from '../Force';
 import { IFinances } from '../IFinances';
 import { Money } from '../Money';
+import { MedicalSystem } from '../../../lib/campaign/medical/medicalTypes';
 import {
   PersonnelStatus,
   CampaignPersonnelRole,
@@ -139,21 +140,22 @@ function createTestCampaign(): ICampaign {
     balance: new Money(1000000),
   };
 
-  return {
-    id: 'campaign-001',
-    name: "Wolf's Dragoons",
-    currentDate: new Date('3025-01-01'),
-    factionId: 'mercenary',
-    personnel,
-    forces,
-    rootForceId: 'force-root',
-    missions,
-    finances,
-    options: createDefaultCampaignOptions(),
-    campaignStartDate: new Date('3025-01-01'),
-    createdAt: '2026-01-26T10:00:00Z',
-    updatedAt: '2026-01-26T10:00:00Z',
-  };
+   return {
+     id: 'campaign-001',
+     name: "Wolf's Dragoons",
+     currentDate: new Date('3025-01-01'),
+     factionId: 'mercenary',
+     personnel,
+     forces,
+     rootForceId: 'force-root',
+     missions,
+     finances,
+     factionStandings: {},
+     options: createDefaultCampaignOptions(),
+     campaignStartDate: new Date('3025-01-01'),
+     createdAt: '2026-01-26T10:00:00Z',
+     updatedAt: '2026-01-26T10:00:00Z',
+   };
 }
 
 // =============================================================================
@@ -223,7 +225,7 @@ describe('ICampaignOptions Interface', () => {
       expect(options.salaryMultiplier).toBe(1.0);
       expect(options.retirementAge).toBe(65);
       expect(options.healingWaitingPeriod).toBe(1);
-      expect(options.useAdvancedMedical).toBe(false);
+      expect(options.medicalSystem).toBe(MedicalSystem.STANDARD);
       expect(options.maxPatientsPerDoctor).toBe(25);
       expect(options.xpPerMission).toBe(1);
       expect(options.xpPerKill).toBe(1);

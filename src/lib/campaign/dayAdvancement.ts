@@ -22,7 +22,9 @@ import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { Transaction, TransactionType } from '@/types/campaign/Transaction';
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
-import type { TurnoverCheckResult } from './turnover/turnoverCheck';
+import { MedicalSystem } from './medical/medicalTypes';
+import { performMedicalCheck } from './medical/performMedicalCheck';
+import { getBestAvailableDoctor } from './medical/doctorCapacity';
 
 // =============================================================================
 // Constants
@@ -111,24 +113,31 @@ export interface DayReport {
 /**
  * Process healing for all personnel in the campaign.
  *
- * For each person:
- * - Reduce daysToHeal on non-permanent injuries by 1
+ * For each wounded person:
+ * - Use selected medical system (standard/advanced/alternate) to process injuries
+ * - Apply medical check results to reduce healing time
  * - Remove injuries where daysToHeal reaches 0
  * - Reduce daysToWaitForHealing by 1 (min 0)
  * - If person is WOUNDED and all injuries healed + daysToWaitForHealing is 0,
  *   transition to ACTIVE
  *
  * @param personnel - Map of all personnel
+ * @param campaign - Campaign with options and personnel for doctor assignment
  * @returns Updated personnel map and healing events
  */
 export function processHealing(
-  personnel: Map<string, IPerson>
+  personnel: Map<string, IPerson>,
+  campaign?: ICampaign
 ): {
   personnel: Map<string, IPerson>;
   events: HealedPersonEvent[];
 } {
   const updatedPersonnel = new Map<string, IPerson>();
   const events: HealedPersonEvent[] = [];
+
+  // Get medical system from campaign options, default to STANDARD
+  const medicalSystem = campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
+  const personnelArray = Array.from(personnel.values());
 
   Array.from(personnel.entries()).forEach(([id, person]) => {
     // Only process healing for wounded personnel
@@ -137,7 +146,7 @@ export function processHealing(
       return;
     }
 
-    // Process injuries: reduce daysToHeal, track healed ones
+    // Process injuries: apply medical checks, track healed ones
     const healedInjuryIds: string[] = [];
     const updatedInjuries: IInjury[] = [];
 
@@ -148,7 +157,18 @@ export function processHealing(
         return;
       }
 
-      const newDaysToHeal = Math.max(0, injury.daysToHeal - 1);
+      // Get assigned doctor for this patient
+      const doctor = campaign ? getBestAvailableDoctor(person, personnelArray, campaign.options) : null;
+
+      // Perform medical check using selected system
+      const medicalResult = campaign
+        ? performMedicalCheck(medicalSystem, person, injury, doctor, campaign.options, Math.random)
+        : null;
+
+      // Calculate healing days reduced
+      const daysReduced = medicalResult?.healingDaysReduced ?? 1;
+      const newDaysToHeal = Math.max(0, injury.daysToHeal - daysReduced);
+
       if (newDaysToHeal === 0) {
         // Injury fully healed - don't include in updated list
         healedInjuryIds.push(injury.id);
