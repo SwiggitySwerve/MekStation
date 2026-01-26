@@ -22,6 +22,7 @@ import {
   createContract,
 } from './Mission';
 import type { SalvageRights, CommandRights } from './Mission';
+import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -69,11 +70,11 @@ export interface ICampaignOptions {
   /** Days to wait between healing checks */
   readonly healingWaitingPeriod: number;
 
-  /** Whether to use advanced medical system */
-  readonly useAdvancedMedical: boolean;
+   /** Medical system to use (STANDARD, ADVANCED, ALTERNATE) */
+   readonly medicalSystem: MedicalSystem;
 
-  /** Maximum patients per doctor */
-  readonly maxPatientsPerDoctor: number;
+   /** Maximum patients per doctor */
+   readonly maxPatientsPerDoctor: number;
 
   /** XP awarded per mission */
   readonly xpPerMission: number;
@@ -601,14 +602,14 @@ export function isCampaign(value: unknown): value is ICampaign {
  * const options = createDefaultCampaignOptions();
  */
 export function createDefaultCampaignOptions(): ICampaignOptions {
-  return {
-    // Personnel options
-    healingRateMultiplier: 1.0,
-    salaryMultiplier: 1.0,
-    retirementAge: 65,
-    healingWaitingPeriod: 1,
-    useAdvancedMedical: false,
-    maxPatientsPerDoctor: 25,
+   return {
+     // Personnel options
+     healingRateMultiplier: 1.0,
+     salaryMultiplier: 1.0,
+     retirementAge: 65,
+     healingWaitingPeriod: 1,
+     medicalSystem: MedicalSystem.STANDARD,
+     maxPatientsPerDoctor: 25,
      xpPerMission: 1,
      xpPerKill: 1,
      xpCostMultiplier: 1.0,

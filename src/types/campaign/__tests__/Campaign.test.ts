@@ -40,6 +40,7 @@ import { IPerson } from '../Person';
 import { IForce } from '../Force';
 import { IFinances } from '../IFinances';
 import { Money } from '../Money';
+import { MedicalSystem } from '../../../lib/campaign/medical/medicalTypes';
 import {
   PersonnelStatus,
   CampaignPersonnelRole,
@@ -223,7 +224,7 @@ describe('ICampaignOptions Interface', () => {
       expect(options.salaryMultiplier).toBe(1.0);
       expect(options.retirementAge).toBe(65);
       expect(options.healingWaitingPeriod).toBe(1);
-      expect(options.useAdvancedMedical).toBe(false);
+      expect(options.medicalSystem).toBe(MedicalSystem.STANDARD);
       expect(options.maxPatientsPerDoctor).toBe(25);
       expect(options.xpPerMission).toBe(1);
       expect(options.xpPerKill).toBe(1);
