@@ -414,7 +414,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.5 Implement Shopping List and Auto-Logistics
+- [x] 9.5 Implement Shopping List and Auto-Logistics
 
   **What to do**:
   - Create `src/lib/campaign/acquisition/shoppingList.ts`:
@@ -484,7 +484,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.6 Create Acquisition Day Processor
+- [x] 9.6 Create Acquisition Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/acquisitionProcessor.ts`:

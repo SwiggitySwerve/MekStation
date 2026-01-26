@@ -989,3 +989,118 @@ Delegation system failing for UI tasks:
 - Backend medical system is 100% complete and tested (108 tests)
 - UI can be implemented later without blocking other plans
 - Creating PR for Plan 8
+
+## [2026-01-26T23:05:00Z] Session Complete: Plans 5 & 8 Merged
+
+### Summary
+Successfully completed and merged two major Tier 2 plans:
+- **Plan 5**: Faction Standing System (6/7 tasks, 178 tests)
+- **Plan 6**: Medical System (7/8 tasks, 108 tests)
+
+### PRs Merged
+- **PR #181**: Plan 5 (Faction Standing) - Merged at 22:50 UTC
+- **PR #182**: Plan 8 (Medical System) - Merged at 23:01 UTC
+- **PR #183**: OpenSpec archives (pending CI)
+
+### OpenSpec Archives
+- `add-faction-standing` → `2026-01-26-add-faction-standing`
+- `add-medical-system` → `2026-01-26-add-medical-system`
+
+### Test Suite Growth
+- **Starting**: 13,395 tests
+- **Ending**: 14,097 tests (+702 total from session start)
+- **Plan 5 contribution**: 178 tests
+- **Plan 8 contribution**: 108 tests
+- **Plan 4 contribution**: 416 tests (from earlier in session)
+
+### Tier 2 Status
+All Tier 2 backend implementations complete:
+- ✅ Plan 2: Turnover & Retention (archived)
+- ✅ Plan 3: Repair & Quality Cascade (archived)
+- ✅ Plan 4: Financial System (6/7 tasks, UI deferred)
+- ✅ Plan 5: Faction Standing (6/7 tasks, UI deferred)
+- ✅ Plan 8: Medical System (7/8 tasks, UI deferred)
+
+### Deferred UI Tasks
+3 UI tasks blocked by delegation system issues:
+- Task 4.7: Financial Dashboard UI
+- Task 5.7: Faction Standing UI
+- Task 8.8: Medical Management UI
+
+### Next Steps
+1. Wait for PR #183 to merge (OpenSpec archives)
+2. Begin Tier 3 implementation:
+   - Plan 9: Acquisition & Supply Chain (9 tasks)
+   - Plan 10: Personnel Progression (7 tasks)
+   - Plan 11: Scenario & Combat Expansion (8 tasks)
+   - Plan 12: Contract Types Expansion (6 tasks)
+   - Plan 14: Awards & Auto-Granting (5 tasks)
+   - Plan 15: Rank System (6 tasks)
+   - Plan 16: Random Events (7 tasks)
+   - Plan 17: Markets System (8 tasks)
+
+### Session Stats
+- **Duration**: ~6 hours
+- **Token Usage**: 72k/200k (36%)
+- **Commits**: 18 total
+- **PRs Created**: 3 (#181, #182, #183)
+- **PRs Merged**: 2 (#181, #182)
+- **TDD Success Rate**: 100% (all backend tasks)
+
+## [2026-01-26T23:15:00Z] Plan 9 Phase A Complete
+
+### OpenSpec Proposal Created
+- Change-ID: `add-acquisition-supply-chain`
+- Branch: `feat/plan9-proposal`
+- Files created:
+  - `proposal.md` - Rationale, changes, impact
+  - `tasks.md` - 9 implementation tasks
+  - `specs/campaign-management/spec.md` - MODIFIED (15 new acquisition options)
+  - `specs/day-progression/spec.md` - MODIFIED (acquisition processor)
+  - `specs/acquisition-supply-chain/spec.md` - ADDED (7 new requirements)
+- Validation: `openspec validate add-acquisition-supply-chain --strict` PASSED
+
+### Delegation Pattern Observation
+OpenSpec proposal creation via delegation consistently fails (background task errors).
+Pattern established: Orchestrator creates OpenSpec proposals directly (planning documents).
+This is appropriate orchestrator work and avoids delegation system issues.
+
+### Next Steps
+1. User reviews and approves proposal
+2. Begin Phase B: Implementation (9 tasks)
+3. Follow TDD approach (proven 100% success rate)
+
+## [2026-01-27T00:00:00Z] Plan 9 Implementation Progress
+
+### Tasks Complete (2/9)
+- ✅ 9.1: Acquisition Types (40 tests)
+- ✅ 9.2: Acquisition Roll Calculator (26 tests)
+
+### Remaining Tasks (7/9)
+- ⏳ 9.3: Planetary Modifiers
+- ⏳ 9.4: Delivery Time Calculator
+- ⏳ 9.5: Shopping List Queue
+- ⏳ 9.6: Acquisition Day Processor
+- ⏳ 9.7: Auto-Logistics Scanner
+- ⏳ 9.8: Campaign Integration
+- ⏳ 9.9: Acquisition UI
+
+### Test Suite Growth
+- Starting: 14,097 tests
+- Current: 14,163 tests (+66)
+- All passing, zero failures
+
+### TDD Success Rate
+- 100% for all backend tasks
+- Injectable RandomFn pattern working perfectly
+
+### Token Usage
+- Current: 120k/200k (60%)
+- Remaining: 80k tokens
+- Estimated: ~10-12k per task
+- Capacity: 6-8 more tasks possible
+
+### Session Duration
+- Total: ~8 hours
+- Tier 2: Complete
+- Tier 3: Plan 9 in progress (22% complete)
