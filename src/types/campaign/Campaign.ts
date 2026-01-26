@@ -76,14 +76,17 @@ export interface ICampaignOptions {
   /** XP awarded per mission */
   readonly xpPerMission: number;
 
-  /** XP awarded per kill */
-  readonly xpPerKill: number;
+   /** XP awarded per kill */
+   readonly xpPerKill: number;
 
-  /** Whether to track time in service */
-  readonly trackTimeInService: boolean;
+   /** Multiplier for skill improvement XP costs (1.0 = normal) */
+   readonly xpCostMultiplier: number;
 
-  /** Whether to use edge points */
-  readonly useEdge: boolean;
+   /** Whether to track time in service */
+   readonly trackTimeInService: boolean;
+
+   /** Whether to use edge points */
+   readonly useEdge: boolean;
 
   // =========================================================================
   // Financial Options (~10)
@@ -591,10 +594,11 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     healingWaitingPeriod: 1,
     useAdvancedMedical: false,
     maxPatientsPerDoctor: 25,
-    xpPerMission: 1,
-    xpPerKill: 1,
-    trackTimeInService: true,
-    useEdge: true,
+     xpPerMission: 1,
+     xpPerKill: 1,
+     xpCostMultiplier: 1.0,
+     trackTimeInService: true,
+     useEdge: true,
 
     // Financial options
     startingFunds: 0,
