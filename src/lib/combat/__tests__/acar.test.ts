@@ -1,4 +1,4 @@
-import { calculateVictoryProbability, distributeDamage, determineCasualties } from '../acar';
+import { calculateVictoryProbability, distributeDamage, determineCasualties, resolveScenario } from '../acar';
 import { PersonnelStatus } from '@/types/campaign/enums';
 
 describe('calculateVictoryProbability', () => {
@@ -273,14 +273,282 @@ describe('determineCasualties', () => {
     });
   });
 
-  it('should return Map with correct personnelId keys', () => {
-    const randomValues = [0.05, 0.3, 0.08, 0.75];
+   it('should return Map with correct personnelId keys', () => {
+     const randomValues = [0.05, 0.3, 0.08, 0.75];
+     let index = 0;
+     const seededRandom = () => randomValues[index++];
+     const personnelIds = ['soldier1', 'soldier2', 'soldier3'];
+     const result = determineCasualties(personnelIds, 0.1, seededRandom);
+     result.forEach((status, personnelId) => {
+       expect(personnelIds).toContain(personnelId);
+     });
+   });
+});
+
+describe('resolveScenario', () => {
+  it('should return victory outcome when roll < probability', () => {
+    // Equal BVs = 0.5 probability, roll 0.3 < 0.5 = victory
+    const randomValues = [0.3]; // outcome roll
     let index = 0;
     const seededRandom = () => randomValues[index++];
-    const personnelIds = ['soldier1', 'soldier2', 'soldier3'];
-    const result = determineCasualties(personnelIds, 0.1, seededRandom);
-    result.forEach((status, personnelId) => {
-      expect(personnelIds).toContain(personnelId);
-    });
+    const result = resolveScenario(3000, 3000, [], [], seededRandom);
+    expect(result.outcome).toBe('victory');
+  });
+
+  it('should return defeat outcome when roll > 1 - probability', () => {
+    // Equal BVs = 0.5 probability, 1 - 0.5 = 0.5, roll 0.8 > 0.5 = defeat
+    const randomValues = [0.8]; // outcome roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, [], [], seededRandom);
+    expect(result.outcome).toBe('defeat');
+  });
+
+  it('should return draw outcome when roll is in middle range', () => {
+    // Equal BVs = 0.5 probability, roll 0.5 is not < 0.5 and not > 0.5 = draw
+    const randomValues = [0.5]; // outcome roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, [], [], seededRandom);
+    expect(result.outcome).toBe('draw');
+  });
+
+  it('should set severity to 0.3 for victory outcome', () => {
+    // Victory with severity 0.3
+    const randomValues = [0.3, 0.5]; // outcome roll, damage roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], [], seededRandom);
+    expect(result.outcome).toBe('victory');
+    // Verify damage is calculated with severity 0.3
+    expect(result.unitDamage.get('unit1')).toBeCloseTo(22.5, 5); // 0.3 * (0.5 + 0.5 * 0.5) * 100
+  });
+
+  it('should set severity to 0.8 for defeat outcome', () => {
+    // Defeat with severity 0.8
+    const randomValues = [0.8, 0.5]; // outcome roll, damage roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], [], seededRandom);
+    expect(result.outcome).toBe('defeat');
+    // Verify damage is calculated with severity 0.8
+    expect(result.unitDamage.get('unit1')).toBeCloseTo(60, 5); // 0.8 * (0.5 + 0.5 * 0.5) * 100
+  });
+
+  it('should set severity to 0.5 for draw outcome', () => {
+    // Draw with severity 0.5
+    const randomValues = [0.5, 0.5]; // outcome roll, damage roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], [], seededRandom);
+    expect(result.outcome).toBe('draw');
+    // Verify damage is calculated with severity 0.5
+    expect(result.unitDamage.get('unit1')).toBeCloseTo(37.5, 5); // 0.5 * (0.5 + 0.5 * 0.5) * 100
+  });
+
+  it('should set intensity to 0.4 for victory outcome', () => {
+    // Victory with intensity 0.4 (casualty rate 4%)
+    const randomValues = [0.3, 0.5, 0.03, 0.3]; // outcome, damage, casualty roll, status roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    expect(result.outcome).toBe('victory');
+    // With intensity 0.4, casualty rate is 4%, roll 0.03 < 0.04 = casualty
+    expect(result.personnelCasualties.size).toBe(1);
+    expect(result.personnelCasualties.get('pilot1')).toBe(1);
+  });
+
+  it('should set intensity to 0.9 for defeat outcome', () => {
+    // Defeat with intensity 0.9 (casualty rate 9%)
+    const randomValues = [0.8, 0.5, 0.08, 0.3]; // outcome, damage, casualty roll, status roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    expect(result.outcome).toBe('defeat');
+    // With intensity 0.9, casualty rate is 9%, roll 0.08 < 0.09 = casualty
+    expect(result.personnelCasualties.size).toBe(1);
+    expect(result.personnelCasualties.get('pilot1')).toBe(1);
+  });
+
+  it('should set intensity to 0.6 for draw outcome', () => {
+    // Draw with intensity 0.6 (casualty rate 6%)
+    const randomValues = [0.5, 0.5, 0.05, 0.3]; // outcome, damage, casualty roll, status roll
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    expect(result.outcome).toBe('draw');
+    // With intensity 0.6, casualty rate is 6%, roll 0.05 < 0.06 = casualty
+    expect(result.personnelCasualties.size).toBe(1);
+    expect(result.personnelCasualties.get('pilot1')).toBe(1);
+  });
+
+  it('should return unitDamage as Map', () => {
+    const randomValues = [0.3, 0.5];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1', 'unit2'], [], seededRandom);
+    expect(result.unitDamage).toBeInstanceOf(Map);
+    expect(result.unitDamage.size).toBe(2);
+  });
+
+  it('should return personnelCasualties as Map', () => {
+    const randomValues = [0.3, 0.5, 0.03, 0.3, 0.08, 0.75];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, [], ['pilot1', 'pilot2'], seededRandom);
+    expect(result.personnelCasualties).toBeInstanceOf(Map);
+  });
+
+  it('should return empty salvage array', () => {
+    const randomValues = [0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, [], [], seededRandom);
+    expect(result.salvage).toEqual([]);
+    expect(Array.isArray(result.salvage)).toBe(true);
+  });
+
+  it('should return ResolveScenarioResult with all required properties', () => {
+    const randomValues = [0.3, 0.5, 0.03, 0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    expect(result).toHaveProperty('outcome');
+    expect(result).toHaveProperty('unitDamage');
+    expect(result).toHaveProperty('personnelCasualties');
+    expect(result).toHaveProperty('salvage');
+    expect(typeof result.outcome).toBe('string');
+    expect(result.unitDamage instanceof Map).toBe(true);
+    expect(result.personnelCasualties instanceof Map).toBe(true);
+    expect(Array.isArray(result.salvage)).toBe(true);
+  });
+
+  it('should handle empty unitIds array', () => {
+    const randomValues = [0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, [], [], seededRandom);
+    expect(result.unitDamage).toEqual(new Map());
+    expect(result.unitDamage.size).toBe(0);
+  });
+
+  it('should handle empty personnelIds array', () => {
+    const randomValues = [0.3, 0.5];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], [], seededRandom);
+    expect(result.personnelCasualties).toEqual(new Map());
+    expect(result.personnelCasualties.size).toBe(0);
+  });
+
+  it('should handle equal BVs (50/50 probability)', () => {
+    // With equal BVs, probability is 0.5
+    // roll 0.3 < 0.5 = victory
+    const randomValues = [0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(5000, 5000, [], [], seededRandom);
+    expect(result.outcome).toBe('victory');
+  });
+
+  it('should handle player advantage (high probability)', () => {
+    // Player BV 6000, Opponent BV 2000 = 0.75 probability
+    // roll 0.5 < 0.75 = victory
+    const randomValues = [0.5];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(6000, 2000, [], [], seededRandom);
+    expect(result.outcome).toBe('victory');
+  });
+
+  it('should handle opponent advantage (low probability)', () => {
+    // Player BV 2000, Opponent BV 6000 = 0.25 probability
+    // roll 0.8 > (1 - 0.25) = 0.75 = defeat
+    const randomValues = [0.8];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(2000, 6000, [], [], seededRandom);
+    expect(result.outcome).toBe('defeat');
+  });
+
+  it('should be deterministic with seeded random function', () => {
+    const randomValues = [0.3, 0.5, 0.03, 0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    
+    const result1 = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    
+    // Reset index for second call
+    index = 0;
+    const result2 = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    
+    expect(result1.outcome).toBe(result2.outcome);
+    expect(result1.unitDamage.get('unit1')).toBe(result2.unitDamage.get('unit1'));
+    expect(result1.personnelCasualties.get('pilot1')).toBe(result2.personnelCasualties.get('pilot1'));
+  });
+
+  it('should use Math.random by default when no random function provided', () => {
+    const result = resolveScenario(3000, 3000, ['unit1', 'unit2'], ['pilot1', 'pilot2']);
+    expect(result.outcome).toBeDefined();
+    expect(['victory', 'defeat', 'draw']).toContain(result.outcome);
+    expect(result.unitDamage.size).toBe(2);
+    expect(result.unitDamage.get('unit1')).toBeDefined();
+    expect(result.unitDamage.get('unit2')).toBeDefined();
+  });
+
+  it('should distribute damage to all units in unitIds', () => {
+    const randomValues = [0.3, 0.2, 0.5, 0.8];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['mech1', 'vehicle2', 'turret3'], [], seededRandom);
+    expect(result.unitDamage.size).toBe(3);
+    expect(result.unitDamage.has('mech1')).toBe(true);
+    expect(result.unitDamage.has('vehicle2')).toBe(true);
+    expect(result.unitDamage.has('turret3')).toBe(true);
+  });
+
+  it('should track casualties for all affected personnel', () => {
+    // Victory with intensity 0.4 (4% casualty rate)
+    const randomValues = [0.3, 0.5, 0.03, 0.3, 0.02, 0.75, 0.08, 0.5];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1', 'pilot2', 'pilot3'], seededRandom);
+    expect(result.outcome).toBe('victory');
+    // pilot1: 0.03 < 0.04 = casualty
+    // pilot2: 0.02 < 0.04 = casualty
+    // pilot3: 0.08 > 0.04 = no casualty
+    expect(result.personnelCasualties.size).toBe(2);
+    expect(result.personnelCasualties.has('pilot1')).toBe(true);
+    expect(result.personnelCasualties.has('pilot2')).toBe(true);
+    expect(result.personnelCasualties.has('pilot3')).toBe(false);
+  });
+
+  it('should return casualty count of 1 for each casualty', () => {
+    const randomValues = [0.3, 0.5, 0.03, 0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(3000, 3000, ['unit1'], ['pilot1'], seededRandom);
+    expect(result.personnelCasualties.get('pilot1')).toBe(1);
+  });
+
+  it('should handle complex scenario with multiple units and personnel', () => {
+    // Defeat scenario with multiple units and personnel
+    const randomValues = [
+      0.8,    // outcome roll: defeat
+      0.2, 0.5, 0.8,  // damage rolls for 3 units
+      0.08, 0.3,      // pilot1: casualty, WOUNDED
+      0.15,           // pilot2: no casualty
+      0.07, 0.75      // pilot3: casualty, MIA
+    ];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = resolveScenario(2000, 6000, ['unit1', 'unit2', 'unit3'], ['pilot1', 'pilot2', 'pilot3'], seededRandom);
+    
+    expect(result.outcome).toBe('defeat');
+    expect(result.unitDamage.size).toBe(3);
+    expect(result.personnelCasualties.size).toBe(2);
+    expect(result.personnelCasualties.has('pilot1')).toBe(true);
+    expect(result.personnelCasualties.has('pilot2')).toBe(false);
+    expect(result.personnelCasualties.has('pilot3')).toBe(true);
   });
 });
