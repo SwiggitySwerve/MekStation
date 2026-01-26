@@ -278,7 +278,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.3 Implement Planetary Modifier System
+- [x] 9.3 Implement Planetary Modifier System
 
   **What to do**:
   - Create `src/lib/campaign/acquisition/planetaryModifiers.ts`:
