@@ -65,3 +65,115 @@ After user approval of the proposal, proceed to implementation:
 - Implement tasks 7.1-7.6 sequentially
 - Run tests after each task
 - Mark tasks.md items as complete
+
+## [2026-01-26] Plan 2 Task 2.1: Turnover Modifier Functions
+
+### Implementation Notes
+- IPerson lacks birthDate field; used recruitmentDate as proxy for age calculation
+- ICampaignOptions lacks turnoverFixedTargetNumber; used optional property access with default 3
+- getServiceContractModifier returns 0 (needs per-person contract term tracking)
+- Skill desirability uses pilotSkills.gunnery/piloting average mapped to MekHQ experience tiers
+- MissionStatus modifier filters to SUCCESS/FAILED/BREACH only, ignores ACTIVE/PENDING
+
+### File Structure
+- types.ts: TurnoverModifierResult interface
+- personalModifiers.ts: 7 functions (founder, promotion, age, injury, officer, contract, skill)
+- campaignModifiers.ts: 2 functions (baseTarget, missionStatus)
+- stubModifiers.ts: 10 stub functions with @stub JSDoc tags
+- index.ts: barrel export
+- __tests__/modifiers.test.ts: 47 tests, 100% pass rate
+
+### Test Results
+- 47/47 modifier tests pass
+- Full suite: 427 suites, 13183 tests pass, 0 failures
+
+## [2026-01-26] Plan 2 Task 2.2: Core Turnover Check
+
+### Implementation Notes
+- RandomFn pattern reused from contractMarket.ts (injectable for testability)
+- roll2d6 uses two calls to random(): `Math.floor(r()*6)+1` per die
+- Seeded random helper: `randomFor2d6(die1, die2)` maps die values to random() inputs via `(die-1)/6`
+- Desertion threshold: roll < targetNumber - 4 → deserted (0 payout), else retired (salary × 12)
+- Money class has no `fromAmount` static — use `new Money(amount)` constructor
+- MapIterator requires `Array.from()` wrapper (no downlevelIteration flag)
+- Commander immunity via extended options pattern: `campaign.options as ICampaignOptions & TurnoverExtendedOptions`
+- Skipped statuses: POW, MIA, STUDENT, KIA, RETIRED, DESERTED, MISSING, AWOL (only ACTIVE processed)
+
+### Files Created
+- turnoverCheck.ts: roll2d6, checkTurnover, runTurnoverChecks, getPersonMonthlySalary, TurnoverCheckResult, TurnoverReport
+- __tests__/turnoverCheck.test.ts: 23 tests
+
+### Test Results
+- 23/23 turnoverCheck tests pass
+- Full suite: 428 suites, 13206 tests pass, 0 failures
+
+## [2026-01-26] Plan 2 Task 2.3: Extend Person with Turnover Fields
+
+### Implementation Notes
+- Added 4 optional fields to both IPersonCareer and IPerson (mirrored per existing pattern)
+- No createDefaultPerson() factory exists — fields default to undefined naturally
+- All fields optional (backward compatible, no migration needed)
+- Fields: lastPromotionDate, serviceContractEndDate, departureDate, departureReason
+
+### Test Results
+- 4 new tests added to existing Person.test.ts
+- 93/93 Person tests pass
+- Full suite: 428 suites, 13210 tests pass, 0 failures
+
+## [2026-01-26] Plan 2 Task 2.4: Turnover Day Processor
+
+### Implementation Notes
+- Date 3025-06-16 is Thursday in UTC (not Monday as in 2025) — year 3025 day-of-week differs from 2025
+- Fixed test to use 3025-06-20 (Monday) and 3025-06-21 (Tuesday)
+- isMonday/isFirstOfMonth/isFirstOfYear exported from dayPipeline.ts
+- TurnoverFrequency type: weekly/monthly/quarterly/annually/never
+
+### Test Results
+- 19/19 turnoverProcessor tests pass
+- Full suite: 429 suites, 13229 tests pass, 0 failures
+
+## [2026-01-26] Plan 2 Task 2.5: Turnover Campaign Options
+
+### Implementation Notes
+- Added TurnoverFrequency type and 8 turnover options to ICampaignOptions
+- Added defaults to createDefaultCampaignOptions()
+- Removed ad-hoc TurnoverExtOptions/TurnoverExtendedOptions from turnoverCheck.ts and campaignModifiers.ts
+- Updated test helpers in turnoverCheck.test.ts and modifiers.test.ts to include new fields
+- turnoverProcessor.ts now imports TurnoverFrequency from Campaign.ts (single source of truth)
+
+### Test Results
+- 89/89 turnover tests pass
+- Full suite: 429 suites, 13229 tests pass, 0 failures
+
+## [2026-01-26] Plan 2 Task 2.6: Turnover Report UI
+
+### Implementation Notes
+- Added TurnoverDepartureEvent type to DayReport (serializable version of TurnoverCheckResult)
+- Updated convertToLegacyDayReport to extract turnover_departure events from pipeline
+- Updated turnoverProcessor to include modifier data in event.data
+- TurnoverReportPanel: expandable departure cards with modifier breakdown
+- TurnoverSettingsPanel: 8 controls (toggle, dropdown, 2 number inputs, 4 checkboxes)
+- Integrated into DayReportPanel with collectTurnoverDepartures for multi-day aggregation
+- No campaign settings page exists yet; TurnoverSettingsPanel is standalone for future integration
+
+### UI Patterns Used
+- Card component from @/components/ui
+- Tailwind classes: surface-deep, border-theme-subtle, text-theme-primary/secondary/muted
+- Color coding: amber-400 for retired, red-400 for deserted, green-400 for positive modifiers
+- React.memo + useCallback for performance
+- data-testid attributes for integration testing
+
+### Files Created
+- src/components/campaign/TurnoverReportPanel.tsx
+- src/components/campaign/TurnoverSettingsPanel.tsx
+- src/components/campaign/__tests__/TurnoverReportPanel.test.tsx (12 tests)
+- src/components/campaign/__tests__/TurnoverSettingsPanel.test.tsx (11 tests)
+
+### Files Modified
+- src/lib/campaign/dayAdvancement.ts (added TurnoverDepartureEvent, updated DayReport)
+- src/components/campaign/DayReportPanel.tsx (integrated TurnoverReportPanel)
+- src/lib/campaign/processors/turnoverProcessor.ts (added modifiers to event data)
+
+### Test Results
+- 23/23 new UI tests pass
+- Full suite: 431 suites, 13252 tests pass, 0 failures

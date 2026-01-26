@@ -4,8 +4,10 @@ import {
   HealedPersonEvent,
   ExpiredContractEvent,
   DailyCostBreakdown,
+  TurnoverDepartureEvent,
 } from '@/lib/campaign/dayAdvancement';
 import { Money } from '@/types/campaign/Money';
+import { TurnoverReportPanel } from './TurnoverReportPanel';
 
 interface DayReportPanelProps {
   reports: DayReport[];
@@ -66,6 +68,22 @@ function collectExpiredContracts(reports: DayReport[]): ExpiredContractEvent[] {
   return result;
 }
 
+function collectTurnoverDepartures(reports: DayReport[]): TurnoverDepartureEvent[] {
+  const seen = new Set<string>();
+  const result: TurnoverDepartureEvent[] = [];
+
+  for (const report of reports) {
+    for (const evt of report.turnoverDepartures) {
+      if (!seen.has(evt.personId)) {
+        seen.add(evt.personId);
+        result.push(evt);
+      }
+    }
+  }
+
+  return result;
+}
+
 export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): React.ReactElement {
   if (reports.length === 0) {
     return <></>;
@@ -75,10 +93,11 @@ export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): Rea
   const costs = isMultiDay ? aggregateCosts(reports) : reports[0].costs;
   const healedPersonnel = isMultiDay ? collectHealedPersonnel(reports) : reports[0].healedPersonnel;
   const expiredContracts = isMultiDay ? collectExpiredContracts(reports) : reports[0].expiredContracts;
+  const turnoverDepartures = isMultiDay ? collectTurnoverDepartures(reports) : reports[0].turnoverDepartures;
   const lastReport = reports[reports.length - 1];
   const balanceNegative = lastReport.campaign.finances.balance.isNegative();
 
-  const hasEvents = healedPersonnel.length > 0 || expiredContracts.length > 0 || costs.total.amount > 0;
+  const hasEvents = healedPersonnel.length > 0 || expiredContracts.length > 0 || costs.total.amount > 0 || turnoverDepartures.length > 0;
 
   return (
     <Card className="mb-6 border-l-4 border-l-accent">
@@ -154,6 +173,8 @@ export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): Rea
             </ul>
           </div>
         )}
+
+        <TurnoverReportPanel departures={turnoverDepartures} />
 
         {expiredContracts.length > 0 && (
           <div>
