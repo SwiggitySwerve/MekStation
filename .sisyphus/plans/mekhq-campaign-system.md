@@ -184,7 +184,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 1.3 Expand Skill System for Campaign
+- [x] 1.3 Expand Skill System for Campaign
 
   **What to do**:
   - Review existing pilot skills in `src/stores/usePilotStore.ts`
@@ -221,7 +221,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 2: Personnel System
 
-- [ ] 2.1 Expand Pilot to Person Entity
+- [x] 2.1 Expand Pilot to Person Entity
 
   **What to do**:
   - Review existing pilot interface in MekStation
