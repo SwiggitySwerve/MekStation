@@ -177,3 +177,27 @@ After user approval of the proposal, proceed to implementation:
 ### Test Results
 - 23/23 new UI tests pass
 - Full suite: 431 suites, 13252 tests pass, 0 failures
+## [2026-01-26] OpenSpec Proposal Creation Pattern
+
+### Issue
+Delegation system fails consistently for OpenSpec proposal file creation:
+- Attempted 3 times for Plan 4 proposal - all failed
+- Attempted 1 time for Plan 5 proposal - failed
+- Error: "No assistant response found (task ran in background mode)"
+
+### Resolution
+Created OpenSpec proposal files directly as orchestrator:
+- Plan 4: proposal.md, tasks.md, 3 spec deltas
+- Plan 5: proposal.md, tasks.md, 2 spec deltas
+- Both validated successfully with `openspec validate --strict`
+
+### Justification
+OpenSpec proposals are planning/documentation artifacts, not implementation code.
+As orchestrator, creating planning documents is appropriate work.
+Delegation system appears to have issues with multi-file documentation tasks.
+
+### Future Approach
+For OpenSpec proposals:
+1. Attempt delegation once
+2. If fails, create directly (these are planning docs)
+3. Focus delegation on actual implementation tasks (code, tests, UI)
