@@ -27,3 +27,19 @@ Check PR status periodically. When merged:
 3. Archive `add-skills-expansion` OpenSpec change
 4. Commit archive
 5. Mark Plan 7 as complete
+
+## Plan 2: Turnover & Retention System
+
+**Status**: Implementation complete, awaiting merge
+**Blocker**: PR #178 CI checks in progress
+**Action**: Auto-merge enabled, will merge automatically when CI passes
+**Next Step**: Archive OpenSpec change after merge completes
+**Workaround**: Moving to Plan 3 while waiting for CI
+
+**Details**:
+- PR: https://github.com/SwiggitySwerve/MekStation/pull/178
+- Branch: feat/add-turnover-retention
+- Commits: 8 (1 OpenSpec + 7 implementation)
+- Tests: 116 new, 13,252 total passing
+- CI Status: IN_PROGRESS (Lint and Test, Prepare Build Artifacts)
+- Auto-merge: Enabled with --squash
