@@ -551,7 +551,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 6.2 Implement Basic Financial Processing
+- [x] 6.2 Implement Basic Financial Processing
 
   **What to do**:
   - Create `src/lib/finances/FinanceService.ts`
