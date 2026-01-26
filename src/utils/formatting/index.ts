@@ -13,3 +13,15 @@ export {
   formatExpiry,
   formatLastSeen,
 } from './dateTimeUtils';
+
+export {
+  formatBV,
+  formatWeight,
+  formatCost,
+  formatCostFull,
+  formatArmorPoints,
+  formatHeat,
+  formatDamage,
+  formatRange,
+  formatMovement,
+} from './gameValueFormatters';

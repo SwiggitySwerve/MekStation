@@ -31,6 +31,7 @@ import {
 } from '@/types/construction';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { createSingleton, type SingletonFactory } from '@/services/core/createSingleton';
 import {
   parseEngineType,
   parseGyroType,
@@ -107,19 +108,7 @@ function getStructurePoints(location: MechLocation, tonnage: number): number {
  * Creates IBattleMech instances from serialized unit data.
  */
 export class UnitFactoryService {
-  private static instance: UnitFactoryService | null = null;
-  
-  private constructor() {}
-  
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): UnitFactoryService {
-    if (!UnitFactoryService.instance) {
-      UnitFactoryService.instance = new UnitFactoryService();
-    }
-    return UnitFactoryService.instance;
-  }
+  constructor() {}
   
   /**
    * Create an IBattleMech from ISerializedUnit
@@ -483,10 +472,19 @@ export class UnitFactoryService {
   }
 }
 
+const unitFactoryServiceFactory: SingletonFactory<UnitFactoryService> = createSingleton((): UnitFactoryService => new UnitFactoryService());
+
 /**
  * Convenience function to get the factory instance
  */
 export function getUnitFactory(): UnitFactoryService {
-  return UnitFactoryService.getInstance();
+  return unitFactoryServiceFactory.get();
+}
+
+/**
+ * Reset the singleton (for testing)
+ */
+export function resetUnitFactory(): void {
+  unitFactoryServiceFactory.reset();
 }
 

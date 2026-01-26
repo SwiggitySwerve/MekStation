@@ -24,6 +24,7 @@ import {
   parseTechBase as parseEnumTechBase,
   parseRulesLevel as parseEnumRulesLevel,
 } from '@/services/units/EnumParserRegistry';
+import { createSingleton, type SingletonFactory } from '../core/createSingleton';
 
 /**
  * Detect if we're running in a server (Node.js) environment
@@ -603,8 +604,6 @@ function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
  * Loads and caches equipment data from JSON files for runtime use.
  */
 export class EquipmentLoaderService {
-  private static instance: EquipmentLoaderService | null = null;
-  
   private weapons: Map<string, IWeapon> = new Map();
   private ammunition: Map<string, IAmmunition> = new Map();
   private electronics: Map<string, IElectronics> = new Map();
@@ -613,17 +612,7 @@ export class EquipmentLoaderService {
   private isLoaded = false;
   private loadErrors: string[] = [];
   
-  private constructor() {}
-  
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): EquipmentLoaderService {
-    if (!EquipmentLoaderService.instance) {
-      EquipmentLoaderService.instance = new EquipmentLoaderService();
-    }
-    return EquipmentLoaderService.instance;
-  }
+  constructor() {}
   
   /**
    * Check if equipment is loaded
@@ -1171,10 +1160,19 @@ export class EquipmentLoaderService {
   }
 }
 
+const equipmentLoaderServiceFactory: SingletonFactory<EquipmentLoaderService> = createSingleton((): EquipmentLoaderService => new EquipmentLoaderService());
+
 /**
  * Convenience function to get the loader instance
  */
 export function getEquipmentLoader(): EquipmentLoaderService {
-  return EquipmentLoaderService.getInstance();
+  return equipmentLoaderServiceFactory.get();
+}
+
+/**
+ * Reset the singleton (for testing)
+ */
+export function resetEquipmentLoader(): void {
+  equipmentLoaderServiceFactory.reset();
 }
 

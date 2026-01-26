@@ -7,3 +7,4 @@
  */
 
 export * from './armorDataRegistry';
+export * from './armorRatios';

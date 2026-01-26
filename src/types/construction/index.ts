@@ -16,4 +16,5 @@ export * from './MechConfigurationSystem';
 export * from './MovementEnhancement';
 export * from './TechBaseConfiguration';
 export * from './UnitLocation';
+export * from './IComponentConfig';
 

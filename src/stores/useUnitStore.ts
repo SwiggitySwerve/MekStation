@@ -8,30 +8,9 @@
  */
 
 import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { createContext, useContext } from 'react';
-
-// =============================================================================
-// Client-Safe Storage
-// =============================================================================
-
-/**
- * Storage wrapper that safely handles SSR (no localStorage on server)
- */
-const clientSafeStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(name);
-  },
-  setItem: (name: string, value: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(name, value);
-  },
-  removeItem: (name: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(name);
-  },
-};
+import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   TechBaseMode,

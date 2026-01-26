@@ -8,12 +8,14 @@
 // Base entity interfaces
 export * from './IEntity';
 export * from './ITechBaseEntity';
-export * from './IWeightedComponent';
-export * from './ISlottedComponent';
 export * from './IPlaceableComponent';
 export * from './IValuedComponent';
 export * from './ITemporalEntity';
 export * from './IDocumentedEntity';
+
+// Generic type utilities and interfaces
+export * from './typeGuardFactory';
+export * from './IStatusTrackable';
 
 // Re-export enums for convenience
 export * from '../enums';

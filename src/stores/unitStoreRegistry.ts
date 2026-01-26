@@ -11,26 +11,7 @@ import { StoreApi } from 'zustand';
 import { UnitStore, UnitState, createDefaultUnitState, CreateUnitOptions } from './unitState';
 import { createUnitStore, createNewUnitStore } from './useUnitStore';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
-
-// =============================================================================
-// SSR-Safe Storage Helper
-// =============================================================================
-
-/**
- * Safely get item from localStorage (returns null during SSR)
- */
-function safeGetItem(key: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(key);
-}
-
-/**
- * Safely remove item from localStorage (no-op during SSR)
- */
-function safeRemoveItem(key: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(key);
-}
+import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 
 // =============================================================================
 // Registry

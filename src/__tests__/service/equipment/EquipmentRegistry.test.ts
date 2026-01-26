@@ -1,4 +1,4 @@
-import { EquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { getEquipmentRegistry, resetEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 
@@ -80,12 +80,9 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
 
 /**
  * Reset singleton instance for clean tests.
- * Uses Object() wrapper to access private static property.
  */
 function resetSingleton(): void {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const registry: Record<string, unknown> = Object(EquipmentRegistry);
-  registry['instance'] = null;
+  resetEquipmentRegistry();
 }
 
 describe('EquipmentRegistry', () => {
@@ -94,14 +91,14 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should return singleton instance', () => {
-    const instance1 = EquipmentRegistry.getInstance();
-    const instance2 = EquipmentRegistry.getInstance();
+    const instance1 = getEquipmentRegistry();
+    const instance2 = getEquipmentRegistry();
     
     expect(instance1).toBe(instance2);
   });
 
   it('should initialize registry', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     
     await registry.initialize();
     
@@ -109,7 +106,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should not reinitialize if already initialized', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     
     await registry.initialize();
     const wasReady = registry.isReady();
@@ -120,7 +117,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should lookup equipment by ID', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const result = registry.lookup('medium-laser');
@@ -131,7 +128,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should lookup equipment by name', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const result = registry.lookup('Medium Laser');
@@ -142,7 +139,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should return not found for unknown ID', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const result = registry.lookup('unknown-equipment');
@@ -152,7 +149,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should get registry statistics', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const stats = registry.getStats();
@@ -166,7 +163,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should get weapon by ID', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const weapon = registry.getWeapon('medium-laser');
@@ -176,7 +173,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should get ammunition by ID', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const ammo = registry.getAmmunition('ac-5-ammo');
@@ -186,7 +183,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should resolve equipment name to ID', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const id = registry.resolveEquipmentName('Medium Laser');
@@ -195,7 +192,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should return null for unresolvable name', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     const id = registry.resolveEquipmentName('Unknown Weapon');
@@ -204,7 +201,7 @@ describe('EquipmentRegistry', () => {
   });
 
   it('should reset registry', async () => {
-    const registry = EquipmentRegistry.getInstance();
+    const registry = getEquipmentRegistry();
     await registry.initialize();
     
     expect(registry.isReady()).toBe(true);

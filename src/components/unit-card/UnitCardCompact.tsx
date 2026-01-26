@@ -7,6 +7,7 @@
 import React from 'react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
+import { getTechBaseDisplay } from '@/utils/techBase';
 
 export interface UnitCardCompactProps {
   id: string;
@@ -41,11 +42,7 @@ export function UnitCardCompact({
   onClick,
   className = '',
 }: UnitCardCompactProps): React.ReactElement {
-  const isInnerSphere = techBaseName.toLowerCase().includes('inner sphere') || techBaseName.toLowerCase() === 'is';
-  const isClan = techBaseName.toLowerCase().includes('clan');
-  
-  const techBadgeVariant = isClan ? 'cyan' : isInnerSphere ? 'amber' : 'slate';
-  const techLabel = isClan ? 'Clan' : isInnerSphere ? 'IS' : techBaseName;
+  const { variant: techBadgeVariant, label: techLabel } = getTechBaseDisplay(techBaseName);
 
   return (
     <Card

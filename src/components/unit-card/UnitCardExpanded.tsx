@@ -9,6 +9,8 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { UnitCardStandardProps } from './UnitCardStandard';
+import { getTechBaseDisplay } from '@/utils/techBase';
+import { getHeatDisplay } from '@/utils/heatCalculation';
 
 export interface EquipmentEntry {
   name: string;
@@ -74,16 +76,10 @@ export function UnitCardExpanded({
   onDelete,
   className = '',
 }: UnitCardExpandedProps): React.ReactElement {
-  const isInnerSphere = techBaseName.toLowerCase().includes('inner sphere') || techBaseName.toLowerCase() === 'is';
-  const isClan = techBaseName.toLowerCase().includes('clan');
-  
-  const techBadgeVariant = isClan ? 'cyan' : isInnerSphere ? 'amber' : 'slate';
-  const techLabel = isClan ? 'Clan' : isInnerSphere ? 'IS' : techBaseName;
+  const { variant: techBadgeVariant, label: techLabel } = getTechBaseDisplay(techBaseName);
   
   const armorPercentage = maxArmor > 0 ? Math.round((totalArmor / maxArmor) * 100) : 0;
-  const heatNet = heatGenerated - heatDissipation;
-  const heatNetDisplay = heatNet > 0 ? `+${heatNet}` : heatNet.toString();
-  const heatVariant = heatNet > 0 ? 'text-rose-400' : heatNet < 0 ? 'text-cyan-400' : 'text-text-theme-secondary';
+  const heat = getHeatDisplay(heatGenerated, heatDissipation);
 
   const hasActions = onEdit || onExport || onShare || onDuplicate || onDelete;
 
@@ -215,8 +211,8 @@ export function UnitCardExpanded({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-text-theme-secondary">Net</span>
-              <span className={`font-mono font-semibold ${heatVariant}`}>
-                {heatNetDisplay}
+              <span className={`font-mono font-semibold ${heat.className}`}>
+                {heat.display}
               </span>
             </div>
           </div>

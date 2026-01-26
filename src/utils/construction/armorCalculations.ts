@@ -11,6 +11,7 @@ import { getStructurePoints } from '../../types/construction/InternalStructureTy
 import { ceilToHalfTon } from '../physical/weightUtils';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { MechLocation, getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
+import { ARMOR_RATIOS, getExpectedArmorCapacity } from '@/utils/armor/armorRatios';
 
 /**
  * Maximum armor points for head location
@@ -452,27 +453,13 @@ export function calculateArmorCost(armorPoints: number, armorType: ArmorTypeEnum
 /**
  * Standard front/rear armor distribution ratio
  * Based on BattleTech conventions: 75% front, 25% rear
+ * @deprecated Use ARMOR_RATIOS from @/utils/armor/armorRatios instead
  */
-export const FRONT_ARMOR_RATIO = 0.75;
-export const REAR_ARMOR_RATIO = 0.25;
+export const FRONT_ARMOR_RATIO = ARMOR_RATIOS.FRONT;
+export const REAR_ARMOR_RATIO = ARMOR_RATIOS.REAR;
 
-/**
- * Get expected armor capacity for front and rear based on standard distribution
- *
- * Uses the 75/25 front/rear split as the baseline for calculating
- * what the "expected" max is for each side. This allows armor status
- * colors to show green when at expected capacity, even if front has
- * more points than rear.
- *
- * @param totalMaxArmor - Total max armor for the location (front + rear)
- * @returns Expected max for front and rear
- */
-export function getExpectedArmorCapacity(totalMaxArmor: number): { front: number; rear: number } {
-  return {
-    front: Math.round(totalMaxArmor * FRONT_ARMOR_RATIO),
-    rear: Math.round(totalMaxArmor * REAR_ARMOR_RATIO),
-  };
-}
+// Re-export getExpectedArmorCapacity from centralized location
+export { getExpectedArmorCapacity };
 
 /**
  * Calculate armor fill percentage based on expected capacity

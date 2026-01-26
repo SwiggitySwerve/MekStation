@@ -7,6 +7,8 @@
  * @module utils/armor/armorColors
  */
 
+import { ARMOR_RATIOS } from './armorRatios';
+
 /**
  * Status thresholds for armor coloring
  */
@@ -42,9 +44,10 @@ export const MEGAMEK_COLORS = {
 
 /**
  * Standard front/rear armor distribution ratio (75/25 split)
+ * @deprecated Use ARMOR_RATIOS from armorRatios.ts instead
  */
-export const FRONT_RATIO = 0.75;
-export const REAR_RATIO = 0.25;
+export const FRONT_RATIO = ARMOR_RATIOS.FRONT;
+export const REAR_RATIO = ARMOR_RATIOS.REAR;
 
 /**
  * Get status color based on armor percentage

@@ -10,6 +10,7 @@
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 import { ISlotsByLocation, ISlotLocationEntry } from '@/types/validation/UnitValidationInterfaces';
+import { getLocationsForConfiguration as getLocationsFromRegistry, BIPED_LOCATIONS } from '@/utils/mech/mechLocationRegistry';
 
 /**
  * Minimal equipment instance interface for slot calculation
@@ -49,38 +50,17 @@ export const LOCATION_DISPLAY_NAMES: Record<MechLocation, string> = {
 /**
  * Get applicable locations for a mech configuration
  *
+ * Delegates to mechLocationRegistry for the location list.
+ * Returns biped locations if configuration is undefined.
+ *
  * @param configuration - Mech configuration type
  * @returns Array of MechLocation values applicable to the configuration
  */
 export function getLocationsForConfiguration(configuration?: MechConfiguration): MechLocation[] {
-  const coreLocations = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-  ];
-
-  if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {
-    return [
-      ...coreLocations,
-      MechLocation.FRONT_LEFT_LEG,
-      MechLocation.FRONT_RIGHT_LEG,
-      MechLocation.REAR_LEFT_LEG,
-      MechLocation.REAR_RIGHT_LEG,
-    ];
-  } else if (configuration === MechConfiguration.TRIPOD) {
-    return [
-      ...coreLocations,
-      MechLocation.LEFT_ARM,
-      MechLocation.RIGHT_ARM,
-      MechLocation.LEFT_LEG,
-      MechLocation.RIGHT_LEG,
-      MechLocation.CENTER_LEG,
-    ];
-  } else {
-    // Biped/LAM/default
-    return [...coreLocations, MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM, MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG];
+  if (!configuration) {
+    return BIPED_LOCATIONS;
   }
+  return getLocationsFromRegistry(configuration);
 }
 
 /**

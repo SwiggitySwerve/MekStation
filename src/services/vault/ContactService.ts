@@ -15,6 +15,7 @@ import type {
 import { ContactRepository, getContactRepository } from './ContactRepository';
 import { isValidFriendCode, decodeFriendCode } from './IdentityService';
 import { getIdentityRepository } from './IdentityRepository';
+import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -255,18 +256,15 @@ export class ContactService {
 // Singleton
 // =============================================================================
 
-let contactService: ContactService | null = null;
+const contactServiceFactory = createSingleton(() => new ContactService());
 
 export function getContactService(): ContactService {
-  if (!contactService) {
-    contactService = new ContactService();
-  }
-  return contactService;
+  return contactServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetContactService(): void {
-  contactService = null;
+  contactServiceFactory.reset();
 }

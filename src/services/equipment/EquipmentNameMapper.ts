@@ -9,6 +9,7 @@
 
 import { TechBase } from '@/types/enums/TechBase';
 import { getEquipmentRegistry, EquipmentRegistry } from './EquipmentRegistry';
+import { createSingleton, type SingletonFactory } from '../core/createSingleton';
 
 /**
  * Name mapping result
@@ -220,29 +221,17 @@ const MTF_NAME_MAPPINGS: Record<string, string> = {
  * Maps MTF equipment names to canonical equipment IDs.
  */
 export class EquipmentNameMapper {
-  private static instance: EquipmentNameMapper | null = null;
-  
   private registry: EquipmentRegistry;
   private customMappings: Map<string, string> = new Map();
   private unknownNames: Set<string> = new Set();
   
-  private constructor() {
+  constructor() {
     this.registry = getEquipmentRegistry();
     
     // Initialize static mappings
     Object.entries(MTF_NAME_MAPPINGS).forEach(([name, id]) => {
       this.customMappings.set(name.toLowerCase(), id);
     });
-  }
-  
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): EquipmentNameMapper {
-    if (!EquipmentNameMapper.instance) {
-      EquipmentNameMapper.instance = new EquipmentNameMapper();
-    }
-    return EquipmentNameMapper.instance;
   }
   
   /**
@@ -409,10 +398,19 @@ export class EquipmentNameMapper {
   }
 }
 
+const equipmentNameMapperFactory: SingletonFactory<EquipmentNameMapper> = createSingleton((): EquipmentNameMapper => new EquipmentNameMapper());
+
 /**
  * Convenience function to get the mapper instance
  */
 export function getEquipmentNameMapper(): EquipmentNameMapper {
-  return EquipmentNameMapper.getInstance();
+  return equipmentNameMapperFactory.get();
+}
+
+/**
+ * Reset the singleton (for testing)
+ */
+export function resetEquipmentNameMapper(): void {
+  equipmentNameMapperFactory.reset();
 }
 

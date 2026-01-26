@@ -1,4 +1,4 @@
-import { EquipmentLoaderService, getEquipmentLoader, IEquipmentFilter } from '@/services/equipment/EquipmentLoaderService';
+import { getEquipmentLoader, resetEquipmentLoader, IEquipmentFilter } from '@/services/equipment/EquipmentLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EquipmentBehaviorFlag } from '@/types/enums/EquipmentFlag';
@@ -26,7 +26,7 @@ interface TestableServiceMaps {
  * 
  * Uses Object() wrapper to access private properties without double assertions.
  */
-function getServiceMaps(svc: EquipmentLoaderService): TestableServiceMaps {
+function getServiceMaps(svc: ReturnType<typeof getEquipmentLoader>): TestableServiceMaps {
   // Wrap in Object() to get indexable representation, then access private properties
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const internal: Record<string, unknown> = Object(svc);
@@ -43,14 +43,15 @@ function getServiceMaps(svc: EquipmentLoaderService): TestableServiceMaps {
 global.fetch = jest.fn();
 
 describe('EquipmentLoaderService', () => {
-  let service: EquipmentLoaderService;
+  let service: ReturnType<typeof getEquipmentLoader>;
   let consoleWarnSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     // Get fresh instance
-    service = EquipmentLoaderService.getInstance();
+    resetEquipmentLoader();
+    service = getEquipmentLoader();
     service.clear();
     (global.fetch as jest.Mock).mockClear();
   });
@@ -61,17 +62,18 @@ describe('EquipmentLoaderService', () => {
 
   describe('Singleton pattern', () => {
     it('should return same instance', () => {
-      const instance1 = EquipmentLoaderService.getInstance();
-      const instance2 = EquipmentLoaderService.getInstance();
+      const instance1 = getEquipmentLoader();
+      const instance2 = getEquipmentLoader();
       
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance via convenience function', () => {
+    it('should return same instance after reset', () => {
       const instance1 = getEquipmentLoader();
-      const instance2 = EquipmentLoaderService.getInstance();
+      resetEquipmentLoader();
+      const instance2 = getEquipmentLoader();
       
-      expect(instance1).toBe(instance2);
+      expect(instance1).not.toBe(instance2);
     });
   });
 
