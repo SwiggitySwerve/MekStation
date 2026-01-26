@@ -59,10 +59,11 @@ function CampaignCard({ campaign, onClick }: CampaignCardProps): React.ReactElem
 // =============================================================================
 
 export default function CampaignsListPage(): React.ReactElement {
-  const router = useRouter();
-  const store = useCampaignStore();
-  const campaigns = Array.from(store.campaigns?.values() || []);
-  const [isClient, setIsClient] = useState(false);
+   const router = useRouter();
+   const store = useCampaignStore();
+   const campaign = store.getState().getCampaign();
+   const campaigns = campaign ? [campaign] : [];
+   const [isClient, setIsClient] = useState(false);
 
   // Hydration fix
   useState(() => {
