@@ -549,3 +549,69 @@ Convention discoveries, patterns, and best practices found during implementation
 - Campaign store uses `campaign/Transaction.TransactionType` for IFinances compatibility
 - Future: Consider consolidating to single enum source
 
+
+## Mission/Contract/Scenario Entity System (Task 4.1)
+
+### IMission Interface Design
+- Full mission interface with 12 fields (id, name, status, type, systemId, scenarioIds, description, briefing, startDate, endDate, createdAt, updatedAt)
+- `type` discriminator field ('mission' | 'contract') enables type narrowing
+- `scenarioIds` is readonly string[] referencing IScenario entities (not embedded)
+- `startDate`/`endDate` are ISO date strings (not Date objects) for clean serialization
+- `systemId` references the planet/system where mission takes place
+
+### IContract Interface Design
+- Extends IMission with 5 additional fields: employerId, targetId, paymentTerms, salvageRights, commandRights
+- `type` discriminator is always 'contract' (narrowed from IMission's union)
+- SalvageRights type: 'None' | 'Exchange' | 'Integrated' (string union, not enum)
+- CommandRights type: 'Independent' | 'House' | 'Integrated' (string union, not enum)
+- paymentTerms uses IPaymentTerms interface with Money values
+
+### IScenario Interface Design
+- 13 fields including mapSize as embedded object { width, height }
+- `objectives` is readonly IObjective[] (embedded, not referenced by ID)
+- `deployedForceIds` references IForce entities
+- `terrainType` is string (not enum) for flexibility
+- `opponentForceDescription` is free-text description of enemy forces
+
+### IObjective Interface Design
+- 5 fields: id, description, type, completed, required
+- ObjectiveType: 'Destroy' | 'Capture' | 'Defend' | 'Escort' | 'Recon' | 'Withdraw' | 'Custom'
+- `required` flag determines if objective is needed for mission success
+- Embedded in IScenario (not standalone entity)
+
+### IPaymentTerms Interface Design
+- 7 Money fields: basePayment, successPayment, partialPayment, failurePayment, transportPayment, supportPayment
+- salvagePercent: number (0-100) for salvage rights percentage
+- All Money fields use immutable Money class
+- calculateTotalPayout() combines base + outcome + transport + support
+- Salvage calculated separately via calculateSalvageShare()
+
+### Stub Replacement Strategy
+- Campaign.ts stub IMission replaced with import + re-export from Mission.ts
+- Campaign.ts createMission() updated to delegate to Mission.ts createMission()
+- Campaign.ts isMission() updated to delegate to Mission.ts isMission()
+- Backwards compatibility maintained: all existing imports from Campaign.ts still work
+- Date→string migration: Campaign.ts createMission accepts Date|string for startDate/endDate
+
+### Consumer Updates Required
+- Store tests (useMissionsStore.test.ts, useCampaignStore.test.ts) needed updates for new required fields
+- Test fixtures needed type, systemId, scenarioIds fields added
+- Old Date-based startDate/endDate changed to string-based
+- employerId/targetId moved from IMission to IContract (breaking change for tests using old stub)
+
+### Test Coverage
+- PaymentTerms.test.ts: 57 tests (interface, calculations, type guards, factories, integration)
+- Mission.test.ts: 59 tests (IMission, IContract, helpers, type guards, factories)
+- Scenario.test.ts: 72 tests (IScenario, IObjective, helpers, type guards, factories, integration)
+- Total: 188 new tests, all passing
+- All existing Campaign.test.ts and store tests still pass (186 tests)
+- TypeScript typecheck passes with zero errors
+
+### Key Insights
+- Discriminated union (type: 'mission' | 'contract') enables clean type narrowing
+- String unions (SalvageRights, CommandRights) preferred over enums for simple value sets
+- Embedded objectives in scenarios (vs referenced by ID) simplifies data model
+- Money class integration works well for financial calculations
+- Re-export pattern in Campaign.ts maintains backwards compatibility during migration
+
+

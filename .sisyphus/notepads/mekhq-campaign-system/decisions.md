@@ -239,3 +239,50 @@ const cents2 = Math.round(0.3 * 100);         // 30
 - Allows force tree operations to work uniformly
 - getRootForce() helper for convenient access
 
+
+## Mission/Contract/Scenario Design Decisions (Task 4.1)
+
+### Decision: Discriminated Union for Mission/Contract
+**Rationale**:
+- `type: 'mission' | 'contract'` field enables TypeScript discriminated union
+- `isContract()` type guard narrows IMission to IContract
+- Cleaner than checking for optional fields
+- Enables exhaustive switch statements
+
+### Decision: String Unions for SalvageRights/CommandRights
+**Rationale**:
+- Only 3 values each ('None'|'Exchange'|'Integrated', 'Independent'|'House'|'Integrated')
+- Too few values to justify full enum with ALL_*, isValid*, display* pattern
+- String unions are simpler and sufficient
+- Can upgrade to enums later if needed
+
+### Decision: ISO Date Strings Instead of Date Objects
+**Rationale**:
+- Old stub used `startDate?: Date` which doesn't serialize cleanly to JSON
+- New interface uses `startDate?: string` (ISO date strings)
+- Consistent with createdAt/updatedAt pattern
+- Avoids Date serialization/deserialization issues in stores
+- Campaign.ts createMission() accepts Date|string for backwards compatibility
+
+### Decision: Embedded Objectives in Scenarios
+**Rationale**:
+- Objectives are always accessed in context of their scenario
+- No need for independent objective lookup by ID
+- Simpler data model (no separate objectives Map)
+- Matches MekHQ pattern (ScenarioObjective is owned by Scenario)
+
+### Decision: scenarioIds Reference Pattern
+**Rationale**:
+- Missions reference scenarios by ID (string[]), not embed them
+- Scenarios are independent entities that can be queried separately
+- Enables scenario-level operations without loading full mission
+- Consistent with forces/personnel reference pattern
+
+### Decision: Re-export from Campaign.ts for Backwards Compatibility
+**Rationale**:
+- Existing code imports IMission from '@/types/campaign/Campaign'
+- Changing all import paths would be disruptive
+- Re-exporting from Campaign.ts maintains all existing imports
+- New code can import directly from Mission.ts
+- Gradual migration path
+

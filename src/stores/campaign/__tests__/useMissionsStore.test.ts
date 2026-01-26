@@ -23,6 +23,9 @@ const createTestMission = (overrides?: Partial<IMission>): IMission => {
     id,
     name: 'Test Mission',
     status: MissionStatus.PENDING,
+    type: 'mission',
+    systemId: 'Unknown System',
+    scenarioIds: [],
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -392,18 +395,17 @@ describe('useMissionsStore', () => {
         name: 'Full Mission',
         status: MissionStatus.ACTIVE,
         description: 'A detailed mission description',
-        startDate: new Date('3025-06-15'),
-        endDate: new Date('3025-06-30'),
-        employerId: 'faction-davion',
-        targetId: 'faction-liao',
+        startDate: '3025-06-15',
+        endDate: '3025-06-30',
+        briefing: 'Mission briefing text',
       });
 
       store.getState().addMission(mission);
 
       const retrieved = store.getState().getMission(mission.id);
       expect(retrieved?.description).toBe('A detailed mission description');
-      expect(retrieved?.employerId).toBe('faction-davion');
-      expect(retrieved?.targetId).toBe('faction-liao');
+      expect(retrieved?.startDate).toBe('3025-06-15');
+      expect(retrieved?.briefing).toBe('Mission briefing text');
     });
 
     it('should handle mission status transitions', () => {

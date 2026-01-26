@@ -13,59 +13,19 @@ import { IForce, getAllUnits as getForceUnits } from './Force';
 import { IFinances } from './IFinances';
 import { Money } from './Money';
 import { MissionStatus, PersonnelStatus } from './enums';
+import {
+  IMission,
+  IContract,
+  isMission as isMissionGuard,
+  isContract,
+  createMission as createMissionEntity,
+  createContract,
+} from './Mission';
+import type { SalvageRights, CommandRights } from './Mission';
 
-// =============================================================================
-// Mission Interface (Stub)
-// =============================================================================
-
-/**
- * Stub interface for missions.
- *
- * This is a minimal interface for MVP. Full mission system will be
- * implemented in a future task.
- *
- * @example
- * const mission: IMission = {
- *   id: 'mission-001',
- *   name: 'Raid on Hesperus II',
- *   status: MissionStatus.ACTIVE,
- *   description: 'Raid enemy supply depot',
- *   startDate: new Date('3025-06-15'),
- *   createdAt: '2026-01-26T10:00:00Z',
- *   updatedAt: '2026-01-26T10:00:00Z',
- * };
- */
-export interface IMission {
-  /** Unique identifier */
-  readonly id: string;
-
-  /** Mission name */
-  readonly name: string;
-
-  /** Current mission status */
-  readonly status: MissionStatus;
-
-  /** Mission description (optional) */
-  readonly description?: string;
-
-  /** Mission start date (optional) */
-  readonly startDate?: Date;
-
-  /** Mission end date (optional) */
-  readonly endDate?: Date;
-
-  /** Employer faction ID (optional) */
-  readonly employerId?: string;
-
-  /** Target faction ID (optional) */
-  readonly targetId?: string;
-
-  /** Creation timestamp (ISO 8601) */
-  readonly createdAt: string;
-
-  /** Last update timestamp (ISO 8601) */
-  readonly updatedAt: string;
-}
+// Re-export Mission types for backwards compatibility
+export type { IMission, IContract, SalvageRights, CommandRights };
+export { isContract, createContract };
 
 // =============================================================================
 // Campaign Options Interface
@@ -535,6 +495,8 @@ export function getRootForce(campaign: ICampaign): IForce | undefined {
 /**
  * Type guard to check if an object is an IMission.
  *
+ * Delegates to Mission.ts isMission type guard.
+ *
  * @param value - The value to check
  * @returns true if the value is an IMission
  *
@@ -544,15 +506,7 @@ export function getRootForce(campaign: ICampaign): IForce | undefined {
  * }
  */
 export function isMission(value: unknown): value is IMission {
-  if (typeof value !== 'object' || value === null) return false;
-  const mission = value as IMission;
-  return (
-    typeof mission.id === 'string' &&
-    typeof mission.name === 'string' &&
-    typeof mission.status === 'string' &&
-    typeof mission.createdAt === 'string' &&
-    typeof mission.updatedAt === 'string'
-  );
+  return isMissionGuard(value);
 }
 
 /**
@@ -682,6 +636,10 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
 /**
  * Creates a new mission with default values.
  *
+ * Delegates to Mission.ts createMission factory.
+ * Accepts Date objects for startDate/endDate for backwards compatibility
+ * (converts to ISO strings internally).
+ *
  * @param params - Mission parameters
  * @returns A new IMission instance
  *
@@ -696,24 +654,29 @@ export function createMission(params: {
   name: string;
   status?: MissionStatus;
   description?: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: Date | string;
+  endDate?: Date | string;
   employerId?: string;
   targetId?: string;
+  systemId?: string;
+  scenarioIds?: string[];
+  briefing?: string;
 }): IMission {
-  const now = new Date().toISOString();
-  return {
+  return createMissionEntity({
     id: params.id,
     name: params.name,
-    status: params.status ?? MissionStatus.PENDING,
+    status: params.status,
     description: params.description,
-    startDate: params.startDate,
-    endDate: params.endDate,
-    employerId: params.employerId,
-    targetId: params.targetId,
-    createdAt: now,
-    updatedAt: now,
-  };
+    startDate: params.startDate instanceof Date
+      ? params.startDate.toISOString()
+      : params.startDate,
+    endDate: params.endDate instanceof Date
+      ? params.endDate.toISOString()
+      : params.endDate,
+    systemId: params.systemId,
+    scenarioIds: params.scenarioIds,
+    briefing: params.briefing,
+  });
 }
 
 /**

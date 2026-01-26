@@ -109,6 +109,9 @@ function createTestMission(
     id,
     name,
     status,
+    type: 'mission',
+    systemId: 'Unknown System',
+    scenarioIds: [],
     createdAt: '2026-01-26T10:00:00Z',
     updatedAt: '2026-01-26T10:00:00Z',
   };
@@ -301,20 +304,23 @@ describe('IMission Interface', () => {
         id: 'mission-1',
         name: 'Test Mission',
         status: MissionStatus.ACTIVE,
+        type: 'mission',
+        systemId: 'hesperus-ii',
+        scenarioIds: ['scenario-1'],
         description: 'A test mission',
-        startDate: new Date('3025-06-15'),
-        endDate: new Date('3025-06-30'),
-        employerId: 'davion',
-        targetId: 'liao',
+        briefing: 'Briefing text',
+        startDate: '3025-06-15',
+        endDate: '3025-06-30',
         createdAt: '2026-01-26T10:00:00Z',
         updatedAt: '2026-01-26T10:00:00Z',
       };
 
       expect(mission.description).toBe('A test mission');
-      expect(mission.startDate).toBeInstanceOf(Date);
-      expect(mission.endDate).toBeInstanceOf(Date);
-      expect(mission.employerId).toBe('davion');
-      expect(mission.targetId).toBe('liao');
+      expect(mission.briefing).toBe('Briefing text');
+      expect(mission.startDate).toBe('3025-06-15');
+      expect(mission.endDate).toBe('3025-06-30');
+      expect(mission.systemId).toBe('hesperus-ii');
+      expect(mission.scenarioIds).toEqual(['scenario-1']);
     });
 
     it('should support all mission statuses', () => {
@@ -738,15 +744,15 @@ describe('Factory Functions', () => {
         status: MissionStatus.ACTIVE,
         description: 'A test mission',
         startDate: new Date('3025-06-15'),
-        employerId: 'davion',
-        targetId: 'liao',
+        systemId: 'hesperus-ii',
+        scenarioIds: ['scenario-1'],
       });
 
       expect(mission.status).toBe(MissionStatus.ACTIVE);
       expect(mission.description).toBe('A test mission');
-      expect(mission.startDate).toBeInstanceOf(Date);
-      expect(mission.employerId).toBe('davion');
-      expect(mission.targetId).toBe('liao');
+      expect(typeof mission.startDate).toBe('string');
+      expect(mission.systemId).toBe('hesperus-ii');
+      expect(mission.scenarioIds).toEqual(['scenario-1']);
     });
 
     it('should set timestamps', () => {

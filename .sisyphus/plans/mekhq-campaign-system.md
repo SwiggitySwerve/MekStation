@@ -389,7 +389,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 4: Mission System
 
-- [ ] 4.1 Define Mission/Contract/Scenario Entities
+- [x] 4.1 Define Mission/Contract/Scenario Entities
 
   **What to do**:
   - Create `src/types/campaign/Mission.ts`:
