@@ -1,6 +1,6 @@
 # Personnel Management Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Personnel Status Transitions
 The system SHALL support voluntary departure status transitions for personnel who fail turnover checks, transitioning from ACTIVE to either RETIRED (voluntary departure) or DESERTED (negative departure).

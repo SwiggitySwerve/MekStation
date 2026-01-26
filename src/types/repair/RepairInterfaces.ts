@@ -5,6 +5,13 @@
  * @spec openspec/changes/add-repair-system/specs/repair/spec.md
  */
 
+import {
+  type PartQuality,
+  getQualityRepairCostMultiplier,
+  QUALITY_TN_MODIFIER,
+  DEFAULT_UNIT_QUALITY,
+} from '@/types/campaign/quality';
+
 // =============================================================================
 // Enums
 // =============================================================================
@@ -214,6 +221,10 @@ export interface IRepairJob {
   readonly startedAt?: string;
   /** Completed timestamp */
   readonly completedAt?: string;
+  /** Assigned tech personnel ID (for quality-aware repairs) */
+  readonly assignedTechId?: string;
+  /** Unit quality grade at time of repair (affects cost and TN) */
+  readonly unitQuality?: PartQuality;
 }
 
 // =============================================================================
@@ -284,6 +295,8 @@ export interface ISalvagedPart {
   readonly condition: number;
   /** Estimated value in C-Bills */
   readonly estimatedValue: number;
+  /** Quality grade of salvaged part (defaults to C / below average) */
+  readonly quality?: PartQuality;
 }
 
 /**
@@ -694,4 +707,33 @@ export function sortJobsByPriority(jobs: readonly IRepairJob[]): IRepairJob[] {
     // Then by created date (older first)
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
   });
+}
+
+// =============================================================================
+// Quality-Aware Repair Functions
+// =============================================================================
+
+export function calculateQualityAdjustedRepairCost(
+  baseCost: number,
+  quality?: PartQuality
+): number {
+  const multiplier = getQualityRepairCostMultiplier(quality ?? DEFAULT_UNIT_QUALITY);
+  return Math.ceil(baseCost * multiplier);
+}
+
+/**
+ * Calculate the target number for a repair check.
+ *
+ * repairTN = techSkillValue + qualityTNModifier + otherModifiers
+ *
+ * Lower TN is easier. Quality A adds +3 (harder), F adds -2 (easier).
+ * Without a tech skill value, uses the base TN of 8 (average difficulty).
+ */
+export function calculateRepairTargetNumber(
+  techSkillValue: number,
+  quality?: PartQuality,
+  additionalModifiers: number = 0
+): number {
+  const qualityMod = QUALITY_TN_MODIFIER[quality ?? DEFAULT_UNIT_QUALITY];
+  return techSkillValue + qualityMod + additionalModifiers;
 }

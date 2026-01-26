@@ -9,14 +9,14 @@ import { ISkillType } from '../ISkillType';
 
 describe('Skill Catalog', () => {
   describe('SKILL_CATALOG Structure', () => {
-    it('should have 40+ skill types (39 defined, room for expansion)', () => {
+    it('should have 40+ skill types (40 defined, room for expansion)', () => {
       const skillCount = Object.keys(SKILL_CATALOG).length;
-      expect(skillCount).toBeGreaterThanOrEqual(39);
+      expect(skillCount).toBeGreaterThanOrEqual(40);
     });
 
-    it('should have exactly 39 skills', () => {
+    it('should have exactly 40 skills', () => {
       const skillCount = Object.keys(SKILL_CATALOG).length;
-      expect(skillCount).toBe(39);
+      expect(skillCount).toBe(40);
     });
 
     it('should have all required combat skills', () => {
@@ -47,6 +47,7 @@ describe('Skill Catalog', () => {
         'tech-ba',
         'tech-vessel',
         'astech',
+        'tech-general',
       ];
 
       for (const skillId of technicalSkills) {
@@ -200,9 +201,9 @@ describe('Skill Catalog', () => {
       expect(combatSkills).toHaveLength(11);
     });
 
-    it('should return 6 technical skills', () => {
+    it('should return 7 technical skills', () => {
       const technicalSkills = getSkillsByCategory('technical');
-      expect(technicalSkills).toHaveLength(6);
+      expect(technicalSkills).toHaveLength(7);
     });
 
     it('should return 3 medical skills', () => {
@@ -248,9 +249,9 @@ describe('Skill Catalog', () => {
   });
 
   describe('getAllSkillTypes() Function', () => {
-    it('should return all 39 skill types', () => {
+    it('should return all 40 skill types', () => {
       const allSkills = getAllSkillTypes();
-      expect(allSkills).toHaveLength(39);
+      expect(allSkills).toHaveLength(40);
     });
 
     it('should return array of ISkillType objects', () => {
@@ -294,6 +295,7 @@ describe('Skill Catalog', () => {
             'tech-ba',
             'tech-vessel',
             'astech',
+            'tech-general',
           ].includes(skill.id)
         ) {
           categories.add('technical');

@@ -16,11 +16,12 @@ describe('Default Skills by Role and Experience Level', () => {
       expect(pilotSkills.skills.piloting).toBe(5);
     });
 
-    it('RED: TECH has tech-mech skill', () => {
+    it('RED: TECH has tech-mech and tech-general skills', () => {
       const techSkills = DEFAULT_SKILLS_BY_ROLE[CampaignPersonnelRole.TECH];
 
       expect(techSkills.skills['tech-mech']).toBe(5);
-      expect(Object.keys(techSkills.skills).length).toBe(1);
+      expect(techSkills.skills['tech-general']).toBe(5);
+      expect(Object.keys(techSkills.skills).length).toBe(2);
     });
 
     it('RED: AEROSPACE_PILOT has aerospace skills', () => {
@@ -137,7 +138,7 @@ describe('Default Skills by Role and Experience Level', () => {
       expect(skills.piloting.typeId).toBe('piloting');
     });
 
-    it('RED: TECH gets tech-mech skill', () => {
+    it('RED: TECH gets tech-mech and tech-general skills', () => {
       const skills = createDefaultSkills(
         CampaignPersonnelRole.TECH,
         ExperienceLevel.Regular
@@ -145,7 +146,9 @@ describe('Default Skills by Role and Experience Level', () => {
 
       expect(skills['tech-mech']).toBeDefined();
       expect(skills['tech-mech'].level).toBe(5);
-      expect(Object.keys(skills).length).toBe(1);
+      expect(skills['tech-general']).toBeDefined();
+      expect(skills['tech-general'].level).toBe(5);
+      expect(Object.keys(skills).length).toBe(2);
     });
 
     it('RED: GREEN experience adds +1 to skill values', () => {

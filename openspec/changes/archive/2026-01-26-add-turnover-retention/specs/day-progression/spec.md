@@ -1,6 +1,6 @@
 # Day Progression Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Turnover Processor Registration
 The system SHALL support registration of a turnover processor in the day pipeline that executes personnel turnover checks at configurable intervals.

@@ -97,19 +97,19 @@ export const DEFAULT_SKILLS_BY_ROLE: Record<
 
   // Support roles
   [CampaignPersonnelRole.TECH]: {
-    skills: { 'tech-mech': 5 },
+    skills: { 'tech-mech': 5, 'tech-general': 5 },
   },
   [CampaignPersonnelRole.MEK_TECH]: {
-    skills: { 'tech-mech': 5 },
+    skills: { 'tech-mech': 5, 'tech-general': 5 },
   },
   [CampaignPersonnelRole.MECHANIC]: {
-    skills: { 'tech-vehicle': 5 },
+    skills: { 'tech-vehicle': 5, 'tech-general': 5 },
   },
   [CampaignPersonnelRole.AERO_TEK]: {
-    skills: { 'tech-aerospace': 5 },
+    skills: { 'tech-aerospace': 5, 'tech-general': 5 },
   },
   [CampaignPersonnelRole.BA_TECH]: {
-    skills: { 'tech-ba': 5 },
+    skills: { 'tech-ba': 5, 'tech-general': 5 },
   },
   [CampaignPersonnelRole.ASTECH]: {
     skills: { astech: 5 },
