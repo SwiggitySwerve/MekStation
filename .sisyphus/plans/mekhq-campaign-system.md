@@ -265,7 +265,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 2.2 Create Personnel Store
+- [x] 2.2 Create Personnel Store
 
   **What to do**:
   - Create `src/stores/campaign/usePersonnelStore.ts`
