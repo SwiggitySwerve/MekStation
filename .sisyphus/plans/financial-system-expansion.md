@@ -343,7 +343,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.4 Implement Tax and Price Multiplier Services
+- [x] 4.4 Implement Tax and Price Multiplier Services
 
   **What to do**:
   - Create `src/lib/finances/taxService.ts`:
