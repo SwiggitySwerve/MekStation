@@ -7,3 +7,7 @@
 
 export * from './OpForGeneratorService';
 export * from './ScenarioGeneratorService';
+
+// Export singleton instances
+export { opForGenerator } from './OpForGeneratorService';
+export { scenarioGenerator } from './ScenarioGeneratorService';
