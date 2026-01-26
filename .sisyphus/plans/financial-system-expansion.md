@@ -283,7 +283,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.3 Implement Loan Service
+- [x] 4.3 Implement Loan Service
 
   **What to do**:
   - Create `src/lib/finances/loanService.ts`
