@@ -936,3 +936,51 @@ describe('Unit Assignment', () => {
     expect(unassignedPerson.forceId).toBeUndefined();
   });
 });
+
+// =============================================================================
+// Turnover Fields Tests
+// =============================================================================
+
+describe('Turnover Fields', () => {
+  it('should support optional turnover fields', () => {
+    const person = createTestPerson({
+      lastPromotionDate: new Date('3025-03-01'),
+      serviceContractEndDate: new Date('3026-01-01'),
+      departureDate: new Date('3025-06-15'),
+      departureReason: 'retired',
+    });
+
+    expect(person.lastPromotionDate).toEqual(new Date('3025-03-01'));
+    expect(person.serviceContractEndDate).toEqual(new Date('3026-01-01'));
+    expect(person.departureDate).toEqual(new Date('3025-06-15'));
+    expect(person.departureReason).toBe('retired');
+  });
+
+  it('should default turnover fields to undefined', () => {
+    const person = createTestPerson();
+
+    expect(person.lastPromotionDate).toBeUndefined();
+    expect(person.serviceContractEndDate).toBeUndefined();
+    expect(person.departureDate).toBeUndefined();
+    expect(person.departureReason).toBeUndefined();
+  });
+
+  it('should not break existing IPerson objects without turnover fields', () => {
+    const person = createTestPerson();
+
+    expect(person.id).toBe('person-001');
+    expect(person.name).toBe('John Smith');
+    expect(person.status).toBe(PersonnelStatus.ACTIVE);
+    expect(isActive(person)).toBe(true);
+    expect(isPerson(person)).toBe(true);
+  });
+
+  it('should support deserted departure reason', () => {
+    const person = createTestPerson({
+      departureDate: new Date('3025-06-15'),
+      departureReason: 'deserted',
+    });
+
+    expect(person.departureReason).toBe('deserted');
+  });
+});
