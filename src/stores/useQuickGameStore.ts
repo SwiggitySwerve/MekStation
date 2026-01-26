@@ -165,80 +165,83 @@ export const useQuickGameStore = create<QuickGameStore>()(
         });
       },
 
-      generateScenario: () => {
-        const { game } = get();
-        if (!game) {
-          set({ error: 'No active game' });
-          return;
-        }
+       generateScenario: () => {
+         const { game } = get();
+         if (!game) {
+           set({ error: 'No active game' });
+           return;
+         }
 
-        if (game.playerForce.units.length === 0) {
-          set({ error: 'Add at least one unit to generate scenario' });
-          return;
-        }
+         if (game.playerForce.units.length === 0) {
+           set({ error: 'Add at least one unit to generate scenario' });
+           return;
+         }
 
-        set({ isLoading: true, error: null });
+         set({ isLoading: true, error: null });
 
-        try {
-          // Map config to generator input
-          const faction = (game.scenarioConfig.enemyFaction as Faction) || Faction.PIRATES;
-          const biome = (game.scenarioConfig.biome as BiomeType) || undefined;
-          const scenarioType = game.scenarioConfig.scenarioType as ScenarioObjectiveType | undefined;
+         // Wrap in setTimeout to make async - ensures React sees isLoading transition
+         setTimeout(() => {
+           try {
+             // Map config to generator input
+             const faction = (game.scenarioConfig.enemyFaction as Faction) || Faction.PIRATES;
+             const biome = (game.scenarioConfig.biome as BiomeType) || undefined;
+             const scenarioType = game.scenarioConfig.scenarioType as ScenarioObjectiveType | undefined;
 
-          // Generate scenario using the scenario generator
-          const scenario = scenarioGenerator.generate({
-            playerBV: game.playerForce.totalBV,
-            playerUnitCount: game.playerForce.units.length,
-            faction,
-            era: Era.LATE_SUCCESSION_WARS,
-            difficulty: game.scenarioConfig.difficulty,
-            maxModifiers: game.scenarioConfig.modifierCount,
-            allowNegativeModifiers: game.scenarioConfig.allowNegativeModifiers,
-            biome,
-            scenarioType,
-            seed: Date.now(),
-          });
+             // Generate scenario using the scenario generator
+             const scenario = scenarioGenerator.generate({
+               playerBV: game.playerForce.totalBV,
+               playerUnitCount: game.playerForce.units.length,
+               faction,
+               era: Era.LATE_SUCCESSION_WARS,
+               difficulty: game.scenarioConfig.difficulty,
+               maxModifiers: game.scenarioConfig.modifierCount,
+               allowNegativeModifiers: game.scenarioConfig.allowNegativeModifiers,
+               biome,
+               scenarioType,
+               seed: Date.now(),
+             });
 
-          // Convert OpFor units to quick game units
-          const opponentUnits = scenario.opFor.units.map((unit) =>
-            createQuickGameUnit({
-              sourceUnitId: `${unit.chassis}-${unit.variant}`,
-              name: unit.designation,
-              chassis: unit.chassis,
-              variant: unit.variant,
-              bv: unit.bv,
-              tonnage: unit.tonnage,
-              gunnery: unit.pilot.gunnery,
-              piloting: unit.pilot.piloting,
-              pilotName: unit.pilot.name,
-              maxArmor: {}, // Would need full unit data
-              maxStructure: {}, // Would need full unit data
-            })
-          );
+             // Convert OpFor units to quick game units
+             const opponentUnits = scenario.opFor.units.map((unit) =>
+               createQuickGameUnit({
+                 sourceUnitId: `${unit.chassis}-${unit.variant}`,
+                 name: unit.designation,
+                 chassis: unit.chassis,
+                 variant: unit.variant,
+                 bv: unit.bv,
+                 tonnage: unit.tonnage,
+                 gunnery: unit.pilot.gunnery,
+                 piloting: unit.pilot.piloting,
+                 pilotName: unit.pilot.name,
+                 maxArmor: {}, // Would need full unit data
+                 maxStructure: {}, // Would need full unit data
+               })
+             );
 
-          const opponentForce: IQuickGameForce = {
-            name: `${faction} Force`,
-            units: opponentUnits,
-            totalBV: scenario.opFor.totalBV,
-            totalTonnage: opponentUnits.reduce((sum, u) => sum + u.tonnage, 0),
-          };
+             const opponentForce: IQuickGameForce = {
+               name: `${faction} Force`,
+               units: opponentUnits,
+               totalBV: scenario.opFor.totalBV,
+               totalTonnage: opponentUnits.reduce((sum, u) => sum + u.tonnage, 0),
+             };
 
-          set({
-            game: {
-              ...game,
-              scenario,
-              opponentForce,
-            },
-            isLoading: false,
-            isDirty: true,
-          });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to generate scenario',
-            isLoading: false,
-          });
-        }
-      },
+             set({
+               game: {
+                 ...game,
+                 scenario,
+                 opponentForce,
+               },
+               isLoading: false,
+               isDirty: true,
+             });
+           } catch (error) {
+             set({
+               error: error instanceof Error ? error.message : 'Failed to generate scenario',
+               isLoading: false,
+             });
+           }
+         }, 0);
+       },
 
       // =========================================================================
       // Step Navigation
