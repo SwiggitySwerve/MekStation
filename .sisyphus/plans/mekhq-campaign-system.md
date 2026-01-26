@@ -295,7 +295,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 3: Campaign Core
 
-- [ ] 3.1 Define Force Entity
+- [x] 3.1 Define Force Entity
 
   **What to do**:
   - Create `src/types/campaign/Force.ts`:
