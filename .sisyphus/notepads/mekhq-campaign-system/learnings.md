@@ -494,3 +494,58 @@ Convention discoveries, patterns, and best practices found during implementation
 - ✅ Factory functions create valid instances
 - ✅ Integration tests verify aggregate behavior
 
+
+## Campaign Store Implementation (Task 3.3)
+
+### Store Architecture
+- **Campaign Store**: Main store managing campaign state and composing sub-stores
+- **Forces Store**: CRUD operations for IForce entities with Map storage
+- **Missions Store**: CRUD operations for IMission entities with Map storage
+- **Personnel Store**: Already implemented (Task 2.2)
+
+### Sub-Store Composition Pattern
+- Campaign store creates sub-stores on campaign creation: `createPersonnelStore(campaignId)`
+- Sub-stores persist independently with campaign-specific keys: `personnel-${campaignId}`
+- Campaign store syncs sub-store data on `saveCampaign()`
+- Sub-stores accessible via getters: `getPersonnelStore()`, `getForcesStore()`, `getMissionsStore()`
+
+### Persistence Strategy
+- Campaign metadata persisted to `campaign-${campaignId}` key
+- Sub-stores persist to their own keys: `personnel-${id}`, `forces-${id}`, `missions-${id}`
+- Serialization: Maps → Array.from(entries()), Dates → ISO strings, Money → amount number
+- Deserialization: Arrays → new Map(), ISO strings → new Date(), numbers → new Money()
+
+### Date Handling
+- `currentDate` stored as Date object in memory
+- Serialized to ISO 8601 string for persistence
+- Deserialized back to Date on load
+- `advanceDay()` uses `setDate(getDate() + 1)` for proper month/year rollover
+
+### Root Force Pattern
+- Campaign creates root force on creation with campaign name
+- Root force has `parentForceId: undefined`
+- Root force ID stored in `campaign.rootForceId`
+- Forces store includes root force in its Map
+
+### Singleton Pattern
+- `useCampaignStore()` returns singleton instance
+- `resetCampaignStore()` for testing cleanup
+- Factory function `createCampaignStore()` for isolated instances
+
+### Test Coverage
+- **useCampaignStore.test.ts**: 89 tests (store creation, CRUD, persistence, sub-stores)
+- **useForcesStore.test.ts**: 35 tests (CRUD, queries, persistence)
+- **useMissionsStore.test.ts**: 27 tests (CRUD, persistence)
+- **Total**: 151 tests across campaign stores
+
+### Key Insights
+- Zustand persist middleware handles Map serialization via partialize/merge
+- Sub-store composition allows independent persistence and testing
+- Auto-save on advanceDay() ensures state consistency
+- setState() can be used in tests to set specific dates for edge case testing
+
+### TransactionType Conflict
+- Two TransactionType enums exist: `campaign/enums/TransactionType` and `campaign/Transaction`
+- Campaign store uses `campaign/Transaction.TransactionType` for IFinances compatibility
+- Future: Consider consolidating to single enum source
+

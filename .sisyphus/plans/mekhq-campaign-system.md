@@ -360,7 +360,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 3.3 Create Campaign Store
+- [x] 3.3 Create Campaign Store
 
   **What to do**:
   - Create `src/stores/campaign/useCampaignStore.ts`
