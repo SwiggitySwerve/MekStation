@@ -46,6 +46,7 @@ function createTestOptions(): ICampaignOptions {
     healingWaitingPeriod: 1,
     medicalSystem: MedicalSystem.STANDARD,
     maxPatientsPerDoctor: 25,
+    doctorsUseAdministration: false,
     xpPerMission: 1,
     xpPerKill: 1,
     xpCostMultiplier: 1.0,
