@@ -99,28 +99,103 @@ export function distributeDamage(
  * // Map { 'pilot2' => PersonnelStatus.WOUNDED }
  */
 export function determineCasualties(
-  personnelIds: string[],
-  battleIntensity: number,
-  random: () => number = Math.random
+   personnelIds: string[],
+   battleIntensity: number,
+   random: () => number = Math.random
 ): Map<string, PersonnelStatus> {
-  const casualtyMap = new Map<string, PersonnelStatus>();
-  const casualtyRate = battleIntensity * 0.1;
+   const casualtyMap = new Map<string, PersonnelStatus>();
+   const casualtyRate = battleIntensity * 0.1;
 
-  for (const personnelId of personnelIds) {
-    // Determine if this person becomes a casualty
-    if (random() < casualtyRate) {
-      // Roll to determine casualty status
-      const statusRoll = random();
-      
-      if (statusRoll < 0.6) {
-        casualtyMap.set(personnelId, PersonnelStatus.WOUNDED);
-      } else if (statusRoll < 0.9) {
-        casualtyMap.set(personnelId, PersonnelStatus.MIA);
-      } else {
-        casualtyMap.set(personnelId, PersonnelStatus.KIA);
-      }
-    }
-  }
+   for (const personnelId of personnelIds) {
+     // Determine if this person becomes a casualty
+     if (random() < casualtyRate) {
+       // Roll to determine casualty status
+       const statusRoll = random();
+       
+       if (statusRoll < 0.6) {
+         casualtyMap.set(personnelId, PersonnelStatus.WOUNDED);
+       } else if (statusRoll < 0.9) {
+         casualtyMap.set(personnelId, PersonnelStatus.MIA);
+       } else {
+         casualtyMap.set(personnelId, PersonnelStatus.KIA);
+       }
+     }
+   }
 
-  return casualtyMap;
+   return casualtyMap;
+}
+
+/**
+ * Resolves a combat scenario and determines the outcome with damage and casualties
+ * 
+ * Calculates victory probability based on Battle Values, rolls for outcome determination,
+ * and distributes damage and casualties based on the result. Victory outcomes result in
+ * lower damage and casualties, while defeats result in higher damage and casualties.
+ * 
+ * @param playerBV - The player's Battle Value
+ * @param opponentBV - The opponent's Battle Value
+ * @param unitIds - Array of unit identifiers that may sustain damage
+ * @param personnelIds - Array of personnel identifiers that may become casualties
+ * @param random - Optional random number generator function (defaults to Math.random)
+ * @returns ResolveScenarioResult containing outcome, unit damage, personnel casualties, and salvage
+ * 
+ * @example
+ * const result = resolveScenario(3000, 2500, ['unit1', 'unit2'], ['pilot1', 'pilot2']);
+ * // Returns:
+ * // {
+ * //   outcome: 'victory',
+ * //   unitDamage: Map { 'unit1' => 35.2, 'unit2' => 28.9 },
+ * //   personnelCasualties: Map { 'pilot2' => 1 },
+ * //   salvage: []
+ * // }
+ */
+export function resolveScenario(
+   playerBV: number,
+   opponentBV: number,
+   unitIds: string[],
+   personnelIds: string[],
+   random: () => number = Math.random
+): ResolveScenarioResult {
+   // Calculate victory probability
+   const probability = calculateVictoryProbability(playerBV, opponentBV);
+   
+   // Roll to determine outcome
+   const roll = random();
+   let outcome: string;
+   let severity: number;
+   let intensity: number;
+   
+   if (roll < probability) {
+     // Victory
+     outcome = 'victory';
+     severity = 0.3;
+     intensity = 0.4;
+   } else if (roll > 1 - probability) {
+     // Defeat
+     outcome = 'defeat';
+     severity = 0.8;
+     intensity = 0.9;
+   } else {
+     // Draw
+     outcome = 'draw';
+     severity = 0.5;
+     intensity = 0.6;
+   }
+   
+   // Distribute damage and determine casualties
+   const unitDamage = distributeDamage(unitIds, severity, random);
+   const casualtyStatusMap = determineCasualties(personnelIds, intensity, random);
+   
+   // Convert casualty status map to count map (1 = casualty)
+   const personnelCasualties = new Map<string, number>();
+   casualtyStatusMap.forEach((_, personnelId) => {
+     personnelCasualties.set(personnelId, 1);
+   });
+   
+   return {
+     outcome,
+     unitDamage,
+     personnelCasualties,
+     salvage: []
+   };
 }
