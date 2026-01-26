@@ -121,12 +121,21 @@ export interface ICampaignOptions {
   /** Days between maintenance cycles */
   readonly maintenanceCycleDays: number;
 
-  /** Whether to use loan system */
-  readonly useLoanSystem: boolean;
+   /** Whether to use loan system */
+   readonly useLoanSystem: boolean;
 
-  // =========================================================================
-  // Combat Options (~8)
-  // =========================================================================
+   /** Whether to use tax system */
+   readonly useTaxes: boolean;
+
+   /** Tax rate as percentage (e.g., 10 = 10%) */
+   readonly taxRate: number;
+
+   /** Overhead percentage of salary (e.g., 5 = 5%) */
+   readonly overheadPercent: number;
+
+   // =========================================================================
+   // Combat Options (~8)
+   // =========================================================================
 
   /** Whether to use auto-resolve for battles */
   readonly useAutoResolve: boolean;
@@ -624,10 +633,13 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     payForRepairs: true,
     payForSalaries: true,
     payForAmmunition: true,
-    maintenanceCycleDays: 7,
-    useLoanSystem: true,
+     maintenanceCycleDays: 7,
+     useLoanSystem: true,
+     useTaxes: true,
+     taxRate: 10,
+     overheadPercent: 5,
 
-    // Combat options
+     // Combat options
     useAutoResolve: false,
     autoResolveCasualtyRate: 1.0,
     allowPilotCapture: true,
