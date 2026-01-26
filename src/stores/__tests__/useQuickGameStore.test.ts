@@ -5,7 +5,7 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useQuickGameStore } from '../useQuickGameStore';
 import {
   QuickGameStep,
@@ -177,31 +177,55 @@ describe('useQuickGameStore', () => {
     });
   });
 
-  describe('Scenario Configuration', () => {
-    it('should update scenario config', () => {
-      const { result } = renderHook(() => useQuickGameStore());
+   describe('Scenario Configuration', () => {
+     it('should update scenario config', () => {
+       const { result } = renderHook(() => useQuickGameStore());
 
-      act(() => {
-        result.current.startNewGame();
-        result.current.setScenarioConfig({ difficulty: 1.5 });
+       act(() => {
+         result.current.startNewGame();
+         result.current.setScenarioConfig({ difficulty: 1.5 });
+       });
+
+       expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
+     });
+
+     it('should merge config updates', () => {
+       const { result } = renderHook(() => useQuickGameStore());
+
+       act(() => {
+         result.current.startNewGame();
+         result.current.setScenarioConfig({ difficulty: 1.5 });
+         result.current.setScenarioConfig({ modifierCount: 3 });
+       });
+
+       expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
+       expect(result.current.game?.scenarioConfig.modifierCount).toBe(3);
+     });
+
+      it('should generate scenario with OpFor', async () => {
+        const { result } = renderHook(() => useQuickGameStore());
+
+        act(() => {
+          result.current.startNewGame();
+          result.current.addUnit(sampleUnit);
+        });
+
+        act(() => {
+          result.current.generateScenario();
+        });
+
+        // Wait for async scenario generation to complete
+        await waitFor(() => {
+          expect(result.current.isLoading).toBe(false);
+        });
+
+        expect(result.current.game?.scenario).not.toBeNull();
+        expect(result.current.game?.opponentForce).not.toBeNull();
+        expect(result.current.game?.opponentForce?.units.length).toBeGreaterThan(0);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.error).toBeNull();
       });
-
-      expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
-    });
-
-    it('should merge config updates', () => {
-      const { result } = renderHook(() => useQuickGameStore());
-
-      act(() => {
-        result.current.startNewGame();
-        result.current.setScenarioConfig({ difficulty: 1.5 });
-        result.current.setScenarioConfig({ modifierCount: 3 });
-      });
-
-      expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
-      expect(result.current.game?.scenarioConfig.modifierCount).toBe(3);
-    });
-  });
+   });
 
   describe('Step Navigation', () => {
     it('should advance to next step', () => {
