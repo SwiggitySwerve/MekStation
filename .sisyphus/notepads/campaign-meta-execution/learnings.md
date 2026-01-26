@@ -429,3 +429,35 @@ Updated `createDefaultCampaignOptions()` with new defaults.
 - IDayEvent.data is Record<string,unknown> - use typed helper for filtering
 - getAllUnits from Force.ts takes (rootForce, forceMap) not just campaign
 - DEFAULT_DAILY_MAINTENANCE exported from dayAdvancement.ts (100 C-bills)
+
+## [2026-01-26T00:00:00Z] Task 4.6: Financial Campaign Options
+
+### Implementation Notes
+- Added 9 missing financial options to ICampaignOptions interface (lines 139-164)
+- Added corresponding defaults to createDefaultCampaignOptions() (lines 672-680)
+- All options follow existing JSDoc pattern with clear descriptions
+- Options grouped logically with financial section
+
+### Options Added
+1. `payForSecondaryRole: boolean` (default: true)
+2. `maxLoanPercent: number` (default: 50)
+3. `defaultLoanRate: number` (default: 5)
+4. `taxFrequency: 'monthly' | 'quarterly' | 'annually'` (default: 'annually')
+5. `useFoodAndHousing: boolean` (default: true)
+6. `clanPriceMultiplier: number` (default: 2.0)
+7. `mixedTechPriceMultiplier: number` (default: 1.5)
+8. `usedEquipmentMultiplier: number` (default: 0.5)
+9. `damagedEquipmentMultiplier: number` (default: 0.33)
+
+### Test Results
+- TypeScript: ✅ No errors
+- Test Suite: ✅ 13,532 tests passed (440 suites)
+- Updated 3 test fixtures to include new options:
+  - src/lib/campaign/turnover/__tests__/turnoverCheck.test.ts
+  - src/lib/campaign/turnover/modifiers/__tests__/modifiers.test.ts
+  - src/lib/finances/__tests__/taxService.test.ts
+
+### Verification
+- ✅ All existing campaigns deserialize without error
+- ✅ No regressions in test suite
+- ✅ TypeScript compilation clean

@@ -133,12 +133,39 @@ export interface ICampaignOptions {
     /** Overhead percentage of salary (e.g., 5 = 5%) */
     readonly overheadPercent: number;
 
-    /** Whether to use role-based salary system (monthly via financialProcessor) */
-    readonly useRoleBasedSalaries: boolean;
+     /** Whether to use role-based salary system (monthly via financialProcessor) */
+     readonly useRoleBasedSalaries: boolean;
 
-   // =========================================================================
-   // Combat Options (~8)
-   // =========================================================================
+     /** Whether to pay for secondary role assignments */
+     readonly payForSecondaryRole: boolean;
+
+     /** Maximum loan as percentage of total assets (e.g., 50 = 50%) */
+     readonly maxLoanPercent: number;
+
+     /** Default annual loan interest rate (e.g., 5 = 5%) */
+     readonly defaultLoanRate: number;
+
+     /** Tax payment frequency */
+     readonly taxFrequency: 'monthly' | 'quarterly' | 'annually';
+
+     /** Whether to use food and housing costs */
+     readonly useFoodAndHousing: boolean;
+
+     /** Price multiplier for clan equipment (e.g., 2.0 = 200%) */
+     readonly clanPriceMultiplier: number;
+
+     /** Price multiplier for mixed tech equipment (e.g., 1.5 = 150%) */
+     readonly mixedTechPriceMultiplier: number;
+
+     /** Price multiplier for used equipment (e.g., 0.5 = 50%) */
+     readonly usedEquipmentMultiplier: number;
+
+     /** Price multiplier for damaged equipment (e.g., 0.33 = 33%) */
+     readonly damagedEquipmentMultiplier: number;
+
+    // =========================================================================
+    // Combat Options (~8)
+    // =========================================================================
 
   /** Whether to use auto-resolve for battles */
   readonly useAutoResolve: boolean;
@@ -637,13 +664,22 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     payForSalaries: true,
     payForAmmunition: true,
      maintenanceCycleDays: 7,
-     useLoanSystem: true,
-      useTaxes: true,
-      taxRate: 10,
-      overheadPercent: 5,
-      useRoleBasedSalaries: false,
+      useLoanSystem: true,
+       useTaxes: true,
+       taxRate: 10,
+       overheadPercent: 5,
+       useRoleBasedSalaries: false,
+       payForSecondaryRole: true,
+       maxLoanPercent: 50,
+       defaultLoanRate: 5,
+       taxFrequency: 'annually',
+       useFoodAndHousing: true,
+       clanPriceMultiplier: 2.0,
+       mixedTechPriceMultiplier: 1.5,
+       usedEquipmentMultiplier: 0.5,
+       damagedEquipmentMultiplier: 0.33,
 
-     // Combat options
+      // Combat options
     useAutoResolve: false,
     autoResolveCasualtyRate: 1.0,
     allowPilotCapture: true,

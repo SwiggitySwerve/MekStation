@@ -531,7 +531,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.6 Add Financial Campaign Options
+- [x] 4.6 Add Financial Campaign Options
 
   **What to do**:
   - Extend `ICampaignOptions`:
