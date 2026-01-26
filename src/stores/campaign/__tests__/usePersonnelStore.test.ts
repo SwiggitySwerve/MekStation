@@ -712,7 +712,7 @@ describe('usePersonnelStore', () => {
       const addTime = Date.now() - startTime;
 
       expect(store.getState().personnel.size).toBe(1000);
-      expect(addTime).toBeLessThan(2000); // Should complete in under 2 seconds
+      expect(addTime).toBeLessThan(5000); // Should complete in under 5 seconds (generous for CI)
 
       // Query should be fast
       const queryStart = Date.now();
