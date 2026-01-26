@@ -23,6 +23,7 @@ import { getAllUnits } from '@/types/campaign/Force';
 import { Transaction, TransactionType } from '@/types/campaign/Transaction';
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
 import type { TurnoverCheckResult } from './turnover/turnoverCheck';
+import { PartQuality } from '@/types/campaign/quality';
 
 // =============================================================================
 // Constants
@@ -95,12 +96,27 @@ export interface TurnoverDepartureEvent {
   readonly modifiers: readonly { modifierId: string; displayName: string; value: number; isStub: boolean }[];
 }
 
+export interface MaintenanceReportEvent {
+  readonly unitId: string;
+  readonly techId?: string;
+  readonly techName?: string;
+  readonly roll: number;
+  readonly targetNumber: number;
+  readonly margin: number;
+  readonly outcome: 'success' | 'failure' | 'critical_success' | 'critical_failure';
+  readonly qualityBefore: PartQuality;
+  readonly qualityAfter: PartQuality;
+  readonly modifiers: readonly { name: string; value: number }[];
+  readonly unmaintained: boolean;
+}
+
 export interface DayReport {
   readonly date: Date;
   readonly healedPersonnel: readonly HealedPersonEvent[];
   readonly expiredContracts: readonly ExpiredContractEvent[];
   readonly costs: DailyCostBreakdown;
   readonly turnoverDepartures: readonly TurnoverDepartureEvent[];
+  readonly maintenanceEvents: readonly MaintenanceReportEvent[];
   readonly campaign: ICampaign;
 }
 
@@ -405,6 +421,7 @@ export function advanceDay(campaign: ICampaign): DayReport {
     expiredContracts: contractResult.events,
     costs: costResult.costs,
     turnoverDepartures: [],
+    maintenanceEvents: [],
     campaign: updatedCampaign,
   };
 }
@@ -471,12 +488,40 @@ export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport 
       };
     });
 
+  const MAINTENANCE_EVENT_TYPES = new Set([
+    'maintenance_success',
+    'maintenance_failure',
+    'maintenance_critical_failure',
+    'maintenance_quality_improved',
+    'maintenance_unmaintained',
+  ]);
+
+  const maintenanceEvents: MaintenanceReportEvent[] = result.events
+    .filter((e: IDayEvent) => MAINTENANCE_EVENT_TYPES.has(e.type))
+    .map((e: IDayEvent) => {
+      const data = e.data as Record<string, unknown>;
+      return {
+        unitId: data.unitId as string,
+        techId: data.techId as string | undefined,
+        techName: data.techName as string | undefined,
+        roll: (data.roll as number) ?? 0,
+        targetNumber: (data.targetNumber as number) ?? 0,
+        margin: (data.margin as number) ?? 0,
+        outcome: (data.outcome as MaintenanceReportEvent['outcome']) ?? 'failure',
+        qualityBefore: (data.qualityBefore as PartQuality) ?? PartQuality.D,
+        qualityAfter: (data.qualityAfter as PartQuality) ?? PartQuality.D,
+        modifiers: (data.modifiers as MaintenanceReportEvent['modifiers']) ?? [],
+        unmaintained: (data.unmaintained as boolean) ?? false,
+      };
+    });
+
   return {
     date: result.date,
     healedPersonnel,
     expiredContracts,
     costs,
     turnoverDepartures,
+    maintenanceEvents,
     campaign: result.campaign,
   };
 }

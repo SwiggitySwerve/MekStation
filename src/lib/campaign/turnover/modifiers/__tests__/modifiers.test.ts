@@ -84,6 +84,7 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
       payForSalaries: true,
       payForAmmunition: true,
       maintenanceCycleDays: 7,
+      maintenanceCheckFrequency: 'weekly' as const,
       useLoanSystem: true,
       useAutoResolve: false,
       autoResolveCasualtyRate: 1.0,

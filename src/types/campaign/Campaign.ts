@@ -12,6 +12,7 @@ import { IPerson, isActive } from './Person';
 import { IForce, getAllUnits as getForceUnits } from './Force';
 import { IFinances } from './IFinances';
 import { Money } from './Money';
+import type { IUnitQuality } from './quality/IUnitQuality';
 import { MissionStatus, PersonnelStatus } from './enums';
 import {
   IMission,
@@ -51,6 +52,7 @@ export { isContract, createContract };
  * };
  */
 export type TurnoverFrequency = 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'never';
+export type MaintenanceFrequency = 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'never';
 
 export interface ICampaignOptions {
   // =========================================================================
@@ -120,6 +122,9 @@ export interface ICampaignOptions {
 
   /** Days between maintenance cycles */
   readonly maintenanceCycleDays: number;
+
+  /** How often maintenance quality checks run */
+  readonly maintenanceCheckFrequency: MaintenanceFrequency;
 
   /** Whether to use loan system */
   readonly useLoanSystem: boolean;
@@ -275,6 +280,9 @@ export interface ICampaign {
 
   /** Campaign options */
   readonly options: ICampaignOptions;
+
+  /** Unit quality tracking (unitId → quality state) */
+  readonly unitQualities?: Map<string, IUnitQuality>;
 
   /** Campaign start date (when campaign was created in-game) */
   readonly campaignStartDate?: Date;
@@ -625,6 +633,7 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     payForSalaries: true,
     payForAmmunition: true,
     maintenanceCycleDays: 7,
+    maintenanceCheckFrequency: 'weekly',
     useLoanSystem: true,
 
     // Combat options

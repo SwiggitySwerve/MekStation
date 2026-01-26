@@ -5,9 +5,12 @@ import {
   ExpiredContractEvent,
   DailyCostBreakdown,
   TurnoverDepartureEvent,
+  MaintenanceReportEvent,
 } from '@/lib/campaign/dayAdvancement';
 import { Money } from '@/types/campaign/Money';
 import { TurnoverReportPanel } from './TurnoverReportPanel';
+import { MaintenanceReportPanel } from './MaintenanceReportPanel';
+import type { MaintenanceEvent } from './MaintenanceReportPanel';
 
 interface DayReportPanelProps {
   reports: DayReport[];
@@ -84,6 +87,34 @@ function collectTurnoverDepartures(reports: DayReport[]): TurnoverDepartureEvent
   return result;
 }
 
+function toMaintenanceEvent(evt: MaintenanceReportEvent): MaintenanceEvent {
+  return {
+    unitId: evt.unitId,
+    techId: evt.techId,
+    techName: evt.techName,
+    roll: evt.roll,
+    targetNumber: evt.targetNumber,
+    margin: evt.margin,
+    outcome: evt.outcome,
+    qualityBefore: evt.qualityBefore,
+    qualityAfter: evt.qualityAfter,
+    modifiers: evt.modifiers,
+    unmaintained: evt.unmaintained,
+  };
+}
+
+function collectMaintenanceEvents(reports: DayReport[]): MaintenanceEvent[] {
+  const result: MaintenanceEvent[] = [];
+
+  for (const report of reports) {
+    for (const evt of report.maintenanceEvents) {
+      result.push(toMaintenanceEvent(evt));
+    }
+  }
+
+  return result;
+}
+
 export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): React.ReactElement {
   if (reports.length === 0) {
     return <></>;
@@ -94,10 +125,13 @@ export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): Rea
   const healedPersonnel = isMultiDay ? collectHealedPersonnel(reports) : reports[0].healedPersonnel;
   const expiredContracts = isMultiDay ? collectExpiredContracts(reports) : reports[0].expiredContracts;
   const turnoverDepartures = isMultiDay ? collectTurnoverDepartures(reports) : reports[0].turnoverDepartures;
+  const maintenanceEvents = isMultiDay
+    ? collectMaintenanceEvents(reports)
+    : reports[0].maintenanceEvents.map(toMaintenanceEvent);
   const lastReport = reports[reports.length - 1];
   const balanceNegative = lastReport.campaign.finances.balance.isNegative();
 
-  const hasEvents = healedPersonnel.length > 0 || expiredContracts.length > 0 || costs.total.amount > 0 || turnoverDepartures.length > 0;
+  const hasEvents = healedPersonnel.length > 0 || expiredContracts.length > 0 || costs.total.amount > 0 || turnoverDepartures.length > 0 || maintenanceEvents.length > 0;
 
   return (
     <Card className="mb-6 border-l-4 border-l-accent">
@@ -175,6 +209,8 @@ export function DayReportPanel({ reports, onDismiss }: DayReportPanelProps): Rea
         )}
 
         <TurnoverReportPanel departures={turnoverDepartures} />
+
+        <MaintenanceReportPanel events={maintenanceEvents} />
 
         {expiredContracts.length > 0 && (
           <div>

@@ -5,3 +5,6 @@
 
 export { MissionTreeView } from './MissionTreeView';
 export { RosterStateDisplay } from './RosterStateDisplay';
+export { QualityBadge } from './QualityBadge';
+export { MaintenanceReportPanel } from './MaintenanceReportPanel';
+export { MaintenanceSettingsPanel } from './MaintenanceSettingsPanel';
