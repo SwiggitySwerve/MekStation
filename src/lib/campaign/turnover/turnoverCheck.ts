@@ -60,11 +60,6 @@ export interface TurnoverReport {
   readonly totalPayout: Money;
 }
 
-interface TurnoverExtendedOptions {
-  readonly commanderImmune?: boolean;
-  readonly payoutMultiplier?: number;
-}
-
 export function roll2d6(random: RandomFn): number {
   return Math.floor(random() * 6) + 1 + Math.floor(random() * 6) + 1;
 }
@@ -78,8 +73,7 @@ function isEligibleForCheck(person: IPerson, campaign: ICampaign): boolean {
   if (person.status !== PersonnelStatus.ACTIVE) return false;
   if (SKIPPED_STATUSES.has(person.status)) return false;
 
-  const extOptions = campaign.options as ICampaignOptions & TurnoverExtendedOptions;
-  if (person.isCommander && extOptions.commanderImmune) return false;
+  if (person.isCommander && campaign.options.turnoverCommanderImmune) return false;
 
   return true;
 }
@@ -160,8 +154,7 @@ export function checkTurnover(
   const isDesertion = diceRoll < targetNumber - DESERTION_THRESHOLD;
   const departureType = isDesertion ? 'deserted' as const : 'retired' as const;
 
-  const extOptions = campaign.options as ICampaignOptions & TurnoverExtendedOptions;
-  const payoutMultiplier = extOptions.payoutMultiplier ?? DEFAULT_PAYOUT_MULTIPLIER;
+  const payoutMultiplier = campaign.options.turnoverPayoutMultiplier ?? DEFAULT_PAYOUT_MULTIPLIER;
   const salary = getPersonMonthlySalary(person, campaign.options);
   const payout = isDesertion ? Money.ZERO : salary.multiply(payoutMultiplier);
 

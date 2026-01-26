@@ -22,6 +22,7 @@ import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { Transaction, TransactionType } from '@/types/campaign/Transaction';
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
+import type { TurnoverCheckResult } from './turnover/turnoverCheck';
 
 // =============================================================================
 // Constants
@@ -84,16 +85,22 @@ export interface DailyCostBreakdown {
 /**
  * Report summarizing all events from a single day advancement.
  */
+export interface TurnoverDepartureEvent {
+  readonly personId: string;
+  readonly personName: string;
+  readonly departureType: 'retired' | 'deserted';
+  readonly roll: number;
+  readonly targetNumber: number;
+  readonly payoutAmount: number;
+  readonly modifiers: readonly { modifierId: string; displayName: string; value: number; isStub: boolean }[];
+}
+
 export interface DayReport {
-  /** The date that was processed */
   readonly date: Date;
-  /** Personnel who healed or had injuries progress */
   readonly healedPersonnel: readonly HealedPersonEvent[];
-  /** Contracts that expired */
   readonly expiredContracts: readonly ExpiredContractEvent[];
-  /** Daily cost breakdown */
   readonly costs: DailyCostBreakdown;
-  /** The updated campaign state */
+  readonly turnoverDepartures: readonly TurnoverDepartureEvent[];
   readonly campaign: ICampaign;
 }
 
@@ -397,6 +404,7 @@ export function advanceDay(campaign: ICampaign): DayReport {
     healedPersonnel: healingResult.events,
     expiredContracts: contractResult.events,
     costs: costResult.costs,
+    turnoverDepartures: [],
     campaign: updatedCampaign,
   };
 }
@@ -448,11 +456,27 @@ export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport 
         unitCount: 0,
       };
 
+  const turnoverDepartures: TurnoverDepartureEvent[] = result.events
+    .filter((e: IDayEvent) => e.type === 'turnover_departure')
+    .map((e: IDayEvent) => {
+      const data = e.data as Record<string, unknown>;
+      return {
+        personId: data.personId as string,
+        personName: data.personName as string,
+        departureType: data.departureType as 'retired' | 'deserted',
+        roll: data.roll as number,
+        targetNumber: data.targetNumber as number,
+        payoutAmount: data.payout as number,
+        modifiers: (data.modifiers as TurnoverDepartureEvent['modifiers']) ?? [],
+      };
+    });
+
   return {
     date: result.date,
     healedPersonnel,
     expiredContracts,
     costs,
+    turnoverDepartures,
     campaign: result.campaign,
   };
 }

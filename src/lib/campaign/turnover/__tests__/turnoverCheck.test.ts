@@ -81,6 +81,14 @@ function createTestOptions(): ICampaignOptions {
     allowClanEquipment: false,
     useRandomEvents: false,
     enableDayReportNotifications: true,
+    useTurnover: true,
+    turnoverFixedTargetNumber: 3,
+    turnoverCheckFrequency: 'monthly',
+    turnoverCommanderImmune: true,
+    turnoverPayoutMultiplier: 12,
+    turnoverUseSkillModifiers: true,
+    turnoverUseAgeModifiers: true,
+    turnoverUseMissionStatusModifiers: true,
   };
 }
 
@@ -204,8 +212,8 @@ describe('checkTurnover', () => {
   it('should skip commander when commanderImmune option is true', () => {
     const person = createTestPerson({ isCommander: true });
     const campaign = createTestCampaign();
-    const options = { ...campaign.options, commanderImmune: true } as ICampaignOptions & { commanderImmune: boolean };
-    const campaignWithImmunity = { ...campaign, options } as ICampaign;
+    const options = { ...campaign.options, turnoverCommanderImmune: true };
+    const campaignWithImmunity = { ...campaign, options };
     const random = randomFor2d6(1, 1);
     const result = checkTurnover(person, campaignWithImmunity, random);
     expect(result.passed).toBe(true);
@@ -215,12 +223,10 @@ describe('checkTurnover', () => {
   it('should NOT skip commander when commanderImmune option is false', () => {
     const person = createTestPerson({ isCommander: true });
     const campaign = createTestCampaign();
-    // Commander gets -1 officer modifier, base target 3, so target = 2
-    // Roll 1+1=2, 2 >= 2 → stays. Need target > 2.
-    // Actually with all modifiers summed, let's just check it processes
+    const options = { ...campaign.options, turnoverCommanderImmune: false };
+    const campaignNoImmunity = { ...campaign, options };
     const random = randomFor2d6(1, 1);
-    const result = checkTurnover(person, campaign, random);
-    // Commander is processed (not skipped), result depends on modifiers vs roll
+    const result = checkTurnover(person, campaignNoImmunity, random);
     expect(result.personId).toBe('person-001');
   });
 

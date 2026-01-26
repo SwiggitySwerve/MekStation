@@ -1,15 +1,10 @@
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaign } from '@/types/campaign/Campaign';
 import { MissionStatus } from '@/types/campaign/enums';
 
 const DEFAULT_BASE_TARGET = 3;
 
-interface TurnoverOptions {
-  readonly turnoverFixedTargetNumber?: number;
-}
-
 export function getBaseTargetModifier(campaign: ICampaign): number {
-  const options = campaign.options as ICampaignOptions & TurnoverOptions;
-  return options.turnoverFixedTargetNumber ?? DEFAULT_BASE_TARGET;
+  return campaign.options.turnoverFixedTargetNumber ?? DEFAULT_BASE_TARGET;
 }
 
 export function getMissionStatusModifier(campaign: ICampaign): number {
