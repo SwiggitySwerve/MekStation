@@ -14,12 +14,8 @@ import {
   EmptyState,
   Badge,
 } from '@/components/ui';
-import { useCampaignStore } from '@/stores/useCampaignStore';
-import {
-  ICampaign,
-  CampaignStatus,
-  CampaignMissionStatus,
-} from '@/types/campaign';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { ICampaign } from '@/types/campaign/Campaign';
 
 // =============================================================================
 // Status Helpers
