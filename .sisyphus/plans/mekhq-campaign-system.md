@@ -440,7 +440,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 4.3 Implement Contract Market
+- [x] 4.3 Implement Contract Market
 
   **What to do**:
   - Create `src/lib/campaign/contractMarket.ts`

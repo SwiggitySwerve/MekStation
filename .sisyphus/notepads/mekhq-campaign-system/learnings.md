@@ -664,3 +664,77 @@ Convention discoveries, patterns, and best practices found during implementation
 - ✅ Both Maps serialize/deserialize correctly
 
 
+## Contract Market Implementation (Task 4.3)
+
+### Architecture: Pure Functions with Seeded Randomness
+- All functions are pure (no side effects, no global state mutation)
+- `RandomFn` type alias (`() => number`) enables deterministic testing
+- All random-dependent functions accept optional `random` parameter (default: `Math.random`)
+- Seeded random via simple LCG enables reproducible test results
+- Pattern: `generateContracts(campaign, count, random)` - random is last optional param
+
+### Contract Generation Pipeline
+- `generateContracts()` orchestrates: type → employer → target → system → duration → salvage → payment → contract
+- Each step uses dedicated helper function for testability
+- `randomTarget(employer)` filters out employer from faction list (target !== employer)
+- Contract IDs use `contract-${Date.now()}-${random}` pattern (same as campaign ID generation)
+- All generated contracts start with `MissionStatus.PENDING`
+
+### Payment Calculation Formula
+- Base payment: `forceBV * CBILLS_PER_BV` (1000 C-bills per BV point)
+- Success: `base * 2.0`
+- Partial: `base * 1.5`
+- Failure: `base * 0.5`
+- Salvage: random 40-60%
+- Duration: random 30-90 days
+- Uses Money class for all amounts (immutable, cents-based)
+- Zero-payment contracts generated for empty campaigns (0 BV → 0 payment)
+
+### Force BV Calculation
+- Placeholder: 1000 BV per unit (real BV deferred)
+- Uses `getAllUnits()` from Force.ts to traverse force tree
+- Returns 0 if root force not found (graceful handling)
+- TODO comment marks placeholder for future BV calculator integration
+
+### Contract Name Generation
+- Inner Sphere houses: "Type for House Faction" (e.g., "Garrison Duty for House Davion")
+- Clans: "Type for Clan Faction" (e.g., "Raid for Clan Wolf")
+- Mercenary: "Type for Faction" (e.g., "Escort for Kell Hounds")
+- Faction categorization via array membership check
+
+### acceptContract() Pattern
+- Immutable update: creates new Map, new campaign object
+- Sets status from PENDING → ACTIVE
+- Validates no duplicate contract ID (throws Error)
+- Preserves all existing missions in campaign
+- Returns new ICampaign (original unchanged)
+
+### Constants as Frozen Arrays
+- CONTRACT_TYPES, EMPLOYER_FACTIONS, SYSTEMS all use Object.freeze()
+- Numeric constants exported for test assertions
+- PAYMENT_MULTIPLIERS frozen object for outcome multipliers
+
+### Test Coverage (57 tests)
+- calculateForceBV: 6 tests (empty, single, multiple, nested, placeholder value)
+- generateContracts: 17 tests (count, structure, type guard, types, employers, targets, systems, payment scaling, multipliers, salvage, dates, empty campaign, unique IDs, deterministic)
+- acceptContract: 8 tests (add, status, preserve data, immutability, duplicate, multiple, existing missions, valid campaign)
+- Helper Functions: 17 tests (name generation, duration, salvage, contract type, employer, target, system)
+- Integration: 3 tests (end-to-end, payment calculation, variety)
+- Constants: 9 tests (array lengths, values, frozen)
+
+### Key Insights
+- `src/lib/campaign/` is a new directory (first lib module for campaign system)
+- `@/` path alias works in both source and tests (jest.config.js moduleNameMapper)
+- MekHQ AbstractContractMarket.java is much more complex (clause negotiation, rerolls, combat teams)
+- MVP simplification: no negotiation, no clause rerolls, no combat team requirements
+- Seeded random pattern enables deterministic testing without mocking Math.random
+
+### Verification Results
+- ✅ 57 tests pass
+- ✅ Zero TypeScript errors on typecheck
+- ✅ All contracts pass isContract() type guard
+- ✅ Payment scales correctly with force BV
+- ✅ Target always different from employer
+- ✅ All random values within specified ranges
+- ✅ Immutable campaign updates verified
+

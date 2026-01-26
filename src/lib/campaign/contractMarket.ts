@@ -1,0 +1,359 @@
+/**
+ * Contract Market - Generates random contracts for campaign system
+ *
+ * Provides contract generation with random type, employer, target, system,
+ * and payment calculation based on force BV. Contracts can be accepted
+ * and added to a campaign.
+ *
+ * Based on MekHQ AbstractContractMarket.java, simplified for MVP.
+ *
+ * @module lib/campaign/contractMarket
+ */
+
+import { ICampaign } from '@/types/campaign/Campaign';
+import { IContract, createContract } from '@/types/campaign/Mission';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { Money } from '@/types/campaign/Money';
+import { getAllUnits } from '@/types/campaign/Force';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/**
+ * Available contract types for random selection.
+ */
+export const CONTRACT_TYPES: readonly string[] = Object.freeze([
+  'Garrison Duty',
+  'Recon',
+  'Raid',
+  'Extraction',
+  'Escort',
+]);
+
+/**
+ * Available employer factions for random selection.
+ */
+export const EMPLOYER_FACTIONS: readonly string[] = Object.freeze([
+  // Inner Sphere Great Houses
+  'Davion',
+  'Steiner',
+  'Liao',
+  'Marik',
+  'Kurita',
+  // Clans
+  'Wolf',
+  'Jade Falcon',
+  'Ghost Bear',
+  // Mercenary
+  'Kell Hounds',
+  "Wolf's Dragoons",
+]);
+
+/**
+ * Available star systems for random selection.
+ */
+export const SYSTEMS: readonly string[] = Object.freeze([
+  'Hesperus II',
+  'Solaris VII',
+  'Tukayyid',
+  'New Avalon',
+  'Tharkad',
+  'Sian',
+  'Atreus',
+  'Luthien',
+  'Terra',
+  'Outreach',
+  'Galatea',
+  'Arc-Royal',
+  'Coventry',
+  'Tikonov',
+  'Strana Mechty',
+]);
+
+/**
+ * Placeholder BV per unit (until real BV calculator is integrated).
+ */
+export const PLACEHOLDER_BV_PER_UNIT = 1000;
+
+/**
+ * Payment rate: C-bills per BV point.
+ */
+export const CBILLS_PER_BV = 1000;
+
+/**
+ * Payment multipliers for contract outcomes.
+ */
+export const PAYMENT_MULTIPLIERS = Object.freeze({
+  success: 2.0,
+  partial: 1.5,
+  failure: 0.5,
+});
+
+/**
+ * Duration range in days.
+ */
+export const DURATION_MIN_DAYS = 30;
+export const DURATION_MAX_DAYS = 90;
+
+/**
+ * Salvage percentage range.
+ */
+export const SALVAGE_MIN_PERCENT = 40;
+export const SALVAGE_MAX_PERCENT = 60;
+
+// =============================================================================
+// Random Helpers (seeded for testability)
+// =============================================================================
+
+/**
+ * Random number generator function type.
+ * Returns a number in [0, 1) like Math.random().
+ */
+export type RandomFn = () => number;
+
+/**
+ * Default random function using Math.random().
+ */
+const defaultRandom: RandomFn = () => Math.random();
+
+/**
+ * Pick a random element from an array.
+ *
+ * @param array - Array to pick from
+ * @param random - Random function (default: Math.random)
+ * @returns Random element from the array
+ */
+function pickRandom<T>(array: readonly T[], random: RandomFn = defaultRandom): T {
+  const index = Math.floor(random() * array.length);
+  return array[index];
+}
+
+/**
+ * Generate a random integer in [min, max] inclusive.
+ *
+ * @param min - Minimum value (inclusive)
+ * @param max - Maximum value (inclusive)
+ * @param random - Random function (default: Math.random)
+ * @returns Random integer in range
+ */
+function randomInt(min: number, max: number, random: RandomFn = defaultRandom): number {
+  return Math.floor(random() * (max - min + 1)) + min;
+}
+
+// =============================================================================
+// Core Functions
+// =============================================================================
+
+/**
+ * Calculate total BV of all units in campaign forces.
+ *
+ * Uses placeholder BV (1000 per unit) until real BV calculator is integrated.
+ *
+ * @param campaign - Campaign to calculate BV for
+ * @returns Total BV (placeholder: 1000 per unit)
+ */
+// TODO: Use actual unit BV from MekStation BV calculator
+export function calculateForceBV(campaign: ICampaign): number {
+  const rootForce = campaign.forces.get(campaign.rootForceId);
+  if (!rootForce) {
+    return 0;
+  }
+
+  const allUnitIds = getAllUnits(rootForce, campaign.forces);
+  return allUnitIds.length * PLACEHOLDER_BV_PER_UNIT;
+}
+
+/**
+ * Generate a contract name from type and employer.
+ *
+ * @param type - Contract type (e.g., "Garrison Duty")
+ * @param employer - Employer faction name (e.g., "Davion")
+ * @returns Contract name (e.g., "Garrison Duty for House Davion")
+ */
+export function generateContractName(type: string, employer: string): string {
+  // Clans and mercenary units don't use "House" prefix
+  const clanFactions = ['Wolf', 'Jade Falcon', 'Ghost Bear'];
+  const mercFactions = ['Kell Hounds', "Wolf's Dragoons"];
+
+  if (clanFactions.includes(employer)) {
+    return `${type} for Clan ${employer}`;
+  }
+  if (mercFactions.includes(employer)) {
+    return `${type} for ${employer}`;
+  }
+  return `${type} for House ${employer}`;
+}
+
+/**
+ * Generate a random contract duration in days.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Duration in days (30-90)
+ */
+export function generateRandomDuration(random: RandomFn = defaultRandom): number {
+  return randomInt(DURATION_MIN_DAYS, DURATION_MAX_DAYS, random);
+}
+
+/**
+ * Generate a random salvage percentage.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Salvage percentage (40-60)
+ */
+export function generateRandomSalvagePercent(random: RandomFn = defaultRandom): number {
+  return randomInt(SALVAGE_MIN_PERCENT, SALVAGE_MAX_PERCENT, random);
+}
+
+/**
+ * Select a random contract type.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Random contract type string
+ */
+export function randomContractType(random: RandomFn = defaultRandom): string {
+  return pickRandom(CONTRACT_TYPES, random);
+}
+
+/**
+ * Select a random employer faction.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Random employer faction name
+ */
+export function randomEmployer(random: RandomFn = defaultRandom): string {
+  return pickRandom(EMPLOYER_FACTIONS, random);
+}
+
+/**
+ * Select a random target faction different from the employer.
+ *
+ * @param employer - Employer faction to exclude
+ * @param random - Random function (default: Math.random)
+ * @returns Random target faction name (different from employer)
+ */
+export function randomTarget(employer: string, random: RandomFn = defaultRandom): string {
+  const targets = EMPLOYER_FACTIONS.filter((f) => f !== employer);
+  return pickRandom(targets, random);
+}
+
+/**
+ * Select a random star system.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Random system name
+ */
+export function randomSystem(random: RandomFn = defaultRandom): string {
+  return pickRandom(SYSTEMS, random);
+}
+
+/**
+ * Generate a unique contract ID.
+ *
+ * @returns Unique contract ID string
+ */
+function generateContractId(): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 9);
+  return `contract-${timestamp}-${random}`;
+}
+
+/**
+ * Generate random contracts for a campaign.
+ *
+ * Creates contracts with random types, employers, targets, systems,
+ * and payment terms scaled to the campaign's force BV.
+ *
+ * @param campaign - Campaign to generate contracts for
+ * @param count - Number of contracts to generate (default 5)
+ * @param random - Random function for testability (default: Math.random)
+ * @returns Array of generated contracts
+ *
+ * @example
+ * const contracts = generateContracts(campaign);
+ * // Returns 5 random contracts with payment scaled to force BV
+ *
+ * @example
+ * const contracts = generateContracts(campaign, 3);
+ * // Returns 3 random contracts
+ */
+export function generateContracts(
+  campaign: ICampaign,
+  count: number = 5,
+  random: RandomFn = defaultRandom
+): IContract[] {
+  const contracts: IContract[] = [];
+  const forceBV = calculateForceBV(campaign);
+
+  for (let i = 0; i < count; i++) {
+    const type = randomContractType(random);
+    const employer = randomEmployer(random);
+    const target = randomTarget(employer, random);
+    const system = randomSystem(random);
+    const duration = generateRandomDuration(random);
+    const salvagePercent = generateRandomSalvagePercent(random);
+
+    const basePayment = new Money(forceBV * CBILLS_PER_BV);
+    const paymentTerms = createPaymentTerms({
+      basePayment,
+      successPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.success),
+      partialPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.partial),
+      failurePayment: basePayment.multiply(PAYMENT_MULTIPLIERS.failure),
+      salvagePercent,
+    });
+
+    const startDate = campaign.currentDate;
+    const endDate = new Date(startDate.getTime() + duration * 24 * 60 * 60 * 1000);
+
+    const contract = createContract({
+      id: generateContractId(),
+      name: generateContractName(type, employer),
+      status: MissionStatus.PENDING,
+      systemId: system,
+      employerId: employer,
+      targetId: target,
+      paymentTerms,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    contracts.push(contract);
+  }
+
+  return contracts;
+}
+
+/**
+ * Accept a contract and add it to the campaign.
+ *
+ * Sets the contract status to ACTIVE and adds it to the campaign's
+ * missions Map. Returns a new campaign instance (immutable update).
+ *
+ * @param campaign - Campaign to add contract to
+ * @param contract - Contract to accept
+ * @returns Updated campaign with contract added
+ * @throws Error if contract already exists in campaign
+ *
+ * @example
+ * const contracts = generateContracts(campaign);
+ * const updatedCampaign = acceptContract(campaign, contracts[0]);
+ */
+export function acceptContract(campaign: ICampaign, contract: IContract): ICampaign {
+  if (campaign.missions.has(contract.id)) {
+    throw new Error(`Contract ${contract.id} already exists in campaign`);
+  }
+
+  const updatedContract: IContract = {
+    ...contract,
+    status: MissionStatus.ACTIVE,
+  };
+
+  const updatedMissions = new Map(campaign.missions);
+  updatedMissions.set(updatedContract.id, updatedContract);
+
+  return {
+    ...campaign,
+    missions: updatedMissions,
+  };
+}
