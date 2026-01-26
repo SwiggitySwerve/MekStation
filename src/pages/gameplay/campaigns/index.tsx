@@ -18,43 +18,6 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 
 // =============================================================================
-// Status Helpers
-// =============================================================================
-
-function getStatusColor(status: CampaignStatus): 'info' | 'success' | 'warning' | 'red' {
-  switch (status) {
-    case CampaignStatus.Setup:
-      return 'info';
-    case CampaignStatus.Active:
-      return 'warning';
-    case CampaignStatus.Victory:
-      return 'success';
-    case CampaignStatus.Defeat:
-    case CampaignStatus.Abandoned:
-      return 'red';
-    default:
-      return 'info';
-  }
-}
-
-function getStatusLabel(status: CampaignStatus): string {
-  switch (status) {
-    case CampaignStatus.Setup:
-      return 'Setup';
-    case CampaignStatus.Active:
-      return 'Active';
-    case CampaignStatus.Victory:
-      return 'Victory';
-    case CampaignStatus.Defeat:
-      return 'Defeat';
-    case CampaignStatus.Abandoned:
-      return 'Abandoned';
-    default:
-      return status;
-  }
-}
-
-// =============================================================================
 // Campaign Card Component
 // =============================================================================
 
