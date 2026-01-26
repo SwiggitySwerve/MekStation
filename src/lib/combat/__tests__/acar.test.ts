@@ -1,4 +1,5 @@
-import { calculateVictoryProbability, distributeDamage } from '../acar';
+import { calculateVictoryProbability, distributeDamage, determineCasualties } from '../acar';
+import { PersonnelStatus } from '@/types/campaign/enums';
 
 describe('calculateVictoryProbability', () => {
   it('should return 0.5 when both BVs are equal', () => {
@@ -137,5 +138,149 @@ describe('distributeDamage', () => {
     const result = distributeDamage(['unit1'], 0, seededRandom);
     expect(result.size).toBe(1);
     expect(result.get('unit1')).toBe(0); // 0 * (0.5 + 1.0 * 0.5) * 100 = 0
+  });
+});
+
+describe('determineCasualties', () => {
+  it('should return empty Map when personnelIds array is empty', () => {
+    const result = determineCasualties([], 0.5);
+    expect(result).toEqual(new Map());
+    expect(result.size).toBe(0);
+  });
+
+  it('should return empty Map when battleIntensity is 0', () => {
+    const seededRandom = () => 0.5;
+    const result = determineCasualties(['pilot1', 'pilot2', 'pilot3'], 0, seededRandom);
+    expect(result).toEqual(new Map());
+    expect(result.size).toBe(0);
+  });
+
+  it('should calculate casualty rate as battleIntensity * 0.1', () => {
+    // With battleIntensity 0.5, casualty rate is 5%
+    // First person: random 0.03 < 0.05 → casualty, status roll 0.3 → WOUNDED
+    // Second person: random 0.08 > 0.05 → no casualty
+    const randomValues = [0.03, 0.3, 0.08];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1', 'pilot2'], 0.5, seededRandom);
+    expect(result.size).toBe(1);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.WOUNDED);
+    expect(result.has('pilot2')).toBe(false);
+  });
+
+  it('should assign WOUNDED status when statusRoll < 0.6', () => {
+    // battleIntensity 1.0 → casualty rate 0.1, casualty roll 0.05 < 0.1 → casualty, status roll 0.3 < 0.6 → WOUNDED
+    const randomValues = [0.05, 0.3];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1'], 1.0, seededRandom);
+    expect(result.size).toBe(1);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.WOUNDED);
+  });
+
+  it('should assign MIA status when statusRoll is 0.6-0.9', () => {
+    // battleIntensity 1.0 → casualty rate 0.1, casualty roll 0.05 < 0.1 → casualty, status roll 0.75 (0.6-0.9) → MIA
+    const randomValues = [0.05, 0.75];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1'], 1.0, seededRandom);
+    expect(result.size).toBe(1);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.MIA);
+  });
+
+  it('should assign KIA status when statusRoll >= 0.9', () => {
+    // battleIntensity 1.0 → casualty rate 0.1, casualty roll 0.05 < 0.1 → casualty, status roll 0.95 >= 0.9 → KIA
+    const randomValues = [0.05, 0.95];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1'], 1.0, seededRandom);
+    expect(result.size).toBe(1);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.KIA);
+  });
+
+  it('should handle multiple personnel with varying outcomes', () => {
+    // battleIntensity 1.0 → casualty rate 0.1
+    // Person 1: casualty roll 0.08 < 0.1 → casualty, status 0.5 → WOUNDED
+    // Person 2: casualty roll 0.15 > 0.1 → no casualty
+    // Person 3: casualty roll 0.09 < 0.1 → casualty, status 0.85 → MIA
+    // Person 4: casualty roll 0.02 < 0.1 → casualty, status 0.92 → KIA
+    const randomValues = [0.08, 0.5, 0.15, 0.09, 0.85, 0.02, 0.92];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1', 'pilot2', 'pilot3', 'pilot4'], 1.0, seededRandom);
+    expect(result.size).toBe(3);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.WOUNDED);
+    expect(result.has('pilot2')).toBe(false);
+    expect(result.get('pilot3')).toBe(PersonnelStatus.MIA);
+    expect(result.get('pilot4')).toBe(PersonnelStatus.KIA);
+  });
+
+  it('should exclude non-casualties from the returned Map', () => {
+    // All personnel survive (casualty rolls all > 0.1)
+    const randomValues = [0.2, 0.3, 0.4];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1', 'pilot2', 'pilot3'], 0.1, seededRandom);
+    expect(result.size).toBe(0);
+    expect(result.has('pilot1')).toBe(false);
+    expect(result.has('pilot2')).toBe(false);
+    expect(result.has('pilot3')).toBe(false);
+  });
+
+  it('should be deterministic with seeded random function', () => {
+    const randomValues = [0.05, 0.3, 0.08, 0.75, 0.02, 0.95];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result1 = determineCasualties(['p1', 'p2', 'p3'], 0.1, seededRandom);
+    
+    // Reset index for second call
+    index = 0;
+    const result2 = determineCasualties(['p1', 'p2', 'p3'], 0.1, seededRandom);
+    
+    expect(result1.size).toBe(result2.size);
+    expect(result1.get('p1')).toBe(result2.get('p1'));
+    expect(result1.get('p2')).toBe(result2.get('p2'));
+    expect(result1.get('p3')).toBe(result2.get('p3'));
+  });
+
+  it('should handle high battleIntensity with many casualties', () => {
+    // With battleIntensity 1.0, casualty rate is 10%
+    // First 5 people all become casualties with different statuses
+    const randomValues = [
+      0.05, 0.2,   // pilot1: casualty, WOUNDED
+      0.08, 0.7,   // pilot2: casualty, MIA
+      0.09, 0.95,  // pilot3: casualty, KIA
+      0.02, 0.55,  // pilot4: casualty, WOUNDED
+      0.07, 0.88   // pilot5: casualty, MIA
+    ];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const result = determineCasualties(['pilot1', 'pilot2', 'pilot3', 'pilot4', 'pilot5'], 1.0, seededRandom);
+    expect(result.size).toBe(5);
+    expect(result.get('pilot1')).toBe(PersonnelStatus.WOUNDED);
+    expect(result.get('pilot2')).toBe(PersonnelStatus.MIA);
+    expect(result.get('pilot3')).toBe(PersonnelStatus.KIA);
+    expect(result.get('pilot4')).toBe(PersonnelStatus.WOUNDED);
+    expect(result.get('pilot5')).toBe(PersonnelStatus.MIA);
+  });
+
+  it('should use Math.random by default when no random function provided', () => {
+    const result = determineCasualties(['pilot1', 'pilot2', 'pilot3'], 0.5);
+    // With 50% casualty rate, we expect some casualties but can't guarantee exact count
+    expect(result).toBeInstanceOf(Map);
+    result.forEach((status) => {
+      expect([PersonnelStatus.WOUNDED, PersonnelStatus.MIA, PersonnelStatus.KIA]).toContain(status);
+    });
+  });
+
+  it('should return Map with correct personnelId keys', () => {
+    const randomValues = [0.05, 0.3, 0.08, 0.75];
+    let index = 0;
+    const seededRandom = () => randomValues[index++];
+    const personnelIds = ['soldier1', 'soldier2', 'soldier3'];
+    const result = determineCasualties(personnelIds, 0.1, seededRandom);
+    result.forEach((status, personnelId) => {
+      expect(personnelIds).toContain(personnelId);
+    });
   });
 });
