@@ -154,6 +154,14 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'DEX',
   },
+  'tech-general': {
+    id: 'tech-general',
+    name: 'Tech',
+    description: 'General technical maintenance and repair ability',
+    targetNumber: 7,
+    costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
+    linkedAttribute: 'DEX',
+  },
 
   // Medical Skills (3 total)
   'medicine': {
@@ -376,6 +384,7 @@ const SKILL_CATEGORY_MAP: Record<string, string> = {
   'tech-ba': 'technical',
   'tech-vessel': 'technical',
   astech: 'technical',
+  'tech-general': 'technical',
 
   // Medical
   medicine: 'medical',
