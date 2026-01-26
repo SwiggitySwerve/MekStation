@@ -14,8 +14,14 @@ import {
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums';
+import { PersonnelStatus, STATUS_SEVERITY } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import {
+  getRolesByCategory,
+  ALL_CAMPAIGN_PERSONNEL_ROLES,
+} from '@/types/campaign/enums/CampaignPersonnelRole';
 
 // =============================================================================
 // Personnel Card Component
@@ -23,61 +29,128 @@ import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 interface PersonnelCardProps {
   person: IPerson;
+  onStatusChange?: (personId: string, newStatus: PersonnelStatus) => void;
+  onRoleChange?: (personId: string, newRole: CampaignPersonnelRole) => void;
 }
 
-function PersonnelCard({ person }: PersonnelCardProps): React.ReactElement {
+function PersonnelCard({ person, onStatusChange, onRoleChange }: PersonnelCardProps): React.ReactElement {
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [showRoleMenu, setShowRoleMenu] = useState(false);
   const getStatusColor = (status: PersonnelStatus): string => {
-    switch (status) {
-      case PersonnelStatus.ACTIVE:
+    const severity = STATUS_SEVERITY[status];
+    switch (severity) {
+      case 'positive':
         return 'bg-green-500/20 text-green-400';
-      case PersonnelStatus.WOUNDED:
+      case 'warning':
         return 'bg-yellow-500/20 text-yellow-400';
-      case PersonnelStatus.KIA:
-      case PersonnelStatus.MIA:
+      case 'negative':
         return 'bg-red-500/20 text-red-400';
-      case PersonnelStatus.RETIRED:
+      case 'neutral':
         return 'bg-blue-500/20 text-blue-400';
       default:
         return 'bg-gray-500/20 text-gray-400';
     }
   };
 
+  const getMonthlySalary = (role: CampaignPersonnelRole): number => {
+    return getBaseSalary(role);
+  };
+
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="font-semibold text-text-theme-primary text-lg">
-            {person.name}
-          </h3>
-          <p className="text-sm text-text-theme-secondary">
-            {person.rank}
-          </p>
-        </div>
-        <Badge className={getStatusColor(person.status)}>
-          {person.status}
-        </Badge>
-      </div>
+         <div>
+           <h3 className="font-semibold text-text-theme-primary text-lg">
+             {person.name}
+           </h3>
+           <p className="text-sm text-text-theme-secondary">
+             {person.rank}
+           </p>
+         </div>
+         <div className="relative">
+           <button
+             onClick={() => setShowStatusMenu(!showStatusMenu)}
+             className={`${getStatusColor(person.status)} px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity`}
+           >
+             {person.status}
+           </button>
+           {showStatusMenu && (
+             <div className="absolute right-0 mt-2 w-48 bg-surface-raised border border-border-theme rounded-lg shadow-lg z-10 max-h-64 overflow-y-auto">
+               {Object.values(PersonnelStatus).map((status) => (
+                 <button
+                   key={status}
+                   onClick={() => {
+                     onStatusChange?.(person.id, status);
+                     setShowStatusMenu(false);
+                   }}
+                   className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors ${
+                     person.status === status ? 'bg-surface-hover font-semibold' : ''
+                   }`}
+                 >
+                   {status}
+                 </button>
+               ))}
+             </div>
+           )}
+         </div>
+       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div>
-          <p className="text-text-theme-secondary">Primary Role</p>
-          <p className="text-text-theme-primary">{person.primaryRole}</p>
-        </div>
-        {person.secondaryRole && (
-          <div>
-            <p className="text-text-theme-secondary">Secondary Role</p>
-            <p className="text-text-theme-primary">{person.secondaryRole}</p>
-          </div>
-        )}
-        <div>
-          <p className="text-text-theme-secondary">Hits</p>
-          <p className="text-text-theme-primary">{person.hits}/6</p>
-        </div>
-        <div>
-          <p className="text-text-theme-secondary">XP</p>
-          <p className="text-text-theme-primary">{person.xp}</p>
-        </div>
-      </div>
+         <div className="relative">
+           <p className="text-text-theme-secondary">Primary Role</p>
+           <button
+             onClick={() => setShowRoleMenu(!showRoleMenu)}
+             className="text-text-theme-primary hover:text-text-theme-accent cursor-pointer transition-colors"
+           >
+             {person.primaryRole}
+           </button>
+           {showRoleMenu && (
+             <div className="absolute left-0 mt-2 w-56 bg-surface-raised border border-border-theme rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
+               {(['combat', 'support', 'civilian'] as const).map((category) => (
+                 <div key={category}>
+                   <div className="px-4 py-2 font-semibold text-text-theme-secondary text-xs uppercase bg-surface-hover sticky top-0">
+                     {category}
+                   </div>
+                   {getRolesByCategory(category).map((role) => (
+                     <button
+                       key={role}
+                       onClick={() => {
+                         onRoleChange?.(person.id, role);
+                         setShowRoleMenu(false);
+                       }}
+                       className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors ${
+                         person.primaryRole === role ? 'bg-surface-hover font-semibold' : ''
+                       }`}
+                     >
+                       {role}
+                     </button>
+                   ))}
+                 </div>
+               ))}
+             </div>
+           )}
+         </div>
+         {person.secondaryRole && (
+           <div>
+             <p className="text-text-theme-secondary">Secondary Role</p>
+             <p className="text-text-theme-primary">{person.secondaryRole}</p>
+           </div>
+         )}
+         <div>
+           <p className="text-text-theme-secondary">Hits</p>
+           <p className="text-text-theme-primary">{person.hits}/6</p>
+         </div>
+         <div>
+           <p className="text-text-theme-secondary">XP</p>
+           <p className="text-text-theme-primary">{person.xp}</p>
+         </div>
+         <div>
+           <p className="text-text-theme-secondary">Monthly Salary</p>
+           <p className="text-text-theme-primary font-mono">
+             {getMonthlySalary(person.primaryRole as CampaignPersonnelRole).toLocaleString()} C-bills
+           </p>
+         </div>
+       </div>
 
       {person.unitId && (
         <div className="mt-3 pt-3 border-t border-border-theme">
