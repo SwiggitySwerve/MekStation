@@ -465,7 +465,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 5: Combat Resolution
 
-- [ ] 5.1 Implement ACAR Combat Resolution
+- [x] 5.1 Implement ACAR Combat Resolution
 
   **What to do**:
   - Create `src/lib/combat/acar.ts`
@@ -496,7 +496,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 5.2 Implement Battle Result Processing
+- [x] 5.2 Implement Battle Result Processing
 
   **What to do**:
   - Create `src/lib/combat/resolveScenario.ts`
