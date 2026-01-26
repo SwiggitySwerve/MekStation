@@ -63,27 +63,27 @@ The system SHALL support 45 campaign personnel roles across 3 categories: Combat
 - **THEN** the base salary for PILOT role is returned
 
 ### Requirement: Injury Tracking
-The system SHALL track personnel injuries with type, location, severity, healing duration, and permanence.
+The system SHALL track personnel injuries with type, location, severity, healing time, permanent flag, modifiers, and prosthetic status.
 
-#### Scenario: Person sustains injury
-- **GIVEN** a person with zero injuries
-- **WHEN** an injury is added with type "Broken Arm", severity 2, daysToHeal 14
-- **THEN** the injury appears in injuries array with all fields populated
+#### Scenario: Injury has all required fields
+- **GIVEN** a person with an injury
+- **WHEN** the injury is inspected
+- **THEN** injury has type, location, severity (1-5), daysToHeal, permanent flag, skillModifier, and attributeModifier
 
-#### Scenario: Injuries heal over time
-- **GIVEN** a person with injury having daysToHeal 14
-- **WHEN** day advancement processes healing
-- **THEN** daysToHeal decrements by 1 each day until reaching 0
+#### Scenario: Permanent injury has flag set
+- **GIVEN** a person with a permanent injury
+- **WHEN** the injury is inspected
+- **THEN** permanent flag is true and injury does not heal naturally
 
-#### Scenario: Permanent injuries do not heal
-- **GIVEN** a person with permanent injury (permanent: true)
-- **WHEN** day advancement processes healing
-- **THEN** the injury remains with daysToHeal unchanged
+#### Scenario: Prosthetic injury has flag set
+- **GIVEN** a person with a prosthetic installed
+- **WHEN** the injury is inspected
+- **THEN** hasProsthetic flag is true, skillModifier is 0, and attributeModifier is -1
 
-#### Scenario: Multiple injuries are tracked
-- **GIVEN** a person with 3 injuries of varying severity
-- **WHEN** the person is inspected
-- **THEN** all 3 injuries are present in injuries array with unique IDs
+#### Scenario: Multiple injuries compound difficulty
+- **GIVEN** a person with 4 injuries
+- **WHEN** medical check is performed with tougherHealing enabled
+- **THEN** target number penalty is max(0, 4-2) = +2
 
 ### Requirement: Skills and Attributes
 The system SHALL track personnel skills and attributes with 7 core attributes (STR, BOD, REF, DEX, INT, WIL, CHA) plus Edge. The system SHALL support a comprehensive skill catalog of 40+ skill types organized into six categories: combat, technical, medical, administrative, physical, and knowledge. Each skill has a base target number, XP cost progression (10 levels), and a linked attribute that modifies skill checks and improvement costs. The technical category includes a Tech skill used for equipment maintenance checks.
