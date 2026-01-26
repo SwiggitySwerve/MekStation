@@ -20,6 +20,7 @@ const createMockSVGResponse = (content: string) => {
   return Promise.resolve({
     ok: true,
     text: () => Promise.resolve(content),
+    headers: new Headers({ 'content-type': 'image/svg+xml' }),
   } as Response);
 };
 
