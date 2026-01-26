@@ -38,13 +38,7 @@
   ],
   "exclude": [
     "node_modules",
-    "scripts/unused/**/*",
     "scripts/data-migration/**/*",
-    "backup-before-refactor-*/**/*",
-    "desktop/**/*",
-    "**/.disabled/**/*",
-    "src/services/catalog/**/*",
-    "src/services/editor/**/*",
-    "src/services/integration/**/*"
+    "desktop/**/*"
   ]
 }
