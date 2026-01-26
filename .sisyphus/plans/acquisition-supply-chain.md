@@ -110,7 +110,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ## TODOs
 
-- [ ] 9.1 Define Acquisition Types and Availability Ratings
+- [x] 9.1 Define Acquisition Types and Availability Ratings
 
   **What to do**:
   - Create `src/types/campaign/acquisition/acquisitionTypes.ts`:

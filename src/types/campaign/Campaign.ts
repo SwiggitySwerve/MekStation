@@ -225,11 +225,27 @@ export interface ICampaignOptions {
   /** Date format for display (e.g., 'yyyy-MM-dd') */
   readonly dateFormat: string;
 
-  /** Whether to use faction-specific rules */
-  readonly useFactionRules: boolean;
+   /** Whether to use faction-specific rules */
+   readonly useFactionRules: boolean;
 
-  /** Tech level limit (0=Intro, 1=Standard, 2=Advanced, 3=Experimental) */
-  readonly techLevel: number;
+   /** Tech level limit (0=Intro, 1=Standard, 2=Advanced, 3=Experimental) */
+   readonly techLevel: number;
+
+   // =========================================================================
+   // Acquisition Options (~4)
+   // =========================================================================
+
+   /** Whether to use the acquisition/procurement system */
+   readonly useAcquisitionSystem?: boolean;
+
+   /** Whether to apply planetary availability modifiers */
+   readonly usePlanetaryModifiers?: boolean;
+
+   /** Time unit for acquisition transit (day, week, or month) */
+   readonly acquisitionTransitUnit?: 'day' | 'week' | 'month';
+
+   /** Whether to apply penalty for Clan parts in IS factions */
+   readonly clanPartsPenalty?: boolean;
 
   /** Whether to limit equipment by year */
   readonly limitByYear: boolean;
@@ -736,10 +752,16 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
      turnoverUseAgeModifiers: true,
      turnoverUseMissionStatusModifiers: true,
 
-     // Faction standing options
-     trackFactionStanding: true,
-     regardChangeMultiplier: 1.0,
-   };
+      // Faction standing options
+      trackFactionStanding: true,
+      regardChangeMultiplier: 1.0,
+
+      // Acquisition options
+      useAcquisitionSystem: false,
+      usePlanetaryModifiers: true,
+      acquisitionTransitUnit: 'month',
+      clanPartsPenalty: true,
+    };
 }
 
 /**
