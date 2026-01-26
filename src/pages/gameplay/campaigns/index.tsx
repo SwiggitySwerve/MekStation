@@ -70,27 +70,10 @@ export default function CampaignsListPage(): React.ReactElement {
     setIsClient(true);
   });
 
-  // Handle search input
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-    },
-    [setSearchQuery]
-  );
-
   // Navigate to create page
   const handleCreateCampaign = useCallback(() => {
     router.push('/gameplay/campaigns/create');
   }, [router]);
-
-  // Navigate to campaign detail
-  const handleCampaignClick = useCallback(
-    (campaign: ICampaign) => {
-      selectCampaign(campaign.id);
-      router.push(`/gameplay/campaigns/${campaign.id}`);
-    },
-    [router, selectCampaign]
-  );
 
   // Show loading state during SSR/hydration
   if (!isClient) {
