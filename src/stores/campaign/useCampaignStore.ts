@@ -21,6 +21,8 @@ import {
   IMission,
   createCampaign as createCampaignEntity,
 } from '@/types/campaign/Campaign';
+import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
+import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { IForce } from '@/types/campaign/Force';
 import { ForceType, FormationLevel } from '@/types/campaign/enums';
 import { IPerson } from '@/types/campaign/Person';
@@ -91,7 +93,10 @@ interface CampaignActions {
   saveCampaign: () => void;
 
   /** Advance the campaign date by one day */
-  advanceDay: () => void;
+  advanceDay: () => DayReport | null;
+
+  /** Advance the campaign date by N days */
+  advanceDays: (count: number) => DayReport[] | null;
 
   /** Get the current campaign */
   getCampaign: () => ICampaign | null;
@@ -359,24 +364,35 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const { campaign } = get();
 
           if (!campaign) {
-            return;
+            return null;
           }
 
-          // Increment date by 1 day
-          const newDate = new Date(campaign.currentDate);
-          newDate.setDate(newDate.getDate() + 1);
+          registerBuiltinProcessors();
+          const report = advanceDayPure(campaign);
 
-          // Update campaign
-          const updatedCampaign: ICampaign = {
-            ...campaign,
-            currentDate: newDate,
-            updatedAt: new Date().toISOString(),
-          };
-
-          set({ campaign: updatedCampaign });
-
-          // Auto-save after advancement
+          set({ campaign: report.campaign });
           get().saveCampaign();
+
+          return report;
+        },
+
+        advanceDays: (count: number) => {
+          const { campaign } = get();
+
+          if (!campaign) {
+            return null;
+          }
+
+          registerBuiltinProcessors();
+          const reports = advanceDaysPure(campaign, count);
+          const lastReport = reports[reports.length - 1];
+
+          if (lastReport) {
+            set({ campaign: lastReport.campaign });
+            get().saveCampaign();
+          }
+
+          return reports;
         },
 
         getCampaign: () => get().campaign,
