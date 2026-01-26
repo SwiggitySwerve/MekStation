@@ -114,6 +114,12 @@ function departuresToEvents(report: TurnoverReport): IDayEvent[] {
         roll: d.roll,
         targetNumber: d.targetNumber,
         payout: d.payout.amount,
+        modifiers: d.modifiers.map((m) => ({
+          modifierId: m.modifierId,
+          displayName: m.displayName,
+          value: m.value,
+          isStub: m.isStub,
+        })),
       },
     }));
 }
