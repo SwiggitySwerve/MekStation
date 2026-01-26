@@ -78,7 +78,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 - [x] Expand pilots to full personnel with skills/attributes (complete)
 - [x] Organize units into force hierarchy (complete)
 - [x] Accept contracts from generated market (backend complete, UI needs button)
-- [ ] Deploy forces to scenarios (backend complete, UI needs deployment interface)
+- [x] Deploy forces to scenarios (backend complete, UI shows deployment availability)
 - [x] Resolve combat via ACAR (backend complete, UI needs resolve button)
 - [x] Process battle results (damage, casualties) (skeleton complete)
 - [x] Advance day and process maintenance/healing (complete)

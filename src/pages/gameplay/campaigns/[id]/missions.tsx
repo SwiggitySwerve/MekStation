@@ -105,7 +105,14 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
         
         <div>
           <p className="text-text-theme-secondary">Scenarios</p>
-          <p className="text-text-theme-primary">{mission.scenarioIds.length}</p>
+          <p className="text-text-theme-primary">
+            {mission.scenarioIds.length}
+            {mission.scenarioIds.length > 0 && (
+              <span className="text-xs text-text-theme-muted ml-1">
+                (deployment available)
+              </span>
+            )}
+          </p>
         </div>
       </div>
 

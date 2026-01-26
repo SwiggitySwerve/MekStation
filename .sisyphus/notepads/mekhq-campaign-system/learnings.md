@@ -952,3 +952,90 @@ Break each UI task into 5-10 atomic subtasks:
 **Recommendation:** Continue with remaining steps, monitor token usage closely.
 
 
+
+## UI Migration Strategy Update (2026-01-26)
+
+### Current State
+- ✅ campaigns/index.tsx - 100% migrated to backend types
+- ⏳ campaigns/[id].tsx - Needs migration (uses stub types)
+- ⏳ campaigns/create.tsx - Needs migration (uses stub types)
+- ❌ campaigns/[id]/ subdirectory - Doesn't exist yet
+
+### Decision: Create New Pages Instead of Migrating
+Rather than migrating the complex [id].tsx file (800+ lines with audit timeline), we'll:
+1. Create simple new pages in campaigns/[id]/ subdirectory
+2. Start with dashboard (index.tsx) as the main detail page
+3. Add personnel, forces, missions as separate pages
+4. Keep old [id].tsx as reference but don't use it
+
+### Rationale
+- Old [id].tsx has audit timeline integration (complex)
+- Backend doesn't have audit events yet
+- Simpler to build fresh pages matching backend structure
+- Can reference old file for UI patterns but start clean
+
+### Next Steps
+1. Create campaigns/[id]/index.tsx (dashboard) - Task 7.5
+2. Create campaigns/[id]/personnel.tsx - Task 7.2
+3. Create campaigns/[id]/forces.tsx - Task 7.3
+4. Create campaigns/[id]/missions.tsx - Task 7.4
+5. Update campaigns/create.tsx to use backend types
+
+
+## Campaign Dashboard Page Created (2026-01-26)
+
+### Implementation
+- Created `src/pages/gameplay/campaigns/[id]/index.tsx`
+- 250 lines of clean React/TypeScript code
+- Uses backend ICampaign types exclusively
+- Zero TypeScript errors, build passes
+
+### Key Patterns Discovered
+**Date Serialization After Persistence:**
+- ICampaign defines createdAt/updatedAt as Date
+- After IndexedDB round-trip, they become ISO strings
+- Always wrap in `new Date()` when displaying: `new Date(campaign.createdAt).toLocaleDateString()`
+
+**Store API Pattern:**
+- Methods accessed via `store.getState().methodName()`
+- NOT directly on store: `store.methodName()` ❌
+- Correct: `store.getState().advanceDay()` ✅
+
+**Map Size Property:**
+- Maps use `.size` property, NOT `.length`
+- `campaign.personnel.size` ✅
+- `campaign.personnel.length` ❌
+
+### Features Implemented
+- 4 stat cards (personnel, forces, missions, balance)
+- Current date display with Advance Day button
+- Quick action buttons for navigation
+- Loading state during SSR/hydration
+- Not-found state if campaign doesn't exist
+- Campaign info section with metadata
+
+### Next UI Pages
+Remaining tasks: 7.1, 7.2, 7.3, 7.4 (4 pages)
+- 7.1: Campaign Shell (navigation tabs)
+- 7.2: Personnel Page
+- 7.3: Forces Page (TO&E)
+- 7.4: Missions Page
+
+
+## Force Deployment UI Implementation (2026-01-26)
+
+### Requirement
+Complete the final DoD item: "Deploy forces to scenarios"
+- Backend: IScenario has deployedForceIds field
+- Store: Scenario management exists in mission store
+- UI: Need to add deployment interface to missions page
+
+### Implementation Plan
+Add a "Deploy Forces" modal/section to the missions page that:
+1. Shows available forces from campaign.forces
+2. Allows selecting forces for deployment
+3. Updates scenario.deployedForceIds
+4. Persists changes to store
+
+This completes the full campaign workflow loop.
+
