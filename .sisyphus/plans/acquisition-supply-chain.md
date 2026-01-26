@@ -352,7 +352,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.4 Implement Delivery Time Calculation
+- [x] 9.4 Implement Delivery Time Calculation
 
   **What to do**:
   - Create `src/lib/campaign/acquisition/deliveryTime.ts`:
