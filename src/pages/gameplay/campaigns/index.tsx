@@ -27,82 +27,28 @@ interface CampaignCardProps {
 }
 
 function CampaignCard({ campaign, onClick }: CampaignCardProps): React.ReactElement {
-  const currentMission = campaign.missions.find(
-    (m) => m.status === CampaignMissionStatus.InProgress || m.status === CampaignMissionStatus.Available
-  );
-  const progressPercent = campaign.progress.missionsTotal > 0
-    ? Math.round((campaign.progress.missionsCompleted / campaign.progress.missionsTotal) * 100)
-    : 0;
-
   return (
     <Card
-      className="cursor-pointer hover:border-accent/50 transition-all group relative overflow-hidden"
+      className="cursor-pointer hover:border-accent/50 transition-all group"
       onClick={onClick}
       data-testid={`campaign-card-${campaign.id}`}
     >
-      {/* Progress bar background */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent transition-all"
-        style={{ width: `${progressPercent}%` }}
-      />
+      <h3 className="font-semibold text-text-theme-primary text-lg mb-2 group-hover:text-accent transition-colors">
+        {campaign.name}
+      </h3>
       
-      <div className="relative">
-        <div className="flex justify-between items-start mb-3">
-<h3 className="font-semibold text-text-theme-primary truncate text-lg group-hover:text-accent transition-colors" data-testid="campaign-name">
-            {campaign.name}
-          </h3>
-          <Badge variant={getStatusColor(campaign.status)}>
-            {getStatusLabel(campaign.status)}
-          </Badge>
-        </div>
-
-        {campaign.description && (
-          <p className="text-sm text-text-theme-secondary mb-4 line-clamp-2">
-            {campaign.description}
-          </p>
-        )}
-
-        {/* Progress Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="text-center p-2 rounded-lg bg-surface-deep/50">
-            <div className="text-lg font-bold text-accent">{campaign.progress.missionsCompleted}</div>
-            <div className="text-xs text-text-theme-muted uppercase tracking-wide">Completed</div>
-          </div>
-          <div className="text-center p-2 rounded-lg bg-surface-deep/50">
-            <div className="text-lg font-bold text-emerald-400">{campaign.progress.victories}</div>
-            <div className="text-xs text-text-theme-muted uppercase tracking-wide">Victories</div>
-          </div>
-          <div className="text-center p-2 rounded-lg bg-surface-deep/50">
-            <div className="text-lg font-bold text-red-400">{campaign.progress.defeats}</div>
-            <div className="text-xs text-text-theme-muted uppercase tracking-wide">Defeats</div>
-          </div>
-        </div>
-
-        {/* Current Mission */}
-        {currentMission && (
-          <div className="px-3 py-2 rounded-lg bg-accent/10 border border-accent/20 mb-3">
-            <div className="text-xs text-accent uppercase tracking-wide mb-1">Current Mission</div>
-            <div className="text-sm font-medium text-text-theme-primary">{currentMission.name}</div>
-          </div>
-        )}
-
-        {/* Roster Info */}
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="px-2 py-1 rounded bg-surface-deep text-text-theme-secondary">
-            {campaign.roster.units.length} Units
-          </span>
-          <span className="px-2 py-1 rounded bg-surface-deep text-text-theme-secondary">
-            {campaign.roster.pilots.length} Pilots
-          </span>
-          <span className="px-2 py-1 rounded bg-surface-deep text-text-theme-secondary">
-            {(campaign.resources.cBills / 1000000).toFixed(1)}M C-Bills
-          </span>
-        </div>
-
-        <div className="mt-4 pt-3 border-t border-border-theme-subtle text-xs text-text-theme-muted flex justify-between">
-          <span>Updated: {new Date(campaign.updatedAt).toLocaleDateString()}</span>
-          <span>{progressPercent}% Complete</span>
-        </div>
+      <p className="text-sm text-text-theme-secondary mb-3">
+        Faction: {campaign.factionId}
+      </p>
+      
+      <p className="text-sm text-text-theme-secondary mb-4">
+        Date: {campaign.currentDate.toLocaleDateString()}
+      </p>
+      
+      <div className="flex gap-4 text-sm text-text-theme-secondary">
+        <span>{campaign.personnel.size} Personnel</span>
+        <span>{campaign.forces.size} Forces</span>
+        <span>{campaign.missions.size} Missions</span>
       </div>
     </Card>
   );
