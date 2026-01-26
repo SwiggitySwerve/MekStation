@@ -28,3 +28,26 @@ export interface ResolveScenarioResult {
   /** Array of salvageable items recovered from the scenario */
   salvage: ISalvageItem[];
 }
+
+/**
+ * Calculates the probability of player victory based on Battle Value
+ * Uses the formula: playerBV / (playerBV + opponentBV)
+ * 
+ * @param playerBV - The player's Battle Value
+ * @param opponentBV - The opponent's Battle Value
+ * @returns Probability of victory as a number between 0 and 1
+ * 
+ * @example
+ * calculateVictoryProbability(3000, 3000) // returns 0.5
+ * calculateVictoryProbability(4000, 2000) // returns 0.667
+ * calculateVictoryProbability(0, 0) // returns 0.5 (edge case)
+ */
+export function calculateVictoryProbability(playerBV: number, opponentBV: number): number {
+  // Handle edge case where both BVs are 0
+  if (playerBV === 0 && opponentBV === 0) {
+    return 0.5;
+  }
+
+  const totalBV = playerBV + opponentBV;
+  return playerBV / totalBV;
+}
