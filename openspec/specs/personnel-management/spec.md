@@ -86,8 +86,7 @@ The system SHALL track personnel injuries with type, location, severity, healing
 - **THEN** all 3 injuries are present in injuries array with unique IDs
 
 ### Requirement: Skills and Attributes
-
-The system SHALL track personnel skills and attributes with 7 core attributes (STR, BOD, REF, DEX, INT, WIL, CHA) plus Edge. The system SHALL support a comprehensive skill catalog of 40+ skill types organized into six categories: combat, technical, medical, administrative, physical, and knowledge. Each skill has a base target number, XP cost progression (10 levels), and a linked attribute that modifies skill checks and improvement costs.
+The system SHALL track personnel skills and attributes with 7 core attributes (STR, BOD, REF, DEX, INT, WIL, CHA) plus Edge. The system SHALL support a comprehensive skill catalog of 40+ skill types organized into six categories: combat, technical, medical, administrative, physical, and knowledge. Each skill has a base target number, XP cost progression (10 levels), and a linked attribute that modifies skill checks and improvement costs. The technical category includes a Tech skill used for equipment maintenance checks.
 
 #### Scenario: Person has default attributes
 - **GIVEN** a person is created with createDefaultAttributes
@@ -116,8 +115,26 @@ The system SHALL track personnel skills and attributes with 7 core attributes (S
 #### Scenario: Unskilled personnel use penalty target number
 - **GIVEN** a person without a specific skill
 - **WHEN** attempting a skill check for that skill
-- **THEN** the target number is base TN + 4 (typically 11)
-- **AND** the person can still attempt the check without the skill
+- **THEN** the system uses a penalty target number (typically 12+)
+- **AND** the check is more difficult than for skilled personnel
+
+#### Scenario: Tech skill for maintenance
+- **GIVEN** a personnel member with Tech skill
+- **WHEN** performing maintenance checks
+- **THEN** Tech skill value is used in target number calculation
+- **AND** higher Tech skill makes maintenance easier
+
+#### Scenario: Assign Tech skill to technician
+- **GIVEN** a personnel member with role TECH
+- **WHEN** creating default skills for the role
+- **THEN** Tech skill is included in default skill set
+- **AND** Tech skill has appropriate starting value
+
+#### Scenario: Tech skill progression
+- **GIVEN** a personnel member with Tech skill
+- **WHEN** earning XP and improving skills
+- **THEN** Tech skill can be improved using XP
+- **AND** Tech skill follows standard skill progression rules
 
 ### Requirement: Experience and Progression
 The system SHALL track XP with current pool, total earned, and spent amounts.

@@ -1,6 +1,6 @@
 # Day Progression Specification Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Maintenance Processor Registration
 The system SHALL support registration of a maintenance processor in the day pipeline that executes equipment maintenance checks at configurable intervals.
