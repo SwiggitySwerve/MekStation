@@ -525,7 +525,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 6: Day Progression
 
-- [ ] 6.1 Implement Day Advancement
+- [x] 6.1 Implement Day Advancement
 
   **What to do**:
   - Create `src/lib/campaign/dayAdvancement.ts`
