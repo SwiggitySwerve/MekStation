@@ -70,10 +70,15 @@ export default function CampaignsListPage(): React.ReactElement {
     setIsClient(true);
   });
 
-  // Navigate to create page
-  const handleCreateCampaign = useCallback(() => {
-    router.push('/gameplay/campaigns/create');
-  }, [router]);
+   // Navigate to create page
+   const handleCreateCampaign = useCallback(() => {
+     router.push('/gameplay/campaigns/create');
+   }, [router]);
+
+   // Navigate to campaign detail page
+   const handleCampaignClick = useCallback((campaign: ICampaign) => {
+     router.push(`/gameplay/campaigns/${campaign.id}`);
+   }, [router]);
 
   // Show loading state during SSR/hydration
   if (!isClient) {
@@ -128,95 +133,47 @@ export default function CampaignsListPage(): React.ReactElement {
           New Campaign
         </Button>
       }
-    >
-      {/* Filters */}
-      <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-<Input
-              type="text"
-              placeholder="Search campaigns..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              aria-label="Search campaigns"
-              data-testid="campaign-search"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex gap-2 flex-wrap">
-            {(['all', CampaignStatus.Active, CampaignStatus.Setup, CampaignStatus.Victory, CampaignStatus.Defeat] as const).map(
-              (status) => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => setStatusFilter(status)}
-                >
-                  {status === 'all' ? 'All' : getStatusLabel(status as CampaignStatus)}
-                </Button>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Results count */}
-        <div className="mt-4 text-sm text-text-theme-secondary">
-          Showing {filteredCampaigns.length} campaign
-          {filteredCampaigns.length !== 1 ? 's' : ''}
-          {(searchQuery || statusFilter !== 'all') && (
-            <span className="text-accent ml-1">(filtered)</span>
-          )}
-        </div>
-      </Card>
-
-      {/* Campaigns Grid */}
-      {filteredCampaigns.length === 0 ? (
-<EmptyState
-          icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-text-theme-muted"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                />
-              </svg>
-            </div>
-          }
-          title={searchQuery || statusFilter !== 'all' ? 'No campaigns match your filters' : 'No campaigns yet'}
-          message={
-            searchQuery || statusFilter !== 'all'
-              ? 'Try adjusting your search or filters'
-              : 'Start a new campaign to lead your mercenary company through multi-mission operations'
-          }
-          action={
-            !(searchQuery || statusFilter !== 'all') && (
-              <Button variant="primary" onClick={handleCreateCampaign}>
-                Create First Campaign
-              </Button>
-            )
-          }
-          data-testid="campaigns-empty-state"
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredCampaigns.map((campaign) => (
-            <CampaignCard
-              key={campaign.id}
-              campaign={campaign}
-              onClick={() => handleCampaignClick(campaign)}
-            />
-          ))}
-        </div>
-      )}
+     >
+       {/* Campaigns Grid */}
+       {campaigns.length === 0 ? (
+ <EmptyState
+           icon={
+             <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+               <svg
+                 className="w-8 h-8 text-text-theme-muted"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+               >
+                 <path
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+                   strokeWidth={1.5}
+                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                 />
+               </svg>
+             </div>
+           }
+           title="No campaigns yet"
+           message="Start a new campaign to lead your mercenary company through multi-mission operations"
+           action={
+             <Button variant="primary" onClick={handleCreateCampaign}>
+               Create First Campaign
+             </Button>
+           }
+           data-testid="campaigns-empty-state"
+         />
+       ) : (
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+           {campaigns.map((campaign) => (
+             <CampaignCard
+               key={campaign.id}
+               campaign={campaign}
+               onClick={() => handleCampaignClick(campaign)}
+             />
+           ))}
+         </div>
+       )}
     </PageLayout>
   );
 }
