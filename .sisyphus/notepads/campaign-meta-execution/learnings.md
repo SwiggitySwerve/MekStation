@@ -201,3 +201,36 @@ For OpenSpec proposals:
 1. Attempt delegation once
 2. If fails, create directly (these are planning docs)
 3. Focus delegation on actual implementation tasks (code, tests, UI)
+## [2026-01-26] Tier 2 Proposals Complete
+
+### Completed
+- Plan 3: Archived successfully
+- Plan 4: Financial System proposal created and validated
+- Plan 5: Faction Standing proposal created and validated
+- Plan 8: Medical System proposal created and validated
+
+### PR #180 Status
+- Branch: chore/archive-plan-3-and-plan-4-proposal
+- Contains: Plan 3 archive + Plans 4, 5, 8 proposals
+- Auto-merge enabled
+- CI in progress
+
+### Tier 2 Progress
+All 5 Tier 2 plans now have proposals:
+- Plan 2: Turnover & Retention ✅ ARCHIVED (PR #178)
+- Plan 3: Repair & Quality Cascade ✅ ARCHIVED (PR #179)
+- Plan 4: Financial System ⏸️ PROPOSAL READY (PR #180)
+- Plan 5: Faction Standing ⏸️ PROPOSAL READY (PR #180)
+- Plan 8: Medical System ⏸️ PROPOSAL READY (PR #180)
+
+### Blocker
+Cannot proceed to Tier 3 until:
+1. PR #180 merges (CI in progress)
+2. User approves Plans 4, 5, 8 proposals
+3. Tier 2 implementations complete and merge
+
+### Next Actions
+After PR #180 merges:
+1. User reviews proposals
+2. Begin implementation of approved plans (Phase B)
+3. Complete Tier 2 before starting Tier 3 proposals
