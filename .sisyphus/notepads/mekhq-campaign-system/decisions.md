@@ -117,3 +117,125 @@ const cents2 = Math.round(0.3 * 100);         // 30
 - Matches MekHQ pattern
 - Easier to validate and serialize
 
+
+## IPerson Interface Design Decisions (Task 1.5)
+
+### Decision: Inline Sub-Interface Fields
+**Rationale**:
+- Defined IPersonIdentity, IPersonBackground, IPersonCareer, etc. as separate interfaces
+- But inlined their fields directly in IPerson rather than using composition
+- Simpler to use: `person.rank` instead of `person.career.rank`
+- Easier to serialize/deserialize (flat structure)
+- Still have sub-interfaces available for partial type checking
+
+**Trade-off**:
+- Larger interface definition
+- Less modular (can't easily swap career tracking implementation)
+- Acceptable for MVP; can refactor later if needed
+
+### Decision: Separate pilotSkills from skills
+**Rationale**:
+- IPilot has simple gunnery/piloting skills (1-8 scale)
+- Campaign system has detailed ISkill with levels, bonuses, XP progress
+- Keeping both allows backwards compatibility with existing pilot system
+- pilotSkills used for combat resolution (BattleTech rules)
+- skills used for campaign progression (MekHQ-style)
+
+**Implementation**:
+- pilotSkills: IPilotSkills (gunnery, piloting numbers)
+- skills: Record<string, ISkill> (detailed skill objects)
+- Both coexist on IPerson
+
+### Decision: Date Type for Dates
+**Rationale**:
+- Used JavaScript Date for recruitmentDate, deathDate, retirementDate, etc.
+- Matches IInjury.acquired pattern
+- Easier to work with than ISO strings for date calculations
+- Can serialize to ISO string for storage
+
+**Trade-off**:
+- Requires Date serialization/deserialization
+- Not directly JSON-compatible (need custom handling)
+- Acceptable for MVP; can add serialization helpers later
+
+### Decision: Status Mapping in pilotToPerson
+**Rationale**:
+- PilotStatus and PersonnelStatus have different values
+- Created explicit mapping: active→ACTIVE, injured→WOUNDED, mia→MIA, kia→KIA, retired→RETIRED
+- Unknown statuses default to ACTIVE (safe fallback)
+- Preserves semantic meaning across systems
+
+### Decision: Default Healing Time Formula
+**Rationale**:
+- Wounds (hits) heal at 7 days per wound level
+- pilotToPerson sets daysToWaitForHealing = wounds * 7
+- Simple formula, can be overridden by campaign options later
+- Matches MekHQ's basic healing model
+
+### Decision: 45 Fields (Within 40-50 Target)
+**Rationale**:
+- Counted all fields including inherited from IPersonIdentity/IPersonBackground
+- Core fields: ~25 (id, name, status, role, rank, xp, hits, etc.)
+- Optional fields: ~20 (secondaryRole, deathDate, unitId, flags, etc.)
+- Total: ~45 fields (within 40-50 MVP target)
+- Excluded MekHQ's 250+ fields (genealogy, education, personality, etc.)
+
+
+## Campaign Aggregate Design Decisions (Task 3.2)
+
+### Decision: Map<string, T> for Collections
+**Rationale**:
+- O(1) lookups by ID (vs O(n) for arrays)
+- Consistent with existing patterns (personnel store, force store)
+- Easy to serialize/deserialize (Array.from(entries()) / new Map(array))
+- Natural fit for entity collections with unique IDs
+
+### Decision: Reference Units by ID, Not Duplicate
+**Rationale**:
+- Units already exist in MekStation's unit stores
+- Duplicating would cause sync issues and data inconsistency
+- Forces contain unitIds (string[]) that reference unit store
+- getAllUnits() collects IDs from force tree for lookups
+
+### Decision: 40 Essential Options (Not 200+)
+**Rationale**:
+- MekHQ has 200+ campaign options (overwhelming for MVP)
+- Selected 40 most impactful options across 5 categories
+- Can expand later without breaking existing code
+- Options interface is readonly (immutable)
+
+**Categories**:
+- Personnel (10): healing, salaries, retirement, XP, medical
+- Financial (10): costs, maintenance, loans, payments
+- Combat (8): auto-resolve, injuries, death, ammunition
+- Force (6): formation rules, commanders, combat teams
+- General (6): date format, tech level, faction rules
+
+### Decision: Stub IMission Interface
+**Rationale**:
+- Full mission system is complex (contracts, scenarios, objectives)
+- MVP only needs basic mission tracking
+- Stub interface: id, name, status, optional description/dates
+- Can expand to full mission system in future task
+
+### Decision: Unique ID Generation with Random Component
+**Rationale**:
+- Date.now() alone can collide when creating multiple entities quickly
+- Added random component: `${prefix}-${timestamp}-${random}`
+- Random: Math.random().toString(36).substring(2, 9)
+- Ensures uniqueness even in rapid creation scenarios
+
+### Decision: currentDate as Date, Timestamps as ISO Strings
+**Rationale**:
+- currentDate is frequently used for date calculations (in-game time)
+- Date object enables easy date math (add days, compare dates)
+- createdAt/updatedAt are metadata, rarely computed on
+- ISO strings serialize cleanly to JSON
+
+### Decision: rootForceId Instead of Embedded Root Force
+**Rationale**:
+- Forces stored in Map<string, IForce> for consistency
+- rootForceId references the top of hierarchy
+- Allows force tree operations to work uniformly
+- getRootForce() helper for convenient access
+

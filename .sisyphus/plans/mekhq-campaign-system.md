@@ -329,7 +329,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 3.2 Create Campaign Aggregate
+- [x] 3.2 Create Campaign Aggregate
 
   **What to do**:
   - Create `src/types/campaign/Campaign.ts`:
