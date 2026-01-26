@@ -50,6 +50,8 @@ export { isContract, createContract };
  *   // ... more options
  * };
  */
+export type TurnoverFrequency = 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'never';
+
 export interface ICampaignOptions {
   // =========================================================================
   // Personnel Options (~10)
@@ -196,6 +198,19 @@ export interface ICampaignOptions {
 
   /** Whether to show day report notifications after advancing */
   readonly enableDayReportNotifications: boolean;
+
+  // =========================================================================
+  // Turnover Options (~8)
+  // =========================================================================
+
+  readonly useTurnover: boolean;
+  readonly turnoverFixedTargetNumber: number;
+  readonly turnoverCheckFrequency: TurnoverFrequency;
+  readonly turnoverCommanderImmune: boolean;
+  readonly turnoverPayoutMultiplier: number;
+  readonly turnoverUseSkillModifiers: boolean;
+  readonly turnoverUseAgeModifiers: boolean;
+  readonly turnoverUseMissionStatusModifiers: boolean;
 }
 
 // =============================================================================
@@ -638,6 +653,16 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     allowClanEquipment: false,
     useRandomEvents: false,
     enableDayReportNotifications: true,
+
+    // Turnover options
+    useTurnover: true,
+    turnoverFixedTargetNumber: 3,
+    turnoverCheckFrequency: 'monthly',
+    turnoverCommanderImmune: true,
+    turnoverPayoutMultiplier: 12,
+    turnoverUseSkillModifiers: true,
+    turnoverUseAgeModifiers: true,
+    turnoverUseMissionStatusModifiers: true,
   };
 }
 
