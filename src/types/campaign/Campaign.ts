@@ -190,6 +190,9 @@ export interface ICampaignOptions {
 
   /** Whether to use random events */
   readonly useRandomEvents: boolean;
+
+  /** Whether to show day report notifications after advancing */
+  readonly enableDayReportNotifications: boolean;
 }
 
 // =============================================================================
@@ -630,6 +633,7 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     limitByYear: true,
     allowClanEquipment: false,
     useRandomEvents: false,
+    enableDayReportNotifications: true,
   };
 }
 

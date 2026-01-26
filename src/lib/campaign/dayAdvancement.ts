@@ -21,6 +21,7 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { Transaction, TransactionType } from '@/types/campaign/Transaction';
+import { IDayPipelineResult, IDayEvent } from './dayPipeline';
 
 // =============================================================================
 // Constants
@@ -398,4 +399,68 @@ export function advanceDay(campaign: ICampaign): DayReport {
     costs: costResult.costs,
     campaign: updatedCampaign,
   };
+}
+
+// =============================================================================
+// Multi-Day Advancement
+// =============================================================================
+
+export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
+  const reports: DayReport[] = [];
+  let currentCampaign = campaign;
+
+  for (let i = 0; i < count; i++) {
+    const report = advanceDay(currentCampaign);
+    reports.push(report);
+    currentCampaign = report.campaign;
+  }
+
+  return reports;
+}
+
+// =============================================================================
+// Pipeline Integration
+// =============================================================================
+
+// Helper to safely cast event data to specific types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function castEventData<T>(data: any): T {
+  return data as T;
+}
+
+export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport {
+  const healedPersonnel: HealedPersonEvent[] = result.events
+    .filter((e: IDayEvent) => e.type === 'healing')
+    .map((e: IDayEvent) => castEventData<HealedPersonEvent>(e.data));
+
+  const expiredContracts: ExpiredContractEvent[] = result.events
+    .filter((e: IDayEvent) => e.type === 'contract_expired')
+    .map((e: IDayEvent) => castEventData<ExpiredContractEvent>(e.data));
+
+  const costEvent = result.events.find((e: IDayEvent) => e.type === 'daily_costs');
+  const costs: DailyCostBreakdown = costEvent?.data
+    ? castEventData<DailyCostBreakdown>(costEvent.data)
+    : {
+        salaries: Money.ZERO,
+        maintenance: Money.ZERO,
+        total: Money.ZERO,
+        personnelCount: 0,
+        unitCount: 0,
+      };
+
+  return {
+    date: result.date,
+    healedPersonnel,
+    expiredContracts,
+    costs,
+    campaign: result.campaign,
+  };
+}
+
+export function advanceDayViaPipeline(
+  campaign: ICampaign,
+  pipeline: { processDay(campaign: ICampaign): IDayPipelineResult }
+): DayReport {
+  const result = pipeline.processDay(campaign);
+  return convertToLegacyDayReport(result);
 }

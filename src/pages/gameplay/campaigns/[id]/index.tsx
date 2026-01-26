@@ -13,8 +13,9 @@ import {
   EmptyState,
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { ICampaign } from '@/types/campaign/Campaign';
+import { DayReport } from '@/lib/campaign/dayAdvancement';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 
 // =============================================================================
 // Stat Card Component
@@ -50,20 +51,37 @@ function StatCard({ label, value, icon }: StatCardProps): React.ReactElement {
 
 export default function CampaignDashboardPage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const { id: _id } = router.query;
   const store = useCampaignStore();
   const campaign = store.getState().getCampaign();
   const [isClient, setIsClient] = useState(false);
+  const [dayReports, setDayReports] = useState<DayReport[]>([]);
 
   // Hydration fix
   useState(() => {
     setIsClient(true);
   });
 
-   // Handle advance day
-   const handleAdvanceDay = useCallback(() => {
-     store.getState().advanceDay();
-   }, [store]);
+  const handleAdvanceDay = useCallback(() => {
+    const report = store.getState().advanceDay();
+    if (report && campaign?.options.enableDayReportNotifications) {
+      setDayReports([report]);
+    }
+  }, [store, campaign?.options.enableDayReportNotifications]);
+
+  const handleAdvanceWeek = useCallback(() => {
+    const reports = store.getState().advanceDays(7);
+    if (reports && campaign?.options.enableDayReportNotifications) {
+      setDayReports(reports);
+    }
+  }, [store, campaign?.options.enableDayReportNotifications]);
+
+  const handleAdvanceMonth = useCallback(() => {
+    const reports = store.getState().advanceDays(30);
+    if (reports && campaign?.options.enableDayReportNotifications) {
+      setDayReports(reports);
+    }
+  }, [store, campaign?.options.enableDayReportNotifications]);
 
   // Show loading state during SSR/hydration
   if (!isClient) {
@@ -137,18 +155,42 @@ export default function CampaignDashboardPage(): React.ReactElement {
               {campaign.currentDate.toLocaleDateString()}
             </p>
           </div>
-          <Button
-            variant="primary"
-            onClick={handleAdvanceDay}
-            data-testid="advance-day-btn"
-          >
-            Advance Day
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              onClick={handleAdvanceDay}
+              data-testid="advance-day-btn"
+            >
+              Advance Day
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleAdvanceWeek}
+              data-testid="advance-week-btn"
+            >
+              Advance Week
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleAdvanceMonth}
+              data-testid="advance-month-btn"
+            >
+              Advance Month
+            </Button>
+          </div>
         </div>
       }
     >
       {/* Navigation Tabs */}
       <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
+
+      {/* Day Report */}
+      {dayReports.length > 0 && (
+        <DayReportPanel
+          reports={dayReports}
+          onDismiss={() => setDayReports([])}
+        />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
