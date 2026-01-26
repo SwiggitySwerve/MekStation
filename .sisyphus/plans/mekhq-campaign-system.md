@@ -121,7 +121,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ### PHASE 1: Campaign Domain Types
 
-- [ ] 1.1 Define Campaign Enums
+- [x] 1.1 Define Campaign Enums
 
   **What to do**:
   - Create `src/types/campaign/enums/` directory
@@ -155,7 +155,7 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
 
 ---
 
-- [ ] 1.2 Define Money and Financial Types
+- [x] 1.2 Define Money and Financial Types
 
   **What to do**:
   - Create `src/types/campaign/Money.ts`
