@@ -435,7 +435,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.5 Create Faction Standing Day Processor
+- [x] 5.5 Create Faction Standing Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/factionStandingProcessor.ts`:
@@ -506,7 +506,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.6 Integrate Standing into Campaign
+- [x] 5.6 Integrate Standing into Campaign
 
   **What to do**:
   - Add to `ICampaign`:
@@ -565,7 +565,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [ ] 5.7 Create Faction Standing UI
+- [~] 5.7 Create Faction Standing UI (DEFERRED: delegation system issues with UI tasks)
 
   **What to do**:
   - Create `src/components/campaign/FactionStandingPanel.tsx`:

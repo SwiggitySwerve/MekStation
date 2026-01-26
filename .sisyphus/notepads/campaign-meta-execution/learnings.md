@@ -659,3 +659,39 @@ Updated `createDefaultCampaignOptions()` with new defaults.
 - Separate event creation functions for clarity and maintainability
 - Escalation checks happen after decay to ensure proper ordering
 
+
+## [2026-01-26T00:00:00Z] Task 5.6: Campaign Integration
+
+### Implementation Notes
+- Added 11 effect toggle options to ICampaignOptions interface:
+  - factionStandingNegotiationEnabled
+  - factionStandingContractPayEnabled
+  - factionStandingRecruitmentEnabled
+  - factionStandingBarracksEnabled
+  - factionStandingUnitMarketEnabled
+  - factionStandingOutlawEnabled
+  - factionStandingCommandCircuitEnabled
+  - factionStandingBatchallEnabled
+  - factionStandingResupplyEnabled
+  - factionStandingSupportStartEnabled
+  - factionStandingSupportPeriodicEnabled
+- All 11 options default to true in createDefaultCampaignOptions()
+- Created getStanding() helper that auto-creates neutral standing if faction not in record
+- Updated 3 test files to include new options in manual campaign option objects
+
+### Test Results
+- npm test: 13,710 tests passed (no new failures)
+- npm run typecheck: Clean (no type errors)
+- All existing campaigns load without error (empty standings default to {})
+
+### Files Modified
+- src/types/campaign/Campaign.ts (interface, defaults, helper function)
+- src/lib/campaign/turnover/__tests__/turnoverCheck.test.ts
+- src/lib/campaign/turnover/modifiers/__tests__/modifiers.test.ts
+- src/lib/finances/__tests__/taxService.test.ts
+
+### Key Patterns
+- Campaign options follow factory pattern: add to interface + add defaults to createDefaultCampaignOptions()
+- Helper functions use optional chaining (?.) for safe access to optional fields
+- Test files with manual campaign option objects need updating when interface changes
+\n## [2026-01-26T21:52:23Z] Plan 5 Status: 6/7 Complete (86%)\n\n### Completed Tasks\n- 5.1: Faction standing types (45 tests)\n- 5.2: Standing calculation logic (23 tests)\n- 5.3: 11 gameplay effect modifiers (60 tests)\n- 5.4: Accolade/censure escalation (34 tests)\n- 5.5: Day processor (16 tests)\n- 5.6: Campaign integration (11 effect toggles)\n\n### Remaining\n- 5.7: Faction Standing UI (DEFERRED - delegation system issues with UI tasks)\n\n### Decision\n- Backend faction standing system is 100% complete and tested (178 tests)\n- UI can be implemented later without blocking other plans\n- Moving to next independent plan\n
