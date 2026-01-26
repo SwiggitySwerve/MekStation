@@ -51,3 +51,32 @@ export function calculateVictoryProbability(playerBV: number, opponentBV: number
   const totalBV = playerBV + opponentBV;
   return playerBV / totalBV;
 }
+
+/**
+ * Distributes damage across multiple units based on severity
+ * Each unit receives damage calculated as: severity * (0.5 + random() * 0.5) * 100, capped at 100%
+ * 
+ * @param unitIds - Array of unit identifiers to distribute damage to
+ * @param severity - Damage severity multiplier between 0 and 1
+ * @param random - Optional random number generator function (defaults to Math.random)
+ * @returns Map of unitId to damage percentage (0-100)
+ * 
+ * @example
+ * distributeDamage(['unit1', 'unit2'], 0.8)
+ * // Returns Map { 'unit1' => 65.3, 'unit2' => 72.1 }
+ */
+export function distributeDamage(
+  unitIds: string[],
+  severity: number,
+  random: () => number = Math.random
+): Map<string, number> {
+  const damageMap = new Map<string, number>();
+
+  for (const unitId of unitIds) {
+    // Formula: severity * (0.5 + random() * 0.5) * 100, capped at 100
+    const damage = Math.min(severity * (0.5 + random() * 0.5) * 100, 100);
+    damageMap.set(unitId, damage);
+  }
+
+  return damageMap;
+}
