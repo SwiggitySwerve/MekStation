@@ -162,6 +162,18 @@ export interface IPersonCareer {
 
   /** Awards earned */
   readonly awards?: readonly string[];
+
+  /** Date of last promotion (for turnover recent promotion modifier) */
+  readonly lastPromotionDate?: Date;
+
+  /** End date of service contract (for turnover service contract modifier) */
+  readonly serviceContractEndDate?: Date;
+
+  /** Date when person departed the unit */
+  readonly departureDate?: Date;
+
+  /** Reason for departure (e.g., 'retired', 'deserted', 'contract ended') */
+  readonly departureReason?: string;
 }
 
 // =============================================================================
@@ -322,6 +334,18 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
 
   /** Awards earned (award IDs) */
   readonly awards?: readonly string[];
+
+  /** Date of last promotion (for turnover recent promotion modifier) */
+  readonly lastPromotionDate?: Date;
+
+  /** End date of service contract (for turnover service contract modifier) */
+  readonly serviceContractEndDate?: Date;
+
+  /** Date when person departed the unit */
+  readonly departureDate?: Date;
+
+  /** Reason for departure (e.g., 'retired', 'deserted', 'contract ended') */
+  readonly departureReason?: string;
 
   // =========================================================================
   // Experience (from IPersonExperience)

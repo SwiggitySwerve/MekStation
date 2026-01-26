@@ -61,10 +61,11 @@ Define the repeatable lifecycle every campaign plan follows, pre-map all change-
 
 ## Prerequisites (Before Tier 1 Starts)
 
-- [ ] P1. Merge or close PR #172 (Plan 1: Day Advancement Pipeline)
+- [x] P1. Merge or close PR #172 (Plan 1: Day Advancement Pipeline)
   - Branch: `feat/day-advancement-pipeline`
   - If blocked: check CI status, resolve any failing checks
   - After merge: delete branch
+  - COMPLETED: PR #172 merged, Plan 1 retroactively documented and archived
 
 - [x] P2. Create retroactive OpenSpec for Plan 1
   - Change-id: `update-day-advancement-pipeline`
@@ -341,10 +342,10 @@ PREREQUISITES
   P4. Verify externalize-mm-data-assets status
   ─── GATE: Prerequisites complete ───
 
-TIER 1 (Infrastructure)
-  Plan 7:  Skills Expansion ─────────────── A → B → C
-  Plan 13: Personnel Status/Roles ────────── A → B → C
-  ─── GATE: Both Tier 1 PRs merged ───
+TIER 1 (Infrastructure) ✅ COMPLETE
+  Plan 7:  Skills Expansion ─────────────── A ✅ → B ✅ → C ✅ ARCHIVED
+  Plan 13: Personnel Status/Roles ────────── A ✅ → B ✅ → C ✅ ARCHIVED
+  ─── GATE: Both Tier 1 PRs merged ✅ ───
 
 TIER 2 (Core Systems)
   Plan 2:  Turnover & Retention ──────────── A → B → C
