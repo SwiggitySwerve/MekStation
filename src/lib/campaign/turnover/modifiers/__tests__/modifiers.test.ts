@@ -5,6 +5,7 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { Money } from '@/types/campaign/Money';
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 import {
   getFounderModifier,
   getRecentPromotionModifier,
@@ -69,9 +70,10 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
       salaryMultiplier: 1.0,
       retirementAge: 65,
       healingWaitingPeriod: 1,
-      useAdvancedMedical: false,
-      maxPatientsPerDoctor: 25,
-      xpPerMission: 1,
+       medicalSystem: MedicalSystem.STANDARD,
+       maxPatientsPerDoctor: 25,
+       doctorsUseAdministration: false,
+       xpPerMission: 1,
       xpPerKill: 1,
       xpCostMultiplier: 1.0,
       trackTimeInService: true,

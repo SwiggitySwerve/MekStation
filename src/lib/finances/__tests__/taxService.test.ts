@@ -3,6 +3,7 @@ import { Money } from '@/types/campaign/Money';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 import {
   calculateTaxes,
   calculateProfits,
@@ -28,14 +29,15 @@ describe('taxService', () => {
          balance: new Money(0),
        },
        factionStandings: {},
-       options: {
-        healingRateMultiplier: 1.0,
-        salaryMultiplier: 1.0,
-        retirementAge: 65,
-        healingWaitingPeriod: 1,
-        useAdvancedMedical: false,
-        maxPatientsPerDoctor: 25,
-        xpPerMission: 1,
+        options: {
+         healingRateMultiplier: 1.0,
+         salaryMultiplier: 1.0,
+         retirementAge: 65,
+         healingWaitingPeriod: 1,
+         medicalSystem: MedicalSystem.STANDARD,
+         maxPatientsPerDoctor: 25,
+         doctorsUseAdministration: false,
+         xpPerMission: 1,
         xpPerKill: 1,
         xpCostMultiplier: 1.0,
         trackTimeInService: true,

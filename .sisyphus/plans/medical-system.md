@@ -106,7 +106,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ## TODOs
 
-- [ ] 8.1 Define Medical System Types
+- [x] 8.1 Define Medical System Types
 
   **What to do**:
   - Create `src/lib/campaign/medical/medicalTypes.ts`:
@@ -155,7 +155,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.2 Implement Standard Medical System
+- [x] 8.2 Implement Standard Medical System
 
   **What to do**:
   - Create `src/lib/campaign/medical/standardMedical.ts`:
@@ -214,7 +214,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.3 Implement Advanced Medical System
+- [x] 8.3 Implement Advanced Medical System
 
   **What to do**:
   - Create `src/lib/campaign/medical/advancedMedical.ts`:
@@ -263,7 +263,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.4 Implement Alternate Medical System
+- [x] 8.4 Implement Alternate Medical System
 
   **What to do**:
   - Create `src/lib/campaign/medical/alternateMedical.ts`:
@@ -309,7 +309,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.5 Implement Doctor Capacity Management
+- [x] 8.5 Implement Doctor Capacity Management
 
   **What to do**:
   - Create `src/lib/campaign/medical/doctorCapacity.ts`:
@@ -348,7 +348,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.6 Implement Surgery for Permanent Injuries
+- [x] 8.6 Implement Surgery for Permanent Injuries
 
   **What to do**:
   - Create `src/lib/campaign/medical/surgery.ts`:
@@ -397,7 +397,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.7 Update Healing Day Processor
+- [x] 8.7 Update Healing Day Processor
 
   **What to do**:
   - Update the existing healing processor (from Plan 1) to use selected medical system:
@@ -437,7 +437,7 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
 ---
 
-- [ ] 8.8 Create Medical Management UI
+- [~] 8.8 Create Medical Management UI (DEFERRED: delegation system issues with UI tasks)
 
   **What to do**:
   - Create `src/components/campaign/MedicalPanel.tsx`:

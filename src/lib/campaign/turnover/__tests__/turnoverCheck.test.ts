@@ -4,6 +4,7 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 import {
   roll2d6,
   checkTurnover,
@@ -43,8 +44,9 @@ function createTestOptions(): ICampaignOptions {
     salaryMultiplier: 1.0,
     retirementAge: 65,
     healingWaitingPeriod: 1,
-    useAdvancedMedical: false,
+    medicalSystem: MedicalSystem.STANDARD,
     maxPatientsPerDoctor: 25,
+    doctorsUseAdministration: false,
     xpPerMission: 1,
     xpPerKill: 1,
     xpCostMultiplier: 1.0,

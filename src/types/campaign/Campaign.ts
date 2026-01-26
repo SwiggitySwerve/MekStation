@@ -23,6 +23,7 @@ import {
   createContract,
 } from './Mission';
 import type { SalvageRights, CommandRights } from './Mission';
+import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -70,14 +71,17 @@ export interface ICampaignOptions {
   /** Days to wait between healing checks */
   readonly healingWaitingPeriod: number;
 
-  /** Whether to use advanced medical system */
-  readonly useAdvancedMedical: boolean;
+   /** Medical system to use (STANDARD, ADVANCED, ALTERNATE) */
+   readonly medicalSystem: MedicalSystem;
 
-  /** Maximum patients per doctor */
-  readonly maxPatientsPerDoctor: number;
+   /** Maximum patients per doctor */
+   readonly maxPatientsPerDoctor: number;
 
-  /** XP awarded per mission */
-  readonly xpPerMission: number;
+   /** Whether doctors use administration skill to increase capacity */
+   readonly doctorsUseAdministration: boolean;
+
+   /** XP awarded per mission */
+   readonly xpPerMission: number;
 
    /** XP awarded per kill */
    readonly xpPerKill: number;
@@ -595,18 +599,19 @@ export function isMission(value: unknown): value is IMission {
  * }
  */
 export function isCampaignOptions(value: unknown): value is ICampaignOptions {
-  if (typeof value !== 'object' || value === null) return false;
-  const options = value as ICampaignOptions;
-  return (
-    typeof options.healingRateMultiplier === 'number' &&
-    typeof options.salaryMultiplier === 'number' &&
-    typeof options.retirementAge === 'number' &&
-    typeof options.startingFunds === 'number' &&
-    typeof options.maintenanceCostMultiplier === 'number' &&
-    typeof options.useAutoResolve === 'boolean' &&
-    typeof options.maxUnitsPerLance === 'number' &&
-    typeof options.dateFormat === 'string'
-  );
+   if (typeof value !== 'object' || value === null) return false;
+   const options = value as ICampaignOptions;
+   return (
+     typeof options.healingRateMultiplier === 'number' &&
+     typeof options.salaryMultiplier === 'number' &&
+     typeof options.retirementAge === 'number' &&
+     typeof options.startingFunds === 'number' &&
+     typeof options.maintenanceCostMultiplier === 'number' &&
+     typeof options.useAutoResolve === 'boolean' &&
+     typeof options.maxUnitsPerLance === 'number' &&
+     typeof options.dateFormat === 'string' &&
+     typeof options.doctorsUseAdministration === 'boolean'
+   );
 }
 
 /**
@@ -654,15 +659,16 @@ export function isCampaign(value: unknown): value is ICampaign {
  * const options = createDefaultCampaignOptions();
  */
 export function createDefaultCampaignOptions(): ICampaignOptions {
-  return {
-    // Personnel options
-    healingRateMultiplier: 1.0,
-    salaryMultiplier: 1.0,
-    retirementAge: 65,
-    healingWaitingPeriod: 1,
-    useAdvancedMedical: false,
-    maxPatientsPerDoctor: 25,
-     xpPerMission: 1,
+   return {
+     // Personnel options
+     healingRateMultiplier: 1.0,
+     salaryMultiplier: 1.0,
+     retirementAge: 65,
+      healingWaitingPeriod: 1,
+      medicalSystem: MedicalSystem.STANDARD,
+      maxPatientsPerDoctor: 25,
+      doctorsUseAdministration: false,
+      xpPerMission: 1,
      xpPerKill: 1,
      xpCostMultiplier: 1.0,
      trackTimeInService: true,
