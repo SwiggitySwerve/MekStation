@@ -14,6 +14,7 @@ import {
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
+import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 // =============================================================================
 // Stat Card Component
@@ -146,6 +147,9 @@ export default function CampaignDashboardPage(): React.ReactElement {
         </div>
       }
     >
+      {/* Navigation Tabs */}
+      <CampaignNavigation campaignId={campaign.id} currentPage="dashboard" />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard

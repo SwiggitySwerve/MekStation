@@ -15,6 +15,7 @@ import {
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { IForce } from '@/types/campaign/Force';
 import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 // =============================================================================
 // Force Tree Node Component
@@ -189,6 +190,9 @@ export default function ForcesPage(): React.ReactElement {
       subtitle={`${campaign.name} - Table of Organization and Equipment`}
       maxWidth="wide"
     >
+      {/* Navigation Tabs */}
+      <CampaignNavigation campaignId={campaign.id} currentPage="forces" />
+
       {!rootForce ? (
         <EmptyState
           icon={

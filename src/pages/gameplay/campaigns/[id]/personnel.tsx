@@ -15,6 +15,7 @@ import {
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus } from '@/types/campaign/enums';
+import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 // =============================================================================
 // Personnel Card Component
@@ -167,6 +168,9 @@ export default function PersonnelPage(): React.ReactElement {
       subtitle={`${campaign.name} - ${personnel.length} personnel`}
       maxWidth="wide"
     >
+      {/* Navigation Tabs */}
+      <CampaignNavigation campaignId={campaign.id} currentPage="personnel" />
+
       {personnel.length === 0 ? (
         <EmptyState
           icon={

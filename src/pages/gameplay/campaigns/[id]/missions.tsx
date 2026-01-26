@@ -16,6 +16,7 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { IMission, IContract } from '@/types/campaign/Mission';
 import { MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
+import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 // =============================================================================
 // Mission Card Component
@@ -215,6 +216,9 @@ export default function MissionsPage(): React.ReactElement {
       subtitle={`${campaign.name} - ${allMissions.length} total missions`}
       maxWidth="wide"
     >
+      {/* Navigation Tabs */}
+      <CampaignNavigation campaignId={campaign.id} currentPage="missions" />
+
       {/* Filter Tabs */}
       {allMissions.length > 0 && (
         <Card className="mb-6">
