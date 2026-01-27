@@ -334,7 +334,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.4 Implement Aging System
+- [x] 10.4 Implement Aging System
 
   **What to do**:
   - Create `src/lib/campaign/progression/aging.ts`:
