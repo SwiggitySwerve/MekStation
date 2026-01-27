@@ -28,8 +28,9 @@ describe('taxService', () => {
          transactions: [],
          balance: new Money(0),
        },
-       factionStandings: {},
-        options: {
+        factionStandings: {},
+        shoppingList: { items: [] },
+         options: {
          healingRateMultiplier: 1.0,
          salaryMultiplier: 1.0,
          retirementAge: 65,

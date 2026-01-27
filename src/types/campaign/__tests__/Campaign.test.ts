@@ -140,22 +140,23 @@ function createTestCampaign(): ICampaign {
     balance: new Money(1000000),
   };
 
-   return {
-     id: 'campaign-001',
-     name: "Wolf's Dragoons",
-     currentDate: new Date('3025-01-01'),
-     factionId: 'mercenary',
-     personnel,
-     forces,
-     rootForceId: 'force-root',
-     missions,
-     finances,
-     factionStandings: {},
-     options: createDefaultCampaignOptions(),
-     campaignStartDate: new Date('3025-01-01'),
-     createdAt: '2026-01-26T10:00:00Z',
-     updatedAt: '2026-01-26T10:00:00Z',
-   };
+    return {
+      id: 'campaign-001',
+      name: "Wolf's Dragoons",
+      currentDate: new Date('3025-01-01'),
+      factionId: 'mercenary',
+      personnel,
+      forces,
+      rootForceId: 'force-root',
+      missions,
+      finances,
+      factionStandings: {},
+      shoppingList: { items: [] },
+      options: createDefaultCampaignOptions(),
+      campaignStartDate: new Date('3025-01-01'),
+      createdAt: '2026-01-26T10:00:00Z',
+      updatedAt: '2026-01-26T10:00:00Z',
+    };
 }
 
 // =============================================================================

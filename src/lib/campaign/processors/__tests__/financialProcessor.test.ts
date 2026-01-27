@@ -45,31 +45,32 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-   const defaultOptions = createDefaultCampaignOptions();
-   return {
-     id: 'campaign-001',
-     name: 'Test Campaign',
-     currentDate: new Date('3025-01-01T00:00:00Z'),
-     factionId: 'mercenary',
-     personnel: new Map<string, IPerson>(),
-     forces: new Map(),
-     rootForceId: 'force-root',
-     missions: new Map(),
-     finances: { transactions: [], balance: new Money(1000000) },
-     factionStandings: {},
-     options: {
-       ...defaultOptions,
-       useRoleBasedSalaries: true,
-       payForSalaries: true,
-       useTaxes: true,
-       taxRate: 10,
-       overheadPercent: 5,
-       startingFunds: 500000,
-     },
-     createdAt: '3020-01-01T00:00:00Z',
-     updatedAt: '3025-06-15T00:00:00Z',
-     ...overrides,
-   };
+    const defaultOptions = createDefaultCampaignOptions();
+    return {
+      id: 'campaign-001',
+      name: 'Test Campaign',
+      currentDate: new Date('3025-01-01T00:00:00Z'),
+      factionId: 'mercenary',
+      personnel: new Map<string, IPerson>(),
+      forces: new Map(),
+      rootForceId: 'force-root',
+      missions: new Map(),
+      finances: { transactions: [], balance: new Money(1000000) },
+      factionStandings: {},
+      shoppingList: { items: [] },
+      options: {
+        ...defaultOptions,
+        useRoleBasedSalaries: true,
+        payForSalaries: true,
+        useTaxes: true,
+        taxRate: 10,
+        overheadPercent: 5,
+        startingFunds: 500000,
+      },
+      createdAt: '3020-01-01T00:00:00Z',
+      updatedAt: '3025-06-15T00:00:00Z',
+      ...overrides,
+    };
 }
 
 function createTestLoan(overrides: Partial<ILoan> = {}): ILoan {

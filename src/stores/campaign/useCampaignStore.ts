@@ -16,12 +16,13 @@ import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
-   ICampaign,
-   ICampaignOptions,
-   IMission,
-   createCampaign as createCampaignEntity,
- } from '@/types/campaign/Campaign';
+    ICampaign,
+    ICampaignOptions,
+    IMission,
+    createCampaign as createCampaignEntity,
+  } from '@/types/campaign/Campaign';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { IForce } from '@/types/campaign/Force';
@@ -42,28 +43,29 @@ import { createMissionsStore, MissionsStore } from './useMissionsStore';
  * Maps are converted to arrays for JSON serialization.
  */
 interface SerializedCampaignState {
-   id: string;
-   name: string;
-   currentDate: string; // ISO 8601 string
-   factionId: string;
-   rootForceId: string;
-   finances: {
-     transactions: Array<{
-       id: string;
-       type: string;
-       amount: number;
-       date: string;
-       description: string;
-     }>;
-     balance: number;
-   };
-   factionStandings?: Record<string, IFactionStanding>;
-   options: ICampaignOptions;
-   campaignStartDate?: string;
-   description?: string;
-   iconUrl?: string;
-   createdAt: string;
-   updatedAt: string;
+    id: string;
+    name: string;
+    currentDate: string; // ISO 8601 string
+    factionId: string;
+    rootForceId: string;
+    finances: {
+      transactions: Array<{
+        id: string;
+        type: string;
+        amount: number;
+        date: string;
+        description: string;
+      }>;
+      balance: number;
+    };
+    factionStandings?: Record<string, IFactionStanding>;
+    shoppingList?: IShoppingList;
+    options: ICampaignOptions;
+    campaignStartDate?: string;
+    description?: string;
+    iconUrl?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 // =============================================================================
@@ -126,69 +128,71 @@ export type CampaignStore = CampaignState & CampaignActions;
  * Serialize campaign state for persistence.
  */
 function serializeCampaign(campaign: ICampaign): SerializedCampaignState {
-  return {
-    id: campaign.id,
-    name: campaign.name,
-    currentDate: campaign.currentDate.toISOString(),
-    factionId: campaign.factionId,
-    rootForceId: campaign.rootForceId,
-    finances: {
-      transactions: campaign.finances.transactions.map((t) => ({
-        id: t.id,
-        type: t.type,
-        amount: t.amount.amount,
-        date: t.date.toISOString(),
-        description: t.description,
-      })),
-      balance: campaign.finances.balance.amount,
-    },
-    options: campaign.options,
-    campaignStartDate: campaign.campaignStartDate?.toISOString(),
-    description: campaign.description,
-    iconUrl: campaign.iconUrl,
-    createdAt: campaign.createdAt,
-    updatedAt: campaign.updatedAt,
-  };
+   return {
+     id: campaign.id,
+     name: campaign.name,
+     currentDate: campaign.currentDate.toISOString(),
+     factionId: campaign.factionId,
+     rootForceId: campaign.rootForceId,
+     finances: {
+       transactions: campaign.finances.transactions.map((t) => ({
+         id: t.id,
+         type: t.type,
+         amount: t.amount.amount,
+         date: t.date.toISOString(),
+         description: t.description,
+       })),
+       balance: campaign.finances.balance.amount,
+     },
+     shoppingList: campaign.shoppingList,
+     options: campaign.options,
+     campaignStartDate: campaign.campaignStartDate?.toISOString(),
+     description: campaign.description,
+     iconUrl: campaign.iconUrl,
+     createdAt: campaign.createdAt,
+     updatedAt: campaign.updatedAt,
+   };
 }
 
 /**
  * Deserialize campaign state from persistence.
  */
 function deserializeCampaign(
-  serialized: SerializedCampaignState,
-  personnel: Map<string, IPerson>,
-  forces: Map<string, IForce>,
-  missions: Map<string, IMission>
+   serialized: SerializedCampaignState,
+   personnel: Map<string, IPerson>,
+   forces: Map<string, IForce>,
+   missions: Map<string, IMission>
 ): ICampaign {
-  return {
-    id: serialized.id,
-    name: serialized.name,
-    currentDate: new Date(serialized.currentDate),
-    factionId: serialized.factionId,
-    personnel,
-    forces,
-    rootForceId: serialized.rootForceId,
-    missions,
-    finances: {
-      transactions: serialized.finances.transactions.map((t): Transaction => ({
-        id: t.id,
-        type: t.type as TransactionType,
-        amount: new Money(t.amount),
-        date: new Date(t.date),
-        description: t.description,
-      })),
-      balance: new Money(serialized.finances.balance),
-    },
-     factionStandings: serialized.factionStandings ?? {},
-     options: serialized.options,
-     campaignStartDate: serialized.campaignStartDate
-       ? new Date(serialized.campaignStartDate)
-       : undefined,
-     description: serialized.description,
-     iconUrl: serialized.iconUrl,
-     createdAt: serialized.createdAt,
-     updatedAt: serialized.updatedAt,
-   };
+   return {
+     id: serialized.id,
+     name: serialized.name,
+     currentDate: new Date(serialized.currentDate),
+     factionId: serialized.factionId,
+     personnel,
+     forces,
+     rootForceId: serialized.rootForceId,
+     missions,
+     finances: {
+       transactions: serialized.finances.transactions.map((t): Transaction => ({
+         id: t.id,
+         type: t.type as TransactionType,
+         amount: new Money(t.amount),
+         date: new Date(t.date),
+         description: t.description,
+       })),
+       balance: new Money(serialized.finances.balance),
+     },
+      factionStandings: serialized.factionStandings ?? {},
+      shoppingList: serialized.shoppingList,
+      options: serialized.options,
+      campaignStartDate: serialized.campaignStartDate
+        ? new Date(serialized.campaignStartDate)
+        : undefined,
+      description: serialized.description,
+      iconUrl: serialized.iconUrl,
+      createdAt: serialized.createdAt,
+      updatedAt: serialized.updatedAt,
+    };
 }
 
 // =============================================================================
