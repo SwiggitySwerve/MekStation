@@ -112,6 +112,7 @@ assets/c__Users_*
 # Playwright
 playwright-report/
 test-results/
+e2e/audit-capture.spec.ts-snapshots/
 
 # Parity validation output
 validation-output/
@@ -127,6 +128,9 @@ pip-comparison-output/
 # Storybook
 storybook-static/
 .opencode/
+
+# Sisyphus agent working directory (audit screenshots, evidence, plans)
+.sisyphus/
 
 # mm-data assets (fetched at build time from jsDelivr CDN)
 # These are CC-BY-NC-SA-4.0 licensed assets from MegaMek/mm-data
