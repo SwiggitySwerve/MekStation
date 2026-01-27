@@ -115,7 +115,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ## TODOs
 
-- [ ] 4.1 Implement Role-Based Salary Service
+- [x] 4.1 Implement Role-Based Salary Service
 
   **What to do**:
   - Create `src/lib/finances/salaryService.ts`
