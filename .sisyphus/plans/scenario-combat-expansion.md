@@ -116,7 +116,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ## TODOs
 
-- [ ] 11.1 Define Combat Roles, Morale, and Scenario Types
+- [x] 11.1 Define Combat Roles, Morale, and Scenario Types
 
   **What to do**:
   - Create `src/types/campaign/scenario/scenarioTypes.ts`:
@@ -198,7 +198,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.2 Implement Battle Chance Calculator
+- [x] 11.2 Implement Battle Chance Calculator
 
   **What to do**:
   - Create `src/lib/campaign/scenario/battleChance.ts`:
