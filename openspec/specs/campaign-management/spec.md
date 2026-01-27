@@ -40,37 +40,37 @@ The system SHALL persist campaign state to IndexedDB and restore it on reload.
 - **THEN** personnel persists to "mekstation:campaign:{id}:personnel", forces to "mekstation:campaign:{id}:forces", and missions to "mekstation:campaign:{id}:missions"
 
 ### Requirement: Campaign Options
-The system SHALL support 65 configurable campaign options organized by category (personnel, financial, combat, force, general), including 11 new faction standing options.
+The system SHALL support 80 configurable campaign options organized by category (personnel, financial, combat, force, general, acquisition), including 15 new acquisition-related options.
 
-#### Scenario: Default options are sensible
+#### Scenario: Default acquisition options are sensible
 - **GIVEN** createDefaultCampaignOptions is called
 - **WHEN** the options are inspected
-- **THEN** healingRateMultiplier is 1.0, salaryMultiplier is 1.0, startingFunds is 0, useAutoResolve is false, maxUnitsPerLance is 4, trackFactionStanding is true, factionStandingDecayEnabled is true, and all 65 options have valid default values
+- **THEN** useAcquisitionSystem is false, usePlanetaryModifiers is true, acquisitionTransitUnit is 'month', clanPartsPenalty is true, acquisitionSkillModifier is true, useAutoLogistics is false, autoLogisticsStockTarget is 100, and all acquisition options have valid default values
 
-#### Scenario: Options can be partially overridden
-- **GIVEN** a user provides partial options {startingFunds: 5000000, salaryMultiplier: 2.0, trackFactionStanding: false}
-- **WHEN** createCampaign is called with these options
-- **THEN** the campaign has startingFunds 5000000, salaryMultiplier 2.0, trackFactionStanding false, with all other options set to defaults
+#### Scenario: Acquisition system can be enabled
+- **GIVEN** a campaign with useAcquisitionSystem set to true
+- **WHEN** the day processor runs
+- **THEN** the acquisition processor attempts pending acquisitions and delivers arrived items
 
-#### Scenario: Options affect campaign behavior
-- **GIVEN** a campaign with payForSalaries set to false
-- **WHEN** day advancement processes daily costs
-- **THEN** no salary transactions are recorded
+#### Scenario: Planetary modifiers affect acquisition
+- **GIVEN** a campaign with usePlanetaryModifiers set to true
+- **WHEN** an acquisition roll is calculated
+- **THEN** planetary tech sophistication, industrial capacity, and output ratings modify the target number
 
-#### Scenario: Faction standing options control effects
-- **GIVEN** a campaign with trackFactionStanding set to true and factionStandingNegotiationEnabled set to true
-- **WHEN** faction standing effects are calculated
-- **THEN** negotiation modifiers are applied based on standing level
+#### Scenario: Transit units are configurable
+- **GIVEN** a campaign with acquisitionTransitUnit set to 'week'
+- **WHEN** delivery time is calculated
+- **THEN** the result is in weeks instead of months
 
-#### Scenario: Faction standing effects can be toggled individually
-- **GIVEN** a campaign with factionStandingContractPayEnabled set to false
-- **WHEN** contract pay is calculated
-- **THEN** faction standing contract pay multiplier is not applied (defaults to 1.0)
+#### Scenario: Clan parts penalty applies in era
+- **GIVEN** a campaign in year 3055 with clanPartsPenalty set to true
+- **WHEN** acquiring a clan part
+- **THEN** a +3 penalty is applied to the target number
 
-#### Scenario: Faction standing decay can be disabled
-- **GIVEN** a campaign with factionStandingDecayEnabled set to false
-- **WHEN** daily faction standing processing occurs
-- **THEN** regard does not decay toward neutral
+#### Scenario: Auto-logistics can be enabled
+- **GIVEN** a campaign with useAutoLogistics set to true
+- **WHEN** the day processor runs
+- **THEN** units are scanned for needed parts and acquisition requests are auto-queued
 
 ### Requirement: Personnel Management
 The system SHALL manage campaign personnel with CRUD operations and queries by status, role, and unit assignment.

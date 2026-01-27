@@ -1,7 +1,7 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: Day Processor Pipeline
-The system SHALL execute 17 day processors in sequence during day advancement, including the new acquisition processor.
+### Requirement: Acquisition Day Processing
+The system SHALL include an acquisition processor that runs daily to process acquisition rolls and deliveries.
 
 #### Scenario: Acquisition processor runs daily
 - **GIVEN** a campaign with useAcquisitionSystem enabled
