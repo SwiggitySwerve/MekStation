@@ -1,6 +1,6 @@
 ## MODIFIED Requirements
 
-### Requirement: Contract Data Model
+### Requirement: Contract Entity
 The system SHALL track contracts with comprehensive attributes including morale level.
 
 #### Scenario: Contract has morale level

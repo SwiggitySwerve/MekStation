@@ -352,27 +352,50 @@ For every plan, the executor follows these steps IN ORDER:
 - [ ] C1. Commit: git add . && git commit -m "feat(campaign): {description}"
 - [ ] C2. Push: git push -u origin feat/{change-id}
 - [ ] C3. Create PR: gh pr create --title "..." --body "..."
-- [ ] C4. Verify PR checks pass (lint, test, build)
-- [ ] C5. MERGE GATE: PR MUST be merged before continuing.
-         → Verify: gh pr view {pr-number} --json state → must show "MERGED"
-         → If not merged, STOP. Do NOT proceed to archival or next plan.
-- [ ] C6. Pull latest main: git checkout main && git pull
-- [ ] C7. Archive OpenSpec: openspec archive {change-id} --yes
-- [ ] C8. Validate post-archive: openspec validate --strict
-- [ ] C9. Commit archive: git add . && git commit -m "chore(openspec): archive {change-id}"
-- [ ] C10. Push archive commit to main (or create archive PR and wait for merge)
-- [ ] C11. Delete feature branch: git branch -d feat/{change-id}
-- [ ] C12. FINAL GATE: Confirm ALL PRs for this plan are MERGED before starting next plan.
+- [ ] C4. WAIT FOR CI + MERGE (automated polling):
+         → DO NOT commit additional changes after creating the PR — each push resets CI.
+         → Poll: sleep 60, then `gh pr checks {pr-number}`.
+         → Repeat until ALL checks show "pass" or any shows "fail".
+         → If any check FAILS: read the failure log, fix on the branch, push, restart polling.
+         → If ALL checks PASS: merge immediately with `gh pr merge {pr-number} --merge --delete-branch`.
+         → If merge fails due to local changes: `git stash`, merge, `git stash pop`.
+- [ ] C5. Pull latest main: git checkout main && git pull
+- [ ] C6. Archive OpenSpec: openspec archive {change-id} --yes
+- [ ] C7. Validate post-archive: openspec validate --strict
+- [ ] C8. Commit archive: git add . && git commit -m "chore(openspec): archive {change-id}"
+- [ ] C9. Push archive commit to main (or create archive PR and wait for merge)
+- [ ] C10. Delete feature branch: git branch -d feat/{change-id}
+- [ ] C11. FINAL GATE: Confirm ALL PRs for this plan are MERGED before starting next plan.
          → gh pr list --state open → must show NO open campaign PRs
 ```
+
+### CRITICAL: PR Merge Workflow
+
+**After creating a PR, follow this exact sequence:**
+
+1. **STOP committing.** Every push resets CI checks. Do not add documentation, fix formatting, or make any other changes unless CI fails.
+2. **Poll in 60-second intervals:**
+   ```bash
+   while true; do
+     sleep 60
+     gh pr checks {pr-number}
+     # If all pass → break and merge
+     # If any fail → fix, push, restart loop
+   done
+   ```
+3. **Merge immediately when green:**
+   ```bash
+   gh pr merge {pr-number} --merge --delete-branch
+   ```
+4. **Continue working.** Do not write status documents, preparation docs, or blocker summaries. Just wait for CI and merge.
 
 ---
 
 ## Execution Order
 
 ### Gate Rules
-- **PR-MERGE GATE (MANDATORY)**: Every PR created during any phase (A, B, or C) MUST be successfully merged before proceeding to the NEXT step, plan, or phase. NO exceptions. If a PR is open, you STOP and wait for merge.
-- **SPECS-FIRST GATE (MANDATORY)**: ALL Phase A (OpenSpec proposals) for every plan in a tier MUST be created, PR'd, and MERGED before ANY plan in that tier begins Phase B (implementation). No plan starts coding until every sibling plan's spec is merged.
+- **PR-MERGE GATE**: After creating a PR, poll CI checks every 60 seconds. When all pass, merge immediately with `gh pr merge --merge --delete-branch`. Do NOT commit additional changes while waiting (resets CI). Do NOT write documentation or preparation work while waiting — just poll and merge.
+- **SPECS-FIRST GATE**: ALL Phase A (OpenSpec proposals) for every plan in a tier MUST be created, PR'd, and MERGED before ANY plan in that tier begins Phase B (implementation). No plan starts coding until every sibling plan's spec is merged.
 - **TIER GATE**: All plans in Tier N must have their PRs MERGED (Phase A, B, and C complete) before any Tier N+1 plan starts Phase A.
 - **WITHIN TIER**: Plans within the same tier can be implemented in any order during Phase B, but each plan's implementation PR must merge before starting the next plan's implementation.
 - **EXCEPTION**: Plan 11 must complete Phase B+C before Plan 12 starts Phase B (CombatRole type dependency).
