@@ -42,13 +42,13 @@ Correct factual errors in 10 implementation plan files so they accurately reflec
 - 1 git commit on `chore/plan-updates-audit` branch
 
 ### Definition of Done
-- [ ] All 10 plans corrected per their correction manifests
-- [ ] Each plan has `## Audit Corrections` section after the ✅ banner
-- [ ] Every correction site has an inline `<!-- AUDIT: ... -->` comment
-- [ ] `[x]` checkmark counts unchanged in all 10 files
-- [ ] Zero old incorrect values remain across all 21 plan files (cross-grep verified)
-- [ ] `git diff --stat` shows exactly 10 files changed, all in `.sisyphus/plans/`
-- [ ] Single commit: `docs(plans): apply MekHQ source audit corrections to 10 implementation plans`
+- [x] All 10 plans corrected per their correction manifests
+- [x] Each plan has `## Audit Corrections` section after the ✅ banner
+- [x] Every correction site has an inline `<!-- AUDIT: ... -->` comment
+- [x] `[x]` checkmark counts unchanged in all 10 files
+- [x] Zero old incorrect values remain across all 21 plan files (cross-grep verified)
+- [x] `git diff --stat` shows exactly 10 files changed, all in `.sisyphus/plans/`
+- [x] Single commit: `docs(plans): apply MekHQ source audit corrections to 10 implementation plans`
 
 ### Must Have
 - Every correction from the manifest applied
@@ -737,11 +737,11 @@ grep -r "40+ skill" .sisyphus/plans/ --include="*.md" | grep -v "Audit Correctio
 ```
 
 ### Final Checklist
-- [ ] All 10 plans corrected per manifests
-- [ ] All 10 plans have `## Audit Corrections` sections
-- [ ] All correction sites have inline HTML comments
-- [ ] `[x]` counts preserved in all files
-- [ ] No structural changes to any plan
-- [ ] 11 DO-NOT-TOUCH plans unmodified
-- [ ] Cross-plan grep shows no stale incorrect values
-- [ ] Single commit on `chore/plan-updates-audit` branch
+- [x] All 10 plans corrected per manifests
+- [x] All 10 plans have `## Audit Corrections` sections
+- [x] All correction sites have inline HTML comments
+- [x] `[x]` counts preserved in all files
+- [x] No structural changes to any plan
+- [x] 11 DO-NOT-TOUCH plans unmodified
+- [x] Cross-plan grep shows no stale incorrect values
+- [x] Single commit on `chore/plan-updates-audit` branch
