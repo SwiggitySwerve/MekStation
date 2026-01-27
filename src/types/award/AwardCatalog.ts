@@ -8,6 +8,7 @@
  */
 
 import { IAward, AwardRarity, AwardCategory, CriteriaType } from './AwardInterfaces';
+import { AutoAwardCategory } from '../campaign/awards/autoAwardTypes';
 
 // =============================================================================
 // Combat Awards
@@ -28,6 +29,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 100,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 1, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'warrior',
@@ -43,6 +45,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 110,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 3, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'ace',
@@ -58,6 +61,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 120,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 5, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'double-ace',
@@ -73,6 +77,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 130,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 10, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'triple-ace',
@@ -88,6 +93,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 140,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 15, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'legend',
@@ -103,6 +109,7 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 150,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 25, thresholdType: 'kills', stackable: false },
   },
   {
     id: 'marksman',
@@ -302,6 +309,7 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 400,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 1, thresholdType: 'missions', stackable: false },
   },
   {
     id: 'campaign-veteran',
@@ -317,6 +325,7 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 410,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 10, thresholdType: 'missions', stackable: false },
   },
   {
     id: 'campaign-elite',
@@ -332,6 +341,7 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 420,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 25, thresholdType: 'missions', stackable: false },
   },
   {
     id: 'campaign-victor',
@@ -554,6 +564,477 @@ const SPECIAL_AWARDS: readonly IAward[] = [
 ];
 
 // =============================================================================
+// Auto-Grant Kill Awards (Extended Tiers)
+// =============================================================================
+
+const AUTO_KILL_AWARDS: readonly IAward[] = [
+  {
+    id: 'destroyer',
+    name: 'Destroyer',
+    description: 'Eliminate 50 enemy units. A force of destruction on the battlefield.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-destroyer',
+    criteria: {
+      type: CriteriaType.TotalKills,
+      threshold: 50,
+      description: 'Destroy 50 enemy units',
+    },
+    repeatable: false,
+    sortOrder: 160,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 50, thresholdType: 'kills', stackable: false },
+  },
+  {
+    id: 'centurion-kills',
+    name: 'Centurion of War',
+    description: 'A century of confirmed kills. Your name echoes across the battlefields.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-centurion-kills',
+    criteria: {
+      type: CriteriaType.TotalKills,
+      threshold: 100,
+      description: 'Destroy 100 enemy units',
+    },
+    repeatable: false,
+    sortOrder: 170,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 100, thresholdType: 'kills', stackable: false },
+  },
+  {
+    id: 'warlord',
+    name: 'Warlord',
+    description: '250 confirmed kills. Few warriors in history have matched this feat.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-warlord',
+    criteria: {
+      type: CriteriaType.TotalKills,
+      threshold: 250,
+      description: 'Destroy 250 enemy units',
+    },
+    repeatable: false,
+    sortOrder: 180,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 250, thresholdType: 'kills', stackable: false },
+  },
+  {
+    id: 'extinction-event',
+    name: 'Extinction Event',
+    description: '500 confirmed kills. You are a walking apocalypse.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-extinction-event',
+    criteria: {
+      type: CriteriaType.TotalKills,
+      threshold: 500,
+      description: 'Destroy 500 enemy units',
+    },
+    repeatable: false,
+    sortOrder: 190,
+    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 500, thresholdType: 'kills', stackable: false },
+  },
+];
+
+// =============================================================================
+// Auto-Grant Scenario Awards (Extended Tiers)
+// =============================================================================
+
+const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
+  {
+    id: 'mission-runner',
+    name: 'Mission Runner',
+    description: 'Complete 5 missions. Starting to build a reputation.',
+    category: AwardCategory.Campaign,
+    rarity: AwardRarity.Common,
+    icon: 'award-mission-runner',
+    criteria: {
+      type: CriteriaType.MissionsCompleted,
+      threshold: 5,
+      description: 'Complete 5 missions',
+    },
+    repeatable: false,
+    sortOrder: 405,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 5, thresholdType: 'missions', stackable: false },
+  },
+  {
+    id: 'campaign-legend',
+    name: 'Campaign Legend',
+    description: 'Complete 50 missions. Your tactical acumen is unmatched.',
+    category: AwardCategory.Campaign,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-campaign-legend',
+    criteria: {
+      type: CriteriaType.MissionsCompleted,
+      threshold: 50,
+      description: 'Complete 50 missions',
+    },
+    repeatable: false,
+    sortOrder: 460,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 50, thresholdType: 'missions', stackable: false },
+  },
+  {
+    id: 'centurion-missions',
+    name: 'Centurion of Campaigns',
+    description: 'Complete 100 missions. A century of operations.',
+    category: AwardCategory.Campaign,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-centurion-missions',
+    criteria: {
+      type: CriteriaType.MissionsCompleted,
+      threshold: 100,
+      description: 'Complete 100 missions',
+    },
+    repeatable: false,
+    sortOrder: 470,
+    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 100, thresholdType: 'missions', stackable: false },
+  },
+];
+
+// =============================================================================
+// Auto-Grant Time Awards (Years of Service)
+// =============================================================================
+
+const AUTO_TIME_AWARDS: readonly IAward[] = [
+  {
+    id: 'one-year-service',
+    name: 'Year of Service',
+    description: 'One year of loyal service to the unit.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Common,
+    icon: 'award-one-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 1,
+      description: '1 year of service',
+    },
+    repeatable: false,
+    sortOrder: 550,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 1, thresholdType: 'years', stackable: false },
+  },
+  {
+    id: 'two-year-service',
+    name: 'Two Years of Service',
+    description: 'Two years serving with distinction.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Common,
+    icon: 'award-two-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 2,
+      description: '2 years of service',
+    },
+    repeatable: false,
+    sortOrder: 560,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 2, thresholdType: 'years', stackable: false },
+  },
+  {
+    id: 'five-year-service',
+    name: 'Five Years of Service',
+    description: 'Five years of dedicated service. A true veteran.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Uncommon,
+    icon: 'award-five-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 5,
+      description: '5 years of service',
+    },
+    repeatable: false,
+    sortOrder: 570,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 5, thresholdType: 'years', stackable: false },
+  },
+  {
+    id: 'ten-year-service',
+    name: 'Decade of Service',
+    description: 'A decade of loyal service. Your commitment is exceptional.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Rare,
+    icon: 'award-ten-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 10,
+      description: '10 years of service',
+    },
+    repeatable: false,
+    sortOrder: 580,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 10, thresholdType: 'years', stackable: false },
+  },
+  {
+    id: 'twenty-year-service',
+    name: 'Twenty Years of Service',
+    description: 'Two decades of unwavering loyalty.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Rare,
+    icon: 'award-twenty-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 20,
+      description: '20 years of service',
+    },
+    repeatable: false,
+    sortOrder: 590,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 20, thresholdType: 'years', stackable: false },
+  },
+  {
+    id: 'thirty-year-service',
+    name: 'Thirty Years of Service',
+    description: 'Three decades of service. A living legend of the unit.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-thirty-year',
+    criteria: {
+      type: CriteriaType.GamesPlayed,
+      threshold: 30,
+      description: '30 years of service',
+    },
+    repeatable: false,
+    sortOrder: 595,
+    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 30, thresholdType: 'years', stackable: false },
+  },
+];
+
+// =============================================================================
+// Auto-Grant Injury Awards
+// =============================================================================
+
+const AUTO_INJURY_AWARDS: readonly IAward[] = [
+  {
+    id: 'purple-heart',
+    name: 'Purple Heart',
+    description: 'Sustained your first injury in the line of duty.',
+    category: AwardCategory.Survival,
+    rarity: AwardRarity.Common,
+    icon: 'award-purple-heart',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'injury' },
+      description: 'Sustain 1 injury',
+    },
+    repeatable: false,
+    sortOrder: 360,
+    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 1, thresholdType: 'injuries', stackable: false },
+  },
+  {
+    id: 'battle-scarred',
+    name: 'Battle Scarred',
+    description: 'Survived 3 injuries. Your scars tell stories.',
+    category: AwardCategory.Survival,
+    rarity: AwardRarity.Uncommon,
+    icon: 'award-battle-scarred',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 3,
+      conditions: { eventType: 'injury' },
+      description: 'Sustain 3 injuries',
+    },
+    repeatable: false,
+    sortOrder: 370,
+    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 3, thresholdType: 'injuries', stackable: false },
+  },
+  {
+    id: 'iron-constitution',
+    name: 'Iron Constitution',
+    description: 'Survived 5 injuries. Nothing keeps you down.',
+    category: AwardCategory.Survival,
+    rarity: AwardRarity.Rare,
+    icon: 'award-iron-constitution',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 5,
+      conditions: { eventType: 'injury' },
+      description: 'Sustain 5 injuries',
+    },
+    repeatable: false,
+    sortOrder: 380,
+    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 5, thresholdType: 'injuries', stackable: false },
+  },
+  {
+    id: 'unkillable',
+    name: 'Unkillable',
+    description: 'Survived 10 injuries. You defy death itself.',
+    category: AwardCategory.Survival,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-unkillable',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 10,
+      conditions: { eventType: 'injury' },
+      description: 'Sustain 10 injuries',
+    },
+    repeatable: false,
+    sortOrder: 390,
+    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 10, thresholdType: 'injuries', stackable: false },
+  },
+];
+
+// =============================================================================
+// Auto-Grant Rank Awards
+// =============================================================================
+
+const AUTO_RANK_AWARDS: readonly IAward[] = [
+  {
+    id: 'officer-commission',
+    name: 'Officer Commission',
+    description: 'Achieved the rank of officer.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Uncommon,
+    icon: 'award-officer',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'promotion' },
+      description: 'Reach officer rank (level 3+)',
+    },
+    repeatable: false,
+    sortOrder: 700,
+    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 3, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+  },
+  {
+    id: 'senior-officer',
+    name: 'Senior Officer',
+    description: 'Achieved senior officer rank.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Rare,
+    icon: 'award-senior-officer',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'promotion' },
+      description: 'Reach senior officer rank (level 6+)',
+    },
+    repeatable: false,
+    sortOrder: 710,
+    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 6, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+  },
+  {
+    id: 'command-rank',
+    name: 'Command Rank',
+    description: 'Achieved command rank. You lead from the front.',
+    category: AwardCategory.Service,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-command-rank',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'promotion' },
+      description: 'Reach command rank (level 9+)',
+    },
+    repeatable: false,
+    sortOrder: 720,
+    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 9, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+  },
+];
+
+// =============================================================================
+// Auto-Grant Skill Awards
+// =============================================================================
+
+const AUTO_SKILL_AWARDS: readonly IAward[] = [
+  {
+    id: 'expert-marksman',
+    name: 'Expert Marksman',
+    description: 'Achieved expert gunnery skill.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Uncommon,
+    icon: 'award-expert-marksman',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach gunnery skill 3 or better',
+    },
+    repeatable: false,
+    sortOrder: 250,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 3, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+  },
+  {
+    id: 'master-marksman',
+    name: 'Master Marksman',
+    description: 'Achieved master gunnery skill. Your aim is legendary.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Rare,
+    icon: 'award-master-marksman',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach gunnery skill 2 or better',
+    },
+    repeatable: false,
+    sortOrder: 260,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 2, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+  },
+  {
+    id: 'elite-marksman',
+    name: 'Elite Marksman',
+    description: 'Achieved elite gunnery skill. Perfection incarnate.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-elite-marksman',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach gunnery skill 0',
+    },
+    repeatable: false,
+    sortOrder: 270,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 0, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+  },
+  {
+    id: 'expert-pilot',
+    name: 'Expert Pilot',
+    description: 'Achieved expert piloting skill.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Uncommon,
+    icon: 'award-expert-pilot',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach piloting skill 3 or better',
+    },
+    repeatable: false,
+    sortOrder: 280,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 3, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+  },
+  {
+    id: 'master-pilot',
+    name: 'Master Pilot',
+    description: 'Achieved master piloting skill. Grace under fire.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Rare,
+    icon: 'award-master-pilot',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach piloting skill 2 or better',
+    },
+    repeatable: false,
+    sortOrder: 290,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 2, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+  },
+  {
+    id: 'elite-pilot',
+    name: 'Elite Pilot',
+    description: 'Achieved elite piloting skill. One with the machine.',
+    category: AwardCategory.Combat,
+    rarity: AwardRarity.Legendary,
+    icon: 'award-elite-pilot',
+    criteria: {
+      type: CriteriaType.SpecificEvent,
+      threshold: 1,
+      conditions: { eventType: 'skill_level' },
+      description: 'Reach piloting skill 0',
+    },
+    repeatable: false,
+    sortOrder: 295,
+    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 0, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+  },
+];
+
+// =============================================================================
 // Award Catalog
 // =============================================================================
 
@@ -566,6 +1047,12 @@ export const AWARD_CATALOG: readonly IAward[] = [
   ...CAMPAIGN_AWARDS,
   ...SERVICE_AWARDS,
   ...SPECIAL_AWARDS,
+  ...AUTO_KILL_AWARDS,
+  ...AUTO_SCENARIO_AWARDS,
+  ...AUTO_TIME_AWARDS,
+  ...AUTO_INJURY_AWARDS,
+  ...AUTO_RANK_AWARDS,
+  ...AUTO_SKILL_AWARDS,
 ];
 
 // =============================================================================
@@ -605,4 +1092,11 @@ export function getVisibleAwards(): readonly IAward[] {
  */
 export function getSortedAwards(awards: readonly IAward[]): readonly IAward[] {
   return [...awards].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+/**
+ * Get all awards that have auto-grant criteria.
+ */
+export function getAutoGrantableAwards(): readonly IAward[] {
+  return AWARD_CATALOG.filter(award => award.autoGrantCriteria !== undefined);
 }
