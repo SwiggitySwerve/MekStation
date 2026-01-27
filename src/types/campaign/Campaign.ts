@@ -311,6 +311,18 @@ export interface ICampaignOptions {
   /** Whether to use random events */
   readonly useRandomEvents: boolean;
 
+  /** Whether to use prisoner random events */
+  readonly usePrisonerEvents?: boolean;
+
+  /** Whether to use life random events */
+  readonly useLifeEvents?: boolean;
+
+  /** Whether to use contract random events */
+  readonly useContractEvents?: boolean;
+
+  /** Whether to simulate Gray Monday historical event */
+  readonly simulateGrayMonday?: boolean;
+
   /** Whether to show day report notifications after advancing */
   readonly enableDayReportNotifications: boolean;
 
@@ -831,6 +843,10 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     limitByYear: true,
     allowClanEquipment: false,
     useRandomEvents: false,
+    usePrisonerEvents: true,
+    useLifeEvents: true,
+    useContractEvents: true,
+    simulateGrayMonday: false,
     enableDayReportNotifications: true,
 
      // Turnover options
