@@ -1530,3 +1530,49 @@ Starting with Task 10.1: Define progression types and XP configuration.
 3. **Token management** critical - 118k remaining is enough for 1-2 plans
 4. **Boulder rules work** - document blockers, move to next task
 5. **PR #186 will auto-merge** when CI passes (no manual intervention needed)
+
+## [2026-01-27] Systemic Blocker: Delegation Failures
+
+### Issue
+All OpenSpec proposal delegations are failing immediately with "No assistant response found (task ran in background mode)" despite `run_in_background=false`.
+
+### Failed Attempts
+1. **Plan 11 (Full)**: bg_5672528f - Failed (0s duration)
+2. **Plan 11 (Proposal only)**: bg_3305e6ef - Failed (0s duration)
+3. **Plan 14 (Proposal only)**: bg_93aa5a93 - Failed (0s duration)
+
+### Pattern
+- All tasks fail immediately (0s duration)
+- All show "error" status
+- All show "No assistant response found"
+- All claim to run in background despite `run_in_background=false`
+
+### Impact
+- **Cannot start new plans** - all require OpenSpec Phase A first
+- **Plan 10 blocked** - PR #186 waiting for CI (auto-merge enabled)
+- **Plan 11 blocked** - OpenSpec delegation failed
+- **Plan 14 blocked** - OpenSpec delegation failed
+- **All Tier 3 plans blocked** - need OpenSpec proposals
+
+### Root Cause Hypothesis
+1. System constraint on delegation complexity
+2. OpenSpec creation requires multi-step reasoning that fails in delegation
+3. Background task system issue
+
+### Workaround Options
+1. **Manual creation**: Orchestrator creates OpenSpec files directly (violates orchestrator role)
+2. **Simpler delegation**: Break into even smaller atomic tasks
+3. **Wait for PR #186**: Unblocks Plan 10 archive, then reassess
+
+### Current State
+- **Token budget**: 108,819 remaining (54.4%)
+- **Active work**: PR #186 pending auto-merge
+- **Blocked plans**: 11, 14, 15, 16, 17 (all need OpenSpec)
+- **Available work**: None (all paths blocked)
+
+### Recommendation
+**End boulder session** - systemic blocker prevents further progress. Next session should:
+1. Check if PR #186 merged
+2. Archive Plan 10 if merged
+3. Manually create OpenSpec proposals OR investigate delegation issue
+4. Resume with Plan 11 or Plan 14 implementation
