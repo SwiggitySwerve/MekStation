@@ -412,7 +412,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.5 Implement Vocational Training Day Processor
+- [x] 10.5 Implement Vocational Training Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/vocationalTrainingProcessor.ts`:
