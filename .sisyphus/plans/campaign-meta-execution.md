@@ -374,7 +374,7 @@ TIER 2 (Core Systems) ✅ COMPLETE
   ─── GATE: All Tier 2 PRs merged ✅ ───
 
 TIER 3 (Dependent Systems) — 2/8 MERGED
-  Plan 11: Scenario & Combat ────────────── A → B → C  ← MUST be before Plan 12
+  Plan 11: Scenario & Combat ────────────── A ✅ → B → C  ← MUST be before Plan 12 (OpenSpec ready)
   Plan 12: Contract Types ───────────────── A → B → C  ← AFTER Plan 11
   Plan 9:  Acquisition & Supply Chain ────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #184)
   Plan 10: Personnel Progression ─────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #186)
