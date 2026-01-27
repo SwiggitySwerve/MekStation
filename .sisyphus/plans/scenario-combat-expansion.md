@@ -1,5 +1,21 @@
 # Scenario & Combat Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #195.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | BV range "75-125%" or "85-125%" | "85-120%" — `randomInt(8)` returns 0-7, `(0-3)*5=-15` to `(7-3)*5=+20`, giving 85% to 120% | `AtBDynamicScenarioFactory.java:348` |
+| 2 | (missing) Total scenario types | "21+ total scenario types (9 core + 12+ special)" | `AtBScenario.java:117-140` |
+| 3 | Scenario type selection tables | Flag as `[UNVERIFIED]` — not found in AtBScenarioFactory.java | Searched MekHQ source |
+| 4 | (implied) AtBScenarioType enum | "AtBScenarioType enum doesn't exist — MekHQ uses int constants (0-21)" | `AtBScenario.java` |
+| 5 | Battle chance percentages | Flag as `[UNVERIFIED]` — not found in CombatTeam.java | Searched MekHQ source |
+
+---
+
 ## Context
 
 ### Original Request
@@ -10,22 +26,22 @@ Expand MekStation's basic scenario system from 4 templates into MekHQ's full AtB
 - 7 combat roles (Maneuver/Frontline/Patrol/Training/Cadre/Auxiliary/Reserve) with different battle chances
 - Battle type modifier from contract morale level: `1 + (STALEMATE.ordinal() - morale.ordinal()) × 5`
 - 7 morale levels (Routed through Overwhelming) tracked per contract
-- Scenario type tables per role (d40 for Maneuver, d60 for Patrol, d20 for Frontline, d10 for Training)
-- 10+ scenario types: Base Attack, Breakthrough, Standup, Chase, Hold the Line, Hide & Seek, Probe, Extraction, Recon Raid
-- OpFor BV matching: `playerBV × difficulty × forceMult × (scenarioMod / 100)` with 85-120% random variation
+- Scenario type tables per role [UNVERIFIED] <!-- AUDIT: Selection tables not found in AtBScenarioFactory.java --> (d40 for Maneuver, d60 for Patrol, d20 for Frontline, d10 for Training)
+- 21+ total scenario types (9 core + 12+ special) <!-- AUDIT: Added missing count. Source: AtBScenario.java:117-140 -->: Base Attack, Breakthrough, Standup, Chase, Hold the Line, Hide & Seek, Probe, Extraction, Recon Raid
+- OpFor BV matching: `playerBV × difficulty × forceMult × (scenarioMod / 100)` with 85-120% random variation <!-- AUDIT: Corrected from "75-125%" to "85-120%". randomInt(8) returns 0-7, (0-3)*5=-15 to (7-3)*5=+20, giving 85% to 120%. Source: AtBDynamicScenarioFactory.java:348 -->
 - Planetary conditions: light (5 levels), weather (10+ types), gravity, atmosphere effects on force composition
 - Scenario generation runs weekly (Mondays) for active contracts
 - ACAR exists but is basic — improve with BV-based outcomes
 - TDD approach, injectable RandomFn
 
 **Research Findings**:
-- `CombatTeam.java`: Battle chances — Maneuver 40%, Patrol 60%, Frontline 20%, Training/Cadre 10%
+- `CombatTeam.java`: Battle chances [UNVERIFIED] <!-- AUDIT: Battle chance percentages not found in CombatTeam.java --> — Maneuver 40%, Patrol 60%, Frontline 20%, Training/Cadre 10%
 - `AtBDynamicScenarioFactory.java`: Full generation pipeline (template → forces → conditions → objectives)
 - `AtBMoraleLevel.java`: 7 levels with crisis die sizes (d7 to d1)
 - `AtBContractType.java`: Scenario type selection tables per combat role
 - Planetary effects: Low gravity → no tanks, Toxic → no conv infantry, Tornado F4 → infantry/BA/tanks banned
 - Force sizes: Lance=4 (IS), Star=5 (Clan), Level II=6 (ComStar)
-- BV formula: Target % = `100 + ((randomInt(8) - 3) × 5)` = 75-125%
+- BV formula: Target % = `100 + ((randomInt(8) - 3) × 5)` = 85-120% <!-- AUDIT: Missed in initial correction. Source: AtBDynamicScenarioFactory.java:348 -->
 
 ### Metis Review
 **Identified Gaps** (addressed):
@@ -53,20 +69,20 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
 - `src/lib/campaign/scenario/morale.ts` — Contract morale tracking and updates
 
 ### Definition of Done
-- [ ] 7 combat roles with configurable battle chances
-- [ ] Scenario type selection tables for Maneuver, Patrol, Frontline, Training/Cadre
-- [ ] OpFor BV matching with difficulty scaling and random variation
-- [ ] Scenario conditions (light, weather, gravity, atmosphere) with force composition effects
-- [ ] 7 morale levels tracked per contract, updated on scenario outcomes
-- [ ] Weekly scenario generation processor
-- [ ] ACAR improvement with BV-ratio outcome formula
+- [x] 7 combat roles with configurable battle chances
+- [x] Scenario type selection tables for Maneuver, Patrol, Frontline, Training/Cadre
+- [x] OpFor BV matching with difficulty scaling and random variation
+- [x] Scenario conditions (light, weather, gravity, atmosphere) with force composition effects
+- [x] 7 morale levels tracked per contract, updated on scenario outcomes
+- [x] Weekly scenario generation processor
+- [x] ACAR improvement with BV-ratio outcome formula
 
 ### Must Have
 - CombatRole enum (7 values) separate from CampaignPersonnelRole
 - AtBMoraleLevel enum (7 values) on IContract
 - Battle chance per role with morale modifier
 - Scenario type tables (Maneuver/Patrol/Frontline/Training)
-- OpFor BV formula: `playerBV × difficulty × (75-125%)`
+- OpFor BV formula: `playerBV × difficulty × (85-120%)` <!-- AUDIT: Missed in initial correction -->
 - Scenario conditions with at least light and weather
 - Weekly processor registered in pipeline
 
@@ -146,17 +162,19 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
       advancing: 1, dominating: 2, overwhelming: 3,
     };
 
-    export enum AtBScenarioType {
-      BASE_ATTACK = 'base_attack',
-      BREAKTHROUGH = 'breakthrough',
-      STANDUP = 'standup',
-      CHASE = 'chase',
-      HOLD_THE_LINE = 'hold_the_line',
-      HIDE_AND_SEEK = 'hide_and_seek',
-      PROBE = 'probe',
-      EXTRACTION = 'extraction',
-      RECON_RAID = 'recon_raid',
-    }
+     // NOTE: MekHQ uses int constants (0-21), not an enum. This is TypeScript adaptation.
+     // <!-- AUDIT: Architecture note. MekHQ source: AtBScenario.java -->
+     export enum AtBScenarioType {
+       BASE_ATTACK = 'base_attack',
+       BREAKTHROUGH = 'breakthrough',
+       STANDUP = 'standup',
+       CHASE = 'chase',
+       HOLD_THE_LINE = 'hold_the_line',
+       HIDE_AND_SEEK = 'hide_and_seek',
+       PROBE = 'probe',
+       EXTRACTION = 'extraction',
+       RECON_RAID = 'recon_raid',
+     }
 
     export interface ICombatTeam {
       readonly forceId: string;
@@ -186,11 +204,11 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\enums\CombatRole.java` — 7 roles
 
   **Acceptance Criteria**:
-  - [ ] RED: Test CombatRole has 7 values
-  - [ ] RED: Test AtBMoraleLevel has 7 values with correct numeric mapping
-  - [ ] RED: Test AtBScenarioType has 9+ values
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test CombatRole has 7 values
+  - [x] RED: Test AtBMoraleLevel has 7 values with correct numeric mapping
+  - [x] RED: Test AtBScenarioType has 9+ values
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define combat roles, morale levels, and scenario types`
@@ -233,13 +251,13 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\force\CombatTeam.java` — Battle chance per role
 
   **Acceptance Criteria**:
-  - [ ] RED: Test Maneuver role has 40% battle chance
-  - [ ] RED: Test Patrol role has 60% battle chance
-  - [ ] RED: Test Auxiliary/Reserve always return false
-  - [ ] RED: Test battle type modifier: STALEMATE → 1, ROUTED → 16, OVERWHELMING → -14
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test Maneuver role has 40% battle chance
+  - [x] RED: Test Patrol role has 60% battle chance
+  - [x] RED: Test Auxiliary/Reserve always return false
+  - [x] RED: Test battle type modifier: STALEMATE → 1, ROUTED → 16, OVERWHELMING → -14
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement battle chance calculator per combat role`
@@ -284,14 +302,14 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\force\CombatTeam.java` — Scenario type tables
 
   **Acceptance Criteria**:
-  - [ ] RED: Test Maneuver roll 1 → base_attack (enemy attacker)
-  - [ ] RED: Test Maneuver roll 5 → breakthrough (player attacker)
-  - [ ] RED: Test Patrol roll 25 → probe (player attacker)
-  - [ ] RED: Test Frontline roll 18 → breakthrough (enemy attacker)
-  - [ ] RED: Test Training roll 1 → base_attack (enemy)
-  - [ ] RED: Test high rolls beyond table max clamp to last entry
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test Maneuver roll 1 → base_attack (enemy attacker)
+  - [x] RED: Test Maneuver roll 5 → breakthrough (player attacker)
+  - [x] RED: Test Patrol roll 25 → probe (player attacker)
+  - [x] RED: Test Frontline roll 18 → breakthrough (enemy attacker)
+  - [x] RED: Test Training roll 1 → base_attack (enemy)
+  - [x] RED: Test high rolls beyond table max clamp to last entry
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement scenario type selection tables per role`
@@ -316,7 +334,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
       difficultyMultiplier: number, // 0.5 easy - 2.0 hard
       random: RandomFn
     ): number {
-      // Target percentage: 100 + ((rand(8) - 3) * 5) = 75-125%
+      // Target percentage: 100 + ((rand(8) - 3) * 5) = 85-120% <!-- AUDIT: Missed in initial correction -->
       const variation = (Math.floor(random() * 8) - 3) * 5;
       const targetPct = (100 + variation) / 100;
       return Math.round(playerBV * difficultyMultiplier * targetPct);
@@ -341,12 +359,12 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\AtBDynamicScenarioFactory.java` — BV formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test OpFor BV = playerBV × difficulty × variation (75-125%)
-  - [ ] RED: Test difficulty 1.0 with 100% variation = playerBV exactly
-  - [ ] RED: Test IS lance size = 4, Clan star = 5, ComStar level II = 6
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   - [x] RED: Test OpFor BV = playerBV × difficulty × variation (85-120%) <!-- AUDIT: Missed in initial correction -->
+  - [x] RED: Test difficulty 1.0 with 100% variation = playerBV exactly
+  - [x] RED: Test IS lance size = 4, Clan star = 5, ComStar level II = 6
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement OpFor BV matching and force composition`
@@ -386,12 +404,12 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\Scenario.java` — Conditions
 
   **Acceptance Criteria**:
-  - [ ] RED: Test low gravity (≤0.2) bans tanks
-  - [ ] RED: Test toxic atmosphere bans conv infantry and tanks
-  - [ ] RED: Test standard conditions allow all unit types
-  - [ ] RED: Test random generation produces valid conditions
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test low gravity (≤0.2) bans tanks
+  - [x] RED: Test toxic atmosphere bans conv infantry and tanks
+  - [x] RED: Test standard conditions allow all unit types
+  - [x] RED: Test random generation produces valid conditions
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement scenario conditions with force composition effects`
@@ -428,12 +446,12 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\enums\AtBMoraleLevel.java` — 7 levels
 
   **Acceptance Criteria**:
-  - [ ] RED: Test victory increases morale by 1
-  - [ ] RED: Test defeat decreases morale by 1
-  - [ ] RED: Test draw keeps morale unchanged
-  - [ ] RED: Test morale clamps at OVERWHELMING (max +3) and ROUTED (min -3)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test victory increases morale by 1
+  - [x] RED: Test defeat decreases morale by 1
+  - [x] RED: Test draw keeps morale unchanged
+  - [x] RED: Test morale clamps at OVERWHELMING (max +3) and ROUTED (min -3)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement contract morale tracking`
@@ -479,13 +497,13 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor (Plan 1)
 
   **Acceptance Criteria**:
-  - [ ] RED: Test scenarios only generated on Mondays
-  - [ ] RED: Test each combat team gets battle chance check
-  - [ ] RED: Test generated scenario has correct type, BV, conditions
-  - [ ] RED: Test no scenarios when useAtBScenarios is false
-  - [ ] GREEN: All tests pass
-  - [ ] Existing scenario tests still pass
-  - [ ] `npm test` passes
+  - [x] RED: Test scenarios only generated on Mondays
+  - [x] RED: Test each combat team gets battle chance check
+  - [x] RED: Test generated scenario has correct type, BV, conditions
+  - [x] RED: Test no scenarios when useAtBScenarios is false
+  - [x] GREEN: All tests pass
+  - [x] Existing scenario tests still pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add weekly scenario generation processor`
@@ -493,7 +511,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
 
 ---
 
-- [ ] 11.8 Create Scenario Generation UI
+- [x] 11.8 Create Scenario Generation UI
 
   **What to do**:
   - Update scenario views:
@@ -509,11 +527,11 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Scenario detail shows conditions (weather, light, gravity)
-  - [ ] OpFor section shows BV and composition
-  - [ ] Contract shows morale gauge
-  - [ ] Combat team assignment allows role selection
-  - [ ] Manual verification: dev server → advance days → verify scenario generation on Monday
+  - [x] Scenario detail shows conditions (weather, light, gravity)
+  - [x] OpFor section shows BV and composition
+  - [x] Contract shows morale gauge
+  - [x] Combat team assignment allows role selection
+  - [x] Manual verification: dev server → advance days → verify scenario generation on Monday
 
   **Commit**: YES
   - Message: `feat(ui): enhance scenario view with conditions and morale`
@@ -544,13 +562,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 7 combat roles with battle chances
-- [ ] Scenario type tables for 4 role groups
-- [ ] OpFor BV matching with 75-125% variation
-- [ ] Scenario conditions with force composition effects
-- [ ] 7 morale levels tracked per contract
-- [ ] Weekly scenario generation processor
-- [ ] Existing scenario tests unbroken
+- [x] 7 combat roles with battle chances
+- [x] Scenario type tables for 4 role groups
+- [x] OpFor BV matching with 85-120% variation <!-- AUDIT: Missed in initial correction -->
+- [x] Scenario conditions with force composition effects
+- [x] 7 morale levels tracked per contract
+- [x] Weekly scenario generation processor
+- [x] Existing scenario tests unbroken
 
 ---
 

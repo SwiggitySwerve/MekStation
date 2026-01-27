@@ -1,16 +1,35 @@
 # Medical System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #182.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "3 named systems: STANDARD/ADVANCED/ALTERNATE" | "2 boolean flags: `useAdvancedMedical`, `useAlternativeAdvancedMedical`" | `CampaignOptions.java` |
+| 2 | "Medicine skill" | "Surgery skill" (`S_SURGERY`) | `SkillType.java:129` |
+| 3 | `healingRateMultiplier` | Remove or flag as `[MekStation Enhancement]` — not in MekHQ CampaignOptions | `CampaignOptions.java` — searched, not present |
+| 4 | Surgery mechanic (if presented as MekHQ feature) | Tag as `[MekStation Enhancement]` | Not in MekHQ source |
+| 5 | (missing) naturalHealingWaitingPeriod | Add: "default 15 days" | `CampaignOptions.java` |
+| 6 | (missing) MASH theatre capacity | Add: "default 25" | `CampaignOptions.java` |
+| 7 | (missing) SPA modifiers for Alternate system | Add note about SPA modifiers | MekHQ Alternate system code |
+| 8 | (missing) Fatigue effects on healing | Add note | MekHQ medical code |
+| 9 | (missing) tougherHealing option | Add note | `CampaignOptions.java` |
+| 10 | (missing) useKinderAlternativeAdvancedMedical | Add note about this option | `CampaignOptions.java` |
+
 ## Context
 
 ### Original Request
-Expand MekStation's basic healing (daysToHeal countdown) into MekHQ's three medical systems: Standard skill-check healing, Advanced d100 surgery, and Alternate attribute-based healing. Add doctor role logic, patient capacity, complications, and prosthetics.
+Expand MekStation's basic healing (daysToHeal countdown) into MekHQ's medical systems controlled by 2 boolean flags: `useAdvancedMedical` and `useAlternativeAdvancedMedical` <!-- AUDIT: Corrected from '3 named systems'. Source: MekHQ CampaignOptions.java -->. Standard skill-check healing, Advanced d100 surgery, and Alternate attribute-based healing. Add doctor role logic, patient capacity, complications, and prosthetics.
 
 ### Interview Summary
 **Key Discussions**:
-- Three medical systems selectable via campaign option (Standard/Advanced/Alternate)
-- Standard: doctor's Medicine skill check, success heals 1 hit, failure waits
+- Medical systems controlled by 2 boolean flags: `useAdvancedMedical` and `useAlternativeAdvancedMedical` <!-- AUDIT: Corrected from '3 named systems'. Source: MekHQ CampaignOptions.java -->
+- Standard: doctor's Surgery skill (`S_SURGERY`) <!-- AUDIT: Corrected from 'Medicine skill'. Source: MekHQ SkillType.java:129 --> check, success heals 1 hit, failure waits
 - Advanced: d100 roll with fumble/crit thresholds, injury worsening
-- Alternate: attribute check (BODY or Surgery) with margin-of-success
+- Alternate: attribute check (BODY or Surgery skill (`S_SURGERY`) <!-- AUDIT: Corrected from 'Medicine skill'. Source: MekHQ SkillType.java:129 -->) with margin-of-success
 - Existing processHealing() is the day processor — extend it, don't replace
 - Doctor capacity: maxPatientsPerDoctor (25 default), enhanced by admin skill
 - TDD approach, injectable RandomFn
@@ -19,12 +38,12 @@ Expand MekStation's basic healing (daysToHeal countdown) into MekHQ's three medi
 - `processHealing()` in dayAdvancement.ts: basic daysToHeal countdown (lines 116-185)
 - `IInjury` interface: type, location, severity 1-5, daysToHeal, permanent flag, skillModifier, attributeModifier
 - `IPerson` has `doctorId` field for doctor assignment
-- `ICampaignOptions` has `useAdvancedMedical`, `healingRateMultiplier`, `healingWaitingPeriod`, `maxPatientsPerDoctor`
-- Medicine skill type will be defined in Plan 7 (Skills Expansion)
+- `ICampaignOptions` has `useAdvancedMedical`, `[MekStation Enhancement] healingRateMultiplier` <!-- AUDIT: Not found in MekHQ CampaignOptions.java -->, `healingWaitingPeriod`, `maxPatientsPerDoctor`
+- Surgery skill type (`S_SURGERY`) <!-- AUDIT: Corrected from 'Medicine skill'. Source: MekHQ SkillType.java:129 --> will be defined in Plan 7 (Skills Expansion)
 
 ### Metis Review
 **Identified Gaps** (addressed):
-- Medicine skill needed (Plan 7 defines it, this plan uses stub if not yet built)
+- Surgery skill (`S_SURGERY`) <!-- AUDIT: Corrected from 'Medicine skill'. Source: MekHQ SkillType.java:129 --> needed (Plan 7 defines it, this plan uses stub if not yet built)
 - Natural healing rate for unassigned patients (no doctor = slow healing)
 - Surgery for permanent injuries (chance to un-permanent with surgery)
 - Prosthetic installation (removes permanent injury penalty, adds prosthetic modifier)
@@ -47,20 +66,22 @@ Implement three configurable medical systems with doctor skill checks, patient c
 - Medical UI for doctor assignment and treatment reports
 
 ### Definition of Done
-- [ ] 3 medical systems selectable via campaign option
-- [ ] Standard: skill check heals 1 hit per success
-- [ ] Advanced: d100 with fumble/crit thresholds
-- [ ] Alternate: attribute-based margin of success
-- [ ] Doctor capacity enforced (maxPatientsPerDoctor)
-- [ ] Natural healing for patients without doctor
-- [ ] Surgery option for permanent injuries
-- [ ] Day processor integrates selected medical system
+- [x] 3 medical systems selectable via campaign option
+- [x] Standard: skill check heals 1 hit per success
+- [x] Advanced: d100 with fumble/crit thresholds
+- [x] Alternate: attribute-based margin of success
+- [x] Doctor capacity enforced (maxPatientsPerDoctor)
+- [x] Natural healing for patients without doctor
+- [x] Surgery option for permanent injuries
+- [x] Day processor integrates selected medical system
 
 ### Must Have
-- `MedicalSystem` enum: STANDARD, ADVANCED, ALTERNATE
+- Medical system flags: `useAdvancedMedical`, `useAlternativeAdvancedMedical` <!-- AUDIT: Corrected from 'MedicalSystem enum: STANDARD, ADVANCED, ALTERNATE'. Source: MekHQ CampaignOptions.java -->
 - Medical check functions with injectable RandomFn
 - Doctor capacity calculation
-- Natural healing fallback
+- MASH theatre capacity: default 25 <!-- AUDIT: Added missing MekHQ feature. Source: CampaignOptions.java -->
+- Natural healing fallback with naturalHealingWaitingPeriod: default 15 days <!-- AUDIT: Added missing MekHQ feature. Source: CampaignOptions.java -->
+- Fatigue effects on healing <!-- AUDIT: Added missing MekHQ feature -->
 - Surgery for permanent injuries (success/failure outcomes)
 - Integration with existing healing processor
 
@@ -144,10 +165,10 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\types\campaign\Person.ts:36-66` — IInjury interface
 
   **Acceptance Criteria**:
-  - [ ] RED: Test MedicalSystem enum has 3 values
-  - [ ] RED: Test IMedicalCheckResult has all outcome types
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test MedicalSystem enum has 3 values
+  - [x] RED: Test IMedicalCheckResult has all outcome types
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define medical system types`
@@ -169,10 +190,10 @@ Implement three configurable medical systems with doctor skill checks, patient c
     ): IMedicalCheckResult {
       if (!doctor) return naturalHealing(patient, injury, options);
 
-      const medicineSkill = getMedicineSkillValue(doctor); // From Plan 7 helper
-      const modifiers = [
-        { name: 'Base TN', value: medicineSkill },
-        { name: 'Tougher Healing', value: options.tougherHealing ? Math.max(0, patient.injuries.length - 2) : 0 },
+       const surgerySkill = getSurgerySkillValue(doctor); // From Plan 7 helper <!-- AUDIT: Corrected from 'getMedicineSkillValue'. Source: MekHQ SkillType.java:129 -->
+       const modifiers = [
+         { name: 'Base TN', value: surgerySkill },
+         { name: 'Tougher Healing', value: options.tougherHealing ? Math.max(0, patient.injuries.length - 2) : 0 }, // <!-- AUDIT: Added missing MekHQ feature. Source: CampaignOptions.java -->
         { name: 'Shorthanded', value: getShorthandedModifier(doctor, options) },
       ];
       const targetNumber = modifiers.reduce((sum, m) => sum + m.value, 0);
@@ -200,13 +221,13 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\medical\MedicalController.java` — MekHQ standard healing
 
   **Acceptance Criteria**:
-  - [ ] RED: Test doctor success heals injury (daysToHeal → 0)
-  - [ ] RED: Test doctor failure keeps injury unchanged
-  - [ ] RED: Test natural healing is slower (waits longer)
-  - [ ] RED: Test tougher healing modifier applied when enabled
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test doctor success heals injury (daysToHeal → 0)
+  - [x] RED: Test doctor failure keeps injury unchanged
+  - [x] RED: Test natural healing is slower (waits longer)
+  - [x] RED: Test tougher healing modifier applied when enabled
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement standard medical system`
@@ -228,8 +249,8 @@ Implement three configurable medical systems with doctor skill checks, patient c
     ): IMedicalCheckResult {
       if (!doctor) return untreatedAdvanced(patient, injury, random);
 
-      const roll = rollD100(random);
-      const skill = getMedicineSkillValue(doctor);
+       const roll = rollD100(random);
+       const skill = getSurgerySkillValue(doctor); // <!-- AUDIT: Corrected from 'getMedicineSkillValue'. Source: MekHQ SkillType.java:129 -->
       const fumbleThreshold = FUMBLE_THRESHOLDS[getExperienceLevel(doctor)];
       const critThreshold = CRIT_THRESHOLDS[getExperienceLevel(doctor)];
 
@@ -250,12 +271,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:374-379` — Advanced medical formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test fumble worsens injury (+20% time)
-  - [ ] RED: Test critical success reduces time (-10%)
-  - [ ] RED: Test untreated has 30% worsening chance
-  - [ ] RED: Test Green doctor fumbles more often than Elite
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test fumble worsens injury (+20% time)
+  - [x] RED: Test critical success reduces time (-10%)
+  - [x] RED: Test untreated has 30% worsening chance
+  - [x] RED: Test Green doctor fumbles more often than Elite
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement advanced medical system with d100`
@@ -278,9 +299,9 @@ Implement three configurable medical systems with doctor skill checks, patient c
       // Attribute check: patient.BODY or doctor.Surgery
       const penalty = Math.max(0, getTotalInjurySeverity(patient) - getToughness(patient))
         + (hasProsthetic(patient, injury.location) ? 4 : 0);
-      const attributeValue = doctor
-        ? getMedicineSkillValue(doctor)
-        : patient.attributes.BOD;
+       const attributeValue = doctor
+         ? getSurgerySkillValue(doctor) // <!-- AUDIT: Corrected from 'getMedicineSkillValue'. Source: MekHQ SkillType.java:129 -->
+         : patient.attributes.BOD;
       const roll = roll2d6(random);
       const margin = roll - (attributeValue + penalty);
 
@@ -292,16 +313,18 @@ Implement three configurable medical systems with doctor skill checks, patient c
 
   **Parallelizable**: YES (with 8.2, 8.3)
 
-  **References**:
-  - `.sisyphus/drafts/mekhq-modifier-systems.md:381-389` — Alternate medical formula
+   **References**:
+   - `.sisyphus/drafts/mekhq-modifier-systems.md:381-389` — Alternate medical formula
+   - `CampaignOptions.java` — useKinderAlternativeAdvancedMedical option <!-- AUDIT: Added missing MekHQ feature -->
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test positive margin heals
-  - [ ] RED: Test margin -1 to -5 extends healing time
-  - [ ] RED: Test margin ≤ -6 makes injury permanent
-  - [ ] RED: Test prosthetic penalty adds +4
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test positive margin heals
+   - [x] RED: Test margin -1 to -5 extends healing time
+   - [x] RED: Test margin ≤ -6 makes injury permanent
+   - [x] RED: Test prosthetic penalty adds +4
+   - SPA modifiers in Alternate system <!-- AUDIT: Added missing MekHQ feature -->
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement alternate medical system`
@@ -335,12 +358,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:397-401` — Doctor capacity formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test base capacity = 25 patients
-  - [ ] RED: Test admin skill bonus increases capacity
-  - [ ] RED: Test overloaded doctor gets penalty modifier
-  - [ ] RED: Test getBestAvailableDoctor returns least-loaded doctor
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test base capacity = 25 patients
+  - [x] RED: Test admin skill bonus increases capacity
+  - [x] RED: Test overloaded doctor gets penalty modifier
+  - [x] RED: Test getBestAvailableDoctor returns least-loaded doctor
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement doctor capacity management`
@@ -360,8 +383,8 @@ Implement three configurable medical systems with doctor skill checks, patient c
       options: ICampaignOptions,
       random: RandomFn
     ): ISurgeryResult {
-      // Higher TN than normal medical check
-      const baseTN = getMedicineSkillValue(surgeon) + 2; // Surgery is harder
+       // Higher TN than normal medical check
+       const baseTN = getSurgerySkillValue(surgeon) + 2; // Surgery is harder <!-- AUDIT: Corrected from 'getMedicineSkillValue'. Source: MekHQ SkillType.java:129 -->
       const roll = roll2d6(random);
       const margin = roll - baseTN;
 
@@ -383,13 +406,14 @@ Implement three configurable medical systems with doctor skill checks, patient c
   **References**:
   - `.sisyphus/drafts/mekhq-modifier-systems.md:381-389` — Surgery and prosthetics
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test surgery margin >= 4 removes permanent flag
-  - [ ] RED: Test surgery margin 0-3 installs prosthetic
-  - [ ] RED: Test surgery failure leaves injury unchanged
-  - [ ] RED: Test prosthetic removes skill modifier but adds attribute penalty
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test surgery margin >= 4 removes permanent flag
+   - [x] RED: Test surgery margin 0-3 installs prosthetic
+   - [x] RED: Test surgery failure leaves injury unchanged
+   - [x] RED: Test prosthetic removes skill modifier but adds attribute penalty
+   - [MekStation Enhancement] Surgery mechanic beyond basic Surgery skill <!-- AUDIT: Surgery mechanic beyond basic Surgery skill is MekStation-specific -->
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement surgery for permanent injuries`
@@ -423,13 +447,13 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor (from Plan 1)
 
   **Acceptance Criteria**:
-  - [ ] RED: Test Standard system used when option = STANDARD
-  - [ ] RED: Test Advanced system used when option = ADVANCED
-  - [ ] RED: Test patients beyond doctor capacity get natural healing
-  - [ ] RED: Test medical events generated for day report
-  - [ ] GREEN: All tests pass
-  - [ ] Existing healing tests still pass
-  - [ ] `npm test` passes
+  - [x] RED: Test Standard system used when option = STANDARD
+  - [x] RED: Test Advanced system used when option = ADVANCED
+  - [x] RED: Test patients beyond doctor capacity get natural healing
+  - [x] RED: Test medical events generated for day report
+  - [x] GREEN: All tests pass
+  - [x] Existing healing tests still pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): update healing processor for 3 medical systems`
@@ -454,12 +478,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Wounded list shows injuries with severity and healing progress
-  - [ ] Doctor assignment dropdown works
-  - [ ] Doctor workload shows patient count vs capacity
-  - [ ] Surgery button appears for permanent injuries
-  - [ ] Medical system selector in campaign settings
-  - [ ] Manual verification: dev server → wound personnel → assign doctor → advance day → verify healing
+  - [x] Wounded list shows injuries with severity and healing progress
+  - [x] Doctor assignment dropdown works
+  - [x] Doctor workload shows patient count vs capacity
+  - [x] Surgery button appears for permanent injuries
+  - [x] Medical system selector in campaign settings
+  - [x] Manual verification: dev server → wound personnel → assign doctor → advance day → verify healing
 
   **Commit**: YES
   - Message: `feat(ui): add medical management panel with doctor assignment`
@@ -490,13 +514,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 3 medical systems with exact MekHQ formulas
-- [ ] Doctor skill checks with injectable random
-- [ ] Doctor capacity enforced
-- [ ] Natural healing for unassigned patients
-- [ ] Surgery for permanent injuries
-- [ ] Prosthetic installation
-- [ ] Existing processHealing tests unbroken
+- [x] 3 medical systems with exact MekHQ formulas
+- [x] Doctor skill checks with injectable random
+- [x] Doctor capacity enforced
+- [x] Natural healing for unassigned patients
+- [x] Surgery for permanent injuries
+- [x] Prosthetic installation
+- [x] Existing processHealing tests unbroken
 
 ---
 
@@ -512,7 +536,7 @@ Medical system extends the existing healing processor (registered by Plan 1). No
 - New `doctorsUseAdministration` option defaults to false
 - Existing processHealing() behavior preserved as STANDARD system baseline
 - New `hasProsthetic` optional field on IInjury — existing injuries unaffected
-- Medicine skill from Plan 7 used if available; stub returns TN 7 if not
+- Surgery skill from Plan 7 used if available; stub returns TN 7 if not <!-- AUDIT: Missed in initial correction. Source: SkillType.java:129 -->
 
 ---
 

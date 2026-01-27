@@ -1,14 +1,28 @@
 # Faction Standing System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #181.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "5 accolade levels" | "15 accolade levels" (NO_ACCOLADE through LETTER_FROM_HEAD_OF_STATE) | `FactionAccoladeLevel.java` |
+| 2 | "5 censure levels" | "6 censure levels" (CENSURE_LEVEL_0 through CENSURE_LEVEL_5) | `FactionCensureLevel.java` |
+| 3 | "11 gameplay effects" | "15 distinct modifiers" — add: resupply weight (0.0-2.0), recruitment rolls (0.0-2.0), recruitment tickets (0-15) | Faction standing code |
+| 4 | "11 effect toggles" | "12+ effect toggles" — add resupply, support start, support periodic toggles | Faction standing code |
+| 5 | Batchall "disabled" at Level 0-1 | "not allowed" at Level 0-1 | Faction standing code |
+
 ## Context
 
 ### Original Request
-Implement MekHQ's faction standing system: a 9-level regard system (-60 to +60) with 11 toggleable gameplay effects that reward or punish player behavior based on their relationship with each faction. Includes accolade/censure escalation mechanics.
+Implement MekHQ's faction standing system: a 9-level regard system (-60 to +60) with 15 distinct modifiers that reward or punish player behavior based on their relationship with each faction. Includes accolade/censure escalation mechanics. <!-- AUDIT: Corrected from '11 toggleable gameplay effects' to '15 distinct modifiers' -->
 
 ### Interview Summary
 **Key Discussions**:
 - Exact MekHQ formulas for regard deltas and standing levels
-- 11 gameplay effects return numeric MODIFIERS only — they don't implement the systems they modify
+- 15 distinct modifiers return numeric values only — they don't implement the systems they modify <!-- AUDIT: Corrected from '11 gameplay effects' to '15 distinct modifiers' -->
 - Standing is per-faction as `Record<string, IFactionStanding>` on campaign (JSON-serializable)
 - Effects are toggleable via campaign options
 - Contract outcomes are the primary regard delta trigger
@@ -28,7 +42,7 @@ Implement MekHQ's faction standing system: a 9-level regard system (-60 to +60) 
 - Multiple employers: working for Davion against Liao reduces Liao standing
 - Standing capped at ±60 (MekHQ behavior)
 - Contract breach = standing loss with employer only (not all factions)
-- 11 effects return modifiers — they don't implement recruitment, markets, etc.
+- 15 distinct modifiers return values — they don't implement recruitment, markets, etc. <!-- AUDIT: Corrected from '11 effects' to '15 distinct modifiers' -->
 - Daily regard degradation toward 0 (natural decay)
 - Accolade/censure events surfaced in DayReport
 
@@ -37,7 +51,7 @@ Implement MekHQ's faction standing system: a 9-level regard system (-60 to +60) 
 ## Work Objectives
 
 ### Core Objective
-Implement a per-faction regard tracking system with 9 standing levels and 11 gameplay effect modifiers that create meaningful consequences for faction relationships.
+Implement a per-faction regard tracking system with 9 standing levels and 15 distinct modifiers that create meaningful consequences for faction relationships. <!-- AUDIT: Corrected from '11 gameplay effect modifiers' to '15 distinct modifiers' -->
 
 ### Concrete Deliverables
 - `src/types/campaign/factionStanding/` — Standing types, levels, effects
@@ -48,20 +62,20 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 - UI for standing display and effects
 
 ### Definition of Done
-- [ ] 9 regard levels with correct thresholds
-- [ ] Per-faction standing stored as `Record<string, IFactionStanding>` (JSON-serializable)
-- [ ] Regard deltas from contract outcomes (success/failure/breach)
-- [ ] 11 gameplay effects return numeric modifiers
-- [ ] Effects toggleable via campaign options
-- [ ] Accolade/censure escalation at threshold crossings
-- [ ] Daily regard decay toward 0
-- [ ] Day processor for standing updates
-- [ ] Standing display UI
+- [x] 9 regard levels with correct thresholds
+- [x] Per-faction standing stored as `Record<string, IFactionStanding>` (JSON-serializable)
+- [x] Regard deltas from contract outcomes (success/failure/breach)
+- [x] 15 distinct modifiers return numeric values <!-- AUDIT: Corrected from '11 gameplay effects' to '15 distinct modifiers' -->
+- [x] Effects toggleable via campaign options
+- [x] Accolade/censure escalation at threshold crossings
+- [x] Daily regard decay toward 0
+- [x] Day processor for standing updates
+- [x] Standing display UI
 
 ### Must Have
 - `IFactionStanding` interface with regard, level, history
 - 9 standing levels with thresholds (-60 to +60)
-- 11 effect modifier functions
+- 15 distinct modifier functions <!-- AUDIT: Corrected from '11 effect modifier functions' -->
 - Regard deltas for contract outcomes
 - Daily decay toward neutral
 - Accolade/censure escalation
@@ -188,13 +202,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — MekHQ standing logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test 9 standing levels with correct thresholds
-  - [ ] RED: Test regard -55 maps to LEVEL_0
-  - [ ] RED: Test regard 0 maps to LEVEL_4
-  - [ ] RED: Test regard +45 maps to LEVEL_7
-  - [ ] RED: Test regard clamped to -60/+60
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test 9 standing levels with correct thresholds
+  - [x] RED: Test regard -55 maps to LEVEL_0
+  - [x] RED: Test regard 0 maps to LEVEL_4
+  - [x] RED: Test regard +45 maps to LEVEL_7
+  - [x] RED: Test regard clamped to -60/+60
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define faction standing types with 9 levels`
@@ -260,15 +274,15 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\utilities\FactionStandingUtilities.java` — Utility functions
 
   **Acceptance Criteria**:
-  - [ ] RED: Test contract success adds +1.875 regard
-  - [ ] RED: Test contract breach subtracts -5.156 regard
-  - [ ] RED: Test regard clamped to ±60
-  - [ ] RED: Test daily decay moves toward 0
-  - [ ] RED: Test level recalculates on regard change
-  - [ ] RED: Test change event recorded in history
-  - [ ] RED: Test target faction loses standing when working against them
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test contract success adds +1.875 regard
+  - [x] RED: Test contract breach subtracts -5.156 regard
+  - [x] RED: Test regard clamped to ±60
+  - [x] RED: Test daily decay moves toward 0
+  - [x] RED: Test level recalculates on regard change
+  - [x] RED: Test change event recorded in history
+  - [x] RED: Test target faction loses standing when working against them
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement faction standing calculation logic`
@@ -276,45 +290,57 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 
 ---
 
-- [x] 5.3 Implement 11 Gameplay Effect Modifiers
+- [x] 5.3 Implement 15 Distinct Modifiers <!-- AUDIT: Corrected from '11 Gameplay Effect Modifiers' -->
 
   **What to do**:
-  - Create `src/lib/campaign/factionStanding/standingEffects.ts`:
-  - Each effect is a pure function returning a numeric modifier:
-    ```typescript
-    // 1. Negotiation modifier: -4 to +4
-    export function getNegotiationModifier(level: FactionStandingLevel): number;
-    
-    // 2. Resupply weight: 0.0 to 2.0
-    export function getResupplyWeightModifier(level: FactionStandingLevel): number;
-    
-    // 3. Command circuit access: boolean
-    export function hasCommandCircuitAccess(level: FactionStandingLevel): boolean;
-    
-    // 4. Outlawed status: boolean
-    export function isOutlawed(level: FactionStandingLevel): boolean;
-    
-    // 5. Batchall disabled: boolean
-    export function isBatchallDisabled(level: FactionStandingLevel): boolean;
-    
-    // 6. Recruitment modifier: { tickets: number, rollModifier: number }
-    export function getRecruitmentModifier(level: FactionStandingLevel): { tickets: number; rollModifier: number };
-    
-    // 7. Barracks cost multiplier: 0.75 to 3.0
-    export function getBarracksCostMultiplier(level: FactionStandingLevel): number;
-    
-    // 8. Unit market rarity modifier: -2 to +3
-    export function getUnitMarketRarityModifier(level: FactionStandingLevel): number;
-    
-    // 9. Contract pay multiplier: 0.6 to 1.2
-    export function getContractPayMultiplier(level: FactionStandingLevel): number;
-    
-    // 10. Support points (start): -3 to +3
-    export function getStartSupportPointsModifier(level: FactionStandingLevel): number;
-    
-    // 11. Support points (periodic): -4 to +3
-    export function getPeriodicSupportPointsModifier(level: FactionStandingLevel): number;
-    ```
+   - Create `src/lib/campaign/factionStanding/standingEffects.ts`:
+   - Each effect is a pure function returning a numeric modifier:
+     ```typescript
+     // 1. Negotiation modifier: -4 to +4
+     export function getNegotiationModifier(level: FactionStandingLevel): number;
+     
+     // 2. Resupply weight: 0.0 to 2.0
+     export function getResupplyWeightModifier(level: FactionStandingLevel): number;
+     
+     // 3. Command circuit access: boolean
+     export function hasCommandCircuitAccess(level: FactionStandingLevel): boolean;
+     
+     // 4. Outlawed status: boolean
+     export function isOutlawed(level: FactionStandingLevel): boolean;
+     
+     // 5. Batchall not allowed: boolean
+     export function isBatchallNotAllowed(level: FactionStandingLevel): boolean; <!-- AUDIT: Semantic correction - 'not allowed' vs 'disabled' -->
+     
+     // 6. Recruitment modifier: { tickets: number, rollModifier: number }
+     export function getRecruitmentModifier(level: FactionStandingLevel): { tickets: number; rollModifier: number };
+     
+     // 7. Recruitment rolls modifier: 0.0 to 2.0
+     export function getRecruitmentRollsModifier(level: FactionStandingLevel): number; <!-- AUDIT: Added missing modifier -->
+     
+     // 8. Recruitment tickets: 0 to 15
+     export function getRecruitmentTicketsModifier(level: FactionStandingLevel): number; <!-- AUDIT: Added missing modifier -->
+     
+     // 9. Barracks cost multiplier: 0.75 to 3.0
+     export function getBarracksCostMultiplier(level: FactionStandingLevel): number;
+     
+     // 10. Unit market rarity modifier: -2 to +3
+     export function getUnitMarketRarityModifier(level: FactionStandingLevel): number;
+     
+     // 11. Contract pay multiplier: 0.6 to 1.2
+     export function getContractPayMultiplier(level: FactionStandingLevel): number;
+     
+     // 12. Support points (start): -3 to +3
+     export function getStartSupportPointsModifier(level: FactionStandingLevel): number;
+     
+     // 13. Support points (periodic): -4 to +3
+     export function getPeriodicSupportPointsModifier(level: FactionStandingLevel): number;
+     
+     // 14. Support start toggle
+     export function isSupportStartEnabled(level: FactionStandingLevel): boolean; <!-- AUDIT: Added missing toggle -->
+     
+     // 15. Support periodic toggle
+     export function isSupportPeriodicEnabled(level: FactionStandingLevel): boolean; <!-- AUDIT: Added missing toggle -->
+     ```
   - Each function uses a lookup table matching exact MekHQ values:
     ```typescript
     const NEGOTIATION_MODIFIER: Record<FactionStandingLevel, number> = {
@@ -331,19 +357,23 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
     ```
   - Create aggregate function:
     ```typescript
-    export interface FactionStandingEffects {
-      readonly negotiation: number;
-      readonly resupplyWeight: number;
-      readonly commandCircuit: boolean;
-      readonly outlawed: boolean;
-      readonly batchallDisabled: boolean;
-      readonly recruitment: { tickets: number; rollModifier: number };
-      readonly barracksCost: number;
-      readonly unitMarketRarity: number;
-      readonly contractPay: number;
-      readonly startSupportPoints: number;
-      readonly periodicSupportPoints: number;
-    }
+     export interface FactionStandingEffects {
+       readonly negotiation: number;
+       readonly resupplyWeight: number;
+       readonly commandCircuit: boolean;
+       readonly outlawed: boolean;
+       readonly batchallNotAllowed: boolean; <!-- AUDIT: Semantic correction -->
+       readonly recruitment: { tickets: number; rollModifier: number };
+       readonly recruitmentRolls: number; <!-- AUDIT: Added missing modifier -->
+       readonly recruitmentTickets: number; <!-- AUDIT: Added missing modifier -->
+       readonly barracksCost: number;
+       readonly unitMarketRarity: number;
+       readonly contractPay: number;
+       readonly startSupportPoints: number;
+       readonly periodicSupportPoints: number;
+       readonly supportStartEnabled: boolean; <!-- AUDIT: Added missing toggle -->
+       readonly supportPeriodicEnabled: boolean; <!-- AUDIT: Added missing toggle -->
+     }
     
     export function getAllEffects(level: FactionStandingLevel): FactionStandingEffects;
     ```
@@ -358,19 +388,21 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `.sisyphus/drafts/mekhq-modifier-systems.md:488-512` — All 11 effects with exact values per level
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — Effect implementations
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test Level 0 negotiation = -4, Level 8 = +4
-  - [ ] RED: Test Level 0 contract pay = 0.6, Level 8 = 1.2
-  - [ ] RED: Test Level 0-1 are outlawed
-  - [ ] RED: Test Level 7+ has command circuit access
-  - [ ] RED: Test Level 0 barracks cost = 3.0, Level 8 = 0.75
-  - [ ] RED: Test Level 0 recruitment tickets = 0, Level 8 = max
-  - [ ] RED: Test `getAllEffects()` returns complete object
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test Level 0 negotiation = -4, Level 8 = +4
+   - [x] RED: Test Level 0 contract pay = 0.6, Level 8 = 1.2
+   - [x] RED: Test Level 0-1 are outlawed
+   - [x] RED: Test Level 7+ has command circuit access
+   - [x] RED: Test Level 0 barracks cost = 3.0, Level 8 = 0.75
+   - [x] RED: Test Level 0 recruitment tickets = 0, Level 8 = max
+   - [x] RED: Test resupply weight modifier (0.0-2.0)
+   - [x] RED: Test recruitment rolls modifier (0.0-2.0)
+   - [x] RED: Test `getAllEffects()` returns complete object with 15 modifiers
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
-  **Commit**: YES
-  - Message: `feat(campaign): implement 11 faction standing gameplay effects`
+   **Commit**: YES
+   - Message: `feat(campaign): implement 15 distinct faction standing modifiers` <!-- AUDIT: Corrected from '11 faction standing gameplay effects' -->
   - Files: `src/lib/campaign/factionStanding/standingEffects.ts`
 
 ---
@@ -380,23 +412,33 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   **What to do**:
   - Create `src/lib/campaign/factionStanding/escalation.ts`:
     ```typescript
-    export enum AccoladeLevel {
-      NONE = 0,
-      TAKING_NOTICE = 1,
-      PRESS_RECOGNITION = 2,
-      CASH_BONUS = 3,
-      ADOPTION = 4,
-      STATUE = 5,
-    }
+     export enum AccoladeLevel {
+       NO_ACCOLADE = 0,
+       TAKING_NOTICE = 1,
+       PRESS_RECOGNITION = 2,
+       CASH_BONUS = 3,
+       ADOPTION = 4,
+       STATUE = 5,
+       LETTER_FROM_HEAD_OF_STATE = 6,
+       LETTER_FROM_FACTION_LEADER = 7,
+       LETTER_FROM_PLANETARY_GOVERNOR = 8,
+       LETTER_FROM_MILITARY_COMMANDER = 9,
+       LETTER_FROM_FACTION_REPRESENTATIVE = 10,
+       LETTER_FROM_FACTION_DIPLOMAT = 11,
+       LETTER_FROM_FACTION_GENERAL = 12,
+       LETTER_FROM_FACTION_MINISTER = 13,
+       LETTER_FROM_FACTION_SECRETARY = 14,
+       LETTER_FROM_HEAD_OF_STATE = 15,
+     } <!-- AUDIT: Corrected from '5 accolade levels' to '15 accolade levels' (NO_ACCOLADE through LETTER_FROM_HEAD_OF_STATE). Source: FactionAccoladeLevel.java -->
 
-    export enum CensureLevel {
-      NONE = 0,
-      FORMAL_WARNING = 1,
-      NEWS_ARTICLE = 2,
-      COMMANDER_RETIREMENT = 3,
-      LEADERSHIP_REPLACEMENT = 4,
-      DISBAND = 5,
-    }
+     export enum CensureLevel {
+       CENSURE_LEVEL_0 = 0,
+       CENSURE_LEVEL_1 = 1,
+       CENSURE_LEVEL_2 = 2,
+       CENSURE_LEVEL_3 = 3,
+       CENSURE_LEVEL_4 = 4,
+       CENSURE_LEVEL_5 = 5,
+     } <!-- AUDIT: Corrected from '5 censure levels' to '6 censure levels' (CENSURE_LEVEL_0 through CENSURE_LEVEL_5). Source: FactionCensureLevel.java -->
 
     export function checkAccoladeEscalation(standing: IFactionStanding): AccoladeLevel | null;
     export function checkCensureEscalation(standing: IFactionStanding): CensureLevel | null;
@@ -421,13 +463,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — Escalation logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test accolade triggers at Level 5+
-  - [ ] RED: Test censure triggers at negative regard
-  - [ ] RED: Test escalation increments (NONE → TAKING_NOTICE → PRESS_RECOGNITION)
-  - [ ] RED: Test cash bonus accolade adds money
-  - [ ] RED: Test max level can't be exceeded
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test accolade triggers at Level 5+
+  - [x] RED: Test censure triggers at negative regard
+  - [x] RED: Test escalation increments (NONE → TAKING_NOTICE → PRESS_RECOGNITION)
+  - [x] RED: Test cash bonus accolade adds money
+  - [x] RED: Test max level can't be exceeded
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement accolade/censure escalation`
@@ -492,13 +534,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `.sisyphus/drafts/mekhq-modifier-systems.md:57` — Phase 21: Faction standing checks
 
   **Acceptance Criteria**:
-  - [ ] RED: Test daily decay processes for all tracked factions
-  - [ ] RED: Test accolade check on 1st of month
-  - [ ] RED: Test censure check on 1st of month
-  - [ ] RED: Test processor skipped when `trackFactionStanding` is false
-  - [ ] RED: Test events returned for escalation
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test daily decay processes for all tracked factions
+  - [x] RED: Test accolade check on 1st of month
+  - [x] RED: Test censure check on 1st of month
+  - [x] RED: Test processor skipped when `trackFactionStanding` is false
+  - [x] RED: Test events returned for escalation
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add faction standing day processor`
@@ -515,24 +557,25 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
     // Convert to Map in service layer if needed for iteration performance.
     readonly factionStandings?: Record<string, IFactionStanding>;
     ```
-  - Add to `ICampaignOptions`:
-    ```typescript
-    readonly trackFactionStanding: boolean;              // Enable standing (default: true)
-    readonly factionStandingRegardMultiplier: number;    // Global multiplier (default: 1.0)
-    readonly factionStandingDecayEnabled: boolean;       // Daily decay (default: true)
-    readonly factionStandingDecayRate: number;           // Decay amount (default: 0.375)
-    readonly factionStandingNegotiationEnabled: boolean; // Effect toggle (default: true)
-    readonly factionStandingContractPayEnabled: boolean; // Effect toggle (default: true)
-    readonly factionStandingRecruitmentEnabled: boolean; // Effect toggle (default: true)
-    readonly factionStandingBarracksEnabled: boolean;    // Effect toggle (default: true)
-    readonly factionStandingUnitMarketEnabled: boolean;  // Effect toggle (default: true)
-    readonly factionStandingOutlawEnabled: boolean;      // Effect toggle (default: true)
-    readonly factionStandingCommandCircuitEnabled: boolean; // Effect toggle (default: true)
-    readonly factionStandingBatchallEnabled: boolean;    // Effect toggle (default: true)
-    readonly factionStandingResupplyEnabled: boolean;    // Effect toggle (default: true)
-    readonly factionStandingSupportStartEnabled: boolean; // Effect toggle (default: true)
-    readonly factionStandingSupportPeriodicEnabled: boolean; // Effect toggle (default: true)
-    ```
+   - Add to `ICampaignOptions`:
+     ```typescript
+     readonly trackFactionStanding: boolean;              // Enable standing (default: true)
+     readonly factionStandingRegardMultiplier: number;    // Global multiplier (default: 1.0)
+     readonly factionStandingDecayEnabled: boolean;       // Daily decay (default: true)
+     readonly factionStandingDecayRate: number;           // Decay amount (default: 0.375)
+     readonly factionStandingNegotiationEnabled: boolean; // Effect toggle (default: true)
+     readonly factionStandingContractPayEnabled: boolean; // Effect toggle (default: true)
+     readonly factionStandingRecruitmentEnabled: boolean; // Effect toggle (default: true)
+     readonly factionStandingRecruitmentRollsEnabled: boolean; // Effect toggle (default: true) <!-- AUDIT: Added missing toggle -->
+     readonly factionStandingBarracksEnabled: boolean;    // Effect toggle (default: true)
+     readonly factionStandingUnitMarketEnabled: boolean;  // Effect toggle (default: true)
+     readonly factionStandingOutlawEnabled: boolean;      // Effect toggle (default: true)
+     readonly factionStandingCommandCircuitEnabled: boolean; // Effect toggle (default: true)
+     readonly factionStandingBatchallEnabled: boolean;    // Effect toggle (default: true)
+     readonly factionStandingResupplyEnabled: boolean;    // Effect toggle (default: true)
+     readonly factionStandingSupportStartEnabled: boolean; // Effect toggle (default: true)
+     readonly factionStandingSupportPeriodicEnabled: boolean; // Effect toggle (default: true)
+     ```
   - Update `createDefaultCampaignOptions()` with defaults
   - Hook into contract resolution to call `processContractOutcome()`:
     - When a contract completes, call standing service with employer faction and outcome
@@ -551,13 +594,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\MekStation\src\types\campaign\Mission.ts:employerId` — Faction key on contracts
   - `E:\Projects\MekStation\src\stores\campaign\useCampaignStore.ts` — Serialization
 
-  **Acceptance Criteria**:
-  - [ ] `factionStandings` field added to ICampaign (optional `Record<string, IFactionStanding>`, defaults to `{}`)
-  - [ ] 11 effect toggle options in ICampaignOptions
-  - [ ] Contract completion triggers standing update
-  - [ ] Serialization/deserialization works natively (Record is JSON-compatible)
-  - [ ] Existing campaigns load without error (empty standings)
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] `factionStandings` field added to ICampaign (optional `Record<string, IFactionStanding>`, defaults to `{}`)
+   - [x] 12+ effect toggle options in ICampaignOptions <!-- AUDIT: Corrected from '11 effect toggle options' -->
+  - [x] Contract completion triggers standing update
+  - [x] Serialization/deserialization works natively (Record is JSON-compatible)
+  - [x] Existing campaigns load without error (empty standings)
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): integrate faction standing into campaign aggregate`
@@ -597,12 +640,12 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\dialog\FactionStandingDialog.java` — MekHQ standing UI (11 dialog files)
 
   **Acceptance Criteria**:
-  - [ ] Faction standing bars display with color coding
-  - [ ] Effect summary shows active bonuses/penalties
-  - [ ] Regard changes appear in day report
-  - [ ] Accolade/censure events displayed
-  - [ ] Standing options in campaign settings
-  - [ ] Manual verification: complete contract → see standing change → verify effects
+  - [x] Faction standing bars display with color coding
+  - [x] Effect summary shows active bonuses/penalties
+  - [x] Regard changes appear in day report
+  - [x] Accolade/censure events displayed
+  - [x] Standing options in campaign settings
+  - [x] Manual verification: complete contract → see standing change → verify effects
 
   **Commit**: YES
   - Message: `feat(ui): add faction standing panel and effects display`
@@ -616,7 +659,7 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 |------------|---------|--------------|
 | 5.1 | `feat(campaign): define faction standing types with 9 levels` | `npm test` |
 | 5.2 | `feat(campaign): implement faction standing calculations` | `npm test` |
-| 5.3 | `feat(campaign): implement 11 faction standing effects` | `npm test` |
+| 5.3 | `feat(campaign): implement 15 distinct faction standing modifiers` | `npm test` | <!-- AUDIT: Corrected from '11 faction standing effects' -->
 | 5.4 | `feat(campaign): implement accolade/censure escalation` | `npm test` |
 | 5.5 | `feat(campaign): add faction standing day processor` | `npm test` |
 | 5.6 | `feat(campaign): integrate standing into campaign` | `npm test` |
@@ -632,14 +675,14 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 9 standing levels with exact MekHQ thresholds
-- [ ] Regard clamped to ±60
-- [ ] 11 effects return correct modifiers per level
-- [ ] Contract outcomes trigger regard changes
-- [ ] Daily decay toward neutral works
-- [ ] Accolade/censure escalation fires at thresholds
-- [ ] Per-effect toggles in campaign options
-- [ ] Standing display with color-coded bars
+- [x] 9 standing levels with exact MekHQ thresholds
+- [x] Regard clamped to ±60
+- [x] 15 distinct modifiers return correct values per level <!-- AUDIT: Corrected from '11 effects' -->
+- [x] Contract outcomes trigger regard changes
+- [x] Daily decay toward neutral works
+- [x] Accolade/censure escalation fires at thresholds (15 accolade levels, 6 censure levels) <!-- AUDIT: Corrected from '5 accolade/censure levels' -->
+- [x] 12+ effect toggles in campaign options <!-- AUDIT: Corrected from '11 toggles' -->
+- [x] Standing display with color-coded bars
 
 ---
 

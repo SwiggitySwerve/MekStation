@@ -13,7 +13,8 @@ Run a comprehensive, automated UX audit of every screen in MekStation using only
 
 **Research Findings**:
 - MekStation: Next.js 16 (Pages Router), React 19, Zustand 5, Tailwind CSS 4
-- ~25 visual routes, 106+ components, 15+ UI domains, 25+ Zustand stores
+- ~27 visual routes (+`/shared`, +`/units/[id]`), 106+ components, 15+ UI domains, 25+ Zustand stores
+- Customizer supports 6 unit types: BattleMech (7 tabs), Vehicle (4 tabs), Aerospace (3 tabs), Battle Armor (2 tabs), Infantry (1 view), ProtoMech (1 view) — 18 distinct screens
 - Complex interactions: armor diagram (SVG clickable), hex grid map, drag-drop critical slots, record sheet display
 - Existing infrastructure: Playwright E2E config (19 spec files), 11,000+ tests, Storybook with 42 stories
 - Existing visual regression: `e2e/visual-regression.spec.ts` with homepage screenshots at 3 viewports + touch-target overlay
@@ -35,6 +36,17 @@ Run a comprehensive, automated UX audit of every screen in MekStation using only
 - Deduplication needed across 17+ agent outputs → **added**: explicit dedup phase in synthesis
 - Fix plan specificity varies → **standardized**: required format for every fix plan
 - Scope creep risks: WCAG, performance, design system architecture, feature requests → **locked down** (see guardrails)
+
+### Plan Update (2026-01-27)
+**Scope Expansion**: Codebase grew significantly since original plan. 4 parallel explore agents verified:
+- 96.7% of file references still valid (only `service-worker.ts` → `service-worker.js` needed fixing)
+- 41 routes mapped, ~400+ components across 24 domains
+- 15+ new campaign sub-systems identified, but most are **orphaned code** (not imported by any page)
+
+**Metis Corrections Applied**:
+- Customizer is **18 screens, not 30** — tabs vary per unit type (verified from source)
+- Awards (7 components), Sync/P2P (8), Campaign UI (3), Audit Causality/Diff, PWA InstallPrompt — all **orphaned** (no page imports them). Moved to Appendix D.
+- Actual new rendered content: `/shared` page, `/units/[id]` page, 3 new customizer unit types, audit query builder on `/audit/timeline`
 
 ---
 
@@ -181,7 +193,8 @@ Every finding from every agent MUST follow this structure:
   **What to do**:
   - Start the dev server (`npm run dev` or `bun dev`)
   - Navigate to list pages to discover existing data IDs, OR create test data via the app's UI/API:
-    - At least 1 unit in the customizer (each of: BattleMech, Vehicle, Aerospace — the 3 most common types)
+    - At least 1 unit in the customizer (each of: BattleMech, Vehicle, Aerospace, Battle Armor, Infantry, ProtoMech — all 6 unit types)
+    - Note: BattleArmor, Infantry, and ProtoMech may need to be loaded from the compendium rather than created from scratch via the customizer
     - At least 1 pilot
     - At least 1 force (with pilot + unit assigned)
     - At least 1 encounter (configured with force)
@@ -226,12 +239,14 @@ Every finding from every agent MUST follow this structure:
   - `/gameplay/games/[id]` — Game detail
   - `/gameplay/games/[id]/replay` — Game replay
   - `/share/[token]` — Shared content
+  - `/shared` — Shared items list
+  - `/units/[id]` — Custom unit detail
 
   **Acceptance Criteria**:
   - [ ] Dev server is running and accessible
   - [ ] `.sisyphus/evidence/test-data-manifest.json` exists with all entity IDs
   - [ ] Each parameterized route loads with test data (no error pages)
-  - [ ] At minimum: 1 BattleMech unit, 1 Vehicle unit, 1 Aerospace unit, 1 pilot, 1 force, 1 encounter, 1 campaign
+  - [ ] At minimum: 1 BattleMech, 1 Vehicle, 1 Aerospace, 1 Battle Armor, 1 Infantry, 1 ProtoMech unit, 1 pilot, 1 force, 1 encounter, 1 campaign
 
   **Commit**: NO (test data setup, no code changes)
 
@@ -319,16 +334,19 @@ Every finding from every agent MUST follow this structure:
   /compare                    — Multi-unit comparison
   /audit/timeline             — Event timeline
   /share                      — Share hub
+  /shared                      — Shared items list (toggle "Shared with me" / "Shared by me")
 
   PARAMETERIZED ROUTES (use IDs from test-data-manifest.json):
   /compendium/units/[id]                — Unit detail
   /compendium/equipment/[id]            — Equipment detail
   /compendium/rules/[id]                — Rule detail
-  /customizer/[unitId]/structure        — Builder: Structure tab (×3 unit types)
-  /customizer/[unitId]/armor            — Builder: Armor tab (×3 unit types)
-  /customizer/[unitId]/equipment        — Builder: Equipment tab (×3 unit types)
-  /customizer/[unitId]/criticals        — Builder: Criticals tab (×3 unit types)
-  /customizer/[unitId]/preview          — Builder: Preview tab (×3 unit types)
+  CUSTOMIZER (6 unit types × verified tab matrix = 18 screens):
+  BattleMech (7 tabs): overview, structure, armor, equipment, criticals, fluff, preview
+  Vehicle (4 tabs): structure, armor, equipment, turret
+  Aerospace (3 tabs): structure, armor, equipment
+  Battle Armor (2 tabs): structure, squad
+  Infantry (1 view): single customizer view (no tabs)
+  ProtoMech (1 view): single customizer view (no tabs)
   /gameplay/pilots/[id]                 — Pilot detail
   /gameplay/forces/[id]                 — Force detail
   /gameplay/encounters/[id]             — Encounter detail
@@ -338,6 +356,7 @@ Every finding from every agent MUST follow this structure:
   /gameplay/campaigns/[id]/personnel    — Campaign personnel
   /gameplay/games/[id]                  — Game detail
   /gameplay/games/[id]/replay           — Game replay
+  /units/[id]                           — Custom unit detail
   ```
 
   **Acceptance Criteria**:
@@ -347,10 +366,10 @@ Every finding from every agent MUST follow this structure:
   - [ ] `.sisyphus/evidence/screenshots/` directory contains screenshots for all routes
   - [ ] Each route has 4 viewport captures (375, 768, 1024, 1280)
   - [ ] List pages have both empty and populated captures where achievable
-  - [ ] Customizer has captures for BattleMech, Vehicle, and Aerospace unit types (×5 tabs each)
+  - [ ] Customizer has captures for all 6 unit types with verified tab counts (18 total screens)
   - [ ] Touch-target overlay captures generated for key mobile pages
   - [ ] `.sisyphus/evidence/screenshot-manifest.md` documents every screenshot
-  - [ ] Total screenshot count: approximately 150–250 images
+  - [ ] Total screenshot count: approximately 200–300 images
   - [ ] Suite is re-runnable for iterative before/after comparison
 
   **Commit**: YES
@@ -399,6 +418,7 @@ Every finding from every agent MUST follow this structure:
   - `/gameplay/encounters` — Encounter list
   - `/gameplay/campaigns` — Campaign list
   - `/gameplay/games` — Game history list
+  - `/shared` — Shared items list (toggle between "Shared with me" / "Shared by me")
 
   **Component References**:
   - `src/components/common/Pagination.tsx` — Pagination component pattern
@@ -447,6 +467,7 @@ Every finding from every agent MUST follow this structure:
   - `/gameplay/campaigns/[id]/missions` — Campaign mission tracker
   - `/gameplay/campaigns/[id]/personnel` — Campaign personnel roster
   - `/gameplay/games/[id]` — Game detail with results
+  - `/units/[id]` — Custom unit detail with stats, sharing info
 
   **Component References**:
   - `src/components/ui/StatDisplay.tsx` — Stat display pattern
@@ -505,7 +526,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 6. Editor & Builder Reviews (Customizer — 3 Unit Types × 5 Tabs)
+- [ ] 6. Editor & Builder Reviews (Customizer — 6 Unit Types × Verified Tab Matrix = 18 Screens)
 
   **What to do**:
   - Invoke the `editor-reviewer` agent
@@ -523,22 +544,43 @@ Every finding from every agent MUST follow this structure:
 
   **References**:
 
-  **Pages to Review**:
+  **Pages to Review** (18 screens with complexity tiers):
+
+  **DEEP REVIEW** — BattleMech (7 tabs, most complex):
+  - `/customizer/[battlemechId]/overview` — BattleMech overview tab
   - `/customizer/[battlemechId]/structure` — BattleMech structure tab
   - `/customizer/[battlemechId]/armor` — BattleMech armor allocation (interactive SVG diagram)
   - `/customizer/[battlemechId]/equipment` — BattleMech equipment assignment (drag-drop)
   - `/customizer/[battlemechId]/criticals` — BattleMech critical slot assignment (drag-drop)
+  - `/customizer/[battlemechId]/fluff` — BattleMech fluff/lore tab
   - `/customizer/[battlemechId]/preview` — BattleMech preview / record sheet
+
+  **MODERATE REVIEW** — Vehicle (4 tabs) and Aerospace (3 tabs):
   - `/customizer/[vehicleId]/structure` — Vehicle structure tab
   - `/customizer/[vehicleId]/armor` — Vehicle armor tab
   - `/customizer/[vehicleId]/equipment` — Vehicle equipment tab
-  - `/customizer/[vehicleId]/criticals` — Vehicle criticals tab
-  - `/customizer/[vehicleId]/preview` — Vehicle preview
+  - `/customizer/[vehicleId]/turret` — Vehicle turret configuration
   - `/customizer/[aerospaceId]/structure` — Aerospace structure tab
   - `/customizer/[aerospaceId]/armor` — Aerospace armor tab
   - `/customizer/[aerospaceId]/equipment` — Aerospace equipment tab
-  - `/customizer/[aerospaceId]/criticals` — Aerospace criticals tab
-  - `/customizer/[aerospaceId]/preview` — Aerospace preview
+
+  **LIGHTER REVIEW** — Battle Armor (2 tabs):
+  - `/customizer/[battleArmorId]/structure` — Battle Armor structure tab
+  - `/customizer/[battleArmorId]/squad` — Battle Armor squad configuration
+
+  **QUICK PASS** — Infantry (1 view) and ProtoMech (1 view):
+  - `/customizer/[infantryId]` — Infantry single customizer view (no tabs)
+  - `/customizer/[protomechId]` — ProtoMech single customizer view (no tabs)
+
+  **Valid tab IDs per unit type** (to prevent phantom screen navigation):
+  | Unit Type | Tab Count | Valid Tab IDs |
+  |-----------|-----------|---------------|
+  | BattleMech | 7 | overview, structure, armor, equipment, criticals, fluff, preview |
+  | Vehicle | 4 | structure, armor, equipment, turret |
+  | Aerospace | 3 | structure, armor, equipment |
+  | Battle Armor | 2 | structure, squad |
+  | Infantry | 1 | (single view, no tabs) |
+  | ProtoMech | 1 | (single view, no tabs) |
 
   **Component References**:
   - `src/components/customizer/armor/ArmorDiagram.tsx` — Interactive armor SVG (complex touch interaction)
@@ -556,7 +598,11 @@ Every finding from every agent MUST follow this structure:
   - `src/hooks/useVirtualKeyboard.ts` — Virtual keyboard management
 
   **Acceptance Criteria**:
-  - [ ] All 3 unit types × 5 tabs reviewed at all 4 viewports (60 total screen states)
+  - [ ] All 6 unit types reviewed at all 4 viewports (18 screens × 4 viewports = 72 total screen states)
+  - [ ] BattleMech (DEEP): all 7 tabs thoroughly reviewed including armor diagram and drag-drop
+  - [ ] Vehicle/Aerospace (MODERATE): all tabs reviewed with focus on type-specific UI differences
+  - [ ] Battle Armor (LIGHTER): both tabs reviewed with focus on squad-specific UI
+  - [ ] Infantry/ProtoMech (QUICK PASS): single view verified at all viewports
   - [ ] Armor diagram interaction evaluated for touch usability
   - [ ] Drag-drop equipment/critical slots evaluated for touch
   - [ ] EquipmentAssignmentAdapter (mobile) coverage evaluated — does it handle all scenarios?
@@ -616,7 +662,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 8. Replay & Timeline Reviews
+- [ ] 8. Replay & Audit Tools Reviews
 
   **What to do**:
   - Invoke the `replay-reviewer` agent
@@ -639,6 +685,11 @@ Every finding from every agent MUST follow this structure:
   - `src/components/audit/replay/ReplayTimeline.tsx` — Replay timeline bar
   - `src/components/audit/replay/ReplaySpeedSelector.tsx` — Speed control
   - `src/components/audit/replay/ReplayKeyboardHandler.tsx` — Keyboard shortcuts
+  - `src/components/audit/query/QueryBuilder.tsx` — Advanced query interface (614 lines)
+  - `src/components/audit/query/ExportButton.tsx` — Query result export
+  - `src/components/audit/query/SavedQueries.tsx` — Saved query management
+  - `src/components/audit/query/FilterChip.tsx` — Filter visualization
+  - `src/components/audit/query/QueryResults.tsx` — Query result display
 
   **Acceptance Criteria**:
   - [ ] Replay controls evaluated for touch usability (play/pause, scrub, speed)
@@ -646,6 +697,9 @@ Every finding from every agent MUST follow this structure:
   - [ ] Filter/search UI evaluated for mobile
   - [ ] Keyboard shortcuts discoverability evaluated (desktop only)
   - [ ] All findings follow standardized schema
+  - [ ] Query builder evaluated for mobile usability (complex form at small viewport)
+  - [ ] Saved queries UI evaluated for list management patterns
+  - [ ] Export functionality UI evaluated
 
   **Commit**: NO
 
@@ -959,7 +1013,7 @@ Every finding from every agent MUST follow this structure:
   - `src/components/ui/Toast.tsx` — Toast notification feedback
   - `src/pages/_app.tsx` — Service initialization (`servicesReady` state)
   - `src/hooks/useOfflineStatus.ts` — Offline state detection
-  - `src/services/service-worker.ts` — Service worker registration
+  - `public/service-worker.js` — Service worker registration
 
   **Acceptance Criteria**:
   - [ ] Loading states evaluated for all data-fetching pages
@@ -1164,3 +1218,43 @@ ls .sisyphus/evidence/test-data-manifest.json
 - [ ] Theme-specific risks flagged
 - [ ] Bugs and enhancement requests separated into appendices
 - [ ] Report is actionable — a developer can pick up Sprint 1 immediately
+
+---
+
+## Appendix D: Unreleased Components (Out of Audit Scope)
+
+> These components exist in the codebase but are NOT imported by any page file. They cannot be screenshotted or visually audited. Tracked here for future plan updates when they become active.
+
+### Awards System (7 components)
+- `src/components/awards/AwardBadge.tsx`
+- `src/components/awards/AwardGrid.tsx`
+- `src/components/awards/AwardProgress.tsx`
+- `src/components/awards/AwardRibbon.tsx`
+- `src/components/awards/AwardToast.tsx`
+- `src/components/awards/AwardDetailModal.tsx`
+- `src/components/awards/AwardSummary.tsx`
+
+### Sync/P2P System (8 components)
+- `src/components/sync/PeerList.tsx`
+- `src/components/sync/RoomCodeDialog.tsx`
+- `src/components/sync/ConflictResolution.tsx`
+- `src/components/sync/SyncStatusIndicator.tsx`
+- `src/components/sync/SyncNotificationBanner.tsx`
+- `src/components/sync/PeerAvatar.tsx`
+- `src/components/sync/SyncProgress.tsx`
+- `src/components/sync/ConnectionStatus.tsx`
+
+### Campaign UI (3 components)
+- `src/components/campaign/DayReportPanel.tsx`
+- `src/components/campaign/TurnoverReportPanel.tsx`
+- `src/components/campaign/MissionTreeView.tsx`
+
+### Audit Advanced (2 sub-domains)
+- `src/components/audit/causality/CausalityGraph.tsx`
+- `src/components/audit/diff/NestedDiff.tsx`
+
+### PWA Install
+- `src/components/pwa/InstallPrompt.tsx`
+
+> **When to re-scope**: When any of these components get imported by a page file (verify with `grep -r "import.*from.*components/awards" src/pages/`), add them to the relevant reviewer agent's scope.
+

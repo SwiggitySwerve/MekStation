@@ -1,5 +1,7 @@
 # Campaign Options & Presets System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #208.
+
 ## Context
 
 ### Original Request
@@ -45,12 +47,12 @@ Organize campaign options into logical groups with preset templates that configu
 - Campaign creation wizard UI with preset selection
 
 ### Definition of Done
-- [ ] 4 built-in presets (Casual, Standard, Full, Custom) with distinct option sets
-- [ ] Campaign type enum (Mercenary, House, Clan, Pirate, ComStar)
-- [ ] Option groups for organized settings UI
-- [ ] Preset applies defaults, user can override any option
-- [ ] Export/import presets as JSON
-- [ ] Campaign creation wizard uses presets
+- [x] 4 built-in presets (Casual, Standard, Full, Custom) with distinct option sets
+- [x] Campaign type enum (Mercenary, House, Clan, Pirate, ComStar)
+- [x] Option groups for organized settings UI
+- [x] Preset applies defaults, user can override any option
+- [x] Export/import presets as JSON
+- [x] Campaign creation wizard uses presets
 
 ### Must Have
 - `CampaignPreset` enum: CASUAL, STANDARD, FULL, CUSTOM
@@ -100,7 +102,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ## TODOs
 
-- [ ] 6.1 Define Campaign Type Enum
+- [x] 6.1 Define Campaign Type Enum
 
   **What to do**:
   - Create `src/types/campaign/CampaignType.ts`:
@@ -143,10 +145,10 @@ Organize campaign options into logical groups with preset templates that configu
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignOptions.java` — MekHQ campaign types
 
   **Acceptance Criteria**:
-  - [ ] RED: Test all 5 campaign types defined with display names
-  - [ ] RED: Test ICampaign requires campaignType field
-  - [ ] GREEN: Types compile, tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test all 5 campaign types defined with display names
+  - [x] RED: Test ICampaign requires campaignType field
+  - [x] GREEN: Types compile, tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define campaign type enum`
@@ -154,7 +156,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ---
 
-- [ ] 6.2 Define Option Groups for UI Organization
+- [x] 6.2 Define Option Groups for UI Organization
 
   **What to do**:
   - Create `src/types/campaign/CampaignOptionGroup.ts`:
@@ -207,10 +209,10 @@ Organize campaign options into logical groups with preset templates that configu
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\dialog\CampaignOptionsDialog.java` — MekHQ settings tabs
 
   **Acceptance Criteria**:
-  - [ ] RED: Test every ICampaignOptions key has a matching OPTION_META entry
-  - [ ] RED: Test each meta entry has valid group, type, and default
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test every ICampaignOptions key has a matching OPTION_META entry
+  - [x] RED: Test each meta entry has valid group, type, and default
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define option groups and metadata for settings UI`
@@ -218,7 +220,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ---
 
-- [ ] 6.3 Define Built-in Preset Configurations
+- [x] 6.3 Define Built-in Preset Configurations
 
   **What to do**:
   - Create `src/types/campaign/CampaignPreset.ts`:
@@ -314,12 +316,12 @@ Organize campaign options into logical groups with preset templates that configu
   - Plans 1-5 option names — presets reference options added by other plans
 
   **Acceptance Criteria**:
-  - [ ] RED: Test 4 preset definitions exist with valid overrides
-  - [ ] RED: Test CASUAL preset disables turnover, taxes, quality
-  - [ ] RED: Test FULL preset enables all systems
-  - [ ] RED: Test CUSTOM preset has empty overrides
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test 4 preset definitions exist with valid overrides
+  - [x] RED: Test CASUAL preset disables turnover, taxes, quality
+  - [x] RED: Test FULL preset enables all systems
+  - [x] RED: Test CUSTOM preset has empty overrides
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define 4 built-in campaign presets`
@@ -327,7 +329,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ---
 
-- [ ] 6.4 Implement Preset Service
+- [x] 6.4 Implement Preset Service
 
   **What to do**:
   - Create `src/lib/campaign/presetService.ts`:
@@ -372,12 +374,12 @@ Organize campaign options into logical groups with preset templates that configu
   - `E:\Projects\MekStation\src\types\campaign\Campaign.ts` — createDefaultCampaignOptions()
 
   **Acceptance Criteria**:
-  - [ ] RED: Test applyPreset(CASUAL) returns options with useTurnover=false
-  - [ ] RED: Test applyPreset(FULL) returns options with all systems enabled
-  - [ ] RED: Test campaign type defaults apply correctly (CLAN enables Clan equipment)
-  - [ ] RED: Test export/import roundtrip preserves all options
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test applyPreset(CASUAL) returns options with useTurnover=false
+  - [x] RED: Test applyPreset(FULL) returns options with all systems enabled
+  - [x] RED: Test campaign type defaults apply correctly (CLAN enables Clan equipment)
+  - [x] RED: Test export/import roundtrip preserves all options
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement preset application and export/import`
@@ -385,7 +387,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ---
 
-- [ ] 6.5 Add Option Validation
+- [x] 6.5 Add Option Validation
 
   **What to do**:
   - Create `src/lib/campaign/optionValidation.ts`:
@@ -410,11 +412,11 @@ Organize campaign options into logical groups with preset templates that configu
   - `E:\Projects\MekStation\src\types\campaign\Campaign.ts:53-193` — All option fields
 
   **Acceptance Criteria**:
-  - [ ] RED: Test negative salary multiplier returns error
-  - [ ] RED: Test tax rate > 100 returns error
-  - [ ] RED: Test useTaxes without useRoleBasedSalaries returns warning
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test negative salary multiplier returns error
+  - [x] RED: Test tax rate > 100 returns error
+  - [x] RED: Test useTaxes without useRoleBasedSalaries returns warning
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add option validation with error/warning system`
@@ -422,7 +424,7 @@ Organize campaign options into logical groups with preset templates that configu
 
 ---
 
-- [ ] 6.6 Create Campaign Creation Wizard UI
+- [x] 6.6 Create Campaign Creation Wizard UI
 
   **What to do**:
   - Create `src/components/campaign/CampaignWizard.tsx` — Multi-step wizard:
@@ -445,12 +447,12 @@ Organize campaign options into logical groups with preset templates that configu
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\dialog\CampaignOptionsDialog.java` — MekHQ settings dialog
 
   **Acceptance Criteria**:
-  - [ ] Wizard shows 4 steps with progress indicator
-  - [ ] Campaign type selection shows 5 types with descriptions
-  - [ ] Preset selection shows 4 presets with feature comparison
-  - [ ] Customize step groups options by category
-  - [ ] Validation errors shown inline
-  - [ ] Manual verification: dev server → new campaign → walk through wizard
+  - [x] Wizard shows 4 steps with progress indicator
+  - [x] Campaign type selection shows 5 types with descriptions
+  - [x] Preset selection shows 4 presets with feature comparison
+  - [x] Customize step groups options by category
+  - [x] Validation errors shown inline
+  - [x] Manual verification: dev server → new campaign → walk through wizard
 
   **Commit**: YES
   - Message: `feat(ui): create campaign creation wizard with preset selection`
@@ -479,13 +481,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 5 campaign types defined
-- [ ] 4 presets with correct option overrides
-- [ ] Option groups cover all ICampaignOptions fields
-- [ ] Preset application works (defaults + type + preset layers)
-- [ ] Export/import presets as JSON
-- [ ] Validation catches invalid combinations
-- [ ] Campaign wizard UI functional
+- [x] 5 campaign types defined
+- [x] 4 presets with correct option overrides
+- [x] Option groups cover all ICampaignOptions fields
+- [x] Preset application works (defaults + type + preset layers)
+- [x] Export/import presets as JSON
+- [x] Validation catches invalid combinations
+- [x] Campaign wizard UI functional
 
 ---
 

@@ -1,5 +1,7 @@
 # Financial System Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #181.
+
 ## Context
 
 ### Original Request
@@ -50,14 +52,14 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 - Financial dashboard UI
 
 ### Definition of Done
-- [ ] Role-based salaries with XP multipliers replace flat daily costs
-- [ ] Monthly cost processing (salaries, overhead, loan payments)
-- [ ] Loan system with amortization formula
-- [ ] Tax calculation on profits
-- [ ] Price multipliers by tech base and condition
-- [ ] Extended TransactionType enum
-- [ ] Financial day processor registered in pipeline
-- [ ] Financial summary UI
+- [x] Role-based salaries with XP multipliers replace flat daily costs
+- [x] Monthly cost processing (salaries, overhead, loan payments)
+- [x] Loan system with amortization formula
+- [x] Tax calculation on profits
+- [x] Price multipliers by tech base and condition
+- [x] Extended TransactionType enum
+- [x] Financial day processor registered in pipeline
+- [x] Financial summary UI
 
 ### Must Have
 - Salary lookup table for all 10 CampaignPersonnelRole values
@@ -115,7 +117,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ## TODOs
 
-- [ ] 4.1 Implement Role-Based Salary Service
+- [x] 4.1 Implement Role-Based Salary Service
 
   **What to do**:
   - Create `src/lib/finances/salaryService.ts`
@@ -190,13 +192,13 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `E:\Projects\MekStation\src\types\campaign\Person.ts` — IPerson with primaryRole, secondaryRole
 
   **Acceptance Criteria**:
-  - [ ] RED: Test pilot at regular = 1500 × 1.0 = 1500
-  - [ ] RED: Test pilot at elite = 1500 × 1.5 = 2250
-  - [ ] RED: Test secondary role adds 50% of its base
-  - [ ] RED: Test salary multiplier option applies
-  - [ ] RED: Test total monthly salary sums all personnel
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test pilot at regular = 1500 × 1.0 = 1500
+  - [x] RED: Test pilot at elite = 1500 × 1.5 = 2250
+  - [x] RED: Test secondary role adds 50% of its base
+  - [x] RED: Test salary multiplier option applies
+  - [x] RED: Test total monthly salary sums all personnel
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(finances): implement role-based salary calculations`
@@ -204,7 +206,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.2 Extend TransactionType Enum and Add Financial Types
+- [x] 4.2 Extend TransactionType Enum and Add Financial Types
 
   **What to do**:
   - Extend `TransactionType` in `src/types/campaign/Transaction.ts`:
@@ -271,11 +273,11 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `.sisyphus/drafts/mekhq-modifier-systems.md:270-297` — Loan and price formulas
 
   **Acceptance Criteria**:
-  - [ ] Existing 6 TransactionType values unchanged
-  - [ ] 10+ new TransactionType values added
-  - [ ] ILoan interface has all amortization fields
-  - [ ] IFinancialSummary aggregates key metrics
-  - [ ] `npm test` passes (no breaking changes)
+  - [x] Existing 6 TransactionType values unchanged
+  - [x] 10+ new TransactionType values added
+  - [x] ILoan interface has all amortization fields
+  - [x] IFinancialSummary aggregates key metrics
+  - [x] `npm test` passes (no breaking changes)
 
   **Commit**: YES
   - Message: `feat(finances): extend transaction types, add Loan and summary types`
@@ -329,13 +331,13 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `E:\Projects\MekStation\src\types\campaign\Money.ts` — Money class for calculations
 
   **Acceptance Criteria**:
-  - [ ] RED: Test 100,000 loan at 5% for 12 months = ~8,560.75/month
-  - [ ] RED: Test payment splits into interest + principal
-  - [ ] RED: Test remaining balance decreases after each payment
-  - [ ] RED: Test loan paid off detection
-  - [ ] RED: Test default penalty calculation
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test 100,000 loan at 5% for 12 months = ~8,560.75/month
+  - [x] RED: Test payment splits into interest + principal
+  - [x] RED: Test remaining balance decreases after each payment
+  - [x] RED: Test loan paid off detection
+  - [x] RED: Test default penalty calculation
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(finances): implement loan amortization service`
@@ -425,14 +427,14 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `E:\Projects\MekStation\src\types\campaign\Campaign.ts` — ICampaignOptions
 
   **Acceptance Criteria**:
-  - [ ] RED: Test tax on 10,000 profit at 10% = 1,000
-  - [ ] RED: Test no tax on negative profit
-  - [ ] RED: Test Clan equipment = 2.0× price multiplier
-  - [ ] RED: Test damaged condition = 0.33× multiplier
-  - [ ] RED: Test overhead = 5% of salary total
-  - [ ] RED: Test food/housing per person (officer vs enlisted)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test tax on 10,000 profit at 10% = 1,000
+  - [x] RED: Test no tax on negative profit
+  - [x] RED: Test Clan equipment = 2.0× price multiplier
+  - [x] RED: Test damaged condition = 0.33× multiplier
+  - [x] RED: Test overhead = 5% of salary total
+  - [x] RED: Test food/housing per person (officer vs enlisted)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(finances): implement tax calculation and price multipliers`
@@ -513,17 +515,17 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `.sisyphus/drafts/mekhq-modifier-systems.md:256-270` — Monthly cost formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test monthly salary processed on 1st of month
-  - [ ] RED: Test salary NOT processed on other days
-  - [ ] RED: Test overhead calculated correctly (5% of salary)
-  - [ ] RED: Test loan payment deducted on 1st of month
-  - [ ] RED: Test tax calculated on profits
-  - [ ] RED: Test daily maintenance continues every day
-  - [ ] RED: Test negative balance continues processing (no abort)
-  - [ ] RED: Test dailyCostsProcessor is disabled/no-op when useRoleBasedSalaries=true (no double-deduction)
-  - [ ] RED: Test dailyCostsProcessor still works when useRoleBasedSalaries=false (fallback mode)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test monthly salary processed on 1st of month
+  - [x] RED: Test salary NOT processed on other days
+  - [x] RED: Test overhead calculated correctly (5% of salary)
+  - [x] RED: Test loan payment deducted on 1st of month
+  - [x] RED: Test tax calculated on profits
+  - [x] RED: Test daily maintenance continues every day
+  - [x] RED: Test negative balance continues processing (no abort)
+  - [x] RED: Test dailyCostsProcessor is disabled/no-op when useRoleBasedSalaries=true (no double-deduction)
+  - [x] RED: Test dailyCostsProcessor still works when useRoleBasedSalaries=false (fallback mode)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add financial day processor with monthly salary processing`
@@ -562,10 +564,10 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `.sisyphus/drafts/mekhq-modifier-systems.md:279-297` — Price multiplier tables
 
   **Acceptance Criteria**:
-  - [ ] All new options have sensible defaults
-  - [ ] Existing campaigns deserialize without error
-  - [ ] `createDefaultCampaignOptions()` includes all financial options
-  - [ ] `npm test` passes
+  - [x] All new options have sensible defaults
+  - [x] Existing campaigns deserialize without error
+  - [x] `createDefaultCampaignOptions()` includes all financial options
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add financial expansion campaign options`
@@ -604,12 +606,12 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Balance displayed prominently
-  - [ ] Salary breakdown shows by role
-  - [ ] Loan dialog creates new loan with amortization preview
-  - [ ] Active loans listed with remaining balance
-  - [ ] Financial events in day report
-  - [ ] Manual verification: dev server → campaign → take loan → advance month → see payments
+  - [x] Balance displayed prominently
+  - [x] Salary breakdown shows by role
+  - [x] Loan dialog creates new loan with amortization preview
+  - [x] Active loans listed with remaining balance
+  - [x] Financial events in day report
+  - [x] Manual verification: dev server → campaign → take loan → advance month → see payments
 
   **Commit**: YES
   - Message: `feat(ui): add financial dashboard, loan dialog, and salary breakdown`
@@ -639,14 +641,14 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Role-based salaries calculate correctly for all 10 roles
-- [ ] XP multiplier applied to salaries
-- [ ] Monthly processing fires on 1st of month
-- [ ] Loan amortization matches standard formula
-- [ ] Tax on profits calculated correctly
-- [ ] Price multipliers apply by tech base and condition
-- [ ] Existing daily cost processor still works as fallback
-- [ ] Financial events appear in day reports
+- [x] Role-based salaries calculate correctly for all 10 roles
+- [x] XP multiplier applied to salaries
+- [x] Monthly processing fires on 1st of month
+- [x] Loan amortization matches standard formula
+- [x] Tax on profits calculated correctly
+- [x] Price multipliers apply by tech base and condition
+- [x] Existing daily cost processor still works as fallback
+- [x] Financial events appear in day reports
 
 ---
 

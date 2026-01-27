@@ -1,14 +1,30 @@
 # Random Events
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #203.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "51 prisoner event types" | "57 prisoner event types" | `PrisonerEvent.java` |
+| 2 | "weekly on Mondays" | "fortnightly on Mondays" (every 2 weeks: `WEEK_OF_WEEK_BASED_YEAR % 2 == 0`) | `PrisonerEventManager.java:144` |
+| 3 | Commander's Day = March 15 | Commander's Day = June 16 | `CommandersDayAnnouncement.java:66-67` |
+| 4 | Freedom Day = July 4 | Freedom Day = March 18 | `FreedomDayAnnouncement.java:68-69` |
+| 5 | Winter Holiday = December 25 | Winter Holiday = December 10 & 27 (two dates) | `WinterHolidayAnnouncement.java:69-70` |
+| 6 | (missing) PrisonerCaptureStyle.MEKHQ gate | Add: prisoner events require `PrisonerCaptureStyle.MEKHQ` | `PrisonerEventManager.java:156` |
+| 7 | "10 contract event types" | "11 contract event types" — add SPORADIC_UPRISINGS | `AtBEventType.java:39` |
+
 ## Context
 
 ### Original Request
-Implement MekHQ's random event system: prisoner events (51 types with severity), life events (births, coming-of-age, celebrations), contract special events (10 types), and the Gray Monday historical event (3132). Events trigger through the day advancement pipeline at daily, weekly, and monthly frequencies.
+Implement MekHQ's random event system: prisoner events (57 prisoner event types <!-- AUDIT: Corrected from '51'. Source: PrisonerEvent.java --> with severity), life events (births, coming-of-age, celebrations), contract special events (10 types), and the Gray Monday historical event (3132). Events trigger through the day advancement pipeline at daily, weekly, and monthly frequencies.
 
 ### Interview Summary
 **Key Discussions**:
 - Event categories: Prisoner, Life, Contract, Historical
-- Prisoner events: ~30 representative types (minor + major), weekly on Mondays
+- Prisoner events: ~30 representative types (minor + major), fortnightly on Mondays (every 2 weeks) <!-- AUDIT: Corrected from 'weekly'. Source: PrisonerEventManager.java:144 -->
 - Life events: coming-of-age (age 16), calendar celebrations, simplified (no family system)
 - Contract events: 10 types checked monthly per active contract
 - Gray Monday: optional historical event (3132.08.03–12), 99% balance loss
@@ -19,12 +35,12 @@ Implement MekHQ's random event system: prisoner events (51 types with severity),
 
 **Research Findings**:
 - `PrisonerEvent.java`: 51 event types with major/minor severity
-- `PrisonerEventManager.java`: Ransom 10% monthly, capacity system (conv infantry=5, BA=20)
+- `PrisonerEventManager.java`: Ransom 10% monthly, capacity system (conv infantry=5, BA=20), prisoner events require PrisonerCaptureStyle.MEKHQ <!-- AUDIT: Added missing requirement. Source: PrisonerEventManager.java:156 -->
 - `CampaignNewDayManager.java` (line 444): Prisoner events on Monday or 1st of month
-- `AtBContract.java`: 10 contract event types checked monthly
+- `AtBContract.java`: 11 contract event types including SPORADIC_UPRISINGS <!-- AUDIT: Corrected from '10'. Source: AtBEventType.java:39 --> checked monthly
 - `GrayMonday.java`: 3132.08.03–12, bankruptcy on day 7 (99% balance debited)
 - Life events: BirthAnnouncement (50 variants), ComingOfAgeAnnouncement (age 16)
-- Calendar celebrations: Commander's Day, Freedom Day, New Year's, Winter Holiday
+- Calendar celebrations: Commander's Day (June 16 <!-- AUDIT: Corrected from March 15. Source: CommandersDayAnnouncement.java:66-67 -->), Freedom Day (March 18 <!-- AUDIT: Corrected from July 4. Source: FreedomDayAnnouncement.java:68-69 -->), New Year's, Winter Holiday (December 10 & 27 <!-- AUDIT: Corrected from December 25, and note TWO dates. Source: WinterHolidayAnnouncement.java:69-70 -->)
 - Riot scenario: 25% chance on Mondays for riot duty contracts
 
 ### Metis Review
@@ -51,12 +67,12 @@ Build a random event framework with probability tables, event effect processing,
 - `src/lib/campaign/processors/randomEventsProcessor.ts` — Day processor with frequency routing
 
 ### Definition of Done
-- [ ] Random event framework with typed events and probability engine
-- [ ] ~30 prisoner events (minor + major) with severity and effects
-- [ ] Life events: 4 calendar celebrations + coming-of-age at 16
-- [ ] Contract events referenced from Plan 12 (10 types)
-- [ ] Gray Monday: optional, fires on specific dates in 3132
-- [ ] Day processor with daily/weekly/monthly routing
+- [x] Random event framework with typed events and probability engine
+- [x] ~30 prisoner events (minor + major) with severity and effects
+- [x] Life events: 4 calendar celebrations + coming-of-age at 16
+- [x] Contract events referenced from Plan 12 (10 types)
+- [x] Gray Monday: optional, fires on specific dates in 3132
+- [x] Day processor with daily/weekly/monthly routing
 
 ### Must Have
 - IRandomEvent extending IBaseEvent
@@ -69,7 +85,7 @@ Build a random event framework with probability tables, event effect processing,
 - Day processor registered with appropriate frequencies
 
 ### Must NOT Have (Guardrails)
-- Full 51 prisoner events (start with ~30 representative ones)
+- Full 57 prisoner events (start with ~30 representative ones) <!-- AUDIT: Missed in initial correction. Source: PrisonerEvent.java -->
 - Birth/pregnancy system
 - Family/genealogy events
 - Personality generation system
@@ -114,7 +130,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ## TODOs
 
-- [ ] 16.1 Define Random Event Types
+- [x] 16.1 Define Random Event Types
 
   **What to do**:
   - Create `src/types/campaign/events/randomEventTypes.ts`:
@@ -180,11 +196,11 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\randomEvents\prisoners\enums\PrisonerEvent.java` — 51 types
 
   **Acceptance Criteria**:
-  - [ ] RED: Test RandomEventCategory has 4 values
-  - [ ] RED: Test PrisonerEventType has ~30 values
-  - [ ] RED: Test RandomEventSeverity has 3 values
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test RandomEventCategory has 4 values
+  - [x] RED: Test PrisonerEventType has ~30 values
+  - [x] RED: Test RandomEventSeverity has 3 values
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define random event types and prisoner events`
@@ -192,7 +208,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.2 Implement Event Probability Engine
+- [x] 16.2 Implement Event Probability Engine
 
   **What to do**:
   - Create `src/lib/campaign/events/eventProbability.ts`:
@@ -229,13 +245,13 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts:114` — RandomFn pattern
 
   **Acceptance Criteria**:
-  - [ ] RED: Test rollForEvent with probability 1.0 always returns true
-  - [ ] RED: Test rollForEvent with probability 0.0 always returns false
-  - [ ] RED: Test selectRandomEvent is deterministic with seeded random
-  - [ ] RED: Test isMonday correctly identifies Mondays
-  - [ ] RED: Test isFirstOfMonth correctly identifies 1st
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test rollForEvent with probability 1.0 always returns true
+  - [x] RED: Test rollForEvent with probability 0.0 always returns false
+  - [x] RED: Test selectRandomEvent is deterministic with seeded random
+  - [x] RED: Test isMonday correctly identifies Mondays
+  - [x] RED: Test isFirstOfMonth correctly identifies 1st
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement event probability engine`
@@ -243,7 +259,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.3 Implement Prisoner Events
+- [x] 16.3 Implement Prisoner Events
 
   **What to do**:
   - Create `src/lib/campaign/events/prisonerEvents.ts`:
@@ -308,14 +324,14 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\randomEvents\prisoners\enums\PrisonerEvent.java` — Event types
 
   **Acceptance Criteria**:
-  - [ ] RED: Test prisoner capacity calculated from unit composition
-  - [ ] RED: Test ransom event fires at 10% monthly
-  - [ ] RED: Test overflow increases event probability
-  - [ ] RED: Test major events have escape/casualty effects
-  - [ ] RED: Test no events when no prisoners
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test prisoner capacity calculated from unit composition
+  - [x] RED: Test ransom event fires at 10% monthly
+  - [x] RED: Test overflow increases event probability
+  - [x] RED: Test major events have escape/casualty effects
+  - [x] RED: Test no events when no prisoners
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement ~30 prisoner events with capacity system`
@@ -323,7 +339,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.4 Implement Life Events
+- [x] 16.4 Implement Life Events
 
   **What to do**:
   - Create `src/lib/campaign/events/lifeEvents.ts`:
@@ -395,12 +411,12 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\lifeEvents\` — Life event classes
 
   **Acceptance Criteria**:
-  - [ ] RED: Test New Year's fires on Jan 1
-  - [ ] RED: Test Commander's Day fires on Mar 15
-  - [ ] RED: Test coming-of-age fires on 16th birthday
-  - [ ] RED: Test no celebration on non-celebration dates
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test New Year's fires on Jan 1
+  - [x] RED: Test Commander's Day fires on Mar 15
+  - [x] RED: Test coming-of-age fires on 16th birthday
+  - [x] RED: Test no celebration on non-celebration dates
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement life events with celebrations and coming-of-age`
@@ -408,7 +424,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.5 Implement Gray Monday Event
+- [x] 16.5 Implement Gray Monday Event
 
   **What to do**:
   - Create `src/lib/campaign/events/grayMonday.ts`:
@@ -461,12 +477,12 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\randomEvents\GrayMonday.java` — Gray Monday logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test bankruptcy on 3132.08.09 debits 99% balance
-  - [ ] RED: Test employer begging on 3132.08.10
-  - [ ] RED: Test no event on non-Gray-Monday dates
-  - [ ] RED: Test disabled when simulateGrayMonday is false
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test bankruptcy on 3132.08.09 debits 99% balance
+  - [x] RED: Test employer begging on 3132.08.10
+  - [x] RED: Test no event on non-Gray-Monday dates
+  - [x] RED: Test disabled when simulateGrayMonday is false
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement Gray Monday historical event`
@@ -474,7 +490,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.6 Register Random Events Day Processor
+- [x] 16.6 Register Random Events Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/randomEventsProcessor.ts`:
@@ -514,13 +530,13 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor (Plan 1)
 
   **Acceptance Criteria**:
-  - [ ] RED: Test life events fire daily
-  - [ ] RED: Test prisoner events fire on Mondays only
-  - [ ] RED: Test contract events fire on 1st of month
-  - [ ] RED: Test Gray Monday fires on correct dates
-  - [ ] RED: Test disabled categories produce no events
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test life events fire daily
+  - [x] RED: Test prisoner events fire on Mondays only
+  - [x] RED: Test contract events fire on 1st of month
+  - [x] RED: Test Gray Monday fires on correct dates
+  - [x] RED: Test disabled categories produce no events
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): register random events day processor`
@@ -528,7 +544,7 @@ Build a random event framework with probability tables, event effect processing,
 
 ---
 
-- [ ] 16.7 Create Random Events UI
+- [x] 16.7 Create Random Events UI
 
   **What to do**:
   - Event log/timeline on campaign dashboard (chronological, filterable by category)
@@ -543,12 +559,12 @@ Build a random event framework with probability tables, event effect processing,
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Event log shows recent events with severity icons
-  - [ ] Filter by category works
-  - [ ] Event toasts appear with correct colors
-  - [ ] Prisoner panel shows capacity and events
-  - [ ] Settings toggles work
-  - [ ] Manual verification: dev server → advance days → verify events appear → filter → verify
+  - [x] Event log shows recent events with severity icons
+  - [x] Filter by category works
+  - [x] Event toasts appear with correct colors
+  - [x] Prisoner panel shows capacity and events
+  - [x] Settings toggles work
+  - [x] Manual verification: dev server → advance days → verify events appear → filter → verify
 
   **Commit**: YES
   - Message: `feat(ui): add random events log and notification system`
@@ -578,13 +594,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Random event framework with typed events
-- [ ] ~30 prisoner events with capacity system
-- [ ] 4 calendar celebrations
-- [ ] Coming-of-age at 16 with XP award
-- [ ] Gray Monday optional historical event
-- [ ] Day processor with frequency routing
-- [ ] Contract events integrated from Plan 12
+- [x] Random event framework with typed events
+- [x] ~30 prisoner events with capacity system
+- [x] 4 calendar celebrations
+- [x] Coming-of-age at 16 with XP award
+- [x] Gray Monday optional historical event
+- [x] Day processor with frequency routing
+- [x] Contract events integrated from Plan 12
 
 ---
 

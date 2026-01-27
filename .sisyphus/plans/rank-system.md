@@ -1,5 +1,7 @@
 # Rank System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #201.
+
 ## Context
 
 ### Original Request
@@ -49,13 +51,13 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 - Updated IPerson with rankIndex for numeric rank tracking
 
 ### Definition of Done
-- [ ] IRank and IRankSystem types defined
-- [ ] 5 built-in rank systems with ~15-20 populated ranks each
-- [ ] Promote/demote with validation and service logging
-- [ ] getRankName() resolves profession-specific name
-- [ ] isOfficer() computed from rank index vs officer cut
-- [ ] Pay multiplier integrated with salary calculation
-- [ ] Time-in-rank tracking
+- [x] IRank and IRankSystem types defined
+- [x] 5 built-in rank systems with ~15-20 populated ranks each
+- [x] Promote/demote with validation and service logging
+- [x] getRankName() resolves profession-specific name
+- [x] isOfficer() computed from rank index vs officer cut
+- [x] Pay multiplier integrated with salary calculation
+- [x] Time-in-rank tracking
 
 ### Must Have
 - 51 rank slots (most empty — only populated ranks used)
@@ -108,7 +110,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ## TODOs
 
-- [ ] 15.1 Define Rank Types and Structure
+- [x] 15.1 Define Rank Types and Structure
 
   **What to do**:
   - Create `src/types/campaign/ranks/rankTypes.ts`:
@@ -161,13 +163,13 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\ranks\Rank.java` — 51 slots
 
   **Acceptance Criteria**:
-  - [ ] RED: Test RANK_TIERS.TOTAL === 51
-  - [ ] RED: Test Profession has 9 values
-  - [ ] RED: Test getRankTier(0) === 'enlisted'
-  - [ ] RED: Test getRankTier(25) === 'warrant_officer'
-  - [ ] RED: Test getRankTier(35) === 'officer'
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test RANK_TIERS.TOTAL === 51
+  - [x] RED: Test Profession has 9 values
+  - [x] RED: Test getRankTier(0) === 'enlisted'
+  - [x] RED: Test getRankTier(25) === 'warrant_officer'
+  - [x] RED: Test getRankTier(35) === 'officer'
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define rank types with 51-slot structure`
@@ -175,7 +177,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ---
 
-- [ ] 15.2 Define Built-In Rank Systems
+- [x] 15.2 Define Built-In Rank Systems
 
   **What to do**:
   - Create `src/lib/campaign/ranks/rankSystems.ts`:
@@ -231,13 +233,13 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\ranks\RankSystem.java` — Faction tables
 
   **Acceptance Criteria**:
-  - [ ] RED: Test 5 built-in rank systems exist
-  - [ ] RED: Test MERCENARY has populated ranks at correct indices
-  - [ ] RED: Test CLAN has Star Commander, Galaxy Commander
-  - [ ] RED: Test each system has exactly 51 rank slots
-  - [ ] RED: Test officerCut is set correctly
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test 5 built-in rank systems exist
+  - [x] RED: Test MERCENARY has populated ranks at correct indices
+  - [x] RED: Test CLAN has Star Commander, Galaxy Commander
+  - [x] RED: Test each system has exactly 51 rank slots
+  - [x] RED: Test officerCut is set correctly
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define 5 built-in faction rank systems`
@@ -245,7 +247,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ---
 
-- [ ] 15.3 Implement Rank Service
+- [x] 15.3 Implement Rank Service
 
   **What to do**:
   - Create `src/lib/campaign/ranks/rankService.ts`:
@@ -301,14 +303,14 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java` — changeRank()
 
   **Acceptance Criteria**:
-  - [ ] RED: Test getRankName returns profession-specific name
-  - [ ] RED: Test getRankName falls back to mekwarrior name
-  - [ ] RED: Test isOfficer returns true for index >= officerCut
-  - [ ] RED: Test promoteToRank updates rankIndex and lastRankChangeDate
-  - [ ] RED: Test invalid rank index returns valid=false
-  - [ ] RED: Test getTimeInRank formats correctly
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test getRankName returns profession-specific name
+  - [x] RED: Test getRankName falls back to mekwarrior name
+  - [x] RED: Test isOfficer returns true for index >= officerCut
+  - [x] RED: Test promoteToRank updates rankIndex and lastRankChangeDate
+  - [x] RED: Test invalid rank index returns valid=false
+  - [x] RED: Test getTimeInRank formats correctly
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement rank service with promotion and name resolution`
@@ -316,7 +318,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ---
 
-- [ ] 15.4 Implement Rank Pay Multiplier
+- [x] 15.4 Implement Rank Pay Multiplier
 
   **What to do**:
   - Create `src/lib/campaign/ranks/rankPay.ts`:
@@ -359,13 +361,13 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java:4662-4739` — Salary with rank
 
   **Acceptance Criteria**:
-  - [ ] RED: Test rank index 0 (None) gives multiplier 1.0
-  - [ ] RED: Test Colonel (index 40, merc) gives multiplier 2.0
-  - [ ] RED: Test officer shares = rankIndex - officerCut + 1
-  - [ ] RED: Test non-officer gets 0 shares
-  - [ ] RED: Test salary = baseSalary × rankMultiplier
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test rank index 0 (None) gives multiplier 1.0
+  - [x] RED: Test Colonel (index 40, merc) gives multiplier 2.0
+  - [x] RED: Test officer shares = rankIndex - officerCut + 1
+  - [x] RED: Test non-officer gets 0 shares
+  - [x] RED: Test salary = baseSalary × rankMultiplier
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement rank pay multiplier and officer shares`
@@ -373,7 +375,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ---
 
-- [ ] 15.5 Integrate Rank System with Campaign
+- [x] 15.5 Integrate Rank System with Campaign
 
   **What to do**:
   - Add `rankSystemCode?: string` to ICampaignOptions (default 'MERC')
@@ -395,11 +397,11 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `.sisyphus/plans/campaign-options-presets.md` — Plan 6 presets
 
   **Acceptance Criteria**:
-  - [ ] RED: Test getCampaignRankSystem returns correct system for code
-  - [ ] RED: Test default code 'MERC' returns Mercenary system
-  - [ ] RED: Test unknown code falls back to Mercenary
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test getCampaignRankSystem returns correct system for code
+  - [x] RED: Test default code 'MERC' returns Mercenary system
+  - [x] RED: Test unknown code falls back to Mercenary
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): integrate rank system with campaign options`
@@ -407,7 +409,7 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
 
 ---
 
-- [ ] 15.6 Create Rank Management UI
+- [x] 15.6 Create Rank Management UI
 
   **What to do**:
   - Rank display on personnel (with profession-specific name and tier badge)
@@ -423,12 +425,12 @@ Build a faction-specific rank system with structured rank tables, promotion/demo
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Rank name shows with profession variant
-  - [ ] Promote/demote buttons work with validation
-  - [ ] Time-in-rank displayed correctly
-  - [ ] Officer badge shown for officer ranks
-  - [ ] Rank system selector in settings
-  - [ ] Manual verification: dev server → personnel → promote → verify rank name and pay change
+  - [x] Rank name shows with profession variant
+  - [x] Promote/demote buttons work with validation
+  - [x] Time-in-rank displayed correctly
+  - [x] Officer badge shown for officer ranks
+  - [x] Rank system selector in settings
+  - [x] Manual verification: dev server → personnel → promote → verify rank name and pay change
 
   **Commit**: YES
   - Message: `feat(ui): add rank management with promotion and system selection`
@@ -457,13 +459,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 51-slot rank structure
-- [ ] 5 built-in rank systems with populated ranks
-- [ ] Promote/demote with validation
-- [ ] Profession-specific rank names
-- [ ] Pay multiplier integrated with salary
-- [ ] Officer status for turnover/shares
-- [ ] Time-in-rank tracking
+- [x] 51-slot rank structure
+- [x] 5 built-in rank systems with populated ranks
+- [x] Promote/demote with validation
+- [x] Profession-specific rank names
+- [x] Pay multiplier integrated with salary
+- [x] Officer status for turnover/shares
+- [x] Time-in-rank tracking
 
 ---
 

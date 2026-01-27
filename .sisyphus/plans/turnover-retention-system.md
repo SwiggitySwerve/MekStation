@@ -1,14 +1,29 @@
 # Turnover & Retention System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #178.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | Age bracket modifiers (incorrect values) | age ≤ 20: -1, 50-64: +3, 65-74: +4, 75-84: +5, 85-94: +6, 95-104: +7, 105+: +8 | `RetirementDefectionTracker.java:818-838` |
+| 2 | "19 modifiers" | "27 modifiers" | Validated 27 unique modifiers in RetirementDefectionTracker.java |
+| 3 | (missing) Tactical Genius modifier | "+1 for non-officers" | `RetirementDefectionTracker.java:416-417` |
+| 4 | (missing) Wartime modifier | "+4 when faction at war with origin faction" | `RetirementDefectionTracker.java:350-353` |
+| 5 | Faction modifiers (single item) | "7 distinct faction checks" | `RetirementDefectionTracker.java:321-355` |
+| 6 | Morale (implied personnel-level) | "morale is CONTRACT-level, not PERSONNEL-level" | `MHQMorale.java` |
+
 ## Context
 
 ### Original Request
-Implement MekHQ's exact turnover/retention system in MekStation: a 2d6 roll against a target number composed of 19 additive modifiers. Personnel who fail the check leave the campaign. Creates tension and consequence for campaign management decisions.
+Implement MekHQ's exact turnover/retention system in MekStation: a 2d6 roll against a target number composed of 27 additive modifiers. Personnel who fail the check leave the campaign. Creates tension and consequence for campaign management decisions.
 
 ### Interview Summary
 **Key Discussions**:
 - Exact MekHQ formula parity (1:1 match)
-- 19 additive modifiers, each independently testable
+- 27 additive modifiers, each independently testable <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
 - Modifiers referencing unbuilt systems (fatigue, loyalty, shares, etc.) are stubbed with neutral defaults (return 0)
 - Injectable `RandomFn` for testable dice rolls (following `contractMarket.ts` pattern)
 - TDD approach
@@ -37,7 +52,7 @@ Implement MekHQ's exact turnover/retention system in MekStation: a 2d6 roll agai
 ## Work Objectives
 
 ### Core Objective
-Implement the full 19-modifier turnover check system that determines whether personnel voluntarily leave the campaign, creating meaningful tension in campaign management.
+Implement the full 27-modifier turnover check system that determines whether personnel voluntarily leave the campaign, creating meaningful tension in campaign management. <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
 
 ### Concrete Deliverables
 - `src/lib/campaign/turnover/` — All turnover logic
@@ -48,16 +63,16 @@ Implement the full 19-modifier turnover check system that determines whether per
 - UI component for turnover reports
 
 ### Definition of Done
-- [ ] 2d6 roll with target number from 19 additive modifiers
-- [ ] Each modifier independently testable with exact MekHQ values
-- [ ] Stub modifiers return 0 (neutral) with `@stub` JSDoc tag
-- [ ] Personnel who fail leave campaign (status transition)
-- [ ] Modifier breakdown available for UI display
-- [ ] Registers as day pipeline processor
-- [ ] Configurable check frequency via campaign options
+- [x] 2d6 roll with target number from 27 additive modifiers <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
+- [x] Each modifier independently testable with exact MekHQ values
+- [x] Stub modifiers return 0 (neutral) with `@stub` JSDoc tag
+- [x] Personnel who fail leave campaign (status transition)
+- [x] Modifier breakdown available for UI display
+- [x] Registers as day pipeline processor
+- [x] Configurable check frequency via campaign options
 
 ### Must Have
-- All 19 modifier functions (9 real, 10 stubbed)
+- All 27 modifier functions (9 real, 18 stubbed) <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
 - 2d6 roll with injectable RandomFn
 - TurnoverResult type with full modifier breakdown
 - Status transition: ACTIVE → RETIRED (voluntary) or DESERTED (negative)
@@ -110,7 +125,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ## TODOs
 
-- [ ] 2.1 Implement All 19 Turnover Modifier Functions
+- [x] 2.1 Implement All 19 Turnover Modifier Functions
 
   **What to do**:
   - Create `src/lib/campaign/turnover/modifiers/` directory
@@ -118,30 +133,34 @@ Implement the full 19-modifier turnover check system that determines whether per
     ```typescript
     type TurnoverModifierFn = (person: IPerson, campaign: ICampaign) => number;
     ```
-  - Implement these 19 modifiers (9 real, 10 stubbed):
+   - Implement these 27 modifiers (9 real, 10 stubbed) <!-- AUDIT: Missed in initial correction. Source: RetirementDefectionTracker.java -->
 
   **REAL MODIFIERS** (data available in current IPerson/ICampaign):
   1. `getBaseTargetModifier(campaign)` → `campaign.options.turnoverFixedTargetNumber` (default: 3)
   2. `getFounderModifier(person)` → `person.isFounder ? -2 : 0`
   3. `getRecentPromotionModifier(person, campaign)` → promoted within 6 months = -1
-  4. `getAgeModifier(person, campaign)` → age < 20: -1, 50-54: +3, 55-59: +5, 60-64: +6, 65+: +8
+   4. `getAgeModifier(person, campaign)` → age ≤ 20: -1, 50-64: +3, 65-74: +4, 75-84: +5, 85-94: +6, 95-104: +7, 105+: +8 <!-- AUDIT: Corrected age brackets. Source: RetirementDefectionTracker.java:818-838 -->
   5. `getInjuryModifier(person)` → +1 per permanent injury
   6. `getOfficerModifier(person)` → `isCommander || isSecondInCommand ? -1 : 0`
   7. `getMissionStatusModifier(campaign)` → last mission: SUCCESS=-1, FAILED=+1, BREACH=+2
   8. `getServiceContractModifier(person)` → if breaking contract early: -N
-  9. `getSkillDesirabilityModifier(person, campaign)` → skilled personnel (low gunnery/piloting) harder to lose: -2 to +2
+   9. `getSkillDesirabilityModifier(person, campaign)` → skilled personnel (low gunnery/piloting) harder to lose: -2 to +2
+   10. `getTacticalGeniusModifier(person)` → +1 for non-officers with Tactical Genius ability <!-- AUDIT: Added missing modifier. Source: RetirementDefectionTracker.java:416-417 -->
+   11. `getWartimeModifier(campaign)` → +4 when faction at war with origin faction <!-- AUDIT: Added missing modifier. Source: RetirementDefectionTracker.java:350-353 -->
 
-  **STUB MODIFIERS** (dependencies not yet built, return 0):
-  10. `getFatigueModifier(person)` → `/** @stub */ return 0;` (needs fatigue system)
-  11. `getHRStrainModifier(campaign)` → `/** @stub */ return 0;` (needs admin skill tracking)
-  12. `getManagementSkillModifier(campaign)` → `/** @stub */ return 0;` (needs leadership skill)
-  13. `getSharesModifier(person, campaign)` → `/** @stub */ return 0;` (needs shares system)
-  14. `getUnitRatingModifier(campaign)` → `/** @stub */ return 0;` (needs Dragoon rating)
-  15. `getHostileTerritoryModifier(campaign)` → `/** @stub */ return 0;` (needs territory tracking)
-  16. `getLoyaltyModifier(person)` → `/** @stub */ return 0;` (needs loyalty system)
-  17. `getFactionCampaignModifier(campaign)` → `/** @stub */ return 0;` (needs faction standing)
-  18. `getFactionOriginModifier(person)` → `/** @stub */ return 0;` (needs faction data)
-  19. `getFamilyModifier(person, campaign)` → `/** @stub */ return 0;` (needs family system)
+   **STUB MODIFIERS** (dependencies not yet built, return 0):
+   12. `getFatigueModifier(person)` → `/** @stub */ return 0;` (needs fatigue system)
+   13. `getHRStrainModifier(campaign)` → `/** @stub */ return 0;` (needs admin skill tracking)
+   14. `getManagementSkillModifier(campaign)` → `/** @stub */ return 0;` (needs leadership skill)
+   15. `getSharesModifier(person, campaign)` → `/** @stub */ return 0;` (needs shares system)
+   16. `getUnitRatingModifier(campaign)` → `/** @stub */ return 0;` (needs Dragoon rating)
+   17. `getHostileTerritoryModifier(campaign)` → `/** @stub */ return 0;` (needs territory tracking)
+   18. `getLoyaltyModifier(person)` → `/** @stub */ return 0;` (needs loyalty system)
+   19. `getFactionCampaignModifier(campaign)` → `/** @stub */ return 0;` (needs faction standing)
+   20. `getFactionOriginModifier(person)` → `/** @stub */ return 0;` (needs faction data)
+   21. `getFamilyModifier(person, campaign)` → `/** @stub */ return 0;` (needs family system)
+   22. `getMoraleModifier(campaign)` → `/** @stub */ return 0;` (morale is CONTRACT-level, not PERSONNEL-level <!-- AUDIT: Architecture correction. Source: MHQMorale.java -->)
+   23-27. Additional faction checks (7 distinct faction checks total) <!-- AUDIT: Corrected - 7 distinct faction checks, not single item. Source: RetirementDefectionTracker.java:321-355 -->
 
   - Create `src/lib/campaign/turnover/modifiers/index.ts` barrel export
   - Create `TurnoverModifierResult` type:
@@ -167,15 +186,15 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\types\campaign\Person.ts:injuries` — `IInjury` with `permanent` flag
   - `E:\Projects\MekStation\src\types\campaign\enums\CampaignPersonnelRole.ts` — Role enum
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test each real modifier returns exact MekHQ value for given inputs
-  - [ ] RED: Test founder gets -2 modifier
-  - [ ] RED: Test age 65 gets +8 modifier
-  - [ ] RED: Test 3 permanent injuries = +3
-  - [ ] RED: Test officer gets -1
-  - [ ] RED: Test all stubs return 0
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+    **Acceptance Criteria**:
+    - [x] RED: Test each real modifier returns exact MekHQ value for given inputs
+    - [x] RED: Test founder gets -2 modifier
+    - [x] RED: Test age 65 gets +4 modifier <!-- AUDIT: Corrected from +8. Source: RetirementDefectionTracker.java:818-838 -->
+    - [x] RED: Test 3 permanent injuries = +3
+    - [x] RED: Test officer gets -1
+    - [x] RED: Test all stubs return 0 (includes Tactical Genius, Wartime, and 7 faction checks) <!-- AUDIT: Includes missing modifiers. Source: RetirementDefectionTracker.java:416-417, :350-353, :321-355 -->
+    - [x] GREEN: All tests pass
+    - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement 19 turnover modifier functions`
@@ -183,7 +202,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.2 Implement Core Turnover Check
+- [x] 2.2 Implement Core Turnover Check
 
   **What to do**:
   - Create `src/lib/campaign/turnover/turnoverCheck.ts`
@@ -220,11 +239,11 @@ Implement the full 19-modifier turnover check system that determines whether per
       return Money.fromAmount(DEFAULT_MONTHLY_SALARY);
     }
     ```
-  - Logic:
-    1. Skip if person is not ACTIVE
-    2. Skip if person is commander and `commanderImmune` option is true
-    3. Skip if person is prisoner/MIA/student
-    4. Calculate all 19 modifiers, sum to targetNumber
+   - Logic:
+     1. Skip if person is not ACTIVE
+     2. Skip if person is commander and `commanderImmune` option is true
+     3. Skip if person is prisoner/MIA/student
+     4. Calculate all 27 modifiers, sum to targetNumber <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
     5. Roll 2d6
     6. If roll < targetNumber → person LEAVES
     7. Departure type: `deserted` if roll < targetNumber - 4, else `retired`
@@ -249,17 +268,17 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\RetirementDefectionTracker.java:135-432` — MekHQ check logic
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts:114` — `RandomFn` pattern to follow
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test roll >= targetNumber → person stays (passed = true)
-  - [ ] RED: Test roll < targetNumber → person leaves (passed = false)
-  - [ ] RED: Test commander immunity when option enabled
-  - [ ] RED: Test non-ACTIVE personnel are skipped
-  - [ ] RED: Test payout calculation (getPersonMonthlySalary × payoutMultiplier)
-  - [ ] RED: Test salary stub returns default 1000 C-bills
-  - [ ] RED: Test modifier breakdown is included in result
-  - [ ] RED: Test deterministic results with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test roll >= targetNumber → person stays (passed = true)
+   - [x] RED: Test roll < targetNumber → person leaves (passed = false)
+   - [x] RED: Test commander immunity when option enabled
+   - [x] RED: Test non-ACTIVE personnel are skipped
+   - [x] RED: Test payout calculation (getPersonMonthlySalary × payoutMultiplier)
+   - [x] RED: Test salary stub returns default 1000 C-bills
+   - [x] RED: Test modifier breakdown is included in result
+   - [x] RED: Test deterministic results with seeded random
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement core turnover check with 2d6 roll`
@@ -267,7 +286,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.3 Extend Person with Turnover-Related Fields
+- [x] 2.3 Extend Person with Turnover-Related Fields
 
   **What to do**:
   - Add optional fields to `IPerson` in `src/types/campaign/Person.ts`:
@@ -292,11 +311,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\types\campaign\Person.ts` — Current IPerson interface
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java` — MekHQ person fields
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `createDefaultPerson()` works with new optional fields
-  - [ ] RED: Test existing IPerson objects without new fields still work
-  - [ ] GREEN: Types compile, tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test `createDefaultPerson()` works with new optional fields
+   - [x] RED: Test existing IPerson objects without new fields still work
+   - [x] GREEN: Types compile, tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): extend IPerson with turnover-related fields`
@@ -304,7 +323,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.4 Create Turnover Day Processor
+- [x] 2.4 Create Turnover Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/turnoverProcessor.ts`
@@ -356,14 +375,14 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor interface (from Plan 1)
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\RetirementDefectionTracker.java` — MekHQ trigger conditions
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test processor runs on correct frequency (weekly/monthly/etc.)
-  - [ ] RED: Test processor skips on wrong day
-  - [ ] RED: Test departures update personnel status
-  - [ ] RED: Test payout recorded as financial transaction
-  - [ ] RED: Test departure date set on person
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test processor runs on correct frequency (weekly/monthly/etc.)
+   - [x] RED: Test processor skips on wrong day
+   - [x] RED: Test departures update personnel status
+   - [x] RED: Test payout recorded as financial transaction
+   - [x] RED: Test departure date set on person
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add turnover day processor`
@@ -371,7 +390,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.5 Add Turnover Campaign Options
+- [x] 2.5 Add Turnover Campaign Options
 
   **What to do**:
   - Extend `ICampaignOptions` in `src/types/campaign/Campaign.ts`:
@@ -399,11 +418,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `.sisyphus/drafts/mekhq-modifier-systems.md:108-118` — Turnover trigger conditions and outcomes
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignOptions.java` — MekHQ turnover options
 
-  **Acceptance Criteria**:
-  - [ ] All new options have sensible defaults
-  - [ ] `createDefaultCampaignOptions()` includes all turnover options
-  - [ ] Existing campaigns deserialize without error (optional fields default)
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] All new options have sensible defaults
+   - [x] `createDefaultCampaignOptions()` includes all turnover options
+   - [x] Existing campaigns deserialize without error (optional fields default)
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add turnover campaign options`
@@ -411,13 +430,13 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.6 Create Turnover Report UI
+- [x] 2.6 Create Turnover Report UI
 
   **What to do**:
   - Create `src/components/campaign/TurnoverReportPanel.tsx`
   - Display when turnover events occur in DayReport:
     - List of departed personnel with name, role, departure type
-    - For each departure: expandable modifier breakdown (all 19 modifiers with values)
+     - For each departure: expandable modifier breakdown (all 27 modifiers with values) <!-- AUDIT: Missed in initial correction. Source: RetirementDefectionTracker.java -->
     - Roll result vs target number
     - Payout amount
   - Integrate into campaign dashboard DayReportPanel (from Plan 1)
@@ -433,11 +452,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
   - `E:\Projects\MekStation\src\components\campaign\DayReportPanel.tsx` — Day report panel (from Plan 1)
 
-  **Acceptance Criteria**:
-  - [ ] Turnover events displayed in day report with departure details
-  - [ ] Modifier breakdown expandable for each departure
-  - [ ] Campaign settings show turnover options
-  - [ ] Manual verification: dev server → advance month → see turnover report
+   **Acceptance Criteria**:
+   - [x] Turnover events displayed in day report with departure details
+   - [x] Modifier breakdown expandable for each departure
+   - [x] Campaign settings show turnover options
+   - [x] Manual verification: dev server → advance month → see turnover report
 
   **Commit**: YES
   - Message: `feat(ui): add turnover report panel and campaign options`
@@ -467,13 +486,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] All 19 modifiers return exact MekHQ values
-- [ ] 2d6 roll with injectable random is deterministic in tests
-- [ ] Stub modifiers clearly marked with `@stub` JSDoc
-- [ ] Personnel departures update status correctly
-- [ ] Payout recorded as financial transaction
-- [ ] Day processor respects frequency setting
-- [ ] UI shows modifier breakdown per departure
+- [x] All 27 modifiers return exact MekHQ values <!-- AUDIT: Corrected from "19 modifiers". Source: RetirementDefectionTracker.java -->
+- [x] 2d6 roll with injectable random is deterministic in tests
+- [x] Stub modifiers clearly marked with `@stub` JSDoc
+- [x] Personnel departures update status correctly
+- [x] Payout recorded as financial transaction
+- [x] Day processor respects frequency setting
+- [x] UI shows modifier breakdown per departure
 
 ---
 

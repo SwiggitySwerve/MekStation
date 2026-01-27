@@ -1,5 +1,17 @@
 # Contract Types Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #197.
+
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | PIRATE_HUNTING combat role: PATROL | Correct to: FRONTLINE | `AtBContractType.java:270` |
+| 2 | "10 event types" | "11 event types" — add SPORADIC_UPRISINGS | `AtBEventType.java:39` |
+| 3 | "special" contract group | Tag as `[MekStation Enhancement]` — MekHQ doesn't formalize this grouping | MekHQ source — not found |
+
 ## Context
 
 ### Original Request
@@ -11,15 +23,15 @@ Expand MekStation's 5 contract types (Garrison, Recon, Raid, Extraction, Escort)
 - Each type has: constant length (months), ops tempo multiplier, default combat role, parts availability modifier
 - Variable length formula: `round(constantLength × 0.75) + randomInt(round(constantLength × 0.5))`
 - 4 negotiation clause types: Command, Salvage, Support, Transport
-- Contract events checked monthly (10 event types with gameplay effects)
+- Contract events checked monthly (11 event types <!-- AUDIT: Corrected from '10'. Source: AtBEventType.java:39 (same correction as random-events.md) --> including SPORADIC_UPRISINGS with gameplay effects)
 - Ops tempo affects scenario generation frequency
 - Parts availability modifier affects acquisition TN (Plan 9)
 - Payment scales with contract type risk
 
 **Research Findings**:
 - `AtBContractType.java`: All 19 types with constantLength, opsTempo values
-- `AtBContract.java`: Contract event checking with 10 event types
-- Contract groupings: Garrison (5 types), Raid (6 types), Guerrilla (4 types), Special (4 types)
+- `AtBContract.java`: Contract event checking with 11 event types <!-- AUDIT: Missed in initial correction. Source: AtBEventType.java:39 -->
+- Contract groupings: Garrison (5 types), Raid (6 types), Guerrilla (4 types), [MekStation Enhancement] <!-- AUDIT: MekHQ doesn't formalize 'special' contract grouping --> Special (4 types)
 - Ops tempo ranges from 0.8× (Cadre) to 2.4× (Espionage/Sabotage)
 - Contract events: BONUS_ROLL, SPECIAL_SCENARIO, CIVIL_DISTURBANCE, REBELLION, BETRAYAL (6 sub-types), TREACHERY, LOGISTICS_FAILURE, REINFORCEMENTS, SPECIAL_EVENTS (6 sub-types), BIG_BATTLE
 
@@ -46,12 +58,12 @@ Define 19 contract types with type-specific rules, implement variable-length con
 - Updated contract market generation for 19 types
 
 ### Definition of Done
-- [ ] AtBContractType enum with 19 values
-- [ ] IContractTypeDefinition constant data with length, ops tempo, combat role, parts mod
-- [ ] Variable length formula matches MekHQ
-- [ ] 4-clause negotiation system with skill + faction standing modifiers
-- [ ] 10 contract event types with gameplay effects
-- [ ] Contract market generates all 19 types
+- [x] AtBContractType enum with 19 values
+- [x] IContractTypeDefinition constant data with length, ops tempo, combat role, parts mod
+- [x] Variable length formula matches MekHQ
+- [x] 4-clause negotiation system with skill + faction standing modifiers
+- [x] 10 contract event types with gameplay effects
+- [x] Contract market generates all 19 types
 
 ### Must Have
 - 19 contract types with correct MekHQ values
@@ -104,7 +116,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
 
 ## TODOs
 
-- [ ] 12.1 Define 19 Contract Types and Definitions
+- [x] 12.1 Define 19 Contract Types and Definitions
 
   **What to do**:
   - Create `src/types/campaign/contracts/contractTypes.ts`:
@@ -152,7 +164,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
       planetary_assault:  { type: AtBContractType.PLANETARY_ASSAULT,  name: 'Planetary Assault',  group: 'special',   constantLengthMonths: 9,  opsTempo: 1.5, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 0, description: 'Full-scale planetary invasion' },
       relief_duty:        { type: AtBContractType.RELIEF_DUTY,        name: 'Relief Duty',        group: 'special',   constantLengthMonths: 9,  opsTempo: 1.4, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 0, description: 'Reinforce or relieve besieged forces' },
       guerrilla_warfare:  { type: AtBContractType.GUERRILLA_WARFARE,  name: 'Guerrilla Warfare',  group: 'guerrilla', constantLengthMonths: 24, opsTempo: 2.1, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 2, description: 'Conduct guerrilla operations' },
-      pirate_hunting:     { type: AtBContractType.PIRATE_HUNTING,     name: 'Pirate Hunting',     group: 'special',   constantLengthMonths: 6,  opsTempo: 1.0, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: -1, description: 'Hunt and eliminate pirate bands' },
+       pirate_hunting:     { type: AtBContractType.PIRATE_HUNTING,     name: 'Pirate Hunting',     group: 'special',   constantLengthMonths: 6,  opsTempo: 1.0, defaultCombatRole: CombatRole.FRONTLINE, <!-- AUDIT: Corrected from PATROL. Source: AtBContractType.java:270 --> partsAvailabilityMod: -1, description: 'Hunt and eliminate pirate bands' },
       diversionary_raid:  { type: AtBContractType.DIVERSIONARY_RAID,  name: 'Diversionary Raid',  group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.8, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Create a diversion for main force' },
       objective_raid:     { type: AtBContractType.OBJECTIVE_RAID,     name: 'Objective Raid',     group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.6, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Strike and destroy specific targets' },
       recon_raid:         { type: AtBContractType.RECON_RAID,         name: 'Recon Raid',         group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.6, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Gather intelligence behind enemy lines' },
@@ -189,13 +201,13 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\enums\AtBContractType.java` — 19 types
 
   **Acceptance Criteria**:
-  - [ ] RED: Test AtBContractType has 19 values
-  - [ ] RED: Test CONTRACT_TYPE_DEFINITIONS has entry for every type
-  - [ ] RED: Test garrison group contains 5 types
-  - [ ] RED: Test raid group contains 6 types
-  - [ ] RED: Test ops tempo ranges from 0.8 to 2.4
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test AtBContractType has 19 values
+  - [x] RED: Test CONTRACT_TYPE_DEFINITIONS has entry for every type
+  - [x] RED: Test garrison group contains 5 types
+  - [x] RED: Test raid group contains 6 types
+  - [x] RED: Test ops tempo ranges from 0.8 to 2.4
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define 19 AtB contract types with definitions`
@@ -203,7 +215,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
 
 ---
 
-- [ ] 12.2 Implement Contract Length Calculation
+- [x] 12.2 Implement Contract Length Calculation
 
   **What to do**:
   - Create `src/lib/campaign/contracts/contractLength.ts`:
@@ -231,12 +243,12 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\enums\AtBContractType.java` — Length formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test garrison (18 months): range 14-22 months
-  - [ ] RED: Test diversionary raid (3 months): range 2-4 months
-  - [ ] RED: Test guerrilla warfare (24 months): range 18-30 months
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test garrison (18 months): range 14-22 months
+  - [x] RED: Test diversionary raid (3 months): range 2-4 months
+  - [x] RED: Test guerrilla warfare (24 months): range 18-30 months
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement variable contract length calculation`
@@ -244,7 +256,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
 
 ---
 
-- [ ] 12.3 Implement Contract Negotiation System
+- [x] 12.3 Implement Contract Negotiation System
 
   **What to do**:
   - Create `src/lib/campaign/contracts/contractNegotiation.ts`:
@@ -294,13 +306,13 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\contractMarket\AbstractContractMarket.java` — Clause management
 
   **Acceptance Criteria**:
-  - [ ] RED: Test low roll + low skill → level 0 clause
-  - [ ] RED: Test high roll + high skill → level 3 clause
-  - [ ] RED: Test faction standing modifier affects result
-  - [ ] RED: Test level clamped between 0-3
-  - [ ] RED: Test negotiateFullContract returns 4 clauses
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test low roll + low skill → level 0 clause
+  - [x] RED: Test high roll + high skill → level 3 clause
+  - [x] RED: Test faction standing modifier affects result
+  - [x] RED: Test level clamped between 0-3
+  - [x] RED: Test negotiateFullContract returns 4 clauses
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement contract negotiation with 4 clause types`
@@ -308,7 +320,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
 
 ---
 
-- [ ] 12.4 Implement Contract Events System
+- [x] 12.4 Implement Contract Events System
 
   **What to do**:
   - Create `src/lib/campaign/contracts/contractEvents.ts`:
@@ -352,20 +364,20 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\AtBContract.java` — Contract event checking
 
   **Acceptance Criteria**:
-  - [ ] RED: Test CIVIL_DISTURBANCE adds +1 enemy morale
-  - [ ] RED: Test LOGISTICS_FAILURE adds -1 parts availability
-  - [ ] RED: Test REINFORCEMENTS adds -1 enemy morale
-  - [ ] RED: Test BETRAYAL has 6 sub-types
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test CIVIL_DISTURBANCE adds +1 enemy morale
+  - [x] RED: Test LOGISTICS_FAILURE adds -1 parts availability
+  - [x] RED: Test REINFORCEMENTS adds -1 enemy morale
+  - [x] RED: Test BETRAYAL has 6 sub-types
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
-  - Message: `feat(campaign): implement contract event system with 10 event types`
+  - Message: `feat(campaign): implement contract event system with 11 event types` <!-- AUDIT: Missed in initial correction -->
   - Files: `src/lib/campaign/contracts/contractEvents.ts`
 
 ---
 
-- [ ] 12.5 Update Contract Market for 19 Types
+- [x] 12.5 Update Contract Market for 19 Types
 
   **What to do**:
   - Update `src/lib/campaign/contractMarket.ts`:
@@ -385,13 +397,13 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts` — Current 5-type market
 
   **Acceptance Criteria**:
-  - [ ] RED: Test generateContracts can produce all 19 types
-  - [ ] RED: Test contract length uses variable formula
-  - [ ] RED: Test garrison types weighted more heavily than guerrilla
-  - [ ] RED: Test generated contracts have negotiated clauses
-  - [ ] GREEN: All tests pass
-  - [ ] Existing contract market tests still pass
-  - [ ] `npm test` passes
+  - [x] RED: Test generateContracts can produce all 19 types
+  - [x] RED: Test contract length uses variable formula
+  - [x] RED: Test garrison types weighted more heavily than guerrilla
+  - [x] RED: Test generated contracts have negotiated clauses
+  - [x] GREEN: All tests pass
+  - [x] Existing contract market tests still pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): expand contract market to 19 AtB types`
@@ -399,7 +411,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
 
 ---
 
-- [ ] 12.6 Create Contract Types UI
+- [x] 12.6 Create Contract Types UI
 
   **What to do**:
   - Enhanced contract detail view:
@@ -417,10 +429,10 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Contract type shown with description and stats
-  - [ ] Clause negotiation results displayed
-  - [ ] Contract events shown in event log
-  - [ ] Manual verification: dev server → contract market → accept → verify type details
+  - [x] Contract type shown with description and stats
+  - [x] Clause negotiation results displayed
+  - [x] Contract events shown in event log
+  - [x] Manual verification: dev server → contract market → accept → verify type details
 
   **Commit**: YES
   - Message: `feat(ui): enhance contract view with 19 types and negotiation`
@@ -449,12 +461,12 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 19 contract types with correct MekHQ values
-- [ ] Variable length formula working
-- [ ] 4-clause negotiation with skill/standing modifiers
-- [ ] 10 contract event types with effects
-- [ ] Contract market generates all 19 types
-- [ ] Existing contract tests unbroken
+- [x] 19 contract types with correct MekHQ values
+- [x] Variable length formula working
+- [x] 4-clause negotiation with skill/standing modifiers
+- [x] 10 contract event types with effects
+- [x] Contract market generates all 19 types
+- [x] Existing contract tests unbroken
 
 ---
 
