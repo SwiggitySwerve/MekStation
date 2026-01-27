@@ -203,14 +203,17 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all six builtin processors', () => {
+  it('should register all nine builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    expect(processors).toHaveLength(6);
+    expect(processors).toHaveLength(9);
     expect(processors.map((p) => p.id)).toEqual([
       'healing',
       'auto-awards',
+      'unit-market',
+      'personnel-market',
+      'contract-market',
       'contracts',
       'dailyCosts',
       'acquisition',
@@ -223,7 +226,7 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(6);
+    expect(processors).toHaveLength(9);
   });
 
   it('should register processors in correct phase order', () => {
@@ -232,9 +235,12 @@ describe('registerBuiltinProcessors', () => {
 
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
     expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
-    expect(processors[2].phase).toBe(DayPhase.MISSIONS);
-    expect(processors[3].phase).toBe(DayPhase.FINANCES);
-    expect(processors[4].phase).toBe(DayPhase.EVENTS);
-    expect(processors[5].phase).toBe(DayPhase.EVENTS);
+    expect(processors[2].phase).toBe(DayPhase.MARKETS);
+    expect(processors[3].phase).toBe(DayPhase.MARKETS);
+    expect(processors[4].phase).toBe(DayPhase.MARKETS);
+    expect(processors[5].phase).toBe(DayPhase.MISSIONS);
+    expect(processors[6].phase).toBe(DayPhase.FINANCES);
+    expect(processors[7].phase).toBe(DayPhase.EVENTS);
+    expect(processors[8].phase).toBe(DayPhase.EVENTS);
   });
 });

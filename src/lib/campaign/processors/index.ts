@@ -5,6 +5,7 @@ import { dailyCostsProcessor } from './dailyCostsProcessor';
 import { registerAcquisitionProcessor } from './acquisitionProcessor';
 import { autoAwardsProcessor } from './autoAwardsProcessor';
 import { randomEventsProcessor } from './randomEventsProcessor';
+import { unitMarketProcessor, personnelMarketProcessor, contractMarketProcessor } from './marketProcessors';
 
 export { healingProcessor } from './healingProcessor';
 export { contractProcessor } from './contractProcessor';
@@ -12,6 +13,7 @@ export { dailyCostsProcessor } from './dailyCostsProcessor';
 export { registerAcquisitionProcessor } from './acquisitionProcessor';
 export { autoAwardsProcessor } from './autoAwardsProcessor';
 export { randomEventsProcessor } from './randomEventsProcessor';
+export { unitMarketProcessor, personnelMarketProcessor, contractMarketProcessor } from './marketProcessors';
 
 let registered = false;
 
@@ -25,6 +27,9 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(autoAwardsProcessor);
   registerAcquisitionProcessor();
   pipeline.register(randomEventsProcessor);
+  pipeline.register(unitMarketProcessor);
+  pipeline.register(personnelMarketProcessor);
+  pipeline.register(contractMarketProcessor);
 
   registered = true;
 }
