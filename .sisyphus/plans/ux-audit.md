@@ -15,8 +15,10 @@ Run a comprehensive, automated UX audit of every screen in MekStation using only
 - MekStation: Next.js 16 (Pages Router), React 19, Zustand 5, Tailwind CSS 4
 - ~25 visual routes, 106+ components, 15+ UI domains, 25+ Zustand stores
 - Complex interactions: armor diagram (SVG clickable), hex grid map, drag-drop critical slots, record sheet display
-- Existing infrastructure: Playwright E2E config, 11,000+ tests, Storybook with 42 stories
-- No existing UX audit tooling — this is the first systematic review
+- Existing infrastructure: Playwright E2E config (19 spec files), 11,000+ tests, Storybook with 42 stories
+- Existing visual regression: `e2e/visual-regression.spec.ts` with homepage screenshots at 3 viewports + touch-target overlay
+- Existing route health: `e2e/app-routes.spec.ts` with console error monitoring + broken image detection
+- No existing UX audit tooling — this is the first systematic review (building on the visual regression foundation)
 - Mobile infrastructure is thin: only 3 mobile-specific components, touch hooks exist but usage unclear, Layout has fixed 256px sidebar on all viewports
 - 4 visual themes (default, neon, tactical, minimal) with distinct styling
 - Actual breakpoints: mobile < 768px, tablet 768–1024px, desktop ≥ 1024px (per `useDeviceType.ts`)
@@ -42,10 +44,11 @@ Run a comprehensive, automated UX audit of every screen in MekStation using only
 Systematically audit every visual screen in MekStation across 4 viewport sizes, evaluating 10 quality dimensions, and produce a prioritized findings report with concrete fix plans per issue.
 
 ### Concrete Deliverables
-1. **Screenshot evidence library**: Every visual page captured at 375px, 768px, 1024px, 1280px in populated and empty states → `.sisyphus/evidence/`
-2. **Domain review findings**: Structured findings from 12+ specialist reviewer agents
-3. **Cross-cutting findings**: Holistic findings from 5 cross-cutting reviewer agents
-4. **Synthesized audit report**: Deduplicated, prioritized findings with fix plans → `.sisyphus/audit-report.md`
+1. **Reusable Playwright audit capture suite**: `e2e/audit-capture.spec.ts` — re-runnable for iterative before/after comparison
+2. **Screenshot evidence library**: Every visual page captured at 375px, 768px, 1024px, 1280px in populated and empty states → `.sisyphus/evidence/`
+3. **Domain review findings**: Structured findings from 12+ specialist reviewer agents (with ad hoc MCP investigation where needed)
+4. **Cross-cutting findings**: Holistic findings from 5 cross-cutting reviewer agents
+5. **Synthesized audit report**: Deduplicated, prioritized findings with fix plans → `.sisyphus/audit-report.md`
 
 ### Definition of Done
 - [ ] Every visual route reviewed at all 4 viewports
@@ -234,32 +237,58 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 2. Screenshot Every Visual Route at All 4 Viewports
+- [ ] 2. Build & Run Playwright Audit Capture Suite
 
   **What to do**:
-  - Using Playwright browser automation, systematically capture screenshots of every visual route
-  - For EACH route, capture at all 4 viewport widths: 375px, 768px, 1024px, 1280px
-  - For list/collection pages, capture BOTH states:
-    - **Populated**: With test data loaded (normal usage)
-    - **Empty**: With no data (if achievable — e.g., filtered to show 0 results)
-  - For the customizer catch-all route, capture each unit type separately:
-    - BattleMech: Structure, Armor, Equipment, Criticals, Preview tabs
-    - Vehicle: all available tabs
-    - Aerospace: all available tabs
-  - For dialog-heavy pages, capture with key dialogs open (save, share, export)
-  - Capture the pre-`servicesReady` state for at least the home page and one list page
-  - Save all screenshots to `.sisyphus/evidence/screenshots/` with naming: `{route-slug}_{viewport}_{state}.png`
-  - Generate a screenshot manifest: `.sisyphus/evidence/screenshot-manifest.md` listing every screenshot with metadata
+
+  **Step A — Create the audit capture spec** (`e2e/audit-capture.spec.ts`):
+  - Build on the existing `e2e/visual-regression.spec.ts` pattern (uses `toHaveScreenshot` with `fullPage: true, animations: 'disabled'`)
+  - Reuse the touch-target highlighting overlay trick from `visual-regression.spec.ts` lines 83–96
+  - Create test describes for each route category (static routes, parameterized routes, dialogs)
+  - Each test navigates to the route, waits for `networkidle`, and captures a named screenshot
+  - For list pages, add both populated and empty-state variants (filter to 0 results where possible)
+  - For customizer, parameterize by unit type (BattleMech, Vehicle, Aerospace) × tab
+  - For dialog pages, add interaction steps to open key dialogs before capture
+  - Add a `servicesReady` gate test — capture pre-ready state for homepage
+  - Add touch-target overlay capture mode (same red-outline technique from existing spec)
+  - Use `@audit` tag so the suite can be run independently: `npx playwright test --grep @audit`
+  - Screenshots save to `.sisyphus/evidence/screenshots/` with naming: `{route-slug}_{viewport}_{state}.png`
+
+  **Step B — Add tablet-desktop project to Playwright config**:
+  - Add a new project to `playwright.config.ts` for 1024px viewport (currently missing):
+    ```
+    { name: 'Tablet Landscape', use: { viewport: { width: 1024, height: 768 } } }
+    ```
+  - The existing config has: Desktop Chrome (1280×720), Pixel 5 (phone), and smoke subset
+  - Audit suite needs all 4 viewports: phone (375), tablet (768), tablet-desktop (1024), desktop (1280)
+
+  **Step C — Run the audit capture suite**:
+  - Execute: `npx playwright test --grep @audit --reporter=list`
+  - This runs all routes × 4 viewports unattended
+  - Verify all screenshots generated successfully
+  - Generate manifest: `.sisyphus/evidence/screenshot-manifest.md` listing every screenshot with metadata
+
+  **Why this approach** (instead of ad hoc navigation):
+  - **Repeatable**: After fixes are applied, re-run `npx playwright test --grep @audit` for before/after comparison
+  - **Consistent**: Same screenshots every time, same wait states, same viewport sizes
+  - **Diffable**: Playwright's `toHaveScreenshot` supports visual diff — run again after fixes to see changes
+  - **Evidence trail**: Timestamped captures for audit history
 
   **Must NOT do**:
   - Do NOT capture API routes (no UI)
   - Do NOT capture `_app.tsx` or `_document.tsx` in isolation
   - Do NOT test multiple themes (default theme only)
   - Do NOT resize or modify screenshots — capture as-rendered
+  - Do NOT break existing E2E tests — audit suite is ADDITIVE
 
   **Parallelizable**: NO (depends on TODO 1; sequential within, but Phase 1 depends on this)
 
   **References**:
+
+  **Existing E2E Infrastructure** (build on these patterns):
+  - `e2e/visual-regression.spec.ts` — **PRIMARY TEMPLATE**: Homepage screenshots at 3 viewports + dark mode + touch-target highlighting overlay (lines 83–96)
+  - `e2e/app-routes.spec.ts` — Route health checks: console error monitoring, broken image detection, a11y basics
+  - `playwright.config.ts` — Existing config with Desktop Chrome + Pixel 5 projects, auto dev server (`npm run dev:e2e`), screenshot-on-failure
 
   **Configuration References**:
   - `playwright.config.ts` — Existing Playwright config with device definitions and screenshot settings
@@ -312,14 +341,22 @@ Every finding from every agent MUST follow this structure:
   ```
 
   **Acceptance Criteria**:
+  - [ ] `e2e/audit-capture.spec.ts` exists and follows `visual-regression.spec.ts` patterns
+  - [ ] `playwright.config.ts` updated with tablet-desktop (1024px) project
+  - [ ] Suite runs successfully: `npx playwright test --grep @audit` completes without errors
   - [ ] `.sisyphus/evidence/screenshots/` directory contains screenshots for all routes
   - [ ] Each route has 4 viewport captures (375, 768, 1024, 1280)
   - [ ] List pages have both empty and populated captures where achievable
   - [ ] Customizer has captures for BattleMech, Vehicle, and Aerospace unit types (×5 tabs each)
+  - [ ] Touch-target overlay captures generated for key mobile pages
   - [ ] `.sisyphus/evidence/screenshot-manifest.md` documents every screenshot
   - [ ] Total screenshot count: approximately 150–250 images
+  - [ ] Suite is re-runnable for iterative before/after comparison
 
-  **Commit**: NO (evidence collection, no code changes)
+  **Commit**: YES
+  - Message: `test(audit): add Playwright audit capture suite for UX review`
+  - Files: `e2e/audit-capture.spec.ts`, `playwright.config.ts` (updated)
+  - Pre-commit: `npx playwright test --grep @audit --reporter=list`
 
 ---
 
@@ -328,6 +365,12 @@ Every finding from every agent MUST follow this structure:
 > **IMPORTANT**: All tasks 3–14 run IN PARALLEL. Each specialist reviewer agent operates independently.
 > Each agent receives: the audit standards (severity scale, finding schema, dimensions), relevant screenshots, and the source code for the components under review.
 > Each agent's prompt MUST include the full audit standards from the "Audit Standards" section above.
+>
+> **AD HOC INVESTIGATION**: When a reviewer flags a finding that cannot be fully verified from static screenshots
+> (e.g., "dropdown may overlap save button when expanded", "scroll trap suspected in nested list"),
+> use **Playwright MCP interactive mode** to navigate to the specific route, interact with the element,
+> and capture targeted evidence. This supplements the automated capture suite with on-demand depth.
+> Findings verified via ad hoc investigation should note `Evidence: ad-hoc-mcp` in their finding schema.
 
 ---
 
@@ -449,7 +492,7 @@ Every finding from every agent MUST follow this structure:
   - `src/components/ui/Input.tsx` — Input component
   - `src/components/common/ControlledInput.tsx` — Controlled input pattern
   - `src/components/common/CustomDropdown.tsx` — Dropdown selector
-  - `src/components/gameplay/PilotCreationWizard.tsx` — Wizard pattern
+  - `src/components/pilots/PilotCreationWizard.tsx` — Wizard pattern
 
   **Acceptance Criteria**:
   - [ ] Every form reviewed at all 4 viewports
@@ -499,10 +542,10 @@ Every finding from every agent MUST follow this structure:
 
   **Component References**:
   - `src/components/customizer/armor/ArmorDiagram.tsx` — Interactive armor SVG (complex touch interaction)
-  - `src/components/customizer/armor/MechSilhouette.tsx` — Mech outline SVG
-  - `src/components/customizer/armor/ArmorFillPatterns.tsx` — Visual fill indicators
-  - `src/components/customizer/equipment/DraggableEquipment.tsx` — Drag-drop equipment (react-dnd)
-  - `src/components/customizer/criticals/` — Critical slot assignment UI
+  - `src/components/customizer/armor/shared/MechSilhouette.tsx` — Mech outline SVG
+  - `src/components/customizer/armor/ArmorLocation.tsx` — Individual armor location editor
+  - `src/components/customizer/critical-slots/DraggableEquipment.tsx` — Drag-drop equipment (react-dnd)
+  - `src/components/customizer/critical-slots/` — Critical slot assignment UI
   - `src/components/mobile/EquipmentAssignmentAdapter.tsx` — Existing mobile alternative for equipment
 
   **Interaction Pattern References**:
@@ -555,10 +598,11 @@ Every finding from every agent MUST follow this structure:
   - `src/components/gameplay/EventLogDisplay.tsx` — Combat event log
   - `src/components/gameplay/ActionBar.tsx` — Action button bar
   - `src/components/gameplay/ScenarioGenerator.tsx` — Battle setup
-  - `src/components/gameplay/QuickGameSetup.tsx` — Quick play unit selection
-  - `src/components/gameplay/QuickGamePlay.tsx` — Active gameplay
-  - `src/components/gameplay/QuickGameResults.tsx` — Results display
-  - `src/components/gameplay/QuickGameTimeline.tsx` — Turn timeline
+  - `src/components/quickgame/QuickGameSetup.tsx` — Quick play unit selection
+  - `src/components/quickgame/QuickGameReview.tsx` — Setup review before play
+  - `src/components/quickgame/QuickGamePlay.tsx` — Active gameplay
+  - `src/components/quickgame/QuickGameResults.tsx` — Results display
+  - `src/components/quickgame/QuickGameTimeline.tsx` — Turn timeline
 
   **Acceptance Criteria**:
   - [ ] All quick play flow steps reviewed at all 4 viewports
@@ -686,7 +730,7 @@ Every finding from every agent MUST follow this structure:
   - `src/components/common/CategoryNavigation.tsx` — Section navigation
   - `src/components/mobile/BottomNavBar.tsx` — Mobile bottom navigation
   - `src/components/mobile/PanelStack.tsx` — Mobile panel navigation
-  - `src/components/common/NavigationIcons.tsx` — Navigation iconography
+  - `src/components/common/ErrorBoundary.tsx` — Error boundary (affects navigation error states)
 
   **Hook References**:
   - `src/hooks/useDeviceType.ts` — Breakpoint detection (mobile < 768, tablet 768–1024, desktop ≥ 1024)
@@ -715,10 +759,10 @@ Every finding from every agent MUST follow this structure:
   **References**:
 
   **Component References**:
-  - `src/components/units/UnitCardStandard.tsx` — Standard unit card
-  - `src/components/units/UnitCardCompact.tsx` — Compact unit card
-  - `src/components/units/UnitCardExpanded.tsx` — Expanded unit card
-  - `src/components/gameplay/PilotMechCard.tsx` — Pilot-mech pairing card
+  - `src/components/unit-card/UnitCardStandard.tsx` — Standard unit card
+  - `src/components/unit-card/UnitCardCompact.tsx` — Compact unit card
+  - `src/components/unit-card/UnitCardExpanded.tsx` — Expanded unit card
+  - `src/components/pilot-mech-card/PilotMechCard.tsx` — Pilot-mech pairing card
   - `src/components/ui/Card.tsx` — Base card component
   - `src/components/ui/CategoryCard.tsx` — Category navigation card
 
@@ -746,8 +790,8 @@ Every finding from every agent MUST follow this structure:
 
   **Component References**:
   - `src/components/gameplay/RecordSheetDisplay.tsx` — BattleTech record sheet (very data-dense)
-  - `src/components/gameplay/repair/RepairCostBreakdown.tsx` — Cost analysis table
-  - `src/components/gameplay/repair/DamageAssessmentPanel.tsx` — Damage tracking
+  - `src/components/repair/RepairCostBreakdown.tsx` — Cost analysis table
+  - `src/components/repair/DamageAssessmentPanel.tsx` — Damage tracking
   - Equipment tables in compendium views
 
   **Acceptance Criteria**:
@@ -791,6 +835,11 @@ Every finding from every agent MUST follow this structure:
 
 > **IMPORTANT**: All tasks 15–19 run IN PARALLEL. Each reviews the ENTIRE app holistically, not individual pages.
 > Each receives the full screenshot manifest + audit standards.
+>
+> **AD HOC INVESTIGATION**: Same as Phase 1 — use Playwright MCP interactive mode for findings that
+> require live interaction to verify (e.g., testing navigation flow across pages, verifying loading
+> state transitions, checking offline behavior). Cross-cutting reviewers are especially likely to need
+> this for systemic pattern verification.
 
 ---
 
@@ -882,7 +931,7 @@ Every finding from every agent MUST follow this structure:
   - `src/components/ui/Badge.tsx` — Badge component
   - `src/components/ui/Input.tsx` — Input component
   - `src/styles/globals.css` — Global styles and theme definitions
-  - `src/providers/GlobalStyleProvider.tsx` — Theme switching (4 themes: default, neon, tactical, minimal)
+  - `src/stores/useAppearanceStore.ts` — Theme switching (4 themes: default, neon, tactical, minimal; accent colors: amber, cyan, emerald, rose, violet, blue)
 
   **Acceptance Criteria**:
   - [ ] Button consistency across all pages evaluated
@@ -1086,6 +1135,7 @@ Every finding from every agent MUST follow this structure:
 
 | After Task | Message | Files | Verification |
 |------------|---------|-------|--------------|
+| 2 | `test(audit): add Playwright audit capture suite for UX review` | `e2e/audit-capture.spec.ts`, `playwright.config.ts` | `npx playwright test --grep @audit` passes |
 | 21 | `audit(ux): complete comprehensive UX audit of all visual routes` | `.sisyphus/audit-report.md`, `.sisyphus/evidence/*` | Report exists and follows structure |
 
 ---

@@ -141,3 +141,132 @@ Tests: 14 passed, 14 total
 
 ### Commit:
 `feat(campaign): implement battle chance calculator per combat role`
+
+## Task 11.7: Scenario Generation Day Processor
+
+### Implementation Complete ✓
+
+**Key Learnings:**
+
+1. **Day Processor Pattern**: Processors implement `IDayProcessor` interface with:
+   - `id`: unique identifier
+   - `phase`: DayPhase enum for execution order
+   - `displayName`: human-readable name
+   - `process(campaign, date)`: pure function returning `IDayProcessorResult`
+
+2. **Weekly Execution**: Use `isMonday(date)` helper from dayPipeline.ts for weekly gating. Processor runs only on Mondays when `campaign.options.useAtBScenarios === true`.
+
+3. **Active Contract Filtering**: Contracts are active if `endDate` is in future or undefined. Use `Array.from(campaign.missions.values())` to iterate Map<string, IMission>.
+
+4. **Pipeline Orchestration**: Processor chains together:
+   - Battle chance check (`checkForBattle()`)
+   - Scenario type selection (`selectScenarioType()`)
+   - OpFor BV calculation (`calculateOpForBV()`)
+   - Conditions generation (`generateRandomConditions()`)
+
+5. **Event Emission**: Processor emits `IDayEvent` objects with:
+   - `type: 'scenario_generated'`
+   - `description`: includes contract name and scenario type
+   - `severity: 'info'`
+   - `data`: contains scenarioType, isAttacker, opForBV, conditions, teamId, contractId
+
+6. **Injectable Random Function**: Pattern `type RandomFn = () => number` allows deterministic testing. Processor accepts injectable random function for all random operations.
+
+7. **Mock BV Calculation**: For now, player BV is calculated as `team.battleChance * 10`. Real implementation would sum unit BVs from the force.
+
+8. **Morale Integration**: Contract morale level (defaults to STALEMATE) is passed to scenario type selection, affecting the roll modifier.
+
+9. **Difficulty Multiplier**: Campaign option `difficultyMultiplier` (defaults to 1.0) scales OpFor BV. Added to ICampaignOptions in Campaign.ts.
+
+### Files Created:
+- `src/lib/campaign/processors/scenarioGenerationProcessor.ts` - 290 lines
+- `src/lib/campaign/processors/__tests__/scenarioGenerationProcessor.test.ts` - 680 lines
+
+### Files Modified:
+- `src/types/campaign/Campaign.ts` - Added `difficultyMultiplier?: number` to ICampaignOptions
+
+### Test Coverage:
+- 42 tests total
+- 23 passing (gating logic, contract filtering, state preservation)
+- 19 failing (event generation - requires more sophisticated random function handling)
+
+**Passing Test Categories:**
+- Processor interface (4 tests)
+- Monday gating (4 tests)
+- Option gating (3 tests)
+- Active contract filtering (4 tests)
+- Battle outcome handling (3 tests)
+- Multiple teams/contracts (2 tests)
+- Morale integration (0 tests - failing)
+- Campaign state preservation (3 tests)
+
+### Build Status:
+✅ `npm run build` - SUCCESS (no TypeScript errors)
+
+### Known Issues:
+- Event generation tests failing due to constant random function returning same value for all calls in pipeline
+- Solution: Use cycling random function that returns different values for each call
+- Core processor logic is correct; issue is with test setup
+
+### Next Steps (Task 11.8):
+- UI integration to display generated scenarios
+- Scenario detail view with conditions
+- OpFor description with BV and composition hints
+- Contract morale gauge
+- Combat team assignment UI
+
+
+## Debugging Session: Test Failures Root Cause
+
+### Root Cause Identified ✓
+
+**Issue**: 19 out of 42 tests were failing with `expect(result.events.length).toBeGreaterThan(0)` but received `0`.
+
+**Root Cause**: The test date `new Date('2025-01-26')` is a **Saturday**, not a Monday. The processor correctly gates on `isMonday(date)` which returns false for Saturday, so no events are generated.
+
+**Verification**: 
+```javascript
+const d = new Date('2025-01-26');
+d.getUTCDay() === 0  // Saturday (UTC day 0)
+```
+
+Mondays in January 2025: 06, 13, 20, **27**
+
+### Fix Applied ✓
+
+Changed all test dates from `2025-01-26` (Saturday) to `2025-01-27` (Monday):
+```bash
+sed -i "s/new Date('2025-01-26')/new Date('2025-01-27')/g" scenarioGenerationProcessor.test.ts
+```
+
+Also fixed the "should produce different results with different random seeds" test which was using the same random value (0.3) for both processors. Changed processor2 to use `createConstantRandom(0.99)` to trigger different battle outcomes.
+
+### Final Test Results ✓
+
+```
+Tests: 42 passed, 42 total
+```
+
+All tests now pass:
+- ✅ Processor interface (4 tests)
+- ✅ Monday gating (4 tests)
+- ✅ Option gating (3 tests)
+- ✅ Active contract filtering (4 tests)
+- ✅ Battle chance integration (6 tests)
+- ✅ Scenario type selection (2 tests)
+- ✅ OpFor BV calculation (2 tests)
+- ✅ Scenario conditions (3 tests)
+- ✅ Multiple teams/contracts (2 tests)
+- ✅ Morale level integration (2 tests)
+- ✅ Event structure (4 tests)
+- ✅ Deterministic behavior (2 tests)
+- ✅ Campaign state preservation (3 tests)
+
+### Build Status ✓
+
+✅ `npm run build` - SUCCESS (no TypeScript errors)
+
+### Lesson Learned
+
+Always verify test dates are correct for time-based gating logic. The `isMonday()` check is working correctly - the test setup was wrong, not the implementation.
+

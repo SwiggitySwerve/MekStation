@@ -354,7 +354,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.5 Implement Scenario Conditions System
+- [x] 11.5 Implement Scenario Conditions System
 
   **What to do**:
   - Create `src/lib/campaign/scenario/scenarioConditions.ts`:
@@ -399,7 +399,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.6 Implement Contract Morale Tracking
+- [x] 11.6 Implement Contract Morale Tracking
 
   **What to do**:
   - Create `src/lib/campaign/scenario/morale.ts`:
@@ -441,7 +441,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.7 Create Scenario Generation Day Processor
+- [x] 11.7 Create Scenario Generation Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/scenarioGenerationProcessor.ts`:

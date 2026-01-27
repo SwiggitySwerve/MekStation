@@ -244,12 +244,15 @@ export interface ICampaignOptions {
    /** Whether to use quirks system */
    readonly useQuirks: boolean;
 
-   /** Whether to use AtB dynamic scenario generation (optional, defaults to false) */
-   readonly useAtBScenarios?: boolean;
+    /** Whether to use AtB dynamic scenario generation (optional, defaults to false) */
+    readonly useAtBScenarios?: boolean;
 
-   // =========================================================================
-   // Force Options (~6)
-   // =========================================================================
+    /** Difficulty multiplier for OpFor BV calculation (0.5 easy to 2.0 hard, defaults to 1.0) */
+    readonly difficultyMultiplier?: number;
+
+    // =========================================================================
+    // Force Options (~6)
+    // =========================================================================
 
   /** Maximum units per lance */
   readonly maxUnitsPerLance: number;
