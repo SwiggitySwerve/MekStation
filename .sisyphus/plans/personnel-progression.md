@@ -113,7 +113,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ## TODOs
 
-- [ ] 10.1 Define Progression Types and Configuration
+- [x] 10.1 Define Progression Types and Configuration
 
   **What to do**:
   - Create `src/types/campaign/progression/progressionTypes.ts`:
