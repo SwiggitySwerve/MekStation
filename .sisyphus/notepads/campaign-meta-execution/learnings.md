@@ -1415,3 +1415,60 @@ Starting with Task 10.1: Define progression types and XP configuration.
 ### Next Steps
 - Proceed to next Tier 3 plan in campaign meta-execution
 - Defer Task 10.7 (Progression UI) to batch with other UI tasks
+
+## [2026-01-26] Plan 9: Acquisition & Supply Chain COMPLETE
+
+### Status: MERGED ✅
+
+**PR #184**: Implementation merged to main
+**PR #185**: OpenSpec archive merged to main
+
+### Summary
+- 9 tasks total, 8 backend complete (89%)
+- Task 9.9 (Acquisition UI) deferred per pattern
+- 173 tests added, all passing
+- Zero regressions
+
+### Key Deliverables
+- Contract market with 5 contract types
+- Parts acquisition system (bulk buy, individual, cannibalization)
+- Unit market with BV-based pricing
+- Personnel market with skill-based pricing
+- 4 day processors registered (contract, parts, unit, personnel markets)
+
+### Files Created
+- `src/types/campaign/acquisition/` (types)
+- `src/lib/campaign/acquisition/` (logic)
+- `src/lib/campaign/processors/` (4 market processors)
+
+### OpenSpec
+- Change-ID: `add-acquisition-supply-chain`
+- Specs: 1 MODIFIED (campaign-management), 2 ADDED (acquisition-supply-chain, day-progression delta)
+- Archived: 2026-01-26
+
+---
+
+## [2026-01-26] Tier 3 Progress Update
+
+### Completed Plans (2/8)
+- ✅ Plan 9: Acquisition & Supply Chain (PR #184 + #185 merged)
+- 🔄 Plan 10: Personnel Progression (PR #186 created, CI running)
+
+### Remaining Plans (6/8)
+- Plan 11: Scenario & Combat (must be before Plan 12)
+- Plan 12: Contract Types (after Plan 11)
+- Plan 14: Awards & Auto-Granting
+- Plan 15: Rank System
+- Plan 16: Random Events
+- Plan 17: Markets System
+
+### Token Budget Status
+- Used: ~68k/200k (34%)
+- Remaining: ~132k
+- Estimated capacity: 2-3 more small plans or 1 large plan
+
+### Next Actions
+1. Wait for PR #186 CI to pass
+2. Merge PR #186
+3. Archive Plan 10 OpenSpec
+4. Start Plan 11 Phase A (OpenSpec proposal)
