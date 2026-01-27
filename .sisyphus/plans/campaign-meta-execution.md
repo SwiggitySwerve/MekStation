@@ -222,13 +222,14 @@ Format: `feat/{change-id}`
 | Sisyphus Plan | `personnel-progression.md` |
 | Gap Review Notes | xpPerMission/xpPerKill vs new outcome-specific XP fields — resolve in proposal |
 
-### Plan 11: Scenario & Combat Expansion (Tier 3) — Phase A COMPLETE
+### Plan 11: Scenario & Combat Expansion (Tier 3) — Phase B COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-scenario-combat` |
 | Branch | `feat/add-scenario-combat` |
 | PR (OpenSpec) | #190 (MERGED) |
-| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
+| PR (Implementation) | #195 (awaiting merge) |
+| Status | Phase A ✅ — OpenSpec merged. Phase B ✅ — Implementation complete (7/8 tasks). Phase C — PR #195 awaiting merge. |
 | Specs MODIFIED | `scenario-generation`, `combat-resolution`, `mission-contracts` |
 | Specs ADDED | `scenario-combat` |
 | Sisyphus Plan | `scenario-combat-expansion.md` |
@@ -415,7 +416,7 @@ TIER 3 (Dependent Systems) — 2/8 COMPLETE
   ── Phase B+C: Implementation & Ship (2/8 COMPLETE) ──────────────────────
   Plan 9:  Acquisition & Supply Chain ────── B ✅ → C ✅ ARCHIVED (PR #184)
   Plan 10: Personnel Progression ─────────── B ✅ → C ✅ ARCHIVED (PR #186)
-  Plan 11: Scenario & Combat ────────────── B → C  ← MUST complete before Plan 12 Phase B
+  Plan 11: Scenario & Combat ────────────── B ✅ → C (PR #195 - awaiting merge) ← MUST complete before Plan 12 Phase B
   Plan 12: Contract Types ───────────────── B → C  ← AFTER Plan 11 B+C complete
   Plan 14: Awards & Auto-Granting ────────── B → C
   Plan 15: Rank System ──────────────────── B → C
