@@ -552,3 +552,49 @@ interface SalaryBreakdown {
 
 ### Next Task
 Task 4.2: Extend TransactionType Enum and Add Financial Types
+
+## [2026-01-26] Task 4.2: Extend TransactionType Enum and Add Financial Types
+
+### Implementation Status
+- **Status**: COMPLETE ✓
+- **Files**: 3 (all already existed from prior work)
+  - `src/types/campaign/Transaction.ts` - Extended enum (16 values total)
+  - `src/types/campaign/Loan.ts` - ILoan interface
+  - `src/types/campaign/IFinancialSummary.ts` - IFinancialSummary interface
+
+### Verification Results
+- ✅ TypeScript compilation: `npx tsc --noEmit --skipLibCheck` passes (no errors)
+- ✅ Test suite: 440 suites, 13,532 tests pass, 32 skipped, 0 failures
+- ✅ No breaking changes (all existing tests still passing)
+
+### TransactionType Enum
+- **Existing values** (6): Income, Expense, Repair, Maintenance, Salvage, Miscellaneous
+- **New values** (10): Salary, ContractPayment, LoanPayment, LoanDisbursement, Tax, Overhead, FoodAndHousing, UnitPurchase, PartPurchase, TurnoverPayout
+- **Total**: 16 values (backward compatible)
+
+### ILoan Interface
+- 10 readonly fields: id, principal, annualRate, termMonths, monthlyPayment, remainingPrincipal, startDate, nextPaymentDate, paymentsRemaining, isDefaulted
+- Uses Money type for currency values
+- Supports amortization schedule tracking
+
+### IFinancialSummary Interface
+- 8 readonly fields: totalIncome, totalExpenses, netProfit, salaryTotal, maintenanceTotal, loanPaymentTotal, taxesPaid, balance
+- Uses Money type for all currency values
+- Aggregates key financial metrics for reporting
+
+### Key Patterns
+1. **Immutable Types**: All interface fields marked `readonly` (consistent with existing patterns)
+2. **Money Class**: All currency values use Money type (not number)
+3. **Backward Compatibility**: Existing TransactionType values unchanged, new values added
+4. **Type Safety**: No `any` types, full TypeScript compliance
+
+### Acceptance Criteria Met
+- ✓ Existing 6 TransactionType values unchanged
+- ✓ 10 new TransactionType values added (16 total)
+- ✓ ILoan interface has all amortization fields
+- ✓ IFinancialSummary aggregates key metrics
+- ✓ npm test passes (13,532 tests, 0 failures)
+- ✓ TypeScript compilation clean
+
+### Next Task
+Task 4.3: Implement Loan Service (already complete from prior session)

@@ -204,7 +204,7 @@ Transform the financial system from flat per-entity costs to a sophisticated eco
 
 ---
 
-- [ ] 4.2 Extend TransactionType Enum and Add Financial Types
+- [x] 4.2 Extend TransactionType Enum and Add Financial Types
 
   **What to do**:
   - Extend `TransactionType` in `src/types/campaign/Transaction.ts`:
