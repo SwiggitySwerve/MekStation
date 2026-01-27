@@ -1608,3 +1608,30 @@ All OpenSpec proposal delegations are failing immediately with "No assistant res
 - Plan 11 Phase A complete (OpenSpec proposal created and validated)
 - Ready for Phase B (implementation) after user approval
 - Plan 12 can proceed after Plan 11 completes (CombatRole dependency)
+
+## [2026-01-27] Session 2 Continued - Plans 14 and 15 OpenSpec Creation
+
+### Plan 14 (Awards Auto-Granting) OpenSpec Created
+- Change-ID: `add-awards-auto-granting`
+- Files created:
+  - `proposal.md` - Auto-award engine with 13 categories, multi-trigger support
+  - `tasks.md` - 6 implementation task groups
+  - `specs/awards/spec.md` - 7 ADDED requirements (categories, triggers, eligibility, kill/time/skill/mission awards)
+  - `specs/day-progression/spec.md` - 1 ADDED requirement (monthly processor)
+- Validation: `openspec validate add-awards-auto-granting --strict` PASSED
+- Key features: 13 award categories, monthly/post-mission/post-scenario triggers, "Best Award Only" mode, ~30 new awards
+
+### Plan 15 (Rank System) OpenSpec Created
+- Change-ID: `add-rank-system`
+- Files created:
+  - `proposal.md` - Faction-specific rank system with 51 slots
+  - `tasks.md` - 6 implementation task groups
+  - `specs/personnel-management/spec.md` - 1 MODIFIED requirement, 7 ADDED requirements
+- Validation: `openspec validate add-rank-system --strict` PASSED
+- Key features: 51 rank slots (E0-E20, WO1-WO10, O1-O20), 5 built-in faction systems, profession-specific names, officer status, pay multipliers, turnover/shares integration
+
+### Session Progress Summary
+- Created 3 OpenSpec proposals (Plans 11, 14, 15)
+- All proposals validated strict
+- Remaining Tier 3 plans: 12 (after 11), 16, 17
+- Token budget: 61k remaining (31%)
