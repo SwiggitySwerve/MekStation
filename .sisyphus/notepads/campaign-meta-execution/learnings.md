@@ -598,3 +598,79 @@ Task 4.2: Extend TransactionType Enum and Add Financial Types
 
 ### Next Task
 Task 4.3: Implement Loan Service (already complete from prior session)
+
+## [2026-01-27] Plan 4: Financial System Expansion COMPLETE (Backend)
+
+### Status: Backend Complete (6/7 tasks, 86%)
+
+**Branch**: `feat/add-financial-system`
+**Progress**: Tasks 4.1-4.6 complete, Task 4.7 (UI) deferred
+
+### Tasks Completed
+
+**Task 4.1**: Role-Based Salary Service ✅
+- File: `src/lib/finances/salaryService.ts` (422 lines)
+- 79 tests passing
+- BASE_MONTHLY_SALARY for 10 canonical roles
+- XP_SALARY_MULTIPLIER for 6 experience levels
+- ROLE_SALARY_MAPPING for all 47 CampaignPersonnelRole values
+- calculatePersonSalary() and calculateTotalMonthlySalary()
+- Commit: `db7e35f7`
+
+**Task 4.2**: Extend TransactionType Enum ✅
+- Extended TransactionType enum (6 → 16 values)
+- Created ILoan interface (10 fields)
+- Created IFinancialSummary interface (8 fields)
+- Backward compatible (all existing tests pass)
+- Commit: `9435359e`
+
+**Tasks 4.3-4.6**: Already Complete ✅
+- 4.3: Loan Service (amortization, payment calculation)
+- 4.4: Tax and Price Multiplier Services
+- 4.5: Financial Day Processor (monthly processing)
+- 4.6: Financial Campaign Options (14 new fields)
+- Commits: `686da9cf`, `459eff11`, `21b9491a`
+
+**Task 4.7**: Financial Dashboard UI ⏸️ **DEFERRED**
+- Reason: Following established pattern of deferring all UI tasks
+- Will batch with other campaign UI tasks
+
+### Test Suite Status
+- **New tests this plan**: 79 (Task 4.1)
+- **Total tests**: 13,564 passing, 0 failures
+- **Zero regressions**: All existing tests still pass
+
+### Key Features Implemented
+
+**Role-Based Salaries**:
+- 10 canonical roles with monthly base salaries
+- 6 experience levels with XP multipliers (0.6× to 2.0×)
+- Secondary role support (50% of base)
+- Salary multiplier option
+- Eligibility filtering (ACTIVE, WOUNDED, ON_LEAVE, POW)
+
+**Financial Types**:
+- 16 TransactionType values (10 new)
+- ILoan interface for loan tracking
+- IFinancialSummary for financial reporting
+- Backward compatible with existing code
+
+**Monthly Processing**:
+- Financial day processor runs on 1st of month
+- Salary payments
+- Loan payments
+- Tax calculations
+- Overhead costs
+
+### Files Created/Modified
+- `src/lib/finances/salaryService.ts` (new)
+- `src/lib/finances/__tests__/salaryService.test.ts` (new)
+- `src/types/campaign/Transaction.ts` (modified)
+- `src/types/campaign/Loan.ts` (new)
+- `src/types/campaign/IFinancialSummary.ts` (new)
+
+### Next Steps
+- Push branch to remote
+- Create PR for Plan 4
+- After merge, archive OpenSpec
+- Continue with remaining Tier 2/3 plans
