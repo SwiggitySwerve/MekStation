@@ -110,22 +110,23 @@ function createTestOptions(): ICampaignOptions {
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-   return {
-     id: 'campaign-001',
-     name: 'Test Campaign',
-     currentDate: new Date('3025-06-15'),
-     factionId: 'mercenary',
-     personnel: new Map(),
-     forces: new Map(),
-     rootForceId: 'force-root',
-     missions: new Map(),
-     finances: { transactions: [], balance: new Money(0) },
-     factionStandings: {},
-     options: createTestOptions(),
-     createdAt: '3020-01-01T00:00:00Z',
-     updatedAt: '3025-06-15T00:00:00Z',
-     ...overrides,
-   };
+    return {
+      id: 'campaign-001',
+      name: 'Test Campaign',
+      currentDate: new Date('3025-06-15'),
+      factionId: 'mercenary',
+      personnel: new Map(),
+      forces: new Map(),
+      rootForceId: 'force-root',
+      missions: new Map(),
+      finances: { transactions: [], balance: new Money(0) },
+      factionStandings: {},
+      shoppingList: { items: [] },
+      options: createTestOptions(),
+      createdAt: '3020-01-01T00:00:00Z',
+      updatedAt: '3025-06-15T00:00:00Z',
+      ...overrides,
+    };
 }
 
 // Deterministic random that returns fixed values from a sequence
