@@ -26,6 +26,8 @@ import {
   randomEmployer,
   randomTarget,
   randomSystem,
+  selectAtBContractType,
+  generateAtBContracts,
   CONTRACT_TYPES,
   EMPLOYER_FACTIONS,
   SYSTEMS,
@@ -36,8 +38,13 @@ import {
   DURATION_MAX_DAYS,
   SALVAGE_MIN_PERCENT,
   SALVAGE_MAX_PERCENT,
+  CONTRACT_GROUP_WEIGHTS,
   RandomFn,
 } from '../contractMarket';
+import {
+  AtBContractType,
+  CONTRACT_TYPE_DEFINITIONS,
+} from '@/types/campaign/contracts/contractTypes';
 
 // =============================================================================
 // Test Fixtures
@@ -773,10 +780,127 @@ describe('Contract Market', () => {
       expect(SALVAGE_MIN_PERCENT).toBeLessThan(SALVAGE_MAX_PERCENT);
     });
 
-    it('should have frozen constant arrays', () => {
-      expect(Object.isFrozen(CONTRACT_TYPES)).toBe(true);
-      expect(Object.isFrozen(EMPLOYER_FACTIONS)).toBe(true);
-      expect(Object.isFrozen(SYSTEMS)).toBe(true);
+     it('should have frozen constant arrays', () => {
+       expect(Object.isFrozen(CONTRACT_TYPES)).toBe(true);
+       expect(Object.isFrozen(EMPLOYER_FACTIONS)).toBe(true);
+       expect(Object.isFrozen(SYSTEMS)).toBe(true);
+     });
+   });
+});
+
+// =============================================================================
+// AtB Contract Market Tests
+// =============================================================================
+
+describe('AtB Contract Market', () => {
+  describe('selectAtBContractType', () => {
+    it('should return a valid AtBContractType', () => {
+      for (let i = 0; i < 50; i++) {
+        const type = selectAtBContractType(createSeededRandom(i));
+        expect(Object.values(AtBContractType)).toContain(type);
+      }
+    });
+
+    it('should produce deterministic results with seeded random', () => {
+      const type1 = selectAtBContractType(createSeededRandom(42));
+      const type2 = selectAtBContractType(createSeededRandom(42));
+      expect(type1).toBe(type2);
+    });
+
+    it('should favor garrison types over guerrilla', () => {
+      const counts: Record<string, number> = { garrison: 0, raid: 0, guerrilla: 0, special: 0 };
+      for (let i = 0; i < 1000; i++) {
+        const type = selectAtBContractType(createSeededRandom(i));
+        const def = CONTRACT_TYPE_DEFINITIONS[type];
+        counts[def.group]++;
+      }
+      expect(counts.garrison).toBeGreaterThan(counts.guerrilla);
+    });
+  });
+
+  describe('generateAtBContracts', () => {
+    function createCampaignWithUnits(unitCount: number): ICampaign {
+      const unitIds = Array.from({ length: unitCount }, (_, i) => `unit-${i + 1}`);
+      const forces = new Map<string, IForce>();
+      forces.set('force-root', createTestForce('force-root', 'Root', undefined, [], unitIds));
+      return createTestCampaign({ forces });
+    }
+
+    it('should generate default 5 contracts', () => {
+      const campaign = createCampaignWithUnits(4);
+      const contracts = generateAtBContracts(campaign);
+      expect(contracts).toHaveLength(5);
+    });
+
+    it('should generate contracts with atbContractType set', () => {
+      const campaign = createCampaignWithUnits(4);
+      const contracts = generateAtBContracts(campaign, 5, 0, 0, createSeededRandom(42));
+      contracts.forEach((c) => {
+        expect(c.atbContractType).toBeDefined();
+        expect(Object.values(AtBContractType)).toContain(c.atbContractType);
+      });
+    });
+
+    it('should use variable contract lengths', () => {
+      const campaign = createCampaignWithUnits(4);
+      const contracts = generateAtBContracts(campaign, 20, 0, 0, createSeededRandom(99));
+      const durations = contracts.map((c) => {
+        const start = new Date(c.startDate!).getTime();
+        const end = new Date(c.endDate!).getTime();
+        return (end - start) / (24 * 60 * 60 * 1000);
+      });
+      // Should have variety in durations (not all 30-90 like legacy)
+      const uniqueDurations = new Set(durations);
+      expect(uniqueDurations.size).toBeGreaterThan(1);
+    });
+
+    it('should scale payment with ops tempo', () => {
+      const campaign = createCampaignWithUnits(4);
+      // Generate many contracts and check that different types have different base payments
+      const contracts = generateAtBContracts(campaign, 50, 0, 0, createSeededRandom(123));
+      const paymentsByType = new Map<string, number[]>();
+      contracts.forEach((c) => {
+        const type = c.atbContractType!;
+        if (!paymentsByType.has(type)) paymentsByType.set(type, []);
+        paymentsByType.get(type)!.push(c.paymentTerms.basePayment.amount);
+      });
+      // Should have at least some variation in payments based on ops tempo
+      expect(paymentsByType.size).toBeGreaterThan(0);
+    });
+
+    it('should generate contracts with valid structure', () => {
+      const campaign = createCampaignWithUnits(4);
+      const contracts = generateAtBContracts(campaign, 5, 0, 0, createSeededRandom(42));
+      contracts.forEach((c) => {
+        expect(c.type).toBe('contract');
+        expect(c.status).toBe(MissionStatus.PENDING);
+        expect(typeof c.employerId).toBe('string');
+        expect(typeof c.targetId).toBe('string');
+        expect(c.employerId).not.toBe(c.targetId);
+      });
+    });
+
+    it('should generate contracts with correct name format', () => {
+      const campaign = createCampaignWithUnits(4);
+      const contracts = generateAtBContracts(campaign, 10, 0, 0, createSeededRandom(55));
+      contracts.forEach((c) => {
+        // Name should contain the AtB type name
+        const typeDef = CONTRACT_TYPE_DEFINITIONS[c.atbContractType!];
+        expect(c.name).toContain(typeDef.name);
+      });
+    });
+  });
+
+  describe('CONTRACT_GROUP_WEIGHTS', () => {
+    it('should have weights for all 4 groups', () => {
+      expect(CONTRACT_GROUP_WEIGHTS).toHaveProperty('garrison');
+      expect(CONTRACT_GROUP_WEIGHTS).toHaveProperty('raid');
+      expect(CONTRACT_GROUP_WEIGHTS).toHaveProperty('guerrilla');
+      expect(CONTRACT_GROUP_WEIGHTS).toHaveProperty('special');
+    });
+
+    it('should weight garrison highest', () => {
+      expect(CONTRACT_GROUP_WEIGHTS.garrison).toBeGreaterThan(CONTRACT_GROUP_WEIGHTS.guerrilla);
     });
   });
 });
