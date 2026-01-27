@@ -16,6 +16,16 @@ import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 import { Money } from '@/types/campaign/Money';
 import { getAllUnits } from '@/types/campaign/Force';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import {
+  AtBContractType,
+  CONTRACT_TYPE_DEFINITIONS,
+  ContractGroup,
+  getContractTypesByGroup,
+  getAvailableContractTypes,
+} from '@/types/campaign/contracts/contractTypes';
+import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
+import { calculateContractLength, contractLengthToDays } from './contracts/contractLength';
+import { negotiateAllClauses } from './contracts/contractNegotiation';
 
 // =============================================================================
 // Constants
@@ -102,6 +112,17 @@ export const DURATION_MAX_DAYS = 90;
  */
 export const SALVAGE_MIN_PERCENT = 40;
 export const SALVAGE_MAX_PERCENT = 60;
+
+/**
+ * Weights for contract group selection.
+ * Garrison is most common, guerrilla is rarest.
+ */
+export const CONTRACT_GROUP_WEIGHTS: Record<ContractGroup, number> = {
+  garrison: 40,
+  raid: 30,
+  guerrilla: 10,
+  special: 20,
+};
 
 // =============================================================================
 // Random Helpers (seeded for testability)
@@ -249,6 +270,32 @@ export function randomSystem(random: RandomFn = defaultRandom): string {
 }
 
 /**
+ * Select a random AtB contract type using group weights.
+ * First selects a group weighted by CONTRACT_GROUP_WEIGHTS,
+ * then uniformly selects a type within that group.
+ *
+ * @param random - Random function (default: Math.random)
+ * @returns Random AtB contract type
+ */
+export function selectAtBContractType(random: RandomFn = defaultRandom): AtBContractType {
+  const groups = Object.keys(CONTRACT_GROUP_WEIGHTS) as ContractGroup[];
+  const totalWeight = Object.values(CONTRACT_GROUP_WEIGHTS).reduce((a, b) => a + b, 0);
+
+  let roll = random() * totalWeight;
+  let selectedGroup: ContractGroup = 'garrison';
+  for (const group of groups) {
+    roll -= CONTRACT_GROUP_WEIGHTS[group];
+    if (roll <= 0) {
+      selectedGroup = group;
+      break;
+    }
+  }
+
+  const typesInGroup = getContractTypesByGroup(selectedGroup);
+  return pickRandom(typesInGroup, random);
+}
+
+/**
  * Generate a unique contract ID.
  *
  * @returns Unique contract ID string
@@ -319,6 +366,82 @@ export function generateContracts(
     });
 
     contracts.push(contract);
+  }
+
+  return contracts;
+}
+
+/**
+ * Generate AtB contracts with 19 contract types, variable lengths, and negotiated clauses.
+ *
+ * This is the expanded version that uses AtB contract types instead of the 5 legacy types.
+ *
+ * @param campaign - Campaign to generate contracts for
+ * @param count - Number of contracts to generate (default 5)
+ * @param negotiatorSkill - Negotiation skill modifier (default 0)
+ * @param factionStandingMod - Faction standing modifier (default 0)
+ * @param random - Random function for testability
+ * @returns Array of generated contracts with AtB types and clauses
+ */
+export function generateAtBContracts(
+  campaign: ICampaign,
+  count: number = 5,
+  negotiatorSkill: number = 0,
+  factionStandingMod: number = 0,
+  random: RandomFn = defaultRandom
+): IContract[] {
+  const contracts: IContract[] = [];
+  const forceBV = calculateForceBV(campaign);
+
+  for (let i = 0; i < count; i++) {
+    const atbType = selectAtBContractType(random);
+    const typeDef = CONTRACT_TYPE_DEFINITIONS[atbType];
+    const employer = randomEmployer(random);
+    const target = randomTarget(employer, random);
+    const system = randomSystem(random);
+
+    // Variable contract length
+    const lengthMonths = calculateContractLength(atbType, random);
+    const durationDays = contractLengthToDays(lengthMonths);
+
+    // Negotiate clauses
+    const clauses = negotiateAllClauses(negotiatorSkill, factionStandingMod, random);
+
+    // Ops tempo affects payment (higher tempo = higher risk = more pay)
+    const opsMultiplier = typeDef.opsTempo.min;
+    const basePayment = new Money(Math.round(forceBV * CBILLS_PER_BV * opsMultiplier));
+    const salvagePercent = generateRandomSalvagePercent(random);
+
+    const paymentTerms = createPaymentTerms({
+      basePayment,
+      successPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.success),
+      partialPayment: basePayment.multiply(PAYMENT_MULTIPLIERS.partial),
+      failurePayment: basePayment.multiply(PAYMENT_MULTIPLIERS.failure),
+      salvagePercent,
+    });
+
+    const startDate = campaign.currentDate;
+    const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    const contract = createContract({
+      id: generateContractId(),
+      name: generateContractName(typeDef.name, employer),
+      status: MissionStatus.PENDING,
+      systemId: system,
+      employerId: employer,
+      targetId: target,
+      paymentTerms,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    // Add AtB-specific fields
+    const atbContract: IContract = {
+      ...contract,
+      atbContractType: atbType,
+    };
+
+    contracts.push(atbContract);
   }
 
   return contracts;

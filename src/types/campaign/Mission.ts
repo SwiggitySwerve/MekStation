@@ -15,6 +15,7 @@ import { Money } from './Money';
 import { IPaymentTerms, calculateTotalPayout, createDefaultPaymentTerms } from './PaymentTerms';
 import type { IScenario } from './Scenario';
 import type { AtBMoraleLevel } from './scenario/scenarioTypes';
+import type { AtBContractType } from './contracts/contractTypes';
 
 // =============================================================================
 // Salvage Rights
@@ -147,6 +148,9 @@ export interface IContract extends IMission {
 
   /** AtB morale level for this contract (optional, defaults to STALEMATE) */
   readonly moraleLevel?: AtBMoraleLevel;
+
+  /** AtB contract type (optional) */
+  readonly atbContractType?: AtBContractType;
 }
 
 // =============================================================================
