@@ -247,7 +247,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.3 Implement Scenario Type Selection Tables
+- [x] 11.3 Implement Scenario Type Selection Tables
 
   **What to do**:
   - Create `src/lib/campaign/scenario/scenarioTypeSelection.ts`:
@@ -299,7 +299,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.4 Implement OpFor BV Matching
+- [x] 11.4 Implement OpFor BV Matching
 
   **What to do**:
   - Create `src/lib/campaign/scenario/opForGeneration.ts`:
