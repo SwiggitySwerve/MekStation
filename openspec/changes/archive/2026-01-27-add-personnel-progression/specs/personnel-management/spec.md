@@ -1,6 +1,6 @@
 ## MODIFIED Requirements
 
-### Requirement: Personnel Data Model
+### Requirement: Person Entity
 The system SHALL track personnel with comprehensive attributes including traits, XP totals, and progression state.
 
 #### Scenario: Person has trait flags

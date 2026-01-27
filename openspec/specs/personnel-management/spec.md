@@ -4,22 +4,23 @@
 TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
 ## Requirements
 ### Requirement: Person Entity
-The system SHALL represent campaign personnel with 45 MVP fields including identity, status, roles, skills, attributes, injuries, and career tracking.
+The system SHALL track personnel with comprehensive attributes including traits, XP totals, and progression state.
 
-#### Scenario: Create person with required fields
-- **GIVEN** a user provides id, name, status, primaryRole, and rank
-- **WHEN** a person object is created
-- **THEN** the person has all required fields populated with id, name, status ACTIVE, primaryRole PILOT, rank "MechWarrior", empty injuries array, zero hits, and default attributes
+#### Scenario: Person has trait flags
+- **GIVEN** a person in the campaign
+- **WHEN** viewing their traits
+- **THEN** the system tracks fastLearner, slowLearner, gremlins, techEmpathy, toughness, glassJaw flags
+- **AND** tracks hasGainedVeterancySPA and vocationalXPTimer
 
-#### Scenario: Person has identity fields
-- **GIVEN** a person is created with name "John Smith" and callsign "Hammer"
-- **WHEN** the person is inspected
-- **THEN** name is "John Smith", callsign is "Hammer", and optional fields (givenName, surname, gender) are available
+#### Scenario: Person tracks XP totals
+- **GIVEN** a person earns XP
+- **WHEN** XP is awarded
+- **THEN** both xp (current) and totalXpEarned (lifetime) are incremented
 
-#### Scenario: Person has career tracking
-- **GIVEN** a person with missionsCompleted 12 and totalKills 8
-- **WHEN** the person completes a mission with 2 kills
-- **THEN** missionsCompleted increments to 13 and totalKills increments to 10
+#### Scenario: Traits affect skill costs
+- **GIVEN** a person with Fast Learner trait
+- **WHEN** calculating skill improvement cost
+- **THEN** the cost is reduced by 20%
 
 ### Requirement: Personnel Status Management
 The system SHALL track personnel status with 37 status values grouped into Active/Employed (6), Absent (3), Departed (9), Dead (14 causes), and Other (1), with behavioral rules for salary eligibility, absence tracking, and death handling.
@@ -341,4 +342,63 @@ The system SHALL track departure details for personnel who leave the campaign, i
 - **WHEN** querying personnel by status RETIRED or DESERTED
 - **THEN** all departed personnel are returned with departure details
 - **AND** departure date, reason, and payout are accessible
+
+### Requirement: XP Award Tracking
+The system SHALL track XP awards from 8 distinct sources with configurable amounts.
+
+#### Scenario: Scenario XP awarded
+- **GIVEN** a person participates in a scenario
+- **WHEN** the scenario completes
+- **THEN** the person receives scenarioXP amount (default 1)
+
+#### Scenario: Kill XP requires threshold
+- **GIVEN** a person with 3 kills and killsForXP set to 2
+- **WHEN** calculating kill XP
+- **THEN** the person receives 1 × killXPAward (floor(3/2) = 1)
+
+#### Scenario: Mission XP varies by outcome
+- **GIVEN** a mission completes
+- **WHEN** the outcome is "outstanding"
+- **THEN** the person receives missionOutstandingXP (default 5)
+- **AND** "success" awards missionSuccessXP (default 3)
+- **AND** "fail" awards missionFailXP (default 1)
+
+### Requirement: Trait-Modified Skill Costs
+The system SHALL apply trait multipliers to skill improvement costs.
+
+#### Scenario: Slow Learner increases cost
+- **GIVEN** a person with Slow Learner trait
+- **WHEN** calculating skill cost
+- **THEN** the base cost is multiplied by 1.2 (+20%)
+
+#### Scenario: Tech traits apply to tech skills only
+- **GIVEN** a person with Gremlins trait
+- **WHEN** improving a tech skill
+- **THEN** the cost is multiplied by 1.1 (+10%)
+- **AND** non-tech skills are unaffected
+
+#### Scenario: Traits stack multiplicatively
+- **GIVEN** a person with Slow Learner and Gremlins
+- **WHEN** improving a tech skill
+- **THEN** the cost is multiplied by 1.2 × 1.1 = 1.32 (+32%)
+
+### Requirement: Aging Attribute Decay
+The system SHALL apply cumulative attribute modifiers at 10 aging milestones.
+
+#### Scenario: Age 65 applies milestone modifiers
+- **GIVEN** a person turns 65 (milestone "61-70")
+- **WHEN** processing aging
+- **THEN** STR is reduced by 1.0, BOD by 1.0, DEX by 1.0
+- **AND** Glass Jaw is applied (unless has Toughness)
+- **AND** Slow Learner is applied (unless has Fast Learner)
+
+#### Scenario: Modifiers only apply on milestone crossing
+- **GIVEN** a person turns 66 (still in "61-70" milestone)
+- **WHEN** processing aging
+- **THEN** no new modifiers are applied
+
+#### Scenario: Aging can be disabled
+- **GIVEN** useAgingEffects is false
+- **WHEN** processing aging
+- **THEN** no modifiers are applied regardless of age
 
