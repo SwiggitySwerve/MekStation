@@ -1,5 +1,7 @@
 # Personnel Status & Role Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #176.
+
 ## Context
 
 ### Original Request
@@ -46,12 +48,12 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 - `src/lib/campaign/personnel/roleSalaries.ts` — Base salary mapping per role
 
 ### Definition of Done
-- [ ] PersonnelStatus expanded from 10 → 37 values
-- [ ] Status behavioral helpers: isAbsent, isSalaryEligible, isDead, isDepartedUnit
-- [ ] Status transition validator with valid/invalid determination
-- [ ] CampaignPersonnelRole expanded from 10 → ~45 values (14 combat + 11 support + ~20 civilian)
-- [ ] Role category helpers: isCombatRole, isSupportRole, isCivilianRole
-- [ ] Base salary per role for Plan 4 integration
+- [x] PersonnelStatus expanded from 10 → 37 values
+- [x] Status behavioral helpers: isAbsent, isSalaryEligible, isDead, isDepartedUnit
+- [x] Status transition validator with valid/invalid determination
+- [x] CampaignPersonnelRole expanded from 10 → ~45 values (14 combat + 11 support + ~20 civilian)
+- [x] Role category helpers: isCombatRole, isSupportRole, isCivilianRole
+- [x] Base salary per role for Plan 4 integration
 
 ### Must Have
 - All 37 PersonnelStatus values
@@ -102,7 +104,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ## TODOs
 
-- [ ] 13.1 Expand PersonnelStatus Enum to 37 Values
+- [x] 13.1 Expand PersonnelStatus Enum to 37 Values
 
   **What to do**:
   - Update `src/types/campaign/enums/PersonnelStatus.ts`:
@@ -174,13 +176,13 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   - `E:\Projects\MekStation\src\types\campaign\enums\PersonnelStatus.ts` — Current 10 values
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\enums\PersonnelStatus.java` — 37 values
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test PersonnelStatus has 37 values (36 MekHQ + WOUNDED)
-  - [ ] RED: Test existing 10 values unchanged
-  - [ ] RED: Test 14 death statuses exist
-  - [ ] RED: Test STATUS_SEVERITY maps every status
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test PersonnelStatus has 37 values (36 MekHQ + WOUNDED)
+   - [x] RED: Test existing 10 values unchanged
+   - [x] RED: Test 14 death statuses exist
+   - [x] RED: Test STATUS_SEVERITY maps every status
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): expand PersonnelStatus to 37 values`
@@ -188,7 +190,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ---
 
-- [ ] 13.2 Implement Status Behavioral Rules
+- [x] 13.2 Implement Status Behavioral Rules
 
   **What to do**:
   - Create `src/lib/campaign/personnel/statusRules.ts`:
@@ -225,15 +227,15 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\enums\PersonnelStatus.java` — Behavioral methods
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test ACTIVE is salary eligible
-  - [ ] RED: Test POW is both absent AND salary eligible
-  - [ ] RED: Test all 14 death statuses return isDead=true
-  - [ ] RED: Test MIA is absent but NOT salary eligible
-  - [ ] RED: Test RETIRED is departed but NOT dead
-  - [ ] RED: Test WOUNDED is absent (MekStation-specific)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test ACTIVE is salary eligible
+   - [x] RED: Test POW is both absent AND salary eligible
+   - [x] RED: Test all 14 death statuses return isDead=true
+   - [x] RED: Test MIA is absent but NOT salary eligible
+   - [x] RED: Test RETIRED is departed but NOT dead
+   - [x] RED: Test WOUNDED is absent (MekStation-specific)
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement status behavioral rules`
@@ -241,7 +243,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ---
 
-- [ ] 13.3 Implement Status Transition Validator
+- [x] 13.3 Implement Status Transition Validator
 
   **What to do**:
   - Create `src/lib/campaign/personnel/statusTransitions.ts`:
@@ -284,15 +286,15 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java:1450-1678` — Transition logic
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test KIA → ACTIVE is invalid
-  - [ ] RED: Test ACTIVE → KIA sets death date
-  - [ ] RED: Test ACTIVE → RETIRED sets retirement date
-  - [ ] RED: Test RETIRED → ACTIVE clears retirement date
-  - [ ] RED: Test departure releases commander flag
-  - [ ] RED: Test death clears all assignments
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test KIA → ACTIVE is invalid
+   - [x] RED: Test ACTIVE → KIA sets death date
+   - [x] RED: Test ACTIVE → RETIRED sets retirement date
+   - [x] RED: Test RETIRED → ACTIVE clears retirement date
+   - [x] RED: Test departure releases commander flag
+   - [x] RED: Test death clears all assignments
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement status transition validator with side effects`
@@ -300,7 +302,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ---
 
-- [ ] 13.4 Expand CampaignPersonnelRole Enum
+- [x] 13.4 Expand CampaignPersonnelRole Enum
 
   **What to do**:
   - Update `src/types/campaign/enums/CampaignPersonnelRole.ts`:
@@ -383,14 +385,14 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   - `E:\Projects\MekStation\src\types\campaign\enums\CampaignPersonnelRole.ts` — Current 10 values
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\enums\PersonnelRole.java` — 300+ roles
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test 14 combat roles
-  - [ ] RED: Test 11 support roles (+ legacy ADMIN/SUPPORT)
-  - [ ] RED: Test ~20 civilian roles
-  - [ ] RED: Test getRoleCategory returns correct category
-  - [ ] RED: Test existing 10 roles still valid
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test 14 combat roles
+   - [x] RED: Test 11 support roles (+ legacy ADMIN/SUPPORT)
+   - [x] RED: Test ~20 civilian roles
+   - [x] RED: Test getRoleCategory returns correct category
+   - [x] RED: Test existing 10 roles still valid
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): expand CampaignPersonnelRole with categories`
@@ -398,7 +400,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ---
 
-- [ ] 13.5 Implement Role-to-Salary Base Mapping
+- [x] 13.5 Implement Role-to-Salary Base Mapping
 
   **What to do**:
   - Create `src/lib/campaign/personnel/roleSalaries.ts`:
@@ -431,13 +433,13 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java:4662-4739` — Salary calculation
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test Pilot base salary = 1500
-  - [ ] RED: Test Dependent salary = 0
-  - [ ] RED: Test unknown role returns fallback
-  - [ ] RED: Test every role has a defined salary
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test Pilot base salary = 1500
+   - [x] RED: Test Dependent salary = 0
+   - [x] RED: Test unknown role returns fallback
+   - [x] RED: Test every role has a defined salary
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement role-based salary mapping`
@@ -445,7 +447,7 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
 
 ---
 
-- [ ] 13.6 Update Personnel UI for Expanded Statuses and Roles
+- [x] 13.6 Update Personnel UI for Expanded Statuses and Roles
 
   **What to do**:
   - Update status display with color coding by severity (green/yellow/red/gray)
@@ -459,12 +461,12 @@ Expand the personnel status and role enums to provide MekHQ-level granularity, w
   **References**:
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
-  **Acceptance Criteria**:
-  - [ ] Status shows with severity color
-  - [ ] Role dropdown grouped by category
-  - [ ] Status transition validates before applying
-  - [ ] Death cause selection works
-  - [ ] Manual verification: dev server → personnel → change status → verify transition
+   **Acceptance Criteria**:
+   - [x] Status shows with severity color
+   - [x] Role dropdown grouped by category
+   - [x] Status transition validates before applying
+   - [x] Death cause selection works
+   - [x] Manual verification: dev server → personnel → change status → verify transition
 
   **Commit**: YES
   - Message: `feat(ui): update personnel view for expanded statuses and roles`
@@ -493,13 +495,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 37 status values (36 MekHQ + WOUNDED)
-- [ ] 5 status behavioral helpers
-- [ ] Status transition validation with side effects
-- [ ] ~45 role values in 3 categories
-- [ ] Role-to-salary mapping
-- [ ] Existing 10 statuses/roles still work
-- [ ] All existing tests pass
+- [x] 37 status values (36 MekHQ + WOUNDED)
+- [x] 5 status behavioral helpers
+- [x] Status transition validation with side effects
+- [x] ~45 role values in 3 categories
+- [x] Role-to-salary mapping
+- [x] Existing 10 statuses/roles still work
+- [x] All existing tests pass
 
 ---
 

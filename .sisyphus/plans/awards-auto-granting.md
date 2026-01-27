@@ -1,5 +1,7 @@
 # Awards Auto-Granting
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #199.
+
 ## Context
 
 ### Original Request
@@ -47,13 +49,13 @@ Build an auto-award engine that checks personnel against award criteria on confi
 - `src/lib/campaign/processors/autoAwardsProcessor.ts` — Monthly day processor
 
 ### Definition of Done
-- [ ] Auto-award engine processes all eligible personnel against all enabled categories
-- [ ] 13 award category checkers (some stubbed for complex requirements)
-- [ ] Monthly auto-check as day processor
-- [ ] Post-mission and post-scenario hooks
-- [ ] "Best Award Only" option per category
-- [ ] ~30 new awards in expanded categories
-- [ ] Enable/disable toggles per category
+- [x] Auto-award engine processes all eligible personnel against all enabled categories
+- [x] 13 award category checkers (some stubbed for complex requirements)
+- [x] Monthly auto-check as day processor
+- [x] Post-mission and post-scenario hooks
+- [x] "Best Award Only" option per category
+- [x] ~30 new awards in expanded categories
+- [x] Enable/disable toggles per category
 
 ### Must Have
 - Auto-award engine with multi-trigger support
@@ -109,7 +111,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ## TODOs
 
-- [ ] 14.1 Define Auto-Award Categories and Configuration
+- [x] 14.1 Define Auto-Award Categories and Configuration
 
   **What to do**:
   - Create `src/types/campaign/awards/autoAwardTypes.ts`:
@@ -170,11 +172,11 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\autoAwards\AutoAwardsController.java` — Categories
 
   **Acceptance Criteria**:
-  - [ ] RED: Test AutoAwardCategory has 17 values (13 MekHQ + 4 existing MekStation + special)
-  - [ ] RED: Test AutoAwardTrigger has 5 values
-  - [ ] RED: Test IAutoAwardConfig has all fields
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test AutoAwardCategory has 17 values (13 MekHQ + 4 existing MekStation + special)
+  - [x] RED: Test AutoAwardTrigger has 5 values
+  - [x] RED: Test IAutoAwardConfig has all fields
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define auto-award categories and configuration`
@@ -182,7 +184,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ---
 
-- [ ] 14.2 Implement Auto-Award Eligibility Checkers
+- [x] 14.2 Implement Auto-Award Eligibility Checkers
 
   **What to do**:
   - Create `src/lib/campaign/awards/categoryCheckers.ts`:
@@ -229,13 +231,13 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\autoAwards\TimeAwards.java` — Time logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test kill award granted when kills >= threshold
-  - [ ] RED: Test kill award NOT granted when kills < threshold
-  - [ ] RED: Test scenario award granted when missions >= threshold
-  - [ ] RED: Test time award granted when years of service >= threshold
-  - [ ] RED: Test stubbed categories return empty array
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test kill award granted when kills >= threshold
+  - [x] RED: Test kill award NOT granted when kills < threshold
+  - [x] RED: Test scenario award granted when missions >= threshold
+  - [x] RED: Test time award granted when years of service >= threshold
+  - [x] RED: Test stubbed categories return empty array
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement auto-award category checkers`
@@ -243,7 +245,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ---
 
-- [ ] 14.3 Implement Auto-Award Controller Engine
+- [x] 14.3 Implement Auto-Award Controller Engine
 
   **What to do**:
   - Create `src/lib/campaign/awards/autoAwardEngine.ts`:
@@ -311,14 +313,14 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\autoAwards\AutoAwardsController.java` — Processing logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test no awards when autoAwards disabled
-  - [ ] RED: Test only enabled categories are checked
-  - [ ] RED: Test best-award-only returns single highest award
-  - [ ] RED: Test non-stackable awards not re-granted
-  - [ ] RED: Test posthumous awards only when enabled
-  - [ ] RED: Test civilians excluded
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test no awards when autoAwards disabled
+  - [x] RED: Test only enabled categories are checked
+  - [x] RED: Test best-award-only returns single highest award
+  - [x] RED: Test non-stackable awards not re-granted
+  - [x] RED: Test posthumous awards only when enabled
+  - [x] RED: Test civilians excluded
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement auto-award controller engine`
@@ -326,7 +328,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ---
 
-- [ ] 14.4 Extend Award Catalog with Auto-Grant Criteria
+- [x] 14.4 Extend Award Catalog with Auto-Grant Criteria
 
   **What to do**:
   - Add `autoGrantCriteria?: IAutoGrantCriteria` to existing IAward interface
@@ -352,12 +354,12 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\MekStation\src\types\award\AwardCatalog.ts` — 54 existing awards
 
   **Acceptance Criteria**:
-  - [ ] RED: Test ~30 new awards have autoGrantCriteria
-  - [ ] RED: Test existing 54 awards preserved
-  - [ ] RED: Test kill awards at 5/10/25/50/100/250/500 thresholds
-  - [ ] RED: Test time awards at 1/2/5/10/20/30 year thresholds
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test ~30 new awards have autoGrantCriteria
+  - [x] RED: Test existing 54 awards preserved
+  - [x] RED: Test kill awards at 5/10/25/50/100/250/500 thresholds
+  - [x] RED: Test time awards at 1/2/5/10/20/30 year thresholds
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): extend award catalog with ~30 auto-grantable awards`
@@ -365,7 +367,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ---
 
-- [ ] 14.5 Register Auto-Awards Day Processor
+- [x] 14.5 Register Auto-Awards Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/autoAwardsProcessor.ts`:
@@ -389,11 +391,11 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignNewDayManager.java:436-438` — Monthly trigger
 
   **Acceptance Criteria**:
-  - [ ] RED: Test monthly processor runs on 1st of month
-  - [ ] RED: Test awards granted are applied to persons
-  - [ ] RED: Test IAwardGrantEvent generated for each grant
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test monthly processor runs on 1st of month
+  - [x] RED: Test awards granted are applied to persons
+  - [x] RED: Test IAwardGrantEvent generated for each grant
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): register auto-awards monthly processor`
@@ -401,7 +403,7 @@ Build an auto-award engine that checks personnel against award criteria on confi
 
 ---
 
-- [ ] 14.6 Create Auto-Awards UI
+- [x] 14.6 Create Auto-Awards UI
 
   **What to do**:
   - Award notification toast on grant (name, person, category)
@@ -419,11 +421,11 @@ Build an auto-award engine that checks personnel against award criteria on confi
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Award toast appears on grant
-  - [ ] Award history shows all earned awards with dates
-  - [ ] Category toggles work in settings
-  - [ ] Manual process button triggers award check
-  - [ ] Manual verification: dev server → advance month → verify auto-awards → check personnel
+  - [x] Award toast appears on grant
+  - [x] Award history shows all earned awards with dates
+  - [x] Category toggles work in settings
+  - [x] Manual process button triggers award check
+  - [x] Manual verification: dev server → advance month → verify auto-awards → check personnel
 
   **Commit**: YES
   - Message: `feat(ui): add auto-award notifications and settings`
@@ -452,12 +454,12 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Auto-award engine with 5 trigger types
-- [ ] 13 category checkers (4 stubbed)
-- [ ] ~30 new awards with auto-grant criteria
-- [ ] Monthly processor registered
-- [ ] Best Award Only mode working
-- [ ] Existing 54 awards preserved
+- [x] Auto-award engine with 5 trigger types
+- [x] 13 category checkers (4 stubbed)
+- [x] ~30 new awards with auto-grant criteria
+- [x] Monthly processor registered
+- [x] Best Award Only mode working
+- [x] Existing 54 awards preserved
 
 ---
 

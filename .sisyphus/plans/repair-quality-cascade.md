@@ -1,5 +1,7 @@
 # Repair Quality Cascade System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #179.
+
 ## Context
 
 ### Original Request
@@ -51,14 +53,14 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 - UI for quality indicators and maintenance reports
 
 ### Definition of Done
-- [ ] Quality enum A-F with TN modifiers (+3 to -2)
-- [ ] Maintenance check: 2d6 >= TN (tech skill + quality + modifiers)
-- [ ] Failed check degrades quality by one grade
-- [ ] Successful check can improve quality by one grade (margin >= threshold)
-- [ ] Quality affects repair TN (cascade effect)
-- [ ] Tech skill type defined and usable
-- [ ] Day processor runs maintenance on configurable cycle
-- [ ] Existing repair jobs still work unchanged
+- [x] Quality enum A-F with TN modifiers (+3 to -2)
+- [x] Maintenance check: 2d6 >= TN (tech skill + quality + modifiers)
+- [x] Failed check degrades quality by one grade
+- [x] Successful check can improve quality by one grade (margin >= threshold)
+- [x] Quality affects repair TN (cascade effect)
+- [x] Tech skill type defined and usable
+- [x] Day processor runs maintenance on configurable cycle
+- [x] Existing repair jobs still work unchanged
 
 ### Must Have
 - PartQuality enum: A, B, C, D, E, F with TN modifiers
@@ -111,7 +113,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ## TODOs
 
-- [ ] 3.1 Define Quality Types and Enum
+- [x] 3.1 Define Quality Types and Enum
 
   **What to do**:
   - Create `src/types/campaign/quality/PartQuality.ts`:
@@ -193,13 +195,13 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\Maintenance.java:267-496` — Maintenance check logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test `PartQuality.A` has TN modifier +3 (worst quality, hardest maintenance)
-  - [ ] RED: Test `degradeQuality(PartQuality.D)` returns `PartQuality.C` (toward A/worst)
-  - [ ] RED: Test `degradeQuality(PartQuality.A)` returns `PartQuality.A` (floor — already worst)
-  - [ ] RED: Test `improveQuality(PartQuality.D)` returns `PartQuality.E` (toward F/best)
-  - [ ] RED: Test `improveQuality(PartQuality.F)` returns `PartQuality.F` (ceiling — already best)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test `PartQuality.A` has TN modifier +3 (worst quality, hardest maintenance)
+  - [x] RED: Test `degradeQuality(PartQuality.D)` returns `PartQuality.C` (toward A/worst)
+  - [x] RED: Test `degradeQuality(PartQuality.A)` returns `PartQuality.A` (floor — already worst)
+  - [x] RED: Test `improveQuality(PartQuality.D)` returns `PartQuality.E` (toward F/best)
+  - [x] RED: Test `improveQuality(PartQuality.F)` returns `PartQuality.F` (ceiling — already best)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define part quality grades A-F with maintenance thresholds`
@@ -207,7 +209,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ---
 
-- [ ] 3.2 Implement Maintenance Check Logic
+- [x] 3.2 Implement Maintenance Check Logic
 
   **What to do**:
   - Create `src/lib/campaign/maintenance/maintenanceCheck.ts`:
@@ -272,15 +274,15 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\parts\Part.java:953` — Part TN calculation
 
   **Acceptance Criteria**:
-  - [ ] RED: Test TN = techSkill(5) + qualityD(0) + normal(0) = 5
-  - [ ] RED: Test TN = techSkill(5) + qualityA(+3) + rush(+1) = 9
-  - [ ] RED: Test margin >= 4 improves quality
-  - [ ] RED: Test margin < -3 degrades quality
-  - [ ] RED: Test quality F doesn't degrade further
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] RED: Test modifier breakdown includes all components
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test TN = techSkill(5) + qualityD(0) + normal(0) = 5
+  - [x] RED: Test TN = techSkill(5) + qualityA(+3) + rush(+1) = 9
+  - [x] RED: Test margin >= 4 improves quality
+  - [x] RED: Test margin < -3 degrades quality
+  - [x] RED: Test quality F doesn't degrade further
+  - [x] RED: Test deterministic with seeded random
+  - [x] RED: Test modifier breakdown includes all components
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement maintenance check with quality cascade`
@@ -288,7 +290,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ---
 
-- [ ] 3.3 Define Tech Skill Type
+- [x] 3.3 Define Tech Skill Type
 
   **What to do**:
   - Add Tech skill type to the skill system in `src/types/campaign/skills/`:
@@ -326,11 +328,11 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\Skill.java` — MekHQ skill system
 
   **Acceptance Criteria**:
-  - [ ] RED: Test `TECH_SKILL_TYPE` has correct id, costs, linked attribute
-  - [ ] RED: Test `getTechSkillValue()` returns correct value for skilled tech
-  - [ ] RED: Test unskilled person returns 10 (penalty)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test `TECH_SKILL_TYPE` has correct id, costs, linked attribute
+  - [x] RED: Test `getTechSkillValue()` returns correct value for skilled tech
+  - [x] RED: Test unskilled person returns 10 (penalty)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define Tech skill type for maintenance checks`
@@ -338,7 +340,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ---
 
-- [ ] 3.4 Integrate Quality with Existing Repair System
+- [x] 3.4 Integrate Quality with Existing Repair System
 
   **What to do**:
   - Add quality field to unit tracking:
@@ -374,13 +376,13 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `.sisyphus/drafts/mekhq-modifier-systems.md:155-167` — MRMS priority and quality integration
 
   **Acceptance Criteria**:
-  - [ ] RED: Test new unit defaults to quality D
-  - [ ] RED: Test salvaged unit starts at quality C (below average, toward worst)
-  - [ ] RED: Test repair cost includes quality multiplier
-  - [ ] RED: Test repair TN includes tech skill + quality modifier
-  - [ ] RED: Test existing repair jobs work without quality (backward compatible)
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test new unit defaults to quality D
+  - [x] RED: Test salvaged unit starts at quality C (below average, toward worst)
+  - [x] RED: Test repair cost includes quality multiplier
+  - [x] RED: Test repair TN includes tech skill + quality modifier
+  - [x] RED: Test existing repair jobs work without quality (backward compatible)
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): integrate quality grades with repair system`
@@ -388,7 +390,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ---
 
-- [ ] 3.5 Create Maintenance Day Processor
+- [x] 3.5 Create Maintenance Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/maintenanceProcessor.ts`:
@@ -430,14 +432,14 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `.sisyphus/drafts/mekhq-modifier-systems.md:155-167` — Maintenance failure cascade
 
   **Acceptance Criteria**:
-  - [ ] RED: Test processor runs on maintenance day (every N days)
-  - [ ] RED: Test processor skips on non-maintenance days
-  - [ ] RED: Test quality degrades on failed check
-  - [ ] RED: Test quality improves on high-margin success
-  - [ ] RED: Test unmaintained unit auto-degrades
-  - [ ] RED: Test maintenance events returned in IDayEvent format
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test processor runs on maintenance day (every N days)
+  - [x] RED: Test processor skips on non-maintenance days
+  - [x] RED: Test quality degrades on failed check
+  - [x] RED: Test quality improves on high-margin success
+  - [x] RED: Test unmaintained unit auto-degrades
+  - [x] RED: Test maintenance events returned in IDayEvent format
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add maintenance day processor with quality cascade`
@@ -445,7 +447,7 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 ---
 
-- [ ] 3.6 Create Quality Indicators UI
+- [x] 3.6 Create Quality Indicators UI
 
   **What to do**:
   - Create `src/components/campaign/QualityBadge.tsx` — Color-coded badge (A=green, D=gray, F=red)
@@ -473,11 +475,11 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - `E:\Projects\MekStation\src\components\repair\RepairQueue.tsx` — Existing repair queue component
 
   **Acceptance Criteria**:
-  - [ ] Quality badge shows on unit cards with correct color
-  - [ ] Maintenance events in day report show roll/TN/outcome
-  - [ ] Tech assignment dropdown works
-  - [ ] Campaign settings show maintenance options
-  - [ ] Manual verification: dev server → assign tech → advance days → see quality changes
+  - [x] Quality badge shows on unit cards with correct color
+  - [x] Maintenance events in day report show roll/TN/outcome
+  - [x] Tech assignment dropdown works
+  - [x] Campaign settings show maintenance options
+  - [x] Manual verification: dev server → assign tech → advance days → see quality changes
 
   **Commit**: YES
   - Message: `feat(ui): add quality badges, maintenance reports, and tech assignment`
@@ -507,13 +509,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Quality grades A-F defined with correct TN modifiers
-- [ ] Maintenance check uses exact MekHQ formula
-- [ ] Quality cascade: failure degrades, high success improves
-- [ ] Tech skill affects maintenance TN
-- [ ] Existing repair system unchanged (backward compatible)
-- [ ] Day processor runs on configurable cycle
-- [ ] UI shows quality badges and maintenance reports
+- [x] Quality grades A-F defined with correct TN modifiers
+- [x] Maintenance check uses exact MekHQ formula
+- [x] Quality cascade: failure degrades, high success improves
+- [x] Tech skill affects maintenance TN
+- [x] Existing repair system unchanged (backward compatible)
+- [x] Day processor runs on configurable cycle
+- [x] UI shows quality badges and maintenance reports
 
 ---
 

@@ -1,5 +1,7 @@
 # MekHQ Campaign System - MekStation Integration
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #171.
+
 > **IMPORTANT**: Copy this file to `E:\Projects\mekstation\.sisyphus\plans\mekhq-campaign-system.md` before running `/start-work`
 
 ## Context
@@ -144,11 +146,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\enums\PersonnelRole.java` - Role definitions
   - MekStation existing: `src/types/enums/` - Existing enum patterns to follow
 
-  **Acceptance Criteria**:
-  - [ ] All 10 campaign enums defined
-  - [ ] Each enum has displayName() helper
-  - [ ] Enums follow existing MekStation patterns
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] All 10 campaign enums defined
+   - [x] Each enum has displayName() helper
+   - [x] Enums follow existing MekStation patterns
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add campaign enums`
@@ -173,11 +175,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\finances\Money.java:1-200` - Money implementation
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\finances\Transaction.java` - Transaction record
 
-  **Acceptance Criteria**:
-  - [ ] Money arithmetic works correctly
-  - [ ] No floating point errors
-  - [ ] Transaction records type, date, amount, description
-  - [ ] Tests verify edge cases
+   **Acceptance Criteria**:
+   - [x] Money arithmetic works correctly
+   - [x] No floating point errors
+   - [x] Transaction records type, date, amount, description
+   - [x] Tests verify edge cases
 
   **Commit**: YES
   - Message: `feat(campaign): add Money and financial types`
@@ -207,12 +209,12 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\Attributes.java`
   - MekStation existing: `src/stores/usePilotStore.ts` - Current pilot/skill structure
 
-  **Acceptance Criteria**:
-  - [ ] Skill interface matches MekHQ conceptually
-  - [ ] getSkillValue() calculation implemented
-  - [ ] Experience level thresholds (Green→Elite)
-  - [ ] Attribute modifier calculation (-4 to +5)
-  - [ ] Backwards compatible with existing pilot skills
+   **Acceptance Criteria**:
+   - [x] Skill interface matches MekHQ conceptually
+   - [x] getSkillValue() calculation implemented
+   - [x] Experience level thresholds (Green→Elite)
+   - [x] Attribute modifier calculation (-4 to +5)
+   - [x] Backwards compatible with existing pilot skills
 
   **Commit**: YES
   - Message: `feat(campaign): expand skill system`
@@ -254,11 +256,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\.sisyphus\drafts\domain-model-analysis.md`
   - MekStation existing: `src/stores/usePilotStore.ts`
 
-  **Acceptance Criteria**:
-  - [ ] IPerson interface covers 40-50 MVP fields
-  - [ ] Existing pilots can upgrade to persons (migration path)
-  - [ ] Status transitions work (ACTIVE→WOUNDED→KIA)
-  - [ ] Unit assignment tracking works
+   **Acceptance Criteria**:
+   - [x] IPerson interface covers 40-50 MVP fields
+   - [x] Existing pilots can upgrade to persons (migration path)
+   - [x] Status transitions work (ACTIVE→WOUNDED→KIA)
+   - [x] Unit assignment tracking works
 
   **Commit**: YES
   - Message: `feat(campaign): expand Pilot to Person entity`
@@ -282,11 +284,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - MekStation existing: `src/stores/utils/clientSafeStorage.ts` - Persistence
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\Campaign.java:personnel methods`
 
-  **Acceptance Criteria**:
-  - [ ] Store persists to IndexedDB
-  - [ ] CRUD operations work correctly
-  - [ ] Query filters work (active personnel, by role)
-  - [ ] Integration with existing data
+   **Acceptance Criteria**:
+   - [x] Store persists to IndexedDB
+   - [x] CRUD operations work correctly
+   - [x] Query filters work (active personnel, by role)
+   - [x] Integration with existing data
 
   **Commit**: YES
   - Message: `feat(campaign): add personnel store`
@@ -318,11 +320,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\force\Force.java:1-400`
   - `E:\Projects\mekhq\.sisyphus\drafts\domain-model-analysis.md`
 
-  **Acceptance Criteria**:
-  - [ ] Force tree can be arbitrarily deep
-  - [ ] Unit IDs reference MekStation's existing units
-  - [ ] getAllUnits() recursively collects from tree
-  - [ ] getFullName() returns hierarchical path
+   **Acceptance Criteria**:
+   - [x] Force tree can be arbitrarily deep
+   - [x] Unit IDs reference MekStation's existing units
+   - [x] getAllUnits() recursively collects from tree
+   - [x] getFullName() returns hierarchical path
 
   **Commit**: YES
   - Message: `feat(campaign): add Force entity`
@@ -349,11 +351,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\Campaign.java:1-500`
   - MekStation existing: `src/stores/unitStoreRegistry.ts` - How to access units
 
-  **Acceptance Criteria**:
-  - [ ] Campaign aggregates personnel, forces, missions, finances
-  - [ ] References MekStation unit stores (no duplication)
-  - [ ] Date progression works
-  - [ ] Faction assignment works
+   **Acceptance Criteria**:
+   - [x] Campaign aggregates personnel, forces, missions, finances
+   - [x] References MekStation unit stores (no duplication)
+   - [x] Date progression works
+   - [x] Faction assignment works
 
   **Commit**: YES
   - Message: `feat(campaign): add Campaign aggregate`
@@ -376,11 +378,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   **References**:
   - MekStation existing: Store patterns in `src/stores/`
 
-  **Acceptance Criteria**:
-  - [ ] Campaign creates with defaults
-  - [ ] Campaign persists to IndexedDB
-  - [ ] Sub-stores accessible via campaign
-  - [ ] advanceDay() increments date
+   **Acceptance Criteria**:
+   - [x] Campaign creates with defaults
+   - [x] Campaign persists to IndexedDB
+   - [x] Sub-stores accessible via campaign
+   - [x] advanceDay() increments date
 
   **Commit**: YES
   - Message: `feat(campaign): add campaign store`
@@ -411,11 +413,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\Contract.java`
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\Scenario.java`
 
-  **Acceptance Criteria**:
-  - [ ] Mission contains scenario references
-  - [ ] Contract has financial terms
-  - [ ] Status transitions (ACTIVE→SUCCESS/FAILED)
-  - [ ] Force deployment tracked per scenario
+   **Acceptance Criteria**:
+   - [x] Mission contains scenario references
+   - [x] Contract has financial terms
+   - [x] Status transitions (ACTIVE→SUCCESS/FAILED)
+   - [x] Force deployment tracked per scenario
 
   **Commit**: YES
   - Message: `feat(campaign): add Mission/Contract/Scenario entities`
@@ -430,10 +432,10 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - Query: getActiveMissions(), getCompletedMissions()
   - Scenario management within missions
 
-  **Acceptance Criteria**:
-  - [ ] Missions persist
-  - [ ] Active contracts queryable
-  - [ ] Scenarios managed within missions
+   **Acceptance Criteria**:
+   - [x] Missions persist
+   - [x] Active contracts queryable
+   - [x] Scenarios managed within missions
 
   **Commit**: YES
   - Message: `feat(campaign): add mission store`
@@ -453,10 +455,10 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\contractMarket\AbstractContractMarket.java:1-300`
 
-  **Acceptance Criteria**:
-  - [ ] Market generates 3-5 varied contracts
-  - [ ] Payment scales with force size
-  - [ ] Contract acceptance adds to campaign
+   **Acceptance Criteria**:
+   - [x] Market generates 3-5 varied contracts
+   - [x] Payment scales with force size
+   - [x] Contract acceptance adds to campaign
 
   **Commit**: YES
   - Message: `feat(campaign): add contract market`
@@ -485,11 +487,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\ResolveScenarioTracker.java`
   - MekStation existing: BV calculations in `src/utils/`
 
-  **Acceptance Criteria**:
-  - [ ] ACAR produces win/loss/draw
-  - [ ] Higher BV = higher win probability
-  - [ ] Unit damage proportional to battle intensity
-  - [ ] Personnel casualties occur in losses
+   **Acceptance Criteria**:
+   - [x] ACAR produces win/loss/draw
+   - [x] Higher BV = higher win probability
+   - [x] Unit damage proportional to battle intensity
+   - [x] Personnel casualties occur in losses
 
   **Commit**: YES
   - Message: `feat(combat): add ACAR resolution`
@@ -511,12 +513,12 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\ResolveScenarioTracker.java:processGame`
 
-  **Acceptance Criteria**:
-  - [ ] Unit damage persists after battle
-  - [ ] Personnel injuries recorded
-  - [ ] Killed personnel marked KIA
-  - [ ] Salvage value added to finances
-  - [ ] Scenario status updated
+   **Acceptance Criteria**:
+   - [x] Unit damage persists after battle
+   - [x] Personnel injuries recorded
+   - [x] Killed personnel marked KIA
+   - [x] Salvage value added to finances
+   - [x] Scenario status updated
 
   **Commit**: YES
   - Message: `feat(combat): add battle result processing`
@@ -539,12 +541,12 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   **References**:
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignNewDayManager.java`
 
-  **Acceptance Criteria**:
-  - [ ] Date advances by one day
-  - [ ] Injured personnel heal over time
-  - [ ] Daily costs deducted from balance
-  - [ ] Contract payments credited on schedule
-  - [ ] Day report returned
+   **Acceptance Criteria**:
+   - [x] Date advances by one day
+   - [x] Injured personnel heal over time
+   - [x] Daily costs deducted from balance
+   - [x] Contract payments credited on schedule
+   - [x] Day report returned
 
   **Commit**: YES
   - Message: `feat(campaign): add day advancement`
@@ -566,11 +568,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\finances\Finances.java:1-300`
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\finances\Accountant.java`
 
-  **Acceptance Criteria**:
-  - [ ] Transactions recorded with type/date/amount
-  - [ ] Balance reflects all transactions
-  - [ ] Daily costs calculated reasonably
-  - [ ] Contract payments credited correctly
+   **Acceptance Criteria**:
+   - [x] Transactions recorded with type/date/amount
+   - [x] Balance reflects all transactions
+   - [x] Daily costs calculated reasonably
+   - [x] Contract payments credited correctly
 
   **Commit**: YES
   - Message: `feat(finances): add financial processing`
@@ -596,12 +598,12 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - MekStation existing: App layout patterns
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\CampaignGUI.java`
 
-  **Acceptance Criteria**:
-  - [ ] Campaign routes accessible
-  - [ ] Tab navigation works
-  - [ ] Date displayed prominently
-  - [ ] Advance Day button works
-  - [ ] Integrates with existing MekStation style
+   **Acceptance Criteria**:
+   - [x] Campaign routes accessible
+   - [x] Tab navigation works
+   - [x] Date displayed prominently
+   - [x] Advance Day button works
+   - [x] Integrates with existing MekStation style
 
   **Commit**: YES
   - Message: `feat(ui): add campaign shell`
@@ -625,11 +627,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   **References**:
   - MekStation existing: Pilot management UI patterns
 
-  **Acceptance Criteria**:
-  - [ ] List displays all personnel
-  - [ ] Filters work correctly
-  - [ ] Details show all MVP fields
-  - [ ] CRUD operations work
+   **Acceptance Criteria**:
+   - [x] List displays all personnel
+   - [x] Filters work correctly
+   - [x] Details show all MVP fields
+   - [x] CRUD operations work
 
   **Commit**: YES
   - Message: `feat(ui): add personnel page`
@@ -650,11 +652,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - MekStation existing: Force builder if present
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\TOETab.java`
 
-  **Acceptance Criteria**:
-  - [ ] Tree displays force hierarchy
-  - [ ] Can create sub-forces
-  - [ ] Can assign units via drag-drop
-  - [ ] Names and levels editable
+   **Acceptance Criteria**:
+   - [x] Tree displays force hierarchy
+   - [x] Can create sub-forces
+   - [x] Can assign units via drag-drop
+   - [x] Names and levels editable
 
   **Commit**: YES
   - Message: `feat(ui): add TO&E page`
@@ -673,11 +675,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - Resolve Battle button (triggers ACAR)
   - Battle results display (damage, casualties, salvage)
 
-  **Acceptance Criteria**:
-  - [ ] Active contracts displayed
-  - [ ] Forces deployable to scenarios
-  - [ ] ACAR resolution triggered from UI
-  - [ ] Results displayed clearly
+   **Acceptance Criteria**:
+   - [x] Active contracts displayed
+   - [x] Forces deployable to scenarios
+   - [x] ACAR resolution triggered from UI
+   - [x] Results displayed clearly
 
   **Commit**: YES
   - Message: `feat(ui): add mission page`
@@ -697,11 +699,11 @@ Extend MekStation into a campaign manager that can run basic MekHQ-style campaig
   - Prominent "Advance Day" control
   - Campaign settings access
 
-  **Acceptance Criteria**:
-  - [ ] Stats accurate and update
-  - [ ] Active contracts summarized
-  - [ ] Day advancement prominent
-  - [ ] Useful overview at a glance
+   **Acceptance Criteria**:
+   - [x] Stats accurate and update
+   - [x] Active contracts summarized
+   - [x] Day advancement prominent
+   - [x] Useful overview at a glance
 
   **Commit**: YES
   - Message: `feat(ui): add campaign dashboard`

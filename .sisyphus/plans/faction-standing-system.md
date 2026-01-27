@@ -1,5 +1,7 @@
 # Faction Standing System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #181.
+
 ## Context
 
 ### Original Request
@@ -48,15 +50,15 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
 - UI for standing display and effects
 
 ### Definition of Done
-- [ ] 9 regard levels with correct thresholds
-- [ ] Per-faction standing stored as `Record<string, IFactionStanding>` (JSON-serializable)
-- [ ] Regard deltas from contract outcomes (success/failure/breach)
-- [ ] 11 gameplay effects return numeric modifiers
-- [ ] Effects toggleable via campaign options
-- [ ] Accolade/censure escalation at threshold crossings
-- [ ] Daily regard decay toward 0
-- [ ] Day processor for standing updates
-- [ ] Standing display UI
+- [x] 9 regard levels with correct thresholds
+- [x] Per-faction standing stored as `Record<string, IFactionStanding>` (JSON-serializable)
+- [x] Regard deltas from contract outcomes (success/failure/breach)
+- [x] 11 gameplay effects return numeric modifiers
+- [x] Effects toggleable via campaign options
+- [x] Accolade/censure escalation at threshold crossings
+- [x] Daily regard decay toward 0
+- [x] Day processor for standing updates
+- [x] Standing display UI
 
 ### Must Have
 - `IFactionStanding` interface with regard, level, history
@@ -188,13 +190,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — MekHQ standing logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test 9 standing levels with correct thresholds
-  - [ ] RED: Test regard -55 maps to LEVEL_0
-  - [ ] RED: Test regard 0 maps to LEVEL_4
-  - [ ] RED: Test regard +45 maps to LEVEL_7
-  - [ ] RED: Test regard clamped to -60/+60
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test 9 standing levels with correct thresholds
+  - [x] RED: Test regard -55 maps to LEVEL_0
+  - [x] RED: Test regard 0 maps to LEVEL_4
+  - [x] RED: Test regard +45 maps to LEVEL_7
+  - [x] RED: Test regard clamped to -60/+60
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define faction standing types with 9 levels`
@@ -260,15 +262,15 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\utilities\FactionStandingUtilities.java` — Utility functions
 
   **Acceptance Criteria**:
-  - [ ] RED: Test contract success adds +1.875 regard
-  - [ ] RED: Test contract breach subtracts -5.156 regard
-  - [ ] RED: Test regard clamped to ±60
-  - [ ] RED: Test daily decay moves toward 0
-  - [ ] RED: Test level recalculates on regard change
-  - [ ] RED: Test change event recorded in history
-  - [ ] RED: Test target faction loses standing when working against them
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test contract success adds +1.875 regard
+  - [x] RED: Test contract breach subtracts -5.156 regard
+  - [x] RED: Test regard clamped to ±60
+  - [x] RED: Test daily decay moves toward 0
+  - [x] RED: Test level recalculates on regard change
+  - [x] RED: Test change event recorded in history
+  - [x] RED: Test target faction loses standing when working against them
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement faction standing calculation logic`
@@ -359,15 +361,15 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — Effect implementations
 
   **Acceptance Criteria**:
-  - [ ] RED: Test Level 0 negotiation = -4, Level 8 = +4
-  - [ ] RED: Test Level 0 contract pay = 0.6, Level 8 = 1.2
-  - [ ] RED: Test Level 0-1 are outlawed
-  - [ ] RED: Test Level 7+ has command circuit access
-  - [ ] RED: Test Level 0 barracks cost = 3.0, Level 8 = 0.75
-  - [ ] RED: Test Level 0 recruitment tickets = 0, Level 8 = max
-  - [ ] RED: Test `getAllEffects()` returns complete object
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test Level 0 negotiation = -4, Level 8 = +4
+  - [x] RED: Test Level 0 contract pay = 0.6, Level 8 = 1.2
+  - [x] RED: Test Level 0-1 are outlawed
+  - [x] RED: Test Level 7+ has command circuit access
+  - [x] RED: Test Level 0 barracks cost = 3.0, Level 8 = 0.75
+  - [x] RED: Test Level 0 recruitment tickets = 0, Level 8 = max
+  - [x] RED: Test `getAllEffects()` returns complete object
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement 11 faction standing gameplay effects`
@@ -421,13 +423,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\FactionStandings.java` — Escalation logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test accolade triggers at Level 5+
-  - [ ] RED: Test censure triggers at negative regard
-  - [ ] RED: Test escalation increments (NONE → TAKING_NOTICE → PRESS_RECOGNITION)
-  - [ ] RED: Test cash bonus accolade adds money
-  - [ ] RED: Test max level can't be exceeded
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test accolade triggers at Level 5+
+  - [x] RED: Test censure triggers at negative regard
+  - [x] RED: Test escalation increments (NONE → TAKING_NOTICE → PRESS_RECOGNITION)
+  - [x] RED: Test cash bonus accolade adds money
+  - [x] RED: Test max level can't be exceeded
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement accolade/censure escalation`
@@ -492,13 +494,13 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `.sisyphus/drafts/mekhq-modifier-systems.md:57` — Phase 21: Faction standing checks
 
   **Acceptance Criteria**:
-  - [ ] RED: Test daily decay processes for all tracked factions
-  - [ ] RED: Test accolade check on 1st of month
-  - [ ] RED: Test censure check on 1st of month
-  - [ ] RED: Test processor skipped when `trackFactionStanding` is false
-  - [ ] RED: Test events returned for escalation
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test daily decay processes for all tracked factions
+  - [x] RED: Test accolade check on 1st of month
+  - [x] RED: Test censure check on 1st of month
+  - [x] RED: Test processor skipped when `trackFactionStanding` is false
+  - [x] RED: Test events returned for escalation
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add faction standing day processor`
@@ -552,12 +554,12 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\MekStation\src\stores\campaign\useCampaignStore.ts` — Serialization
 
   **Acceptance Criteria**:
-  - [ ] `factionStandings` field added to ICampaign (optional `Record<string, IFactionStanding>`, defaults to `{}`)
-  - [ ] 11 effect toggle options in ICampaignOptions
-  - [ ] Contract completion triggers standing update
-  - [ ] Serialization/deserialization works natively (Record is JSON-compatible)
-  - [ ] Existing campaigns load without error (empty standings)
-  - [ ] `npm test` passes
+  - [x] `factionStandings` field added to ICampaign (optional `Record<string, IFactionStanding>`, defaults to `{}`)
+  - [x] 11 effect toggle options in ICampaignOptions
+  - [x] Contract completion triggers standing update
+  - [x] Serialization/deserialization works natively (Record is JSON-compatible)
+  - [x] Existing campaigns load without error (empty standings)
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): integrate faction standing into campaign aggregate`
@@ -597,12 +599,12 @@ Implement a per-faction regard tracking system with 9 standing levels and 11 gam
   - `E:\Projects\mekhq\MekHQ\src\mekhq\gui\dialog\FactionStandingDialog.java` — MekHQ standing UI (11 dialog files)
 
   **Acceptance Criteria**:
-  - [ ] Faction standing bars display with color coding
-  - [ ] Effect summary shows active bonuses/penalties
-  - [ ] Regard changes appear in day report
-  - [ ] Accolade/censure events displayed
-  - [ ] Standing options in campaign settings
-  - [ ] Manual verification: complete contract → see standing change → verify effects
+  - [x] Faction standing bars display with color coding
+  - [x] Effect summary shows active bonuses/penalties
+  - [x] Regard changes appear in day report
+  - [x] Accolade/censure events displayed
+  - [x] Standing options in campaign settings
+  - [x] Manual verification: complete contract → see standing change → verify effects
 
   **Commit**: YES
   - Message: `feat(ui): add faction standing panel and effects display`
@@ -632,14 +634,14 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 9 standing levels with exact MekHQ thresholds
-- [ ] Regard clamped to ±60
-- [ ] 11 effects return correct modifiers per level
-- [ ] Contract outcomes trigger regard changes
-- [ ] Daily decay toward neutral works
-- [ ] Accolade/censure escalation fires at thresholds
-- [ ] Per-effect toggles in campaign options
-- [ ] Standing display with color-coded bars
+- [x] 9 standing levels with exact MekHQ thresholds
+- [x] Regard clamped to ±60
+- [x] 11 effects return correct modifiers per level
+- [x] Contract outcomes trigger regard changes
+- [x] Daily decay toward neutral works
+- [x] Accolade/censure escalation fires at thresholds
+- [x] Per-effect toggles in campaign options
+- [x] Standing display with color-coded bars
 
 ---
 

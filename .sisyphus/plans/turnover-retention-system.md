@@ -1,5 +1,7 @@
 # Turnover & Retention System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #178.
+
 ## Context
 
 ### Original Request
@@ -48,13 +50,13 @@ Implement the full 19-modifier turnover check system that determines whether per
 - UI component for turnover reports
 
 ### Definition of Done
-- [ ] 2d6 roll with target number from 19 additive modifiers
-- [ ] Each modifier independently testable with exact MekHQ values
-- [ ] Stub modifiers return 0 (neutral) with `@stub` JSDoc tag
-- [ ] Personnel who fail leave campaign (status transition)
-- [ ] Modifier breakdown available for UI display
-- [ ] Registers as day pipeline processor
-- [ ] Configurable check frequency via campaign options
+- [x] 2d6 roll with target number from 19 additive modifiers
+- [x] Each modifier independently testable with exact MekHQ values
+- [x] Stub modifiers return 0 (neutral) with `@stub` JSDoc tag
+- [x] Personnel who fail leave campaign (status transition)
+- [x] Modifier breakdown available for UI display
+- [x] Registers as day pipeline processor
+- [x] Configurable check frequency via campaign options
 
 ### Must Have
 - All 19 modifier functions (9 real, 10 stubbed)
@@ -110,7 +112,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ## TODOs
 
-- [ ] 2.1 Implement All 19 Turnover Modifier Functions
+- [x] 2.1 Implement All 19 Turnover Modifier Functions
 
   **What to do**:
   - Create `src/lib/campaign/turnover/modifiers/` directory
@@ -167,15 +169,15 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\types\campaign\Person.ts:injuries` — `IInjury` with `permanent` flag
   - `E:\Projects\MekStation\src\types\campaign\enums\CampaignPersonnelRole.ts` — Role enum
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test each real modifier returns exact MekHQ value for given inputs
-  - [ ] RED: Test founder gets -2 modifier
-  - [ ] RED: Test age 65 gets +8 modifier
-  - [ ] RED: Test 3 permanent injuries = +3
-  - [ ] RED: Test officer gets -1
-  - [ ] RED: Test all stubs return 0
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test each real modifier returns exact MekHQ value for given inputs
+   - [x] RED: Test founder gets -2 modifier
+   - [x] RED: Test age 65 gets +8 modifier
+   - [x] RED: Test 3 permanent injuries = +3
+   - [x] RED: Test officer gets -1
+   - [x] RED: Test all stubs return 0
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement 19 turnover modifier functions`
@@ -183,7 +185,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.2 Implement Core Turnover Check
+- [x] 2.2 Implement Core Turnover Check
 
   **What to do**:
   - Create `src/lib/campaign/turnover/turnoverCheck.ts`
@@ -249,17 +251,17 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\RetirementDefectionTracker.java:135-432` — MekHQ check logic
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts:114` — `RandomFn` pattern to follow
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test roll >= targetNumber → person stays (passed = true)
-  - [ ] RED: Test roll < targetNumber → person leaves (passed = false)
-  - [ ] RED: Test commander immunity when option enabled
-  - [ ] RED: Test non-ACTIVE personnel are skipped
-  - [ ] RED: Test payout calculation (getPersonMonthlySalary × payoutMultiplier)
-  - [ ] RED: Test salary stub returns default 1000 C-bills
-  - [ ] RED: Test modifier breakdown is included in result
-  - [ ] RED: Test deterministic results with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test roll >= targetNumber → person stays (passed = true)
+   - [x] RED: Test roll < targetNumber → person leaves (passed = false)
+   - [x] RED: Test commander immunity when option enabled
+   - [x] RED: Test non-ACTIVE personnel are skipped
+   - [x] RED: Test payout calculation (getPersonMonthlySalary × payoutMultiplier)
+   - [x] RED: Test salary stub returns default 1000 C-bills
+   - [x] RED: Test modifier breakdown is included in result
+   - [x] RED: Test deterministic results with seeded random
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement core turnover check with 2d6 roll`
@@ -267,7 +269,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.3 Extend Person with Turnover-Related Fields
+- [x] 2.3 Extend Person with Turnover-Related Fields
 
   **What to do**:
   - Add optional fields to `IPerson` in `src/types/campaign/Person.ts`:
@@ -292,11 +294,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\types\campaign\Person.ts` — Current IPerson interface
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\Person.java` — MekHQ person fields
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `createDefaultPerson()` works with new optional fields
-  - [ ] RED: Test existing IPerson objects without new fields still work
-  - [ ] GREEN: Types compile, tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test `createDefaultPerson()` works with new optional fields
+   - [x] RED: Test existing IPerson objects without new fields still work
+   - [x] GREEN: Types compile, tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): extend IPerson with turnover-related fields`
@@ -304,7 +306,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.4 Create Turnover Day Processor
+- [x] 2.4 Create Turnover Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/turnoverProcessor.ts`
@@ -356,14 +358,14 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor interface (from Plan 1)
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\RetirementDefectionTracker.java` — MekHQ trigger conditions
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test processor runs on correct frequency (weekly/monthly/etc.)
-  - [ ] RED: Test processor skips on wrong day
-  - [ ] RED: Test departures update personnel status
-  - [ ] RED: Test payout recorded as financial transaction
-  - [ ] RED: Test departure date set on person
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test processor runs on correct frequency (weekly/monthly/etc.)
+   - [x] RED: Test processor skips on wrong day
+   - [x] RED: Test departures update personnel status
+   - [x] RED: Test payout recorded as financial transaction
+   - [x] RED: Test departure date set on person
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add turnover day processor`
@@ -371,7 +373,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.5 Add Turnover Campaign Options
+- [x] 2.5 Add Turnover Campaign Options
 
   **What to do**:
   - Extend `ICampaignOptions` in `src/types/campaign/Campaign.ts`:
@@ -399,11 +401,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `.sisyphus/drafts/mekhq-modifier-systems.md:108-118` — Turnover trigger conditions and outcomes
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignOptions.java` — MekHQ turnover options
 
-  **Acceptance Criteria**:
-  - [ ] All new options have sensible defaults
-  - [ ] `createDefaultCampaignOptions()` includes all turnover options
-  - [ ] Existing campaigns deserialize without error (optional fields default)
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] All new options have sensible defaults
+   - [x] `createDefaultCampaignOptions()` includes all turnover options
+   - [x] Existing campaigns deserialize without error (optional fields default)
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add turnover campaign options`
@@ -411,7 +413,7 @@ Implement the full 19-modifier turnover check system that determines whether per
 
 ---
 
-- [ ] 2.6 Create Turnover Report UI
+- [x] 2.6 Create Turnover Report UI
 
   **What to do**:
   - Create `src/components/campaign/TurnoverReportPanel.tsx`
@@ -433,11 +435,11 @@ Implement the full 19-modifier turnover check system that determines whether per
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
   - `E:\Projects\MekStation\src\components\campaign\DayReportPanel.tsx` — Day report panel (from Plan 1)
 
-  **Acceptance Criteria**:
-  - [ ] Turnover events displayed in day report with departure details
-  - [ ] Modifier breakdown expandable for each departure
-  - [ ] Campaign settings show turnover options
-  - [ ] Manual verification: dev server → advance month → see turnover report
+   **Acceptance Criteria**:
+   - [x] Turnover events displayed in day report with departure details
+   - [x] Modifier breakdown expandable for each departure
+   - [x] Campaign settings show turnover options
+   - [x] Manual verification: dev server → advance month → see turnover report
 
   **Commit**: YES
   - Message: `feat(ui): add turnover report panel and campaign options`
@@ -467,13 +469,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] All 19 modifiers return exact MekHQ values
-- [ ] 2d6 roll with injectable random is deterministic in tests
-- [ ] Stub modifiers clearly marked with `@stub` JSDoc
-- [ ] Personnel departures update status correctly
-- [ ] Payout recorded as financial transaction
-- [ ] Day processor respects frequency setting
-- [ ] UI shows modifier breakdown per departure
+- [x] All 19 modifiers return exact MekHQ values
+- [x] 2d6 roll with injectable random is deterministic in tests
+- [x] Stub modifiers clearly marked with `@stub` JSDoc
+- [x] Personnel departures update status correctly
+- [x] Payout recorded as financial transaction
+- [x] Day processor respects frequency setting
+- [x] UI shows modifier breakdown per departure
 
 ---
 

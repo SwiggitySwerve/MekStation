@@ -1,5 +1,7 @@
 # Day Advancement Pipeline Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #172.
+
 ## Context
 
 ### Original Request
@@ -44,13 +46,13 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 - Tests for all new code + preservation of existing tests
 
 ### Definition of Done
-- [ ] Plugin registry accepts processor registration
-- [ ] Pipeline processes all registered processors in deterministic order
-- [ ] Store's `advanceDay()` calls pipeline and applies full DayReport
-- [ ] All 1,013 existing test lines pass unchanged
-- [ ] New processor can be added without modifying pipeline code
-- [ ] DayReport aggregates events from all processors
-- [ ] Multi-day advancement works (advance N days = N individual pipeline runs)
+- [x] Plugin registry accepts processor registration
+- [x] Pipeline processes all registered processors in deterministic order
+- [x] Store's `advanceDay()` calls pipeline and applies full DayReport
+- [x] All 1,013 existing test lines pass unchanged
+- [x] New processor can be added without modifying pipeline code
+- [x] DayReport aggregates events from all processors
+- [x] Multi-day advancement works (advance N days = N individual pipeline runs)
 
 ### Must Have
 - `IDayProcessor` interface with `id`, `phase`, `process()` method
@@ -102,7 +104,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ## TODOs
 
-- [ ] 1.1 Define IDayProcessor Interface and Pipeline Types
+- [x] 1.1 Define IDayProcessor Interface and Pipeline Types
 
   **What to do**:
   - Create `src/lib/campaign/dayPipeline.ts`
@@ -164,11 +166,11 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignNewDayManager.java:234-502` — MekHQ's 24-phase ordering (reference for DayPhase enum values)
   - `.sisyphus/drafts/mekhq-modifier-systems.md:32-59` — Day advancement pipeline phases
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `IDayProcessor` interface type constraints compile
-  - [ ] RED: Test `DayPhase` enum has correct ordering (SETUP < PERSONNEL < ... < CLEANUP)
-  - [ ] GREEN: All types defined and exported
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test `IDayProcessor` interface type constraints compile
+   - [x] RED: Test `DayPhase` enum has correct ordering (SETUP < PERSONNEL < ... < CLEANUP)
+   - [x] GREEN: All types defined and exported
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define IDayProcessor interface and pipeline types`
@@ -176,7 +178,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ---
 
-- [ ] 1.2 Implement DayPipelineRegistry
+- [x] 1.2 Implement DayPipelineRegistry
 
   **What to do**:
   - In `src/lib/campaign/dayPipeline.ts`, add the registry:
@@ -220,15 +222,15 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\MekStation\src\lib\campaign\dayAdvancement.ts:361-401` — Current `advanceDay()` orchestration (replace with pipeline)
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignNewDayManager.java` — MekHQ's phase ordering reference
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `register()` adds processor, `getProcessors()` returns it sorted by phase
-  - [ ] RED: Test `processDay()` calls processors in phase order
-  - [ ] RED: Test processor failure doesn't crash pipeline (skip and continue)
-  - [ ] RED: Test events from all processors are aggregated
-  - [ ] RED: Test date advances by 1 day after all processors
-  - [ ] GREEN: All tests pass
-  - [ ] REFACTOR: Clean up any duplication
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test `register()` adds processor, `getProcessors()` returns it sorted by phase
+   - [x] RED: Test `processDay()` calls processors in phase order
+   - [x] RED: Test processor failure doesn't crash pipeline (skip and continue)
+   - [x] RED: Test events from all processors are aggregated
+   - [x] RED: Test date advances by 1 day after all processors
+   - [x] GREEN: All tests pass
+   - [x] REFACTOR: Clean up any duplication
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement DayPipelineRegistry`
@@ -236,7 +238,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ---
 
-- [ ] 1.3 Refactor Existing Processors into Pipeline
+- [x] 1.3 Refactor Existing Processors into Pipeline
 
   **What to do**:
   - Create `src/lib/campaign/processors/` directory
@@ -301,14 +303,14 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\MekStation\src\lib\campaign\__tests__\dayAdvancement.test.ts` — 1,013 lines of tests that MUST continue to pass
   - `E:\Projects\MekStation\src\lib\campaign\dayAdvancement.ts:42-97` — DayReport, HealedPersonEvent, ExpiredContractEvent, DailyCostBreakdown types
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `healingProcessor.process()` returns correct events for wounded personnel
-  - [ ] RED: Test `contractProcessor.process()` returns correct events for expired contracts
-  - [ ] RED: Test `dailyCostsProcessor.process()` returns correct cost events
-  - [ ] RED: Test `registerBuiltinProcessors()` registers all three processors
-  - [ ] GREEN: All new tests pass
-  - [ ] **CRITICAL**: All 1,013 existing lines in `dayAdvancement.test.ts` pass without modification
-  - [ ] `npm test` passes (entire test suite)
+   **Acceptance Criteria**:
+   - [x] RED: Test `healingProcessor.process()` returns correct events for wounded personnel
+   - [x] RED: Test `contractProcessor.process()` returns correct events for expired contracts
+   - [x] RED: Test `dailyCostsProcessor.process()` returns correct cost events
+   - [x] RED: Test `registerBuiltinProcessors()` registers all three processors
+   - [x] GREEN: All new tests pass
+   - [x] **CRITICAL**: All 1,013 existing lines in `dayAdvancement.test.ts` pass without modification
+   - [x] `npm test` passes (entire test suite)
 
   **Commit**: YES
   - Message: `refactor(campaign): extract day processors into plugin architecture`
@@ -317,7 +319,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ---
 
-- [ ] 1.4 Fix Store Integration Bug
+- [x] 1.4 Fix Store Integration Bug
 
   **What to do**:
   - Update `src/stores/campaign/useCampaignStore.ts` `advanceDay()` action (currently lines 358-380)
@@ -353,15 +355,15 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\MekStation\src\lib\campaign\dayAdvancement.ts` — `advanceDay()` pure function to call
   - `E:\Projects\MekStation\src\stores\campaign/__tests__/useCampaignStore.test.ts` — Existing store tests
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test store `advanceDay()` processes healing (wounded person heals)
-  - [ ] RED: Test store `advanceDay()` deducts daily costs from balance
-  - [ ] RED: Test store `advanceDay()` expires completed contracts
-  - [ ] RED: Test store `advanceDay()` returns DayReport with events
-  - [ ] RED: Test store `advanceDay()` persists campaign after processing
-  - [ ] GREEN: All tests pass
-  - [ ] Verify: Start dev server, create campaign, add personnel, advance day — verify costs deducted and healing works
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test store `advanceDay()` processes healing (wounded person heals)
+   - [x] RED: Test store `advanceDay()` deducts daily costs from balance
+   - [x] RED: Test store `advanceDay()` expires completed contracts
+   - [x] RED: Test store `advanceDay()` returns DayReport with events
+   - [x] RED: Test store `advanceDay()` persists campaign after processing
+   - [x] GREEN: All tests pass
+   - [x] Verify: Start dev server, create campaign, add personnel, advance day — verify costs deducted and healing works
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `fix(campaign): store advanceDay now calls full day pipeline`
@@ -370,7 +372,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ---
 
-- [ ] 1.5 Implement Multi-Day Advancement
+- [x] 1.5 Implement Multi-Day Advancement
 
   **What to do**:
   - Add `advanceDays(campaign: ICampaign, count: number): DayReport[]` to `dayAdvancement.ts`
@@ -391,13 +393,13 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\MekStation\src\lib\campaign\dayAdvancement.ts:361-401` — Current single-day `advanceDay()`
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\CampaignNewDayManager.java` — MekHQ processes each day individually
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test `advanceDays(campaign, 7)` returns 7 DayReports
-  - [ ] RED: Test each day uses previous day's campaign state (chained processing)
-  - [ ] RED: Test negative balance doesn't stop advancement
-  - [ ] RED: Test healing progresses correctly over multiple days
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test `advanceDays(campaign, 7)` returns 7 DayReports
+   - [x] RED: Test each day uses previous day's campaign state (chained processing)
+   - [x] RED: Test negative balance doesn't stop advancement
+   - [x] RED: Test healing progresses correctly over multiple days
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add multi-day advancement`
@@ -405,7 +407,7 @@ Refactor the day advancement system into a plugin/registry architecture where ca
 
 ---
 
-- [ ] 1.6 Update Campaign Dashboard UI
+- [x] 1.6 Update Campaign Dashboard UI
 
   **What to do**:
   - Update `src/pages/gameplay/campaigns/[id]/index.tsx` to display DayReport results after advancing
@@ -432,14 +434,14 @@ Refactor the day advancement system into a plugin/registry architecture where ca
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx:140-146` — Current "Advance Day" button
   - `E:\Projects\MekStation\src\lib\campaign\dayAdvancement.ts:86-97` — `DayReport` interface for display
 
-  **Acceptance Criteria**:
-  - [ ] Advance Day button shows DayReport summary after clicking
-  - [ ] Advance Week/Month buttons visible and functional
-  - [ ] Cost breakdown displayed (salaries, maintenance, total)
-  - [ ] Healed personnel listed by name
-  - [ ] Expired contracts listed by name
-  - [ ] Negative balance warning shown
-  - [ ] Manual verification: dev server → campaign → advance day → verify report displays
+   **Acceptance Criteria**:
+   - [x] Advance Day button shows DayReport summary after clicking
+   - [x] Advance Week/Month buttons visible and functional
+   - [x] Cost breakdown displayed (salaries, maintenance, total)
+   - [x] Healed personnel listed by name
+   - [x] Expired contracts listed by name
+   - [x] Negative balance warning shown
+   - [x] Manual verification: dev server → campaign → advance day → verify report displays
 
   **Commit**: YES
   - Message: `feat(ui): display day advancement reports in campaign dashboard`
@@ -470,12 +472,12 @@ npm run dev                # Dev server starts, campaign advancement works
 ```
 
 ### Final Checklist
-- [ ] All 1,013 existing `dayAdvancement.test.ts` lines pass
-- [ ] Pipeline registry accepts new processors without code changes
-- [ ] Store `advanceDay()` processes healing, costs, contracts
-- [ ] Multi-day advancement works correctly
-- [ ] UI displays day reports
-- [ ] New processor can be registered by other Phase 2 plans
+- [x] All 1,013 existing `dayAdvancement.test.ts` lines pass
+- [x] Pipeline registry accepts new processors without code changes
+- [x] Store `advanceDay()` processes healing, costs, contracts
+- [x] Multi-day advancement works correctly
+- [x] UI displays day reports
+- [x] New processor can be registered by other Phase 2 plans
 
 ---
 

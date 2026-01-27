@@ -1,5 +1,7 @@
 # Acquisition & Supply Chain
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #184.
+
 ## Context
 
 ### Original Request
@@ -50,13 +52,13 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 - `src/lib/campaign/processors/acquisitionProcessor.ts` — Day processor for acquisitions and deliveries
 
 ### Definition of Done
-- [ ] Availability ratings A–X with TN lookup for regular and consumable parts
-- [ ] Acquisition roll: 2d6 vs TN with full modifier stack (negotiator, planetary, clan penalty, contract)
-- [ ] Planetary modifiers from tech/industry/output ratings
-- [ ] Delivery time calculated per MekHQ formula
-- [ ] Shopping list queue with add/remove/retry logic
-- [ ] Day processor attempts pending acquisitions and delivers arrived items
-- [ ] Auto-logistics scan generates acquisition requests for needed parts
+- [x] Availability ratings A–X with TN lookup for regular and consumable parts
+- [x] Acquisition roll: 2d6 vs TN with full modifier stack (negotiator, planetary, clan penalty, contract)
+- [x] Planetary modifiers from tech/industry/output ratings
+- [x] Delivery time calculated per MekHQ formula
+- [x] Shopping list queue with add/remove/retry logic
+- [x] Day processor attempts pending acquisitions and delivers arrived items
+- [x] Auto-logistics scan generates acquisition requests for needed parts
 
 ### Must Have
 - AvailabilityRating enum (A–X) with TN tables (regular and consumable)
@@ -176,12 +178,12 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\procurement\Procurement.java:226-270` — TN tables
 
   **Acceptance Criteria**:
-  - [ ] RED: Test AvailabilityRating has 7 values (A–X)
-  - [ ] RED: Test REGULAR_PART_TN[D] === 8
-  - [ ] RED: Test CONSUMABLE_TN[D] === 6
-  - [ ] RED: Test IAcquisitionRequest has all required fields
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test AvailabilityRating has 7 values (A–X)
+  - [x] RED: Test REGULAR_PART_TN[D] === 8
+  - [x] RED: Test CONSUMABLE_TN[D] === 6
+  - [x] RED: Test IAcquisitionRequest has all required fields
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define acquisition types and availability ratings`
@@ -263,14 +265,14 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts:114` — RandomFn pattern
 
   **Acceptance Criteria**:
-  - [ ] RED: Test availability D regular part → baseTN 8
-  - [ ] RED: Test no negotiator adds +4 modifier
-  - [ ] RED: Test Clan parts in 3055 adds +3
-  - [ ] RED: Test success when roll >= TN
-  - [ ] RED: Test failure when roll < TN
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test availability D regular part → baseTN 8
+  - [x] RED: Test no negotiator adds +4 modifier
+  - [x] RED: Test Clan parts in 3055 adds +3
+  - [x] RED: Test success when roll >= TN
+  - [x] RED: Test failure when roll < TN
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement acquisition roll with modifier stack`
@@ -338,13 +340,13 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\universe\SocioIndustrialData.java` — USILR ratings
 
   **Acceptance Criteria**:
-  - [ ] RED: Test default ratings (C/C/C) give total modifier of -2 (0 + -1 + -1)
-  - [ ] RED: Test tech A gives -2 modifier
-  - [ ] RED: Test industry F returns IMPOSSIBLE (auto-fail)
-  - [ ] RED: Test output F returns IMPOSSIBLE (auto-fail)
-  - [ ] RED: Test best case (A/A/A) gives -8 total modifier
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test default ratings (C/C/C) give total modifier of -2 (0 + -1 + -1)
+  - [x] RED: Test tech A gives -2 modifier
+  - [x] RED: Test industry F returns IMPOSSIBLE (auto-fail)
+  - [x] RED: Test output F returns IMPOSSIBLE (auto-fail)
+  - [x] RED: Test best case (A/A/A) gives -8 total modifier
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement planetary acquisition modifiers`
@@ -400,13 +402,13 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\Campaign.java:9289-9331` — Transit time formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test availability A + roll 1 → max(1, (7+1+0)/4) = 2 months
-  - [ ] RED: Test availability D + roll 4 → max(1, (7+4+3)/4) = 3 months
-  - [ ] RED: Test minimum delivery is 1 unit
-  - [ ] RED: Test delivery date calculation for days/weeks/months
-  - [ ] RED: Test hasDeliveryArrived returns true when date passed
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test availability A + roll 1 → max(1, (7+1+0)/4) = 2 months
+  - [x] RED: Test availability D + roll 4 → max(1, (7+4+3)/4) = 3 months
+  - [x] RED: Test minimum delivery is 1 unit
+  - [x] RED: Test delivery date calculation for days/weeks/months
+  - [x] RED: Test hasDeliveryArrived returns true when date passed
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement acquisition delivery time calculation`
@@ -470,13 +472,13 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\ShoppingList.java` — Queue management
 
   **Acceptance Criteria**:
-  - [ ] RED: Test addToShoppingList creates pending request
-  - [ ] RED: Test removeFromShoppingList removes by ID
-  - [ ] RED: Test getPendingRequests filters status=pending
-  - [ ] RED: Test getInTransitRequests filters status=in_transit
-  - [ ] RED: Test auto-logistics targets are correct percentages
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test addToShoppingList creates pending request
+  - [x] RED: Test removeFromShoppingList removes by ID
+  - [x] RED: Test getPendingRequests filters status=pending
+  - [x] RED: Test getInTransitRequests filters status=in_transit
+  - [x] RED: Test auto-logistics targets are correct percentages
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement acquisition shopping list and auto-logistics`
@@ -572,7 +574,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
 
 ---
 
-- [ ] 9.9 Create Acquisition UI Components
+- [x] 9.9 Create Acquisition UI Components
 
   **What to do**:
   - Create `src/components/campaign/AcquisitionPanel.tsx`:
@@ -592,12 +594,12 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   **References**:
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
-  **Acceptance Criteria**:
-  - [ ] Shopping list shows all requests with status
-  - [ ] Manual acquisition shows TN breakdown before rolling
-  - [ ] Delivery tracker shows incoming parts with dates
-  - [ ] Planetary ratings displayed with modifier breakdown
-  - [ ] Manual verification: dev server → acquisition panel → add part → roll → verify
+   **Acceptance Criteria**:
+   - [x] Shopping list shows all requests with status
+   - [x] Manual acquisition shows TN breakdown before rolling
+   - [x] Delivery tracker shows incoming parts with dates
+   - [x] Planetary ratings displayed with modifier breakdown
+   - [x] Manual verification: dev server → acquisition panel → add part → roll → verify
 
   **Commit**: YES
   - Message: `feat(ui): add acquisition panel with shopping list and delivery tracker`
@@ -629,13 +631,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Availability ratings A–X with correct TN tables
-- [ ] Acquisition roll with full modifier stack (negotiator, planetary, clan, contract)
-- [ ] Planetary modifiers with impossible conditions (Industry/Output F)
-- [ ] Delivery time per MekHQ formula
-- [ ] Shopping list with add/remove/retry
-- [ ] Day processor handles rolls and deliveries
-- [ ] Auto-logistics stub ready for Plan 3 integration
+- [x] Availability ratings A–X with correct TN tables
+- [x] Acquisition roll with full modifier stack (negotiator, planetary, clan, contract)
+- [x] Planetary modifiers with impossible conditions (Industry/Output F)
+- [x] Delivery time per MekHQ formula
+- [x] Shopping list with add/remove/retry
+- [x] Day processor handles rolls and deliveries
+- [x] Auto-logistics stub ready for Plan 3 integration
 
 ---
 

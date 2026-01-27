@@ -1,5 +1,7 @@
 # Medical System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #182.
+
 ## Context
 
 ### Original Request
@@ -47,14 +49,14 @@ Implement three configurable medical systems with doctor skill checks, patient c
 - Medical UI for doctor assignment and treatment reports
 
 ### Definition of Done
-- [ ] 3 medical systems selectable via campaign option
-- [ ] Standard: skill check heals 1 hit per success
-- [ ] Advanced: d100 with fumble/crit thresholds
-- [ ] Alternate: attribute-based margin of success
-- [ ] Doctor capacity enforced (maxPatientsPerDoctor)
-- [ ] Natural healing for patients without doctor
-- [ ] Surgery option for permanent injuries
-- [ ] Day processor integrates selected medical system
+- [x] 3 medical systems selectable via campaign option
+- [x] Standard: skill check heals 1 hit per success
+- [x] Advanced: d100 with fumble/crit thresholds
+- [x] Alternate: attribute-based margin of success
+- [x] Doctor capacity enforced (maxPatientsPerDoctor)
+- [x] Natural healing for patients without doctor
+- [x] Surgery option for permanent injuries
+- [x] Day processor integrates selected medical system
 
 ### Must Have
 - `MedicalSystem` enum: STANDARD, ADVANCED, ALTERNATE
@@ -144,10 +146,10 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\types\campaign\Person.ts:36-66` — IInjury interface
 
   **Acceptance Criteria**:
-  - [ ] RED: Test MedicalSystem enum has 3 values
-  - [ ] RED: Test IMedicalCheckResult has all outcome types
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test MedicalSystem enum has 3 values
+  - [x] RED: Test IMedicalCheckResult has all outcome types
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define medical system types`
@@ -200,13 +202,13 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\medical\MedicalController.java` — MekHQ standard healing
 
   **Acceptance Criteria**:
-  - [ ] RED: Test doctor success heals injury (daysToHeal → 0)
-  - [ ] RED: Test doctor failure keeps injury unchanged
-  - [ ] RED: Test natural healing is slower (waits longer)
-  - [ ] RED: Test tougher healing modifier applied when enabled
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test doctor success heals injury (daysToHeal → 0)
+  - [x] RED: Test doctor failure keeps injury unchanged
+  - [x] RED: Test natural healing is slower (waits longer)
+  - [x] RED: Test tougher healing modifier applied when enabled
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement standard medical system`
@@ -250,12 +252,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:374-379` — Advanced medical formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test fumble worsens injury (+20% time)
-  - [ ] RED: Test critical success reduces time (-10%)
-  - [ ] RED: Test untreated has 30% worsening chance
-  - [ ] RED: Test Green doctor fumbles more often than Elite
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test fumble worsens injury (+20% time)
+  - [x] RED: Test critical success reduces time (-10%)
+  - [x] RED: Test untreated has 30% worsening chance
+  - [x] RED: Test Green doctor fumbles more often than Elite
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement advanced medical system with d100`
@@ -296,12 +298,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:381-389` — Alternate medical formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test positive margin heals
-  - [ ] RED: Test margin -1 to -5 extends healing time
-  - [ ] RED: Test margin ≤ -6 makes injury permanent
-  - [ ] RED: Test prosthetic penalty adds +4
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test positive margin heals
+  - [x] RED: Test margin -1 to -5 extends healing time
+  - [x] RED: Test margin ≤ -6 makes injury permanent
+  - [x] RED: Test prosthetic penalty adds +4
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement alternate medical system`
@@ -335,12 +337,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:397-401` — Doctor capacity formula
 
   **Acceptance Criteria**:
-  - [ ] RED: Test base capacity = 25 patients
-  - [ ] RED: Test admin skill bonus increases capacity
-  - [ ] RED: Test overloaded doctor gets penalty modifier
-  - [ ] RED: Test getBestAvailableDoctor returns least-loaded doctor
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test base capacity = 25 patients
+  - [x] RED: Test admin skill bonus increases capacity
+  - [x] RED: Test overloaded doctor gets penalty modifier
+  - [x] RED: Test getBestAvailableDoctor returns least-loaded doctor
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement doctor capacity management`
@@ -384,12 +386,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `.sisyphus/drafts/mekhq-modifier-systems.md:381-389` — Surgery and prosthetics
 
   **Acceptance Criteria**:
-  - [ ] RED: Test surgery margin >= 4 removes permanent flag
-  - [ ] RED: Test surgery margin 0-3 installs prosthetic
-  - [ ] RED: Test surgery failure leaves injury unchanged
-  - [ ] RED: Test prosthetic removes skill modifier but adds attribute penalty
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test surgery margin >= 4 removes permanent flag
+  - [x] RED: Test surgery margin 0-3 installs prosthetic
+  - [x] RED: Test surgery failure leaves injury unchanged
+  - [x] RED: Test prosthetic removes skill modifier but adds attribute penalty
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement surgery for permanent injuries`
@@ -423,13 +425,13 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor (from Plan 1)
 
   **Acceptance Criteria**:
-  - [ ] RED: Test Standard system used when option = STANDARD
-  - [ ] RED: Test Advanced system used when option = ADVANCED
-  - [ ] RED: Test patients beyond doctor capacity get natural healing
-  - [ ] RED: Test medical events generated for day report
-  - [ ] GREEN: All tests pass
-  - [ ] Existing healing tests still pass
-  - [ ] `npm test` passes
+  - [x] RED: Test Standard system used when option = STANDARD
+  - [x] RED: Test Advanced system used when option = ADVANCED
+  - [x] RED: Test patients beyond doctor capacity get natural healing
+  - [x] RED: Test medical events generated for day report
+  - [x] GREEN: All tests pass
+  - [x] Existing healing tests still pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): update healing processor for 3 medical systems`
@@ -454,12 +456,12 @@ Implement three configurable medical systems with doctor skill checks, patient c
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Wounded list shows injuries with severity and healing progress
-  - [ ] Doctor assignment dropdown works
-  - [ ] Doctor workload shows patient count vs capacity
-  - [ ] Surgery button appears for permanent injuries
-  - [ ] Medical system selector in campaign settings
-  - [ ] Manual verification: dev server → wound personnel → assign doctor → advance day → verify healing
+  - [x] Wounded list shows injuries with severity and healing progress
+  - [x] Doctor assignment dropdown works
+  - [x] Doctor workload shows patient count vs capacity
+  - [x] Surgery button appears for permanent injuries
+  - [x] Medical system selector in campaign settings
+  - [x] Manual verification: dev server → wound personnel → assign doctor → advance day → verify healing
 
   **Commit**: YES
   - Message: `feat(ui): add medical management panel with doctor assignment`
@@ -490,13 +492,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 3 medical systems with exact MekHQ formulas
-- [ ] Doctor skill checks with injectable random
-- [ ] Doctor capacity enforced
-- [ ] Natural healing for unassigned patients
-- [ ] Surgery for permanent injuries
-- [ ] Prosthetic installation
-- [ ] Existing processHealing tests unbroken
+- [x] 3 medical systems with exact MekHQ formulas
+- [x] Doctor skill checks with injectable random
+- [x] Doctor capacity enforced
+- [x] Natural healing for unassigned patients
+- [x] Surgery for permanent injuries
+- [x] Prosthetic installation
+- [x] Existing processHealing tests unbroken
 
 ---
 

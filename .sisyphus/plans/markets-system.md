@@ -1,5 +1,7 @@
 # Markets System
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #205.
+
 ## Context
 
 ### Original Request
@@ -50,12 +52,12 @@ Build three market systems with typed offers, generation logic, faction standing
 - `src/lib/campaign/processors/marketProcessors.ts` — Day processors for all three markets
 
 ### Definition of Done
-- [ ] Unit market with 7 rarity levels, 6 market types, monthly refresh
-- [ ] Personnel market with MekHQ-style generation, daily refresh
-- [ ] Contract market enhanced with Plan 12 types and monthly refresh
-- [ ] Faction standing modifiers stubbed for all markets
-- [ ] Three day processors registered with appropriate frequencies
-- [ ] Purchase functions for unit and personnel hiring
+- [x] Unit market with 7 rarity levels, 6 market types, monthly refresh
+- [x] Personnel market with MekHQ-style generation, daily refresh
+- [x] Contract market enhanced with Plan 12 types and monthly refresh
+- [x] Faction standing modifiers stubbed for all markets
+- [x] Three day processors registered with appropriate frequencies
+- [x] Purchase functions for unit and personnel hiring
 
 ### Must Have
 - UnitMarketRarity enum (7 levels)
@@ -113,7 +115,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ## TODOs
 
-- [ ] 17.1 Define Market Types and Structures
+- [x] 17.1 Define Market Types and Structures
 
   **What to do**:
   - Create `src/types/campaign/markets/marketTypes.ts`:
@@ -189,12 +191,12 @@ Build three market systems with typed offers, generation logic, faction standing
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\enums\UnitMarketType.java` — 6 types
 
   **Acceptance Criteria**:
-  - [ ] RED: Test UnitMarketRarity has 7 values with correct rarity values
-  - [ ] RED: Test UnitMarketType has 6 values with correct quality mapping
-  - [ ] RED: Test PersonnelMarketStyle has 4 values
-  - [ ] RED: Test IUnitMarketOffer has all required fields
-  - [ ] GREEN: Types compile
-  - [ ] `npm test` passes
+  - [x] RED: Test UnitMarketRarity has 7 values with correct rarity values
+  - [x] RED: Test UnitMarketType has 6 values with correct quality mapping
+  - [x] RED: Test PersonnelMarketStyle has 4 values
+  - [x] RED: Test IUnitMarketOffer has all required fields
+  - [x] GREEN: Types compile
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define market types with rarity, quality, and offers`
@@ -202,7 +204,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.2 Implement Unit Market
+- [x] 17.2 Implement Unit Market
 
   **What to do**:
   - Create `src/lib/campaign/markets/unitMarket.ts`:
@@ -271,14 +273,14 @@ Build three market systems with typed offers, generation logic, faction standing
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\unitMarket\AtBMonthlyUnitMarket.java` — Generation logic
 
   **Acceptance Criteria**:
-  - [ ] RED: Test item count = d6 + rarity - 3 (COMMON rarity=3: range 1-6)
-  - [ ] RED: Test MYTHIC rarity (-1) produces few/no items
-  - [ ] RED: Test UBIQUITOUS rarity (10) produces many items
-  - [ ] RED: Test price percent ranges from 85-115%
-  - [ ] RED: Test BLACK_MARKET quality is 50/50 A or F
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test item count = d6 + rarity - 3 (COMMON rarity=3: range 1-6)
+  - [x] RED: Test MYTHIC rarity (-1) produces few/no items
+  - [x] RED: Test UBIQUITOUS rarity (10) produces many items
+  - [x] RED: Test price percent ranges from 85-115%
+  - [x] RED: Test BLACK_MARKET quality is 50/50 A or F
+  - [x] RED: Test deterministic with seeded random
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement unit market with 7 rarity levels and 6 types`
@@ -286,7 +288,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.3 Implement Personnel Market
+- [x] 17.3 Implement Personnel Market
 
   **What to do**:
   - Create `src/lib/campaign/markets/personnelMarket.ts`:
@@ -353,14 +355,14 @@ Build three market systems with typed offers, generation logic, faction standing
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\personnelMarket\markets\PersonnelMarketMekHQ.java` — MekHQ style
 
   **Acceptance Criteria**:
-  - [ ] RED: Test disabled style generates no recruits
-  - [ ] RED: Test MekHQ style generates role-weighted recruits
-  - [ ] RED: Test Elite personnel expire in 3 days
-  - [ ] RED: Test Green personnel expire in 30 days
-  - [ ] RED: Test removeExpiredOffers removes past-date offers
-  - [ ] RED: Test hirePerson creates IPerson from offer
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test disabled style generates no recruits
+  - [x] RED: Test MekHQ style generates role-weighted recruits
+  - [x] RED: Test Elite personnel expire in 3 days
+  - [x] RED: Test Green personnel expire in 30 days
+  - [x] RED: Test removeExpiredOffers removes past-date offers
+  - [x] RED: Test hirePerson creates IPerson from offer
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement personnel market with daily generation`
@@ -368,7 +370,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.4 Integrate Faction Standing with Markets
+- [x] 17.4 Integrate Faction Standing with Markets
 
   **What to do**:
   - Create `src/lib/campaign/markets/marketStandingIntegration.ts`:
@@ -407,10 +409,10 @@ Build three market systems with typed offers, generation logic, faction standing
   - `.sisyphus/plans/faction-standing-system.md` — Plan 5 faction standing
 
   **Acceptance Criteria**:
-  - [ ] RED: Test all stub functions return neutral defaults
-  - [ ] RED: Test stub functions accept ICampaign parameter
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test all stub functions return neutral defaults
+  - [x] RED: Test stub functions accept ICampaign parameter
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add faction standing market integration stubs`
@@ -418,7 +420,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.5 Register Market Day Processors
+- [x] 17.5 Register Market Day Processors
 
   **What to do**:
   - Create `src/lib/campaign/processors/marketProcessors.ts`:
@@ -464,12 +466,12 @@ Build three market systems with typed offers, generation logic, faction standing
   - `E:\Projects\MekStation\src\lib\campaign\dayPipeline.ts` — IDayProcessor (Plan 1)
 
   **Acceptance Criteria**:
-  - [ ] RED: Test unit market only refreshes on 1st of month
-  - [ ] RED: Test personnel market refreshes daily
-  - [ ] RED: Test expired personnel offers removed
-  - [ ] RED: Test new offers added to campaign state
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test unit market only refreshes on 1st of month
+  - [x] RED: Test personnel market refreshes daily
+  - [x] RED: Test expired personnel offers removed
+  - [x] RED: Test new offers added to campaign state
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): register market day processors`
@@ -477,7 +479,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.6 Enhance Contract Market
+- [x] 17.6 Enhance Contract Market
 
   **What to do**:
   - Update existing `src/lib/campaign/contractMarket.ts`:
@@ -497,12 +499,12 @@ Build three market systems with typed offers, generation logic, faction standing
   - `.sisyphus/plans/contract-types-expansion.md` — Plan 12
 
   **Acceptance Criteria**:
-  - [ ] RED: Test contract market uses 19 types (from Plan 12)
-  - [ ] RED: Test faction standing modifier applied to negotiations
-  - [ ] RED: Test followup contract generation
-  - [ ] RED: Test existing contract generation still works
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+  - [x] RED: Test contract market uses 19 types (from Plan 12)
+  - [x] RED: Test faction standing modifier applied to negotiations
+  - [x] RED: Test followup contract generation
+  - [x] RED: Test existing contract generation still works
+  - [x] GREEN: All tests pass
+  - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): enhance contract market with standing and followups`
@@ -510,7 +512,7 @@ Build three market systems with typed offers, generation logic, faction standing
 
 ---
 
-- [ ] 17.7 Create Markets UI
+- [x] 17.7 Create Markets UI
 
   **What to do**:
   - **Unit Market Page**: Browse available units with rarity badges, quality indicators, price
@@ -530,12 +532,12 @@ Build three market systems with typed offers, generation logic, faction standing
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
   **Acceptance Criteria**:
-  - [ ] Unit market shows offers with rarity and quality badges
-  - [ ] Purchase unit deducts C-bills and adds unit
-  - [ ] Personnel market shows recruits with skills and expiration
-  - [ ] Hire creates new person in roster
-  - [ ] Market refresh indicator shows days until next refresh
-  - [ ] Manual verification: dev server → advance to 1st → verify unit market refresh → purchase → verify
+  - [x] Unit market shows offers with rarity and quality badges
+  - [x] Purchase unit deducts C-bills and adds unit
+  - [x] Personnel market shows recruits with skills and expiration
+  - [x] Hire creates new person in roster
+  - [x] Market refresh indicator shows days until next refresh
+  - [x] Manual verification: dev server → advance to 1st → verify unit market refresh → purchase → verify
 
   **Commit**: YES
   - Message: `feat(ui): add unit market, personnel market, and enhanced contract market`
@@ -565,13 +567,13 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] Unit market: 7 rarity levels, 6 types, monthly refresh
-- [ ] Personnel market: daily generation, experience-based expiration
-- [ ] Contract market: enhanced with 19 types and standing modifiers
-- [ ] Faction standing stubs for all markets
-- [ ] Three day processors registered
-- [ ] Purchase/hire functions with transactions
-- [ ] Existing contract market tests unbroken
+- [x] Unit market: 7 rarity levels, 6 types, monthly refresh
+- [x] Personnel market: daily generation, experience-based expiration
+- [x] Contract market: enhanced with 19 types and standing modifiers
+- [x] Faction standing stubs for all markets
+- [x] Three day processors registered
+- [x] Purchase/hire functions with transactions
+- [x] Existing contract market tests unbroken
 
 ---
 

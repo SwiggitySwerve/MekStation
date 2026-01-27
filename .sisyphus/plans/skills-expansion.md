@@ -1,5 +1,7 @@
 # Skills Expansion
 
+> **✅ COMPLETED** — Implemented, merged, and archived. PR #173.
+
 ## Context
 
 ### Original Request
@@ -47,11 +49,11 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 - Updated person creation with role-appropriate skills
 
 ### Definition of Done
-- [ ] 40+ skill types defined in catalog with costs, linked attributes, target numbers
-- [ ] Skill check: 2d6 vs TN with modifiers, injectable random
-- [ ] Skill progression: XP cost table per level with trait multipliers
-- [ ] Default skill assignment: new personnel get role-appropriate skills at experience level
-- [ ] Helper functions: getSkillForPerson(), hasSkill(), getEffectiveSkillLevel()
+- [x] 40+ skill types defined in catalog with costs, linked attributes, target numbers
+- [x] Skill check: 2d6 vs TN with modifiers, injectable random
+- [x] Skill progression: XP cost table per level with trait multipliers
+- [x] Default skill assignment: new personnel get role-appropriate skills at experience level
+- [x] Helper functions: getSkillForPerson(), hasSkill(), getEffectiveSkillLevel()
 
 ### Must Have
 - Skill catalog with 40+ types (see list below)
@@ -104,7 +106,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ## TODOs
 
-- [ ] 7.1 Define Skill Catalog with 40+ Skill Types
+- [x] 7.1 Define Skill Catalog with 40+ Skill Types
 
   **What to do**:
   - Create `src/types/campaign/skills/skillCatalog.ts`
@@ -183,14 +185,14 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\SkillType.java` — MekHQ skill type definitions
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\DefaultSkills.java` — MekHQ default skills
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test catalog has 40+ skill types
-  - [ ] RED: Test every skill type has valid costs[10] array
-  - [ ] RED: Test every skill type has valid linkedAttribute
-  - [ ] RED: Test getSkillType('gunnery') returns correct definition
-  - [ ] RED: Test getSkillsByCategory('combat') returns 11 skills
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test catalog has 40+ skill types
+   - [x] RED: Test every skill type has valid costs[10] array
+   - [x] RED: Test every skill type has valid linkedAttribute
+   - [x] RED: Test getSkillType('gunnery') returns correct definition
+   - [x] RED: Test getSkillsByCategory('combat') returns 11 skills
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define 40+ skill types in skill catalog`
@@ -198,7 +200,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ---
 
-- [ ] 7.2 Implement Skill Check Resolution
+- [x] 7.2 Implement Skill Check Resolution
 
   **What to do**:
   - Create `src/lib/campaign/skills/skillCheck.ts`:
@@ -247,14 +249,14 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\Skill.java` — MekHQ skill check
   - `E:\Projects\MekStation\src\lib\campaign\contractMarket.ts:114` — RandomFn pattern
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test skilled person (gunnery 4) has lower TN than unskilled
-  - [ ] RED: Test unskilled penalty adds +4 to base TN
-  - [ ] RED: Test modifiers add/subtract from TN
-  - [ ] RED: Test critical success at margin >= 4
-  - [ ] RED: Test deterministic with seeded random
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test skilled person (gunnery 4) has lower TN than unskilled
+   - [x] RED: Test unskilled penalty adds +4 to base TN
+   - [x] RED: Test modifiers add/subtract from TN
+   - [x] RED: Test critical success at margin >= 4
+   - [x] RED: Test deterministic with seeded random
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement skill check resolution with 2d6 vs TN`
@@ -262,7 +264,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ---
 
-- [ ] 7.3 Implement Skill Progression and XP Costs
+- [x] 7.3 Implement Skill Progression and XP Costs
 
   **What to do**:
   - Create `src/lib/campaign/skills/skillProgression.ts`:
@@ -297,14 +299,14 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - `.sisyphus/drafts/mekhq-modifier-systems.md:437-452` — Skill cost formula
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\Skill.java` — MekHQ costs
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test gunnery level 3→4 costs 16 XP (from catalog)
-  - [ ] RED: Test high attribute reduces cost (DEX 8 for piloting)
-  - [ ] RED: Test can't improve beyond level 10
-  - [ ] RED: Test can't improve without enough XP
-  - [ ] RED: Test improveSkill deducts XP and increments level
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test gunnery level 3→4 costs 16 XP (from catalog)
+   - [x] RED: Test high attribute reduces cost (DEX 8 for piloting)
+   - [x] RED: Test can't improve beyond level 10
+   - [x] RED: Test can't improve without enough XP
+   - [x] RED: Test improveSkill deducts XP and increments level
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): implement skill progression with XP costs`
@@ -312,7 +314,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ---
 
-- [ ] 7.4 Define Default Skills by Role and Experience Level
+- [x] 7.4 Define Default Skills by Role and Experience Level
 
   **What to do**:
   - Create `src/lib/campaign/skills/defaultSkills.ts`:
@@ -351,13 +353,13 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - `E:\Projects\MekStation\src\types\campaign\enums\CampaignPersonnelRole.ts` — 10 roles
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\DefaultSkills.java` — MekHQ defaults
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test PILOT gets gunnery + piloting at default levels
-  - [ ] RED: Test TECH gets tech-mech skill
-  - [ ] RED: Test GREEN experience adds +1 to skill values
-  - [ ] RED: Test ELITE experience subtracts -2 from skill values
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test PILOT gets gunnery + piloting at default levels
+   - [x] RED: Test TECH gets tech-mech skill
+   - [x] RED: Test GREEN experience adds +1 to skill values
+   - [x] RED: Test ELITE experience subtracts -2 from skill values
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): define default skills by role and experience level`
@@ -365,7 +367,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ---
 
-- [ ] 7.5 Create Skill Helper Functions for Other Plans
+- [x] 7.5 Create Skill Helper Functions for Other Plans
 
   **What to do**:
   - Create `src/lib/campaign/skills/skillHelpers.ts`:
@@ -400,13 +402,13 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - Plans 2, 3, 4, 8, 9, 15 — cross-plan skill dependencies
   - `E:\Projects\MekStation\src\types\campaign\Person.ts` — IPerson.skills
 
-  **Acceptance Criteria**:
-  - [ ] RED: Test getTechSkillValue returns skill value for person with Tech skill
-  - [ ] RED: Test getTechSkillValue returns 10 (unskilled) for person without Tech
-  - [ ] RED: Test hasSkill returns true/false correctly
-  - [ ] RED: Test getPersonBestCombatSkill finds highest combat skill
-  - [ ] GREEN: All tests pass
-  - [ ] `npm test` passes
+   **Acceptance Criteria**:
+   - [x] RED: Test getTechSkillValue returns skill value for person with Tech skill
+   - [x] RED: Test getTechSkillValue returns 10 (unskilled) for person without Tech
+   - [x] RED: Test hasSkill returns true/false correctly
+   - [x] RED: Test getPersonBestCombatSkill finds highest combat skill
+   - [x] GREEN: All tests pass
+   - [x] `npm test` passes
 
   **Commit**: YES
   - Message: `feat(campaign): add skill helper functions for cross-plan integration`
@@ -414,7 +416,7 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ---
 
-- [ ] 7.6 Create Skills Management UI
+- [x] 7.6 Create Skills Management UI
 
   **What to do**:
   - Create `src/components/campaign/SkillsPanel.tsx` — Skills display for personnel detail view:
@@ -436,12 +438,12 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   **References**:
   - `E:\Projects\MekStation\src\pages\gameplay\campaigns\[id]\index.tsx` — Campaign dashboard
 
-  **Acceptance Criteria**:
-  - [ ] Skills panel shows all person's skills with levels
-  - [ ] Improve button deducts XP and shows new level
-  - [ ] Add skill dropdown shows available skills
-  - [ ] Skill check dialog shows roll result with modifiers
-  - [ ] Manual verification: dev server → personnel → skills → improve → verify
+   **Acceptance Criteria**:
+   - [x] Skills panel shows all person's skills with levels
+   - [x] Improve button deducts XP and shows new level
+   - [x] Add skill dropdown shows available skills
+   - [x] Skill check dialog shows roll result with modifiers
+   - [x] Manual verification: dev server → personnel → skills → improve → verify
 
   **Commit**: YES
   - Message: `feat(ui): add skills management panel and check dialog`
@@ -470,12 +472,12 @@ npm run build              # Build succeeds
 ```
 
 ### Final Checklist
-- [ ] 40+ skill types defined with costs and linked attributes
-- [ ] Skill check: 2d6 vs TN with modifiers
-- [ ] XP costs calculated with attribute adjustment
-- [ ] Default skills assigned by role and experience level
-- [ ] Helper functions available for Plans 2, 3, 4, 8, 9, 15
-- [ ] Skills UI shows levels, allows improvement
+- [x] 40+ skill types defined with costs and linked attributes
+- [x] Skill check: 2d6 vs TN with modifiers
+- [x] XP costs calculated with attribute adjustment
+- [x] Default skills assigned by role and experience level
+- [x] Helper functions available for Plans 2, 3, 4, 8, 9, 15
+- [x] Skills UI shows levels, allows improvement
 
 ---
 
