@@ -101,59 +101,147 @@ For each screen, states are classified as:
 
 ---
 
+### ROUTE: `/shared`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Shared with me (default) | PRIMARY | List of items shared by others | `shared_{vp}_received` |
+| Shared by me | PRIMARY | Toggle to items I shared | `shared_{vp}_sent` |
+| Empty (no shared items) | PRIMARY | No items shared | `shared_{vp}_empty` |
+
+### ROUTE: `/units/[id]`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Custom unit detail with stats, sharing info | `unit-detail_{vp}` |
+| Not found | SECONDARY | Invalid unit ID | `unit-detail_{vp}_not-found` |
+
+---
+
 ## 4. Unit Customizer
+
+### Tab Matrix (verified from source code)
+| Unit Type | Tabs | Tab IDs |
+|-----------|------|---------|
+| BattleMech | 7 | overview, structure, armor, equipment, criticals, fluff, preview |
+| Vehicle | 4 | structure, armor, equipment, turret |
+| Aerospace | 3 | structure, armor, equipment |
+| Battle Armor | 2 | structure, squad |
+| Infantry | 1 | (single view, no tabs) |
+| ProtoMech | 1 | (single view, no tabs) |
+| **Total** | **18** | |
 
 ### ROUTE: `/customizer` (no unit loaded)
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
 | Empty/Welcome | PRIMARY | No unit loaded, shows selector or welcome | `customizer_{vp}_empty` |
 
-### ROUTE: `/customizer/[unitId]/structure`
-> Capture for: BattleMech, Vehicle, Aerospace (×3)
+### BattleMech (7 tabs — DEEP REVIEW)
+
+### ROUTE: `/customizer/[battlemechId]/overview`
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
-| Loaded (BattleMech) | PRIMARY | Tonnage, engine, gyro, armor type selectors | `customizer-structure-mech_{vp}` |
-| Loaded (Vehicle) | PRIMARY | Vehicle structure configuration | `customizer-structure-vehicle_{vp}` |
-| Loaded (Aerospace) | PRIMARY | Aerospace structure configuration | `customizer-structure-aero_{vp}` |
+| Loaded | PRIMARY | BattleMech overview summary | `customizer-overview-mech_{vp}` |
+
+### ROUTE: `/customizer/[battlemechId]/structure`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Tonnage, engine, gyro, armor type selectors | `customizer-structure-mech_{vp}` |
 | Validation error | SECONDARY | Red validation feedback visible | `customizer-structure-mech_{vp}_error` |
 
-### ROUTE: `/customizer/[unitId]/armor`
-> Capture for: BattleMech, Vehicle, Aerospace (×3) × 2 diagram modes
+### ROUTE: `/customizer/[battlemechId]/armor`
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
-| Grid mode (BattleMech) | PRIMARY | Schematic armor diagram | `customizer-armor-mech_{vp}_grid` |
-| Silhouette mode (BattleMech) | PRIMARY | SVG mech outline diagram | `customizer-armor-mech_{vp}_silhouette` |
+| Grid mode | PRIMARY | Schematic armor diagram | `customizer-armor-mech_{vp}_grid` |
+| Silhouette mode | PRIMARY | SVG mech outline diagram | `customizer-armor-mech_{vp}_silhouette` |
 | Auto-distribute active | SECONDARY | Auto-distribution toggle on | `customizer-armor-mech_{vp}_auto` |
-| Vehicle armor | PRIMARY | Vehicle armor layout | `customizer-armor-vehicle_{vp}` |
-| Aerospace armor | PRIMARY | Aerospace armor layout | `customizer-armor-aero_{vp}` |
 
-### ROUTE: `/customizer/[unitId]/equipment`
-> Capture for: BattleMech, Vehicle, Aerospace (×3)
+### ROUTE: `/customizer/[battlemechId]/equipment`
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
-| Browser open (BattleMech) | PRIMARY | Equipment browser with search + loadout | `customizer-equip-mech_{vp}` |
+| Browser open | PRIMARY | Equipment browser with search + loadout | `customizer-equip-mech_{vp}` |
 | Browser filtered | SECONDARY | Category filter active | `customizer-equip-mech_{vp}_filtered` |
 | Equipment selected | SECONDARY | Equipment detail panel visible | `customizer-equip-mech_{vp}_selected` |
-| Vehicle equipment | PRIMARY | Vehicle equipment layout | `customizer-equip-vehicle_{vp}` |
-| Aerospace equipment | PRIMARY | Aerospace equipment layout | `customizer-equip-aero_{vp}` |
 
-### ROUTE: `/customizer/[unitId]/criticals`
-> Capture for: BattleMech, Vehicle, Aerospace (×3)
+### ROUTE: `/customizer/[battlemechId]/criticals`
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
-| Loaded (BattleMech) | PRIMARY | 78-slot critical grid | `customizer-crits-mech_{vp}` |
+| Loaded | PRIMARY | 78-slot critical grid | `customizer-crits-mech_{vp}` |
 | Drag in progress | SECONDARY | Component being dragged (if capturable) | `customizer-crits-mech_{vp}_dragging` |
 | Validation error | SECONDARY | Red/yellow slot warnings | `customizer-crits-mech_{vp}_error` |
-| Vehicle criticals | PRIMARY | Vehicle critical layout | `customizer-crits-vehicle_{vp}` |
-| Aerospace criticals | PRIMARY | Aerospace critical layout | `customizer-crits-aero_{vp}` |
 
-### ROUTE: `/customizer/[unitId]/preview`
-> Capture for: BattleMech, Vehicle, Aerospace (×3)
+### ROUTE: `/customizer/[battlemechId]/fluff`
 | State | Type | Description | Screenshot Name |
 |-------|------|-------------|-----------------|
-| Loaded (BattleMech) | PRIMARY | Record sheet + stats summary | `customizer-preview-mech_{vp}` |
-| Vehicle preview | PRIMARY | Vehicle preview | `customizer-preview-vehicle_{vp}` |
-| Aerospace preview | PRIMARY | Aerospace preview | `customizer-preview-aero_{vp}` |
+| Loaded | PRIMARY | Lore/flavor text editor | `customizer-fluff-mech_{vp}` |
+
+### ROUTE: `/customizer/[battlemechId]/preview`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Record sheet + stats summary | `customizer-preview-mech_{vp}` |
+
+### Vehicle (4 tabs — MODERATE REVIEW)
+
+### ROUTE: `/customizer/[vehicleId]/structure`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Vehicle structure configuration | `customizer-structure-vehicle_{vp}` |
+
+### ROUTE: `/customizer/[vehicleId]/armor`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Vehicle armor layout | `customizer-armor-vehicle_{vp}` |
+
+### ROUTE: `/customizer/[vehicleId]/equipment`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Vehicle equipment layout | `customizer-equip-vehicle_{vp}` |
+
+### ROUTE: `/customizer/[vehicleId]/turret`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Turret weapon configuration | `customizer-turret-vehicle_{vp}` |
+
+### Aerospace (3 tabs — MODERATE REVIEW)
+
+### ROUTE: `/customizer/[aerospaceId]/structure`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Aerospace structure configuration | `customizer-structure-aero_{vp}` |
+
+### ROUTE: `/customizer/[aerospaceId]/armor`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Aerospace armor layout | `customizer-armor-aero_{vp}` |
+
+### ROUTE: `/customizer/[aerospaceId]/equipment`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Aerospace equipment layout | `customizer-equip-aero_{vp}` |
+
+### Battle Armor (2 tabs — LIGHTER REVIEW)
+
+### ROUTE: `/customizer/[battleArmorId]/structure`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Battle Armor structure configuration | `customizer-structure-ba_{vp}` |
+
+### ROUTE: `/customizer/[battleArmorId]/squad`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Squad composition configuration | `customizer-squad-ba_{vp}` |
+
+### Infantry (1 view — QUICK PASS)
+
+### ROUTE: `/customizer/[infantryId]`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | Infantry single customizer view | `customizer-infantry_{vp}` |
+
+### ProtoMech (1 view — QUICK PASS)
+
+### ROUTE: `/customizer/[protomechId]`
+| State | Type | Description | Screenshot Name |
+|-------|------|-------------|-----------------|
+| Loaded | PRIMARY | ProtoMech single customizer view | `customizer-protomech_{vp}` |
 
 **Dialogs from Customizer:**
 | Dialog | Trigger | Screenshot Name |
@@ -418,7 +506,9 @@ These are captured AS PART OF other screen captures but warrant specific attenti
 | Home & Global | 8 | 14 | 2 |
 | Compendium | 24 | 16 | 0 |
 | Unit Management | 8 | 0 | 0 |
-| Customizer | 60 | 28 | 16 |
+| Shared Items | 12 | 0 | 0 |
+| Unit Detail | 4 | 2 | 0 |
+| Customizer (6 types) | 76 | 20 | 16 |
 | Pilots | 32 | 10 | 0 |
 | Forces | 16 | 10 | 0 |
 | Encounters | 24 | 16 | 0 |
@@ -429,10 +519,10 @@ These are captured AS PART OF other screen captures but warrant specific attenti
 | Comparison | 12 | 6 | 0 |
 | Audit/Timeline | 4 | 10 | 0 |
 | Share/Vault | 8 | 6 | 8 |
-| **TOTALS** | **~272** | **~152** | **~30** |
+| **TOTALS** | **~304** | **~146** | **~30** |
 
-**Grand total: ~454 captures** (PRIMARY at 4 viewports + SECONDARY at 2 viewports + DIALOG at 2 viewports)
+**Grand total: ~480 captures** (PRIMARY at 4 viewports + SECONDARY at 2 viewports + DIALOG at 2 viewports)
 
-Touch-target overlay mode adds ~30 additional captures (key mobile-interaction pages at 375px only).
+Touch-target overlay mode adds ~35 additional captures (key mobile-interaction pages at 375px only).
 
-**Estimated total: ~485 screenshots**
+**Estimated total: ~530 screenshots** (up from ~485, due to 3 new unit types and 2 new pages)
