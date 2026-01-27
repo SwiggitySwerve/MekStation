@@ -2,6 +2,18 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #186.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "Mission XP" sources (missionFailXP, missionSuccessXP, missionOutstandingXP) | Remove or flag as `[MekStation Enhancement]` — NOT found in MekHQ CampaignOptions.java | `CampaignOptions.java` — searched, not present |
+| 2 | (missing) Reasoning XP cost multiplier | "2.5% per Reasoning rank, applied BEFORE trait multipliers" | `Person.java:7707-7717` |
+| 3 | `IPerson.traits` object for trait storage | `PersonnelOptions` via `person.getOptions().booleanOption()` | `Person.java` PersonnelOptions pattern |
+| 4 | 6 tech skills listed | 8 tech skills: add COMPUTERS, COMMUNICATIONS, SECURITY_SYSTEMS_ELECTRONIC | `SkillType.java:706-715` |
+| 5 | SPA purchase method (`purchaseSPA()`) | Flag as `[UNVERIFIED]` — no explicit method found in MekHQ | Searched MekHQ source — not found |
+
 ## Context
 
 ### Original Request
@@ -148,8 +160,8 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
       readonly prerequisites?: readonly string[]; // Required skill IDs
     }
 
-    // Trait flags on IPerson (extend IPerson)
-    export interface IPersonTraits {
+     // Trait flags stored in PersonnelOptions via person.getOptions().booleanOption() <!-- AUDIT: Corrected trait storage mechanism. Source: MekHQ Person.java PersonnelOptions pattern -->
+     export interface IPersonTraits {
       readonly fastLearner?: boolean;
       readonly slowLearner?: boolean;
       readonly gremlins?: boolean;
@@ -169,12 +181,12 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
     - `vocationalXP?: number` (default 1)
     - `vocationalXPTargetNumber?: number` (default 7)
     - `vocationalXPCheckFrequency?: number` (default 30, days)
-    - `adminXP?: number` (default 0)
-    - `adminXPPeriod?: number` (default 7, days)
-    - `missionFailXP?: number` (default 1)
-    - `missionSuccessXP?: number` (default 3)
-    - `missionOutstandingXP?: number` (default 5)
-    - `useAgingEffects?: boolean` (default true)
+                    - `adminXP?: number` (default 0)
+                    - `adminXPPeriod?: number` (default 7, days)
+                    - `missionFailXP?: number` (default 1) <!-- AUDIT: [MekStation Enhancement] Not found in MekHQ CampaignOptions.java -->
+                    - `missionSuccessXP?: number` (default 3) <!-- AUDIT: [MekStation Enhancement] Not found in MekHQ CampaignOptions.java -->
+                    - `missionOutstandingXP?: number` (default 5) <!-- AUDIT: [MekStation Enhancement] Not found in MekHQ CampaignOptions.java -->
+                    - `useAgingEffects?: boolean` (default true)
 
   **Must NOT do**:
   - Define education configuration (no academy system)
@@ -265,11 +277,16 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
   **What to do**:
   - Create `src/lib/campaign/progression/skillCostTraits.ts`:
     ```typescript
-    export function calculateTraitMultiplier(person: IPerson, skillId: string): number {
-      let multiplier = 1.0;
+     export function calculateTraitMultiplier(person: IPerson, skillId: string): number {
+       let multiplier = 1.0;
 
-      // Slow Learner: +20% cost
-      if (person.traits?.slowLearner) multiplier += 0.2;
+       // Reasoning XP cost multiplier: 2.5% per Reasoning rank, applied BEFORE trait multipliers <!-- AUDIT: Added missing detail. Source: MekHQ Person.java:7707-7717 -->
+       if (person.reasoning && person.reasoning > 0) {
+         multiplier *= (1 + person.reasoning * 0.025);
+       }
+
+       // Slow Learner: +20% cost
+       if (person.traits?.slowLearner) multiplier += 0.2;
 
       // Fast Learner: -20% cost
       if (person.traits?.fastLearner) multiplier -= 0.2;
@@ -296,9 +313,9 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
       return Math.max(1, Math.round(baseCost * traitMultiplier));
     }
 
-    export function isTechSkill(skillType: ISkillType): boolean {
-      return ['tech-mech', 'tech-aero', 'tech-mechanic', 'tech-ba', 'tech-vessel', 'astech'].includes(skillType.id);
-    }
+     export function isTechSkill(skillType: ISkillType): boolean {
+       return ['tech-mech', 'tech-aero', 'tech-mechanic', 'tech-ba', 'tech-vessel', 'astech', 'computers', 'communications', 'security-systems-electronic'].includes(skillType.id); <!-- AUDIT: Added missing tech skills. Source: MekHQ SkillType.java:706-715 -->
+     }
 
     // Called after spending XP on skills — checks for veterancy SPA
     export function checkVeterancySPA(person: IPerson, skillId: string): boolean {
@@ -524,9 +541,9 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
       return pool[index];
     }
 
-    export function rollComingOfAgeSPA(person: IPerson, random: RandomFn): ISpecialAbility | null;
-    export function purchaseSPA(person: IPerson, spaId: string): { updatedPerson: IPerson; success: boolean; reason?: string };
-    export function personHasSPA(person: IPerson, spaId: string): boolean;
+     export function rollComingOfAgeSPA(person: IPerson, random: RandomFn): ISpecialAbility | null;
+     export function purchaseSPA(person: IPerson, spaId: string): { updatedPerson: IPerson; success: boolean; reason?: string }; <!-- AUDIT: [UNVERIFIED] No explicit purchaseSPA() method found in MekHQ source -->
+     export function personHasSPA(person: IPerson, spaId: string): boolean;
     ```
   - Add `specialAbilities?: string[]` to IPerson (list of SPA IDs)
 

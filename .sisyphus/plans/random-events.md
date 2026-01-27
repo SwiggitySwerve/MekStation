@@ -2,15 +2,29 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #203.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "51 prisoner event types" | "57 prisoner event types" | `PrisonerEvent.java` |
+| 2 | "weekly on Mondays" | "fortnightly on Mondays" (every 2 weeks: `WEEK_OF_WEEK_BASED_YEAR % 2 == 0`) | `PrisonerEventManager.java:144` |
+| 3 | Commander's Day = March 15 | Commander's Day = June 16 | `CommandersDayAnnouncement.java:66-67` |
+| 4 | Freedom Day = July 4 | Freedom Day = March 18 | `FreedomDayAnnouncement.java:68-69` |
+| 5 | Winter Holiday = December 25 | Winter Holiday = December 10 & 27 (two dates) | `WinterHolidayAnnouncement.java:69-70` |
+| 6 | (missing) PrisonerCaptureStyle.MEKHQ gate | Add: prisoner events require `PrisonerCaptureStyle.MEKHQ` | `PrisonerEventManager.java:156` |
+| 7 | "10 contract event types" | "11 contract event types" — add SPORADIC_UPRISINGS | `AtBEventType.java:39` |
+
 ## Context
 
 ### Original Request
-Implement MekHQ's random event system: prisoner events (51 types with severity), life events (births, coming-of-age, celebrations), contract special events (10 types), and the Gray Monday historical event (3132). Events trigger through the day advancement pipeline at daily, weekly, and monthly frequencies.
+Implement MekHQ's random event system: prisoner events (57 prisoner event types <!-- AUDIT: Corrected from '51'. Source: PrisonerEvent.java --> with severity), life events (births, coming-of-age, celebrations), contract special events (10 types), and the Gray Monday historical event (3132). Events trigger through the day advancement pipeline at daily, weekly, and monthly frequencies.
 
 ### Interview Summary
 **Key Discussions**:
 - Event categories: Prisoner, Life, Contract, Historical
-- Prisoner events: ~30 representative types (minor + major), weekly on Mondays
+- Prisoner events: ~30 representative types (minor + major), fortnightly on Mondays (every 2 weeks) <!-- AUDIT: Corrected from 'weekly'. Source: PrisonerEventManager.java:144 -->
 - Life events: coming-of-age (age 16), calendar celebrations, simplified (no family system)
 - Contract events: 10 types checked monthly per active contract
 - Gray Monday: optional historical event (3132.08.03–12), 99% balance loss
@@ -21,12 +35,12 @@ Implement MekHQ's random event system: prisoner events (51 types with severity),
 
 **Research Findings**:
 - `PrisonerEvent.java`: 51 event types with major/minor severity
-- `PrisonerEventManager.java`: Ransom 10% monthly, capacity system (conv infantry=5, BA=20)
+- `PrisonerEventManager.java`: Ransom 10% monthly, capacity system (conv infantry=5, BA=20), prisoner events require PrisonerCaptureStyle.MEKHQ <!-- AUDIT: Added missing requirement. Source: PrisonerEventManager.java:156 -->
 - `CampaignNewDayManager.java` (line 444): Prisoner events on Monday or 1st of month
-- `AtBContract.java`: 10 contract event types checked monthly
+- `AtBContract.java`: 11 contract event types including SPORADIC_UPRISINGS <!-- AUDIT: Corrected from '10'. Source: AtBEventType.java:39 --> checked monthly
 - `GrayMonday.java`: 3132.08.03–12, bankruptcy on day 7 (99% balance debited)
 - Life events: BirthAnnouncement (50 variants), ComingOfAgeAnnouncement (age 16)
-- Calendar celebrations: Commander's Day, Freedom Day, New Year's, Winter Holiday
+- Calendar celebrations: Commander's Day (June 16 <!-- AUDIT: Corrected from March 15. Source: CommandersDayAnnouncement.java:66-67 -->), Freedom Day (March 18 <!-- AUDIT: Corrected from July 4. Source: FreedomDayAnnouncement.java:68-69 -->), New Year's, Winter Holiday (December 10 & 27 <!-- AUDIT: Corrected from December 25, and note TWO dates. Source: WinterHolidayAnnouncement.java:69-70 -->)
 - Riot scenario: 25% chance on Mondays for riot duty contracts
 
 ### Metis Review
@@ -71,7 +85,7 @@ Build a random event framework with probability tables, event effect processing,
 - Day processor registered with appropriate frequencies
 
 ### Must NOT Have (Guardrails)
-- Full 51 prisoner events (start with ~30 representative ones)
+- Full 57 prisoner events (start with ~30 representative ones) <!-- AUDIT: Missed in initial correction. Source: PrisonerEvent.java -->
 - Birth/pregnancy system
 - Family/genealogy events
 - Personality generation system

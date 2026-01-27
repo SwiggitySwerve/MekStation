@@ -2,6 +2,24 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #179.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | **CRITICAL**: Fixed maintenance thresholds | Quality-DEPENDENT thresholds — see table below | `Maintenance.java:288-369` |
+| 2 | "A = 0.8x (good parts = cheaper)" | "A = 1.5x (worst quality = expensive), F = 0.8x (best quality = cheap)" — plan description was backwards | Code is correct, plan text was inverted |
+| 3 | Maintenance processor (task 3.5 marked complete) | Note: maintenance processor is NOT implemented — task marked complete but processor doesn't exist | Searched codebase |
+
+**Quality-Dependent Thresholds** (Correction #1 expanded):
+- Quality A: improve ≥ 4, can't degrade, damage at margin < -1 (1), < -4 (2), == -4 (2), < -4 (3), < -6 (4)
+- Quality B: improve ≥ 4, degrade < -5, damage at margin < -2 (1), < -6 (2)
+- Quality C: improve ≥ 5, degrade < -4, damage at margin < -3 (1), < -6 (2)
+- Quality D: improve ≥ 5, degrade < -3, damage at margin < -4 (1)
+- Quality E: improve ≥ 6, degrade < -2, damage at margin < -5 (1)
+- Quality F: can't improve, degrade < -2, damage at margin < -6 (1)
+
 ## Context
 
 ### Original Request
@@ -166,14 +184,15 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
       readonly qualityAfter: PartQuality;
     }
     ```
-  - Define maintenance TN thresholds:
-    ```typescript
-    export const MAINTENANCE_THRESHOLDS = {
-      QUALITY_IMPROVE_MARGIN: 4,    // Margin >= 4 = improve quality
-      QUALITY_DEGRADE_MARGIN: -3,   // Margin <= -3 = degrade quality
-      CRITICAL_FAILURE_MARGIN: -6,  // Margin <= -6 = additional damage
-    };
-    ```
+   - Define maintenance TN thresholds:
+     ```typescript
+     export const MAINTENANCE_THRESHOLDS = {
+       QUALITY_IMPROVE_MARGIN: 4,    // Margin >= 4 = improve quality
+       QUALITY_DEGRADE_MARGIN: -3,   // Margin <= -3 = degrade quality
+       CRITICAL_FAILURE_MARGIN: -6,  // Margin <= -6 = additional damage
+     };
+     // <!-- AUDIT: CRITICAL - Thresholds are quality-DEPENDENT per MekHQ, not fixed. Source: Maintenance.java:288-369 -->
+     ```
 
   **CRITICAL NOTE — Quality Direction**:
   In MekHQ, **A is WORST quality, F is BEST quality**. This is counterintuitive but matches MekHQ's
@@ -346,12 +365,12 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
   - Add quality field to unit tracking:
     - Extend the campaign unit instance with quality: `readonly quality?: PartQuality` (defaults to `PartQuality.D`)
     - Add `unitQualities: Map<string, IUnitQuality>` to campaign state (or as optional field on existing unit tracking)
-  - Modify repair cost calculation to include quality modifier:
-    ```typescript
-    // In repair cost calculation:
-    const qualityMultiplier = getQualityRepairCostMultiplier(unitQuality);
-    // A = 0.8x (good parts = cheaper), F = 1.5x (bad parts = expensive)
-    ```
+   - Modify repair cost calculation to include quality modifier:
+     ```typescript
+     // In repair cost calculation:
+     const qualityMultiplier = getQualityRepairCostMultiplier(unitQuality);
+     // A = 1.5x (worst quality = expensive), F = 0.8x (best quality = cheap) <!-- AUDIT: Plan description was backwards. Code in PartQuality.ts is correct. -->
+     ```
   - Modify repair TN to include tech skill:
     ```typescript
     // When creating repair job:
@@ -392,8 +411,10 @@ Add equipment quality grades (A-F) to the campaign system with maintenance skill
 
 - [x] 3.5 Create Maintenance Day Processor
 
-  **What to do**:
-  - Create `src/lib/campaign/processors/maintenanceProcessor.ts`:
+   <!-- AUDIT: Maintenance processor is NOT implemented. Task marked complete but processor doesn't exist in codebase. -->
+
+   **What to do**:
+   - Create `src/lib/campaign/processors/maintenanceProcessor.ts`:
     ```typescript
     export const maintenanceProcessor: IDayProcessor = {
       id: 'maintenance',

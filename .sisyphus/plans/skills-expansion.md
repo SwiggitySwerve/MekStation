@@ -2,16 +2,28 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #173.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | "40+ skill types" | "109 skill types" | `SkillType.java:98-211` |
+| 2 | "4 experience tiers (Green/Regular/Veteran/Elite)" | "7 gameplay tiers (Ultra-Green/Green/Regular/Veteran/Elite/Heroic/Legendary) + EXP_NONE sentinel" | `SkillType.java` |
+| 3 | (missing) Cost array special values | "-1 means DISABLED_SKILL_LEVEL, 0 means free auto-advance" | `SkillType.java:248` |
+| 4 | (missing) Attribute modifier formula | `Math.max(1, Math.round(baseCost * (1 - attrMod * 0.05)))` | `SkillType.java` |
+| 5 | "6 skill attributes" | "8 skill attributes" — add WILLPOWER and EDGE | `SkillAttribute.java` |
+
 ## Context
 
 ### Original Request
-Expand MekStation's skill system from 2 skills (gunnery, piloting) to 40+ skill types matching MekHQ. Add a skill catalog, skill check resolution, and skill cost tables. Skills like Administration, Negotiation, Leadership, Medicine, and Tech are used by other campaign systems (turnover, repair, financial, medical).
+Expand MekStation's skill system from 2 skills (gunnery, piloting) to 109 skill types <!-- AUDIT: C1 - MekHQ SkillType.java:98-211 defines 109 skill types, not 40+ --> matching MekHQ. Add a skill catalog, skill check resolution, and skill cost tables. Skills like Administration, Negotiation, Leadership, Medicine, and Tech are used by other campaign systems (turnover, repair, financial, medical).
 
 ### Interview Summary
 **Key Discussions**:
 - Current ISkillType and ISkill interfaces are well-designed — extend, don't replace
 - Existing getSkillValue() function is correct — keep
-- Need skill catalog (constant data object defining all 40+ skills)
+- Need skill catalog (constant data object defining all 109 skill types) <!-- AUDIT: C1 -->
 - Skill check: 2d6 vs TN (skill value + modifiers), injectable RandomFn
 - Skill costs: base cost per level × multipliers (XP cost multiplier, trait modifiers)
 - Many other plans depend on this: Plan 2 (turnover needs skills), Plan 3 (repair needs Tech), Plan 4 (financial needs Admin), Plan 8 (medical needs Medicine)
@@ -20,8 +32,8 @@ Expand MekStation's skill system from 2 skills (gunnery, piloting) to 40+ skill 
 **Research Findings**:
 - `ISkillType` (97 lines): id, name, description, targetNumber, costs[10], linkedAttribute
 - `ISkill` (134 lines): level 0-10, bonus, xpProgress, typeId
-- `IAttributes` (72 lines): 8 attributes with getAttributeModifier()
-- `ExperienceLevel` (63 lines): Green/Regular/Veteran/Elite with thresholds
+- `IAttributes` (72 lines): 8 skill attributes (STR, BOD, REF, DEX, INT, CHA, WILLPOWER, EDGE) with getAttributeModifier() <!-- AUDIT: C5 - MekHQ SkillAttribute.java defines 8 attributes -->
+- `ExperienceLevel` (63 lines): 7 gameplay tiers (Ultra-Green/Green/Regular/Veteran/Elite/Heroic/Legendary) + EXP_NONE sentinel <!-- AUDIT: C2 - MekHQ SkillType.java defines 7 tiers, not 4 -->
 - `getSkillValue(skill, skillType, attributes)` already implemented
 - Only 2 skill types populated: gunnery and piloting (hardcoded in person creation)
 
@@ -39,24 +51,24 @@ Expand MekStation's skill system from 2 skills (gunnery, piloting) to 40+ skill 
 ## Work Objectives
 
 ### Core Objective
-Build a comprehensive skill catalog with 40+ skill types, skill check resolution, and XP-based progression that other campaign systems can query for modifier values.
+Build a comprehensive skill catalog with 109 skill types, <!-- AUDIT: C1 --> skill check resolution, and XP-based progression that other campaign systems can query for modifier values.
 
 ### Concrete Deliverables
-- `src/types/campaign/skills/skillCatalog.ts` — All 40+ skill type definitions
+- `src/types/campaign/skills/skillCatalog.ts` — All 109 skill type definitions <!-- AUDIT: C1 -->
 - `src/lib/campaign/skills/skillCheck.ts` — Skill check resolution
 - `src/lib/campaign/skills/skillProgression.ts` — XP costs and level-up
 - `src/lib/campaign/skills/defaultSkills.ts` — Default skill assignment by role/level
 - Updated person creation with role-appropriate skills
 
 ### Definition of Done
-- [x] 40+ skill types defined in catalog with costs, linked attributes, target numbers
+- [x] 109 skill types defined in catalog with costs, linked attributes, target numbers <!-- AUDIT: C1 -->
 - [x] Skill check: 2d6 vs TN with modifiers, injectable random
 - [x] Skill progression: XP cost table per level with trait multipliers
 - [x] Default skill assignment: new personnel get role-appropriate skills at experience level
 - [x] Helper functions: getSkillForPerson(), hasSkill(), getEffectiveSkillLevel()
 
 ### Must Have
-- Skill catalog with 40+ types (see list below)
+- Skill catalog with 109 types (see list below) <!-- AUDIT: C1 -->
 - Skill check resolution (2d6 vs TN)
 - XP cost per level (10-element cost array per skill type)
 - Default skills by CampaignPersonnelRole
@@ -106,11 +118,11 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
 
 ## TODOs
 
-- [x] 7.1 Define Skill Catalog with 40+ Skill Types
+- [x] 7.1 Define Skill Catalog with 109 Skill Types <!-- AUDIT: C1 -->
 
-  **What to do**:
-  - Create `src/types/campaign/skills/skillCatalog.ts`
-  - Define all skill types using the existing `ISkillType` interface:
+   **What to do**:
+   - Create `src/types/campaign/skills/skillCatalog.ts`
+   - Define all skill types using the existing `ISkillType` interface:
     ```typescript
     export const SKILL_CATALOG: Record<string, ISkillType> = {
       // Combat Skills
@@ -185,8 +197,8 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\SkillType.java` — MekHQ skill type definitions
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\personnel\skills\DefaultSkills.java` — MekHQ default skills
 
-   **Acceptance Criteria**:
-   - [x] RED: Test catalog has 40+ skill types
+    **Acceptance Criteria**:
+    - [x] RED: Test catalog has 109 skill types <!-- AUDIT: C1 -->
    - [x] RED: Test every skill type has valid costs[10] array
    - [x] RED: Test every skill type has valid linkedAttribute
    - [x] RED: Test getSkillType('gunnery') returns correct definition
@@ -230,13 +242,16 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
       modifiers?: readonly { name: string; value: number }[]
     ): number;
     ```
-  - Logic:
-    1. Look up skill on person: `person.skills[skillId]`
-    2. If missing: use unskilled TN (base TN + 4 penalty = typically 11)
-    3. Calculate effective TN: `getSkillValue(skill, skillType, person.attributes) + sum(modifiers)`
-    4. Roll 2d6
-    5. Success if roll >= TN
-  - Note: Lower TN is better (skilled person has lower TN)
+   - Logic:
+     1. Look up skill on person: `person.skills[skillId]`
+     2. If missing: use unskilled TN (base TN + 4 penalty = typically 11)
+     3. Calculate effective TN: `getSkillValue(skill, skillType, person.attributes) + sum(modifiers)`
+     4. Roll 2d6
+     5. Success if roll >= TN
+   - Note: Lower TN is better (skilled person has lower TN)
+   - Cost array special values: <!-- AUDIT: C3 - MekHQ SkillType.java:248 -->
+     - `-1` = DISABLED_SKILL_LEVEL (skill cannot be improved)
+     - `0` = free auto-advance (no XP cost)
 
   **Must NOT do**:
   - Edge point spending (defer)
@@ -269,20 +284,21 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
   **What to do**:
   - Create `src/lib/campaign/skills/skillProgression.ts`:
     ```typescript
-    export function getSkillImprovementCost(
-      skillId: string,
-      currentLevel: number,
-      person: IPerson,
-      options: ICampaignOptions
-    ): number {
-      const skillType = getSkillType(skillId);
-      if (!skillType) return Infinity;
-      const baseCost = skillType.costs[currentLevel + 1] ?? Infinity;
-      const xpMultiplier = options.xpCostMultiplier ?? 1.0;
-      const attrMod = getAttributeModifier(person.attributes[skillType.linkedAttribute]);
-      // MekHQ: cost adjusted by attribute modifier
-      return Math.max(1, Math.round(baseCost * xpMultiplier * (1 - attrMod * 0.05)));
-    }
+     export function getSkillImprovementCost(
+       skillId: string,
+       currentLevel: number,
+       person: IPerson,
+       options: ICampaignOptions
+     ): number {
+       const skillType = getSkillType(skillId);
+       if (!skillType) return Infinity;
+       const baseCost = skillType.costs[currentLevel + 1] ?? Infinity;
+       const xpMultiplier = options.xpCostMultiplier ?? 1.0;
+       const attrMod = getAttributeModifier(person.attributes[skillType.linkedAttribute]);
+       // AUDIT: C4 - MekHQ SkillType.java attribute modifier formula
+       // Formula: Math.max(1, Math.round(baseCost * (1 - attrMod * 0.05)))
+       return Math.max(1, Math.round(baseCost * xpMultiplier * (1 - attrMod * 0.05)));
+     }
 
     export function canImproveSkill(person: IPerson, skillId: string, options: ICampaignOptions): boolean;
     export function improveSkill(person: IPerson, skillId: string, options: ICampaignOptions): IPerson;
@@ -336,13 +352,16 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
       [CampaignPersonnelRole.UNASSIGNED]: { skills: {} },
     };
 
-    // Experience level adjusts default skill levels
-    export const EXPERIENCE_SKILL_MODIFIER: Record<ExperienceLevel, number> = {
-      [ExperienceLevel.GREEN]: +1,    // Worse (higher TN)
-      [ExperienceLevel.REGULAR]: 0,   // Default
-      [ExperienceLevel.VETERAN]: -1,  // Better (lower TN)
-      [ExperienceLevel.ELITE]: -2,    // Best
-    };
+     // Experience level adjusts default skill levels (7 gameplay tiers) <!-- AUDIT: C2 -->
+     export const EXPERIENCE_SKILL_MODIFIER: Record<ExperienceLevel, number> = {
+       [ExperienceLevel.ULTRA_GREEN]: +2,  // Worst (highest TN)
+       [ExperienceLevel.GREEN]: +1,        // Worse (higher TN)
+       [ExperienceLevel.REGULAR]: 0,       // Default
+       [ExperienceLevel.VETERAN]: -1,      // Better (lower TN)
+       [ExperienceLevel.ELITE]: -2,        // Best
+       [ExperienceLevel.HEROIC]: -3,       // Better still
+       [ExperienceLevel.LEGENDARY]: -4,    // Best possible
+     };
 
     export function createDefaultSkills(role: CampaignPersonnelRole, level: ExperienceLevel): Record<string, ISkill>;
     ```
@@ -356,8 +375,8 @@ Build a comprehensive skill catalog with 40+ skill types, skill check resolution
    **Acceptance Criteria**:
    - [x] RED: Test PILOT gets gunnery + piloting at default levels
    - [x] RED: Test TECH gets tech-mech skill
-   - [x] RED: Test GREEN experience adds +1 to skill values
-   - [x] RED: Test ELITE experience subtracts -2 from skill values
+    - [x] RED: Test GREEN experience adds +1 to skill values
+    - [x] RED: Test ELITE experience subtracts -2 from skill values <!-- AUDIT: C2 -->
    - [x] GREEN: All tests pass
    - [x] `npm test` passes
 

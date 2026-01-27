@@ -2,6 +2,20 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #195.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | BV range "75-125%" or "85-125%" | "85-120%" — `randomInt(8)` returns 0-7, `(0-3)*5=-15` to `(7-3)*5=+20`, giving 85% to 120% | `AtBDynamicScenarioFactory.java:348` |
+| 2 | (missing) Total scenario types | "21+ total scenario types (9 core + 12+ special)" | `AtBScenario.java:117-140` |
+| 3 | Scenario type selection tables | Flag as `[UNVERIFIED]` — not found in AtBScenarioFactory.java | Searched MekHQ source |
+| 4 | (implied) AtBScenarioType enum | "AtBScenarioType enum doesn't exist — MekHQ uses int constants (0-21)" | `AtBScenario.java` |
+| 5 | Battle chance percentages | Flag as `[UNVERIFIED]` — not found in CombatTeam.java | Searched MekHQ source |
+
+---
+
 ## Context
 
 ### Original Request
@@ -12,22 +26,22 @@ Expand MekStation's basic scenario system from 4 templates into MekHQ's full AtB
 - 7 combat roles (Maneuver/Frontline/Patrol/Training/Cadre/Auxiliary/Reserve) with different battle chances
 - Battle type modifier from contract morale level: `1 + (STALEMATE.ordinal() - morale.ordinal()) × 5`
 - 7 morale levels (Routed through Overwhelming) tracked per contract
-- Scenario type tables per role (d40 for Maneuver, d60 for Patrol, d20 for Frontline, d10 for Training)
-- 10+ scenario types: Base Attack, Breakthrough, Standup, Chase, Hold the Line, Hide & Seek, Probe, Extraction, Recon Raid
-- OpFor BV matching: `playerBV × difficulty × forceMult × (scenarioMod / 100)` with 85-120% random variation
+- Scenario type tables per role [UNVERIFIED] <!-- AUDIT: Selection tables not found in AtBScenarioFactory.java --> (d40 for Maneuver, d60 for Patrol, d20 for Frontline, d10 for Training)
+- 21+ total scenario types (9 core + 12+ special) <!-- AUDIT: Added missing count. Source: AtBScenario.java:117-140 -->: Base Attack, Breakthrough, Standup, Chase, Hold the Line, Hide & Seek, Probe, Extraction, Recon Raid
+- OpFor BV matching: `playerBV × difficulty × forceMult × (scenarioMod / 100)` with 85-120% random variation <!-- AUDIT: Corrected from "75-125%" to "85-120%". randomInt(8) returns 0-7, (0-3)*5=-15 to (7-3)*5=+20, giving 85% to 120%. Source: AtBDynamicScenarioFactory.java:348 -->
 - Planetary conditions: light (5 levels), weather (10+ types), gravity, atmosphere effects on force composition
 - Scenario generation runs weekly (Mondays) for active contracts
 - ACAR exists but is basic — improve with BV-based outcomes
 - TDD approach, injectable RandomFn
 
 **Research Findings**:
-- `CombatTeam.java`: Battle chances — Maneuver 40%, Patrol 60%, Frontline 20%, Training/Cadre 10%
+- `CombatTeam.java`: Battle chances [UNVERIFIED] <!-- AUDIT: Battle chance percentages not found in CombatTeam.java --> — Maneuver 40%, Patrol 60%, Frontline 20%, Training/Cadre 10%
 - `AtBDynamicScenarioFactory.java`: Full generation pipeline (template → forces → conditions → objectives)
 - `AtBMoraleLevel.java`: 7 levels with crisis die sizes (d7 to d1)
 - `AtBContractType.java`: Scenario type selection tables per combat role
 - Planetary effects: Low gravity → no tanks, Toxic → no conv infantry, Tornado F4 → infantry/BA/tanks banned
 - Force sizes: Lance=4 (IS), Star=5 (Clan), Level II=6 (ComStar)
-- BV formula: Target % = `100 + ((randomInt(8) - 3) × 5)` = 75-125%
+- BV formula: Target % = `100 + ((randomInt(8) - 3) × 5)` = 85-120% <!-- AUDIT: Missed in initial correction. Source: AtBDynamicScenarioFactory.java:348 -->
 
 ### Metis Review
 **Identified Gaps** (addressed):
@@ -68,7 +82,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
 - AtBMoraleLevel enum (7 values) on IContract
 - Battle chance per role with morale modifier
 - Scenario type tables (Maneuver/Patrol/Frontline/Training)
-- OpFor BV formula: `playerBV × difficulty × (75-125%)`
+- OpFor BV formula: `playerBV × difficulty × (85-120%)` <!-- AUDIT: Missed in initial correction -->
 - Scenario conditions with at least light and weather
 - Weekly processor registered in pipeline
 
@@ -148,17 +162,19 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
       advancing: 1, dominating: 2, overwhelming: 3,
     };
 
-    export enum AtBScenarioType {
-      BASE_ATTACK = 'base_attack',
-      BREAKTHROUGH = 'breakthrough',
-      STANDUP = 'standup',
-      CHASE = 'chase',
-      HOLD_THE_LINE = 'hold_the_line',
-      HIDE_AND_SEEK = 'hide_and_seek',
-      PROBE = 'probe',
-      EXTRACTION = 'extraction',
-      RECON_RAID = 'recon_raid',
-    }
+     // NOTE: MekHQ uses int constants (0-21), not an enum. This is TypeScript adaptation.
+     // <!-- AUDIT: Architecture note. MekHQ source: AtBScenario.java -->
+     export enum AtBScenarioType {
+       BASE_ATTACK = 'base_attack',
+       BREAKTHROUGH = 'breakthrough',
+       STANDUP = 'standup',
+       CHASE = 'chase',
+       HOLD_THE_LINE = 'hold_the_line',
+       HIDE_AND_SEEK = 'hide_and_seek',
+       PROBE = 'probe',
+       EXTRACTION = 'extraction',
+       RECON_RAID = 'recon_raid',
+     }
 
     export interface ICombatTeam {
       readonly forceId: string;
@@ -318,7 +334,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
       difficultyMultiplier: number, // 0.5 easy - 2.0 hard
       random: RandomFn
     ): number {
-      // Target percentage: 100 + ((rand(8) - 3) * 5) = 75-125%
+      // Target percentage: 100 + ((rand(8) - 3) * 5) = 85-120% <!-- AUDIT: Missed in initial correction -->
       const variation = (Math.floor(random() * 8) - 3) * 5;
       const targetPct = (100 + variation) / 100;
       return Math.round(playerBV * difficultyMultiplier * targetPct);
@@ -343,7 +359,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team �
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\AtBDynamicScenarioFactory.java` — BV formula
 
   **Acceptance Criteria**:
-  - [x] RED: Test OpFor BV = playerBV × difficulty × variation (75-125%)
+   - [x] RED: Test OpFor BV = playerBV × difficulty × variation (85-120%) <!-- AUDIT: Missed in initial correction -->
   - [x] RED: Test difficulty 1.0 with 100% variation = playerBV exactly
   - [x] RED: Test IS lance size = 4, Clan star = 5, ComStar level II = 6
   - [x] RED: Test deterministic with seeded random
@@ -548,7 +564,7 @@ npm run build              # Build succeeds
 ### Final Checklist
 - [x] 7 combat roles with battle chances
 - [x] Scenario type tables for 4 role groups
-- [x] OpFor BV matching with 75-125% variation
+- [x] OpFor BV matching with 85-120% variation <!-- AUDIT: Missed in initial correction -->
 - [x] Scenario conditions with force composition effects
 - [x] 7 morale levels tracked per contract
 - [x] Weekly scenario generation processor

@@ -2,6 +2,18 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #184.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | Planetary modifiers hardcoded | "values are CONFIGURABLE via CampaignOptions, not hardcoded" | `Planet.java:729-734` |
+| 2 | (missing) Tech level modifiers | "INTRO/STANDARD tech: -2 to TN, ADVANCED tech: -1 to TN" | `Procurement.java:237-245` |
+| 3 | (missing) Resupply modifier | "-2 to TN when isResupply=true" | `Procurement.java:183-185` |
+| 4 | Delivery time formula | Flag as `[UNVERIFIED]` — not found in MekHQ | Searched MekHQ source |
+| 5 | "7 availability ratings" | "8 availability ratings" — add F_STAR (soft extinction) | `Availability.java` |
+
 ## Context
 
 ### Original Request
@@ -178,7 +190,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
   - `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\market\procurement\Procurement.java:226-270` — TN tables
 
   **Acceptance Criteria**:
-  - [x] RED: Test AvailabilityRating has 7 values (A–X)
+  - [x] RED: Test AvailabilityRating has 8 availability ratings including F_STAR (soft extinction) <!-- AUDIT: Corrected from '7 ratings'. Source: Availability.java -->
   - [x] RED: Test REGULAR_PART_TN[D] === 8
   - [x] RED: Test CONSUMABLE_TN[D] === 6
   - [x] RED: Test IAcquisitionRequest has all required fields
@@ -221,12 +233,16 @@ Build a complete acquisition pipeline: availability rating lookup → target num
       const negotiator = getBestNegotiator(campaign);
       mods.push({ name: 'Negotiator', value: getNegotiatorModifier(negotiator) });
 
-      // Planetary modifiers (Plan 9.3)
-      if (campaign.options.usePlanetaryModifiers) {
-        mods.push(...getPlanetaryModifiers(campaign));
-      }
+       // Planetary modifiers (Plan 9.3)
+       if (campaign.options.usePlanetaryModifiers) {
+         mods.push(...getPlanetaryModifiers(campaign));
+       }
 
-      // Clan parts penalty (3050-3070 for non-Clan factions)
+       // Tech level modifiers: INTRO/STANDARD tech: -2 to TN, ADVANCED tech: -1 to TN <!-- AUDIT: Added missing modifier. Source: Procurement.java:237-245 -->
+
+       // Resupply modifier: -2 to TN when isResupply=true <!-- AUDIT: Added missing modifier. Source: Procurement.java:183-185 -->
+
+       // Clan parts penalty (3050-3070 for non-Clan factions)
       if (campaign.options.clanPartsPenalty && isClanPart(request) && !isClanFaction(campaign) && isInClanPenaltyEra(campaign)) {
         mods.push({ name: 'Clan Parts', value: 3 });
       }
@@ -296,6 +312,7 @@ Build a complete acquisition pipeline: availability rating lookup → target num
     }
 
     // Tech sophistication modifier (MekHQ Planet.java lines 729-734)
+    // Configurable via CampaignOptions, not hardcoded <!-- AUDIT: Architecture correction. Source: Planet.java:729-734 -->
     export const TECH_MODIFIER: Record<PlanetaryRating, number> = {
       A: -2, B: -1, C: 0, D: 1, E: 2, F: 8,
     };
@@ -361,16 +378,17 @@ Build a complete acquisition pipeline: availability rating lookup → target num
     ```typescript
     const BASE_MODIFIER = 7; // CamOps p51
 
-    export function calculateDeliveryTime(
-      availability: AvailabilityRating,
-      transitUnit: 'day' | 'week' | 'month',
-      random: RandomFn
-    ): number {
-      const availIndex = Object.values(AvailabilityRating).indexOf(availability);
-      const roll = Math.floor(random() * 6) + 1; // 1d6
-      const total = Math.max(1, Math.floor((BASE_MODIFIER + roll + availIndex) / 4));
-      return total; // in transit units
-    }
+     export function calculateDeliveryTime(
+       availability: AvailabilityRating,
+       transitUnit: 'day' | 'week' | 'month',
+       random: RandomFn
+     ): number {
+       const availIndex = Object.values(AvailabilityRating).indexOf(availability);
+       const roll = Math.floor(random() * 6) + 1; // 1d6
+       // [UNVERIFIED] Formula not found in MekHQ source <!-- AUDIT: Formula not found in MekHQ source -->
+       const total = Math.max(1, Math.floor((BASE_MODIFIER + roll + availIndex) / 4));
+       return total; // in transit units
+     }
 
     export function calculateDeliveryDate(
       orderDate: string,       // ISO date

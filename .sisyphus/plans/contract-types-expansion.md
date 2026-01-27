@@ -2,6 +2,16 @@
 
 > **✅ COMPLETED** — Implemented, merged, and archived. PR #197.
 
+## Audit Corrections
+
+> Applied 2026-01-27 — corrections align this plan with MekHQ Java source code.
+
+| # | Old Value | New Value | MekHQ Source |
+|---|-----------|-----------|--------------|
+| 1 | PIRATE_HUNTING combat role: PATROL | Correct to: FRONTLINE | `AtBContractType.java:270` |
+| 2 | "10 event types" | "11 event types" — add SPORADIC_UPRISINGS | `AtBEventType.java:39` |
+| 3 | "special" contract group | Tag as `[MekStation Enhancement]` — MekHQ doesn't formalize this grouping | MekHQ source — not found |
+
 ## Context
 
 ### Original Request
@@ -13,15 +23,15 @@ Expand MekStation's 5 contract types (Garrison, Recon, Raid, Extraction, Escort)
 - Each type has: constant length (months), ops tempo multiplier, default combat role, parts availability modifier
 - Variable length formula: `round(constantLength × 0.75) + randomInt(round(constantLength × 0.5))`
 - 4 negotiation clause types: Command, Salvage, Support, Transport
-- Contract events checked monthly (10 event types with gameplay effects)
+- Contract events checked monthly (11 event types <!-- AUDIT: Corrected from '10'. Source: AtBEventType.java:39 (same correction as random-events.md) --> including SPORADIC_UPRISINGS with gameplay effects)
 - Ops tempo affects scenario generation frequency
 - Parts availability modifier affects acquisition TN (Plan 9)
 - Payment scales with contract type risk
 
 **Research Findings**:
 - `AtBContractType.java`: All 19 types with constantLength, opsTempo values
-- `AtBContract.java`: Contract event checking with 10 event types
-- Contract groupings: Garrison (5 types), Raid (6 types), Guerrilla (4 types), Special (4 types)
+- `AtBContract.java`: Contract event checking with 11 event types <!-- AUDIT: Missed in initial correction. Source: AtBEventType.java:39 -->
+- Contract groupings: Garrison (5 types), Raid (6 types), Guerrilla (4 types), [MekStation Enhancement] <!-- AUDIT: MekHQ doesn't formalize 'special' contract grouping --> Special (4 types)
 - Ops tempo ranges from 0.8× (Cadre) to 2.4× (Espionage/Sabotage)
 - Contract events: BONUS_ROLL, SPECIAL_SCENARIO, CIVIL_DISTURBANCE, REBELLION, BETRAYAL (6 sub-types), TREACHERY, LOGISTICS_FAILURE, REINFORCEMENTS, SPECIAL_EVENTS (6 sub-types), BIG_BATTLE
 
@@ -154,7 +164,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
       planetary_assault:  { type: AtBContractType.PLANETARY_ASSAULT,  name: 'Planetary Assault',  group: 'special',   constantLengthMonths: 9,  opsTempo: 1.5, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 0, description: 'Full-scale planetary invasion' },
       relief_duty:        { type: AtBContractType.RELIEF_DUTY,        name: 'Relief Duty',        group: 'special',   constantLengthMonths: 9,  opsTempo: 1.4, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 0, description: 'Reinforce or relieve besieged forces' },
       guerrilla_warfare:  { type: AtBContractType.GUERRILLA_WARFARE,  name: 'Guerrilla Warfare',  group: 'guerrilla', constantLengthMonths: 24, opsTempo: 2.1, defaultCombatRole: CombatRole.FRONTLINE, partsAvailabilityMod: 2, description: 'Conduct guerrilla operations' },
-      pirate_hunting:     { type: AtBContractType.PIRATE_HUNTING,     name: 'Pirate Hunting',     group: 'special',   constantLengthMonths: 6,  opsTempo: 1.0, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: -1, description: 'Hunt and eliminate pirate bands' },
+       pirate_hunting:     { type: AtBContractType.PIRATE_HUNTING,     name: 'Pirate Hunting',     group: 'special',   constantLengthMonths: 6,  opsTempo: 1.0, defaultCombatRole: CombatRole.FRONTLINE, <!-- AUDIT: Corrected from PATROL. Source: AtBContractType.java:270 --> partsAvailabilityMod: -1, description: 'Hunt and eliminate pirate bands' },
       diversionary_raid:  { type: AtBContractType.DIVERSIONARY_RAID,  name: 'Diversionary Raid',  group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.8, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Create a diversion for main force' },
       objective_raid:     { type: AtBContractType.OBJECTIVE_RAID,     name: 'Objective Raid',     group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.6, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Strike and destroy specific targets' },
       recon_raid:         { type: AtBContractType.RECON_RAID,         name: 'Recon Raid',         group: 'raid',      constantLengthMonths: 3,  opsTempo: 1.6, defaultCombatRole: CombatRole.PATROL,   partsAvailabilityMod: 1, description: 'Gather intelligence behind enemy lines' },
@@ -362,7 +372,7 @@ Define 19 contract types with type-specific rules, implement variable-length con
   - [x] `npm test` passes
 
   **Commit**: YES
-  - Message: `feat(campaign): implement contract event system with 10 event types`
+  - Message: `feat(campaign): implement contract event system with 11 event types` <!-- AUDIT: Missed in initial correction -->
   - Files: `src/lib/campaign/contracts/contractEvents.ts`
 
 ---
