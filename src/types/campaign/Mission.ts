@@ -14,6 +14,7 @@ import { ScenarioStatus } from './enums/ScenarioStatus';
 import { Money } from './Money';
 import { IPaymentTerms, calculateTotalPayout, createDefaultPaymentTerms } from './PaymentTerms';
 import type { IScenario } from './Scenario';
+import type { AtBMoraleLevel } from './scenario/scenarioTypes';
 
 // =============================================================================
 // Salvage Rights
@@ -143,6 +144,9 @@ export interface IContract extends IMission {
 
   /** Command rights: Independent, House, or Integrated */
   readonly commandRights: CommandRights;
+
+  /** AtB morale level for this contract (optional, defaults to STALEMATE) */
+  readonly moraleLevel?: AtBMoraleLevel;
 }
 
 // =============================================================================

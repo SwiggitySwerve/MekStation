@@ -10,6 +10,7 @@
  */
 
 import { ScenarioStatus } from './enums/ScenarioStatus';
+import type { IScenarioConditions } from './scenario/scenarioTypes';
 
 // =============================================================================
 // Objective Type
@@ -127,20 +128,23 @@ export interface IScenario {
     readonly height: number;
   };
 
-  /** Description of opposing forces */
-  readonly opponentForceDescription: string;
+   /** Description of opposing forces */
+   readonly opponentForceDescription: string;
 
-  /** Date when scenario occurs (ISO date string, e.g., '3025-06-20') */
-  readonly date?: string;
+   /** Date when scenario occurs (ISO date string, e.g., '3025-06-20') */
+   readonly date?: string;
 
-  /** After-action report (filled after completion) */
-  readonly report?: string;
+   /** Environmental conditions for this scenario (optional) */
+   readonly conditions?: IScenarioConditions;
 
-  /** Creation timestamp (ISO 8601) */
-  readonly createdAt: string;
+   /** After-action report (filled after completion) */
+   readonly report?: string;
 
-  /** Last update timestamp (ISO 8601) */
-  readonly updatedAt: string;
+   /** Creation timestamp (ISO 8601) */
+   readonly createdAt: string;
+
+   /** Last update timestamp (ISO 8601) */
+   readonly updatedAt: string;
 }
 
 // =============================================================================

@@ -15,6 +15,7 @@ import { Money } from './Money';
 import { MissionStatus, PersonnelStatus } from './enums';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { ICombatTeam } from './scenario/scenarioTypes';
 import {
   IMission,
   IContract,
@@ -240,12 +241,15 @@ export interface ICampaignOptions {
   /** Whether to track ammunition usage */
   readonly trackAmmunition: boolean;
 
-  /** Whether to use quirks system */
-  readonly useQuirks: boolean;
+   /** Whether to use quirks system */
+   readonly useQuirks: boolean;
 
-  // =========================================================================
-  // Force Options (~6)
-  // =========================================================================
+   /** Whether to use AtB dynamic scenario generation (optional, defaults to false) */
+   readonly useAtBScenarios?: boolean;
+
+   // =========================================================================
+   // Force Options (~6)
+   // =========================================================================
 
   /** Maximum units per lance */
   readonly maxUnitsPerLance: number;
@@ -395,6 +399,9 @@ export interface ICampaign {
 
     /** Shopping list for acquisition system */
     readonly shoppingList?: IShoppingList;
+
+    /** Combat teams for AtB scenario generation (optional) */
+    readonly combatTeams?: readonly ICombatTeam[];
 
     /** Campaign options */
     readonly options: ICampaignOptions;
