@@ -343,6 +343,13 @@ export interface ICampaignOptions {
 
     /** Auto-award system configuration (optional, defaults to all enabled) */
     readonly autoAwardConfig?: IAutoAwardConfig;
+
+    // =========================================================================
+    // Rank System Options
+    // =========================================================================
+
+    /** Code of the active rank system (e.g., 'MERC', 'SLDF', 'CLAN', 'COMSTAR', 'HOUSE') */
+    readonly rankSystemCode?: string;
 }
 
 // =============================================================================
@@ -845,6 +852,9 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
       usePlanetaryModifiers: true,
       acquisitionTransitUnit: 'month',
       clanPartsPenalty: true,
+
+      // Rank system
+      rankSystemCode: 'MERC',
     };
 }
 
