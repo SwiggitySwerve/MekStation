@@ -54,10 +54,18 @@ All have Phase A complete (OpenSpec merged). Can proceed with Phase B in any ord
 
 ### Next Actions
 
-**Option 1**: Wait for PR #195 merge, then complete Plan 11 Phase C (archive)
-**Option 2**: Start Phase B for Plans 14-17 (independent of Plan 11)
+**Blocked**: Cannot start Phase B for any plan while PR #195 is open (per WITHIN TIER rule)
 
-**Recommendation**: Start Plan 14, 15, 16, or 17 Phase B while waiting for Plan 11 merge. Plan 12 must wait for Plan 11 due to CombatRole dependency.
+**Completed Preparatory Work**:
+- ✅ Plan 12 comprehensive preparation analysis (15-20 hour implementation estimated)
+- ✅ Task breakdown with effort estimates
+- ✅ Dependency analysis
+- ✅ Test strategy defined
+- ✅ Technical patterns identified
+
+**After PR #195 Merges**:
+1. Complete Plan 11 Phase C (archive OpenSpec)
+2. Start Plan 12 Phase B (Contract Types) - preparation complete, ready to implement
 
 ## Learnings
 
