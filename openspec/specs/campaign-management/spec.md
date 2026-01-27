@@ -40,37 +40,42 @@ The system SHALL persist campaign state to IndexedDB and restore it on reload.
 - **THEN** personnel persists to "mekstation:campaign:{id}:personnel", forces to "mekstation:campaign:{id}:forces", and missions to "mekstation:campaign:{id}:missions"
 
 ### Requirement: Campaign Options
-The system SHALL support 80 configurable campaign options organized by category (personnel, financial, combat, force, general, acquisition), including 15 new acquisition-related options.
+The system SHALL support 54 configurable campaign options organized by category (personnel, financial, combat, force, general), including 14 new financial expansion options.
 
-#### Scenario: Default acquisition options are sensible
+#### Scenario: Default options are sensible
 - **GIVEN** createDefaultCampaignOptions is called
 - **WHEN** the options are inspected
-- **THEN** useAcquisitionSystem is false, usePlanetaryModifiers is true, acquisitionTransitUnit is 'month', clanPartsPenalty is true, acquisitionSkillModifier is true, useAutoLogistics is false, autoLogisticsStockTarget is 100, and all acquisition options have valid default values
+- **THEN** healingRateMultiplier is 1.0, salaryMultiplier is 1.0, startingFunds is 0, useAutoResolve is false, maxUnitsPerLance is 4, useRoleBasedSalaries is true, useLoanSystem is true, useTaxes is false, and all 54 options have valid default values
 
-#### Scenario: Acquisition system can be enabled
-- **GIVEN** a campaign with useAcquisitionSystem set to true
-- **WHEN** the day processor runs
-- **THEN** the acquisition processor attempts pending acquisitions and delivers arrived items
+#### Scenario: Options can be partially overridden
+- **GIVEN** a user provides partial options {startingFunds: 5000000, salaryMultiplier: 2.0, useRoleBasedSalaries: false}
+- **WHEN** createCampaign is called with these options
+- **THEN** the campaign has startingFunds 5000000, salaryMultiplier 2.0, useRoleBasedSalaries false, with all other options set to defaults
 
-#### Scenario: Planetary modifiers affect acquisition
-- **GIVEN** a campaign with usePlanetaryModifiers set to true
-- **WHEN** an acquisition roll is calculated
-- **THEN** planetary tech sophistication, industrial capacity, and output ratings modify the target number
+#### Scenario: Options affect campaign behavior
+- **GIVEN** a campaign with payForSalaries set to false
+- **WHEN** day advancement processes daily costs
+- **THEN** no salary transactions are recorded
 
-#### Scenario: Transit units are configurable
-- **GIVEN** a campaign with acquisitionTransitUnit set to 'week'
-- **WHEN** delivery time is calculated
-- **THEN** the result is in weeks instead of months
+#### Scenario: Financial options control cost processing
+- **GIVEN** a campaign with useRoleBasedSalaries set to true
+- **WHEN** day advancement processes monthly costs on 1st of month
+- **THEN** role-based salaries are calculated and deducted, and daily cost processor is skipped for salaries
 
-#### Scenario: Clan parts penalty applies in era
-- **GIVEN** a campaign in year 3055 with clanPartsPenalty set to true
-- **WHEN** acquiring a clan part
-- **THEN** a +3 penalty is applied to the target number
+#### Scenario: Loan system options
+- **GIVEN** a campaign with useLoanSystem set to true and maxLoanPercent 50
+- **WHEN** maximum loan amount is calculated
+- **THEN** max loan is 50% of total campaign asset value
 
-#### Scenario: Auto-logistics can be enabled
-- **GIVEN** a campaign with useAutoLogistics set to true
-- **WHEN** the day processor runs
-- **THEN** units are scanned for needed parts and acquisition requests are auto-queued
+#### Scenario: Tax options
+- **GIVEN** a campaign with useTaxes set to true and taxRate 10
+- **WHEN** taxes are calculated on positive profits
+- **THEN** 10% of profits are deducted as taxes
+
+#### Scenario: Price multiplier options
+- **GIVEN** a campaign with clanPriceMultiplier 2.0 and usedEquipmentMultiplier 0.5
+- **WHEN** equipment prices are calculated
+- **THEN** Clan equipment costs 2.0× base price and used equipment costs 0.5× base price
 
 ### Requirement: Personnel Management
 The system SHALL manage campaign personnel with CRUD operations and queries by status, role, and unit assignment.

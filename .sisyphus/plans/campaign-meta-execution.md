@@ -104,28 +104,32 @@ Format: `feat/{change-id}`
 | Change-ID | `update-day-advancement-pipeline` |
 | Branch | `feat/day-advancement-pipeline` |
 | PR | #172 |
-| Status | Implemented, PR open |
+| Status | Merged + Archived |
 | Specs MODIFIED | `day-progression` |
 | Specs ADDED | — |
 | Sisyphus Plan | `day-advancement-expansion.md` |
 
 ---
 
-### Plan 7: Skills Expansion (Tier 1)
+### Plan 7: Skills Expansion (Tier 1) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-skills-expansion` |
 | Branch | `feat/add-skills-expansion` |
+| PR | #173 |
+| Status | Merged + Archived |
 | Specs MODIFIED | `personnel-management` |
 | Specs ADDED | `skills-system` |
 | Sisyphus Plan | `skills-expansion.md` |
 | Gap Review Notes | Defines ISkillType catalog (40+ skills), 2d6 check system |
 
-### Plan 13: Personnel Status & Role Expansion (Tier 1)
+### Plan 13: Personnel Status & Role Expansion (Tier 1) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-personnel-status-roles` |
 | Branch | `feat/add-personnel-status-roles` |
+| PR | #176 |
+| Status | Merged + Archived (#177) |
 | Specs MODIFIED | `personnel-management`, `campaign-management` |
 | Specs ADDED | `personnel-status-roles` |
 | Sisyphus Plan | `personnel-status-role-expansion.md` |
@@ -133,51 +137,61 @@ Format: `feat/{change-id}`
 
 ---
 
-### Plan 2: Turnover & Retention (Tier 2)
+### Plan 2: Turnover & Retention (Tier 2) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-turnover-retention` |
 | Branch | `feat/add-turnover-retention` |
+| PR | #178 |
+| Status | Merged + Archived |
 | Specs MODIFIED | `personnel-management`, `day-progression` |
 | Specs ADDED | `turnover-retention` |
 | Sisyphus Plan | `turnover-retention-system.md` |
 | Gap Review Notes | Depends on Plan 7 (skills) for skill modifiers; stubs 14 permanently-neutral modifiers |
 
-### Plan 3: Repair & Quality Cascade (Tier 2)
+### Plan 3: Repair & Quality Cascade (Tier 2) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-repair-quality-cascade` |
 | Branch | `feat/add-repair-quality-cascade` |
+| PR | #179 |
+| Status | Merged + Archived |
 | Specs MODIFIED | `repair` |
 | Specs ADDED | `quality-system` |
 | Sisyphus Plan | `repair-quality-cascade.md` |
 | Gap Review Notes | Quality A(worst)-F(best) SEPARATE from condition; re-declares `maintenanceCycleDays` — use existing field |
 
-### Plan 4: Financial System Expansion (Tier 2)
+### Plan 4: Financial System Expansion (Tier 2) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-financial-system` |
 | Branch | `feat/add-financial-system` |
+| PR | #181 (code included in later PRs) |
+| Status | Merged + Archived |
 | Specs MODIFIED | `campaign-finances`, `day-progression` |
 | Specs ADDED | `financial-system` |
 | Sisyphus Plan | `financial-system-expansion.md` |
 | Gap Review Notes | HIGH: needs dailyCosts/financial mutual exclusion gate; re-declares `useLoanSystem` — use existing field |
 
-### Plan 5: Faction Standing (Tier 2)
+### Plan 5: Faction Standing (Tier 2) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-faction-standing` |
 | Branch | `feat/add-faction-standing` |
+| PR | #181 |
+| Status | Merged + Archived (#183) |
 | Specs MODIFIED | `campaign-management` |
 | Specs ADDED | `faction-standing` |
 | Sisyphus Plan | `faction-standing-system.md` |
 | Gap Review Notes | Regard/standing per faction, reputation modifiers |
 
-### Plan 8: Medical System (Tier 2)
+### Plan 8: Medical System (Tier 2) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-medical-system` |
 | Branch | `feat/add-medical-system` |
+| PR | #182 |
+| Status | Merged + Archived (#183) |
 | Specs MODIFIED | `personnel-management`, `day-progression` |
 | Specs ADDED | `medical-system` |
 | Sisyphus Plan | `medical-system.md` |
@@ -185,20 +199,24 @@ Format: `feat/{change-id}`
 
 ---
 
-### Plan 9: Acquisition & Supply Chain (Tier 3)
+### Plan 9: Acquisition & Supply Chain (Tier 3) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-acquisition-supply-chain` |
 | Branch | `feat/add-acquisition-supply-chain` |
+| PR | #184 |
+| Status | Merged + Archived (#185) |
 | Specs MODIFIED | `campaign-management`, `day-progression` |
 | Specs ADDED | `acquisition-supply-chain` |
 | Sisyphus Plan | `acquisition-supply-chain.md` |
 
-### Plan 10: Personnel Progression (Tier 3)
+### Plan 10: Personnel Progression (Tier 3) ✅ DONE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-personnel-progression` |
 | Branch | `feat/add-personnel-progression` |
+| PR | #186 |
+| Status | Merged + Archived |
 | Specs MODIFIED | `personnel-management`, `day-progression` |
 | Specs ADDED | `personnel-progression` |
 | Sisyphus Plan | `personnel-progression.md` |
@@ -347,19 +365,19 @@ TIER 1 (Infrastructure) ✅ COMPLETE
   Plan 13: Personnel Status/Roles ────────── A ✅ → B ✅ → C ✅ ARCHIVED
   ─── GATE: Both Tier 1 PRs merged ✅ ───
 
-TIER 2 (Core Systems)
-  Plan 2:  Turnover & Retention ──────────── A → B → C
-  Plan 3:  Repair & Quality Cascade ──────── A → B → C
-  Plan 4:  Financial System ──────────────── A → B → C
-  Plan 5:  Faction Standing ──────────────── A → B → C
-  Plan 8:  Medical System ───────────────── A → B → C
-  ─── GATE: All Tier 2 PRs merged ───
+TIER 2 (Core Systems) ✅ COMPLETE
+  Plan 2:  Turnover & Retention ──────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #178)
+  Plan 3:  Repair & Quality Cascade ──────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #179)
+  Plan 4:  Financial System ──────────────── A ✅ → B ✅ → C ✅ ARCHIVED (code in PR #181+)
+  Plan 5:  Faction Standing ──────────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #181)
+  Plan 8:  Medical System ───────────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #182)
+  ─── GATE: All Tier 2 PRs merged ✅ ───
 
-TIER 3 (Dependent Systems)
+TIER 3 (Dependent Systems) — 2/8 MERGED
   Plan 11: Scenario & Combat ────────────── A → B → C  ← MUST be before Plan 12
   Plan 12: Contract Types ───────────────── A → B → C  ← AFTER Plan 11
-  Plan 9:  Acquisition & Supply Chain ────── A → B → C
-  Plan 10: Personnel Progression ─────────── A → B → C
+  Plan 9:  Acquisition & Supply Chain ────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #184)
+  Plan 10: Personnel Progression ─────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #186)
   Plan 14: Awards & Auto-Granting ────────── A → B → C
   Plan 15: Rank System ──────────────────── A → B → C
   Plan 16: Random Events ───────────────── A → B → C
