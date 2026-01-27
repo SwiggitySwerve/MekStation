@@ -38,10 +38,10 @@ Define the repeatable lifecycle every campaign plan follows, pre-map all change-
 - This meta-plan document with full checklist for all 17 plans
 
 ### Definition of Done
-- [ ] All 17 plans have change-ids, branch names, and spec mappings defined
-- [ ] Execution order is clear with dependency gates between tiers
-- [ ] Prerequisites are listed and actionable
-- [ ] Per-plan lifecycle template is documented
+- [x] All 17 plans have change-ids, branch names, and spec mappings defined
+- [x] Execution order is clear with dependency gates between tiers
+- [x] Prerequisites are listed and actionable
+- [x] Per-plan lifecycle template is documented
 
 ### Must Have
 - Exact change-id for every plan
