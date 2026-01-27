@@ -113,7 +113,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ## TODOs
 
-- [ ] 10.1 Define Progression Types and Configuration
+- [x] 10.1 Define Progression Types and Configuration
 
   **What to do**:
   - Create `src/types/campaign/progression/progressionTypes.ts`:
@@ -198,7 +198,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.2 Implement XP Award Service
+- [x] 10.2 Implement XP Award Service
 
   **What to do**:
   - Create `src/lib/campaign/progression/xpAwards.ts`:
@@ -258,7 +258,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.3 Implement Skill Cost Formula with Trait Modifiers
+- [x] 10.3 Implement Skill Cost Formula with Trait Modifiers
 
   **What to do**:
   - Create `src/lib/campaign/progression/skillCostTraits.ts`:
@@ -334,7 +334,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.4 Implement Aging System
+- [x] 10.4 Implement Aging System
 
   **What to do**:
   - Create `src/lib/campaign/progression/aging.ts`:
@@ -412,7 +412,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.5 Implement Vocational Training Day Processor
+- [x] 10.5 Implement Vocational Training Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/vocationalTrainingProcessor.ts`:
@@ -484,7 +484,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.6 Implement SPA Acquisition
+- [x] 10.6 Implement SPA Acquisition
 
   **What to do**:
   - Create `src/lib/campaign/progression/spaAcquisition.ts`:

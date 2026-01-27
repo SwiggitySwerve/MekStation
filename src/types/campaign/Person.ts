@@ -9,7 +9,8 @@
 
 import { PersonnelStatus, CampaignPersonnelRole } from './enums';
 import { IAttributes, ISkill } from './skills';
-import type { IPilot, IPilotSkills, PilotStatus } from '../pilot/PilotInterfaces';
+import type { IPilot, IPilotSkills } from '../pilot/PilotInterfaces';
+import type { IPersonTraits } from './progression/progressionTypes';
 
 // =============================================================================
 // Injury Interface
@@ -96,6 +97,9 @@ export interface IPersonIdentity {
 
   /** Blood type */
   readonly bloodType?: string;
+
+  /** Date of birth (ISO 8601 string or Date) */
+  readonly birthDate?: string | Date;
 }
 
 // =============================================================================
@@ -414,24 +418,34 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
   /** ID of assigned force/lance */
   readonly forceId?: string;
 
-  // =========================================================================
-  // Flags
-  // =========================================================================
+    // =========================================================================
+    // Traits and Abilities
+    // =========================================================================
 
-  /** Whether this person is a founder of the unit (+1 share) */
-  readonly isFounder?: boolean;
+    /** Trait flags that modify skill costs and other progression mechanics */
+    readonly traits?: IPersonTraits;
 
-  /** Whether this person is the commander */
-  readonly isCommander?: boolean;
+    /** Special abilities (SPA IDs) acquired through progression */
+    readonly specialAbilities?: readonly string[];
 
-  /** Whether this person is second in command */
-  readonly isSecondInCommand?: boolean;
+   // =========================================================================
+   // Flags
+   // =========================================================================
 
-  /** Whether this person is immortal (cannot die) */
-  readonly isImmortal?: boolean;
+   /** Whether this person is a founder of the unit (+1 share) */
+   readonly isFounder?: boolean;
 
-  /** Whether this person is a Clan character */
-  readonly isClan?: boolean;
+   /** Whether this person is the commander */
+   readonly isCommander?: boolean;
+
+   /** Whether this person is second in command */
+   readonly isSecondInCommand?: boolean;
+
+   /** Whether this person is immortal (cannot die) */
+   readonly isImmortal?: boolean;
+
+   /** Whether this person is a Clan character */
+   readonly isClan?: boolean;
 }
 
 // =============================================================================

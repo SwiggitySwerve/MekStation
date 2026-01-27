@@ -93,12 +93,58 @@ export interface ICampaignOptions {
    /** Whether to track time in service */
    readonly trackTimeInService: boolean;
 
-   /** Whether to use edge points */
-   readonly useEdge: boolean;
+    /** Whether to use edge points */
+    readonly useEdge: boolean;
 
-  // =========================================================================
-  // Financial Options (~10)
-  // =========================================================================
+    // =========================================================================
+    // XP Progression Options (~14)
+    // =========================================================================
+
+    /** XP awarded per scenario participation (default 1) */
+    readonly scenarioXP?: number;
+
+    /** XP awarded per kill (default 1) */
+    readonly killXPAward?: number;
+
+    /** Number of kills required to earn killXPAward (default 1) */
+    readonly killsForXP?: number;
+
+    /** XP awarded per task completion (default 1) */
+    readonly taskXP?: number;
+
+    /** Number of tasks required to earn taskXP (default 1) */
+    readonly nTasksXP?: number;
+
+    /** XP awarded per successful vocational training check (default 1) */
+    readonly vocationalXP?: number;
+
+    /** Target number for vocational training 2d6 roll (default 7) */
+    readonly vocationalXPTargetNumber?: number;
+
+    /** Days between vocational training checks (default 30) */
+    readonly vocationalXPCheckFrequency?: number;
+
+    /** XP awarded for administrative duties (default 0) */
+    readonly adminXP?: number;
+
+    /** Days between admin XP awards (default 7) */
+    readonly adminXPPeriod?: number;
+
+    /** XP awarded for mission failure (default 1) */
+    readonly missionFailXP?: number;
+
+    /** XP awarded for mission success (default 3) */
+    readonly missionSuccessXP?: number;
+
+    /** XP awarded for mission outstanding success (default 5) */
+    readonly missionOutstandingXP?: number;
+
+    /** Whether to apply aging effects (attribute decay, trait application) (default true) */
+    readonly useAgingEffects?: boolean;
+
+   // =========================================================================
+   // Financial Options (~10)
+   // =========================================================================
 
   /** Starting funds in C-bills */
   readonly startingFunds: number;
@@ -689,12 +735,28 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
       maxPatientsPerDoctor: 25,
       doctorsUseAdministration: false,
       xpPerMission: 1,
-     xpPerKill: 1,
-     xpCostMultiplier: 1.0,
-     trackTimeInService: true,
-     useEdge: true,
+      xpPerKill: 1,
+      xpCostMultiplier: 1.0,
+      trackTimeInService: true,
+      useEdge: true,
 
-    // Financial options
+      // XP Progression options
+      scenarioXP: 1,
+      killXPAward: 1,
+      killsForXP: 1,
+      taskXP: 1,
+      nTasksXP: 1,
+      vocationalXP: 1,
+      vocationalXPTargetNumber: 7,
+      vocationalXPCheckFrequency: 30,
+      adminXP: 0,
+      adminXPPeriod: 7,
+      missionFailXP: 1,
+      missionSuccessXP: 3,
+      missionOutstandingXP: 5,
+      useAgingEffects: true,
+
+     // Financial options
     startingFunds: 0,
     maintenanceCostMultiplier: 1.0,
     repairCostMultiplier: 1.0,
