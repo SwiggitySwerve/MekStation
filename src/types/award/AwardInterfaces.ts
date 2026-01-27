@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 
+import type { IAutoGrantCriteria } from '../campaign/awards/autoAwardTypes';
+
 // =============================================================================
 // Enums
 // =============================================================================
@@ -123,6 +125,8 @@ export interface IAward {
   readonly sortOrder: number;
   /** Whether award is hidden until earned */
   readonly secret?: boolean;
+  /** Auto-grant criteria for the auto-award engine (optional) */
+  readonly autoGrantCriteria?: IAutoGrantCriteria;
 }
 
 /**

@@ -26,6 +26,7 @@ import {
 } from './Mission';
 import type { SalvageRights, CommandRights } from './Mission';
 import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
+import type { IAutoAwardConfig } from './awards/autoAwardTypes';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -330,11 +331,18 @@ export interface ICampaignOptions {
    // Faction Standing Options (~2)
    // =========================================================================
 
-   /** Whether to track faction standing */
-   readonly trackFactionStanding: boolean;
+    /** Whether to track faction standing */
+    readonly trackFactionStanding: boolean;
 
-   /** Multiplier for regard changes (1.0 = normal) */
-   readonly regardChangeMultiplier: number;
+    /** Multiplier for regard changes (1.0 = normal) */
+    readonly regardChangeMultiplier: number;
+
+    // =========================================================================
+    // Auto-Award Options
+    // =========================================================================
+
+    /** Auto-award system configuration (optional, defaults to all enabled) */
+    readonly autoAwardConfig?: IAutoAwardConfig;
 }
 
 // =============================================================================
