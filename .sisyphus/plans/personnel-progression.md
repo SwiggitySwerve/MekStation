@@ -258,7 +258,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.3 Implement Skill Cost Formula with Trait Modifiers
+- [x] 10.3 Implement Skill Cost Formula with Trait Modifiers
 
   **What to do**:
   - Create `src/lib/campaign/progression/skillCostTraits.ts`:
