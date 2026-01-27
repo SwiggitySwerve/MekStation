@@ -7,27 +7,28 @@ import { AccoladeLevel, CensureLevel } from '../../factionStanding/escalation';
 import { Money } from '@/types/campaign/Money';
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-  const options = createDefaultCampaignOptions();
-  const now = new Date().toISOString();
-  return {
-    id: 'test-campaign',
-    name: 'Test Campaign',
-    currentDate: new Date('2025-01-15'),
-    factionId: 'test-faction',
-    rootForceId: 'force-root',
-    createdAt: now,
-    updatedAt: now,
-    options,
-    factionStandings: {},
-    personnel: new Map(),
-    finances: {
-      balance: new Money(100000),
-      transactions: [],
-    },
-    forces: new Map(),
-    missions: new Map(),
-    ...overrides,
-  };
+   const options = createDefaultCampaignOptions();
+   const now = new Date().toISOString();
+   return {
+     id: 'test-campaign',
+     name: 'Test Campaign',
+     currentDate: new Date('2025-01-15'),
+     factionId: 'test-faction',
+     rootForceId: 'force-root',
+     createdAt: now,
+     updatedAt: now,
+     options,
+     factionStandings: {},
+     shoppingList: { items: [] },
+     personnel: new Map(),
+     finances: {
+       balance: new Money(100000),
+       transactions: [],
+     },
+     forces: new Map(),
+     missions: new Map(),
+     ...overrides,
+   };
 }
 
 describe('factionStandingProcessor', () => {

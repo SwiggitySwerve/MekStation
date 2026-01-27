@@ -160,15 +160,15 @@ describe('acquisitionProcessor', () => {
 
   describe('empty shopping list', () => {
     it('should handle empty shopping list', () => {
-      const campaign = createTestCampaign({
-        shoppingList: createShoppingList(),
-      });
+       const campaign = createTestCampaign({
+         shoppingList: createShoppingList(),
+       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
-      expect(result.campaign.shoppingList.items).toHaveLength(0);
-      expect(result.events).toHaveLength(0);
-    });
+       expect(result.campaign.shoppingList!.items).toHaveLength(0);
+       expect(result.events).toHaveLength(0);
+     });
   });
 
   // ==========================================================================
@@ -187,7 +187,7 @@ describe('acquisitionProcessor', () => {
       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
       // Request should be processed (status changed)
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).not.toBe('pending');
     });
 
@@ -251,7 +251,7 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 0; // Guaranteed failure
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('failed');
     });
 
@@ -266,7 +266,7 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 1; // Guaranteed success
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.deliveryDate).toBeDefined();
       expect(updatedRequest.deliveryDate).not.toBe('');
     });
@@ -282,7 +282,7 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 1;
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.attempts).toBe(1);
     });
 
@@ -297,7 +297,7 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 1;
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.lastAttemptDate).toBeDefined();
     });
 
@@ -313,9 +313,9 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 1;
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      expect(result.campaign.shoppingList.items).toHaveLength(2);
-      expect(result.campaign.shoppingList.items[0].status).not.toBe('pending');
-      expect(result.campaign.shoppingList.items[1].status).not.toBe('pending');
+      expect(result.campaign.shoppingList!.items).toHaveLength(2);
+      expect(result.campaign.shoppingList!.items[0].status).not.toBe('pending');
+      expect(result.campaign.shoppingList!.items[1].status).not.toBe('pending');
     });
   });
 
@@ -338,7 +338,7 @@ describe('acquisitionProcessor', () => {
 
       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('delivered');
     });
 
@@ -374,7 +374,7 @@ describe('acquisitionProcessor', () => {
 
       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('in_transit');
     });
 
@@ -392,7 +392,7 @@ describe('acquisitionProcessor', () => {
 
       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
-      const updatedRequest = result.campaign.shoppingList.items[0];
+      const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('delivered');
     });
 
@@ -415,8 +415,8 @@ describe('acquisitionProcessor', () => {
 
       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
 
-      expect(result.campaign.shoppingList.items[0].status).toBe('delivered');
-      expect(result.campaign.shoppingList.items[1].status).toBe('delivered');
+      expect(result.campaign.shoppingList!.items[0].status).toBe('delivered');
+      expect(result.campaign.shoppingList!.items[1].status).toBe('delivered');
     });
   });
 
@@ -441,9 +441,9 @@ describe('acquisitionProcessor', () => {
       const deterministicRandom = () => 1;
       const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
 
-      expect(result.campaign.shoppingList.items).toHaveLength(2);
-      expect(result.campaign.shoppingList.items[0].status).not.toBe('pending');
-      expect(result.campaign.shoppingList.items[1].status).toBe('delivered');
+      expect(result.campaign.shoppingList!.items).toHaveLength(2);
+      expect(result.campaign.shoppingList!.items[0].status).not.toBe('pending');
+      expect(result.campaign.shoppingList!.items[1].status).toBe('delivered');
     });
 
     it('should emit multiple event types', () => {
@@ -547,13 +547,13 @@ describe('acquisitionProcessor', () => {
 
   describe('registration', () => {
     it('should register processor with pipeline', () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-call
       const pipeline = require('../../dayPipeline').getDayPipeline();
       registerAcquisitionProcessor();
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const processors = pipeline.getProcessors();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
       const registered = processors.find((p: any) => p.id === 'acquisition');
       expect(registered).toBeDefined();
     });
