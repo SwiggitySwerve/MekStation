@@ -1318,3 +1318,100 @@ Starting with Task 10.1: Define progression types and XP configuration.
 ### Commit
 - Message: "feat(campaign): implement SPA acquisition system"
 - Files: spaAcquisition.ts, spaAcquisition.test.ts, Person.ts
+
+## [2026-01-26] Plan 10: Personnel Progression Complete (Backend)
+
+### Tasks Completed (6/7, 86%)
+
+**Task 10.1**: Progression types defined ✅
+- File: `src/types/campaign/progression/progressionTypes.ts`
+- 8 XP sources, aging milestones, special abilities, person traits
+- 14 new ICampaignOptions fields
+- 19 tests passing
+- Commit: `feat(campaign): define personnel progression types and XP configuration`
+
+**Task 10.2**: XP award service ✅
+- File: `src/lib/campaign/progression/xpAwards.ts`
+- 8 XP award functions (scenario, kill, task, mission, vocational, admin, education stub, manual)
+- Threshold logic for kill/task XP
+- 37 tests passing
+- Commit: `feat(campaign): implement XP award service for 8 sources`
+
+**Task 10.3**: Skill cost with trait modifiers ✅
+- File: `src/lib/campaign/progression/skillCostTraits.ts`
+- Trait multipliers: Fast Learner -20%, Slow Learner +20%, Gremlins +10% (tech), Tech Empathy -10% (tech)
+- 61 tests passing
+- Updated `IPerson` interface with `traits` field
+- Commit: `feat(campaign): implement skill cost with trait modifiers`
+
+**Task 10.4**: Aging system ✅
+- File: `src/lib/campaign/progression/aging.ts`
+- 10 aging milestones (<25 to 101+) with cumulative attribute decay
+- Auto-applies Glass Jaw and Slow Learner at age 61+
+- Birthday detection and milestone crossing logic
+- 45 tests passing
+- Commit: `feat(campaign): implement aging system with milestone attribute decay`
+
+**Task 10.5**: Vocational training day processor ✅
+- File: `src/lib/campaign/processors/vocationalTrainingProcessor.ts`
+- Monthly 2d6 vs TN check for vocational XP awards
+- Timer tracking on person.traits.vocationalXPTimer
+- Excludes inactive/child/dependent/prisoner personnel
+- 14 tests passing
+- Registered in day pipeline (DayPhase.EVENTS)
+- Commit: `feat(campaign): implement vocational training day processor`
+
+**Task 10.6**: SPA acquisition system ✅
+- File: `src/lib/campaign/progression/spaAcquisition.ts`
+- SPA_CATALOG with 10 abilities (6 benefits, 1 origin-only, 3 flaws)
+- `rollVeterancySPA()` with 1/40 chance of flaw
+- `purchaseSPA()` with XP deduction
+- `personHasSPA()` ownership check
+- 23 tests passing
+- Added `specialAbilities?: readonly string[]` to IPerson
+- Commits: `feat(campaign): implement SPA acquisition system` (2 commits)
+
+**Task 10.7**: Progression UI ⏸️ **DEFERRED**
+- Reason: Following established pattern of deferring all UI tasks
+- Will batch with other campaign UI tasks (4.7, 5.7, 8.8, 9.9)
+
+### Test Suite Status
+- **New tests this plan**: 199 tests (19 + 37 + 61 + 45 + 14 + 23)
+- **Total tests**: 14,203 passing (32 skipped), 0 failures
+- **Zero regressions**: All existing tests still pass
+
+### Key Patterns Established
+
+**RandomFn Pattern**:
+- Injectable `type RandomFn = () => number` for deterministic testing
+- `roll2d6(random)`: `Math.floor(random()*6)+1` per die
+- Seeded random for tests: Map die values to random() inputs
+
+**Trait System**:
+- `person.traits` object for extensible metadata
+- Used for: Fast/Slow Learner, Gremlins, Tech Empathy, Glass Jaw
+- Also stores timers: `vocationalXPTimer`, `hasGainedVeterancySPA`
+
+**Aging Milestones**:
+- 10 age brackets: <25, 25-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101+
+- Cumulative attribute decay (sum all milestones up to current age)
+- Auto-apply traits at age 61+: Glass Jaw (unless Toughness), Slow Learner (unless Fast Learner)
+
+**SPA System**:
+- Catalog-based with ISpecialAbility interface
+- Veterancy roll: once per person, 1/40 chance of flaw
+- Purchase system: XP deduction, immutable updates
+- Ownership tracking: `person.specialAbilities` array of SPA IDs
+
+**Day Processor Pattern**:
+- Vocational training runs in DayPhase.EVENTS
+- Returns `{ updatedCampaign, events }` tuple
+- Events include roll results for UI display
+
+### Files Modified
+- `src/types/campaign/Person.ts`: Added `birthDate`, `traits`, `specialAbilities` fields
+- `src/types/campaign/Campaign.ts`: Added 14 progression config fields to ICampaignOptions
+
+### Next Steps
+- Proceed to next Tier 3 plan in campaign meta-execution
+- Defer Task 10.7 (Progression UI) to batch with other UI tasks
