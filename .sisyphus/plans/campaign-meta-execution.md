@@ -222,59 +222,71 @@ Format: `feat/{change-id}`
 | Sisyphus Plan | `personnel-progression.md` |
 | Gap Review Notes | xpPerMission/xpPerKill vs new outcome-specific XP fields — resolve in proposal |
 
-### Plan 11: Scenario & Combat Expansion (Tier 3)
+### Plan 11: Scenario & Combat Expansion (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-scenario-combat` |
 | Branch | `feat/add-scenario-combat` |
+| PR (OpenSpec) | #190 (MERGED) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `scenario-generation`, `combat-resolution`, `mission-contracts` |
 | Specs ADDED | `scenario-combat` |
 | Sisyphus Plan | `scenario-combat-expansion.md` |
 | Gap Review Notes | Circular dep with Plan 12 on CombatRole type — define CombatRole in Plan 11 first |
 
-### Plan 12: Contract Types Expansion (Tier 3)
+### Plan 12: Contract Types Expansion (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-contract-types` |
 | Branch | `feat/add-contract-types` |
+| PR (OpenSpec) | #193 (MERGED) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `mission-contracts` |
 | Specs ADDED | `contract-types` |
 | Sisyphus Plan | `contract-types-expansion.md` |
 | Gap Review Notes | Depends on Plan 11 for CombatRole; expands 5→19 contract types |
 
-### Plan 14: Awards & Auto-Granting (Tier 3)
+### Plan 14: Awards & Auto-Granting (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-awards-auto-granting` |
 | Branch | `feat/add-awards-auto-granting` |
+| PR (OpenSpec) | #190 (MERGED — bundled with Plan 11) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `awards`, `day-progression` |
 | Specs ADDED | `awards-auto-granting` |
 | Sisyphus Plan | `awards-auto-granting.md` |
 
-### Plan 15: Rank System (Tier 3)
+### Plan 15: Rank System (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-rank-system` |
 | Branch | `feat/add-rank-system` |
+| PR (OpenSpec) | #190 (MERGED — bundled with Plan 11) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `personnel-management` |
 | Specs ADDED | `rank-system` |
 | Sisyphus Plan | `rank-system.md` |
 
-### Plan 16: Random Events (Tier 3)
+### Plan 16: Random Events (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-random-events` |
-| Branch | `feat/add-random-events` |
+| Branch (Impl) | `feat/add-random-events` |
+| PR (OpenSpec) | #191 (MERGED) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `day-progression`, `campaign-management` |
 | Specs ADDED | `random-events` |
 | Sisyphus Plan | `random-events.md` |
 | Gap Review Notes | Re-declares `useRandomEvents` — use existing field |
 
-### Plan 17: Markets System (Tier 3)
+### Plan 17: Markets System (Tier 3) — Phase A COMPLETE
 | Field | Value |
 |-------|-------|
 | Change-ID | `add-markets-system` |
-| Branch | `feat/add-markets-system` |
+| Branch (Impl) | `feat/add-markets-system` |
+| PR (OpenSpec) | #192 (MERGED) |
+| Status | Phase A ✅ — OpenSpec proposal merged. Phase B (implementation) not started. |
 | Specs MODIFIED | `campaign-management`, `day-progression` |
 | Specs ADDED | `markets-system` |
 | Sisyphus Plan | `markets-system.md` |
@@ -300,30 +312,37 @@ For every plan, the executor follows these steps IN ORDER:
 ### Phase A: OpenSpec Proposal (before any code)
 
 ```
-- [ ] A1. Read the Sisyphus plan: .sisyphus/plans/{plan}.md
-- [ ] A2. Read relevant existing specs: openspec show {spec-id}
-- [ ] A3. Check for conflicts: openspec list
-- [ ] A4. Create change directory: mkdir -p openspec/changes/{change-id}/specs/{capability}
-- [ ] A5. Write proposal.md (Why, What Changes, Impact)
-- [ ] A6. Write tasks.md (implementation checklist mirroring Sisyphus plan TODOs)
-- [ ] A7. Write design.md (if cross-cutting, new patterns, or complex migration)
-- [ ] A8. Write spec deltas:
+- [ ] A1. BLOCKER CHECK: Verify NO open campaign PRs exist (gh pr list --state open)
+         → If any open PR exists, STOP. Wait for merge before proceeding.
+- [ ] A2. Read the Sisyphus plan: .sisyphus/plans/{plan}.md
+- [ ] A3. Read relevant existing specs: openspec show {spec-id}
+- [ ] A4. Check for conflicts: openspec list
+- [ ] A5. Create change directory: mkdir -p openspec/changes/{change-id}/specs/{capability}
+- [ ] A6. Write proposal.md (Why, What Changes, Impact)
+- [ ] A7. Write tasks.md (implementation checklist mirroring Sisyphus plan TODOs)
+- [ ] A8. Write design.md (if cross-cutting, new patterns, or complex migration)
+- [ ] A9. Write spec deltas:
          - MODIFIED specs: copy existing requirement, edit, paste under ## MODIFIED Requirements
          - ADDED specs: write new requirements under ## ADDED Requirements
          - Every requirement MUST have #### Scenario: with WHEN/THEN
-- [ ] A9. Validate: openspec validate {change-id} --strict → must PASS
-- [ ] A10. Present proposal to user for approval
+- [ ] A10. Validate: openspec validate {change-id} --strict → must PASS
+- [ ] A11. Present proposal to user for approval
+- [ ] A12. Create proposal PR, push, and wait for merge
+         → PR MUST BE MERGED before starting Phase B. No exceptions.
 ```
 
 ### Phase B: Implementation
 
 ```
-- [ ] B1. Create branch: git checkout -b feat/{change-id}
-- [ ] B2. Read proposal.md, design.md, tasks.md
-- [ ] B3. Implement tasks sequentially (following Sisyphus plan TODOs)
-- [ ] B4. Run tests: npx jest --no-coverage {relevant-paths}
-- [ ] B5. Type-check: verify no new errors in changed files
-- [ ] B6. Mark all tasks.md items as [x]
+- [ ] B1. BLOCKER CHECK: Verify the Phase A proposal PR is MERGED (gh pr view {pr-number} --json state)
+         → If PR is not merged, STOP. Do NOT begin implementation.
+- [ ] B2. Pull latest main: git checkout main && git pull
+- [ ] B3. Create branch: git checkout -b feat/{change-id}
+- [ ] B4. Read proposal.md, design.md, tasks.md
+- [ ] B5. Implement tasks sequentially (following Sisyphus plan TODOs)
+- [ ] B6. Run tests: npx jest --no-coverage {relevant-paths}
+- [ ] B7. Type-check: verify no new errors in changed files
+- [ ] B8. Mark all tasks.md items as [x]
 ```
 
 ### Phase C: Ship & Archive
@@ -333,12 +352,17 @@ For every plan, the executor follows these steps IN ORDER:
 - [ ] C2. Push: git push -u origin feat/{change-id}
 - [ ] C3. Create PR: gh pr create --title "..." --body "..."
 - [ ] C4. Verify PR checks pass (lint, test, build)
-- [ ] C5. Merge PR: gh pr merge --squash (or user merges manually)
-- [ ] C6. Archive OpenSpec: openspec archive {change-id} --yes
-- [ ] C7. Validate post-archive: openspec validate --strict
-- [ ] C8. Commit archive: git add . && git commit -m "chore(openspec): archive {change-id}"
-- [ ] C9. Push archive commit to main
-- [ ] C10. Delete feature branch: git branch -d feat/{change-id}
+- [ ] C5. MERGE GATE: PR MUST be merged before continuing.
+         → Verify: gh pr view {pr-number} --json state → must show "MERGED"
+         → If not merged, STOP. Do NOT proceed to archival or next plan.
+- [ ] C6. Pull latest main: git checkout main && git pull
+- [ ] C7. Archive OpenSpec: openspec archive {change-id} --yes
+- [ ] C8. Validate post-archive: openspec validate --strict
+- [ ] C9. Commit archive: git add . && git commit -m "chore(openspec): archive {change-id}"
+- [ ] C10. Push archive commit to main (or create archive PR and wait for merge)
+- [ ] C11. Delete feature branch: git branch -d feat/{change-id}
+- [ ] C12. FINAL GATE: Confirm ALL PRs for this plan are MERGED before starting next plan.
+         → gh pr list --state open → must show NO open campaign PRs
 ```
 
 ---
@@ -346,9 +370,12 @@ For every plan, the executor follows these steps IN ORDER:
 ## Execution Order
 
 ### Gate Rules
-- **TIER GATE**: All plans in Tier N must have their PRs MERGED before any Tier N+1 plan starts Phase A
-- **WITHIN TIER**: Plans within the same tier can be executed in any order
-- **EXCEPTION**: Plan 11 must complete before Plan 12 (CombatRole type dependency)
+- **PR-MERGE GATE (MANDATORY)**: Every PR created during any phase (A, B, or C) MUST be successfully merged before proceeding to the NEXT step, plan, or phase. NO exceptions. If a PR is open, you STOP and wait for merge.
+- **SPECS-FIRST GATE (MANDATORY)**: ALL Phase A (OpenSpec proposals) for every plan in a tier MUST be created, PR'd, and MERGED before ANY plan in that tier begins Phase B (implementation). No plan starts coding until every sibling plan's spec is merged.
+- **TIER GATE**: All plans in Tier N must have their PRs MERGED (Phase A, B, and C complete) before any Tier N+1 plan starts Phase A.
+- **WITHIN TIER**: Plans within the same tier can be implemented in any order during Phase B, but each plan's implementation PR must merge before starting the next plan's implementation.
+- **EXCEPTION**: Plan 11 must complete Phase B+C before Plan 12 starts Phase B (CombatRole type dependency).
+- **VERIFICATION**: Before starting ANY new work, run `gh pr list --state open` to confirm no unmerged campaign PRs exist.
 
 ### Execution Sequence
 
@@ -373,19 +400,36 @@ TIER 2 (Core Systems) ✅ COMPLETE
   Plan 8:  Medical System ───────────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #182)
   ─── GATE: All Tier 2 PRs merged ✅ ───
 
-TIER 3 (Dependent Systems) — 2/8 MERGED
-  Plan 11: Scenario & Combat ────────────── A ✅ → B → C  ← MUST be before Plan 12 (OpenSpec ready)
-  Plan 12: Contract Types ───────────────── A → B → C  ← AFTER Plan 11
-  Plan 9:  Acquisition & Supply Chain ────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #184)
-  Plan 10: Personnel Progression ─────────── A ✅ → B ✅ → C ✅ ARCHIVED (PR #186)
-  Plan 14: Awards & Auto-Granting ────────── A → B → C
-  Plan 15: Rank System ──────────────────── A → B → C
-  Plan 16: Random Events ───────────────── A → B → C
-  Plan 17: Markets System ──────────────── A → B → C
-  ─── GATE: All Tier 3 PRs merged ───
+TIER 3 (Dependent Systems) — 2/8 COMPLETE
+  ── Phase A: ALL Specs (COMPLETE ✅) ──────────────────────────────────────
+  Plan 9:  Acquisition & Supply Chain ────── A ✅ (PR #184 scope)
+  Plan 10: Personnel Progression ─────────── A ✅ (PR #186 scope)
+  Plan 11: Scenario & Combat ────────────── A ✅ (PR #190 MERGED)
+  Plan 12: Contract Types ───────────────── A ✅ (PR #193 MERGED)
+  Plan 14: Awards & Auto-Granting ────────── A ✅ (PR #190 MERGED)
+  Plan 15: Rank System ──────────────────── A ✅ (PR #190 MERGED)
+  Plan 16: Random Events ───────────────── A ✅ (PR #191 MERGED)
+  Plan 17: Markets System ──────────────── A ✅ (PR #192 MERGED)
+  ─── SPECS-FIRST GATE: All 8 Tier 3 specs merged ✅ — implementation may begin ───
+
+  ── Phase B+C: Implementation & Ship (2/8 COMPLETE) ──────────────────────
+  Plan 9:  Acquisition & Supply Chain ────── B ✅ → C ✅ ARCHIVED (PR #184)
+  Plan 10: Personnel Progression ─────────── B ✅ → C ✅ ARCHIVED (PR #186)
+  Plan 11: Scenario & Combat ────────────── B → C  ← MUST complete before Plan 12 Phase B
+  Plan 12: Contract Types ───────────────── B → C  ← AFTER Plan 11 B+C complete
+  Plan 14: Awards & Auto-Granting ────────── B → C
+  Plan 15: Rank System ──────────────────── B → C
+  Plan 16: Random Events ───────────────── B → C
+  Plan 17: Markets System ──────────────── B → C
+  ─── TIER GATE: All Tier 3 implementation PRs merged before Tier 4 starts ───
 
 TIER 4 (Capstone)
-  Plan 6:  Campaign Options Presets ──────── A → B → C
+  ── Phase A: ALL Specs ───────────────────────────────────────────────────
+  Plan 6:  Campaign Options Presets ──────── A
+  ─── SPECS-FIRST GATE: Plan 6 spec merged before implementation ───
+
+  ── Phase B+C: Implementation & Ship ─────────────────────────────────────
+  Plan 6:  Campaign Options Presets ──────── B → C
   ─── DONE ───
 ```
 
