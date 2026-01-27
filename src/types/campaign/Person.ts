@@ -97,6 +97,9 @@ export interface IPersonIdentity {
 
   /** Blood type */
   readonly bloodType?: string;
+
+  /** Date of birth (ISO 8601 string or Date) */
+  readonly birthDate?: string | Date;
 }
 
 // =============================================================================
