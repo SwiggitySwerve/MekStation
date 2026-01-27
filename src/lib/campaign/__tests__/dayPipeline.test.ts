@@ -1,4 +1,5 @@
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IPerson, createInjury } from '@/types/campaign/Person';
 import { Money } from '@/types/campaign/Money';
 import { IMission } from '@/types/campaign/Mission';
@@ -36,6 +37,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
       factionStandings: {},
       shoppingList: { items: [] },
       options: createDefaultCampaignOptions(),
+      campaignType: CampaignType.MERCENARY,
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
       ...overrides,

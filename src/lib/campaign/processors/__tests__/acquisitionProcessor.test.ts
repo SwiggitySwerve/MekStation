@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import type { IAcquisitionRequest, IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 import { Money } from '@/types/campaign/Money';
@@ -40,6 +41,7 @@ function createTestCampaign(overrides?: Partial<ICampaign> & { shoppingList?: IS
     createdAt: '3025-01-01T00:00:00Z',
     updatedAt: '3025-01-15T00:00:00Z',
     ...campaignOverrides,
+    campaignType: CampaignType.MERCENARY,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return

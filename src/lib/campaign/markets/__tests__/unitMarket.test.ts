@@ -11,6 +11,7 @@
  */
 
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IFinances } from '@/types/campaign/IFinances';
 import { Money } from '@/types/campaign/Money';
 import {
@@ -59,6 +60,7 @@ function createTestCampaign(dateStr: string = '3025-06-15T00:00:00Z'): ICampaign
     factionStandings: {},
     shoppingList: { items: [] },
     options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
     createdAt: '2026-01-26T10:00:00Z',
     updatedAt: '2026-01-26T10:00:00Z',
   };

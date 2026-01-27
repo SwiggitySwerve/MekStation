@@ -9,6 +9,7 @@
  */
 
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IContract, IMission, isContract } from '@/types/campaign/Mission';
 import { IForce } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
@@ -94,6 +95,7 @@ function createTestCampaign(overrides?: {
       factionStandings: {},
       shoppingList: { items: [] },
       options: createDefaultCampaignOptions(),
+      campaignType: CampaignType.MERCENARY,
       createdAt: '2026-01-26T10:00:00Z',
       updatedAt: '2026-01-26T10:00:00Z',
     };

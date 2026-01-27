@@ -21,6 +21,7 @@ import {
     IMission,
     createCampaign as createCampaignEntity,
   } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
@@ -61,6 +62,7 @@ interface SerializedCampaignState {
     factionStandings?: Record<string, IFactionStanding>;
     shoppingList?: IShoppingList;
     options: ICampaignOptions;
+    campaignType?: string;
     campaignStartDate?: string;
     description?: string;
     iconUrl?: string;
@@ -144,9 +146,10 @@ function serializeCampaign(campaign: ICampaign): SerializedCampaignState {
        })),
        balance: campaign.finances.balance.amount,
      },
-     shoppingList: campaign.shoppingList,
-     options: campaign.options,
-     campaignStartDate: campaign.campaignStartDate?.toISOString(),
+      shoppingList: campaign.shoppingList,
+      options: campaign.options,
+      campaignType: campaign.campaignType,
+      campaignStartDate: campaign.campaignStartDate?.toISOString(),
      description: campaign.description,
      iconUrl: campaign.iconUrl,
      createdAt: campaign.createdAt,
@@ -182,10 +185,11 @@ function deserializeCampaign(
        })),
        balance: new Money(serialized.finances.balance),
      },
-      factionStandings: serialized.factionStandings ?? {},
-      shoppingList: serialized.shoppingList,
-      options: serialized.options,
-      campaignStartDate: serialized.campaignStartDate
+       factionStandings: serialized.factionStandings ?? {},
+       shoppingList: serialized.shoppingList,
+       options: serialized.options,
+       campaignType: (serialized.campaignType as CampaignType) ?? CampaignType.MERCENARY,
+       campaignStartDate: serialized.campaignStartDate
         ? new Date(serialized.campaignStartDate)
         : undefined,
       description: serialized.description,

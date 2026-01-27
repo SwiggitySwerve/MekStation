@@ -12,6 +12,7 @@
 
 import { scenarioGenerationProcessor, createScenarioGenerationProcessor } from '../scenarioGenerationProcessor';
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IContract } from '@/types/campaign/Mission';
 import { CombatRole, AtBMoraleLevel, type ICombatTeam, type IScenarioConditions } from '@/types/campaign/scenario/scenarioTypes';
 import { DayPhase } from '@/lib/campaign/dayPipeline';
@@ -55,6 +56,7 @@ function createMockCampaign(overrides?: Partial<ICampaign>): ICampaign {
       useAtBScenarios: false,
       difficultyMultiplier: 1.0,
     },
+    campaignType: CampaignType.MERCENARY,
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z',
     ...overrides,

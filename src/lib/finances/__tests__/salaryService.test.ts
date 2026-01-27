@@ -21,6 +21,7 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import type { IPerson } from '@/types/campaign/Person';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import type { IForce } from '@/types/campaign/Force';
 import type { IMission } from '@/types/campaign/Mission';
 import { ForceType, FormationLevel } from '@/types/campaign/enums';
@@ -77,6 +78,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
       ...overrides,
+      campaignType: CampaignType.MERCENARY,
     };
 }
 

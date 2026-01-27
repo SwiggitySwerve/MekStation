@@ -1,5 +1,6 @@
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
@@ -70,6 +71,7 @@ function createMockCampaign(unitCount: number = 4): ICampaign {
     factionStandings: {},
     shoppingList: { items: [] },
     options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
     createdAt: '2025-01-01',
     updatedAt: '2025-01-01',
   };

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -28,6 +29,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     finances: { transactions: [], balance: new Money(0) },
     factionStandings: {},
     options,
+    campaignType: CampaignType.MERCENARY,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     ...overrides,
