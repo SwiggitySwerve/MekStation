@@ -5,6 +5,8 @@
  */
 
 import { IPerson } from '../../../../types/campaign/Person';
+import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
+import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
 import {
   SPA_CATALOG,
   rollVeterancySPA,
@@ -24,8 +26,8 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   return {
     id: 'test-person-1',
     name: 'Test Pilot',
-    status: 'active' as any,
-    primaryRole: 'pilot' as any,
+    status: PersonnelStatus.ACTIVE,
+    primaryRole: CampaignPersonnelRole.PILOT,
     rank: 'MechWarrior',
     recruitmentDate: new Date('2025-01-01'),
     missionsCompleted: 0,
@@ -277,7 +279,7 @@ describe('personHasSPA', () => {
 
   it('should return false if specialAbilities is undefined', () => {
     const person = createTestPerson();
-    delete (person as any).specialAbilities;
-    expect(personHasSPA(person, 'fast_learner')).toBe(false);
+    const personWithoutAbilities = { ...person, specialAbilities: undefined };
+    expect(personHasSPA(personWithoutAbilities, 'fast_learner')).toBe(false);
   });
 });
