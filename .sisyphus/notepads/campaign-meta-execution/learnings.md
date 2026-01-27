@@ -1472,3 +1472,61 @@ Starting with Task 10.1: Define progression types and XP configuration.
 2. Merge PR #186
 3. Archive Plan 10 OpenSpec
 4. Start Plan 11 Phase A (OpenSpec proposal)
+
+## [2026-01-27] Session End - Blockers Encountered
+
+### Completed This Session
+- ✅ Plan 10: Personnel Progression backend complete (6/7 tasks)
+- ✅ PR #186 created with 199 new tests, all passing
+- ✅ PR #186 auto-merge enabled, waiting for CI
+- ✅ Plan 9 archive merged (PR #185)
+- ✅ Learnings documented
+
+### Active Blockers
+1. **PR #186 CI Running**: Auto-merge enabled, will merge when CI passes
+2. **Delegation Failures**: Multiple attempts to create Plan 11 OpenSpec proposal failed
+   - First attempt (full proposal): Failed immediately
+   - Second attempt (proposal.md only): Failed immediately
+   - Likely cause: Complexity or system constraints
+
+### Token Budget Status
+- **Used**: 81,888/200,000 (41%)
+- **Remaining**: 118,112 tokens
+- **Capacity**: Enough for 1-2 more plans
+
+### Next Session Actions
+
+**Immediate (when PR #186 merges)**:
+1. Switch to main: `git checkout main && git pull`
+2. Archive Plan 10: `openspec archive add-personnel-progression --yes`
+3. Validate: `openspec validate --strict`
+4. Commit: `git add . && git commit -m "chore(openspec): archive add-personnel-progression" && git push`
+
+**Plan 11 Phase A (OpenSpec Proposal)**:
+- Delegation failed multiple times
+- Recommend: Create proposal manually or try simpler delegation
+- Change-ID: `add-scenario-combat`
+- 8 tasks total, must complete before Plan 12
+
+**Remaining Tier 3 Plans** (6 after Plan 11):
+- Plan 12: Contract Types (after Plan 11)
+- Plan 14: Awards & Auto-Granting
+- Plan 15: Rank System
+- Plan 16: Random Events
+- Plan 17: Markets System
+
+### Session Metrics
+- **Duration**: ~3 hours
+- **Plans advanced**: 2 (Plan 9 merged, Plan 10 PR created)
+- **Tests added**: 199 (Plan 10)
+- **PRs created**: 1 (#186)
+- **PRs merged**: 2 (#184, #185)
+- **Commits**: 13 (Plan 10 + learnings)
+- **Zero regressions**: Maintained
+
+### Key Learnings
+1. **Auto-merge is effective** for handling CI reruns
+2. **Delegation complexity limits** exist - simpler tasks work better
+3. **Token management** critical - 118k remaining is enough for 1-2 plans
+4. **Boulder rules work** - document blockers, move to next task
+5. **PR #186 will auto-merge** when CI passes (no manual intervention needed)
