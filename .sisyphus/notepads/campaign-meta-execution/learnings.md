@@ -1576,3 +1576,35 @@ All OpenSpec proposal delegations are failing immediately with "No assistant res
 2. Archive Plan 10 if merged
 3. Manually create OpenSpec proposals OR investigate delegation issue
 4. Resume with Plan 11 or Plan 14 implementation
+
+## [2026-01-27] Session 2 - Plan 11 OpenSpec Creation
+
+### OpenSpec Delegation Blocker Confirmed
+- Attempted delegation to create Plan 11 OpenSpec proposal
+- Failed with same pattern as Session 1: "No assistant response found (task ran in background mode)"
+- Task ID: bg_46ed0e4d, Duration: 0s, Status: error
+- **Workaround**: Created OpenSpec files directly as orchestrator (exception to normal delegation pattern)
+
+### Plan 11 OpenSpec Created Successfully
+- Change-ID: `add-scenario-combat`
+- Files created:
+  - `proposal.md` - Why/What/Impact for AtB dynamic scenario generation
+  - `tasks.md` - 8 implementation task groups (1-8) with 40+ subtasks
+  - `specs/scenario-generation/spec.md` - 4 ADDED requirements, 1 MODIFIED requirement
+  - `specs/combat-resolution/spec.md` - 2 ADDED requirements (morale tracking, battle type modifier)
+  - `specs/mission-contracts/spec.md` - 1 MODIFIED requirement, 1 ADDED requirement
+- Validation: `openspec validate add-scenario-combat --strict` PASSED
+- Addresses Gap Review constraint: Defines CombatRole enum for Plan 12 to import
+
+### Key Features in Plan 11
+- 7 combat roles (Maneuver 40%, Patrol 60%, Frontline 20%, Training/Cadre 10%, Auxiliary/Reserve 0%)
+- 7 morale levels (Routed -3 through Overwhelming +3) tracked per contract
+- Scenario type selection tables (d40 Maneuver, d60 Patrol, d20 Frontline, d10 Training)
+- OpFor BV matching: `playerBV × difficulty × (75-125% variation)`
+- Scenario conditions (light, weather, gravity, atmosphere) with force composition effects
+- Weekly processor (runs Mondays) for active contracts with combat teams
+
+### Next Steps
+- Plan 11 Phase A complete (OpenSpec proposal created and validated)
+- Ready for Phase B (implementation) after user approval
+- Plan 12 can proceed after Plan 11 completes (CombatRole dependency)
