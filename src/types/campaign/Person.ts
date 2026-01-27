@@ -418,12 +418,15 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
   /** ID of assigned force/lance */
   readonly forceId?: string;
 
-   // =========================================================================
-   // Traits and Abilities
-   // =========================================================================
+    // =========================================================================
+    // Traits and Abilities
+    // =========================================================================
 
-   /** Trait flags that modify skill costs and other progression mechanics */
-   readonly traits?: IPersonTraits;
+    /** Trait flags that modify skill costs and other progression mechanics */
+    readonly traits?: IPersonTraits;
+
+    /** Special abilities (SPA IDs) acquired through progression */
+    readonly specialAbilities?: readonly string[];
 
    // =========================================================================
    // Flags

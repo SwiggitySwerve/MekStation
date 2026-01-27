@@ -484,7 +484,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.6 Implement SPA Acquisition
+- [x] 10.6 Implement SPA Acquisition
 
   **What to do**:
   - Create `src/lib/campaign/progression/spaAcquisition.ts`:

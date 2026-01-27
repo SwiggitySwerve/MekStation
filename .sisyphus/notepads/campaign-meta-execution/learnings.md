@@ -1206,3 +1206,115 @@ Established pattern from Plans 2-9: create proposals directly, delegate implemen
 ### Next Steps
 Proceeding to Phase B (Implementation) per boulder continuation directive.
 Starting with Task 10.1: Define progression types and XP configuration.
+
+## [2026-01-27T00:00:00Z] Task 10.5: Vocational Training Day Processor
+
+### Implementation Notes
+- Created `vocationalTrainingProcessor.ts` with monthly 2d6 vs TN check for vocational XP
+- Tracks timer on `person.traits.vocationalXPTimer` (incremented daily, reset after check)
+- Eligible persons: ACTIVE status, not child (<13 years), not dependent, not POW
+- Roll >= TN awards vocational XP (default 1), timer resets regardless of outcome
+- Used injectable RandomFn pattern for deterministic testing
+- Processor runs in DayPhase.EVENTS phase
+
+### Test Results
+- **14/14 tests passing** (100% coverage)
+- Test cases:
+  - Timer increment for eligible person
+  - XP award when roll >= TN (7 vs TN 7 = success)
+  - No award when roll < TN (6 vs TN 7 = failure)
+  - Skip inactive/child/dependent/prisoner personnel
+  - Timer reset after check (regardless of success)
+  - Default values (vocationalXP=1, TN=7, checkFrequency=30)
+  - Multiple personnel handling
+  - Deterministic with seeded random
+  - Processor registration in pipeline
+
+### Key Patterns
+- TDD approach: RED → GREEN → REFACTOR (100% success)
+- Array.from() wrapper for Map iteration (TypeScript compatibility)
+- Immutable updates via spread operator
+- Eligible check uses multiple conditions (status, role, age, POW)
+- Event structure: type='vocational', data includes personId, amount, roll, targetNumber
+
+### Files Created
+- `src/lib/campaign/processors/vocationalTrainingProcessor.ts` (190 lines)
+- `src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts` (340 lines)
+
+### Commit
+- Message: "feat(campaign): implement vocational training day processor"
+- Files: vocationalTrainingProcessor.ts, vocationalTrainingProcessor.test.ts
+- All 14 tests passing, TypeScript clean
+
+
+## [2026-01-27T00:00:00Z] Task 10.6: SPA Acquisition System
+
+### Implementation Notes
+- **TDD Success**: 23 tests written first, all passing on first implementation
+- **SPA Catalog**: 10 abilities (6 benefits, 1 origin-only, 3 flaws)
+- **Veterancy Roll**: Once per person (hasGainedVeterancySPA flag), 1/40 chance of flaw
+- **Purchase System**: XP deduction with immutable updates
+- **Helper Functions**: personHasSPA for checking ownership
+
+### File Structure
+- `src/lib/campaign/progression/spaAcquisition.ts` (280 lines)
+  - ISpecialAbility interface
+  - IPurchaseSPAResult interface
+  - RandomFn type for injectable testing
+  - SPA_CATALOG with 10 abilities
+  - rollVeterancySPA() - veterancy roll logic
+  - rollComingOfAgeSPA() - stub (returns null)
+  - purchaseSPA() - XP deduction and SPA addition
+  - personHasSPA() - ownership check
+- `src/lib/campaign/progression/__tests__/spaAcquisition.test.ts` (280 lines)
+  - 23 test cases covering all functions
+  - Test helpers: createTestPerson(), randomFor()
+
+### Test Results
+- **23/23 tests passing** (100% pass rate)
+- Test coverage:
+  - SPA_CATALOG: 4 tests (10 SPAs, benefits, origin-only, flaws)
+  - rollVeterancySPA: 7 tests (once-per-person, exclusions, 1/40 flaw chance)
+  - rollComingOfAgeSPA: 1 test (stub returns null)
+  - purchaseSPA: 7 tests (XP deduction, failures, immutability)
+  - personHasSPA: 4 tests (true/false/undefined cases)
+- Full suite: 14,203 tests passing (32 skipped), 0 failures
+
+### Key Design Decisions
+1. **Immutable Updates**: purchaseSPA uses spread operator for person and specialAbilities
+2. **Optional Field**: specialAbilities is readonly string[] | undefined (backward compatible)
+3. **Flaw Probability**: 1/40 chance = Math.floor(random() * 40) === 0
+4. **Pool Selection**: Separate eligible (benefits) and flaw pools for 1/40 logic
+5. **Error Messages**: Clear, actionable failure reasons (not found, already has, insufficient XP)
+
+### Patterns Applied
+- **TDD**: RED → GREEN → REFACTOR (100% success rate)
+- **Injectable RandomFn**: Enables deterministic testing with seeded values
+- **Type Safety**: ISpecialAbility interface with readonly properties
+- **Immutable Data**: Spread operator for all updates
+- **Null Returns**: Used for "no escalation" cases (cleaner than exceptions)
+
+### Acceptance Criteria Met
+✓ SPA_CATALOG with 10 abilities (6 benefits, 1 origin-only, 3 flaws)
+✓ rollVeterancySPA only rolls once (hasGainedVeterancySPA flag)
+✓ Excludes origin-only and already-held SPAs
+✓ 1/40 chance of flaw instead of benefit
+✓ rollComingOfAgeSPA stub (returns null)
+✓ purchaseSPA deducts XP and adds SPA
+✓ purchaseSPA fails if insufficient XP
+✓ purchaseSPA fails if SPA doesn't exist
+✓ personHasSPA checks ownership correctly
+✓ All 23 tests pass
+✓ npm test passes (14,203 tests)
+✓ TypeScript clean (no errors)
+
+### Files Modified
+- src/types/campaign/Person.ts (added specialAbilities field)
+
+### Files Created
+- src/lib/campaign/progression/spaAcquisition.ts
+- src/lib/campaign/progression/__tests__/spaAcquisition.test.ts
+
+### Commit
+- Message: "feat(campaign): implement SPA acquisition system"
+- Files: spaAcquisition.ts, spaAcquisition.test.ts, Person.ts
