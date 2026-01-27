@@ -49,6 +49,9 @@ export default defineConfig({
     ? [['github'], ['html', { open: 'never' }]]
     : [['list'], ['html', { open: 'on-failure' }]],
   
+  /* Screenshot directory for audit capture suite */
+  snapshotDir: '.sisyphus/evidence/screenshots',
+  
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
@@ -85,6 +88,15 @@ export default defineConfig({
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+    },
+    
+    /* Tablet landscape - for audit capture suite */
+    {
+      name: 'Tablet Landscape',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 768 } 
+      },
     },
     
     /* Smoke tests - fast subset for PR checks */
