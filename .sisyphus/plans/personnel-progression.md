@@ -198,7 +198,7 @@ Build a complete personnel progression pipeline: XP award from 8 sources → ski
 
 ---
 
-- [ ] 10.2 Implement XP Award Service
+- [x] 10.2 Implement XP Award Service
 
   **What to do**:
   - Create `src/lib/campaign/progression/xpAwards.ts`:
