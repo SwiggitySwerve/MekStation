@@ -203,12 +203,12 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all four builtin processors', () => {
+  it('should register all five builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    expect(processors).toHaveLength(4);
-    expect(processors.map((p) => p.id)).toEqual(['healing', 'contracts', 'dailyCosts', 'acquisition']);
+    expect(processors).toHaveLength(5);
+    expect(processors.map((p) => p.id)).toEqual(['healing', 'auto-awards', 'contracts', 'dailyCosts', 'acquisition']);
   });
 
   it('should be idempotent (calling twice registers once)', () => {
@@ -216,7 +216,7 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(4);
+    expect(processors).toHaveLength(5);
   });
 
   it('should register processors in correct phase order', () => {
@@ -224,8 +224,9 @@ describe('registerBuiltinProcessors', () => {
     const processors = getDayPipeline().getProcessors();
 
     expect(processors[0].phase).toBe(DayPhase.PERSONNEL);
-    expect(processors[1].phase).toBe(DayPhase.MISSIONS);
-    expect(processors[2].phase).toBe(DayPhase.FINANCES);
-    expect(processors[3].phase).toBe(DayPhase.EVENTS);
+    expect(processors[1].phase).toBe(DayPhase.PERSONNEL);
+    expect(processors[2].phase).toBe(DayPhase.MISSIONS);
+    expect(processors[3].phase).toBe(DayPhase.FINANCES);
+    expect(processors[4].phase).toBe(DayPhase.EVENTS);
   });
 });
