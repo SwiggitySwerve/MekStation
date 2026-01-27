@@ -1145,106 +1145,6 @@ This is appropriate orchestrator work and avoids delegation system issues.
 ### Files Modified
 - src/types/campaign/Campaign.ts (interface, factory functions)
 - src/stores/campaign/useCampaignStore.ts (serialization/deserialization)
-
-## [2026-01-27T01:00:00Z] Session 2 Complete: Plans 16 & 17 OpenSpec Proposals
-
-### Summary
-Successfully created OpenSpec proposals for Plans 16 (Random Events) and 17 (Markets System).
-
-### Accomplishments
-
-**Plan 16 OpenSpec Proposal Created**:
-- Change-ID: `add-random-events`
-- Branch: `docs/plan-16-openspec`
-- PR #191: https://github.com/SwiggitySwerve/MekStation/pull/191
-- Files created:
-  - `proposal.md` - Why, What Changes, Impact
-  - `tasks.md` - 9 implementation task groups
-  - `specs/random-events/spec.md` - 8 ADDED requirements (NEW spec)
-  - `specs/day-progression/spec.md` - 1 ADDED requirement (MODIFIED spec)
-- Validation: `openspec validate add-random-events --strict` PASSED ✅
-
-**Plan 17 OpenSpec Proposal Created**:
-- Change-ID: `add-markets-system`
-- Branch: `docs/plan-17-openspec`
-- PR #192: https://github.com/SwiggitySwerve/MekStation/pull/192
-- Files created:
-  - `proposal.md` - Why, What Changes, Impact
-  - `tasks.md` - 10 implementation task groups
-  - `specs/markets-system/spec.md` - 6 ADDED requirements (NEW spec)
-  - `specs/day-progression/spec.md` - 1 ADDED requirement (MODIFIED spec)
-  - `specs/campaign-management/spec.md` - 2 ADDED requirements (MODIFIED spec)
-- Validation: `openspec validate add-markets-system --strict` PASSED ✅
-
-### OpenSpec Proposal Pattern Confirmed
-- For NEW specs: Create delta file in `changes/<change-id>/specs/<capability>/spec.md` with `## ADDED Requirements`
-- For MODIFIED specs: Create delta file with `## MODIFIED Requirements` or `## ADDED Requirements` for new requirements
-- Validation requires at least one `#### Scenario:` per requirement (4 hashtags)
-- Orchestrator creating OpenSpec proposals directly is acceptable (planning documents, not implementation)
-
-### Campaign Meta-Execution Progress
-**Tier 3 OpenSpec Proposals** (6/8 complete):
-- ✅ Plan 11: Scenario & Combat Expansion (PR #190)
-- ✅ Plan 14: Awards Auto-Granting (PR #190)
-- ✅ Plan 15: Rank System (PR #190)
-- ✅ Plan 16: Random Events (PR #191)
-- ✅ Plan 17: Markets System (PR #192)
-- ⏸️ Plan 12: Contract Types (waiting for Plan 11 merge - CombatRole dependency)
-
-**Overall Progress**: 11/17 plans complete (65%), 5 proposals ready for approval
-
-### Token Usage
-- Session 2 Starting: ~135k/200k (67.5%)
-- Session 2 Ending: ~114k/200k (57%)
-- Remaining: ~86k tokens (43%)
-
-### Next Steps
-1. Wait for Plan 11 approval/merge before starting Plan 12
-2. After all Tier 3 proposals approved, begin implementations
-3. Create Plan 6 OpenSpec proposal (Campaign Options Presets) after Tier 3 complete
-
-### Session Stats
-- **Duration**: ~2 hours
-- **PRs Created**: 2 (#191, #192)
-- **OpenSpec Proposals**: 2 (Plans 16, 17)
-- **Validation Success Rate**: 100% (2/2 passed strict validation)
-- **Files Created**: 9 total (proposals, tasks, spec deltas)
-
-## [2026-01-27T02:00:00Z] Blocker: Approval Gate
-
-### Current Status
-All remaining Tier 3 plans have completed Phase A (OpenSpec Proposal):
-- ✅ Plan 11: Scenario & Combat (PR #190)
-- ✅ Plan 14: Awards & Auto-Granting (PR #190)
-- ✅ Plan 15: Rank System (PR #190)
-- ✅ Plan 16: Random Events (PR #191)
-- ✅ Plan 17: Markets System (PR #192)
-
-### Blocker
-**User Approval Gate**: Per the campaign meta-execution lifecycle template (Phase A, step A10), all proposals must be approved by the user before proceeding to Phase B (Implementation).
-
-Cannot proceed with:
-- Phase B implementation for any Tier 3 plan
-- Plan 12 OpenSpec proposal (depends on Plan 11 merge)
-- Plan 6 OpenSpec proposal (depends on all Tier 3 merges)
-
-### Work Complete
-**Phase A (OpenSpec Proposals)**: 5/6 Tier 3 plans complete (83%)
-- Plan 11, 14, 15, 16, 17 all have validated proposals ready for review
-- Plan 12 blocked by Plan 11 dependency (CombatRole enum)
-
-**Overall Campaign Meta-Execution**: 11/17 plans complete (65%)
-- Prerequisites: 4/4 ✅
-- Tier 1: 2/2 ✅
-- Tier 2: 5/5 ✅
-- Tier 3: 2/8 merged, 5 proposals pending approval
-- Tier 4: 0/1 (blocked by Tier 3)
-
-### Next Actions (After Approval)
-1. Merge approved proposals
-2. Create Plan 12 OpenSpec (after Plan 11 merges)
-3. Begin Phase B implementations for approved plans
-4. After all Tier 3 merges, create Plan 6 OpenSpec
 - src/lib/campaign/processors/__tests__/acquisitionProcessor.test.ts (non-null assertions)
 - 13 other test files with createTestCampaign helpers
 
@@ -1708,3 +1608,30 @@ All OpenSpec proposal delegations are failing immediately with "No assistant res
 - Plan 11 Phase A complete (OpenSpec proposal created and validated)
 - Ready for Phase B (implementation) after user approval
 - Plan 12 can proceed after Plan 11 completes (CombatRole dependency)
+
+## [2026-01-27] Session 2 Continued - Plans 14 and 15 OpenSpec Creation
+
+### Plan 14 (Awards Auto-Granting) OpenSpec Created
+- Change-ID: `add-awards-auto-granting`
+- Files created:
+  - `proposal.md` - Auto-award engine with 13 categories, multi-trigger support
+  - `tasks.md` - 6 implementation task groups
+  - `specs/awards/spec.md` - 7 ADDED requirements (categories, triggers, eligibility, kill/time/skill/mission awards)
+  - `specs/day-progression/spec.md` - 1 ADDED requirement (monthly processor)
+- Validation: `openspec validate add-awards-auto-granting --strict` PASSED
+- Key features: 13 award categories, monthly/post-mission/post-scenario triggers, "Best Award Only" mode, ~30 new awards
+
+### Plan 15 (Rank System) OpenSpec Created
+- Change-ID: `add-rank-system`
+- Files created:
+  - `proposal.md` - Faction-specific rank system with 51 slots
+  - `tasks.md` - 6 implementation task groups
+  - `specs/personnel-management/spec.md` - 1 MODIFIED requirement, 7 ADDED requirements
+- Validation: `openspec validate add-rank-system --strict` PASSED
+- Key features: 51 rank slots (E0-E20, WO1-WO10, O1-O20), 5 built-in faction systems, profession-specific names, officer status, pay multipliers, turnover/shares integration
+
+### Session Progress Summary
+- Created 3 OpenSpec proposals (Plans 11, 14, 15)
+- All proposals validated strict
+- Remaining Tier 3 plans: 12 (after 11), 16, 17
+- Token budget: 61k remaining (31%)
