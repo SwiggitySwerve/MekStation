@@ -13,7 +13,6 @@
 
 import {
   ICampaign,
-  ICampaignOptions,
   IMission,
   getTotalPersonnel,
   getActivePersonnel,
@@ -36,6 +35,7 @@ import {
   createCampaign,
   createCampaignWithData,
 } from '../Campaign';
+import { CampaignType } from '../CampaignType';
 import { IPerson } from '../Person';
 import { IForce } from '../Force';
 import { IFinances } from '../IFinances';
@@ -153,6 +153,7 @@ function createTestCampaign(): ICampaign {
       factionStandings: {},
       shoppingList: { items: [] },
       options: createDefaultCampaignOptions(),
+      campaignType: CampaignType.MERCENARY,
       campaignStartDate: new Date('3025-01-01'),
       createdAt: '2026-01-26T10:00:00Z',
       updatedAt: '2026-01-26T10:00:00Z',

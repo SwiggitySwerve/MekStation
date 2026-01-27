@@ -28,6 +28,7 @@ import type { SalvageRights, CommandRights } from './Mission';
 import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
 import type { IAutoAwardConfig } from './awards/autoAwardTypes';
 import { PersonnelMarketStyle } from './markets/marketTypes';
+import { CampaignType } from './CampaignType';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -447,8 +448,14 @@ export interface ICampaign {
     /** Combat teams for AtB scenario generation (optional) */
     readonly combatTeams?: readonly ICombatTeam[];
 
-    /** Campaign options */
-    readonly options: ICampaignOptions;
+     /** Campaign options */
+     readonly options: ICampaignOptions;
+
+  /** Campaign type classification */
+  readonly campaignType: CampaignType;
+
+  /** Active preset used at creation (optional, existing campaigns default to CUSTOM) */
+  readonly activePreset?: string;
 
   /** Campaign start date (when campaign was created in-game) */
   readonly campaignStartDate?: Date;
@@ -758,6 +765,7 @@ export function isCampaign(value: unknown): value is ICampaign {
     campaign.finances !== null &&
     typeof campaign.options === 'object' &&
     campaign.options !== null &&
+    typeof campaign.campaignType === 'string' &&
     typeof campaign.createdAt === 'string' &&
     typeof campaign.updatedAt === 'string'
   );
@@ -970,7 +978,8 @@ function generateUniqueId(prefix: string): string {
 export function createCampaign(
   name: string,
   factionId: string,
-  options?: Partial<ICampaignOptions>
+  options?: Partial<ICampaignOptions>,
+  campaignType: CampaignType = CampaignType.MERCENARY,
 ): ICampaign {
   const now = new Date().toISOString();
   const defaultOptions = createDefaultCampaignOptions();
@@ -997,6 +1006,7 @@ export function createCampaign(
       factionStandings: {},
       shoppingList: { items: [] },
       options: mergedOptions,
+      campaignType,
       campaignStartDate: new Date(),
       createdAt: now,
       updatedAt: now,
@@ -1038,6 +1048,8 @@ export function createCampaignWithData(params: {
     factionStandings?: Record<string, IFactionStanding>;
     shoppingList?: IShoppingList;
     options: ICampaignOptions;
+    campaignType?: CampaignType;
+    activePreset?: string;
     campaignStartDate?: Date;
     description?: string;
     iconUrl?: string;
@@ -1056,6 +1068,8 @@ export function createCampaignWithData(params: {
       factionStandings: params.factionStandings ?? {},
       shoppingList: params.shoppingList,
       options: params.options,
+      campaignType: params.campaignType ?? CampaignType.MERCENARY,
+      activePreset: params.activePreset,
       campaignStartDate: params.campaignStartDate,
       description: params.description,
       iconUrl: params.iconUrl,

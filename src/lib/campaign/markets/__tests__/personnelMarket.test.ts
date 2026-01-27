@@ -1,4 +1,5 @@
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { PersonnelMarketStyle, ExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -57,6 +58,7 @@ function createTestCampaign(overrides?: {
     factionStandings: {},
     shoppingList: { items: [] },
     options,
+    campaignType: CampaignType.MERCENARY,
     createdAt: '2026-01-26T10:00:00Z',
     updatedAt: '2026-01-26T10:00:00Z',
   };

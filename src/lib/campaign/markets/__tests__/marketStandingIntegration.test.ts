@@ -7,6 +7,7 @@ import {
 } from '../marketStandingIntegration';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { Money } from '@/types/campaign/Money';
 
 describe('marketStandingIntegration', () => {
@@ -22,6 +23,7 @@ describe('marketStandingIntegration', () => {
     finances: { transactions: [], balance: new Money(0) },
     factionStandings: {},
     options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
     createdAt: '2025-01-01',
     updatedAt: '2025-01-01',
   };

@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import type { IPerson } from '@/types/campaign/Person';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
@@ -126,6 +127,7 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
       createdAt: '3020-01-01T00:00:00Z',
       updatedAt: '3025-06-15T00:00:00Z',
       ...overrides,
+      campaignType: CampaignType.MERCENARY,
     };
 }
 

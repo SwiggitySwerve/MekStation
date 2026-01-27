@@ -8,6 +8,7 @@
 import { scanForNeededParts } from '../autoLogistics';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { Money } from '@/types/campaign/Money';
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
@@ -31,6 +32,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
     createdAt: '3025-01-01T00:00:00Z',
     updatedAt: '3025-01-15T00:00:00Z',
     ...overrides,
+    campaignType: CampaignType.MERCENARY,
   };
 }
 

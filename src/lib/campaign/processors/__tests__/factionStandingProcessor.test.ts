@@ -2,6 +2,7 @@ import { factionStandingProcessor, registerFactionStandingProcessor } from '../f
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { FactionStandingLevel } from '@/types/campaign/factionStanding/IFactionStanding';
 import { AccoladeLevel, CensureLevel } from '../../factionStanding/escalation';
 import { Money } from '@/types/campaign/Money';
@@ -28,6 +29,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
      forces: new Map(),
      missions: new Map(),
      ...overrides,
+     campaignType: CampaignType.MERCENARY,
    };
 }
 

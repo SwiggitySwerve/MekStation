@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import { Money } from '@/types/campaign/Money';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import type { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
@@ -101,6 +102,7 @@ describe('taxService', () => {
       createdAt: '2025-01-01T00:00:00Z',
       updatedAt: '2025-01-01T00:00:00Z',
       ...overrides,
+      campaignType: CampaignType.MERCENARY,
     };
   }
 

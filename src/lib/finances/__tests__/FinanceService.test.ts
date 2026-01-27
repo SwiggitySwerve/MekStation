@@ -27,6 +27,7 @@ import { IFinances } from '@/types/campaign/IFinances';
 import { Transaction, TransactionType } from '@/types/campaign/Transaction';
 import { Money } from '@/types/campaign/Money';
 import { ICampaign, createDefaultCampaignOptions, ICampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IContract, createContract } from '@/types/campaign/Mission';
 import { IPerson } from '@/types/campaign/Person';
 import { IMission } from '@/types/campaign/Mission';
@@ -125,6 +126,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
       ...overrides,
+      campaignType: CampaignType.MERCENARY,
     };
 }
 

@@ -13,6 +13,7 @@
  */
 
 import { ICampaign, createDefaultCampaignOptions, ICampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { IPerson, IInjury, createInjury } from '@/types/campaign/Person';
 import { IMission, IContract, createContract, createMission } from '@/types/campaign/Mission';
 import { IForce } from '@/types/campaign/Force';
@@ -115,6 +116,7 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
       factionStandings: {},
       shoppingList: { items: [] },
       options: createDefaultCampaignOptions(),
+      campaignType: CampaignType.MERCENARY,
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
       ...overrides,
