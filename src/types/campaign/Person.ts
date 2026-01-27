@@ -308,18 +308,21 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
   /** Secondary role (optional) */
   readonly secondaryRole?: CampaignPersonnelRole;
 
-  // =========================================================================
-  // Career (from IPersonCareer)
-  // =========================================================================
+   // =========================================================================
+   // Career (from IPersonCareer)
+   // =========================================================================
 
-  /** Current rank title */
-  readonly rank: string;
+   /** Current rank title */
+   readonly rank: string;
 
-  /** Rank level (numeric for sorting) */
-  readonly rankLevel?: number;
+   /** Rank level (numeric for sorting) */
+   readonly rankLevel?: number;
 
-  /** Date joined the campaign/unit */
-  readonly recruitmentDate: Date;
+   /** Numeric rank index (0-50) in the rank system */
+   readonly rankIndex?: number;
+
+   /** Date joined the campaign/unit */
+   readonly recruitmentDate: Date;
 
   /** Date of death (if deceased) */
   readonly deathDate?: Date;
