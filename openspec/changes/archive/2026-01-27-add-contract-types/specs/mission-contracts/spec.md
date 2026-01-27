@@ -2,7 +2,7 @@
 
 ## MODIFIED Requirements
 
-### Requirement: Contract Interface
+### Requirement: Contract Entity
 The system SHALL extend IContract with AtB-specific fields including contract type, ops tempo, and parts availability modifier.
 
 #### Scenario: Contract has AtB type

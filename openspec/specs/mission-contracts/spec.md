@@ -22,20 +22,17 @@ The system SHALL represent missions with id, name, status, system location, and 
 - **THEN** the mission references 2 scenarios
 
 ### Requirement: Contract Entity
-The system SHALL track contracts with comprehensive attributes including morale level.
+The system SHALL extend IContract with AtB-specific fields including contract type, ops tempo, and parts availability modifier.
 
-#### Scenario: Contract has morale level
-- **GIVEN** a contract in the campaign
-- **WHEN** viewing contract properties
-- **THEN** the contract has a moraleLevel field
-- **AND** moraleLevel is of type AtBMoraleLevel
-- **AND** moraleLevel defaults to STALEMATE if not specified
+#### Scenario: Contract has AtB type
+- **GIVEN** a new AtB contract
+- **WHEN** the contract is created
+- **THEN** atbContractType field contains one of 19 AtB types
 
-#### Scenario: Contract morale affects scenario generation
-- **GIVEN** a contract with morale ROUTED
-- **WHEN** generating scenarios for this contract
-- **THEN** battle type modifier is calculated from morale
-- **AND** scenario difficulty is influenced by morale level
+#### Scenario: Legacy contracts remain compatible
+- **GIVEN** an existing contract without atbContractType
+- **WHEN** the contract is loaded
+- **THEN** contract functions correctly with default values
 
 ### Requirement: Scenario Entity
 The system SHALL represent individual battle scenarios with deployed forces and objectives.
@@ -74,22 +71,17 @@ The system SHALL track contract payment terms including base payment, salvage ri
 - **THEN** commandRights indicates player has tactical independence
 
 ### Requirement: Contract Market Generation
-The system SHALL generate random contracts based on campaign state and force BV.
+The system SHALL generate contracts using all 19 AtB types with type-specific properties.
 
-#### Scenario: Generate contracts for campaign
-- **GIVEN** a campaign with force BV of 10000
-- **WHEN** generateContracts is called with count 5
-- **THEN** 5 contracts are generated with payments scaled to force BV
+#### Scenario: Market offers all 19 types
+- **GIVEN** contract market generation
+- **WHEN** contracts are generated
+- **THEN** all 19 AtB types are available in the pool
 
-#### Scenario: Contract types are varied
-- **GIVEN** generateContracts is called with count 10
-- **WHEN** the contracts are inspected
-- **THEN** multiple contract types are present (garrison, raid, recon, battle, security)
-
-#### Scenario: Contracts have random employers
-- **GIVEN** generateContracts is called
-- **WHEN** the contracts are inspected
-- **THEN** employers are randomly selected from available factions
+#### Scenario: Contract has type-specific length
+- **GIVEN** a PLANETARY_ASSAULT contract
+- **WHEN** the contract is generated
+- **THEN** length is calculated using variable length formula
 
 ### Requirement: Mission Store CRUD Operations
 The system SHALL provide CRUD operations for mission and contract management.
