@@ -27,6 +27,7 @@ import {
 import type { SalvageRights, CommandRights } from './Mission';
 import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
 import type { IAutoAwardConfig } from './awards/autoAwardTypes';
+import { PersonnelMarketStyle } from './markets/marketTypes';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -362,6 +363,19 @@ export interface ICampaignOptions {
 
     /** Code of the active rank system (e.g., 'MERC', 'SLDF', 'CLAN', 'COMSTAR', 'HOUSE') */
     readonly rankSystemCode?: string;
+
+    // =========================================================================
+    // Market Options
+    // =========================================================================
+
+    /** Unit market generation method ('none' = disabled, 'atb_monthly' = AtB monthly refresh) */
+    readonly unitMarketMethod?: 'none' | 'atb_monthly';
+
+    /** Personnel market generation style */
+    readonly personnelMarketStyle?: PersonnelMarketStyle;
+
+    /** Contract market generation method */
+    readonly contractMarketMethod?: 'none' | 'atb_monthly' | 'cam_ops';
 }
 
 // =============================================================================
@@ -871,6 +885,11 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
 
       // Rank system
       rankSystemCode: 'MERC',
+
+      // Market options
+      unitMarketMethod: 'none',
+      personnelMarketStyle: PersonnelMarketStyle.DISABLED,
+      contractMarketMethod: 'atb_monthly',
     };
 }
 

@@ -26,6 +26,10 @@ import {
 import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
 import { calculateContractLength, contractLengthToDays } from './contracts/contractLength';
 import { negotiateAllClauses } from './contracts/contractNegotiation';
+import {
+  getContractPayMultiplier,
+  getContractNegotiationModifier,
+} from './markets/marketStandingIntegration';
 
 // =============================================================================
 // Constants
@@ -479,4 +483,149 @@ export function acceptContract(campaign: ICampaign, contract: IContract): ICampa
     ...campaign,
     missions: updatedMissions,
   };
+}
+
+// =============================================================================
+// Standing Integration & Followup Functions
+// =============================================================================
+
+/**
+ * Generate a followup contract based on a completed contract.
+ *
+ * There is a 50% chance to generate a followup. If generated, the followup
+ * retains the same employer and system but uses a different contract type
+ * (from the same group if AtB) and scales payment up by 10%.
+ *
+ * @param campaign - Campaign context for BV and date calculations
+ * @param completedContract - The contract that was just completed
+ * @param random - Random function for testability (default: Math.random)
+ * @returns A new followup contract, or null if chance fails
+ */
+export function generateFollowupContract(
+  campaign: ICampaign,
+  completedContract: IContract,
+  random: RandomFn = defaultRandom
+): IContract | null {
+  // 50% chance to generate a followup
+  if (random() >= 0.5) {
+    return null;
+  }
+
+  const employer = completedContract.employerId;
+  const system = completedContract.systemId;
+  const target = randomTarget(employer, random);
+  const forceBV = calculateForceBV(campaign);
+
+  // Determine contract type - different from the completed one
+  let typeName: string;
+  let atbType: AtBContractType | undefined;
+
+  if (completedContract.atbContractType) {
+    // AtB contract: pick a different type from the same group
+    const completedDef = CONTRACT_TYPE_DEFINITIONS[completedContract.atbContractType];
+    const groupTypes = getContractTypesByGroup(completedDef.group);
+    const otherTypes = groupTypes.filter((t) => t !== completedContract.atbContractType);
+
+    if (otherTypes.length > 0) {
+      atbType = pickRandom(otherTypes, random);
+    } else {
+      // Only one type in group, pick any different AtB type
+      const allTypes = getAvailableContractTypes().filter(
+        (t) => t !== completedContract.atbContractType
+      );
+      atbType = pickRandom(allTypes, random);
+    }
+    typeName = CONTRACT_TYPE_DEFINITIONS[atbType].name;
+  } else {
+    // Legacy contract: pick a different legacy type
+    const completedType = CONTRACT_TYPES.find((t) => completedContract.name.includes(t));
+    const otherTypes = CONTRACT_TYPES.filter((t) => t !== completedType);
+    typeName = pickRandom(otherTypes, random);
+  }
+
+  // Scale payment up by 10%
+  const baseAmount = completedContract.paymentTerms.basePayment.amount;
+  const scaledPayment = new Money(Math.round(baseAmount * 1.1 * 100) / 100);
+
+  const salvagePercent = generateRandomSalvagePercent(random);
+  const paymentTerms = createPaymentTerms({
+    basePayment: scaledPayment,
+    successPayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.success),
+    partialPayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.partial),
+    failurePayment: scaledPayment.multiply(PAYMENT_MULTIPLIERS.failure),
+    salvagePercent,
+  });
+
+  // Duration: use AtB length if applicable, otherwise legacy random
+  let durationDays: number;
+  if (atbType) {
+    const lengthMonths = calculateContractLength(atbType, random);
+    durationDays = contractLengthToDays(lengthMonths);
+  } else {
+    durationDays = generateRandomDuration(random);
+  }
+
+  const startDate = campaign.currentDate;
+  const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+  const contract = createContract({
+    id: generateContractId(),
+    name: generateContractName(typeName, employer),
+    status: MissionStatus.PENDING,
+    systemId: system,
+    employerId: employer,
+    targetId: target,
+    paymentTerms,
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+  });
+
+  if (atbType) {
+    return {
+      ...contract,
+      atbContractType: atbType,
+    };
+  }
+
+  return contract;
+}
+
+/**
+ * Generate AtB contracts with faction standing modifiers applied.
+ *
+ * Wraps generateAtBContracts with standing-based pay multiplier and
+ * negotiation modifier from the faction standing system.
+ *
+ * @param campaign - Campaign to generate contracts for
+ * @param count - Number of contracts to generate (default 5)
+ * @param random - Random function for testability (default: Math.random)
+ * @returns Array of generated contracts with standing modifiers applied
+ */
+export function generateContractsWithStanding(
+  campaign: ICampaign,
+  count: number = 5,
+  random: RandomFn = defaultRandom
+): IContract[] {
+  const payMultiplier = getContractPayMultiplier(campaign);
+  const negotiationMod = getContractNegotiationModifier(campaign);
+
+  // Generate contracts with negotiation modifier passed through
+  const contracts = generateAtBContracts(campaign, count, 0, negotiationMod, random);
+
+  // Apply pay multiplier to base payment of each contract
+  return contracts.map((contract) => {
+    const scaledBase = contract.paymentTerms.basePayment.multiply(payMultiplier);
+    const scaledTerms = createPaymentTerms({
+      basePayment: scaledBase,
+      successPayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.success),
+      partialPayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.partial),
+      failurePayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.failure),
+      salvagePercent: contract.paymentTerms.salvagePercent,
+    });
+
+    return {
+      ...contract,
+      paymentTerms: scaledTerms,
+    };
+  });
 }
