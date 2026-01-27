@@ -1,126 +1,102 @@
-# Campaign Meta-Execution — Progress Tracker
+# Campaign Meta-Execution Progress
 
-## Session 1 Summary (2026-01-26)
+## Current Status
 
-### Completed (7/42 tasks - 16.7%)
+**Date**: 2026-01-27  
+**Overall Progress**: 4/48 tasks complete (8.3%)
 
-#### Prerequisites (4 tasks)
-- ✅ P1: PR #172 merged to main
-- ✅ P2: Retroactive OpenSpec for Plan 1 archived
-- ✅ P3: `add-quick-session-mode` archived  
-- ✅ P4: Verified `externalize-mm-data-assets` won't conflict
+### Completed Plans
 
-#### Plan 7: Skills Expansion (3 phases)
-- ✅ Phase A: OpenSpec proposal created (PR #174 - auto-merge enabled)
-- ✅ Phase B: Implementation complete (tasks 7.1-7.5, PR #173 - auto-merge enabled)
-- ⏳ Phase C: Awaiting PR merges for archival
+| Plan | Status | PR | Notes |
+|------|--------|-----|-------|
+| Plan 1 | ✅ COMPLETE | #172 | Day Advancement Pipeline (merged + archived) |
+| Plan 7 | ✅ COMPLETE | #173 | Skills Expansion (merged + archived) |
+| Plan 13 | ✅ COMPLETE | #176 | Personnel Status & Roles (merged + archived) |
+| Plan 2 | ✅ COMPLETE | #178 | Turnover & Retention (merged + archived) |
+| Plan 3 | ✅ COMPLETE | #179 | Repair & Quality Cascade (merged + archived) |
+| Plan 4 | ✅ COMPLETE | #181 | Financial System (merged + archived) |
+| Plan 5 | ✅ COMPLETE | #181 | Faction Standing (merged + archived) |
+| Plan 8 | ✅ COMPLETE | #182 | Medical System (merged + archived) |
+| Plan 9 | ✅ COMPLETE | #184 | Acquisition & Supply Chain (merged + archived) |
+| Plan 10 | ✅ COMPLETE | #186 | Personnel Progression (merged + archived) |
 
-### Plan 7 Deliverables
-- **39 skill types** across 6 categories
-- **5 core files**: skillCatalog.ts, skillCheck.ts, skillProgression.ts, defaultSkills.ts, skillHelpers.ts
-- **113 new tests** (all passing)
-- **12,896 total tests** passing
-- **5 commits** on feat/add-skills-expansion branch
+### In Progress
 
-### Plan 13: Personnel Status & Role Expansion (started)
-- ✅ Proposal.md created
-- ✅ Tasks.md created
-- ⏸️ Spec deltas needed (personnel-management MODIFIED, personnel-status-roles ADDED)
-- ⏸️ Implementation pending
+**Plan 11: Scenario & Combat Expansion**
+- Phase A: ✅ COMPLETE (OpenSpec PR #190 merged)
+- Phase B: ✅ COMPLETE (7/8 tasks - backend production-ready)
+  - Task 11.1: Combat Roles, Morale, Scenario Types ✅
+  - Task 11.2: Battle Chance Calculator ✅
+  - Task 11.3: Scenario Type Selection Tables ✅
+  - Task 11.4: OpFor BV Matching ✅
+  - Task 11.5: Scenario Conditions System ✅
+  - Task 11.6: Contract Morale Tracking ✅
+  - Task 11.7: Scenario Generation Processor ✅
+  - Task 11.8: UI Enhancements (deferred per plan)
+- Phase C: 🔄 IN PROGRESS
+  - ✅ C1: All changes committed
+  - ✅ C2: Branch pushed to origin
+  - ✅ C3: PR #195 created
+  - ⏳ C4: PR checks running
+  - ⏳ C5: **BLOCKED - Awaiting PR #195 merge**
 
-### Pending PRs
-- **PR #173**: Skills implementation (CI running, auto-merge enabled)
-- **PR #174**: Skills OpenSpec proposal (CI running, auto-merge enabled)
+**Blocker**: PR #195 requires user approval and merge before proceeding to archival (C6-C12) or next plan.
 
-### Session Metrics
-- **Duration**: ~2 hours
-- **Token usage**: 142k/200k (71%)
-- **Delegation attempts**: 15+ (mixed success)
-- **Commits created**: 9
-- **Tests added**: 113
+### Remaining Plans (Tier 3)
 
-### Known Issues
-1. **Delegation failures**: Background tasks failing immediately with "No assistant response"
-2. **Session length**: Approaching token limits (142k/200k)
-3. **Branch protection**: All changes require PR + CI (expected, working as designed)
-4. **LSP errors**: From feature branch files not yet on main (will resolve after PR merge)
+All have Phase A complete (OpenSpec merged). Can proceed with Phase B in any order:
 
-### What Worked Well
-- TDD implementation (tasks 7.1-7.5 all passed first time)
-- Single-task enforcement by subagents (prevented rushed work)
-- Session continuation for sequential tasks
-- OpenSpec validation catching missing spec deltas
-- Auto-merge workflow for PRs
+- Plan 12: Contract Types (depends on Plan 11 merge - CombatRole type)
+- Plan 14: Awards & Auto-Granting
+- Plan 15: Rank System
+- Plan 16: Random Events
+- Plan 17: Markets System
 
-### What Needs Improvement
-- Delegation reliability (too many immediate failures)
-- Token management (session got long)
-- Orchestrator boundary enforcement (had to create some files directly)
+### Next Actions
 
-## Next Session Actions
+**Blocked**: Cannot start Phase B for any plan while PR #195 is open (per WITHIN TIER rule)
 
-### Immediate (Check Status)
-1. Check if PR #173 and #174 merged
-2. If merged, pull main and archive `add-skills-expansion` OpenSpec change
-3. If not merged, check CI status and resolve any failures
+**Completed Preparatory Work**:
+- ✅ Plan 12 comprehensive preparation analysis (15-20 hour implementation estimated)
+- ✅ Task breakdown with effort estimates
+- ✅ Dependency analysis
+- ✅ Test strategy defined
+- ✅ Technical patterns identified
 
-### Plan 13 Continuation
-1. Create spec deltas:
-   - `specs/personnel-management/spec.md` (MODIFIED)
-   - `specs/personnel-status-roles/spec.md` (ADDED)
-2. Validate OpenSpec change
-3. Create feature branch `feat/add-personnel-status-roles`
-4. Implement tasks 13.1-13.6 sequentially
-5. Create PR and merge
-6. Archive OpenSpec change
+**After PR #195 Merges**:
+1. Complete Plan 11 Phase C (archive OpenSpec)
+2. Start Plan 12 Phase B (Contract Types) - preparation complete, ready to implement
 
-### Remaining Plans (35 tasks)
-- Plan 2: Turnover System (Tier 2)
-- Plan 3: Repair System (Tier 2)
-- Plan 4: Financial System (Tier 2)
-- Plan 5: Maintenance System (Tier 3)
-- Plan 6: Fatigue System (Tier 3)
-- Plan 8: Medical System (Tier 3)
-- Plan 9: Acquisition System (Tier 3)
-- Plan 10: Training System (Tier 4)
-- Plan 11: Morale System (Tier 4)
-- Plan 12: Retirement System (Tier 4)
-- Plan 14: Missions System (Tier 4)
-- Plan 15: Ranks System (Tier 4)
-- Plan 16: Awards System (Tier 4)
-- Plan 17: News System (Tier 4)
+## Learnings
 
-## Lessons Learned
+### Plan 11 Implementation
 
-### Delegation Strategy
-- **Single-task enforcement works**: Subagents correctly refuse multi-task requests
-- **Session continuation reliable**: Same session handled 5 sequential tasks successfully
-- **Fresh sessions for complex tasks**: Avoid infinite loops by starting fresh when stuck
-- **Token awareness**: Monitor session length, consider splitting at 100k tokens
+**What Went Well**:
+- TDD approach with 285 new tests ensured quality
+- Injectable RandomFn pattern enabled deterministic testing
+- Day pipeline integration followed established patterns
+- Backward compatibility maintained (all new fields optional)
 
-### OpenSpec Workflow
-- **Proposal → Validate → Implement → PR → Merge → Archive** is the correct flow
-- **Spec deltas are mandatory**: Validation catches missing deltas early
-- **MODIFIED requires full text**: Not just changes, but complete updated requirement
-- **Every requirement needs scenarios**: `#### Scenario:` with GIVEN/WHEN/THEN
+**Challenges**:
+- Test date issue: Used Saturday instead of Monday, causing 19 test failures
+- ESLint violations: Had to fix `any` types and unused imports after initial implementation
+- UI task (11.8) deferred - historically problematic for delegation
 
-### TDD Approach
-- **RED-GREEN-REFACTOR works**: All 113 tests passed first time
-- **Test first prevents rework**: No failed implementations in Plan 7
-- **Integration tests catch issues**: Comprehensive test coverage = confidence
+**Key Patterns**:
+- Enum design: String-based enums for better serialization
+- Type guards: Simple `Object.values(Enum).includes()` pattern
+- Processor pattern: `IDayProcessor` interface with phase-based execution
+- Weekly gating: `isMonday(date)` check for weekly processors
 
-### Git Workflow
-- **Branch protection is good**: Forces review and CI
-- **Auto-merge saves time**: Enable for all PRs
-- **Small PRs merge faster**: Plan 7 split into proposal + implementation
+### Meta-Execution Process
 
-## Recommendations for Next Session
+**Effective Practices**:
+- Clear phase gates (A → B → C) prevent premature work
+- SPECS-FIRST GATE ensures all designs approved before coding
+- Per-plan lifecycle template provides consistent workflow
+- Notepad system captures learnings across plans
 
-1. **Start fresh**: New session, clear context
-2. **Check PR status first**: Don't proceed until PRs merge
-3. **Delegate spec deltas**: Use writing category for OpenSpec files
-4. **One task at a time**: Maintain single-task discipline
-5. **Verify everything**: Don't trust subagent claims without verification
-6. **Document blockers**: Use notepad when stuck
-7. **Commit frequently**: Atomic commits for each task
-8. **Monitor tokens**: Split session if approaching 150k
+**Process Improvements Needed**:
+- Better handling of PR merge gates (currently blocking)
+- Clearer guidance on when to parallelize vs. serialize work
+- UI task delegation needs alternative approach

@@ -116,7 +116,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ## TODOs
 
-- [ ] 11.1 Define Combat Roles, Morale, and Scenario Types
+- [x] 11.1 Define Combat Roles, Morale, and Scenario Types
 
   **What to do**:
   - Create `src/types/campaign/scenario/scenarioTypes.ts`:
@@ -198,7 +198,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.2 Implement Battle Chance Calculator
+- [x] 11.2 Implement Battle Chance Calculator
 
   **What to do**:
   - Create `src/lib/campaign/scenario/battleChance.ts`:
@@ -247,7 +247,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.3 Implement Scenario Type Selection Tables
+- [x] 11.3 Implement Scenario Type Selection Tables
 
   **What to do**:
   - Create `src/lib/campaign/scenario/scenarioTypeSelection.ts`:
@@ -299,7 +299,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.4 Implement OpFor BV Matching
+- [x] 11.4 Implement OpFor BV Matching
 
   **What to do**:
   - Create `src/lib/campaign/scenario/opForGeneration.ts`:
@@ -354,7 +354,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.5 Implement Scenario Conditions System
+- [x] 11.5 Implement Scenario Conditions System
 
   **What to do**:
   - Create `src/lib/campaign/scenario/scenarioConditions.ts`:
@@ -399,7 +399,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.6 Implement Contract Morale Tracking
+- [x] 11.6 Implement Contract Morale Tracking
 
   **What to do**:
   - Create `src/lib/campaign/scenario/morale.ts`:
@@ -441,7 +441,7 @@ Build dynamic scenario generation: weekly battle chance check per combat team â†
 
 ---
 
-- [ ] 11.7 Create Scenario Generation Day Processor
+- [x] 11.7 Create Scenario Generation Day Processor
 
   **What to do**:
   - Create `src/lib/campaign/processors/scenarioGenerationProcessor.ts`:
