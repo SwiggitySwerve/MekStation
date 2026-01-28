@@ -155,11 +155,21 @@ Every finding from every agent MUST follow this structure:
 [Phase 0: Setup]
   TODO 1 (test data) → TODO 2 (screenshots)
 
-[Phase 1: Domain Reviews — ALL PARALLEL]
-  TODO 3 through TODO 14 (12 specialist agents, all independent)
+[Phase 0.5: Centralized Screenshot Analysis — SEQUENTIAL, MAIN AGENT ONLY]
+  TODO 2.5 (main agent analyzes ALL screenshots via look_at, writes text descriptions)
+  ⚠ STABILITY NOTE: This phase MUST run in the main agent session, NOT in subagents.
+  The oh-my-opencode MCP server is a Bun-compiled binary. Concurrent look_at calls
+  from 10+ parallel subagents cause Bun segfaults due to memory pressure from
+  simultaneous image decoding. Centralizing image analysis in a single sequential
+  pipeline avoids this crash vector entirely.
 
-[Phase 2: Cross-Cutting Reviews — ALL PARALLEL]
+[Phase 1: Domain Reviews — ALL PARALLEL, TEXT-ONLY]
+  TODO 3 through TODO 14 (12 specialist agents, all independent)
+  Agents receive TEXT descriptions from Phase 0.5 — NO direct look_at calls on images.
+
+[Phase 2: Cross-Cutting Reviews — ALL PARALLEL, TEXT-ONLY]
   TODO 15 through TODO 19 (5 holistic agents, all independent)
+  Agents receive TEXT descriptions from Phase 0.5 — NO direct look_at calls on images.
 
 [Phase 3: Synthesis — SEQUENTIAL]
   TODO 20 (oracle aggregation) → TODO 21 (final report)
@@ -170,17 +180,25 @@ Every finding from every agent MUST follow this structure:
 | Group | Tasks | Reason |
 |-------|-------|--------|
 | A (sequential) | 1 → 2 | Screenshots depend on test data being available |
-| B (parallel) | 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 | Independent domain reviews |
-| C (parallel) | 15, 16, 17, 18, 19 | Independent cross-cutting reviews |
+| A.5 (sequential, main agent) | 2.5 | Main agent analyzes all screenshots centrally via `look_at` — avoids Bun segfaults from concurrent image decoding in subagents |
+| B (parallel, text-only) | 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 | Independent domain reviews — receive text descriptions, NOT image files |
+| C (parallel, text-only) | 15, 16, 17, 18, 19 | Independent cross-cutting reviews — receive text descriptions, NOT image files |
 | D (sequential) | 20 → 21 | Report depends on all findings being collected |
 
 | Task | Depends On | Reason |
 |------|------------|--------|
 | 2 | 1 | Screenshots need populated routes |
-| 3–14 | 2 | Domain reviews need screenshot evidence |
-| 15–19 | 2 | Cross-cutting reviews need screenshot evidence |
+| 2.5 | 2 | Analysis needs screenshots to exist |
+| 3–14 | 2.5 | Domain reviews need text descriptions from centralized analysis |
+| 15–19 | 2.5 | Cross-cutting reviews need text descriptions from centralized analysis |
 | 20 | 3–19 | Synthesis needs all findings |
 | 21 | 20 | Report needs synthesized data |
+
+### ⚠ Stability Constraint: No `look_at` in Subagents
+
+**Root cause (diagnosed 2026-01-27)**: The `oh-my-opencode` MCP server is a Bun-compiled standalone binary (~119MB). When 10+ subagents concurrently call `look_at` to decode PNG screenshots, the Bun runtime segfaults under the combined memory pressure. This crashed multiple UX audit sessions.
+
+**Mitigation**: All image analysis (`look_at` calls) MUST happen in the main Sisyphus session during Phase 0.5. Subagents in Phase 1 and Phase 2 receive pre-extracted text descriptions only. This eliminates concurrent image decoding entirely.
 
 ---
 
@@ -191,7 +209,7 @@ Every finding from every agent MUST follow this structure:
 - [ ] 1. Prepare Test Data & Seed State for Parameterized Routes
 
   **What to do**:
-  - Start the dev server (`npm run dev` or `bun dev`)
+  - Start the dev server (`npm run dev`)
   - Navigate to list pages to discover existing data IDs, OR create test data via the app's UI/API:
     - At least 1 unit in the customizer (each of: BattleMech, Vehicle, Aerospace, Battle Armor, Infantry, ProtoMech — all 6 unit types)
     - Note: BattleArmor, Infantry, and ProtoMech may need to be loaded from the compendium rather than created from scratch via the customizer
@@ -379,16 +397,87 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-### Phase 1: Domain-Specific Reviews (ALL PARALLEL)
+### Phase 0.5: Centralized Screenshot Analysis (MAIN AGENT ONLY)
+
+> **⚠ STABILITY CRITICAL**: This phase MUST run in the main Sisyphus session.
+> DO NOT delegate `look_at` calls to subagents. The oh-my-opencode MCP server
+> (Bun-compiled binary) segfaults when 10+ concurrent agents decode images simultaneously.
+
+---
+
+- [ ] 2.5. Analyze All Screenshots and Produce Text Descriptions
+
+  **What to do**:
+  - The MAIN AGENT (Sisyphus) processes all screenshots from Phase 0, calling `look_at` sequentially
+  - For each screenshot, extract a structured text description covering all 10 audit dimensions
+  - Group descriptions by route/page for efficient handoff to domain reviewers
+  - Write output to: `.sisyphus/evidence/screenshot-descriptions.md`
+
+  **Processing approach**:
+  - Work through screenshots in route-grouped batches (all viewports for one route together)
+  - For each screenshot, call `look_at` with a goal tailored to the audit dimensions:
+    ```
+    Goal: "Describe this UI screenshot for UX audit. Note: layout density and whitespace balance,
+    responsive layout quality, component containment (overlap/clipping/runoff), visual hierarchy,
+    loading/transition states, text overflow/truncation, touch target sizing, design consistency,
+    empty state handling, and state transitions. Include specific measurements where visible
+    (approximate sizes, spacing). Note any issues or anomalies."
+    ```
+  - Write each description in a structured format:
+    ```markdown
+    ### {route-slug} — {viewport} ({width}px)
+    **Screenshot**: `.sisyphus/evidence/screenshots/{filename}.png`
+    **Description**: {detailed visual description covering all 10 dimensions}
+    **Notable Issues**: {any immediately apparent UX problems}
+    ```
+
+  **Rate limiting** (to avoid memory pressure):
+  - Process no more than 5-10 `look_at` calls before yielding (write partial results)
+  - If the session feels sluggish, reduce to 3-5 at a time
+  - Total: ~200-300 screenshots, expect this phase to take 30-60 minutes
+
+  **Must NOT do**:
+  - Do NOT delegate `look_at` calls to background agents or subagents
+  - Do NOT skip any screenshot — every image needs a text description
+  - Do NOT make UX judgments at this stage — just describe what you see objectively
+  - Do NOT attempt to process all screenshots in a single batch
+
+  **Parallelizable**: NO (sequential in main agent session — this is the stability constraint)
+
+  **References**:
+  - Screenshot manifest: `.sisyphus/evidence/screenshot-manifest.md`
+  - Screenshots directory: `.sisyphus/evidence/screenshots/`
+  - Audit dimensions: See "Audit Standards" section above
+
+  **Acceptance Criteria**:
+  - [ ] `.sisyphus/evidence/screenshot-descriptions.md` exists
+  - [ ] Every screenshot in the manifest has a corresponding text description
+  - [ ] Descriptions cover all 10 audit dimensions where applicable
+  - [ ] Descriptions are objective (observations, not judgments)
+  - [ ] File is organized by route for easy lookup by domain reviewers
+  - [ ] No Bun segfaults occurred during processing
+
+  **Commit**: NO (evidence artifact, no code changes)
+
+---
+
+### Phase 1: Domain-Specific Reviews (ALL PARALLEL, TEXT-ONLY)
 
 > **IMPORTANT**: All tasks 3–14 run IN PARALLEL. Each specialist reviewer agent operates independently.
-> Each agent receives: the audit standards (severity scale, finding schema, dimensions), relevant screenshots, and the source code for the components under review.
+> Each agent receives: the audit standards (severity scale, finding schema, dimensions), **pre-extracted
+> text descriptions from Phase 0.5** (NOT raw screenshot files), and the source code for the components under review.
 > Each agent's prompt MUST include the full audit standards from the "Audit Standards" section above.
 >
-> **AD HOC INVESTIGATION**: When a reviewer flags a finding that cannot be fully verified from static screenshots
+> **⚠ STABILITY RULE**: Reviewer agents MUST NOT call `look_at` on screenshot files directly.
+> All visual evidence is provided as text descriptions from `.sisyphus/evidence/screenshot-descriptions.md`.
+> This prevents concurrent image decoding in the Bun-compiled MCP server, which causes segfaults.
+> Agents may still reference screenshot file paths in their findings for traceability.
+>
+> **AD HOC INVESTIGATION**: When a reviewer flags a finding that cannot be fully verified from text descriptions
 > (e.g., "dropdown may overlap save button when expanded", "scroll trap suspected in nested list"),
-> use **Playwright MCP interactive mode** to navigate to the specific route, interact with the element,
-> and capture targeted evidence. This supplements the automated capture suite with on-demand depth.
+> the **main agent** should perform follow-up `look_at` calls or use **Playwright MCP interactive mode**
+> to verify — NOT the subagent itself. Subagents should flag these as `Evidence: needs-verification`
+> and the main agent handles verification after collecting results.
 > Findings verified via ad hoc investigation should note `Evidence: ad-hoc-mcp` in their finding schema.
 
 ---
@@ -426,7 +515,9 @@ Every finding from every agent MUST follow this structure:
   - `src/components/common/SkeletonLoader.tsx` — Loading state pattern
   - `src/components/ui/ViewModeToggle.tsx` — Grid/list view toggle
 
-  **Screenshot Evidence**: `.sisyphus/evidence/screenshots/compendium-units_*.png`, etc.
+  **Visual Evidence**: Text descriptions from `.sisyphus/evidence/screenshot-descriptions.md` (filtered to list page routes).
+  Screenshot file paths available for reference: `.sisyphus/evidence/screenshots/compendium-units_*.png`, etc.
+  ⚠ Do NOT call `look_at` on screenshot files — use the pre-extracted text descriptions only.
 
   **Acceptance Criteria**:
   - [ ] Every list page reviewed at all 4 viewports
@@ -474,7 +565,9 @@ Every finding from every agent MUST follow this structure:
   - `src/components/ui/Badge.tsx` — Badge/label pattern
   - `src/components/ui/Card.tsx` — Card container pattern
 
-  **Screenshot Evidence**: `.sisyphus/evidence/screenshots/compendium-units-id_*.png`, etc.
+  **Visual Evidence**: Text descriptions from `.sisyphus/evidence/screenshot-descriptions.md` (filtered to detail page routes).
+  Screenshot file paths available for reference: `.sisyphus/evidence/screenshots/compendium-units-id_*.png`, etc.
+  ⚠ Do NOT call `look_at` on screenshot files — use the pre-extracted text descriptions only.
 
   **Acceptance Criteria**:
   - [ ] Every detail page reviewed at all 4 viewports
@@ -885,15 +978,20 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-### Phase 2: Cross-Cutting Reviews (ALL PARALLEL)
+### Phase 2: Cross-Cutting Reviews (ALL PARALLEL, TEXT-ONLY)
 
 > **IMPORTANT**: All tasks 15–19 run IN PARALLEL. Each reviews the ENTIRE app holistically, not individual pages.
-> Each receives the full screenshot manifest + audit standards.
+> Each receives the full **text descriptions from Phase 0.5** (`.sisyphus/evidence/screenshot-descriptions.md`)
+> plus the screenshot manifest for path references + audit standards.
 >
-> **AD HOC INVESTIGATION**: Same as Phase 1 — use Playwright MCP interactive mode for findings that
-> require live interaction to verify (e.g., testing navigation flow across pages, verifying loading
-> state transitions, checking offline behavior). Cross-cutting reviewers are especially likely to need
-> this for systemic pattern verification.
+> **⚠ STABILITY RULE**: Same as Phase 1 — reviewer agents MUST NOT call `look_at` on screenshot files.
+> All visual evidence is provided as pre-extracted text descriptions.
+>
+> **AD HOC INVESTIGATION**: When findings require live interaction to verify (e.g., testing navigation
+> flow across pages, verifying loading state transitions, checking offline behavior), the subagent
+> should flag these as `Evidence: needs-verification`. The **main agent** handles verification after
+> collecting results — either via `look_at` or Playwright MCP interactive mode.
+> Cross-cutting reviewers are especially likely to need this for systemic pattern verification.
 
 ---
 
@@ -925,7 +1023,9 @@ Every finding from every agent MUST follow this structure:
   9. Help users recognize, diagnose, recover from errors
   10. Help and documentation
 
-  **Screenshot Manifest**: `.sisyphus/evidence/screenshot-manifest.md`
+  **Visual Evidence**: Text descriptions from `.sisyphus/evidence/screenshot-descriptions.md` (full app).
+  Screenshot manifest for path references: `.sisyphus/evidence/screenshot-manifest.md`.
+  ⚠ Do NOT call `look_at` on screenshot files — use the pre-extracted text descriptions only.
 
   **Acceptance Criteria**:
   - [ ] All 10 heuristics evaluated with specific examples from MekStation
