@@ -1,0 +1,115 @@
+schema: spec-driven
+
+context: |
+  # MekStation - BattleTech Unit Construction Application
+  
+  ## Project Identity
+  - Name: MekStation
+  - Domain: BattleTech unit construction and gameplay companion
+  - Source of Truth: OpenSpec specifications in `openspec/specs/`
+  - Purpose: TechManual-accurate BattleMech construction with 4,200+ canonical units
+  
+  ## Tech Stack
+  - Framework: Next.js 16
+  - UI: React 19 + Tailwind CSS 4
+  - State Management: Zustand 5
+  - Database: SQLite (better-sqlite3)
+  - Desktop: Electron
+  - Testing: Jest + React Testing Library
+  - Language: TypeScript 5.8
+  
+  ## Domain Knowledge
+  - BattleTech universe: Giant combat robots (BattleMechs) with construction rules from TechManual
+  - Weight classes: Light (20-35t), Medium (40-55t), Heavy (60-75t), Assault (80-100t)
+  - Tech bases: Inner Sphere, Clan, Mixed Tech
+  - Construction systems: Engine, gyro, armor, internal structure, weapons, equipment
+  - Critical slots: Equipment spaces in 8 locations (Head, CT, LT, RT, LA, RA, LL, RL)
+  - Temporal availability: Technology available based on introduction/extinction years and eras
+  
+  ## Key Terminology Conventions
+  (Reference: `openspec/TERMINOLOGY_GLOSSARY.md`)
+  
+  ### Property Naming
+  - Use `weight` (not "tons" or "mass") for mass properties
+  - Use `criticalSlots` (not "slots" or "crit slots") for slot counts
+  - Use `introductionYear` / `extinctionYear` (not abbreviated)
+  - Use `techBase: TechBase` for component-level tech
+  - Use `unitTechBase: UnitTechBase` for unit-level tech (includes MIXED)
+  - Use `engineRating` for engine power output
+  - Use `engineIntegrated` for heat sinks mounted in engine
+  
+  ### Canonical Terms
+  - "BattleMech" (not "Battlemech" or "Battle Mech") in formal definitions
+  - "location" (not "section" or "body part") for mech parts
+  - "critical slots" (not "crit slots" or "spaces") for equipment spaces
+  - "Inner Sphere" / "Clan" (capitalized) for tech bases
+  - "armor points" for armor quantity
+  - "engine-integrated" for heat sinks inside engine
+  - "external" for heat sinks outside engine
+  - "validation" (not "verification") for rules checking
+  
+  ### Naming Patterns
+  - Interfaces: `I` + PascalCase (e.g., `IEngine`, `IBattleMech`)
+  - Enums: PascalCase types, UPPER_SNAKE_CASE values (e.g., `TechBase.INNER_SPHERE`)
+  - Properties: camelCase (e.g., `engineRating`, `criticalSlots`)
+  - Constants: UPPER_SNAKE_CASE (e.g., `MAX_TONNAGE`, `MIN_HEAT_SINKS`)
+  
+  ## Architecture Patterns
+  
+  ### Spec-Driven Flow
+  ```
+  OpenSpec Specs → TypeScript Types → Services → Components
+       ↓                ↓              ↓           ↓
+     (Rules)        (Contracts)     (Logic)      (UI)
+  ```
+  
+  ### Code Organization
+  - Types from specs: `src/types/`
+  - Business logic: `src/services/`
+  - Validation rules: `src/utils/validation/`
+  - UI components: `src/components/`
+  - State stores: `src/stores/` (Zustand)
+  - Database: SQLite via API routes
+  
+  ### Tech Base Handling
+  - Component-level: `techBase: TechBase` (INNER_SPHERE or CLAN)
+  - Unit-level: `unitTechBase: UnitTechBase` (INNER_SPHERE, CLAN, or MIXED)
+  - Mixed Tech: Units can combine IS and Clan components
+
+rules:
+  proposal:
+    - Keep proposals focused on single capability or feature
+    - Include "Non-goals" section to clarify scope boundaries
+    - Reference affected specs and their current state
+    - Identify integration points with existing systems
+    - Consider temporal availability and tech base implications
+  
+  specs:
+    - Use SHALL/MUST for normative requirements (RFC 2119 keywords)
+    - Use "#### Scenario:" format (4 hashtags + colon) for test scenarios
+    - Every requirement MUST have at least one scenario
+    - Use canonical terminology from `openspec/TERMINOLOGY_GLOSSARY.md`
+    - Property names must follow glossary standards (e.g., `weight` not `tons`)
+    - Interfaces use `I` prefix (e.g., `IEngine`, `IWeapon`)
+    - Enums use PascalCase types and UPPER_SNAKE_CASE values
+    - For spec deltas, use "## ADDED Requirements", "## MODIFIED Requirements", "## REMOVED Requirements"
+    - Include tech base, rules level, and temporal availability for equipment/technology
+    - Specify critical slot requirements and weight formulas
+  
+  design:
+    - Reference specific specs being implemented
+    - Show TypeScript interfaces matching spec definitions
+    - Include state management approach (Zustand stores)
+    - Document validation rules and error handling
+    - Consider mobile responsiveness and accessibility
+    - Show component hierarchy and data flow
+    - Include tech base compatibility checks
+  
+  tasks:
+    - Break into atomic, testable units
+    - Reference specific spec requirements being implemented
+    - Include validation and test coverage requirements
+    - Specify affected files and integration points
+    - Consider both unit tests and integration tests
+    - Verify terminology matches glossary
+    - Check LSP diagnostics before marking complete

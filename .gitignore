@@ -127,7 +127,12 @@ pip-comparison-output/
 
 # Storybook
 storybook-static/
-.opencode/
+
+# OpenCode - track skills/commands, ignore package files
+.opencode/node_modules/
+.opencode/package.json
+.opencode/bun.lock
+.opencode/.gitignore
 
 # Sisyphus agent working directory (audit screenshots, evidence, plans)
 .sisyphus/

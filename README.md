@@ -132,7 +132,7 @@ See [Getting Started](docs/development/getting-started.md) for detailed setup in
 | Getting Started | `docs/development/getting-started.md` |
 | Architecture | `docs/architecture/project-structure.md` |
 | Coding Standards | `docs/development/coding-standards.md` |
-| OpenSpec Guide | `openspec/AGENTS.md` |
+| OpenSpec Guide | `openspec/config.yaml` |
 | BattleTech Rules | `openspec/specs/` |
 | Contributing | `docs/CONTRIBUTING.md` |
 
@@ -140,11 +140,19 @@ See [Getting Started](docs/development/getting-started.md) for detailed setup in
 
 ## OpenSpec-Driven Development
 
-MekStation uses [OpenSpec](openspec/AGENTS.md) as the single source of truth for BattleTech construction rules. All game mechanics, formulas, and validation logic are defined in machine-readable specifications.
+MekStation uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) as the single source of truth for BattleTech construction rules. All game mechanics, formulas, and validation logic are defined in machine-readable specifications.
 
 ```bash
-npx openspec list --specs     # List all specifications
-npx openspec show engine-system --type spec
+# OPSX Workflow Commands (in AI coding assistant)
+/opsx:new          # Start a new change
+/opsx:ff           # Fast-forward - create all planning artifacts
+/opsx:apply        # Implement tasks
+/opsx:archive      # Archive completed change
+
+# CLI Commands
+openspec list --specs            # List all specifications
+openspec show engine-system      # View a specification
+openspec validate --strict       # Validate specs and changes
 ```
 
 ---
