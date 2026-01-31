@@ -405,7 +405,8 @@ describe('useCampaignStore', () => {
       store.getState().advanceDay();
 
       const newDate = store.getState().getCampaign()?.currentDate;
-      expect(newDate?.getDate()).toBe(originalDate.getDate() + 1);
+      // Compare timestamps: exactly 1 day (86400000 ms) should have passed
+      expect(newDate?.getTime()).toBe(originalDate.getTime() + 86400000);
     });
 
     it('should handle month rollover', () => {
