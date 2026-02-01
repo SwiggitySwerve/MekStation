@@ -16,9 +16,33 @@ import {
   getValidDestinations,
   calculateAttackerMovementModifier,
   findPath,
+  getHexMovementCost,
 } from '@/utils/gameplay/movement';
 import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
-import { IUnitPosition, MovementType, Facing } from '@/types/gameplay';
+import { IUnitPosition, MovementType, Facing, IHexGrid, IHexCoordinate } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { coordToKey } from '@/utils/gameplay/hexMath';
+
+function setHexTerrain(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+  terrain: string,
+  elevation: number = 0
+): IHexGrid {
+  const key = coordToKey(coord);
+  const existingHex = grid.hexes.get(key);
+  if (!existingHex) {
+    throw new Error(`Hex at ${key} does not exist in grid`);
+  }
+  
+  const newHexes = new Map(grid.hexes);
+  newHexes.set(key, { ...existingHex, terrain, elevation });
+  
+  return {
+    ...grid,
+    hexes: newHexes,
+  };
+}
 
 describe('movement', () => {
   // =========================================================================
@@ -245,6 +269,92 @@ describe('movement', () => {
 
       expect(destinations.length).toBe(1);
       expect(destinations[0]).toEqual({ q: 0, r: 0 });
+    });
+  });
+
+  // =========================================================================
+  // Terrain Movement Cost
+  // =========================================================================
+
+  describe('getHexMovementCost()', () => {
+    it('should return 1 for clear terrain', () => {
+      const grid = createHexGrid({ radius: 3 });
+      const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
+      expect(cost).toBe(1);
+    });
+
+    it('should return 2 for light woods with walk', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.LightWoods);
+      const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
+      expect(cost).toBe(2);
+    });
+
+    it('should return 3 for heavy woods with walk', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.HeavyWoods);
+      const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
+      expect(cost).toBe(3);
+    });
+
+    it('should return 1 for heavy woods with jump', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.HeavyWoods);
+      const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'jump');
+      expect(cost).toBe(1);
+    });
+
+    it('should return Infinity for water with walk', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Water);
+      const cost = getHexMovementCost(grid, { q: 0, r: 0 }, 'walk');
+      expect(cost).toBe(Infinity);
+    });
+
+    it('should add 1 MP for elevation change going up', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      expect(cost).toBe(2);
+    });
+
+    it('should add 2 MP for two level elevation change', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      expect(cost).toBe(3);
+    });
+
+    it('should return Infinity for >2 level elevation change with walk', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      expect(cost).toBe(Infinity);
+    });
+
+    it('should not add cost for elevation change going down', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      expect(cost).toBe(1);
+    });
+
+    it('should combine terrain and elevation costs', () => {
+      let grid = createHexGrid({ radius: 3 });
+      grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
+      grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 1);
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      expect(cost).toBe(3);
+    });
+
+    it('should return Infinity for invalid hex', () => {
+      const grid = createHexGrid({ radius: 3 });
+      const cost = getHexMovementCost(grid, { q: 100, r: 100 }, 'walk');
+      expect(cost).toBe(Infinity);
     });
   });
 

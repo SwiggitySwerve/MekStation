@@ -12,35 +12,38 @@ import {
   GameSide,
   IUnitToken,
   IMovementRangeHex,
+  IHexTerrain,
+  TerrainType,
+  IHexGrid,
+  IHex,
 } from '@/types/gameplay';
+import { TERRAIN_PROPERTIES, CoverLevel } from '@/types/gameplay/TerrainTypes';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import { HEX_SIZE, HEX_WIDTH, HEX_HEIGHT, HEX_COLORS } from '@/constants/hexMap';
+import {
+  TERRAIN_COLORS,
+  WATER_DEPTH_COLORS,
+  TERRAIN_PATTERNS,
+  TERRAIN_LAYER_ORDER,
+} from '@/constants/terrain';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface HexMapDisplayProps {
-  /** Map radius (in hexes from center) */
   radius: number;
-  /** Unit tokens to display */
   tokens: readonly IUnitToken[];
-  /** Currently selected hex */
   selectedHex: IHexCoordinate | null;
-  /** Hexes showing movement range */
+  hexTerrain?: readonly IHexTerrain[];
   movementRange?: readonly IMovementRangeHex[];
-  /** Hexes showing attack range */
   attackRange?: readonly IHexCoordinate[];
-  /** Path to highlight (for movement preview) */
   highlightPath?: readonly IHexCoordinate[];
-  /** Callback when hex is clicked */
   onHexClick?: (hex: IHexCoordinate) => void;
-  /** Callback when hex is hovered */
   onHexHover?: (hex: IHexCoordinate | null) => void;
-  /** Callback when token is clicked */
   onTokenClick?: (unitId: string) => void;
-  /** Show coordinate labels */
   showCoordinates?: boolean;
-  /** Optional className for styling */
   className?: string;
 }
 
@@ -153,12 +156,58 @@ function hexInList(hex: IHexCoordinate, list: readonly IHexCoordinate[]): boolea
   return list.some((h) => hexEquals(h, hex));
 }
 
+/**
+ * Get the primary terrain feature (highest layer order) for a hex.
+ */
+function getPrimaryTerrainFeature(
+  terrain: IHexTerrain | undefined
+): { type: TerrainType; level: number } | null {
+  if (!terrain || terrain.features.length === 0) return null;
+
+  const sortedFeatures = [...terrain.features].sort(
+    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type]
+  );
+  return sortedFeatures[0];
+}
+
+function getTerrainMovementCost(terrain: IHexTerrain | undefined): number {
+  const feature = getPrimaryTerrainFeature(terrain);
+  if (!feature) return 1;
+  const props = TERRAIN_PROPERTIES[feature.type];
+  return 1 + (props?.movementCostModifier.walk ?? 0);
+}
+
+function getTerrainCoverLevel(terrain: IHexTerrain | undefined): CoverLevel {
+  const feature = getPrimaryTerrainFeature(terrain);
+  if (!feature) return CoverLevel.None;
+  const props = TERRAIN_PROPERTIES[feature.type];
+  return props?.coverLevel ?? CoverLevel.None;
+}
+
+function getTerrainFill(terrain: IHexTerrain | undefined): string {
+  const feature = getPrimaryTerrainFeature(terrain);
+  if (!feature) return HEX_COLORS.hexFill;
+
+  if (feature.type === TerrainType.Water) {
+    const depthIndex = Math.min(feature.level, 3);
+    return WATER_DEPTH_COLORS[depthIndex] ?? WATER_DEPTH_COLORS[1];
+  }
+
+  const patternId = TERRAIN_PATTERNS[feature.type];
+  if (patternId) {
+    return `url(#${patternId})`;
+  }
+
+  return TERRAIN_COLORS[feature.type] ?? HEX_COLORS.hexFill;
+}
+
 // =============================================================================
 // Sub-Components
 // =============================================================================
 
 interface HexCellProps {
   hex: IHexCoordinate;
+  terrain?: IHexTerrain;
   isSelected: boolean;
   isHovered: boolean;
   movementInfo?: IMovementRangeHex;
@@ -172,6 +221,7 @@ interface HexCellProps {
 
 const HexCell = React.memo(function HexCell({
   hex,
+  terrain,
   isSelected,
   isHovered,
   movementInfo,
@@ -183,19 +233,33 @@ const HexCell = React.memo(function HexCell({
   onMouseLeave,
 }: HexCellProps): React.ReactElement {
   const { x, y } = hexToPixel(hex);
+  const pathD = hexPath(x, y);
 
-  // Determine fill color
-  let fill = HEX_COLORS.hexFill;
+  const terrainFill = getTerrainFill(terrain);
+  const primaryFeature = getPrimaryTerrainFeature(terrain);
+  const terrainType = primaryFeature?.type ?? null;
+
+  const hasOverlay = isSelected || isInPath || movementInfo || isInAttackRange || isHovered;
+  let overlayFill: string | null = null;
+  let overlayOpacity = 0.5;
+
   if (isSelected) {
-    fill = HEX_COLORS.hexSelected;
+    overlayFill = HEX_COLORS.hexSelected;
+    overlayOpacity = 0.7;
   } else if (isInPath) {
-    fill = HEX_COLORS.pathHighlight;
+    overlayFill = HEX_COLORS.pathHighlight;
+    overlayOpacity = 0.6;
   } else if (movementInfo) {
-    fill = movementInfo.reachable ? HEX_COLORS.movementRange : HEX_COLORS.movementRangeUnreachable;
+    overlayFill = movementInfo.reachable
+      ? HEX_COLORS.movementRange
+      : HEX_COLORS.movementRangeUnreachable;
+    overlayOpacity = 0.5;
   } else if (isInAttackRange) {
-    fill = HEX_COLORS.attackRange;
+    overlayFill = HEX_COLORS.attackRange;
+    overlayOpacity = 0.5;
   } else if (isHovered) {
-    fill = HEX_COLORS.hexHover;
+    overlayFill = HEX_COLORS.hexHover;
+    overlayOpacity = 0.4;
   }
 
   return (
@@ -206,30 +270,22 @@ const HexCell = React.memo(function HexCell({
       style={{ cursor: 'pointer' }}
     >
       <path
-        d={hexPath(x, y)}
-        fill={fill}
+        d={pathD}
+        fill={terrainFill}
         stroke={HEX_COLORS.gridLine}
         strokeWidth={1}
+        data-terrain={terrainType}
       />
+      {hasOverlay && overlayFill && (
+        <path d={pathD} fill={overlayFill} opacity={overlayOpacity} pointerEvents="none" />
+      )}
       {showCoordinate && (
-        <text
-          x={x}
-          y={y + 4}
-          textAnchor="middle"
-          fontSize={10}
-          fill="#64748b"
-        >
+        <text x={x} y={y + 4} textAnchor="middle" fontSize={10} fill="#64748b">
           {hex.q},{hex.r}
         </text>
       )}
       {movementInfo && movementInfo.reachable && (
-        <text
-          x={x}
-          y={y + 12}
-          textAnchor="middle"
-          fontSize={8}
-          fill="#166534"
-        >
+        <text x={x} y={y + 12} textAnchor="middle" fontSize={8} fill="#166534">
           {movementInfo.mpCost}MP
         </text>
       )}
@@ -292,7 +348,6 @@ const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onCli
         {token.designation}
       </text>
 
-      {/* Destroyed X */}
       {token.isDestroyed && (
         <g stroke="#dc2626" strokeWidth={3}>
           <line x1={-12} y1={-12} x2={12} y2={12} />
@@ -302,6 +357,187 @@ const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onCli
     </g>
   );
 });
+
+interface MovementCostOverlayProps {
+  hex: IHexCoordinate;
+  terrain: IHexTerrain | undefined;
+}
+
+const MovementCostOverlay = React.memo(function MovementCostOverlay({
+  hex,
+  terrain,
+}: MovementCostOverlayProps): React.ReactElement {
+  const { x, y } = hexToPixel(hex);
+  const cost = getTerrainMovementCost(terrain);
+
+  return (
+    <g pointerEvents="none">
+      <circle cx={x} cy={y} r={12} fill="#1e293b" opacity={0.85} />
+      <text
+        x={x}
+        y={y + 4}
+        textAnchor="middle"
+        fontSize={11}
+        fontWeight="bold"
+        fill="#f8fafc"
+      >
+        {cost}
+      </text>
+    </g>
+  );
+});
+
+interface CoverOverlayProps {
+  hex: IHexCoordinate;
+  terrain: IHexTerrain | undefined;
+}
+
+const CoverOverlay = React.memo(function CoverOverlay({
+  hex,
+  terrain,
+}: CoverOverlayProps): React.ReactElement {
+  const { x, y } = hexToPixel(hex);
+  const coverLevel = getTerrainCoverLevel(terrain);
+
+  const shieldPath = `M${x},${y - 14} L${x - 10},${y - 6} L${x - 10},${y + 4} Q${x},${y + 14} ${x + 10},${y + 4} L${x + 10},${y - 6} Z`;
+
+  let fillColor: string;
+  let fillOpacity: number;
+  switch (coverLevel) {
+    case CoverLevel.Full:
+      fillColor = '#22c55e';
+      fillOpacity = 0.9;
+      break;
+    case CoverLevel.Partial:
+      fillColor = '#eab308';
+      fillOpacity = 0.8;
+      break;
+    default:
+      fillColor = '#64748b';
+      fillOpacity = 0.3;
+  }
+
+  return (
+    <g pointerEvents="none">
+      <path
+        d={shieldPath}
+        fill={fillColor}
+        fillOpacity={fillOpacity}
+        stroke="#1e293b"
+        strokeWidth={1.5}
+      />
+      {coverLevel === CoverLevel.Partial && (
+        <line
+          x1={x - 8}
+          y1={y}
+          x2={x + 8}
+          y2={y}
+          stroke="#1e293b"
+          strokeWidth={2}
+        />
+      )}
+    </g>
+  );
+});
+
+interface LOSLineProps {
+  from: IHexCoordinate;
+  to: IHexCoordinate;
+  hasLOS: boolean;
+}
+
+const LOSLine = React.memo(function LOSLine({
+  from,
+  to,
+  hasLOS,
+}: LOSLineProps): React.ReactElement {
+  const fromPixel = hexToPixel(from);
+  const toPixel = hexToPixel(to);
+
+  return (
+    <line
+      x1={fromPixel.x}
+      y1={fromPixel.y}
+      x2={toPixel.x}
+      y2={toPixel.y}
+      stroke={hasLOS ? '#22c55e' : '#ef4444'}
+      strokeWidth={2}
+      strokeOpacity={0.6}
+      strokeDasharray={hasLOS ? undefined : '4,4'}
+      pointerEvents="none"
+    />
+  );
+});
+
+function TerrainPatternDefs(): React.ReactElement {
+  return (
+    <defs>
+      <pattern
+        id="pattern-light-woods"
+        patternUnits="userSpaceOnUse"
+        width="12"
+        height="12"
+      >
+        <rect width="12" height="12" fill={TERRAIN_COLORS[TerrainType.LightWoods]} />
+        <circle cx="6" cy="6" r="3" fill="#4ade80" opacity="0.6" />
+        <circle cx="0" cy="0" r="2" fill="#22c55e" opacity="0.4" />
+        <circle cx="12" cy="12" r="2" fill="#22c55e" opacity="0.4" />
+      </pattern>
+
+      <pattern
+        id="pattern-heavy-woods"
+        patternUnits="userSpaceOnUse"
+        width="10"
+        height="10"
+      >
+        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.HeavyWoods]} />
+        <circle cx="5" cy="5" r="4" fill="#15803d" opacity="0.7" />
+        <circle cx="0" cy="0" r="3" fill="#166534" opacity="0.5" />
+        <circle cx="10" cy="10" r="3" fill="#166534" opacity="0.5" />
+        <circle cx="10" cy="0" r="2" fill="#14532d" opacity="0.4" />
+        <circle cx="0" cy="10" r="2" fill="#14532d" opacity="0.4" />
+      </pattern>
+
+      <pattern
+        id="pattern-rough"
+        patternUnits="userSpaceOnUse"
+        width="8"
+        height="8"
+      >
+        <rect width="8" height="8" fill={TERRAIN_COLORS[TerrainType.Rough]} />
+        <circle cx="2" cy="2" r="1.5" fill="#a8a29e" />
+        <circle cx="6" cy="5" r="1" fill="#78716c" />
+        <circle cx="4" cy="7" r="0.8" fill="#a8a29e" />
+      </pattern>
+
+      <pattern
+        id="pattern-rubble"
+        patternUnits="userSpaceOnUse"
+        width="10"
+        height="10"
+      >
+        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.Rubble]} />
+        <polygon points="2,3 4,1 5,4" fill="#78716c" />
+        <polygon points="6,7 8,5 9,8" fill="#57534e" />
+        <polygon points="1,8 3,6 4,9" fill="#78716c" />
+        <rect x="5" y="2" width="2" height="1.5" fill="#57534e" transform="rotate(15 6 2.75)" />
+      </pattern>
+
+      <pattern
+        id="pattern-building"
+        patternUnits="userSpaceOnUse"
+        width="10"
+        height="10"
+      >
+        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.Building]} />
+        <line x1="0" y1="5" x2="10" y2="5" stroke="#57534e" strokeWidth="0.5" />
+        <line x1="5" y1="0" x2="5" y2="10" stroke="#57534e" strokeWidth="0.5" />
+        <rect x="1" y="1" width="3" height="3" fill="#44403c" opacity="0.3" />
+        <rect x="6" y="6" width="3" height="3" fill="#44403c" opacity="0.3" />
+      </pattern>
+    </defs>
+  );
+}
 
 // =============================================================================
 // Component
@@ -314,6 +550,7 @@ export function HexMapDisplay({
   radius,
   tokens,
   selectedHex,
+  hexTerrain = [],
   movementRange = [],
   attackRange = [],
   highlightPath = [],
@@ -330,11 +567,20 @@ export function HexMapDisplay({
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const [showMovementOverlay, setShowMovementOverlay] = useState(false);
+  const [showCoverOverlay, setShowCoverOverlay] = useState(false);
+  const [showLOSOverlay, setShowLOSOverlay] = useState(false);
 
-  // Generate all hexes
   const hexes = useMemo(() => generateHexesInRadius(radius), [radius]);
 
-  // Create movement range lookup
+  const terrainLookup = useMemo(() => {
+    const map = new Map<string, IHexTerrain>();
+    for (const t of hexTerrain) {
+      map.set(`${t.coordinate.q},${t.coordinate.r}`, t);
+    }
+    return map;
+  }, [hexTerrain]);
+
   const movementRangeLookup = useMemo(() => {
     const map = new Map<string, IMovementRangeHex>();
     for (const m of movementRange) {
@@ -342,6 +588,48 @@ export function HexMapDisplay({
     }
     return map;
   }, [movementRange]);
+
+  const hexGrid = useMemo((): IHexGrid => {
+    const hexMap = new Map<string, IHex>();
+    for (const t of hexTerrain) {
+      const key = coordToKey(t.coordinate);
+      const terrainType = t.features[0]?.type ?? TerrainType.Clear;
+      hexMap.set(key, {
+        coord: t.coordinate,
+        occupantId: null,
+        terrain: terrainType,
+        elevation: t.elevation,
+      });
+    }
+    for (const hex of hexes) {
+      const key = coordToKey(hex);
+      if (!hexMap.has(key)) {
+        hexMap.set(key, {
+          coord: hex,
+          occupantId: null,
+          terrain: TerrainType.Clear,
+          elevation: 0,
+        });
+      }
+    }
+    return { config: { radius }, hexes: hexMap };
+  }, [hexTerrain, hexes, radius]);
+
+  const selectedUnitPosition = useMemo(() => {
+    const selectedToken = tokens.find(t => t.isSelected);
+    return selectedToken?.position ?? null;
+  }, [tokens]);
+
+  const losResults = useMemo(() => {
+    if (!showLOSOverlay || !selectedUnitPosition) return new Map<string, boolean>();
+    const results = new Map<string, boolean>();
+    for (const hex of hexes) {
+      if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r) continue;
+      const los = calculateLOS(selectedUnitPosition, hex, hexGrid);
+      results.set(coordToKey(hex), los.hasLOS);
+    }
+    return results;
+  }, [showLOSOverlay, selectedUnitPosition, hexes, hexGrid]);
 
   // Calculate viewBox
   useEffect(() => {
@@ -436,10 +724,11 @@ export function HexMapDisplay({
         onMouseLeave={handleMouseUp}
         data-testid="hex-grid"
       >
-        {/* Hex grid */}
+        <TerrainPatternDefs />
         <g>
-          {hexes.map((hex) => {
+{hexes.map((hex) => {
             const key = `${hex.q},${hex.r}`;
+            const terrain = terrainLookup.get(key);
             const isSelected = selectedHex ? hexEquals(hex, selectedHex) : false;
             const isHovered = hoveredHex ? hexEquals(hex, hoveredHex) : false;
             const movementInfo = movementRangeLookup.get(key);
@@ -450,6 +739,7 @@ export function HexMapDisplay({
               <HexCell
                 key={key}
                 hex={hex}
+                terrain={terrain}
                 isSelected={isSelected}
                 isHovered={isHovered}
                 movementInfo={movementInfo}
@@ -464,7 +754,6 @@ export function HexMapDisplay({
           })}
         </g>
 
-        {/* Unit tokens */}
         <g>
           {tokens.map((token) => (
             <UnitTokenComponent
@@ -474,40 +763,132 @@ export function HexMapDisplay({
             />
           ))}
         </g>
+
+        {showLOSOverlay && selectedUnitPosition && (
+          <g data-testid="los-overlay">
+            {hexes.map((hex) => {
+              const key = coordToKey(hex);
+              if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r) return null;
+              const hasLOS = losResults.get(key) ?? true;
+              return (
+                <LOSLine
+                  key={`los-${key}`}
+                  from={selectedUnitPosition}
+                  to={hex}
+                  hasLOS={hasLOS}
+                />
+              );
+            })}
+          </g>
+        )}
+
+        {showMovementOverlay && (
+          <g data-testid="movement-overlay">
+            {hexes.map((hex) => {
+              const key = coordToKey(hex);
+              const terrain = terrainLookup.get(key);
+              return (
+                <MovementCostOverlay
+                  key={`move-${key}`}
+                  hex={hex}
+                  terrain={terrain}
+                />
+              );
+            })}
+          </g>
+        )}
+
+        {showCoverOverlay && (
+          <g data-testid="cover-overlay">
+            {hexes.map((hex) => {
+              const key = coordToKey(hex);
+              const terrain = terrainLookup.get(key);
+              return (
+                <CoverOverlay
+                  key={`cover-${key}`}
+                  hex={hex}
+                  terrain={terrain}
+                />
+              );
+            })}
+          </g>
+        )}
       </svg>
 
-      {/* Zoom controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1" data-testid="zoom-controls">
-        <button
-          type="button"
-          onClick={() => setZoom((z) => Math.min(3, z * 1.2))}
-          className="bg-white p-2 rounded shadow hover:bg-gray-100"
-          title="Zoom in"
-          data-testid="zoom-in-btn"
-        >
-          +
-        </button>
-        <button
-          type="button"
-          onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}
-          className="bg-white p-2 rounded shadow hover:bg-gray-100"
-          title="Zoom out"
-          data-testid="zoom-out-btn"
-        >
-          −
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setZoom(1);
-            setPan({ x: 0, y: 0 });
-          }}
-          className="bg-white p-2 rounded shadow hover:bg-gray-100"
-          title="Reset view"
-          data-testid="reset-view-btn"
-        >
-          ⟲
-        </button>
+      <div className="absolute bottom-4 right-4 flex gap-2" data-testid="zoom-controls">
+        <div className="flex flex-col gap-1" data-testid="overlay-toggles">
+          <button
+            type="button"
+            onClick={() => setShowMovementOverlay((v) => !v)}
+            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+              showMovementOverlay
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
+            }`}
+            title="Toggle movement cost overlay"
+            data-testid="overlay-toggle-movement"
+          >
+            MP
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowCoverOverlay((v) => !v)}
+            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+              showCoverOverlay
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
+            }`}
+            title="Toggle cover level overlay"
+            data-testid="overlay-toggle-cover"
+          >
+            🛡
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowLOSOverlay((v) => !v)}
+            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+              showLOSOverlay
+                ? 'bg-amber-600 text-white hover:bg-amber-700'
+                : 'bg-white text-slate-700 hover:bg-gray-100'
+            }`}
+            title="Toggle LOS overlay"
+            data-testid="overlay-toggle-los"
+          >
+            👁
+          </button>
+        </div>
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.min(3, z * 1.2))}
+            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            title="Zoom in"
+            data-testid="zoom-in-btn"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}
+            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            title="Zoom out"
+            data-testid="zoom-out-btn"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setZoom(1);
+              setPan({ x: 0, y: 0 });
+            }}
+            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            title="Reset view"
+            data-testid="reset-view-btn"
+          >
+            ⟲
+          </button>
+        </div>
       </div>
     </div>
   );

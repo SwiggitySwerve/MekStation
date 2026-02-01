@@ -23,6 +23,16 @@ import {
   coordToKey,
 } from './hexMath';
 import { isInBounds, isOccupied, getHex } from './hexGrid';
+import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Extended movement type including vehicle movement modes.
+ */
+export type UnitMovementType = 'walk' | 'run' | 'jump' | 'tracked' | 'wheeled' | 'hover' | 'vtol';
 
 // =============================================================================
 // Movement Point Calculations
@@ -76,19 +86,56 @@ export function getMaxMP(
 // =============================================================================
 
 /**
- * Get the base MP cost to enter a hex.
- * Currently all hexes cost 1 MP (no terrain effects yet).
+ * Get the MP cost to enter a hex based on terrain and movement type.
+ * Includes terrain modifiers and elevation change costs.
  */
 export function getHexMovementCost(
   grid: IHexGrid,
-  coord: IHexCoordinate
+  coord: IHexCoordinate,
+  movementType: UnitMovementType = 'walk',
+  fromCoord?: IHexCoordinate
 ): number {
   const hex = getHex(grid, coord);
   if (!hex) return Infinity;
-  
-  // Future: terrain cost modification
-  // For now, all hexes cost 1 MP
-  return 1;
+
+  const baseCost = 1;
+  let terrainModifier = 0;
+
+  if (hex.terrain) {
+    const terrainType = hex.terrain as TerrainType;
+    const terrainProps = TERRAIN_PROPERTIES[terrainType];
+
+    if (terrainProps) {
+      terrainModifier = terrainProps.movementCostModifier[movementType] || 0;
+
+      if (terrainType === TerrainType.Water) {
+        if (movementType === 'walk' || movementType === 'run') {
+          return Infinity;
+        }
+      }
+    }
+  }
+
+  if (movementType === 'jump') {
+    terrainModifier = 0;
+  }
+
+  let elevationCost = 0;
+  if (fromCoord) {
+    const fromHex = getHex(grid, fromCoord);
+    if (fromHex) {
+      const elevationChange = hex.elevation - fromHex.elevation;
+      if (elevationChange > 0) {
+        elevationCost = elevationChange;
+        
+        if (elevationChange > 2 && (movementType === 'walk' || movementType === 'run')) {
+          return Infinity;
+        }
+      }
+    }
+  }
+
+  return baseCost + terrainModifier + elevationCost;
 }
 
 /**

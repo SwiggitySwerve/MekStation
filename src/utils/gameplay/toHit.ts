@@ -13,6 +13,7 @@ import {
   ITargetState,
   ICombatContext,
 } from '@/types/gameplay';
+import { TerrainType, TERRAIN_PROPERTIES, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 // =============================================================================
 // Constants
@@ -272,6 +273,40 @@ export function calculatePartialCoverModifier(partialCover: boolean): IToHitModi
     source: 'terrain',
     description: 'Target in partial cover: +1',
   };
+}
+
+/**
+ * Calculate to-hit modifier from terrain.
+ * @param targetTerrain - Terrain features at target hex
+ * @param interveningTerrain - Array of terrain features from intervening hexes
+ * @returns Total terrain modifier (positive = harder to hit)
+ */
+export function getTerrainToHitModifier(
+  targetTerrain: readonly ITerrainFeature[],
+  interveningTerrain: readonly ITerrainFeature[][]
+): number {
+  let modifier = 0;
+  
+  // Add intervening terrain modifiers
+  for (const hexFeatures of interveningTerrain) {
+    for (const feature of hexFeatures) {
+      modifier += TERRAIN_PROPERTIES[feature.type].toHitInterveningModifier;
+    }
+  }
+  
+  // Add target-in-terrain modifier (use highest if multiple)
+  if (targetTerrain.length > 0) {
+    let targetModifier = TERRAIN_PROPERTIES[targetTerrain[0].type].toHitTargetInModifier;
+    for (let i = 1; i < targetTerrain.length; i++) {
+      const featureModifier = TERRAIN_PROPERTIES[targetTerrain[i].type].toHitTargetInModifier;
+      if (featureModifier > targetModifier) {
+        targetModifier = featureModifier;
+      }
+    }
+    modifier += targetModifier;
+  }
+  
+  return modifier;
 }
 
 // =============================================================================
