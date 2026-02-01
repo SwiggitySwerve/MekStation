@@ -22,6 +22,7 @@ import {
   IMovementDeclaredPayload,
   IMovementLockedPayload,
   IAttackDeclaredPayload,
+  IAttackLockedPayload,
   IAttackResolvedPayload,
   IDamageAppliedPayload,
   IHeatPayload,
@@ -246,6 +247,19 @@ export function createAttackDeclaredEvent(
   };
   return {
     ...createEventBase(gameId, sequence, GameEventType.AttackDeclared, turn, GamePhase.WeaponAttack, attackerId),
+    payload,
+  };
+}
+
+export function createAttackLockedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string
+): IGameEvent {
+  const payload: IAttackLockedPayload = { unitId };
+  return {
+    ...createEventBase(gameId, sequence, GameEventType.AttackLocked, turn, GamePhase.WeaponAttack, unitId),
     payload,
   };
 }

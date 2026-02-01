@@ -232,6 +232,14 @@ export interface IMovementLockedPayload {
 }
 
 /**
+ * Attack locked event payload.
+ */
+export interface IAttackLockedPayload {
+  /** Unit whose attack was locked */
+  readonly unitId: string;
+}
+
+/**
  * Attack declared event payload.
  */
 export interface IAttackDeclaredPayload {
@@ -357,6 +365,7 @@ export type GameEventPayload =
   | IMovementDeclaredPayload
   | IMovementLockedPayload
   | IAttackDeclaredPayload
+  | IAttackLockedPayload
   | IAttackResolvedPayload
   | IDamageAppliedPayload
   | IHeatPayload

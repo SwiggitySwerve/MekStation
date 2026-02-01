@@ -31,54 +31,67 @@ import {
   validateCampaign,
   calculateMissionXp,
 } from '@/types/campaign';
+import { IGameSession, IGameUnit, GameSide, IHexTerrain, IGameConfig } from '@/types/gameplay';
+import { generateTerrain, BiomeType } from '@/utils/gameplay/terrainGenerator';
+import { createGameSession } from '@/utils/gameplay/gameSession';
+
+// =============================================================================
+// Campaign View Mode and Mission Context Types
+// =============================================================================
+
+/** View mode for campaign UI - either viewing the starmap or in tactical combat */
+export type CampaignViewMode = 'starmap' | 'tactical';
+
+/**
+ * Context for an active tactical mission.
+ * Contains all the data needed to run the tactical game.
+ */
+export interface IMissionContext {
+  /** The mission being played */
+  readonly missionId: string;
+  /** Generated or loaded terrain */
+  readonly terrain: IHexTerrain[];
+  /** Unit IDs from campaign roster participating in this mission */
+  readonly playerUnits: string[];
+  /** Generated opponent units for this mission */
+  readonly opponentUnits: IGameUnit[];
+}
 
 // =============================================================================
 // Store State
 // =============================================================================
 
 interface CampaignStoreState {
-  /** All campaigns */
   campaigns: ICampaign[];
-  /** Currently selected campaign ID */
   selectedCampaignId: string | null;
-  /** Loading state */
   isLoading: boolean;
-  /** Error message */
   error: string | null;
-  /** Filter by status */
   statusFilter: CampaignStatus | 'all';
-  /** Search query */
   searchQuery: string;
-  /** Validation cache (keyed by campaign ID) */
   validations: Map<string, ICampaignValidationResult>;
+  viewMode: CampaignViewMode;
+  activeGameSession: IGameSession | null;
+  activeMissionContext: IMissionContext | null;
 }
 
 interface CampaignStoreActions {
-  /** Create a new campaign */
   createCampaign: (input: ICreateCampaignInput) => string;
-  /** Create campaign from template */
   createCampaignFromTemplate: (templateId: string, input: Omit<ICreateCampaignInput, 'templateId'>) => string | null;
-  /** Get a campaign by ID */
   getCampaign: (id: string) => ICampaign | undefined;
-  /** Update a campaign */
   updateCampaign: (id: string, updates: Partial<ICampaign>) => boolean;
-  /** Delete a campaign */
   deleteCampaign: (id: string) => boolean;
-  /** Select a campaign */
   selectCampaign: (id: string | null) => void;
-  /** Get selected campaign */
   getSelectedCampaign: () => ICampaign | null;
 
-  /** Add a mission to a campaign */
   addMission: (campaignId: string, input: IAddMissionInput) => string | null;
-  /** Update a mission */
   updateMission: (campaignId: string, missionId: string, updates: Partial<ICampaignMission>) => boolean;
-  /** Remove a mission */
   removeMission: (campaignId: string, missionId: string) => boolean;
-  /** Start a mission (set as current) */
   startMission: (campaignId: string, missionId: string) => boolean;
-  /** Record mission outcome */
   recordMissionOutcome: (campaignId: string, input: IRecordMissionOutcomeInput) => boolean;
+  
+  launchMission: (missionId: string) => boolean;
+  endMission: (result: 'victory' | 'defeat' | 'withdraw') => boolean;
+  getCurrentMapComponent: () => 'StarmapDisplay' | 'HexMapDisplay';
 
   /** Add unit to campaign roster */
   addUnitToRoster: (campaignId: string, unit: ICampaignUnitState) => boolean;
@@ -169,6 +182,9 @@ export const useCampaignStore = create<CampaignStore>()(
       statusFilter: 'all',
       searchQuery: '',
       validations: new Map(),
+      viewMode: 'starmap' as CampaignViewMode,
+      activeGameSession: null,
+      activeMissionContext: null,
 
       // Create a new campaign
       createCampaign: (input: ICreateCampaignInput) => {
@@ -771,6 +787,156 @@ export const useCampaignStore = create<CampaignStore>()(
       // Clear error
       clearError: () => {
         set({ error: null });
+      },
+
+      launchMission: (missionId: string) => {
+        const { selectedCampaignId } = get();
+        if (!selectedCampaignId) {
+          set({ error: 'No campaign selected' });
+          return false;
+        }
+
+        const campaign = get().getCampaign(selectedCampaignId);
+        if (!campaign) {
+          set({ error: `Campaign not found: ${selectedCampaignId}` });
+          return false;
+        }
+
+        const mission = campaign.missions.find((m) => m.id === missionId);
+        if (!mission) {
+          set({ error: `Mission not found: ${missionId}` });
+          return false;
+        }
+
+        if (mission.status !== CampaignMissionStatus.Available) {
+          set({ error: `Mission is not available: ${mission.status}` });
+          return false;
+        }
+
+        const missionStarted = get().startMission(selectedCampaignId, missionId);
+        if (!missionStarted) {
+          return false;
+        }
+
+        const terrain = generateTerrain({
+          width: 15,
+          height: 15,
+          biome: 'temperate' as BiomeType,
+          seed: Date.now(),
+        });
+
+        const operationalUnits = campaign.roster.units.filter(
+          (u) => u.status === CampaignUnitStatus.Operational || u.status === CampaignUnitStatus.Damaged
+        );
+
+        const playerGameUnits: IGameUnit[] = operationalUnits.map((unit) => {
+          const pilot = campaign.roster.pilots.find((p) => p.pilotId === unit.pilotId);
+          return {
+            id: `player-${unit.unitId}`,
+            name: unit.unitName,
+            side: GameSide.Player,
+            unitRef: unit.unitId,
+            pilotRef: pilot?.pilotId ?? 'default',
+            gunnery: 4,
+            piloting: 5,
+          };
+        });
+
+        const opponentUnits: IGameUnit[] = [
+          {
+            id: 'opponent-1',
+            name: 'Enemy Mech 1',
+            side: GameSide.Opponent,
+            unitRef: 'enemy-1',
+            pilotRef: 'enemy-pilot-1',
+            gunnery: 4,
+            piloting: 5,
+          },
+          {
+            id: 'opponent-2',
+            name: 'Enemy Mech 2',
+            side: GameSide.Opponent,
+            unitRef: 'enemy-2',
+            pilotRef: 'enemy-pilot-2',
+            gunnery: 4,
+            piloting: 5,
+          },
+        ];
+
+        const config: IGameConfig = {
+          mapRadius: 7,
+          turnLimit: 0,
+          victoryConditions: ['destruction'],
+          optionalRules: [],
+        };
+
+        const gameSession = createGameSession(config, [...playerGameUnits, ...opponentUnits]);
+
+        const missionContext: IMissionContext = {
+          missionId,
+          terrain,
+          playerUnits: operationalUnits.map((u) => u.unitId),
+          opponentUnits,
+        };
+
+        set({
+          viewMode: 'tactical',
+          activeGameSession: gameSession,
+          activeMissionContext: missionContext,
+        });
+
+        return true;
+      },
+
+      endMission: (result: 'victory' | 'defeat' | 'withdraw') => {
+        const { selectedCampaignId, activeGameSession, activeMissionContext } = get();
+        
+        if (!selectedCampaignId || !activeGameSession || !activeMissionContext) {
+          set({ error: 'No active mission to end' });
+          return false;
+        }
+
+        const campaign = get().getCampaign(selectedCampaignId);
+        if (!campaign) {
+          set({ error: `Campaign not found: ${selectedCampaignId}` });
+          return false;
+        }
+
+        const outcomeResult = result === 'withdraw' ? 'defeat' : result;
+        const cBillsReward = result === 'victory' ? 50000 : (result === 'withdraw' ? -10000 : -25000);
+
+        get().recordMissionOutcome(selectedCampaignId, {
+          missionId: activeMissionContext.missionId,
+          outcome: {
+            result: outcomeResult as 'victory' | 'defeat',
+            enemyUnitsDestroyed: result === 'victory' ? 2 : 0,
+            enemyBVDestroyed: result === 'victory' ? 3000 : 0,
+            playerUnitsDestroyed: result === 'defeat' ? 1 : 0,
+            playerBVLost: result === 'defeat' ? 1500 : 0,
+            salvage: result === 'victory' ? ['Salvaged Parts'] : [],
+            cBillsReward,
+            turnsPlayed: activeGameSession.currentState.turn,
+            gameSessionId: activeGameSession.id,
+          },
+          unitUpdates: [],
+          pilotUpdates: [],
+        });
+
+        const newCBills = Math.max(0, campaign.resources.cBills + cBillsReward);
+        get().updateResources(selectedCampaignId, { cBills: newCBills });
+
+        set({
+          viewMode: 'starmap',
+          activeGameSession: null,
+          activeMissionContext: null,
+        });
+
+        return true;
+      },
+
+      getCurrentMapComponent: () => {
+        const { viewMode } = get();
+        return viewMode === 'tactical' ? 'HexMapDisplay' : 'StarmapDisplay';
       },
     }),
     {

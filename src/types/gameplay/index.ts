@@ -11,6 +11,9 @@
 // Hex Grid System
 export * from './HexGridInterfaces';
 
+// Terrain System
+export * from './TerrainTypes';
+
 // Game Session Core
 export * from './GameSessionInterfaces';
 

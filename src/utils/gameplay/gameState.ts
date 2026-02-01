@@ -22,6 +22,8 @@ import {
   IPhaseChangedPayload,
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
+  IAttackDeclaredPayload,
+  IAttackLockedPayload,
   IDamageAppliedPayload,
   IHeatPayload,
   IPilotHitPayload,
@@ -108,6 +110,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     
     case GameEventType.MovementLocked:
       return applyMovementLocked(state, event);
+    
+    case GameEventType.AttackDeclared:
+      return applyAttackDeclared(state, event.payload as IAttackDeclaredPayload);
+    
+    case GameEventType.AttackLocked:
+      return applyAttackLocked(state, event);
     
     case GameEventType.DamageApplied:
       return applyDamageApplied(state, event.payload as IDamageAppliedPayload);
@@ -278,6 +286,42 @@ function applyMovementDeclared(state: IGameState, payload: IMovementDeclaredPayl
  * Apply MovementLocked event.
  */
 function applyMovementLocked(state: IGameState, event: IGameEvent): IGameState {
+  const unitId = event.actorId;
+  if (!unitId) return state;
+  
+  const unit = state.units[unitId];
+  if (!unit) return state;
+  
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        lockState: LockState.Locked,
+      },
+    },
+    activationIndex: state.activationIndex + 1,
+  };
+}
+
+function applyAttackDeclared(state: IGameState, payload: IAttackDeclaredPayload): IGameState {
+  const unit = state.units[payload.attackerId];
+  if (!unit) return state;
+  
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.attackerId]: {
+        ...unit,
+        lockState: LockState.Planning,
+      },
+    },
+  };
+}
+
+function applyAttackLocked(state: IGameState, event: IGameEvent): IGameState {
   const unitId = event.actorId;
   if (!unitId) return state;
   

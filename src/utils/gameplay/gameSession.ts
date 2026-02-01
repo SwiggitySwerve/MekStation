@@ -24,9 +24,18 @@ import {
   createInitiativeRolledEvent,
   createMovementDeclaredEvent,
   createMovementLockedEvent,
+  createAttackDeclaredEvent,
+  createAttackLockedEvent,
+  createAttackResolvedEvent,
+  createDamageAppliedEvent,
+  createHeatDissipatedEvent,
+  createHeatGeneratedEvent,
 } from './gameEvents';
 import { deriveState, allUnitsLocked } from './gameState';
-import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
+import { IHexCoordinate, Facing, MovementType, RangeBracket, FiringArc, GameEventType, IAttackDeclaredPayload, IWeaponAttack, IToHitModifier, IMovementDeclaredPayload, IHeatPayload } from '@/types/gameplay';
+import { calculateToHit } from './toHit';
+import { roll2d6 as rollDice, determineHitLocationFromRoll, createDiceRoll } from './hitLocation';
+import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
 
 // =============================================================================
 // Session Creation
@@ -301,6 +310,266 @@ export function lockMovement(session: IGameSession, unitId: string): IGameSessio
   const event = createMovementLockedEvent(session.id, sequence, turn, unitId);
   
   return appendEvent(session, event);
+}
+
+// =============================================================================
+// Weapon Attack Phase
+// =============================================================================
+
+export function declareAttack(
+  session: IGameSession,
+  attackerId: string,
+  targetId: string,
+  weapons: readonly IWeaponAttack[],
+  range: number,
+  rangeBracket: RangeBracket,
+  firingArc: FiringArc
+): IGameSession {
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    throw new Error('Not in weapon attack phase');
+  }
+  
+  const attackerUnit = session.currentState.units[attackerId];
+  const targetUnit = session.currentState.units[targetId];
+  
+  if (!attackerUnit) {
+    throw new Error(`Attacker unit ${attackerId} not found`);
+  }
+  if (!targetUnit) {
+    throw new Error(`Target unit ${targetId} not found`);
+  }
+  
+  const attacker = session.units.find(u => u.id === attackerId);
+  if (!attacker) {
+    throw new Error(`Attacker ${attackerId} not found in units`);
+  }
+  
+  const toHitCalc = calculateToHit(
+    {
+      gunnery: attacker.gunnery,
+      movementType: attackerUnit.movementThisTurn,
+      heat: attackerUnit.heat,
+      damageModifiers: [],
+    },
+    {
+      movementType: targetUnit.movementThisTurn,
+      hexesMoved: targetUnit.hexesMovedThisTurn,
+      prone: false,
+      immobile: false,
+      partialCover: false,
+    },
+    rangeBracket,
+    range
+  );
+  
+  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map(m => ({
+    name: m.name,
+    value: m.value,
+    source: m.source,
+  }));
+  
+  const weaponIds = weapons.map(w => w.weaponId);
+  
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  const event = createAttackDeclaredEvent(
+    session.id,
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    weaponIds,
+    toHitCalc.finalToHit,
+    modifiers
+  );
+  
+  return appendEvent(session, event);
+}
+
+export function lockAttack(session: IGameSession, unitId: string): IGameSession {
+  if (session.currentState.phase !== GamePhase.WeaponAttack) {
+    throw new Error('Not in weapon attack phase');
+  }
+  
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
+  
+  return appendEvent(session, event);
+}
+
+export type DiceRoller = () => { dice: readonly number[]; total: number; isSnakeEyes: boolean; isBoxcars: boolean };
+
+export function resolveAttack(
+  session: IGameSession,
+  attackEvent: IGameEvent,
+  diceRoller: DiceRoller = rollDice
+): IGameSession {
+  const payload = attackEvent.payload as IAttackDeclaredPayload;
+  const { attackerId, targetId, weapons, toHitNumber } = payload;
+  
+  let currentSession = session;
+  
+  for (const weaponId of weapons) {
+    const attackRoll = diceRoller();
+    const hit = attackRoll.total >= toHitNumber;
+    
+    const sequence = currentSession.events.length;
+    const { turn } = currentSession.currentState;
+    
+    if (hit) {
+      const locationRoll = diceRoller();
+      const hitLocationResult = determineHitLocationFromRoll(FiringArc.Front, locationRoll);
+      const location = hitLocationResult.location;
+      const damage = 5;
+      
+      const resolvedEvent = createAttackResolvedEvent(
+        currentSession.id,
+        sequence,
+        turn,
+        attackerId,
+        targetId,
+        weaponId,
+        attackRoll.total,
+        toHitNumber,
+        true,
+        location,
+        damage
+      );
+      currentSession = appendEvent(currentSession, resolvedEvent);
+      
+      const damageSequence = currentSession.events.length;
+      const damageEvent = createDamageAppliedEvent(
+        currentSession.id,
+        damageSequence,
+        turn,
+        targetId,
+        location,
+        damage,
+        0,
+        0,
+        false
+      );
+      currentSession = appendEvent(currentSession, damageEvent);
+    } else {
+      const resolvedEvent = createAttackResolvedEvent(
+        currentSession.id,
+        sequence,
+        turn,
+        attackerId,
+        targetId,
+        weaponId,
+        attackRoll.total,
+        toHitNumber,
+        false
+      );
+      currentSession = appendEvent(currentSession, resolvedEvent);
+    }
+  }
+  
+  return currentSession;
+}
+
+export function resolveAllAttacks(
+  session: IGameSession,
+  diceRoller: DiceRoller = rollDice
+): IGameSession {
+  const { turn } = session.currentState;
+  
+  const attackEvents = session.events.filter(
+    e => e.type === GameEventType.AttackDeclared && e.turn === turn
+  );
+  
+  let currentSession = session;
+  
+  for (const attackEvent of attackEvents) {
+    currentSession = resolveAttack(currentSession, attackEvent, diceRoller);
+  }
+  
+  return currentSession;
+}
+
+// =============================================================================
+// Heat Phase
+// =============================================================================
+
+export function resolveHeatPhase(session: IGameSession): IGameSession {
+  if (session.currentState.phase !== GamePhase.Heat) {
+    throw new Error('Not in heat phase');
+  }
+
+  const { turn } = session.currentState;
+  let currentSession = session;
+
+  const turnEvents = session.events.filter(e => e.turn === turn);
+  
+  const unitIds = Object.keys(session.currentState.units);
+
+  for (const unitId of unitIds) {
+    const unitState = currentSession.currentState.units[unitId];
+    const unit = currentSession.units.find(u => u.id === unitId);
+    
+    if (!unit || unitState.destroyed) {
+      continue;
+    }
+
+    let heatFromMovement = 0;
+    const movementEvent = turnEvents.find(
+      e => e.type === GameEventType.MovementDeclared && e.actorId === unitId
+    );
+    if (movementEvent) {
+      const payload = movementEvent.payload as IMovementDeclaredPayload;
+      heatFromMovement = payload.heatGenerated;
+    }
+
+    let heatFromWeapons = 0;
+    const attackEvents = turnEvents.filter(
+      e => e.type === GameEventType.AttackDeclared && e.actorId === unitId
+    );
+    for (const attackEvent of attackEvents) {
+      const payload = attackEvent.payload as IAttackDeclaredPayload;
+      heatFromWeapons += payload.weapons.length * 10;
+    }
+
+    const totalHeatGenerated = heatFromMovement + heatFromWeapons;
+
+    if (totalHeatGenerated > 0) {
+      const heatGenSequence = currentSession.events.length;
+      const heatGenEvent = createHeatGeneratedEvent(
+        currentSession.id,
+        heatGenSequence,
+        turn,
+        GamePhase.Heat,
+        unitId,
+        totalHeatGenerated,
+        'weapons',
+        unitState.heat + totalHeatGenerated
+      );
+      currentSession = appendEvent(currentSession, heatGenEvent);
+    }
+
+    const currentHeat = currentSession.currentState.units[unitId].heat;
+    
+    const baseHeatSinks = 10;
+    const waterCoolingBonus = 0;
+    const totalDissipation = baseHeatSinks + waterCoolingBonus;
+
+    const newHeat = Math.max(0, currentHeat - totalDissipation);
+
+    const dissipationSequence = currentSession.events.length;
+    const dissipationEvent = createHeatDissipatedEvent(
+      currentSession.id,
+      dissipationSequence,
+      turn,
+      unitId,
+      totalDissipation,
+      newHeat
+    );
+
+    currentSession = appendEvent(currentSession, dissipationEvent);
+  }
+
+  return currentSession;
 }
 
 // =============================================================================

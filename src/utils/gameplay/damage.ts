@@ -18,6 +18,8 @@ import {
   getTransferCombatLocation,
   isRearCombatLocation,
   getFrontCombatLocation,
+  IHexTerrain,
+  TerrainType,
 } from '@/types/gameplay';
 import { roll2d6, isHeadHit } from './hitLocation';
 
@@ -98,6 +100,23 @@ export interface IResolveDamageResult {
   state: IUnitDamageState;
   /** Full damage result details */
   result: IDamageResult;
+}
+
+/**
+ * Result of terrain-enhanced damage resolution.
+ */
+export interface ITerrainDamageResult extends IResolveDamageResult {
+  /** Terrain effects that were applied */
+  terrainEffects?: {
+    /** Whether drowning check was triggered */
+    drowningCheckTriggered: boolean;
+    /** PSR roll for drowning if triggered */
+    drowningRoll?: ReturnType<typeof roll2d6>;
+    /** Whether drowning check was passed */
+    drowningCheckPassed?: boolean;
+    /** Additional damage from failed drowning check */
+    drowningDamage?: number;
+  };
 }
 
 // =============================================================================
@@ -538,6 +557,86 @@ export function resolveDamage(
       destructionCause: cause,
     },
   };
+}
+
+// =============================================================================
+// Terrain-Enhanced Damage Resolution
+// =============================================================================
+
+/**
+ * Check if terrain has water at depth 2 or greater.
+ */
+function hasDeepWater(terrain: IHexTerrain | null): number {
+  if (!terrain) return 0;
+  
+  const waterFeature = terrain.features.find(f => f.type === TerrainType.Water);
+  return waterFeature && waterFeature.level >= 2 ? waterFeature.level : 0;
+}
+
+/**
+ * Check if damage result indicates a fall (location destroyed).
+ */
+function indicatesFall(damageResult: IDamageResult): boolean {
+  return damageResult.locationDamages.some(ld => ld.destroyed);
+}
+
+/**
+ * Apply damage with terrain effects consideration.
+ * Extends resolveDamage with terrain-specific mechanics like drowning checks.
+ */
+export function applyDamageWithTerrainEffects(
+  state: IUnitDamageState,
+  location: CombatLocation,
+  damage: number,
+  terrain: IHexTerrain | null
+): ITerrainDamageResult {
+  const baseResult = resolveDamage(state, location, damage);
+  
+  if (!terrain) {
+    return baseResult;
+  }
+  
+  const waterDepth = hasDeepWater(terrain);
+  const unitFell = indicatesFall(baseResult.result);
+  
+  if (waterDepth >= 2 && unitFell) {
+    const drowningRoll = roll2d6();
+    const psrTarget = 5;
+    const drowningCheckPassed = drowningRoll.total >= psrTarget;
+    
+    if (!drowningCheckPassed) {
+      const drowningDamage = 1;
+      const drowningResult = resolveDamage(baseResult.state, 'center_torso', drowningDamage);
+      
+      return {
+        state: drowningResult.state,
+        result: {
+          ...drowningResult.result,
+          locationDamages: [
+            ...baseResult.result.locationDamages,
+            ...drowningResult.result.locationDamages,
+          ],
+        },
+        terrainEffects: {
+          drowningCheckTriggered: true,
+          drowningRoll,
+          drowningCheckPassed: false,
+          drowningDamage,
+        },
+      };
+    }
+    
+    return {
+      ...baseResult,
+      terrainEffects: {
+        drowningCheckTriggered: true,
+        drowningRoll,
+        drowningCheckPassed: true,
+      },
+    };
+  }
+  
+  return baseResult;
 }
 
 // =============================================================================
