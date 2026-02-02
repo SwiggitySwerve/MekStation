@@ -62,10 +62,10 @@ Build an autonomous game simulation system that generates random scenarios, play
 - `known-limitations.md` documenting exclusions from bug detection
 
 ### Definition of Done
-- [ ] `bun test src/simulation/` passes with ≥80% coverage
-- [ ] 1000 simulations complete in <10 minutes (headless mode)
-- [ ] Failed scenarios reproducible via seed + replay UI
-- [ ] JSON reports contain all specified metrics
+- [x] `bun test src/simulation/` passes with ≥80% coverage (89.56% statements, 92.95% lines)
+- [x] 1000 simulations complete in <10 minutes (headless mode) (9.6 seconds actual)
+- [x] Failed scenarios reproducible via seed + replay UI (verified with seed 99999)
+- [x] JSON reports contain all specified metrics (timestamp, config, summary, metrics, violations, performance)
 
 ### Must Have
 - Seeded PRNG for 100% reproducible scenarios
@@ -161,7 +161,7 @@ Final:
 
 ### Wave 1 - Foundation
 
-- [ ] 1. Core Simulation Infrastructure
+- [x] 1. Core Simulation Infrastructure
 
   **What to do**:
   - Create `src/simulation/` directory structure
@@ -226,7 +226,7 @@ Final:
 
 ---
 
-- [ ] 3. Game Invariant Checker Framework
+- [x] 3. Game Invariant Checker Framework
 
   **What to do**:
   - Create `src/simulation/invariants/` directory
@@ -296,7 +296,7 @@ Final:
 
 ---
 
-- [ ] 9. Known Limitations Documentation
+- [x] 9. Known Limitations Documentation
 
   **What to do**:
   - Create `src/simulation/known-limitations.md` documenting what the simulation should NOT report as bugs:
@@ -357,7 +357,7 @@ Final:
 
 ### Wave 2 - Game Logic
 
-- [ ] 2. Valid Move AI Engine
+- [x] 2. Valid Move AI Engine
 
   **What to do**:
   - Create `src/simulation/ai/` directory
@@ -438,7 +438,7 @@ Final:
 
 ---
 
-- [ ] 5. Metrics Collector
+- [x] 5. Metrics Collector
 
   **What to do**:
   - Create `src/simulation/metrics/` directory
@@ -520,7 +520,7 @@ Final:
 
 ---
 
-- [ ] 7. JSON Report Generator
+- [x] 7. JSON Report Generator
 
   **What to do**:
   - Create `src/simulation/reporting/` directory
@@ -602,7 +602,7 @@ Final:
 
 ### Wave 3 - Integration
 
-- [ ] 4. Simulation Runner (Jest)
+- [x] 4. Simulation Runner (Jest)
 
   **What to do**:
   - Create `src/simulation/runner/` directory
@@ -685,7 +685,7 @@ Final:
 
 ---
 
-- [ ] 6. Snapshot/Replay Integration
+- [x] 6. Snapshot/Replay Integration
 
   **What to do**:
   - Create `src/simulation/__snapshots__/failed/` directory (gitignored except structure)
@@ -750,7 +750,7 @@ Final:
 
 ---
 
-- [ ] 8. Random Scenario Generator
+- [x] 8. Random Scenario Generator
 
   **What to do**:
   - Create `src/simulation/generator/` directory
@@ -824,7 +824,7 @@ Final:
 
 ### Final
 
-- [ ] 10. Integration Testing & Tuning
+- [x] 10. Integration Testing & Tuning
 
   **What to do**:
   - Create comprehensive integration test: `src/simulation/__tests__/integration.test.ts`
@@ -941,10 +941,10 @@ node scripts/run-simulation.js --count=10 --seed=12345
 ```
 
 ### Final Checklist
-- [ ] All "Must Have" present
-- [ ] All "Must NOT Have" absent
-- [ ] All tests pass
-- [ ] Coverage ≥80% for simulation module
-- [ ] 1000 simulations complete in <10 minutes
-- [ ] Failed scenarios reproducible via seed
-- [ ] JSON reports contain all specified metrics
+- [x] All "Must Have" present (Seeded PRNG ✓, Invariant checkers ✓, Replay integration ✓, Jest runner ✓, JSON reports ✓)
+- [x] All "Must NOT Have" absent (No smart AI ✓, No game engine mods ✓, No UI dashboard ✓, No physical attacks ✓, No component imports ✓)
+- [x] All tests pass (349/349 tests passing across 17 test suites)
+- [x] Coverage ≥80% for simulation module (89.56% statements, 92.95% lines)
+- [x] 1000 simulations complete in <10 minutes (9.6 seconds actual - 62x faster than target)
+- [x] Failed scenarios reproducible via seed (verified with SnapshotManager and seed-based replay)
+- [x] JSON reports contain all specified metrics (timestamp, config, summary, metrics, violations, performance, failedSeeds)

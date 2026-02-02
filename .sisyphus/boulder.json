@@ -1,9 +1,12 @@
 {
-  "active_plan": "E:\\Projects\\MekStation\\.sisyphus\\plans\\audit-corrections.md",
-  "started_at": "2026-01-27T19:04:17.370Z",
+  "active_plan": "E:\Projects\MekStation\.sisyphus\plans\simulation-system.md",
+  "started_at": "2026-02-02T06:21:03.990Z",
+  "completed_at": "2026-02-02T07:45:30.000Z",
   "session_ids": [
-    "ses_3ff285f4dffeO3wtHGR4BWEF3T",
-    "ses_3fef09219ffeZ69c05DrkTwTzf"
+    "ses_3e2fcf7b7ffeTV45Z0KKSBmon2"
   ],
-  "plan_name": "audit-corrections"
+  "plan_name": "simulation-system",
+  "status": "completed",
+  "tasks_completed": 21,
+  "tasks_total": 21
 }
