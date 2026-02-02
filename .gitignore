@@ -137,6 +137,9 @@ storybook-static/
 # Sisyphus agent working directory (audit screenshots, evidence, plans)
 .sisyphus/
 
+# Simulation snapshots (keep directory, not files)
+src/simulation/__snapshots__/failed/*.json
+
 # mm-data assets (fetched at build time from jsDelivr CDN)
 # These are CC-BY-NC-SA-4.0 licensed assets from MegaMek/mm-data
 # Run `npm run fetch:assets` to download after clone
