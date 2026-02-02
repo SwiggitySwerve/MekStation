@@ -12,6 +12,7 @@ import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { Button, Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
+import { DamageMatrix } from './DamageMatrix';
 import { GameEventType, GamePhase } from '@/types/gameplay';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
 
@@ -377,15 +378,12 @@ export function QuickGameResults(): React.ReactElement {
           id="tabpanel-damage"
           aria-labelledby="tab-damage"
           hidden={activeTab !== 'damage'}
-          className="p-8 text-center"
+          className="p-4"
         >
-          <div className="text-gray-400">
-            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="text-lg font-medium">Damage matrix coming soon</p>
-            <p className="text-sm text-gray-500 mt-1">Detailed damage breakdown will be available in a future update.</p>
-          </div>
+          <DamageMatrix
+            events={game.events}
+            units={[...game.playerForce.units, ...(game.opponentForce?.units ?? [])]}
+          />
         </div>
 
         <div

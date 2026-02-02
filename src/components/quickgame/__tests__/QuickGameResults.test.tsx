@@ -299,13 +299,13 @@ describe('QuickGameResults', () => {
   });
 
   describe('Damage Tab Content', () => {
-    it('shows placeholder text for damage matrix', async () => {
+    it('shows empty state when no damage events', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
       
       await user.click(screen.getByRole('tab', { name: 'Damage' }));
       
-      expect(screen.getByText('Damage matrix coming soon')).toBeInTheDocument();
+      expect(screen.getByText('No damage dealt')).toBeInTheDocument();
     });
   });
 
