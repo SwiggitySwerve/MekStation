@@ -82,7 +82,9 @@
     "prepare": "husky",
     "postinstall": "node scripts/mm-data/check-assets.js || true",
     "validate:assets": "npx tsx scripts/mm-data/validate-assets.ts",
-    "validate:assets:strict": "npx tsx scripts/mm-data/validate-assets.ts --strict"
+    "validate:assets:strict": "npx tsx scripts/mm-data/validate-assets.ts --strict",
+    "simulate": "npx tsx scripts/run-simulation.ts",
+    "simulate:batch": "npx tsx scripts/run-simulation.ts --count=100"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",
