@@ -83,6 +83,28 @@ function generatePilotName(randomFn: () => number = Math.random): string {
 }
 
 // =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Filter RAT entries by year availability.
+ * Handles optional introductionYear and extinctionYear fields.
+ */
+function filterRATEntriesByYear(entries: readonly IRATEntry[], year: number): IRATEntry[] {
+  return entries.filter((entry) => {
+    if (entry.introductionYear !== undefined && year < entry.introductionYear) {
+      return false;
+    }
+
+    if (entry.extinctionYear !== undefined && year > entry.extinctionYear) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+// =============================================================================
 // OpFor Generator Class
 // =============================================================================
 
@@ -136,17 +158,34 @@ export class OpForGeneratorService {
     config: IOpForGeneratorConfig,
     randomFn: () => number
   ): readonly IRATEntry[] {
-    // Determine unit type filter based on mix
+    let availableEntries = rat.entries;
+
+    if (config.year !== undefined) {
+      availableEntries = filterRATEntriesByYear(rat.entries, config.year);
+
+      if (availableEntries.length === 0) {
+        console.warn(
+          `No units available for year ${config.year} in faction ${config.faction}. Using all available units.`
+        );
+        availableEntries = rat.entries;
+      }
+    }
+
+    const filteredRAT = {
+      ...rat,
+      entries: availableEntries,
+      totalWeight: availableEntries.reduce((sum, e) => sum + e.weight, 0),
+    };
+
     const unitTypesToSelect = this.getUnitTypesToSelect(config);
 
-    // Select units for each type proportionally
     const allSelected: IRATEntry[] = [];
 
     for (const [unitType, percentage] of unitTypesToSelect) {
       const typeBV = Math.round(targetBV * (percentage / 100));
-      if (typeBV < 100) continue; // Skip if too small
+      if (typeBV < 100) continue;
 
-      const typeUnits = selectUnitsFromRAT(rat, typeBV, {
+      const typeUnits = selectUnitsFromRAT(filteredRAT, typeBV, {
         unitTypeFilter: unitType,
         minUnits: 1,
         maxUnits: Math.ceil(config.maxLanceSize * (percentage / 100)),
@@ -157,9 +196,8 @@ export class OpForGeneratorService {
       allSelected.push(...typeUnits);
     }
 
-    // If no units selected (e.g., RAT doesn't have requested types), use generic selection
     if (allSelected.length === 0) {
-      return selectUnitsFromRAT(rat, targetBV, {
+      return selectUnitsFromRAT(filteredRAT, targetBV, {
         minUnits: config.minLanceSize,
         maxUnits: config.maxLanceSize,
         bvTolerance: 0.15,
