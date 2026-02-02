@@ -316,6 +316,13 @@ export interface IOpForGeneratorConfig {
   readonly faction: string;
   /** Era for era-appropriate units */
   readonly era: string;
+  /**
+   * Year for temporal filtering of units.
+   * When specified, only units available in this year will be selected.
+   * Uses introductionYear and extinctionYear from unit data.
+   * @see filterByYear in availabilityUtils
+   */
+  readonly year?: number;
   /** Unit type mix ratios */
   readonly unitTypeMix: IUnitTypeMix;
   /** Base skill level */
