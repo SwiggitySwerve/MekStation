@@ -7,13 +7,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ISimulationRunResult } from '../runner/types';
 import { ISimulationConfig } from '../core/types';
-import { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
+import { IGameSession, IGameEvent, GameStatus, GamePhase } from '@/types/gameplay/GameSessionInterfaces';
+import { IViolation } from '../invariants/types';
 
 export interface ISnapshot {
   readonly seed: number;
   readonly config: ISimulationConfig;
-  readonly events: readonly any[];
-  readonly violations: readonly any[];
+  readonly events: readonly IGameEvent[];
+  readonly violations: readonly IViolation[];
   readonly timestamp: string;
 }
 
@@ -51,7 +52,7 @@ export class SnapshotManager {
 
   loadSnapshot(filepath: string): IGameSession {
     const content = fs.readFileSync(filepath, 'utf-8');
-    const snapshot: ISnapshot = JSON.parse(content);
+    const snapshot = JSON.parse(content) as ISnapshot;
 
     const gameConfig = {
       mapRadius: snapshot.config.mapRadius,
@@ -66,12 +67,12 @@ export class SnapshotManager {
       updatedAt: snapshot.timestamp,
       config: gameConfig,
       units: [],
-      events: snapshot.events as any[],
+      events: snapshot.events,
       currentState: {
         gameId: `snapshot-${snapshot.seed}`,
-        status: 'active' as any,
+        status: GameStatus.Active,
         turn: 1,
-        phase: 'initiative' as any,
+        phase: GamePhase.Initiative,
         activationIndex: 0,
         units: {},
         turnEvents: [],
