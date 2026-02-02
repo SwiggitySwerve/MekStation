@@ -135,6 +135,8 @@ export interface IQuickGameScenarioConfig {
   readonly enemyFaction?: string;
   /** Biome preference */
   readonly biome?: string;
+  /** Campaign year for unit filtering (optional). When set, units are filtered by introduction/extinction dates. Defaults to 3025 (Late Succession Wars). See isAvailableInYear() in availabilityUtils for filtering logic. */
+  readonly year?: number;
 }
 
 /**
@@ -251,6 +253,7 @@ export function createQuickGameInstance(): IQuickGameInstance {
       difficulty: 1.0,
       modifierCount: 2,
       allowNegativeModifiers: true,
+      year: 3025,
     },
     scenario: null,
     phase: GamePhase.Initiative,
