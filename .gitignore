@@ -153,3 +153,7 @@ public/record-sheets/mm-data-version.json
 # Generated config copy for browser access (source is config/mm-data-assets.json)
 public/config/
 nul
+
+# Simulation reports (keep directory, not generated reports)
+simulation-reports/*.json
+simulation-reports/*/*.json

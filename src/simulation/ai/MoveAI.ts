@@ -4,7 +4,6 @@ import type {
   IHexGrid,
   IUnitPosition,
   IMovementCapability,
-  IHexCoordinate,
 } from '@/types/gameplay';
 import { Facing, MovementType } from '@/types/gameplay';
 import { getValidDestinations, calculateMovementHeat } from '@/utils/gameplay/movement';

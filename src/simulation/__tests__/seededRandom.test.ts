@@ -70,10 +70,10 @@ describe('SeededRandom', () => {
       const expectedPerBucket = iterations / 10;
       const tolerance = expectedPerBucket * 0.2;
 
-      buckets.forEach((count, index) => {
-        expect(count).toBeGreaterThan(expectedPerBucket - tolerance);
-        expect(count).toBeLessThan(expectedPerBucket + tolerance);
-      });
+       buckets.forEach((count) => {
+         expect(count).toBeGreaterThan(expectedPerBucket - tolerance);
+         expect(count).toBeLessThan(expectedPerBucket + tolerance);
+       });
     });
   });
 
