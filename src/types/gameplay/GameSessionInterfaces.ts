@@ -295,6 +295,10 @@ export interface IDamageAppliedPayload {
   readonly locationDestroyed: boolean;
   /** Critical hits triggered */
   readonly criticals?: readonly string[];
+  /** Unit that dealt the damage (undefined for self-damage: ammo explosions, falling, heat, etc.) */
+  readonly sourceUnitId?: string;
+  /** Attack ID that caused this damage (links to AttackResolved event) */
+  readonly attackId?: string;
 }
 
 /**
@@ -337,6 +341,8 @@ export interface IUnitDestroyedPayload {
   readonly unitId: string;
   /** Cause of destruction */
   readonly cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown';
+  /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
+  readonly killerUnitId?: string;
 }
 
 /**
