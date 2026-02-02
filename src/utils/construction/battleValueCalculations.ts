@@ -6,6 +6,8 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
+import { getPilotSkillModifier } from '../../types/validation/BattleValue';
+
 // ============================================================================
 // SPEED FACTOR TABLE (from TechManual)
 // ============================================================================
@@ -251,29 +253,54 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
  * Get detailed BV breakdown
  */
 export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
-  const defensiveBV = calculateDefensiveBV(
-    config.totalArmorPoints,
-    config.totalStructurePoints,
-    config.heatSinkCapacity,
-    config.hasDefensiveEquipment
-  );
-  
-  const offensiveBV = calculateOffensiveBV(
-    config.weapons,
-    config.hasTargetingComputer
-  );
-  
-  const speedFactor = calculateSpeedFactor(
-    config.walkMP,
-    config.runMP,
-    config.jumpMP
-  );
-  
-  return {
-    defensiveBV,
-    offensiveBV,
-    speedFactor,
-    totalBV: Math.round((defensiveBV + offensiveBV) * speedFactor),
-  };
+   const defensiveBV = calculateDefensiveBV(
+     config.totalArmorPoints,
+     config.totalStructurePoints,
+     config.heatSinkCapacity,
+     config.hasDefensiveEquipment
+   );
+   
+   const offensiveBV = calculateOffensiveBV(
+     config.weapons,
+     config.hasTargetingComputer
+   );
+   
+   const speedFactor = calculateSpeedFactor(
+     config.walkMP,
+     config.runMP,
+     config.jumpMP
+   );
+   
+   return {
+     defensiveBV,
+     offensiveBV,
+     speedFactor,
+     totalBV: Math.round((defensiveBV + offensiveBV) * speedFactor),
+   };
+}
+
+// ============================================================================
+// PILOT SKILL ADJUSTMENT
+// ============================================================================
+
+/**
+ * Calculate skill-adjusted Battle Value for a unit.
+ * 
+ * Applies pilot skill modifiers to base Battle Value. A 4/5 pilot is baseline (1.0x).
+ * Better pilots (lower skills) increase BV, worse pilots (higher skills) decrease it.
+ * 
+ * @param baseBV - Base Battle Value of the unit
+ * @param gunnery - Pilot gunnery skill (0-8, lower is better)
+ * @param piloting - Pilot piloting skill (0-8, lower is better)
+ * @returns Adjusted Battle Value rounded to nearest integer
+ * 
+ * @example
+ * calculateAdjustedBV(1000, 4, 5) // Returns 1000 (baseline)
+ * calculateAdjustedBV(1000, 3, 4) // Returns 1200 (elite)
+ * calculateAdjustedBV(1000, 5, 6) // Returns 900 (green)
+ */
+export function calculateAdjustedBV(baseBV: number, gunnery: number, piloting: number): number {
+  const modifier = getPilotSkillModifier(gunnery, piloting);
+  return Math.round(baseBV * modifier);
 }
 
