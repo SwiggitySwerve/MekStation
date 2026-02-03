@@ -14,6 +14,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Button, Input, Badge, Card } from '@/components/ui';
 import { usePilotStore } from '@/stores/usePilotStore';
+import { useToast } from '@/components/shared/Toast';
 import {
   PilotExperienceLevel,
   IPilotIdentity,
@@ -462,6 +463,7 @@ export function PilotCreationWizard({
   onCreated,
 }: PilotCreationWizardProps): React.ReactElement | null {
   const { createFromTemplate, createRandom, createPilot, createStatblock, isLoading } = usePilotStore();
+  const { showToast } = useToast();
   
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [currentStep, setCurrentStep] = useState<WizardStep>('mode');
@@ -603,12 +605,20 @@ export function PilotCreationWizard({
         }
       }
       
+      if (state.mode === 'statblock') {
+        showToast({ message: `Statblock pilot "${state.identity.name}" created`, variant: 'info' });
+      } else {
+        showToast({ message: `Pilot "${state.identity.name}" created successfully!`, variant: 'success' });
+      }
+      
       onCreated?.(pilotId);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create pilot');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create pilot';
+      setError(errorMessage);
+      showToast({ message: errorMessage, variant: 'error' });
     }
-  }, [state, createFromTemplate, createRandom, createPilot, createStatblock, onCreated, onClose]);
+  }, [state, createFromTemplate, createRandom, createPilot, createStatblock, onCreated, onClose, showToast]);
   
   // Render step content
   const renderStepContent = (): React.ReactElement => {

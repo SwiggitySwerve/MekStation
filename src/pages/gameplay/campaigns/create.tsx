@@ -13,6 +13,7 @@ import {
   Button,
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/useCampaignStore';
+import { useToast } from '@/components/shared/Toast';
 import { CampaignType, CAMPAIGN_TYPE_DISPLAY } from '@/types/campaign/CampaignType';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import { CampaignTypeCard } from '@/components/campaign/CampaignTypeCard';
@@ -80,6 +81,7 @@ const WIZARD_STEPS = ['Basic Info', 'Type', 'Preset', 'Roster', 'Review'];
 export default function CreateCampaignPage(): React.ReactElement {
   const router = useRouter();
   const { createCampaign, error, clearError } = useCampaignStore();
+  const { showToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
@@ -126,12 +128,15 @@ export default function CreateCampaignPage(): React.ReactElement {
       });
 
       if (campaignId) {
+        showToast({ message: `Campaign "${name.trim()}" created successfully!`, variant: 'success' });
         router.push(`/gameplay/campaigns/${campaignId}`);
+      } else {
+        showToast({ message: 'Failed to create campaign', variant: 'error' });
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, description, unitIds, pilotIds, createCampaign, router, clearError]);
+  }, [name, description, unitIds, pilotIds, createCampaign, router, clearError, showToast]);
 
   const handleCancel = useCallback(() => {
     router.push('/gameplay/campaigns');

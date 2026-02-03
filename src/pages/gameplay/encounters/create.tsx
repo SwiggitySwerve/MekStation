@@ -14,6 +14,7 @@ import {
   Button,
 } from '@/components/ui';
 import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useToast } from '@/components/shared/Toast';
 import { SCENARIO_TEMPLATES, ScenarioTemplateType } from '@/types/encounter';
 
 // =============================================================================
@@ -58,6 +59,7 @@ function TemplateCard({ template, selected, onSelect }: TemplateCardProps): Reac
 export default function CreateEncounterPage(): React.ReactElement {
   const router = useRouter();
   const { createEncounter, isLoading, error, clearError } = useEncounterStore();
+  const { showToast } = useToast();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -83,10 +85,13 @@ export default function CreateEncounterPage(): React.ReactElement {
       });
 
       if (id) {
+        showToast({ message: `Encounter "${name.trim()}" created successfully!`, variant: 'success' });
         router.push(`/gameplay/encounters/${id}`);
+      } else {
+        showToast({ message: 'Failed to create encounter', variant: 'error' });
       }
     },
-    [name, description, selectedTemplate, createEncounter, router, clearError]
+    [name, description, selectedTemplate, createEncounter, router, clearError, showToast]
   );
 
   // Handle cancel

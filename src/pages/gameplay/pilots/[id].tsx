@@ -19,6 +19,7 @@ import {
 import { PilotProgressionPanel } from '@/components/pilots';
 import { AwardGrid } from '@/components/award';
 import { usePilotStore, usePilotById } from '@/stores/usePilotStore';
+import { useToast } from '@/components/shared/Toast';
 import {
   IPilot,
   PilotStatus,
@@ -473,6 +474,7 @@ export default function PilotDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id, tab: queryTab } = router.query;
   const pilotId = typeof id === 'string' ? id : null;
+  const { showToast } = useToast();
 
   const { loadPilots, updatePilot, deletePilot, isLoading, error } = usePilotStore();
   const pilot = usePilotById(pilotId);
@@ -523,10 +525,13 @@ export default function PilotDetailPage(): React.ReactElement {
     setIsDeleting(false);
 
     if (success) {
+      showToast({ message: 'Pilot deleted successfully', variant: 'success' });
       router.push('/gameplay/pilots');
+    } else {
+      showToast({ message: 'Failed to delete pilot', variant: 'error' });
     }
     setIsDeleteModalOpen(false);
-  }, [pilotId, deletePilot, router]);
+  }, [pilotId, deletePilot, router, showToast]);
 
   // Handle identity edit
   const handleSaveIdentity = useCallback(async (updates: { name: string; callsign?: string; affiliation?: string }) => {
@@ -537,9 +542,12 @@ export default function PilotDetailPage(): React.ReactElement {
     setIsSaving(false);
 
     if (success) {
+      showToast({ message: 'Pilot details updated', variant: 'success' });
       setIsEditModalOpen(false);
+    } else {
+      showToast({ message: 'Failed to update pilot', variant: 'error' });
     }
-  }, [pilotId, updatePilot]);
+  }, [pilotId, updatePilot, showToast]);
 
   // Career stats for display
   const careerStats = useMemo(() => {

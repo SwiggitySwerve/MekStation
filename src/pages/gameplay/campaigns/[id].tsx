@@ -16,6 +16,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/useCampaignStore';
+import { useToast } from '@/components/shared/Toast';
 import {
   CampaignStatus,
   CampaignMissionStatus,
@@ -413,6 +414,7 @@ function CampaignAuditTab({ campaignId, campaignName }: CampaignAuditTabProps): 
 export default function CampaignDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id, tab: queryTab } = router.query;
+  const { showToast } = useToast();
 
   const {
     getCampaign,
@@ -482,11 +484,14 @@ export default function CampaignDetailPage(): React.ReactElement {
       clearError();
       const success = startMission(id, missionId);
       if (success) {
+        showToast({ message: 'Mission started! Prepare for battle.', variant: 'info' });
         // Navigate to encounter/game (placeholder)
         router.push(`/gameplay/encounters`);
+      } else {
+        showToast({ message: 'Failed to start mission', variant: 'error' });
       }
     },
-    [id, startMission, router, clearError]
+    [id, startMission, router, clearError, showToast]
   );
 
   // Handle delete
@@ -495,16 +500,24 @@ export default function CampaignDetailPage(): React.ReactElement {
     clearError();
     const success = deleteCampaign(id);
     if (success) {
+      showToast({ message: 'Campaign deleted successfully', variant: 'success' });
       router.push('/gameplay/campaigns');
+    } else {
+      showToast({ message: 'Failed to delete campaign', variant: 'error' });
     }
-  }, [id, deleteCampaign, router, clearError]);
+  }, [id, deleteCampaign, router, clearError, showToast]);
 
   // Handle abandon
   const handleAbandon = useCallback(() => {
     if (!id || typeof id !== 'string') return;
     clearError();
-    setCampaignStatus(id, CampaignStatus.Abandoned);
-  }, [id, setCampaignStatus, clearError]);
+    const success = setCampaignStatus(id, CampaignStatus.Abandoned);
+    if (success) {
+      showToast({ message: 'Campaign abandoned', variant: 'warning' });
+    } else {
+      showToast({ message: 'Failed to abandon campaign', variant: 'error' });
+    }
+  }, [id, setCampaignStatus, clearError, showToast]);
 
   // Handle mission click
   const handleMissionClick = useCallback((mission: ICampaignMission) => {
