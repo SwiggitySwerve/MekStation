@@ -111,6 +111,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
         title="Campaign Not Found"
         subtitle="The requested campaign could not be found"
         maxWidth="wide"
+        backLink="/gameplay/campaigns"
+        backLabel="Back to Campaigns"
       >
         <EmptyState
           icon={
