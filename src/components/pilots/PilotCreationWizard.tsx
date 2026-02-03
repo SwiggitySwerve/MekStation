@@ -623,7 +623,7 @@ export function PilotCreationWizard({
               </p>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(Object.keys(MODE_INFO) as CreationMode[]).map((mode) => (
                 <ModeCard
                   key={mode}
@@ -845,7 +845,7 @@ export function PilotCreationWizard({
       isOpen={isOpen}
       onClose={onClose}
       preventClose={isLoading}
-      className="w-[560px] max-h-[85vh] overflow-hidden"
+      className="w-full sm:w-[560px] max-h-[85vh] overflow-hidden"
     >
       <div className="flex flex-col h-full">
         {/* Header */}

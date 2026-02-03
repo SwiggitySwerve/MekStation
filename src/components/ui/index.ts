@@ -7,6 +7,10 @@
 export { Badge, TechBaseBadge, WeightClassBadge } from './Badge';
 export type { } from './Badge';
 
+// Breadcrumb
+export { Breadcrumb } from './Breadcrumb';
+export type { BreadcrumbItem, BreadcrumbProps } from './Breadcrumb';
+
 // Button
 export { Button, PaginationButtons } from './Button';
 
@@ -19,7 +23,7 @@ export { CategoryCard } from './CategoryCard';
 export type { AccentColor } from './CategoryCard';
 
 // Input
-export { Input, Select, SearchInput } from './Input';
+export { Input, Select, SearchInput, Textarea } from './Input';
 
 // PageLayout
 export { PageLayout, PageLoading, PageError, EmptyState } from './PageLayout';

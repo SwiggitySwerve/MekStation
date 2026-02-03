@@ -33,6 +33,10 @@ export interface IRATEntry {
   readonly unitType: UnitTypeCategory;
   /** Selection weight (higher = more common) */
   readonly weight: number;
+  /** Year unit was introduced (optional for temporal filtering) */
+  readonly introductionYear?: number;
+  /** Year unit became extinct (optional for temporal filtering) */
+  readonly extinctionYear?: number;
 }
 
 /**

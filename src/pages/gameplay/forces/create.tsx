@@ -12,6 +12,7 @@ import {
   CardSection,
   Button,
   Input,
+  Textarea,
   Badge,
 } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
@@ -222,20 +223,14 @@ export default function CreateForcePage(): React.ReactElement {
             </div>
 
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-text-theme-secondary mb-1.5"
-              >
-                Description
-              </label>
-              <textarea
+              <Textarea
                 id="description"
+                label="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional notes about this force..."
                 rows={3}
                 data-testid="force-description-input"
-                className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 resize-none"
               />
             </div>
           </div>

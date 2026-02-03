@@ -134,9 +134,16 @@ function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
         </div>
         <h2 className="text-xl font-bold text-white mb-2">Failed to Load Game</h2>
         <p className="text-gray-400 mb-4">{message}</p>
-        <Button variant="primary" onClick={onRetry} data-testid="game-retry-btn">
-          Try Again
-        </Button>
+        <div className="flex items-center justify-center gap-3">
+          <Button variant="primary" onClick={onRetry} data-testid="game-retry-btn">
+            Try Again
+          </Button>
+          <Link href="/gameplay/games">
+            <Button variant="secondary" data-testid="back-to-games-btn">
+              Back to Games
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

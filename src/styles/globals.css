@@ -69,7 +69,7 @@
   /* Text Colors */
   --text-primary: #f8fafc;      /* slate-50 */
   --text-secondary: #94a3b8;    /* slate-400 */
-  --text-muted: #64748b;        /* slate-500 */
+  --text-muted: #9ca3af;        /* gray-400 - WCAG AA compliant (5:1 contrast) */
 
   /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
   --accent-primary: #f59e0b;    /* amber-500 */
@@ -78,6 +78,9 @@
 
   /* Font Size (updated by GlobalStyleProvider) */
   --font-size-base: 16px;
+
+  /* Touch Targets (WCAG 2.5.5 minimum) */
+  --touch-target-min: 44px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -563,7 +566,7 @@ button:disabled {
 /* Inputs */
 .input-dark {
   @apply w-full bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
-         text-text-theme-primary placeholder-text-theme-muted focus:outline-none transition-colors;
+         text-text-theme-primary placeholder-text-theme-muted focus:outline-none transition-colors min-h-[44px];
 }
 
 .input-dark:focus {
@@ -585,7 +588,7 @@ button:disabled {
 /* Selects */
 .select-dark {
   @apply bg-surface-raised/50 border border-border-theme-strong rounded-lg px-4 py-2
-         text-text-theme-primary focus:outline-none transition-colors;
+         text-text-theme-primary focus:outline-none transition-colors min-h-[44px];
 }
 
 .select-dark:focus {
@@ -594,7 +597,7 @@ button:disabled {
 
 /* Buttons */
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-colors;
+  @apply px-4 py-2 rounded-lg font-medium transition-colors min-h-[44px];
 }
 
 .btn-primary {
@@ -612,7 +615,7 @@ button:disabled {
 .btn-pagination {
   @apply px-3 py-2 bg-surface-base border border-border-theme rounded-lg
          text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme-strong
-         disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+         disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px];
 }
 
 /* Badges */
@@ -683,11 +686,11 @@ button:disabled {
 }
 
 .table-dark tr {
-  @apply hover:bg-surface-raised/30 transition-colors;
+  @apply hover:bg-surface-raised/30 transition-colors min-h-[44px];
 }
 
 .table-dark td {
-  @apply px-6 py-4;
+  @apply px-6 py-4 h-[44px];
 }
 
 /* Section Headers */
@@ -814,7 +817,7 @@ button:disabled {
 
 /* Dialog Buttons */
 .dialog-btn-primary {
-  @apply px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors min-h-[44px];
 }
 
 .dialog-btn-primary:disabled {
@@ -822,35 +825,35 @@ button:disabled {
 }
 
 .dialog-btn-secondary {
-  @apply px-4 py-2 text-sm font-medium bg-surface-raised hover:bg-surface-base text-text-theme-primary rounded transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-surface-raised hover:bg-surface-base text-text-theme-primary rounded transition-colors min-h-[44px];
 }
 
 .dialog-btn-ghost {
-  @apply px-4 py-2 text-sm font-medium text-text-theme-primary hover:text-text-theme-primary transition-colors;
+  @apply px-4 py-2 text-sm font-medium text-text-theme-primary hover:text-text-theme-primary transition-colors min-h-[44px];
 }
 
 .dialog-btn-warning {
-  @apply px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors min-h-[44px];
 }
 
 .dialog-btn-danger {
-  @apply px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors;
+  @apply px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors min-h-[44px];
 }
 
 /* Dialog Inputs */
 .dialog-input {
   @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
-         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px];
 }
 
 .dialog-input-search {
   @apply w-full pl-10 pr-4 py-2 bg-surface-raised border border-border-theme-strong rounded-lg text-text-theme-primary
-         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent;
+         placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px];
 }
 
 .dialog-select {
   @apply px-3 py-1.5 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
-         focus:outline-none focus:ring-2 focus:ring-accent;
+         focus:outline-none focus:ring-2 focus:ring-accent min-h-[44px];
 }
 
 /* Dialog Tables */
@@ -871,7 +874,7 @@ button:disabled {
 }
 
 .dialog-table-row {
-  @apply cursor-pointer transition-colors hover:bg-surface-raised/30;
+  @apply cursor-pointer transition-colors hover:bg-surface-raised/30 min-h-[44px];
 }
 
 .dialog-table-row-selected {
@@ -941,12 +944,12 @@ button:disabled {
 
 .filter-input input {
   @apply w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary
-         placeholder-text-theme-muted text-sm focus:outline-none focus:border-accent;
+         placeholder-text-theme-muted text-sm focus:outline-none focus:border-accent min-h-[44px];
 }
 
 .filter-select {
   @apply px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm
-         focus:outline-none focus:border-accent;
+         focus:outline-none focus:border-accent min-h-[44px];
 }
 
 .filter-clear-btn {
@@ -1316,7 +1319,7 @@ button:disabled {
   --border-strong: rgba(245, 158, 11, 0.6);
   --text-primary: #fef3c7;
   --text-secondary: #fcd34d;
-  --text-muted: #92400e;
+  --text-muted: #d97706;        /* amber-600 - WCAG AA compliant (5.2:1 contrast) */
 
   /* Tailwind color token overrides (used by generated utilities) */
   --color-surface-deep: #0a1628;
@@ -1327,7 +1330,7 @@ button:disabled {
   --color-border-theme-strong: rgba(245, 158, 11, 0.6);
   --color-text-theme-primary: #fef3c7;
   --color-text-theme-secondary: #fcd34d;
-  --color-text-theme-muted: #92400e;
+  --color-text-theme-muted: #d97706;  /* amber-600 - WCAG AA compliant */
 }
 
 .theme-tactical h1,
