@@ -9,11 +9,14 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
   PageLayout,
-  PageLoading,
   Card,
   Button,
   Badge,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { GenerateScenarioModal } from '@/components/gameplay';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
@@ -138,7 +141,46 @@ export default function EncounterDetailPage(): React.ReactElement {
   }, [id, clearError, validateEncounter, showToast]);
 
   if (!isInitialized || isLoading) {
-    return <PageLoading message="Loading encounter..." />;
+    return (
+      <PageLayout
+        title="Loading..."
+        backLink="/gameplay/encounters"
+        backLabel="Back to Encounters"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SkeletonFormSection title="Forces">
+            <div className="mb-4">
+              <SkeletonText width="w-24" className="mb-2" />
+              <div className="p-3 rounded-lg bg-surface-raised/50 space-y-2">
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+            <div>
+              <SkeletonText width="w-28" className="mb-2" />
+              <div className="p-3 rounded-lg bg-surface-raised/50 space-y-2">
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+          </SkeletonFormSection>
+
+          <SkeletonFormSection title="Battle Settings">
+            <div className="space-y-4">
+              <div>
+                <SkeletonText width="w-16" className="mb-2" />
+                <SkeletonText width="w-40" />
+              </div>
+              <div>
+                <SkeletonText width="w-24" className="mb-2" />
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+          </SkeletonFormSection>
+        </div>
+      </PageLayout>
+    );
   }
 
   if (!encounter) {

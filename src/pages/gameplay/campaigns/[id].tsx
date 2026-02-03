@@ -10,11 +10,14 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
   PageLayout,
-  PageLoading,
   Card,
   Button,
   Badge,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { useCampaignStore } from '@/stores/useCampaignStore';
 import { useToast } from '@/components/shared/Toast';
 import {
@@ -525,7 +528,52 @@ export default function CampaignDetailPage(): React.ReactElement {
   }, []);
 
   if (!isClient) {
-    return <PageLoading message="Loading campaign..." />;
+    return (
+      <PageLayout
+        title="Loading..."
+        backLink="/gameplay/campaigns"
+        backLabel="Back to Campaigns"
+        maxWidth="wide"
+      >
+        <div className="flex items-center gap-1 mb-6 border-b border-border-theme-subtle pb-2">
+          <SkeletonText width="w-20" />
+          <SkeletonText width="w-28" />
+        </div>
+
+        <Card className="mb-6">
+          <SkeletonText width="w-24" className="mb-4" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="text-center p-3 rounded-lg bg-surface-deep">
+                <SkeletonText width="w-16" className="mx-auto mb-1" />
+                <SkeletonText width="w-12" className="mx-auto" />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <SkeletonFormSection title="Mission Progression">
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-surface-raised/50 animate-pulse" />
+                  <SkeletonText width="w-32" />
+                </div>
+              ))}
+            </div>
+          </SkeletonFormSection>
+
+          <SkeletonFormSection title="Mission Details">
+            <div className="space-y-3">
+              <SkeletonText width="w-full" />
+              <SkeletonText width="w-3/4" />
+              <SkeletonText width="w-24" />
+            </div>
+          </SkeletonFormSection>
+        </div>
+      </PageLayout>
+    );
   }
 
   if (!campaign) {

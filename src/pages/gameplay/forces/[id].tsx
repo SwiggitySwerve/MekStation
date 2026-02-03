@@ -9,11 +9,14 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
   PageLayout,
-  PageLoading,
   PageError,
   Button,
   Input,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { ForceBuilder, PilotSelector, UnitSelector, UnitInfo } from '@/components/force';
 import { useForceStore } from '@/stores/useForceStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -447,9 +450,34 @@ export default function ForceDetailPage(): React.ReactElement {
     [forceId, updateForce, loadForces, getForce, showToast]
   );
 
-  // Loading state
   if (!isInitialized || forceLoading) {
-    return <PageLoading message="Loading force data..." />;
+    return (
+      <PageLayout
+        title="Loading..."
+        backLink="/gameplay/forces"
+        backLabel="Back to Roster"
+        maxWidth="wide"
+      >
+        <SkeletonFormSection title="Force Assignments">
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-surface-raised/50">
+                <div className="w-10 h-10 rounded-lg bg-border-theme/50 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <SkeletonText width="w-32" />
+                  <SkeletonText width="w-48" />
+                </div>
+                <SkeletonText width="w-20" />
+              </div>
+            ))}
+          </div>
+        </SkeletonFormSection>
+
+        <div className="mt-8 pt-6 border-t border-border-theme-subtle">
+          <SkeletonText width="w-32" />
+        </div>
+      </PageLayout>
+    );
   }
 
   // Force not found
