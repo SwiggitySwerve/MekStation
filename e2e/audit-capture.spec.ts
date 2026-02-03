@@ -17,8 +17,24 @@ import { test, expect, Page } from '@playwright/test';
  * Naming convention: {route-slug}_{viewport}_{state}.png (viewport added by Playwright)
  */
 
-// Load test data manifest for parameterized routes
-import testData from '../.sisyphus/evidence/test-data-manifest.json' assert { type: 'json' };
+const testData = {
+  units: {
+    battlemech: 'akuma-aku-1x',
+    vehicle: 'battle-tripod-r-h3l-2x',
+    aerospace: 'wing-wraith-tr4',
+    battleArmor: 'anubis-abs-3l',
+    infantry: 'alfar-al-a1',
+    protomech: 'amarok-2',
+  },
+  equipment: 'medium-laser',
+  rule: 'structure',
+  pilot: 'pilot-131cf888-5b53-4ef3-a905-037fa83352c5',
+  force: 'force-b62e773d-87b1-407e-a63b-a8e048b8d3bd',
+  encounter: 'encounter-be2c62e5-3dc8-40d6-850d-c8db31bb0d94',
+  customUnit: 'custom-a12fe19c-bd97-46ac-9f81-0c4b99bfa2de',
+  campaign: null as string | null,
+  game: null as string | null,
+};
 
 // Helper: Add touch target overlay
 async function addTouchTargetOverlay(page: Page) {
@@ -197,7 +213,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Compendium unit detail', async ({ page }) => {
-      const unitId = testData.compendiumUnitExample;
+      const unitId = testData.units.battlemech;
       await page.goto(`/compendium/units/${unitId}`);
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('compendium-unit-detail.png', {
@@ -239,7 +255,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Compendium equipment detail', async ({ page }) => {
-      const equipId = testData.compendiumEquipmentExample;
+      const equipId = testData.equipment;
       await page.goto(`/compendium/equipment/${equipId}`);
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('compendium-equip-detail.png', {
@@ -644,7 +660,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Pilot detail', async ({ page }) => {
-      const pilotId = testData.pilots.pilot1;
+      const pilotId = testData.pilot;
       await page.goto(`/gameplay/pilots/${pilotId}`);
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('pilot-detail.png', {
@@ -688,7 +704,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Force detail - overview', async ({ page }) => {
-      const forceId = testData.forces.force1;
+      const forceId = testData.force;
       await page.goto(`/gameplay/forces/${forceId}`);
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('force-detail_overview.png', {
@@ -698,7 +714,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Force detail - units tab', async ({ page }) => {
-      const forceId = testData.forces.force1;
+      const forceId = testData.force;
       await page.goto(`/gameplay/forces/${forceId}`);
       await waitForPageReady(page);
       const unitsTab = await page.$('button:has-text("Units")');
@@ -713,7 +729,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Force detail - personnel tab', async ({ page }) => {
-      const forceId = testData.forces.force1;
+      const forceId = testData.force;
       await page.goto(`/gameplay/forces/${forceId}`);
       await waitForPageReady(page);
       const personnelTab = await page.$('button:has-text("Personnel")');
@@ -728,7 +744,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Force detail - history tab', async ({ page }) => {
-      const forceId = testData.forces.force1;
+      const forceId = testData.force;
       await page.goto(`/gameplay/forces/${forceId}`);
       await waitForPageReady(page);
       const historyTab = await page.$('button:has-text("History")');
@@ -777,7 +793,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Encounter detail - overview', async ({ page }) => {
-      const encounterId = testData.encounters.encounter1;
+      const encounterId = testData.encounter;
       await page.goto(`/gameplay/encounters/${encounterId}`);
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('encounter-detail_overview.png', {
@@ -787,7 +803,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Encounter detail - map tab', async ({ page }) => {
-      const encounterId = testData.encounters.encounter1;
+      const encounterId = testData.encounter;
       await page.goto(`/gameplay/encounters/${encounterId}`);
       await waitForPageReady(page);
       const mapTab = await page.$('button:has-text("Map")');
@@ -802,7 +818,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Encounter detail - modifiers tab', async ({ page }) => {
-      const encounterId = testData.encounters.encounter1;
+      const encounterId = testData.encounter;
       await page.goto(`/gameplay/encounters/${encounterId}`);
       await waitForPageReady(page);
       const modifiersTab = await page.$('button:has-text("Modifiers")');
@@ -817,7 +833,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     });
 
     test('Encounter detail - history tab', async ({ page }) => {
-      const encounterId = testData.encounters.encounter1;
+      const encounterId = testData.encounter;
       await page.goto(`/gameplay/encounters/${encounterId}`);
       await waitForPageReady(page);
       const historyTab = await page.$('button:has-text("History")');
@@ -867,8 +883,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
 
     test('Campaign detail - dashboard', async ({ page }) => {
       // Use null campaign ID if available, otherwise skip
-      if (testData.campaigns.campaign1) {
-        await page.goto(`/gameplay/campaigns/${testData.campaigns.campaign1}`);
+      if (testData.campaign) {
+        await page.goto(`/gameplay/campaigns/${testData.campaign}`);
         await waitForPageReady(page);
         await expect(page).toHaveScreenshot('campaign-detail_dashboard.png', {
           fullPage: true,

@@ -78,27 +78,41 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    /* Desktop tests - primary */
+    /* Desktop (1280px) - primary */
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    
-    /* Mobile tests */
+
+    /* Phone (375px) - iPhone SE dimensions for audit */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    
-    /* Tablet landscape - for audit capture suite */
-    {
-      name: 'Tablet Landscape',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1024, height: 768 } 
+        viewport: { width: 375, height: 667 },
+        hasTouch: true,
+        isMobile: true,
       },
     },
-    
+
+    /* Tablet portrait (768px) - iPad Mini dimensions for audit */
+    {
+      name: 'Tablet Portrait',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
+      },
+    },
+
+    /* Tablet landscape (1024px) - for audit capture suite */
+    {
+      name: 'Tablet Landscape',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 768 },
+      },
+    },
+
     /* Smoke tests - fast subset for PR checks */
     {
       name: 'smoke',
