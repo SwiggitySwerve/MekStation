@@ -100,6 +100,43 @@ export function Select({
   );
 }
 
+// Textarea component
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  accent?: InputAccent;
+  label?: string;
+  error?: string;
+}
+
+export function Textarea({
+  accent = 'amber',
+  label,
+  error,
+  className = '',
+  id,
+  ...props
+}: TextareaProps): React.ReactElement {
+  const textareaId = id || props.name;
+  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none';
+
+  return (
+    <div className="w-full">
+      {label && (
+        <label htmlFor={textareaId} className="block text-sm text-text-theme-secondary mb-1">
+          {label}
+        </label>
+      )}
+      <textarea
+        id={textareaId}
+        className={`${baseClasses} ${accentFocusClasses[accent]} ${error ? 'border-red-500' : ''} ${className}`}
+        {...props}
+      />
+      {error && (
+        <p className="mt-1 text-sm text-red-400">{error}</p>
+      )}
+    </div>
+  );
+}
+
 // Search input with icon
 interface SearchInputProps extends Omit<InputProps, 'type'> {
   onClear?: () => void;

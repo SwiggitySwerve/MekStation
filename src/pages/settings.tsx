@@ -13,7 +13,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { PageLayout } from '@/components/ui/PageLayout';
+import { PageLayout, Input } from '@/components/ui';
 import {
   useAppSettingsStore,
   AccentColor,
@@ -543,12 +543,12 @@ function P2PSyncSection({
           How you appear to other peers in sync rooms
         </div>
         <div className="flex gap-2">
-          <input
+          <Input
             type="text"
             value={peerNameInput}
             onChange={(e) => setPeerNameInput(e.target.value)}
             placeholder="Enter your name"
-            className="flex-1 px-3 py-2 text-sm bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent"
+            className="flex-1 text-sm"
           />
           <button
             onClick={handleSavePeerName}

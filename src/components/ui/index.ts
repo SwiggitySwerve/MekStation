@@ -19,7 +19,7 @@ export { CategoryCard } from './CategoryCard';
 export type { AccentColor } from './CategoryCard';
 
 // Input
-export { Input, Select, SearchInput } from './Input';
+export { Input, Select, SearchInput, Textarea } from './Input';
 
 // PageLayout
 export { PageLayout, PageLoading, PageError, EmptyState } from './PageLayout';

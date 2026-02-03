@@ -10,6 +10,7 @@ import {
   PageLayout,
   Card,
   Input,
+  Textarea,
   Button,
 } from '@/components/ui';
 import { useEncounterStore } from '@/stores/useEncounterStore';
@@ -123,20 +124,15 @@ export default function CreateEncounterPage(): React.ReactElement {
               )}
             </div>
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-text-theme-primary mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="w-full px-3 py-2 rounded-lg border border-border-theme-subtle bg-surface-raised text-text-theme-primary placeholder:text-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
-                placeholder="Optional description of this encounter..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                data-testid="encounter-description-input"
-              />
-            </div>
+            <Textarea
+              id="description"
+              label="Description"
+              placeholder="Optional description of this encounter..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              data-testid="encounter-description-input"
+            />
           </div>
         </Card>
 
