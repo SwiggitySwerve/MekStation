@@ -195,9 +195,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return this.props.fallback
       }
       
-       // CRITICAL: Default error UI
+       // CRITICAL: Default error UI with dark theme tokens
        return (
-         <div className="error-boundary bg-red-900/30 border border-red-500/30 rounded-lg p-6 m-4">
+         <div className="error-boundary bg-surface-raised border border-red-500/40 rounded-lg p-6 m-4">
            <div className="flex items-center mb-4">
              <div className="flex-shrink-0">
                <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,31 +205,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                </svg>
              </div>
              <div className="ml-3">
-               <h3 className="text-lg font-medium text-red-300">
+               <h3 className="text-lg font-medium text-red-400">
                  Something went wrong
                </h3>
-               <p className="text-sm text-red-300">
+               <p className="text-sm text-text-theme-secondary">
                  Error ID: {this.state.errorId}
                </p>
              </div>
            </div>
            
            <div className="mb-4">
-             <p className="text-sm text-red-300">
+             <p className="text-sm text-text-theme-primary">
                {this.state.error?.message || 'An unexpected error occurred'}
              </p>
              {this.props.componentName && (
-               <p className="text-xs text-red-300 mt-1">
+               <p className="text-xs text-text-theme-secondary mt-1">
                  Component: {this.props.componentName}
                </p>
              )}
            </div>
           
-          <div className="flex space-x-3">
+          <div className="flex flex-wrap gap-3">
             {this.state.canRecover && (
               <button
                 onClick={this.handleRecovery}
-                className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition-colors"
+                className="bg-red-600 text-white px-4 py-2 min-h-[44px] rounded text-sm font-medium hover:bg-red-700 transition-colors"
               >
                 Try Again ({this.state.recoveryAttempts + 1}/{this.props.maxRecoveryAttempts || ErrorBoundary.MAX_RECOVERY_ATTEMPTS})
               </button>
@@ -237,14 +237,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             
             <button
               onClick={this.handleReset}
-              className="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition-colors"
+              className="bg-surface-base text-text-theme-primary border border-border-theme px-4 py-2 min-h-[44px] rounded text-sm font-medium hover:bg-surface-raised transition-colors"
             >
               Reset
             </button>
             
             <button
               onClick={this.handleReportError}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 min-h-[44px] rounded text-sm font-medium hover:bg-blue-700 transition-colors"
             >
               Report Error
             </button>
@@ -252,10 +252,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           
            {process.env.NODE_ENV === 'development' && this.state.error && (
              <details className="mt-4">
-               <summary className="text-sm text-red-300 cursor-pointer">
+               <summary className="text-sm text-text-theme-secondary cursor-pointer hover:text-text-theme-primary">
                  Show Error Details (Development)
                </summary>
-               <pre className="mt-2 text-xs text-red-300 bg-red-900/30 p-2 rounded overflow-auto max-h-40">
+               <pre className="mt-2 text-xs text-red-400 bg-surface-base border border-border-theme p-3 rounded overflow-auto max-h-40">
                  {this.state.error.stack}
                </pre>
              </details>

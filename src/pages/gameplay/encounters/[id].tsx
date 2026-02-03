@@ -9,14 +9,18 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
   PageLayout,
-  PageLoading,
   Card,
   Button,
   Badge,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { GenerateScenarioModal } from '@/components/gameplay';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
+import { useToast } from '@/components/shared/Toast';
 import {
   EncounterStatus,
   VictoryConditionType,
@@ -49,6 +53,7 @@ function getVictoryConditionLabel(type: VictoryConditionType): string {
 export default function EncounterDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
+  const { showToast } = useToast();
 
   const {
     getEncounter,
@@ -97,10 +102,13 @@ export default function EncounterDetailPage(): React.ReactElement {
     clearError();
     const success = await launchEncounter(id);
     if (success) {
+      showToast({ message: 'Battle launched! Good hunting, MechWarrior.', variant: 'success' });
       // Navigate to game session (placeholder for now)
       router.push('/gameplay/encounters');
+    } else {
+      showToast({ message: 'Failed to launch encounter', variant: 'error' });
     }
-  }, [id, launchEncounter, router, clearError]);
+  }, [id, launchEncounter, router, clearError, showToast]);
 
   // Handle delete
   const handleDelete = useCallback(async () => {
@@ -108,9 +116,12 @@ export default function EncounterDetailPage(): React.ReactElement {
     clearError();
     const success = await deleteEncounter(id);
     if (success) {
+      showToast({ message: 'Encounter deleted successfully', variant: 'success' });
       router.push('/gameplay/encounters');
+    } else {
+      showToast({ message: 'Failed to delete encounter', variant: 'error' });
     }
-  }, [id, deleteEncounter, router, clearError]);
+  }, [id, deleteEncounter, router, clearError, showToast]);
 
   // Handle scenario generation
   const handleGenerateScenario = useCallback(async (scenario: IGeneratedScenario) => {
@@ -123,13 +134,53 @@ export default function EncounterDetailPage(): React.ReactElement {
     
     // For now, just close the modal and show a success message
     setShowGenerateModal(false);
+    showToast({ message: 'Scenario generated! Configure forces to begin.', variant: 'info' });
     
     // Re-validate the encounter
     validateEncounter(id);
-  }, [id, clearError, validateEncounter]);
+  }, [id, clearError, validateEncounter, showToast]);
 
   if (!isInitialized || isLoading) {
-    return <PageLoading message="Loading encounter..." />;
+    return (
+      <PageLayout
+        title="Loading..."
+        backLink="/gameplay/encounters"
+        backLabel="Back to Encounters"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SkeletonFormSection title="Forces">
+            <div className="mb-4">
+              <SkeletonText width="w-24" className="mb-2" />
+              <div className="p-3 rounded-lg bg-surface-raised/50 space-y-2">
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+            <div>
+              <SkeletonText width="w-28" className="mb-2" />
+              <div className="p-3 rounded-lg bg-surface-raised/50 space-y-2">
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+          </SkeletonFormSection>
+
+          <SkeletonFormSection title="Battle Settings">
+            <div className="space-y-4">
+              <div>
+                <SkeletonText width="w-16" className="mb-2" />
+                <SkeletonText width="w-40" />
+              </div>
+              <div>
+                <SkeletonText width="w-24" className="mb-2" />
+                <SkeletonText width="w-32" />
+                <SkeletonText width="w-48" />
+              </div>
+            </div>
+          </SkeletonFormSection>
+        </div>
+      </PageLayout>
+    );
   }
 
   if (!encounter) {

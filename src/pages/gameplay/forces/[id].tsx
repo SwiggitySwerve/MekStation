@@ -9,14 +9,18 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
   PageLayout,
-  PageLoading,
   PageError,
   Button,
   Input,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { ForceBuilder, PilotSelector, UnitSelector, UnitInfo } from '@/components/force';
 import { useForceStore } from '@/stores/useForceStore';
 import { usePilotStore } from '@/stores/usePilotStore';
+import { useToast } from '@/components/shared/Toast';
 import {
   IForce,
   IForceValidation,
@@ -223,6 +227,7 @@ export default function ForceDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
   const forceId = typeof id === 'string' ? id : null;
+  const { showToast } = useToast();
 
   // Force store
   const {
@@ -332,7 +337,7 @@ export default function ForceDetailPage(): React.ReactElement {
   const handlePilotSelected = useCallback(
     async (pilotId: string) => {
       if (!selectedAssignmentId) return;
-      await assignPilot(selectedAssignmentId, pilotId);
+      const success = await assignPilot(selectedAssignmentId, pilotId);
       // Reload force
       if (forceId) {
         await loadForces();
@@ -341,15 +346,20 @@ export default function ForceDetailPage(): React.ReactElement {
         const v = await validateForce(forceId);
         setValidation(v);
       }
+      if (success) {
+        showToast({ message: 'Pilot assigned successfully', variant: 'success' });
+      } else {
+        showToast({ message: 'Failed to assign pilot', variant: 'error' });
+      }
     },
-    [selectedAssignmentId, assignPilot, forceId, loadForces, getForce, validateForce]
+    [selectedAssignmentId, assignPilot, forceId, loadForces, getForce, validateForce, showToast]
   );
 
   // Handler: Assign unit
   const handleUnitSelected = useCallback(
     async (unitId: string) => {
       if (!selectedAssignmentId) return;
-      await assignUnit(selectedAssignmentId, unitId);
+      const success = await assignUnit(selectedAssignmentId, unitId);
       // Reload force
       if (forceId) {
         await loadForces();
@@ -358,14 +368,19 @@ export default function ForceDetailPage(): React.ReactElement {
         const v = await validateForce(forceId);
         setValidation(v);
       }
+      if (success) {
+        showToast({ message: 'Unit assigned successfully', variant: 'success' });
+      } else {
+        showToast({ message: 'Failed to assign unit', variant: 'error' });
+      }
     },
-    [selectedAssignmentId, assignUnit, forceId, loadForces, getForce, validateForce]
+    [selectedAssignmentId, assignUnit, forceId, loadForces, getForce, validateForce, showToast]
   );
 
   // Handler: Clear assignment
   const handleClearAssignment = useCallback(
     async (assignmentId: string) => {
-      await clearAssignment(assignmentId);
+      const success = await clearAssignment(assignmentId);
       // Reload force
       if (forceId) {
         await loadForces();
@@ -374,8 +389,11 @@ export default function ForceDetailPage(): React.ReactElement {
         const v = await validateForce(forceId);
         setValidation(v);
       }
+      if (success) {
+        showToast({ message: 'Assignment cleared', variant: 'info' });
+      }
     },
-    [clearAssignment, forceId, loadForces, getForce, validateForce]
+    [clearAssignment, forceId, loadForces, getForce, validateForce, showToast]
   );
 
   // Handler: Swap assignments
@@ -401,10 +419,13 @@ export default function ForceDetailPage(): React.ReactElement {
     setIsDeleting(false);
 
     if (success) {
+      showToast({ message: 'Force deleted successfully', variant: 'success' });
       router.push('/gameplay/forces');
+    } else {
+      showToast({ message: 'Failed to delete force', variant: 'error' });
     }
     setIsDeleteModalOpen(false);
-  }, [forceId, deleteForce, router]);
+  }, [forceId, deleteForce, router, showToast]);
 
   // Handler: Save force details
   const handleSaveDetails = useCallback(
@@ -416,19 +437,47 @@ export default function ForceDetailPage(): React.ReactElement {
       setIsSaving(false);
 
       if (success) {
+        showToast({ message: 'Force details updated', variant: 'success' });
         setIsEditModalOpen(false);
         // Reload force
         await loadForces();
         const updated = getForce(forceId);
         setForce(updated ?? null);
+      } else {
+        showToast({ message: 'Failed to update force', variant: 'error' });
       }
     },
-    [forceId, updateForce, loadForces, getForce]
+    [forceId, updateForce, loadForces, getForce, showToast]
   );
 
-  // Loading state
   if (!isInitialized || forceLoading) {
-    return <PageLoading message="Loading force data..." />;
+    return (
+      <PageLayout
+        title="Loading..."
+        backLink="/gameplay/forces"
+        backLabel="Back to Roster"
+        maxWidth="wide"
+      >
+        <SkeletonFormSection title="Force Assignments">
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-surface-raised/50">
+                <div className="w-10 h-10 rounded-lg bg-border-theme/50 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <SkeletonText width="w-32" />
+                  <SkeletonText width="w-48" />
+                </div>
+                <SkeletonText width="w-20" />
+              </div>
+            ))}
+          </div>
+        </SkeletonFormSection>
+
+        <div className="mt-8 pt-6 border-t border-border-theme-subtle">
+          <SkeletonText width="w-32" />
+        </div>
+      </PageLayout>
+    );
   }
 
   // Force not found

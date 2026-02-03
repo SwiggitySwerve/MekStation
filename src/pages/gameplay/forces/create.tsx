@@ -16,6 +16,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
+import { useToast } from '@/components/shared/Toast';
 import { ForceType } from '@/types/force';
 
 // =============================================================================
@@ -125,6 +126,7 @@ function ForceTypeCard({
 export default function CreateForcePage(): React.ReactElement {
   const router = useRouter();
   const { createForce, isLoading, error, clearError } = useForceStore();
+  const { showToast } = useToast();
 
   // Form state
   const [name, setName] = useState('');
@@ -151,10 +153,13 @@ export default function CreateForcePage(): React.ReactElement {
       });
 
       if (forceId) {
+        showToast({ message: `Force "${name.trim()}" created successfully!`, variant: 'success' });
         router.push(`/gameplay/forces/${forceId}`);
+      } else {
+        showToast({ message: 'Failed to create force', variant: 'error' });
       }
     },
-    [isValid, name, forceType, affiliation, description, createForce, router, clearError]
+    [isValid, name, forceType, affiliation, description, createForce, router, clearError, showToast]
   );
 
   // Handle cancel

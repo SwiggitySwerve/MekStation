@@ -9,12 +9,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   PageLayout,
-  PageLoading,
   Card,
   Input,
   Button,
   EmptyState,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonInput,
+} from '@/components/common/SkeletonLoader';
 import { ForceCard } from '@/components/force';
 import { useForceStore } from '@/stores/useForceStore';
 import { IForce } from '@/types/force';
@@ -70,7 +73,42 @@ export default function ForceRosterPage(): React.ReactElement {
   );
 
   if (!isInitialized || isLoading) {
-    return <PageLoading message="Loading force roster..." />;
+    return (
+      <PageLayout
+        title="Force Roster"
+        subtitle="Manage your combat units and lances"
+        maxWidth="wide"
+      >
+        <Card className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <SkeletonInput width="w-full" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <SkeletonText width="w-24" />
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="p-5 rounded-xl border-2 border-border-theme-subtle bg-surface-raised/30">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex-1 space-y-2">
+                  <SkeletonText width="w-32" />
+                  <SkeletonText width="w-24" />
+                </div>
+                <SkeletonText width="w-16" />
+              </div>
+              <div className="space-y-2">
+                <SkeletonText width="w-20" />
+                <SkeletonText width="w-28" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </PageLayout>
+    );
   }
 
   // Separate root forces from child forces for hierarchy display

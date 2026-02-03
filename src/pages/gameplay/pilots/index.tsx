@@ -7,13 +7,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   PageLayout,
-  PageLoading,
   Card,
   Input,
   Button,
   Badge,
   EmptyState,
 } from '@/components/ui';
+import {
+  SkeletonText,
+  SkeletonInput,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
 import { usePilotStore, useFilteredPilots } from '@/stores/usePilotStore';
 import { IPilot, PilotStatus, getPilotRating } from '@/types/pilot';
 
@@ -181,7 +185,43 @@ export default function PilotRosterPage(): React.ReactElement {
   }, [router]);
 
   if (!isInitialized || isLoading) {
-    return <PageLoading message="Loading pilot roster..." />;
+    return (
+      <PageLayout
+        title="Pilot Roster"
+        subtitle="Manage your MechWarrior personnel"
+        maxWidth="wide"
+      >
+        <Card className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <SkeletonInput width="w-full" />
+            </div>
+            <SkeletonText width="w-28" />
+          </div>
+          <div className="mt-4">
+            <SkeletonText width="w-24" />
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="p-5 rounded-xl border-2 border-border-theme-subtle bg-surface-raised/30">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex-1 space-y-2">
+                  <SkeletonText width="w-32" />
+                  <SkeletonText width="w-20" />
+                </div>
+                <SkeletonText width="w-12" />
+              </div>
+              <div className="flex items-center justify-between">
+                <SkeletonText width="w-16" />
+                <SkeletonText width="w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </PageLayout>
+    );
   }
 
   return (

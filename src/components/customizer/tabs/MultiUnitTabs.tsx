@@ -274,6 +274,9 @@ export function MultiUnitTabs({
         return;
       }
       
+      // Show success toast
+      showToast({ message: `Unit "${chassis} ${variant}" saved successfully!`, variant: 'success' });
+      
       // Mark as not modified
       state.markModified(false);
       
@@ -346,6 +349,8 @@ export function MultiUnitTabs({
         tonnage: result.state.tonnage,
         techBase: result.state.techBase,
       });
+      
+      showToast({ message: `Unit "${result.state.name}" loaded`, variant: 'success' });
       
       // Navigate to the new unit
       router.push(`/customizer/${newTabId}/${DEFAULT_TAB}`, undefined, { shallow: true });
