@@ -45,10 +45,9 @@ export function calculateTMM(runMP: number, jumpMP: number = 0): number {
   if (bestMP <= 4) return 1;
   if (bestMP <= 6) return 2;
   if (bestMP <= 9) return 3;
-  if (bestMP <= 12) return 4;
-  if (bestMP <= 17) return 5;
-  if (bestMP <= 24) return 6;
-  return 7;
+  if (bestMP <= 17) return 4;
+  if (bestMP <= 24) return 5;
+  return 6;
 }
 
 /**
@@ -129,7 +128,8 @@ export function calculateDefensiveBV(config: DefensiveBVConfig): DefensiveBVResu
 // ============================================================================
 
 export interface OffensiveBVConfig {
-  weapons: Array<{ id: string; name: string; heat: number; bv: number }>;
+  weapons: Array<{ id: string; name: string; heat: number; bv: number; rear?: boolean }>;
+  ammo?: Array<{ id: string; bv: number }>;
   tonnage: number;
   walkMP: number;
   runMP: number;
@@ -151,7 +151,12 @@ export function calculateOffensiveSpeedFactor(runMP: number, jumpMP: number = 0,
 }
 
 export function calculateOffensiveBVWithHeatTracking(config: OffensiveBVConfig): OffensiveBVResult {
-  const sortedWeapons = [...config.weapons].sort((a, b) => b.bv - a.bv);
+  const weaponsWithRearPenalty = config.weapons.map(w => ({
+    ...w,
+    bv: w.rear ? Math.round(w.bv * 0.5) : w.bv,
+  }));
+  
+  const sortedWeapons = [...weaponsWithRearPenalty].sort((a, b) => b.bv - a.bv);
   
   const RUNNING_HEAT = 2;
   let cumulativeHeat = RUNNING_HEAT;
@@ -168,9 +173,16 @@ export function calculateOffensiveBVWithHeatTracking(config: OffensiveBVConfig):
     weaponBV += adjustedBV;
   }
   
+  let ammoBV = 0;
+  if (config.ammo) {
+    for (const ammo of config.ammo) {
+      ammoBV += ammo.bv;
+    }
+  }
+  
   const weightBonus = config.tonnage;
   const speedFactor = calculateOffensiveSpeedFactor(config.runMP, config.jumpMP);
-  const baseOffensive = weaponBV + weightBonus;
+  const baseOffensive = weaponBV + ammoBV + weightBonus;
   const totalOffensiveBV = Math.round(baseOffensive * speedFactor);
   
   return {
@@ -230,8 +242,74 @@ export const WEAPON_BV: Record<string, number> = {
   'mrm-40': 224,
 };
 
+export const WEAPON_HEAT: Record<string, number> = {
+  // Energy weapons
+  'small-laser': 1,
+  'medium-laser': 3,
+  'large-laser': 8,
+  'er-small-laser': 2,
+  'er-medium-laser': 5,
+  'er-large-laser': 12,
+  'ppc': 10,
+  'er-ppc': 15,
+  'small-pulse-laser': 2,
+  'medium-pulse-laser': 4,
+  'large-pulse-laser': 10,
+  
+  // Ballistic weapons (most generate no heat)
+  'machine-gun': 0,
+  'ac-2': 1,
+  'ac-5': 1,
+  'ac-10': 3,
+  'ac-20': 7,
+  'lb-2-x-ac': 1,
+  'lb-5-x-ac': 1,
+  'lb-10-x-ac': 2,
+  'lb-20-x-ac': 6,
+  'ultra-ac-2': 1,
+  'ultra-ac-5': 1,
+  'ultra-ac-10': 4,
+  'ultra-ac-20': 8,
+  'gauss-rifle': 1,
+  'light-gauss-rifle': 1,
+  'heavy-gauss-rifle': 2,
+  
+  // Missile weapons
+  'srm-2': 2,
+  'srm-4': 3,
+  'srm-6': 4,
+  'lrm-5': 2,
+  'lrm-10': 4,
+  'lrm-15': 5,
+  'lrm-20': 6,
+  'streak-srm-2': 2,
+  'streak-srm-4': 3,
+  'streak-srm-6': 4,
+  'mrm-10': 4,
+  'mrm-20': 6,
+  'mrm-30': 10,
+  'mrm-40': 12,
+};
+
+function normalizeWeaponId(weaponId: string): string {
+  let normalized = weaponId.toLowerCase().replace(/-\d+$/, '');
+  
+  normalized = normalized.replace(/^ac(\d+)$/, 'ac-$1');
+  normalized = normalized.replace(/^srm(\d+)$/, 'srm-$1');
+  normalized = normalized.replace(/^lrm(\d+)$/, 'lrm-$1');
+  normalized = normalized.replace(/^mrm(\d+)$/, 'mrm-$1');
+  
+  return normalized;
+}
+
+function getWeaponHeat(weaponId: string): number {
+  return WEAPON_HEAT[weaponId] ?? 0;
+}
+
 /**
- * Calculate offensive Battle Value
+ * Calculate offensive Battle Value (legacy - without heat tracking)
+ * 
+ * @deprecated Use calculateOffensiveBVWithHeatTracking for accurate BV calculation
  * 
  * Formula:
  *   Offensive_BV = sum(weapon_BV × modifiers) + ammo_BV
@@ -292,6 +370,20 @@ export interface BVBreakdown {
   totalBV: number;
 }
 
+/**
+ * Calculate total Battle Value for a BattleMech unit.
+ * 
+ * Implements BV 2.0 calculation per TechManual and MegaMek:
+ * - Defensive BV: armor + structure + gyro, modified by defensive speed factor
+ * - Offensive BV: weapons (with heat tracking) + tonnage, modified by offensive speed factor
+ * - Total BV: defensive + offensive (speed factors already applied)
+ * 
+ * @param config - Unit configuration including armor, structure, weapons, and movement
+ * @returns Total Battle Value (rounded to nearest integer)
+ * 
+ * @see openspec/specs/battle-value-system/spec.md
+ * @see MegaMek: megamek.common.BVCalculator
+ */
 export function calculateTotalBV(config: BVCalculationConfig): number {
   const defensiveResult = calculateDefensiveBV({
     totalArmorPoints: config.totalArmorPoints,
@@ -304,20 +396,53 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     gyroType: config.gyroType,
   });
   
-  const offensiveBV = calculateOffensiveBV(
-    config.weapons,
-    config.hasTargetingComputer
-  );
+  const weaponsWithBV = config.weapons.map(w => {
+    const weaponId = normalizeWeaponId(w.id);
+    let bv = WEAPON_BV[weaponId] ?? 0;
+    
+    if (w.rear) {
+      bv = Math.round(bv * 0.5);
+    }
+    
+    if (config.hasTargetingComputer && !weaponId.includes('lrm') && !weaponId.includes('srm') && !weaponId.includes('mrm')) {
+      bv = Math.round(bv * 1.25);
+    }
+    
+    const heat = getWeaponHeat(weaponId);
+    
+    return {
+      id: w.id,
+      name: weaponId,
+      heat,
+      bv,
+    };
+  });
   
-  const speedFactor = calculateSpeedFactor(
-    config.walkMP,
-    config.runMP,
-    config.jumpMP
-  );
+  const offensiveResult = calculateOffensiveBVWithHeatTracking({
+    weapons: weaponsWithBV,
+    tonnage: config.tonnage,
+    walkMP: config.walkMP,
+    runMP: config.runMP,
+    jumpMP: config.jumpMP,
+    heatDissipation: config.heatSinkCapacity,
+  });
   
-  return Math.round((defensiveResult.totalDefensiveBV + offensiveBV) * speedFactor);
+  return defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
 }
 
+/**
+ * Get detailed Battle Value breakdown for display and analysis.
+ * 
+ * Returns component-level BV values:
+ * - Defensive BV (with defensive speed factor applied)
+ * - Offensive BV (with offensive speed factor applied)
+ * - Total BV (sum of defensive + offensive)
+ * 
+ * @param config - Unit configuration
+ * @returns Breakdown of BV components
+ * 
+ * @see openspec/specs/battle-value-system/spec.md
+ */
 export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
    const defensiveResult = calculateDefensiveBV({
      totalArmorPoints: config.totalArmorPoints,
@@ -330,22 +455,42 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
      gyroType: config.gyroType,
    });
    
-   const offensiveBV = calculateOffensiveBV(
-     config.weapons,
-     config.hasTargetingComputer
-   );
+   const weaponsWithBV = config.weapons.map(w => {
+     const weaponId = normalizeWeaponId(w.id);
+     let bv = WEAPON_BV[weaponId] ?? 0;
+     
+     if (w.rear) {
+       bv = Math.round(bv * 0.5);
+     }
+     
+     if (config.hasTargetingComputer && !weaponId.includes('lrm') && !weaponId.includes('srm') && !weaponId.includes('mrm')) {
+       bv = Math.round(bv * 1.25);
+     }
+     
+     const heat = getWeaponHeat(weaponId);
+     
+     return {
+       id: w.id,
+       name: weaponId,
+       heat,
+       bv,
+     };
+   });
    
-   const speedFactor = calculateSpeedFactor(
-     config.walkMP,
-     config.runMP,
-     config.jumpMP
-   );
+   const offensiveResult = calculateOffensiveBVWithHeatTracking({
+     weapons: weaponsWithBV,
+     tonnage: config.tonnage,
+     walkMP: config.walkMP,
+     runMP: config.runMP,
+     jumpMP: config.jumpMP,
+     heatDissipation: config.heatSinkCapacity,
+   });
    
    return {
      defensiveBV: defensiveResult.totalDefensiveBV,
-     offensiveBV,
-     speedFactor,
-     totalBV: Math.round((defensiveResult.totalDefensiveBV + offensiveBV) * speedFactor),
+     offensiveBV: offensiveResult.totalOffensiveBV,
+     speedFactor: offensiveResult.speedFactor,
+     totalBV: defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
    };
 }
 

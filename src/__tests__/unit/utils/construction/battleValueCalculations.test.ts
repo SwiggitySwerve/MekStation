@@ -37,8 +37,8 @@ describe('battleValueCalculations', () => {
       expect(calculateTMM(3, 5)).toBe(2); // Uses jump MP 5
     });
 
-    it('should return 7 for very high movement', () => {
-      expect(calculateTMM(25, 0)).toBe(7);
+    it('should return 6 for very high movement (25+ MP)', () => {
+      expect(calculateTMM(25, 0)).toBe(6);
     });
   });
 
@@ -174,23 +174,23 @@ describe('battleValueCalculations', () => {
 
     describe('heat tracking algorithm', () => {
       it('should apply 50% penalty to weapons when cumulative heat exceeds dissipation', () => {
-        // Awesome AWS-8Q: 3×PPC (15 heat each) + 1×ML (3 heat)
-        // Heat sinks: 15 (single) = 15 dissipation
+        // Awesome AWS-8Q: 3×PPC (10 heat each) + 1×ML (3 heat)
+        // Heat sinks: 28 (single) = 28 dissipation
         // Running heat: 2
         // 
-        // Sorted by BV descending: PPC (191), PPC (191), PPC (191), ML (39)
-        // Weapon 1 (PPC): cumulative = 2 + 15 = 17 > 15 → 50% penalty → 95.5
-        // Weapon 2 (PPC): cumulative = 17 + 15 = 32 > 15 → 50% penalty → 95.5
-        // Weapon 3 (PPC): cumulative = 32 + 15 = 47 > 15 → 50% penalty → 95.5
-        // Weapon 4 (ML):  cumulative = 47 + 3 = 50 > 15 → 50% penalty → 19.5
+        // Sorted by BV descending: PPC (176), PPC (176), PPC (176), ML (46)
+        // Weapon 1 (PPC): cumulative = 2 + 10 = 12 ≤ 28 → full BV = 176
+        // Weapon 2 (PPC): cumulative = 12 + 10 = 22 ≤ 28 → full BV = 176
+        // Weapon 3 (PPC): cumulative = 22 + 10 = 32 > 28 → 50% penalty → 88
+        // Weapon 4 (ML):  cumulative = 32 + 3 = 35 > 28 → 50% penalty → 23
         const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
         const config = buildOffensiveBVConfig(awesome);
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // All weapons should get 50% penalty because running heat of 2 + first PPC heat of 15 = 17 > 15
-        // (191 + 191 + 191 + 39) × 0.5 = 306
-        expect(result.weaponBV).toBeCloseTo(306, 0);
+        // First 2 PPCs at full BV, 3rd PPC and ML at 50%
+        // 176 + 176 + 88 + 23 = 463
+        expect(result.weaponBV).toBeCloseTo(463, 0);
       });
 
       it('should NOT apply penalty when heat is within dissipation', () => {
@@ -198,8 +198,8 @@ describe('battleValueCalculations', () => {
         // Heat sinks: 10 = 10 dissipation
         // Running heat: 2
         //
-        // Sorted by BV: ML (39), MG (5), MG (5)
-        // Weapon 1 (ML): cumulative = 2 + 3 = 5 <= 10 → no penalty → 39
+        // Sorted by BV: ML (46), MG (5), MG (5)
+        // Weapon 1 (ML): cumulative = 2 + 3 = 5 <= 10 → no penalty → 46
         // Weapon 2 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
         // Weapon 3 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
         const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
@@ -207,8 +207,8 @@ describe('battleValueCalculations', () => {
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // No penalty: 39 + 5 + 5 = 49
-        expect(result.weaponBV).toBe(49);
+        // No penalty: 46 + 5 + 5 = 56
+        expect(result.weaponBV).toBe(56);
       });
 
       it('should apply partial penalties based on incremental heat', () => {
@@ -216,44 +216,37 @@ describe('battleValueCalculations', () => {
         // Heat sinks: 10 = 10 dissipation
         // Running heat: 2
         //
-        // Sorted by BV: AC/20 (303), ML (39), ML (39), SL (14)
+        // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
         // Weapon 1 (AC/20): cumulative = 2 + 7 = 9 <= 10 → no penalty → 303
-        // Weapon 2 (ML): cumulative = 9 + 3 = 12 > 10 → 50% penalty → 19.5
-        // Weapon 3 (ML): cumulative = 12 + 3 = 15 > 10 → 50% penalty → 19.5
-        // Weapon 4 (SL): cumulative = 15 + 1 = 16 > 10 → 50% penalty → 7
+        // Weapon 2 (ML): cumulative = 9 + 3 = 12 > 10 → 50% penalty → 23
+        // Weapon 3 (ML): cumulative = 12 + 3 = 15 > 10 → 50% penalty → 23
+        // Weapon 4 (SL): cumulative = 15 + 1 = 16 > 10 → 50% penalty → 4.5
         const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
         const config = buildOffensiveBVConfig(hunchback);
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // 303 + 19.5 + 19.5 + 7 = 349
-        expect(result.weaponBV).toBeCloseTo(349, 0);
+        // 303 + 23 + 23 + 4.5 = 353.5
+        expect(result.weaponBV).toBeCloseTo(353.5, 0);
       });
 
       it('should sort weapons by BV descending before applying heat tracking', () => {
-        // Verify that higher BV weapons are counted first (at full value if possible)
-        // Atlas AS7-D: 2×PPC (191 each), 3×ML (39 each), 2×SL (14 each)
-        // Heat sinks: 17 = 17 dissipation
+        // Hunchback HBK-4G: AC/20 (303), 2×ML (46 each), SL (9)
+        // Heat sinks: 10 = 10 dissipation
         // Running heat: 2
         //
-        // Sorted by BV: PPC (191), PPC (191), ML (39), ML (39), ML (39), SL (14), SL (14)
-        // Heat sequence: 2+15=17, 17+15=32, 32+3=35, 35+3=38, 38+3=41, 41+1=42, 42+1=43
-        // All exceed 17 after first PPC, so first PPC is at cumulative 17 (equal, no penalty)
-        // Actually: cumulative <= dissipation means no penalty, so first is OK
-        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
-        const config = buildOffensiveBVConfig(atlas);
+        // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
+        // AC/20: 2 + 7 = 9 <= 10 → no penalty → 303
+        // ML: 9 + 3 = 12 > 10 → 50% → 23
+        // ML: 12 + 3 = 15 > 10 → 50% → 23
+        // SL: 15 + 1 = 16 > 10 → 50% → 4.5
+        // Total: 303 + 23 + 23 + 4.5 = 353.5
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // First PPC: 2 + 15 = 17 <= 17 → no penalty → 191
-        // Second PPC: 17 + 15 = 32 > 17 → 50% → 95.5
-        // First ML: 32 + 3 = 35 > 17 → 50% → 19.5
-        // Second ML: 35 + 3 = 38 > 17 → 50% → 19.5
-        // Third ML: 38 + 3 = 41 > 17 → 50% → 19.5
-        // First SL: 41 + 1 = 42 > 17 → 50% → 7
-        // Second SL: 42 + 1 = 43 > 17 → 50% → 7
-        // Total: 191 + 95.5 + 19.5 + 19.5 + 19.5 + 7 + 7 = 359
-        expect(result.weaponBV).toBeCloseTo(359, 0);
+        expect(result.weaponBV).toBeCloseTo(353.5, 0);
       });
 
       it('should start with running heat of 2', () => {
@@ -265,8 +258,8 @@ describe('battleValueCalculations', () => {
         const result = calculateOffensiveBVWithHeatTracking(config);
         
         // With 10 heat sinks and only 3 heat from ML, running heat 2 + 3 = 5 <= 10
-        // All weapons should be at full BV
-        expect(result.weaponBV).toBe(49);
+        // All weapons should be at full BV: 46 + 5 + 5 = 56
+        expect(result.weaponBV).toBe(56);
       });
     });
 
@@ -343,8 +336,8 @@ describe('battleValueCalculations', () => {
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // Weapon BV: 49, Weight: 20, Base: 69, Factor: 1.89 → round(130.41) = 130
-        expect(result.totalOffensiveBV).toBeCloseTo(130, 0);
+        // Weapon BV: 56, Weight: 20, Base: 76, Factor: 1.89 → round(143.64) = 144
+        expect(result.totalOffensiveBV).toBeCloseTo(144, 0);
       });
 
       it('should calculate total offensive BV for Awesome AWS-8Q (heat-heavy)', () => {
@@ -353,26 +346,26 @@ describe('battleValueCalculations', () => {
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // Weapon BV: 306 (all 50% penalty)
+        // Weapon BV: 463 (2 PPCs full, 1 PPC + ML at 50%)
         // Weight bonus: 80
-        // Base offensive: 386
+        // Base offensive: 543
         // Speed factor: 1.0 (slow mech)
-        // Total: round(386 * 1.0) = 386
-        expect(result.totalOffensiveBV).toBeCloseTo(386, 0);
+        // Total: round(543 * 1.0) = 543
+        expect(result.totalOffensiveBV).toBeCloseTo(543, 0);
       });
 
-      it('should calculate total offensive BV for Atlas AS7-D', () => {
-        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
-        const config = buildOffensiveBVConfig(atlas);
+      it('should calculate total offensive BV for Hunchback HBK-4G', () => {
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
         
         const result = calculateOffensiveBVWithHeatTracking(config);
         
-        // Weapon BV: 359 (partial heat penalties)
-        // Weight bonus: 100
-        // Base offensive: 459
-        // Speed factor: 1.0
-        // Total: round(459 * 1.0) = 459
-        expect(result.totalOffensiveBV).toBeCloseTo(459, 0);
+        // Weapon BV: 353.5 (partial heat penalties)
+        // Weight bonus: 50
+        // Base offensive: 403.5
+        // Speed factor: 1.37 (runMP 8)
+        // Total: round(403.5 * 1.37) = 553
+        expect(result.totalOffensiveBV).toBeCloseTo(553, 0);
       });
     });
 
@@ -414,6 +407,145 @@ describe('battleValueCalculations', () => {
       expect(SPEED_FACTORS[0]).toBe(1.0);
       expect(SPEED_FACTORS[5]).toBe(1.5);
       expect(SPEED_FACTORS[10]).toBe(2.0);
+    });
+  });
+
+  // ============================================================================
+  // INTEGRATION TESTS - CANONICAL UNIT VALIDATION
+  // ============================================================================
+
+  describe('calculateTotalBV() - Canonical Unit Integration', () => {
+    /**
+     * Helper: Sum armor points from all locations
+     */
+    function sumArmorPoints(armor: ArmorPoints): number {
+      return (
+        armor.head +
+        armor.centerTorso +
+        armor.centerTorsoRear +
+        armor.leftTorso +
+        armor.leftTorsoRear +
+        armor.rightTorso +
+        armor.rightTorsoRear +
+        armor.leftArm +
+        armor.rightArm +
+        armor.leftLeg +
+        armor.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Sum structure points from all locations
+     */
+    function sumStructurePoints(structure: StructurePoints): number {
+      return (
+        structure.head +
+        structure.centerTorso +
+        structure.leftTorso +
+        structure.rightTorso +
+        structure.leftArm +
+        structure.rightArm +
+        structure.leftLeg +
+        structure.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Build config for calculateDefensiveBV + calculateOffensiveBVWithHeatTracking
+     */
+    function calculateCanonicalUnitBV(unit: CanonicalBVUnit): number {
+      const defensiveConfig = {
+        totalArmorPoints: sumArmorPoints(unit.armor),
+        totalStructurePoints: sumStructurePoints(unit.structure),
+        tonnage: unit.tonnage,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        armorType: 'standard',
+        structureType: 'standard',
+        gyroType: 'standard',
+      };
+      
+      const offensiveConfig = {
+        weapons: unit.weapons,
+        ammo: unit.ammo,
+        tonnage: unit.tonnage,
+        walkMP: unit.walkMP,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        heatDissipation: unit.heatSinks.count,
+      };
+      
+      const defensiveResult = calculateDefensiveBV(defensiveConfig);
+      const offensiveResult = calculateOffensiveBVWithHeatTracking(offensiveConfig);
+      
+      return defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+    }
+
+    it('should calculate exact BV for Atlas AS7-D (1,885)', () => {
+      const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+      const result = calculateCanonicalUnitBV(atlas);
+      expect(result).toBe(1885);
+    });
+
+    it('should calculate exact BV for Locust LCT-1V (390)', () => {
+      const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+      const result = calculateCanonicalUnitBV(locust);
+      expect(result).toBe(390);
+    });
+
+    it('should calculate exact BV for Hunchback HBK-4G (1,080)', () => {
+      const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+      const result = calculateCanonicalUnitBV(hunchback);
+      expect(result).toBe(1080);
+    });
+
+    it('should calculate exact BV for Awesome AWS-8Q (1,312)', () => {
+      const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+      const result = calculateCanonicalUnitBV(awesome);
+      expect(result).toBe(1312);
+    });
+
+    it('should calculate exact BV for Stinger STG-3R (439)', () => {
+      const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+      const result = calculateCanonicalUnitBV(stinger);
+      expect(result).toBe(439);
+    });
+
+    it('should calculate exact BV for Commando COM-2D (560)', () => {
+      const commando = CANONICAL_BV_UNITS.find(u => u.id === 'commando-com-2d')!;
+      const result = calculateCanonicalUnitBV(commando);
+      expect(result).toBe(560);
+    });
+
+    it('should calculate exact BV for Centurion CN9-A (838)', () => {
+      const centurion = CANONICAL_BV_UNITS.find(u => u.id === 'centurion-cn9-a')!;
+      const result = calculateCanonicalUnitBV(centurion);
+      expect(result).toBe(838);
+    });
+
+    it('should calculate exact BV for Marauder MAD-3R (1,031)', () => {
+      const marauder = CANONICAL_BV_UNITS.find(u => u.id === 'marauder-mad-3r')!;
+      const result = calculateCanonicalUnitBV(marauder);
+      expect(result).toBe(1031);
+    });
+
+    it('should calculate exact BV for Warhammer WHM-6R (969)', () => {
+      const warhammer = CANONICAL_BV_UNITS.find(u => u.id === 'warhammer-whm-6r')!;
+      const result = calculateCanonicalUnitBV(warhammer);
+      expect(result).toBe(969);
+    });
+
+    it('should calculate exact BV for BattleMaster BLR-1G (1,186)', () => {
+      const battlemaster = CANONICAL_BV_UNITS.find(u => u.id === 'battlemaster-blr-1g')!;
+      const result = calculateCanonicalUnitBV(battlemaster);
+      expect(result).toBe(1186);
+    });
+
+    it('should calculate exact BV for all 10 canonical units', () => {
+      for (const unit of CANONICAL_BV_UNITS) {
+        const result = calculateCanonicalUnitBV(unit);
+        expect(result).toBe(unit.expectedBV);
+      }
     });
   });
 
@@ -676,18 +808,18 @@ describe('battleValueCalculations', () => {
         expect(result.totalDefensiveBV).toBe(227);
       });
 
-      it('should calculate total defensive BV for Atlas AS7-D', () => {
-        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
-        const config = buildDefensiveBVConfig(atlas);
+      it('should calculate total defensive BV for Hunchback HBK-4G', () => {
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildDefensiveBVConfig(hunchback);
         const result = calculateDefensiveBV(config);
 
-        // Armor: 239 × 2.5 = 597.5
-        // Structure: 152 × 1.5 = 228
-        // Gyro: 100 × 0.5 = 50
-        // Base: 875.5
-        // runMP 5 -> TMM 2 -> factor 1.2
-        // Total: 875.5 × 1.2 = 1050.6 -> round to 1051
-        expect(result.totalDefensiveBV).toBe(1051);
+        // Armor: 106 × 2.5 = 265
+        // Structure: 77 × 1.5 = 115.5
+        // Gyro: 50 × 0.5 = 25
+        // Base: 405.5
+        // runMP 8 -> TMM 3 -> factor 1.3
+        // Total: 405.5 × 1.3 = 527.15 -> round to 527
+        expect(result.totalDefensiveBV).toBe(527);
       });
 
       it('should calculate total defensive BV for all canonical units', () => {

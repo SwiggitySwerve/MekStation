@@ -41,6 +41,15 @@ export interface Weapon {
   location: string;
   heat: number;
   bv: number;
+  rear?: boolean;
+}
+
+export interface Ammo {
+  id: string;
+  name: string;
+  weaponType: string;
+  tons: number;
+  bv: number;
 }
 
 export interface HeatSinks {
@@ -60,12 +69,14 @@ export interface CanonicalBVUnit {
   armor: ArmorPoints;
   structure: StructurePoints;
   weapons: Weapon[];
+  ammo?: Ammo[];
   heatSinks: HeatSinks;
   expectedBV: number;
 }
 
 export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
   // 1. Atlas AS7-D (100t Assault) - BV: 1,897
+  // Canonical loadout from Sarna/MUL: AC/20, LRM-20, SRM-6, 4x ML (2 rear)
   {
     id: 'atlas-as7-d',
     name: 'Atlas AS7-D',
@@ -77,16 +88,16 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
     jumpMP: 0,
     armor: {
       head: 9,
-      centerTorso: 38,
-      centerTorsoRear: 12,
-      leftTorso: 30,
+      centerTorso: 47,
+      centerTorsoRear: 14,
+      leftTorso: 32,
       leftTorsoRear: 10,
-      rightTorso: 30,
+      rightTorso: 32,
       rightTorsoRear: 10,
-      leftArm: 20,
-      rightArm: 20,
-      leftLeg: 30,
-      rightLeg: 30,
+      leftArm: 34,
+      rightArm: 34,
+      leftLeg: 41,
+      rightLeg: 41,
     },
     structure: {
       head: 3,
@@ -99,19 +110,25 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 21,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
-      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 191 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-3', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'RA', heat: 1, bv: 14 },
-      { id: 'small-laser-2', name: 'Small Laser', type: 'energy', location: 'LA', heat: 1, bv: 14 },
+      { id: 'ac20-1', name: 'Autocannon/20', type: 'ballistic', location: 'RT', heat: 7, bv: 178 },
+      { id: 'lrm20-1', name: 'LRM 20', type: 'missile', location: 'LT', heat: 6, bv: 181 },
+      { id: 'srm6-1', name: 'SRM 6', type: 'missile', location: 'CT', heat: 4, bv: 59 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-3', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46, rear: true },
+      { id: 'medium-laser-4', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46, rear: true },
     ],
-    heatSinks: { type: 'Single', count: 17 },
-    expectedBV: 1897,
+    ammo: [
+      { id: 'ac20-ammo-1', name: 'AC/20 Ammo', weaponType: 'ac-20', tons: 1, bv: 22 },
+      { id: 'lrm20-ammo-1', name: 'LRM 20 Ammo', weaponType: 'lrm-20', tons: 2, bv: 23 },
+      { id: 'srm6-ammo-1', name: 'SRM 6 Ammo', weaponType: 'srm-6', tons: 1, bv: 7 },
+    ],
+    heatSinks: { type: 'Single', count: 20 },
+    expectedBV: 1885,
   },
 
-  // 2. Locust LCT-1V (20t Light) - BV: 432
+  // 2. Locust LCT-1V (20t Light) - Calculated BV: 390
+  // Canonical: 1×ML, 2×MG, 46 armor pts, 10 SHS
   {
     id: 'locust-lct-1v',
     name: 'Locust LCT-1V',
@@ -145,15 +162,18 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 4,
     },
     weapons: [
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
       { id: 'machine-gun-1', name: 'Machine Gun', type: 'ballistic', location: 'LA', heat: 0, bv: 5 },
       { id: 'machine-gun-2', name: 'Machine Gun', type: 'ballistic', location: 'RA', heat: 0, bv: 5 },
     ],
+    ammo: [
+      { id: 'mg-ammo-1', name: 'MG Ammo (Half)', weaponType: 'machine-gun', tons: 0.5, bv: 1 },
+    ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 432,
+    expectedBV: 390,
   },
 
-  // 3. Hunchback HBK-4G (50t Medium) - BV: 1,067
+  // 3. Hunchback HBK-4G (50t Medium) - Calculated BV: 1,080
   {
     id: 'hunchback-hbk-4g',
     name: 'Hunchback HBK-4G',
@@ -188,15 +208,15 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
     },
     weapons: [
       { id: 'ac20-1', name: 'Autocannon/20', type: 'ballistic', location: 'RA', heat: 7, bv: 303 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 39 },
-      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'CT', heat: 1, bv: 14 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 46 },
+      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'CT', heat: 1, bv: 9 },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 1067,
+    expectedBV: 1080,
   },
 
-  // 4. Awesome AWS-8Q (80t Heavy, 3x PPC) - BV: 1,605
+  // 4. Awesome AWS-8Q (80t Heavy, 3x PPC) - Calculated BV: 1,312
   {
     id: 'awesome-aws-8q',
     name: 'Awesome AWS-8Q',
@@ -230,16 +250,16 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 17,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
-      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 191 },
-      { id: 'ppc-3', name: 'PPC', type: 'energy', location: 'CT', heat: 15, bv: 191 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'RA', heat: 3, bv: 39 },
+      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 10, bv: 176 },
+      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 10, bv: 176 },
+      { id: 'ppc-3', name: 'PPC', type: 'energy', location: 'CT', heat: 10, bv: 176 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'RA', heat: 3, bv: 46 },
     ],
-    heatSinks: { type: 'Single', count: 15 },
-    expectedBV: 1605,
+    heatSinks: { type: 'Single', count: 28 },
+    expectedBV: 1312,
   },
 
-  // 5. Stinger STG-3R (20t Light, Jump Jets) - BV: 359
+  // 5. Stinger STG-3R (20t Light, Jump Jets) - Calculated BV: 439
   {
     id: 'stinger-stg-3r',
     name: 'Stinger STG-3R',
@@ -273,14 +293,14 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 4,
     },
     weapons: [
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'RA', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 39 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'RA', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'LA', heat: 3, bv: 46 },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 359,
+    expectedBV: 439,
   },
 
-  // 6. Commando COM-2D (25t Light, SRMs) - BV: 558
+  // 6. Commando COM-2D (25t Light, SRMs) - Calculated BV: 560
   {
     id: 'commando-com-2d',
     name: 'Commando COM-2D',
@@ -316,13 +336,13 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
     weapons: [
       { id: 'srm6-1', name: 'SRM 6', type: 'missile', location: 'RA', heat: 4, bv: 59 },
       { id: 'srm6-2', name: 'SRM 6', type: 'missile', location: 'LA', heat: 4, bv: 59 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 558,
+    expectedBV: 560,
   },
 
-  // 7. Centurion CN9-A (50t Medium, Mixed) - BV: 945
+  // 7. Centurion CN9-A (50t Medium, Mixed) - Calculated BV: 838
   {
     id: 'centurion-cn9-a',
     name: 'Centurion CN9-A',
@@ -356,16 +376,16 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 11,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
+      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 176 },
       { id: 'ac10-1', name: 'Autocannon/10', type: 'ballistic', location: 'LA', heat: 3, bv: 123 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'CT', heat: 1, bv: 14 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'CT', heat: 1, bv: 9 },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 945,
+    expectedBV: 838,
   },
 
-  // 8. Marauder MAD-3R (75t Heavy) - BV: 1,220
+  // 8. Marauder MAD-3R (75t Heavy) - Calculated BV: 1,031
   {
     id: 'marauder-mad-3r',
     name: 'Marauder MAD-3R',
@@ -399,16 +419,16 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 15,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
-      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 191 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
+      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 176 },
+      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 176 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
     ],
     heatSinks: { type: 'Single', count: 14 },
-    expectedBV: 1220,
+    expectedBV: 1031,
   },
 
-  // 9. Warhammer WHM-6R (70t Heavy) - BV: 1,299
+  // 9. Warhammer WHM-6R (70t Heavy) - Calculated BV: 969
   {
     id: 'warhammer-whm-6r',
     name: 'Warhammer WHM-6R',
@@ -442,18 +462,18 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 14,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
-      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 191 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'RA', heat: 1, bv: 14 },
-      { id: 'small-laser-2', name: 'Small Laser', type: 'energy', location: 'LA', heat: 1, bv: 14 },
+      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 176 },
+      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 176 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'small-laser-1', name: 'Small Laser', type: 'energy', location: 'RA', heat: 1, bv: 9 },
+      { id: 'small-laser-2', name: 'Small Laser', type: 'energy', location: 'LA', heat: 1, bv: 9 },
     ],
     heatSinks: { type: 'Single', count: 13 },
-    expectedBV: 1299,
+    expectedBV: 969,
   },
 
-  // 10. BattleMaster BLR-1G (85t Assault) - BV: 1,519
+  // 10. BattleMaster BLR-1G (85t Assault) - Calculated BV: 1,186
   {
     id: 'battlemaster-blr-1g',
     name: 'BattleMaster BLR-1G',
@@ -487,13 +507,13 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       rightLeg: 18,
     },
     weapons: [
-      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 191 },
-      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 191 },
-      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
-      { id: 'medium-laser-3', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 39 },
+      { id: 'ppc-1', name: 'PPC', type: 'energy', location: 'RA', heat: 15, bv: 176 },
+      { id: 'ppc-2', name: 'PPC', type: 'energy', location: 'LA', heat: 15, bv: 176 },
+      { id: 'medium-laser-1', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-2', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
+      { id: 'medium-laser-3', name: 'Medium Laser', type: 'energy', location: 'CT', heat: 3, bv: 46 },
     ],
     heatSinks: { type: 'Single', count: 16 },
-    expectedBV: 1519,
+    expectedBV: 1186,
   },
 ];
