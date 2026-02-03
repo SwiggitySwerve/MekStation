@@ -125,13 +125,62 @@ export function calculateDefensiveBV(config: DefensiveBVConfig): DefensiveBVResu
 }
 
 // ============================================================================
-// OFFENSIVE BV CALCULATION
+// OFFENSIVE BV CALCULATION (MegaMek-accurate with Heat Tracking)
 // ============================================================================
 
-/**
- * Weapon BV values (simplified subset)
- * Real implementation would use equipment database
- */
+export interface OffensiveBVConfig {
+  weapons: Array<{ id: string; name: string; heat: number; bv: number }>;
+  tonnage: number;
+  walkMP: number;
+  runMP: number;
+  jumpMP: number;
+  heatDissipation: number;
+}
+
+export interface OffensiveBVResult {
+  weaponBV: number;
+  weightBonus: number;
+  speedFactor: number;
+  totalOffensiveBV: number;
+}
+
+export function calculateOffensiveSpeedFactor(runMP: number, jumpMP: number = 0, umuMP: number = 0): number {
+  const mp = runMP + Math.round(Math.max(jumpMP, umuMP) / 2.0);
+  const speedFactor = Math.round(Math.pow(1 + ((mp - 5) / 10.0), 1.2) * 100.0) / 100.0;
+  return speedFactor;
+}
+
+export function calculateOffensiveBVWithHeatTracking(config: OffensiveBVConfig): OffensiveBVResult {
+  const sortedWeapons = [...config.weapons].sort((a, b) => b.bv - a.bv);
+  
+  const RUNNING_HEAT = 2;
+  let cumulativeHeat = RUNNING_HEAT;
+  let weaponBV = 0;
+  
+  for (const weapon of sortedWeapons) {
+    cumulativeHeat += weapon.heat;
+    let adjustedBV = weapon.bv;
+    
+    if (cumulativeHeat > config.heatDissipation) {
+      adjustedBV *= 0.5;
+    }
+    
+    weaponBV += adjustedBV;
+  }
+  
+  const weightBonus = config.tonnage;
+  const speedFactor = calculateOffensiveSpeedFactor(config.runMP, config.jumpMP);
+  const baseOffensive = weaponBV + weightBonus;
+  const totalOffensiveBV = Math.round(baseOffensive * speedFactor);
+  
+  return {
+    weaponBV,
+    weightBonus,
+    speedFactor,
+    totalOffensiveBV,
+  };
+}
+
 export const WEAPON_BV: Record<string, number> = {
   // Energy weapons
   'small-laser': 9,

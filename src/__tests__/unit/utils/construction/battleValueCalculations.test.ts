@@ -6,6 +6,8 @@ import {
   calculateTotalBV,
   getBVBreakdown,
   SPEED_FACTORS,
+  calculateOffensiveBVWithHeatTracking,
+  calculateOffensiveSpeedFactor,
   type DefensiveBVConfig,
 } from '@/utils/construction/battleValueCalculations';
 import {
@@ -115,6 +117,286 @@ describe('battleValueCalculations', () => {
       const total = calculateTotalBV(config);
       expect(total).toBeGreaterThan(0);
     });
+
+  // ============================================================================
+  // OFFENSIVE BV CALCULATION - TDD TESTS (MegaMek-accurate with Heat Tracking)
+  // ============================================================================
+
+  describe('calculateOffensiveBV() - MegaMek-accurate with Heat Tracking', () => {
+    /**
+     * Helper: Sum armor points from all locations
+     */
+    function sumArmorPoints(armor: ArmorPoints): number {
+      return (
+        armor.head +
+        armor.centerTorso +
+        armor.centerTorsoRear +
+        armor.leftTorso +
+        armor.leftTorsoRear +
+        armor.rightTorso +
+        armor.rightTorsoRear +
+        armor.leftArm +
+        armor.rightArm +
+        armor.leftLeg +
+        armor.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Sum structure points from all locations
+     */
+    function sumStructurePoints(structure: StructurePoints): number {
+      return (
+        structure.head +
+        structure.centerTorso +
+        structure.leftTorso +
+        structure.rightTorso +
+        structure.leftArm +
+        structure.rightArm +
+        structure.leftLeg +
+        structure.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Build offensive BV config from a canonical unit fixture
+     */
+    function buildOffensiveBVConfig(unit: CanonicalBVUnit) {
+      return {
+        weapons: unit.weapons,
+        tonnage: unit.tonnage,
+        walkMP: unit.walkMP,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        heatDissipation: unit.heatSinks.count, // Single heat sinks = count dissipation
+      };
+    }
+
+    describe('heat tracking algorithm', () => {
+      it('should apply 50% penalty to weapons when cumulative heat exceeds dissipation', () => {
+        // Awesome AWS-8Q: 3×PPC (15 heat each) + 1×ML (3 heat)
+        // Heat sinks: 15 (single) = 15 dissipation
+        // Running heat: 2
+        // 
+        // Sorted by BV descending: PPC (191), PPC (191), PPC (191), ML (39)
+        // Weapon 1 (PPC): cumulative = 2 + 15 = 17 > 15 → 50% penalty → 95.5
+        // Weapon 2 (PPC): cumulative = 17 + 15 = 32 > 15 → 50% penalty → 95.5
+        // Weapon 3 (PPC): cumulative = 32 + 15 = 47 > 15 → 50% penalty → 95.5
+        // Weapon 4 (ML):  cumulative = 47 + 3 = 50 > 15 → 50% penalty → 19.5
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        const config = buildOffensiveBVConfig(awesome);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // All weapons should get 50% penalty because running heat of 2 + first PPC heat of 15 = 17 > 15
+        // (191 + 191 + 191 + 39) × 0.5 = 306
+        expect(result.weaponBV).toBeCloseTo(306, 0);
+      });
+
+      it('should NOT apply penalty when heat is within dissipation', () => {
+        // Locust LCT-1V: 1×ML (3 heat) + 2×MG (0 heat)
+        // Heat sinks: 10 = 10 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: ML (39), MG (5), MG (5)
+        // Weapon 1 (ML): cumulative = 2 + 3 = 5 <= 10 → no penalty → 39
+        // Weapon 2 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
+        // Weapon 3 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // No penalty: 39 + 5 + 5 = 49
+        expect(result.weaponBV).toBe(49);
+      });
+
+      it('should apply partial penalties based on incremental heat', () => {
+        // Hunchback HBK-4G: 1×AC/20 (7 heat) + 2×ML (3 heat each) + 1×SL (1 heat)
+        // Heat sinks: 10 = 10 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: AC/20 (303), ML (39), ML (39), SL (14)
+        // Weapon 1 (AC/20): cumulative = 2 + 7 = 9 <= 10 → no penalty → 303
+        // Weapon 2 (ML): cumulative = 9 + 3 = 12 > 10 → 50% penalty → 19.5
+        // Weapon 3 (ML): cumulative = 12 + 3 = 15 > 10 → 50% penalty → 19.5
+        // Weapon 4 (SL): cumulative = 15 + 1 = 16 > 10 → 50% penalty → 7
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // 303 + 19.5 + 19.5 + 7 = 349
+        expect(result.weaponBV).toBeCloseTo(349, 0);
+      });
+
+      it('should sort weapons by BV descending before applying heat tracking', () => {
+        // Verify that higher BV weapons are counted first (at full value if possible)
+        // Atlas AS7-D: 2×PPC (191 each), 3×ML (39 each), 2×SL (14 each)
+        // Heat sinks: 17 = 17 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: PPC (191), PPC (191), ML (39), ML (39), ML (39), SL (14), SL (14)
+        // Heat sequence: 2+15=17, 17+15=32, 32+3=35, 35+3=38, 38+3=41, 41+1=42, 42+1=43
+        // All exceed 17 after first PPC, so first PPC is at cumulative 17 (equal, no penalty)
+        // Actually: cumulative <= dissipation means no penalty, so first is OK
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        const config = buildOffensiveBVConfig(atlas);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // First PPC: 2 + 15 = 17 <= 17 → no penalty → 191
+        // Second PPC: 17 + 15 = 32 > 17 → 50% → 95.5
+        // First ML: 32 + 3 = 35 > 17 → 50% → 19.5
+        // Second ML: 35 + 3 = 38 > 17 → 50% → 19.5
+        // Third ML: 38 + 3 = 41 > 17 → 50% → 19.5
+        // First SL: 41 + 1 = 42 > 17 → 50% → 7
+        // Second SL: 42 + 1 = 43 > 17 → 50% → 7
+        // Total: 191 + 95.5 + 19.5 + 19.5 + 19.5 + 7 + 7 = 359
+        expect(result.weaponBV).toBeCloseTo(359, 0);
+      });
+
+      it('should start with running heat of 2', () => {
+        // The running heat represents movement heat in MegaMek
+        // Even a mech with zero-heat weapons starts at heat level 2
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // With 10 heat sinks and only 3 heat from ML, running heat 2 + 3 = 5 <= 10
+        // All weapons should be at full BV
+        expect(result.weaponBV).toBe(49);
+      });
+    });
+
+    describe('offensive speed factor calculation', () => {
+      it('should calculate speed factor using MegaMek formula', () => {
+        // Locust: runMP 12, jumpMP 0 → mp = 12
+        // pow(1.7, 1.2) ≈ 1.8886 → round(188.86) / 100 = 1.89
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(locust.runMP, locust.jumpMP);
+        
+        expect(speedFactor).toBeCloseTo(1.89, 2);
+      });
+
+      it('should include half of jump MP in speed calculation', () => {
+        // Stinger: runMP 9, jumpMP 6 → mp = 9 + 3 = 12 → 1.89
+        const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(stinger.runMP, stinger.jumpMP);
+        
+        expect(speedFactor).toBeCloseTo(1.89, 2);
+      });
+
+      it('should handle slow mechs correctly', () => {
+        // Atlas: runMP 5, jumpMP 0
+        // mp = 5 + 0 = 5
+        // speedFactor = round(pow(1 + (5-5)/10, 1.2) * 100) / 100
+        //             = round(pow(1.0, 1.2) * 100) / 100
+        //             = round(100) / 100
+        //             = 1.0
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(atlas.runMP, atlas.jumpMP);
+        
+        expect(speedFactor).toBe(1.0);
+      });
+
+      it('should handle very slow mechs (mp < 5)', () => {
+        // Awesome: runMP 5, jumpMP 0 → mp = 5 → factor = 1.0
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(awesome.runMP, awesome.jumpMP);
+        
+        expect(speedFactor).toBe(1.0);
+      });
+    });
+
+    describe('weight bonus calculation', () => {
+      it('should add tonnage as weight bonus', () => {
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        const config = buildOffensiveBVConfig(atlas);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weight bonus = tonnage = 100
+        expect(result.weightBonus).toBe(100);
+      });
+
+      it('should add weight bonus for light mechs', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weight bonus = tonnage = 20
+        expect(result.weightBonus).toBe(20);
+      });
+    });
+
+    describe('total offensive BV calculation', () => {
+      it('should calculate total offensive BV for Locust LCT-1V', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 49, Weight: 20, Base: 69, Factor: 1.89 → round(130.41) = 130
+        expect(result.totalOffensiveBV).toBeCloseTo(130, 0);
+      });
+
+      it('should calculate total offensive BV for Awesome AWS-8Q (heat-heavy)', () => {
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        const config = buildOffensiveBVConfig(awesome);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 306 (all 50% penalty)
+        // Weight bonus: 80
+        // Base offensive: 386
+        // Speed factor: 1.0 (slow mech)
+        // Total: round(386 * 1.0) = 386
+        expect(result.totalOffensiveBV).toBeCloseTo(386, 0);
+      });
+
+      it('should calculate total offensive BV for Atlas AS7-D', () => {
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        const config = buildOffensiveBVConfig(atlas);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 359 (partial heat penalties)
+        // Weight bonus: 100
+        // Base offensive: 459
+        // Speed factor: 1.0
+        // Total: round(459 * 1.0) = 459
+        expect(result.totalOffensiveBV).toBeCloseTo(459, 0);
+      });
+    });
+
+    describe('return type structure', () => {
+      it('should return OffensiveBVResult with all components', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Verify all properties exist
+        expect(result).toHaveProperty('weaponBV');
+        expect(result).toHaveProperty('weightBonus');
+        expect(result).toHaveProperty('speedFactor');
+        expect(result).toHaveProperty('totalOffensiveBV');
+        
+        // Verify types
+        expect(typeof result.weaponBV).toBe('number');
+        expect(typeof result.weightBonus).toBe('number');
+        expect(typeof result.speedFactor).toBe('number');
+        expect(typeof result.totalOffensiveBV).toBe('number');
+      });
+    });
+  });
 
     it('should provide a consistent breakdown', () => {
       const breakdown = getBVBreakdown(config);
