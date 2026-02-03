@@ -66,41 +66,37 @@ export function calculateSpeedFactor(walkMP: number, runMP: number, jumpMP: numb
 // DEFENSIVE BV CALCULATION
 // ============================================================================
 
-/**
- * Calculate defensive Battle Value
- * 
- * Formula:
- *   Defensive_BV = (armor_factor + structure_factor) × defensive_modifier
- * 
- * Where:
- *   armor_factor = total_armor_points × 2.5
- *   structure_factor = total_internal_structure × 1.5
- *   defensive_modifier = 1.0 + heat_modifier
- */
-export function calculateDefensiveBV(
-  totalArmorPoints: number,
-  totalStructurePoints: number,
-  heatSinkCapacity: number,
-  hasDefensiveEquipment: boolean = false
-): number {
-  const armorFactor = totalArmorPoints * 2.5;
-  const structureFactor = totalStructurePoints * 1.5;
-  
-  // Defensive modifier based on heat dissipation capacity
-  // Better heat management = can sustain more fire = higher BV
-  let defensiveModifier = 1.0;
-  
-  // Heat sink bonus (simplified)
-  if (heatSinkCapacity > 10) {
-    defensiveModifier += (heatSinkCapacity - 10) * 0.01;
-  }
-  
-  // Defensive equipment bonus (ECM, AMS, etc.)
-  if (hasDefensiveEquipment) {
-    defensiveModifier += 0.1;
-  }
-  
-  return Math.round((armorFactor + structureFactor) * defensiveModifier);
+export interface DefensiveBVConfig {
+  totalArmorPoints: number;
+  totalStructurePoints: number;
+  tonnage: number;
+  runMP: number;
+  jumpMP: number;
+  armorType?: string;
+  structureType?: string;
+  gyroType?: string;
+  bar?: number;
+  engineMultiplier?: number;
+  defensiveEquipmentBV?: number;
+  explosivePenalties?: number;
+}
+
+export interface DefensiveBVResult {
+  armorBV: number;
+  structureBV: number;
+  gyroBV: number;
+  defensiveFactor: number;
+  totalDefensiveBV: number;
+}
+
+export function calculateDefensiveBV(config: DefensiveBVConfig): DefensiveBVResult {
+  return {
+    armorBV: 0,
+    structureBV: 0,
+    gyroBV: 0,
+    defensiveFactor: 1.0,
+    totalDefensiveBV: 0,
+  };
 }
 
 // ============================================================================
@@ -196,12 +192,10 @@ export function calculateOffensiveBV(
 // TOTAL BV CALCULATION
 // ============================================================================
 
-/**
- * BV calculation configuration
- */
 export interface BVCalculationConfig {
   totalArmorPoints: number;
   totalStructurePoints: number;
+  tonnage: number;
   heatSinkCapacity: number;
   walkMP: number;
   runMP: number;
@@ -209,6 +203,9 @@ export interface BVCalculationConfig {
   weapons: Array<{ id: string; rear?: boolean }>;
   hasTargetingComputer?: boolean;
   hasDefensiveEquipment?: boolean;
+  armorType?: string;
+  structureType?: string;
+  gyroType?: string;
 }
 
 /**
@@ -221,19 +218,17 @@ export interface BVBreakdown {
   totalBV: number;
 }
 
-/**
- * Calculate total Battle Value
- * 
- * Formula:
- *   Total_BV = (Defensive_BV + Offensive_BV) × Speed_Factor
- */
 export function calculateTotalBV(config: BVCalculationConfig): number {
-  const defensiveBV = calculateDefensiveBV(
-    config.totalArmorPoints,
-    config.totalStructurePoints,
-    config.heatSinkCapacity,
-    config.hasDefensiveEquipment
-  );
+  const defensiveResult = calculateDefensiveBV({
+    totalArmorPoints: config.totalArmorPoints,
+    totalStructurePoints: config.totalStructurePoints,
+    tonnage: config.tonnage,
+    runMP: config.runMP,
+    jumpMP: config.jumpMP,
+    armorType: config.armorType,
+    structureType: config.structureType,
+    gyroType: config.gyroType,
+  });
   
   const offensiveBV = calculateOffensiveBV(
     config.weapons,
@@ -246,19 +241,20 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     config.jumpMP
   );
   
-  return Math.round((defensiveBV + offensiveBV) * speedFactor);
+  return Math.round((defensiveResult.totalDefensiveBV + offensiveBV) * speedFactor);
 }
 
-/**
- * Get detailed BV breakdown
- */
 export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
-   const defensiveBV = calculateDefensiveBV(
-     config.totalArmorPoints,
-     config.totalStructurePoints,
-     config.heatSinkCapacity,
-     config.hasDefensiveEquipment
-   );
+   const defensiveResult = calculateDefensiveBV({
+     totalArmorPoints: config.totalArmorPoints,
+     totalStructurePoints: config.totalStructurePoints,
+     tonnage: config.tonnage,
+     runMP: config.runMP,
+     jumpMP: config.jumpMP,
+     armorType: config.armorType,
+     structureType: config.structureType,
+     gyroType: config.gyroType,
+   });
    
    const offensiveBV = calculateOffensiveBV(
      config.weapons,
@@ -272,10 +268,10 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
    );
    
    return {
-     defensiveBV,
+     defensiveBV: defensiveResult.totalDefensiveBV,
      offensiveBV,
      speedFactor,
-     totalBV: Math.round((defensiveBV + offensiveBV) * speedFactor),
+     totalBV: Math.round((defensiveResult.totalDefensiveBV + offensiveBV) * speedFactor),
    };
 }
 
