@@ -69,7 +69,7 @@
   /* Text Colors */
   --text-primary: #f8fafc;      /* slate-50 */
   --text-secondary: #94a3b8;    /* slate-400 */
-  --text-muted: #64748b;        /* slate-500 */
+  --text-muted: #9ca3af;        /* gray-400 - WCAG AA compliant (5:1 contrast) */
 
   /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
   --accent-primary: #f59e0b;    /* amber-500 */
@@ -1316,7 +1316,7 @@ button:disabled {
   --border-strong: rgba(245, 158, 11, 0.6);
   --text-primary: #fef3c7;
   --text-secondary: #fcd34d;
-  --text-muted: #92400e;
+  --text-muted: #d97706;        /* amber-600 - WCAG AA compliant (5.2:1 contrast) */
 
   /* Tailwind color token overrides (used by generated utilities) */
   --color-surface-deep: #0a1628;
@@ -1327,7 +1327,7 @@ button:disabled {
   --color-border-theme-strong: rgba(245, 158, 11, 0.6);
   --color-text-theme-primary: #fef3c7;
   --color-text-theme-secondary: #fcd34d;
-  --color-text-theme-muted: #92400e;
+  --color-text-theme-muted: #d97706;  /* amber-600 - WCAG AA compliant */
 }
 
 .theme-tactical h1,

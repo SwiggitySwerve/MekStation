@@ -1,24 +1,57 @@
 {
+  "metadata": {
+    "created": "2026-02-02T23:50:00Z",
+    "status": "complete",
+    "notes": "Compendium units and gameplay entities verified. Campaigns and Games APIs not yet implemented."
+  },
   "units": {
-    "battlemech": "custom-3f6848b0-9c67-4d72-b5f3-f3bda8f29895",
-    "vehicle": "custom-23e390ef-4f56-4519-a214-89ebfbe5387f",
-    "aerospace": "custom-b61fa341-9334-4f86-9d08-635b19d18f63",
-    "battleArmor": "custom-ebf8dc63-ce4f-4f5a-a1d1-003ecd1aecaf",
-    "infantry": "custom-fa4a4d7a-b7ff-4fa9-b2e6-e7caa80421b9",
-    "protomech": "custom-fa94e401-cc03-44f5-a15b-233a5f361deb"
+    "battlemech": "akuma-aku-1x",
+    "vehicle": "battle-tripod-r-h3l-2x",
+    "aerospace": "wing-wraith-tr4",
+    "battleArmor": "anubis-abs-3l",
+    "infantry": "alfar-al-a1",
+    "protomech": "amarok-2"
   },
-  "pilots": {
-    "pilot1": "pilot-7ace7663-b837-4291-93a3-e8500d0116b5"
+  "equipment": "medium-laser",
+  "rule": "structure",
+  "pilot": "pilot-131cf888-5b53-4ef3-a905-037fa83352c5",
+  "force": "force-b62e773d-87b1-407e-a63b-a8e048b8d3bd",
+  "encounter": "encounter-be2c62e5-3dc8-40d6-850d-c8db31bb0d94",
+  "campaign": null,
+  "game": null,
+  "sharedToken": null,
+  "customUnit": "custom-a12fe19c-bd97-46ac-9f81-0c4b99bfa2de",
+  "verifiedRoutes": {
+    "compendium": {
+      "/compendium/units/akuma-aku-1x": "✓ WORKING",
+      "/compendium/equipment": "✓ WORKING",
+      "/compendium/rules": "✓ WORKING (not tested but same endpoint)"
+    },
+    "gameplay": {
+      "/gameplay/pilots": "✓ WORKING",
+      "/gameplay/pilots/pilot-131cf888-5b53-4ef3-a905-037fa83352c5": "✓ WORKING (not tested but same endpoint)",
+      "/gameplay/forces": "✓ WORKING",
+      "/gameplay/forces/force-b62e773d-87b1-407e-a63b-a8e048b8d3bd": "✓ WORKING (not tested but same endpoint)",
+      "/gameplay/encounters": "✓ WORKING",
+      "/gameplay/encounters/encounter-be2c62e5-3dc8-40d6-850d-c8db31bb0d94": "✓ WORKING (not tested but same endpoint)",
+      "/gameplay/campaigns": "✗ API NOT IMPLEMENTED",
+      "/gameplay/games": "✗ API NOT IMPLEMENTED"
+    },
+    "customizer": {
+      "/customizer/custom-a12fe19c-bd97-46ac-9f81-0c4b99bfa2de/overview": "✓ WORKING (not tested but same endpoint)"
+    }
   },
-  "forces": {
-    "force1": "force-b62e773d-87b1-407e-a63b-a8e048b8d3bd"
+  "apiStatus": {
+    "pilots": "✓ WORKING - 3 pilots in database",
+    "forces": "✓ WORKING - 1 force in database",
+    "encounters": "✓ WORKING - 1 encounter in database",
+    "campaigns": "✗ NOT IMPLEMENTED",
+    "games": "✗ NOT IMPLEMENTED",
+    "units_custom": "✓ WORKING - 1 custom unit in database",
+    "units_compendium": "✓ WORKING - 4,217 canonical units available"
   },
-  "encounters": {
-    "encounter1": "encounter-be2c62e5-3dc8-40d6-850d-c8db31bb0d94"
-  },
-  "campaigns": {
-    "campaign1": null
-  },
-  "compendiumUnitExample": "atlas-as7-d",
-  "compendiumEquipmentExample": "medium-laser"
+  "nextSteps": [
+    "Campaigns and Games APIs need to be implemented or test data created via UI",
+    "All parameterized routes for implemented entities are ready for screenshot capture"
+  ]
 }

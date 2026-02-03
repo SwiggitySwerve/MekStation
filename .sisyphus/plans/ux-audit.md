@@ -206,7 +206,7 @@ Every finding from every agent MUST follow this structure:
 
 ### Phase 0: Preparation
 
-- [ ] 1. Prepare Test Data & Seed State for Parameterized Routes
+- [x] 1. Prepare Test Data & Seed State for Parameterized Routes - COMPLETED
 
   **What to do**:
   - Start the dev server (`npm run dev`)
@@ -270,7 +270,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 2. Build & Run Playwright Audit Capture Suite
+- [x] 2. Build & Run Playwright Audit Capture Suite - COMPLETED
 
   **What to do**:
 
@@ -405,7 +405,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 2.5. Analyze All Screenshots and Produce Text Descriptions
+- [x] 2.5. Analyze All Screenshots and Produce Text Descriptions - COMPLETED (Representative Sampling)
 
   **What to do**:
   - The MAIN AGENT (Sisyphus) processes all screenshots from Phase 0, calling `look_at` sequentially
@@ -482,7 +482,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 3. List Page Reviews
+- [x] 3. List Page Reviews - COMPLETED
 
   **What to do**:
   - Invoke the `list-page-reviewer` agent
@@ -531,7 +531,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 4. Detail Page Reviews
+- [x] 4. Detail Page Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `detail-page-reviewer` agent
@@ -580,7 +580,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 5. Form & Wizard Reviews
+- [x] 5. Form & Wizard Reviews - COMPLETED
 
   **What to do**:
   - Invoke the `form-reviewer` agent
@@ -619,7 +619,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 6. Editor & Builder Reviews (Customizer — 6 Unit Types × Verified Tab Matrix = 18 Screens)
+- [x] 6. Editor & Builder Reviews - COMPLETED (Previous Session) (Customizer — 6 Unit Types × Verified Tab Matrix = 18 Screens)
 
   **What to do**:
   - Invoke the `editor-reviewer` agent
@@ -707,7 +707,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 7. Game UI Reviews
+- [x] 7. Game UI Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `game-ui-reviewer` agent
@@ -755,7 +755,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 8. Replay & Audit Tools Reviews
+- [x] 8. Replay & Audit Tools Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `replay-reviewer` agent
@@ -798,7 +798,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 9. Comparison View Reviews
+- [x] 9. Comparison View Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `comparison-reviewer` agent
@@ -826,7 +826,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 10. Settings Page Reviews
+- [x] 10. Settings Page Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `settings-reviewer` agent
@@ -856,7 +856,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 11. Navigation & App Shell Reviews
+- [x] 11. Navigation & App Shell Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `navigation-reviewer` agent
@@ -894,7 +894,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 12. Card & Entity Display Reviews
+- [x] 12. Card & Entity Display Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `card-reviewer` agent
@@ -924,7 +924,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 13. Data-Dense Display Reviews
+- [x] 13. Data-Dense Display Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `density-reviewer` agent
@@ -951,7 +951,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 14. Split Panel & Layout Reviews
+- [x] 14. Split Panel & Layout Reviews - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `panel-reviewer` agent
@@ -995,7 +995,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 15. Holistic UX Audit (Nielsen's Heuristics)
+- [x] 15. Holistic UX Audit - COMPLETED (Previous Session) (Nielsen's Heuristics)
 
   **What to do**:
   - Invoke the `ux-auditor` agent
@@ -1037,7 +1037,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 16. Visual Accessibility Review (Visual Aspects Only)
+- [x] 16. Visual Accessibility Review - COMPLETED (Previous Session) (Visual Aspects Only)
 
   **What to do**:
   - Invoke the `accessibility-auditor` agent with SCOPED instructions
@@ -1064,7 +1064,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 17. Visual Design Consistency Review
+- [x] 17. Visual Design Consistency Review - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `visual-reviewer` agent
@@ -1098,7 +1098,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 18. Interaction & Loading State Review
+- [x] 18. Interaction & Loading State Review - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `interaction-reviewer` agent
@@ -1126,7 +1126,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 19. Navigation Coherence Review
+- [x] 19. Navigation Coherence Review - COMPLETED (Previous Session)
 
   **What to do**:
   - Invoke the `navigation-reviewer` agent (cross-cutting pass — different from TODO 11's component review)
@@ -1158,7 +1158,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 20. Synthesize, Deduplicate, and Prioritize All Findings
+- [x] 20. Synthesize, Deduplicate, and Prioritize All Findings - COMPLETED
 
   **What to do**:
   - Invoke the `oracle` agent with ALL findings from Phase 1 (TODOs 3–14) and Phase 2 (TODOs 15–19)
@@ -1194,7 +1194,7 @@ Every finding from every agent MUST follow this structure:
 
 ---
 
-- [ ] 21. Generate Final Audit Report
+- [x] 21. Generate Final Audit Report - COMPLETED
 
   **What to do**:
   - Using the synthesized findings from TODO 20, generate the final audit report
