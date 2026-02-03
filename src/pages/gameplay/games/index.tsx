@@ -13,6 +13,7 @@ import {
   Card,
   Button,
   EmptyState,
+  Badge,
 } from '@/components/ui';
 
 // =============================================================================
@@ -57,36 +58,36 @@ interface GameCardProps {
 }
 
 function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
-  const statusColors = {
-    active: 'bg-green-100 text-green-800',
-    completed: 'bg-blue-100 text-blue-800',
-    abandoned: 'bg-gray-100 text-gray-800',
-  };
+  const statusVariant = {
+    active: 'success',
+    completed: 'info',
+    abandoned: 'muted',
+  } as const;
 
   return (
     <Card
-      className="cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+      className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
       onClick={onClick}
       data-testid={`game-card-${game.id}`}
     >
       <div className="flex items-start justify-between mb-3">
-        <h3 className="font-bold text-lg">{game.name}</h3>
-        <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[game.status]}`}>
+        <h3 className="font-bold text-lg text-text-theme-primary">{game.name}</h3>
+        <Badge variant={statusVariant[game.status]} size="sm">
           {game.status}
-        </span>
+        </Badge>
       </div>
-      <div className="text-sm text-gray-600 space-y-1">
+      <div className="text-sm text-text-theme-secondary space-y-1">
         <p>
-          <span className="font-medium">Turn:</span> {game.turn}
+          <span className="font-medium text-text-theme-primary">Turn:</span> {game.turn}
         </p>
         <p>
-          <span className="font-medium">Player:</span> {game.playerForce}
+          <span className="font-medium text-text-theme-primary">Player:</span> {game.playerForce}
         </p>
         <p>
-          <span className="font-medium">Opponent:</span> {game.opponentForce}
+          <span className="font-medium text-text-theme-primary">Opponent:</span> {game.opponentForce}
         </p>
       </div>
-      <div className="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
+      <div className="mt-4 pt-3 border-t border-border-theme-subtle text-xs text-text-theme-muted">
         Last played: {new Date(game.updatedAt).toLocaleDateString()}
       </div>
     </Card>
