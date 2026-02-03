@@ -403,9 +403,9 @@ describe('battleValueCalculations', () => {
         // Structure: 152 × 1.5 = 228
         // Gyro: 100 × 0.5 = 50
         // Base: 875.5
-        // runMP 5 -> TMM 1 -> factor 1.1
-        // Total: 875.5 × 1.1 = 963.05 -> round to 963
-        expect(result.totalDefensiveBV).toBe(963);
+        // runMP 5 -> TMM 2 -> factor 1.2
+        // Total: 875.5 × 1.2 = 1050.6 -> round to 1051
+        expect(result.totalDefensiveBV).toBe(1051);
       });
 
       it('should calculate total defensive BV for all canonical units', () => {

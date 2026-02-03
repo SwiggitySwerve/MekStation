@@ -6,7 +6,12 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
-import { getPilotSkillModifier } from '../../types/validation/BattleValue';
+import {
+  getPilotSkillModifier,
+  getArmorBVMultiplier,
+  getStructureBVMultiplier,
+  getGyroBVMultiplier,
+} from '../../types/validation/BattleValue';
 
 // ============================================================================
 // SPEED FACTOR TABLE (from TechManual)
@@ -90,12 +95,32 @@ export interface DefensiveBVResult {
 }
 
 export function calculateDefensiveBV(config: DefensiveBVConfig): DefensiveBVResult {
+  const armorMultiplier = getArmorBVMultiplier(config.armorType ?? 'standard');
+  const structureMultiplier = getStructureBVMultiplier(config.structureType ?? 'standard');
+  const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
+  
+  const bar = config.bar ?? 10;
+  const engineMultiplier = config.engineMultiplier ?? 1.0;
+  const defensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
+  const explosivePenalties = config.explosivePenalties ?? 0;
+  
+  const armorBV = config.totalArmorPoints * 2.5 * armorMultiplier * (bar / 10);
+  const structureBV = config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
+  const gyroBV = config.tonnage * gyroMultiplier;
+  
+  const baseDef = armorBV + structureBV + gyroBV + defensiveEquipmentBV - explosivePenalties;
+  
+  const maxTMM = calculateTMM(config.runMP, config.jumpMP);
+  const defensiveFactor = 1 + (maxTMM / 10.0);
+  
+  const totalDefensiveBV = Math.round(baseDef * defensiveFactor);
+  
   return {
-    armorBV: 0,
-    structureBV: 0,
-    gyroBV: 0,
-    defensiveFactor: 1.0,
-    totalDefensiveBV: 0,
+    armorBV,
+    structureBV,
+    gyroBV,
+    defensiveFactor,
+    totalDefensiveBV,
   };
 }
 
