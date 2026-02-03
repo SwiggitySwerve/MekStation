@@ -111,7 +111,7 @@ export default function ComparePage(): React.ReactElement {
                     <button
                       onClick={() => addUnit(unit)}
                       disabled={isLoading || isAdded}
-                      className="w-full px-4 py-3 text-left hover:bg-surface-raised/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 min-h-[44px] text-left hover:bg-surface-raised/50 active:bg-surface-raised transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={`Add ${unit.name} to comparison`}
                     >
                       <div className="flex items-center justify-between">
@@ -152,48 +152,84 @@ export default function ComparePage(): React.ReactElement {
           message="Use the search bar above to add units to compare"
         />
       ) : (
-        <Card variant="dark" className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-surface-base">
-                <tr>
-                  <th className="px-4 py-3 text-left text-text-theme-secondary font-medium w-40">Stat</th>
-                  {selectedUnits.map((unit) => (
-                    <th key={unit.id} className="px-4 py-3 text-left min-w-[200px]">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="font-semibold text-white">
-                            {unit.name || `${unit.chassis} ${unit.model}`}
-                          </div>
-                          <div className="text-sm text-text-theme-secondary">
-                            {unit.tonnage}t • {unit.techBase?.replace(/_/g, ' ')}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removeUnit(unit.id)}
-                          className="text-slate-500 hover:text-red-400 transition-colors ml-2"
-                          aria-label={`Remove ${unit.name || unit.chassis} from comparison`}
-                        >
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-theme/50">
-                <CompareRow label="Tonnage" units={selectedUnits} getValue={u => `${u.tonnage}t`} mono />
-                <CompareRow label="Walk MP" units={selectedUnits} getValue={u => u.movement?.walk || '—'} mono />
-                <CompareRow label="Run MP" units={selectedUnits} getValue={u => u.movement?.walk ? Math.ceil(u.movement.walk * 1.5) : '—'} mono />
-                <CompareRow label="Jump MP" units={selectedUnits} getValue={u => u.movement?.jump || 0} mono />
-                <CompareRow label="Engine" units={selectedUnits} getValue={u => u.engine ? `${u.engine.type} ${u.engine.rating}` : '—'} />
-                <CompareRow label="Heat Sinks" units={selectedUnits} getValue={u => u.heatSinks ? `${u.heatSinks.count} ${u.heatSinks.type}` : '—'} />
-                <CompareRow label="Armor Type" units={selectedUnits} getValue={u => u.armor?.type || '—'} />
-                <CompareRow label="Total Armor" units={selectedUnits} getValue={u => u.armor ? `${calculateTotalArmor(u.armor)} pts` : '—'} mono />
-              </tbody>
-            </table>
+        <>
+          <div className="md:hidden space-y-4">
+            {selectedUnits.map((unit) => (
+              <Card key={unit.id} variant="dark" className="overflow-hidden">
+                <div className="flex items-start justify-between p-4 bg-surface-base border-b border-border-theme/50">
+                  <div>
+                    <h3 className="font-semibold text-white text-lg">
+                      {unit.name || `${unit.chassis} ${unit.model}`}
+                    </h3>
+                    <p className="text-sm text-text-theme-secondary">
+                      {unit.tonnage}t • {unit.techBase?.replace(/_/g, ' ')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => removeUnit(unit.id)}
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-red-400 active:text-red-500 transition-colors -mr-2 -mt-2"
+                    aria-label={`Remove ${unit.name || unit.chassis} from comparison`}
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+                <div className="divide-y divide-border-theme/30">
+                  <MobileStatRow label="Tonnage" value={`${unit.tonnage}t`} mono />
+                  <MobileStatRow label="Walk MP" value={unit.movement?.walk || '—'} mono />
+                  <MobileStatRow label="Run MP" value={unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'} mono />
+                  <MobileStatRow label="Jump MP" value={unit.movement?.jump || 0} mono />
+                  <MobileStatRow label="Engine" value={unit.engine ? `${unit.engine.type} ${unit.engine.rating}` : '—'} />
+                  <MobileStatRow label="Heat Sinks" value={unit.heatSinks ? `${unit.heatSinks.count} ${unit.heatSinks.type}` : '—'} />
+                  <MobileStatRow label="Armor Type" value={unit.armor?.type || '—'} />
+                  <MobileStatRow label="Total Armor" value={unit.armor ? `${calculateTotalArmor(unit.armor)} pts` : '—'} mono />
+                </div>
+              </Card>
+            ))}
           </div>
-        </Card>
+
+          <Card variant="dark" className="overflow-hidden hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-surface-base">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-text-theme-secondary font-medium w-40">Stat</th>
+                    {selectedUnits.map((unit) => (
+                      <th key={unit.id} className="px-4 py-3 text-left min-w-[200px]">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="font-semibold text-white">
+                              {unit.name || `${unit.chassis} ${unit.model}`}
+                            </div>
+                            <div className="text-sm text-text-theme-secondary">
+                              {unit.tonnage}t • {unit.techBase?.replace(/_/g, ' ')}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => removeUnit(unit.id)}
+                            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors -mr-2 -mt-1"
+                            aria-label={`Remove ${unit.name || unit.chassis} from comparison`}
+                          >
+                            <CloseIcon />
+                          </button>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-theme/50">
+                  <CompareRow label="Tonnage" units={selectedUnits} getValue={u => `${u.tonnage}t`} mono />
+                  <CompareRow label="Walk MP" units={selectedUnits} getValue={u => u.movement?.walk || '—'} mono />
+                  <CompareRow label="Run MP" units={selectedUnits} getValue={u => u.movement?.walk ? Math.ceil(u.movement.walk * 1.5) : '—'} mono />
+                  <CompareRow label="Jump MP" units={selectedUnits} getValue={u => u.movement?.jump || 0} mono />
+                  <CompareRow label="Engine" units={selectedUnits} getValue={u => u.engine ? `${u.engine.type} ${u.engine.rating}` : '—'} />
+                  <CompareRow label="Heat Sinks" units={selectedUnits} getValue={u => u.heatSinks ? `${u.heatSinks.count} ${u.heatSinks.type}` : '—'} />
+                  <CompareRow label="Armor Type" units={selectedUnits} getValue={u => u.armor?.type || '—'} />
+                  <CompareRow label="Total Armor" units={selectedUnits} getValue={u => u.armor ? `${calculateTotalArmor(u.armor)} pts` : '—'} mono />
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
       )}
 
       {/* Add more slots indicator */}
@@ -206,7 +242,6 @@ export default function ComparePage(): React.ReactElement {
   );
 }
 
-// Reusable comparison row component
 interface CompareRowProps {
   label: string;
   units: IUnitDetails[];
@@ -224,6 +259,21 @@ function CompareRow({ label, units, getValue, mono }: CompareRowProps) {
         </td>
       ))}
     </tr>
+  );
+}
+
+interface MobileStatRowProps {
+  label: string;
+  value: string | number;
+  mono?: boolean;
+}
+
+function MobileStatRow({ label, value, mono }: MobileStatRowProps) {
+  return (
+    <div className="flex justify-between items-center px-4 py-3">
+      <span className="text-text-theme-secondary">{label}</span>
+      <span className={`text-white ${mono ? 'font-mono' : ''}`}>{value}</span>
+    </div>
   );
 }
 
