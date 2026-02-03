@@ -42,7 +42,7 @@ function ActionButton({ action, onClick, disabled }: ActionButtonProps): React.R
   
   const primaryClasses = action.primary
     ? 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
-    : 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400';
+    : 'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme';
   
   const disabledClasses = disabled || !action.enabled
     ? 'opacity-50 cursor-not-allowed'
@@ -125,30 +125,30 @@ export function ActionBar({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [actions, canAct, onAction]);
 
-  return (
-    <div
-      className={`bg-gray-100 border-t border-gray-300 px-4 py-3 flex items-center justify-between ${className}`}
-      role="toolbar"
-      aria-label="Game actions"
-      data-testid="action-bar"
-    >
-      <div className="flex items-center gap-2">
-        {actions.map((action) => (
-          <ActionButton
-            key={action.id}
-            action={action}
-            onClick={() => handleAction(action.id)}
-            disabled={!canAct}
-          />
-        ))}
-      </div>
-      {infoText && (
-        <div className="text-sm text-gray-600">
-          {infoText}
-        </div>
-      )}
-    </div>
-  );
+   return (
+     <div
+       className={`bg-surface-base border-t border-border-theme px-4 py-3 flex items-center justify-between ${className}`}
+       role="toolbar"
+       aria-label="Game actions"
+       data-testid="action-bar"
+     >
+       <div className="flex items-center gap-2">
+         {actions.map((action) => (
+           <ActionButton
+             key={action.id}
+             action={action}
+             onClick={() => handleAction(action.id)}
+             disabled={!canAct}
+           />
+         ))}
+       </div>
+       {infoText && (
+         <div className="text-sm text-text-theme-secondary">
+           {infoText}
+         </div>
+       )}
+     </div>
+   );
 }
 
 export default ActionBar;

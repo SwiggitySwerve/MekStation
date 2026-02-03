@@ -136,6 +136,15 @@ export const SlotRow = memo(function SlotRow({
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  
+  // Touch device detection
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    // Detect if device supports touch
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   // Check if this is fixed equipment on an OmniMech (cannot be removed)
   const isFixedOnOmni = isOmni && slot.type === 'equipment' && slot.isOmniPodMounted === false;
@@ -231,6 +240,31 @@ export const SlotRow = memo(function SlotRow({
     }
   };
   
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!canUnassign || !isTouchDevice) return;
+    
+    const timer = setTimeout(() => {
+      const touch = e.touches[0];
+      setContextMenu({ x: touch.clientX, y: touch.clientY });
+    }, 500);
+    
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  const handleTouchMove = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+  
   // Determine display name with OmniMech postfix and abbreviations
   let displayName: string;
   if (slot.type === 'empty') {
@@ -260,7 +294,7 @@ export const SlotRow = memo(function SlotRow({
         className={`
           flex items-center border border-border-theme-subtle rounded-sm my-0.5 transition-all
           focus:outline-none
-          ${canDrag ? 'cursor-grab active:cursor-grabbing' : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'}
+          ${canDrag ? (isTouchDevice ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing') : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'}
           ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''}
           ${isAssignable ? 'focus:ring-1 focus:ring-green-400 focus:ring-inset' : ''}
           ${styleClasses}
@@ -286,11 +320,20 @@ export const SlotRow = memo(function SlotRow({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
         title={isFixedOnOmni
           ? 'Fixed equipment - part of OmniMech base chassis'
           : canDrag
-            ? 'Drag to move, double-click or right-click to unassign'
-            : (canUnassign ? 'Double-click or right-click to unassign' : undefined)}
+            ? isTouchDevice
+              ? 'Tap to select, long-press to unassign'
+              : 'Drag to move, double-click or right-click to unassign'
+            : (canUnassign 
+              ? isTouchDevice
+                ? 'Long-press to unassign'
+                : 'Double-click or right-click to unassign'
+              : undefined)}
       >
         <span className="truncate flex-1">{displayName}</span>
       </div>

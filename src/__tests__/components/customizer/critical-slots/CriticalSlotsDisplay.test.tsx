@@ -52,7 +52,9 @@ describe('CriticalSlotsDisplay', () => {
     render(<CriticalSlotsDisplay {...defaultProps} />);
     
     // MechLocation.HEAD = 'Head', so testid is location-grid-Head
-    expect(screen.getByTestId(`location-grid-${MechLocation.HEAD}`)).toBeInTheDocument();
+    // Should render for both mobile and desktop views
+    const headGrids = screen.getAllByTestId(`location-grid-${MechLocation.HEAD}`);
+    expect(headGrids.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should render toolbar', () => {
@@ -64,7 +66,9 @@ describe('CriticalSlotsDisplay', () => {
   it('should render location grids with slots', () => {
     render(<CriticalSlotsDisplay {...defaultProps} />);
     
-    expect(screen.getByTestId(`location-grid-${MechLocation.HEAD}`)).toBeInTheDocument();
+    // Should render for both mobile and desktop views
+    const headGrids = screen.getAllByTestId(`location-grid-${MechLocation.HEAD}`);
+    expect(headGrids.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should call onAutoFillToggle when toggle is clicked', async () => {

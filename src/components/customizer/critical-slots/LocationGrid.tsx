@@ -83,7 +83,7 @@ export function LocationGrid({
     <div
       className={`
         bg-surface-deep border border-border-theme
-        w-24 sm:w-32 md:w-36
+        w-full max-w-xs sm:w-32 md:w-36
         ${className}
       `}
     >

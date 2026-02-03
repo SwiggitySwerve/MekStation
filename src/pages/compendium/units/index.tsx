@@ -500,9 +500,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
         </div>
       </Card>
 
-      {/* Units Table - Compact */}
-      <Card variant="dark" className="overflow-hidden">
-        <div className="overflow-x-auto">
+       {/* Units Table - Compact */}
+       <Card variant="dark" className="overflow-hidden pb-20">
+         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px]">
             <thead className="bg-surface-base">
               <tr className="text-left text-text-theme-secondary text-xs uppercase tracking-wide">

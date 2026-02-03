@@ -151,10 +151,18 @@ export default function EncounterDetailPage(): React.ReactElement {
   const isLaunched = encounter.status === EncounterStatus.Launched;
   const isCompleted = encounter.status === EncounterStatus.Completed;
 
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Encounters', href: '/gameplay/encounters' },
+    { label: encounter.name },
+  ];
+
   return (
     <PageLayout
       title={encounter.name}
       subtitle={encounter.description}
+      breadcrumbs={breadcrumbs}
       backLink="/gameplay/encounters"
       backLabel="Back to Encounters"
       data-testid="encounter-detail-page"

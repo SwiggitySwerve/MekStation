@@ -126,6 +126,15 @@ export default function ForcesPage(): React.ReactElement {
   const campaign = store.getState().getCampaign();
   const [isClient, setIsClient] = useState(false);
 
+  // Breadcrumbs
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Campaigns', href: '/gameplay/campaigns' },
+    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
+    { label: 'Forces (TO&E)' },
+  ];
+
   // Hydration fix
   useState(() => {
     setIsClient(true);
@@ -189,6 +198,7 @@ export default function ForcesPage(): React.ReactElement {
       title="Forces (TO&E)"
       subtitle={`${campaign.name} - Table of Organization and Equipment`}
       maxWidth="wide"
+      breadcrumbs={breadcrumbs}
     >
       {/* Navigation Tabs */}
       <CampaignNavigation campaignId={campaign.id} currentPage="forces" />

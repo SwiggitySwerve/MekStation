@@ -535,10 +535,18 @@ export default function CampaignDetailPage(): React.ReactElement {
     campaign.status === CampaignStatus.Defeat ||
     campaign.status === CampaignStatus.Abandoned;
 
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Campaigns', href: '/gameplay/campaigns' },
+    { label: campaign.name },
+  ];
+
   return (
     <PageLayout
       title={campaign.name}
       subtitle={campaign.description}
+      breadcrumbs={breadcrumbs}
       backLink="/gameplay/campaigns"
       backLabel="Back to Campaigns"
       maxWidth="wide"

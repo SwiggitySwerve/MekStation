@@ -112,28 +112,35 @@ export default function CustomUnitDetailPage(): React.ReactElement {
     );
   }
 
-  const typeDisplay = getUnitTypeDisplay(unit.unitType);
-  const unitName = `${unit.chassis} ${unit.variant}`;
-  const parsedData = unit.parsedData;
+   const typeDisplay = getUnitTypeDisplay(unit.unitType);
+   const unitName = `${unit.chassis} ${unit.variant}`;
+   const parsedData = unit.parsedData;
 
-  // Extract common fields from parsed data
-  const engine = parsedData.engine as { type?: string; rating?: number } | undefined;
-  const movement = parsedData.movement as { walkMP?: number; runMP?: number; jumpMP?: number } | undefined;
-  const armor = parsedData.armorAllocation as Record<string, number> | undefined;
-  const totalArmor = parsedData.totalArmorPoints as number | undefined;
-  const equipment = parsedData.equipment as Array<{ name: string; location: string }> | undefined;
-  const heatSinks = parsedData.heatSinks as { type?: string; total?: number } | undefined;
-  const structure = parsedData.structure as { type?: string } | undefined;
-  const quirks = parsedData.quirks as string[] | undefined;
-  const role = (parsedData.metadata as { role?: string } | undefined)?.role;
+   // Extract common fields from parsed data
+   const engine = parsedData.engine as { type?: string; rating?: number } | undefined;
+   const movement = parsedData.movement as { walkMP?: number; runMP?: number; jumpMP?: number } | undefined;
+   const armor = parsedData.armorAllocation as Record<string, number> | undefined;
+   const totalArmor = parsedData.totalArmorPoints as number | undefined;
+   const equipment = parsedData.equipment as Array<{ name: string; location: string }> | undefined;
+   const heatSinks = parsedData.heatSinks as { type?: string; total?: number } | undefined;
+   const structure = parsedData.structure as { type?: string } | undefined;
+   const quirks = parsedData.quirks as string[] | undefined;
+   const role = (parsedData.metadata as { role?: string } | undefined)?.role;
 
-  return (
-    <PageLayout
-      title={unitName}
-      subtitle={role ? `Role: ${role}` : `${unit.tonnage} tons • ${unit.techBase}`}
-      backLink="/units"
-      backLabel="Back to Custom Units"
-    >
+   const breadcrumbs = [
+     { label: 'Home', href: '/' },
+     { label: 'Units', href: '/units' },
+     { label: unitName },
+   ];
+
+   return (
+     <PageLayout
+       title={unitName}
+       subtitle={role ? `Role: ${role}` : `${unit.tonnage} tons • ${unit.techBase}`}
+       backLink="/units"
+       backLabel="Back to Custom Units"
+       breadcrumbs={breadcrumbs}
+     >
       {/* Header with badges and edit button */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex flex-wrap items-center gap-2">

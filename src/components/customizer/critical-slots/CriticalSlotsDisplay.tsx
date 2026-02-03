@@ -94,6 +94,21 @@ export function CriticalSlotsDisplay({
   const getAssignableSlots = (loc: MechLocation) =>
     assignableSlots?.find((a) => a.location === loc)?.slots || [];
   
+  // Mobile: track which location tab is selected
+  const [selectedLocation, setSelectedLocation] = React.useState<MechLocation>(MechLocation.HEAD);
+  
+  // Tab configuration for mobile view
+  const locationTabs = [
+    { loc: MechLocation.HEAD, label: 'Head' },
+    { loc: MechLocation.LEFT_ARM, label: 'L Arm' },
+    { loc: MechLocation.LEFT_TORSO, label: 'L Torso' },
+    { loc: MechLocation.CENTER_TORSO, label: 'C Torso' },
+    { loc: MechLocation.RIGHT_TORSO, label: 'R Torso' },
+    { loc: MechLocation.RIGHT_ARM, label: 'R Arm' },
+    { loc: MechLocation.LEFT_LEG, label: 'L Leg' },
+    { loc: MechLocation.RIGHT_LEG, label: 'R Leg' },
+  ];
+  
   return (
     <div className={`bg-surface-base rounded-lg border border-border-theme ${className}`}>
       {/* Toolbar */}
@@ -106,8 +121,44 @@ export function CriticalSlotsDisplay({
         className="border-b border-border-theme"
       />
       
-      {/* Grid layout - MegaMekLab style with 5 columns */}
-      <div className="p-4">
+      {/* Mobile tabs - visible only on small screens */}
+      <div className="md:hidden border-b border-border-theme">
+        <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-border-theme">
+          {locationTabs.map(({ loc, label }) => (
+            <button
+              key={loc}
+              onClick={() => setSelectedLocation(loc)}
+              className={`
+                px-3 py-2 text-sm font-medium whitespace-nowrap min-h-[44px]
+                border-b-2 transition-colors flex-shrink-0
+                ${selectedLocation === loc
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-theme-secondary hover:text-text-theme-primary'
+                }
+              `}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Mobile view - single location */}
+      <div className="md:hidden p-4 flex justify-center">
+        <LocationGrid
+          location={selectedLocation}
+          data={getLocationData(selectedLocation)}
+          selectedEquipmentId={selectedEquipmentId}
+          assignableSlots={getAssignableSlots(selectedLocation)}
+          onSlotClick={(i) => onSlotClick(selectedLocation, i)}
+          onEquipmentDrop={(i, e) => onEquipmentDrop(selectedLocation, i, e)}
+          onEquipmentRemove={(i) => onEquipmentRemove(selectedLocation, i)}
+          className="w-full max-w-xs"
+        />
+      </div>
+      
+      {/* Desktop grid layout - MegaMekLab style with 5 columns */}
+      <div className="hidden md:block p-4">
         <div className="flex gap-2 items-start">
           {/* Column 1: Left Arm */}
           <div className="flex flex-col" style={{ marginTop: '40px' }}>
