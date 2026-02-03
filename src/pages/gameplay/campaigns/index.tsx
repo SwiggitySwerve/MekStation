@@ -163,17 +163,17 @@ export default function CampaignsListPage(): React.ReactElement {
            }
            data-testid="campaigns-empty-state"
          />
-       ) : (
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-           {campaigns.map((campaign) => (
-             <CampaignCard
-               key={campaign.id}
-               campaign={campaign}
-               onClick={() => handleCampaignClick(campaign)}
-             />
-           ))}
-         </div>
-       )}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+            {campaigns.map((campaign) => (
+              <CampaignCard
+                key={campaign.id}
+                campaign={campaign}
+                onClick={() => handleCampaignClick(campaign)}
+              />
+            ))}
+          </div>
+        )}
     </PageLayout>
   );
 }
