@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import '../styles/globals.css'
 import Layout from '../components/common/Layout'
 import TopBar from '../components/common/TopBar'
+import { ErrorBoundary } from '../components/common/ErrorBoundary'
 import { InstallPrompt } from '../components/pwa/InstallPrompt'
 import { useServiceWorker } from '../hooks/useServiceWorker'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
@@ -48,12 +49,14 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   return (
     <GlobalStyleProvider>
       <ToastProvider>
-        <Layout topBarComponent={<TopBar />}>
-          <Component {...pageProps} servicesReady={servicesReady} />
+        <ErrorBoundary componentName="App">
+          <Layout topBarComponent={<TopBar />}>
+            <Component {...pageProps} servicesReady={servicesReady} />
 
-          {/* PWA Install Prompt */}
-          {sw.isSupported && <InstallPrompt />}
-        </Layout>
+            {/* PWA Install Prompt */}
+            {sw.isSupported && <InstallPrompt />}
+          </Layout>
+        </ErrorBoundary>
       </ToastProvider>
     </GlobalStyleProvider>
   )
