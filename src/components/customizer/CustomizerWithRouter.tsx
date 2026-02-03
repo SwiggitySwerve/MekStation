@@ -18,6 +18,9 @@ import { useCustomizerRouter, CustomizerTabId, isValidTabId } from '@/hooks/useC
 // Stores
 import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
 
+// Hooks
+import { useAutoSaveIndicator } from '@/hooks/useAutoSaveIndicator';
+
 // Components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
 import { UnitTypeRouter } from './UnitTypeRouter';
@@ -71,7 +74,8 @@ export default function CustomizerWithRouter(): React.ReactElement {
       : (storedSubTab && isValidTabId(storedSubTab) ? storedSubTab : routerTabId)
   );
   
-  // Trigger hydration on mount
+  useAutoSaveIndicator();
+  
   useEffect(() => {
     useTabManagerStore.persist.rehydrate();
     setIsHydrated(true);
