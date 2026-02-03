@@ -6,6 +6,7 @@ import TopBar from '../components/common/TopBar'
 import { ErrorBoundary } from '../components/common/ErrorBoundary'
 import { InstallPrompt } from '../components/pwa/InstallPrompt'
 import { useServiceWorker } from '../hooks/useServiceWorker'
+import { useOfflineIndicator } from '../hooks/useOfflineIndicator'
 import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
 import { ToastProvider } from '../components/shared/Toast'
 import { exposeStoresForE2E } from '../lib/e2e/storeExposure'
@@ -26,6 +27,28 @@ async function initializeBrowserServices(): Promise<void> {
   await registry.initialize();
 }
 
+/**
+ * App content wrapper that uses hooks requiring ToastProvider
+ */
+function AppContent({ Component, pageProps, servicesReady }: { Component: AppProps['Component']; pageProps: Record<string, unknown>; servicesReady: boolean }): React.ReactElement {
+  // Initialize offline indicator
+  useOfflineIndicator();
+
+  // Register service worker
+  const sw = useServiceWorker();
+
+  return (
+    <ErrorBoundary componentName="App">
+      <Layout topBarComponent={<TopBar />}>
+        <Component {...(pageProps as AppProps['pageProps'])} servicesReady={servicesReady} />
+
+        {/* PWA Install Prompt */}
+        {sw.isSupported && <InstallPrompt />}
+      </Layout>
+    </ErrorBoundary>
+  );
+}
+
 export default function App({ Component, pageProps }: AppProps): React.ReactElement {
   const [servicesReady, setServicesReady] = useState(false)
 
@@ -43,20 +66,10 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
     exposeStoresForE2E();
   }, []);
 
-  // Register service worker
-  const sw = useServiceWorker();
-
   return (
     <GlobalStyleProvider>
       <ToastProvider>
-        <ErrorBoundary componentName="App">
-          <Layout topBarComponent={<TopBar />}>
-            <Component {...pageProps} servicesReady={servicesReady} />
-
-            {/* PWA Install Prompt */}
-            {sw.isSupported && <InstallPrompt />}
-          </Layout>
-        </ErrorBoundary>
+        <AppContent Component={Component} pageProps={pageProps as Record<string, unknown>} servicesReady={servicesReady} />
       </ToastProvider>
     </GlobalStyleProvider>
   )
