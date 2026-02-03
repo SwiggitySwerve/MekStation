@@ -126,49 +126,68 @@ function LocationStatusRow({
   const displayName = LOCATION_NAMES[location] || location;
   const armorColor = getStatusColor(armor, maxArmor);
   const structureColor = getStatusColor(structure, maxStructure);
+  const rearArmorColor = rearArmor !== undefined && maxRearArmor !== undefined 
+    ? getStatusColor(rearArmor, maxRearArmor) 
+    : '';
 
   return (
-     <div
-       className={`flex items-center py-1 px-2 ${destroyed ? 'opacity-50 line-through' : ''}`}
-       data-testid={`location-row-${location}`}
-     >
-       <span className="w-28 text-sm font-medium text-text-theme-primary">{displayName}</span>
-      <div className="flex-1 flex items-center gap-4">
-         {/* Front armor */}
-         <div className="flex items-center gap-1">
-           <span className="text-xs text-text-theme-secondary w-6">AR:</span>
+    <div
+      className={`py-2 px-3 md:py-1 md:px-2 md:flex md:items-center ${destroyed ? 'opacity-50 line-through' : ''}`}
+      data-testid={`location-row-${location}`}
+    >
+      {/* Location name - full width on mobile, fixed width on desktop */}
+      <div className="flex items-center justify-between mb-1 md:mb-0 md:w-28">
+        <span className="text-base md:text-sm font-medium text-text-theme-primary">{displayName}</span>
+        {/* DESTROYED badge - only visible on mobile in header area */}
+        {destroyed && (
+          <span className="text-red-600 text-xs font-bold md:hidden" data-testid={`location-destroyed-${location}-mobile`}>
+            DESTROYED
+          </span>
+        )}
+      </div>
+      
+      {/* Stats grid - wraps on mobile, inline on desktop */}
+      <div className="grid grid-cols-3 gap-2 md:flex md:flex-1 md:items-center md:gap-4">
+        {/* Front armor */}
+        <div className="flex items-center gap-1">
+          <span className="text-sm md:text-xs text-text-theme-secondary md:w-6">AR:</span>
           <span
-            className={`text-sm font-mono w-8 text-right ${armorColor}`}
+            className={`text-base md:text-sm font-mono md:w-8 md:text-right ${armorColor}`}
             data-testid={`location-armor-${location}`}
           >
             {armor}/{maxArmor}
           </span>
         </div>
         {/* Rear armor (if applicable) */}
-        {rearArmor !== undefined && maxRearArmor !== undefined && (
-           <div className="flex items-center gap-1">
-             <span className="text-xs text-text-theme-secondary w-6">RR:</span>
+        {rearArmor !== undefined && maxRearArmor !== undefined ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm md:text-xs text-text-theme-secondary md:w-6">RR:</span>
             <span
-              className={`text-sm font-mono w-8 text-right ${getStatusColor(rearArmor, maxRearArmor)}`}
+              className={`text-base md:text-sm font-mono md:w-8 md:text-right ${rearArmorColor}`}
               data-testid={`location-armor-${location}_rear`}
             >
               {rearArmor}/{maxRearArmor}
             </span>
           </div>
+        ) : (
+          /* Empty placeholder to maintain grid on locations without rear armor */
+          <div className="md:hidden" />
         )}
-         {/* Structure */}
-         <div className="flex items-center gap-1">
-           <span className="text-xs text-text-theme-secondary w-6">IS:</span>
+        {/* Structure */}
+        <div className="flex items-center gap-1">
+          <span className="text-sm md:text-xs text-text-theme-secondary md:w-6">IS:</span>
           <span
-            className={`text-sm font-mono w-8 text-right ${structureColor}`}
+            className={`text-base md:text-sm font-mono md:w-8 md:text-right ${structureColor}`}
             data-testid={`location-structure-${location}`}
           >
             {structure}/{maxStructure}
           </span>
         </div>
       </div>
+      
+      {/* DESTROYED badge - desktop only (at end of row) */}
       {destroyed && (
-        <span className="text-red-600 text-xs font-bold" data-testid={`location-destroyed-${location}`}>
+        <span className="hidden md:inline text-red-600 text-xs font-bold ml-2" data-testid={`location-destroyed-${location}`}>
           DESTROYED
         </span>
       )}
@@ -187,40 +206,69 @@ function WeaponRow({ weapon, isSelected, onToggle }: WeaponRowProps): React.Reac
   const rowClasses = weapon.destroyed
     ? 'opacity-50 line-through'
     : weapon.firedThisTurn
-    ? 'bg-yellow-50'
-    : '';
+      ? 'bg-yellow-50'
+      : '';
 
-   return (
-     <div
-       className={`flex items-center py-1 px-2 hover:bg-surface-deep ${rowClasses}`}
-       onClick={isAvailable && onToggle ? onToggle : undefined}
-       style={{ cursor: isAvailable && onToggle ? 'pointer' : 'default' }}
-       data-testid={`weapon-row-${weapon.id}`}
-     >
-       {onToggle && (
-         <input
-           type="checkbox"
-           checked={isSelected}
-           onChange={onToggle}
-           disabled={!isAvailable}
-           className="mr-2"
-           data-testid={`weapon-checkbox-${weapon.id}`}
-         />
-       )}
-       <span className="flex-1 text-sm" data-testid={`weapon-name-${weapon.id}`}>{weapon.name}</span>
-       <span className="text-xs text-text-theme-secondary w-16">{weapon.location}</span>
-       <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-heat-${weapon.id}`}>{weapon.heat}H</span>
-       <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-damage-${weapon.id}`}>{weapon.damage}D</span>
-       <span className="text-xs text-text-theme-secondary w-20">
-         {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}
-       </span>
-       {weapon.ammoRemaining !== undefined && (
-         <span className="text-xs text-text-theme-secondary w-12 text-right" data-testid={`weapon-ammo-${weapon.id}`}>
-           {weapon.ammoRemaining} rds
-         </span>
-       )}
-     </div>
-   );
+  return (
+    <div
+      className={`py-3 px-3 md:py-1 md:px-2 hover:bg-surface-deep md:flex md:items-center ${rowClasses}`}
+      onClick={isAvailable && onToggle ? onToggle : undefined}
+      style={{ cursor: isAvailable && onToggle ? 'pointer' : 'default' }}
+      data-testid={`weapon-row-${weapon.id}`}
+    >
+      {/* Mobile: Card layout */}
+      <div className="md:hidden">
+        <div className="flex items-center gap-3 mb-2">
+          {onToggle && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={onToggle}
+              disabled={!isAvailable}
+              className="w-5 h-5 min-w-[44px] min-h-[44px] touch-manipulation"
+              data-testid={`weapon-checkbox-${weapon.id}-mobile`}
+            />
+          )}
+          <span className="text-base font-medium flex-1" data-testid={`weapon-name-${weapon.id}`}>{weapon.name}</span>
+          <span className="text-sm text-text-theme-secondary">{weapon.location}</span>
+        </div>
+        <div className="flex items-center gap-4 text-sm text-text-theme-secondary pl-8">
+          <span data-testid={`weapon-heat-${weapon.id}-mobile`}>{weapon.heat}H</span>
+          <span data-testid={`weapon-damage-${weapon.id}-mobile`}>{weapon.damage}D</span>
+          <span>S/M/L: {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}</span>
+          {weapon.ammoRemaining !== undefined && (
+            <span data-testid={`weapon-ammo-${weapon.id}-mobile`}>{weapon.ammoRemaining} rds</span>
+          )}
+        </div>
+      </div>
+      
+      {/* Desktop: Row layout */}
+      <div className="hidden md:contents">
+        {onToggle && (
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggle}
+            disabled={!isAvailable}
+            className="mr-2"
+            data-testid={`weapon-checkbox-${weapon.id}`}
+          />
+        )}
+        <span className="flex-1 text-sm" data-testid={`weapon-name-${weapon.id}-desktop`}>{weapon.name}</span>
+        <span className="text-xs text-text-theme-secondary w-16">{weapon.location}</span>
+        <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-heat-${weapon.id}`}>{weapon.heat}H</span>
+        <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-damage-${weapon.id}`}>{weapon.damage}D</span>
+        <span className="text-xs text-text-theme-secondary w-20">
+          {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}
+        </span>
+        {weapon.ammoRemaining !== undefined && (
+          <span className="text-xs text-text-theme-secondary w-12 text-right" data-testid={`weapon-ammo-${weapon.id}`}>
+            {weapon.ammoRemaining} rds
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 interface SimpleHeatDisplayProps {
@@ -384,7 +432,7 @@ export function RecordSheetDisplay({
        <div className="mb-4" data-testid="weapons-section">
          <h3 className="text-sm font-bold text-text-theme-primary mb-2">WEAPONS</h3>
          <div className="border border-border-theme rounded divide-y">
-           <div className="flex items-center py-1 px-2 bg-surface-raised text-xs text-text-theme-secondary">
+           <div className="hidden md:flex items-center py-1 px-2 bg-surface-raised text-xs text-text-theme-secondary">
             {onWeaponToggle && <span className="w-6" />}
             <span className="flex-1">Weapon</span>
             <span className="w-16">Loc</span>

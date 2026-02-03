@@ -566,6 +566,7 @@ export function HexMapDisplay({
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [touchStart, setTouchStart] = useState<{ dist: number; zoom: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [showMovementOverlay, setShowMovementOverlay] = useState(false);
   const [showCoverOverlay, setShowCoverOverlay] = useState(false);
@@ -701,6 +702,45 @@ export function HexMapDisplay({
     setIsPanning(false);
   }, []);
 
+  const getTouchDistance = useCallback((t1: React.Touch, t2: React.Touch): number => {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }, []);
+
+  // Touch pan and pinch-zoom handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dist = getTouchDistance(e.touches[0], e.touches[1]);
+      setTouchStart({ dist, zoom });
+      setIsPanning(false);
+    } else if (e.touches.length === 1) {
+      setIsPanning(true);
+      setPanStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+      setTouchStart(null);
+    }
+  }, [getTouchDistance, zoom, pan]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    
+    if (e.touches.length === 2 && touchStart) {
+      const dist = getTouchDistance(e.touches[0], e.touches[1]);
+      const scale = dist / touchStart.dist;
+      setZoom(Math.max(0.5, Math.min(3, touchStart.zoom * scale)));
+    } else if (e.touches.length === 1 && isPanning) {
+      setPan({
+        x: e.touches[0].clientX - panStart.x,
+        y: e.touches[0].clientY - panStart.y,
+      });
+    }
+  }, [touchStart, getTouchDistance, isPanning, panStart]);
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchStart(null);
+    setIsPanning(false);
+  }, []);
+
   // Calculate transformed viewBox
   const transformedViewBox = useMemo(() => {
     const scale = 1 / zoom;
@@ -716,12 +756,15 @@ export function HexMapDisplay({
       <svg
         ref={svgRef}
         viewBox={transformedViewBox}
-        className="w-full h-full"
+        className="w-full h-full touch-manipulation"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         data-testid="hex-grid"
       >
         <TerrainPatternDefs />
@@ -820,7 +863,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setShowMovementOverlay((v) => !v)}
-            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
               showMovementOverlay
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -833,7 +876,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setShowCoverOverlay((v) => !v)}
-            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
               showCoverOverlay
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -846,7 +889,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setShowLOSOverlay((v) => !v)}
-            className={`p-2 rounded shadow text-xs font-medium transition-colors ${
+            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
               showLOSOverlay
                 ? 'bg-amber-600 text-white hover:bg-amber-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -861,7 +904,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.min(3, z * 1.2))}
-            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
             title="Zoom in"
             data-testid="zoom-in-btn"
           >
@@ -870,7 +913,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}
-            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
             title="Zoom out"
             data-testid="zoom-out-btn"
           >
@@ -882,7 +925,7 @@ export function HexMapDisplay({
               setZoom(1);
               setPan({ x: 0, y: 0 });
             }}
-            className="bg-white p-2 rounded shadow hover:bg-gray-100"
+            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
             title="Reset view"
             data-testid="reset-view-btn"
           >

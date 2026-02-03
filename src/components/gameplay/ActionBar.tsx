@@ -38,7 +38,7 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ action, onClick, disabled }: ActionButtonProps): React.ReactElement {
-  const baseClasses = 'px-4 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'px-4 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const primaryClasses = action.primary
     ? 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
