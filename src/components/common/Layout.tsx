@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
+import { MobileBottomNav } from './MobileBottomNav';
 
 interface LayoutProps {
   children: ReactNode;
@@ -35,11 +36,14 @@ const Layout: React.FC<LayoutProps> = ({
             </aside>
           )}
 
-          {/* Main content */}
-          <main className="flex-1 overflow-auto bg-surface-deep">
+{/* Main content */}
+          <main className="flex-1 overflow-auto bg-surface-deep pb-16 md:pb-0">
             {children}
           </main>
         </div>
+
+        {/* Mobile bottom navigation */}
+        <MobileBottomNav />
       </div>
     </>
   );
