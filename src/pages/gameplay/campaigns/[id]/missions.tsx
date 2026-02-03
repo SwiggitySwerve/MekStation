@@ -152,6 +152,15 @@ export default function MissionsPage(): React.ReactElement {
   const [isClient, setIsClient] = useState(false);
   const [filter, setFilter] = useState<'all' | MissionStatus>('all');
 
+  // Breadcrumbs
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Campaigns', href: '/gameplay/campaigns' },
+    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
+    { label: 'Missions' },
+  ];
+
   // Hydration fix
   useState(() => {
     setIsClient(true);
@@ -222,6 +231,7 @@ export default function MissionsPage(): React.ReactElement {
       title="Missions"
       subtitle={`${campaign.name} - ${allMissions.length} total missions`}
       maxWidth="wide"
+      breadcrumbs={breadcrumbs}
     >
       {/* Navigation Tabs */}
       <CampaignNavigation campaignId={campaign.id} currentPage="missions" />

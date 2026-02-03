@@ -568,10 +568,18 @@ export default function PilotDetailPage(): React.ReactElement {
   const isPersistent = pilot.type === PilotType.Persistent;
   const isActive = pilot.status === PilotStatus.Active || pilot.status === PilotStatus.Injured;
 
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Pilots', href: '/gameplay/pilots' },
+    { label: pilot.name },
+  ];
+
   return (
     <PageLayout
       title={pilot.name}
       subtitle={pilot.callsign ? `"${pilot.callsign}"` : undefined}
+      breadcrumbs={breadcrumbs}
       backLink="/gameplay/pilots"
       backLabel="Back to Roster"
       headerContent={

@@ -173,6 +173,15 @@ export default function PersonnelPage(): React.ReactElement {
   const campaign = store.getState().getCampaign();
   const [isClient, setIsClient] = useState(false);
 
+  // Breadcrumbs
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Campaigns', href: '/gameplay/campaigns' },
+    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
+    { label: 'Personnel' },
+  ];
+
   // Hydration fix
   useState(() => {
     setIsClient(true);
@@ -240,6 +249,7 @@ export default function PersonnelPage(): React.ReactElement {
       title="Personnel"
       subtitle={`${campaign.name} - ${personnel.length} personnel`}
       maxWidth="wide"
+      breadcrumbs={breadcrumbs}
     >
       {/* Navigation Tabs */}
       <CampaignNavigation campaignId={campaign.id} currentPage="personnel" />

@@ -443,10 +443,18 @@ export default function ForceDetailPage(): React.ReactElement {
     );
   }
 
+  const breadcrumbs = [
+    { label: 'Home', href: '/' },
+    { label: 'Gameplay', href: '/gameplay' },
+    { label: 'Forces', href: '/gameplay/forces' },
+    { label: force.name },
+  ];
+
   return (
     <PageLayout
       title={force.name}
       subtitle={`${getForceTypeName(force.forceType)} • ${force.affiliation || 'No affiliation'}`}
+      breadcrumbs={breadcrumbs}
       backLink="/gameplay/forces"
       backLabel="Back to Roster"
       maxWidth="wide"
