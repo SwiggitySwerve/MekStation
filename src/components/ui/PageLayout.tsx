@@ -4,13 +4,16 @@
  */
 import React from 'react';
 import Link from 'next/link';
+import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 interface PageLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
   maxWidth?: 'default' | 'narrow' | 'wide' | 'full';
-  /** Back link - can be object for Link or string href */
+  /** Breadcrumb navigation - when provided, replaces backLink */
+  breadcrumbs?: BreadcrumbItem[];
+  /** Back link - can be object for Link or string href. Ignored when breadcrumbs are provided. */
   backLink?: string | { href: string; label: string };
   /** Label for back link when backLink is a string */
   backLabel?: string;
@@ -32,6 +35,7 @@ export function PageLayout({
   title,
   subtitle,
   maxWidth = 'default',
+  breadcrumbs,
   backLink,
   backLabel = 'Back',
   onBack,
@@ -53,11 +57,18 @@ export function PageLayout({
     </svg>
   );
 
+  const showBackLink = !breadcrumbs && (normalizedBackLink || onBack);
+
   return (
     <div className={`${bgClasses} p-6`}>
       <div className={`${maxWidthClasses[maxWidth]} mx-auto`}>
-        {/* Back navigation - button if onBack provided, Link otherwise */}
-        {(normalizedBackLink || onBack) && (
+        {/* Breadcrumb navigation - replaces backLink when provided */}
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <Breadcrumb items={breadcrumbs} className="mb-4" />
+        )}
+
+        {/* Back navigation - only shown when no breadcrumbs, button if onBack provided, Link otherwise */}
+        {showBackLink && (
           onBack ? (
             <button
               onClick={onBack}

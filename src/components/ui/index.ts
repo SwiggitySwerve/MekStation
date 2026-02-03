@@ -7,6 +7,10 @@
 export { Badge, TechBaseBadge, WeightClassBadge } from './Badge';
 export type { } from './Badge';
 
+// Breadcrumb
+export { Breadcrumb } from './Breadcrumb';
+export type { BreadcrumbItem, BreadcrumbProps } from './Breadcrumb';
+
 // Button
 export { Button, PaginationButtons } from './Button';
 
