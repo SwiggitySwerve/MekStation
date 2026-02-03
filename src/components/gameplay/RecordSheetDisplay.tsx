@@ -90,13 +90,13 @@ function _getDamagePercent(current: number, max: number): number {
  * Get status color based on remaining percentage.
  */
 function getStatusColor(remaining: number, max: number): string {
-  const percent = max > 0 ? (remaining / max) * 100 : 0;
-  if (percent === 0) return 'text-gray-500';
-  if (percent <= 25) return 'text-red-600';
-  if (percent <= 50) return 'text-orange-500';
-  if (percent <= 75) return 'text-yellow-600';
-  return 'text-green-600';
-}
+   const percent = max > 0 ? (remaining / max) * 100 : 0;
+   if (percent === 0) return 'text-text-theme-secondary';
+   if (percent <= 25) return 'text-red-600';
+   if (percent <= 50) return 'text-orange-500';
+   if (percent <= 75) return 'text-yellow-600';
+   return 'text-green-600';
+ }
 
 // =============================================================================
 // Sub-Components
@@ -128,15 +128,15 @@ function LocationStatusRow({
   const structureColor = getStatusColor(structure, maxStructure);
 
   return (
-    <div
-      className={`flex items-center py-1 px-2 ${destroyed ? 'opacity-50 line-through' : ''}`}
-      data-testid={`location-row-${location}`}
-    >
-      <span className="w-28 text-sm font-medium">{displayName}</span>
+     <div
+       className={`flex items-center py-1 px-2 ${destroyed ? 'opacity-50 line-through' : ''}`}
+       data-testid={`location-row-${location}`}
+     >
+       <span className="w-28 text-sm font-medium text-text-theme-primary">{displayName}</span>
       <div className="flex-1 flex items-center gap-4">
-        {/* Front armor */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500 w-6">AR:</span>
+         {/* Front armor */}
+         <div className="flex items-center gap-1">
+           <span className="text-xs text-text-theme-secondary w-6">AR:</span>
           <span
             className={`text-sm font-mono w-8 text-right ${armorColor}`}
             data-testid={`location-armor-${location}`}
@@ -146,8 +146,8 @@ function LocationStatusRow({
         </div>
         {/* Rear armor (if applicable) */}
         {rearArmor !== undefined && maxRearArmor !== undefined && (
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-500 w-6">RR:</span>
+           <div className="flex items-center gap-1">
+             <span className="text-xs text-text-theme-secondary w-6">RR:</span>
             <span
               className={`text-sm font-mono w-8 text-right ${getStatusColor(rearArmor, maxRearArmor)}`}
               data-testid={`location-armor-${location}_rear`}
@@ -156,9 +156,9 @@ function LocationStatusRow({
             </span>
           </div>
         )}
-        {/* Structure */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500 w-6">IS:</span>
+         {/* Structure */}
+         <div className="flex items-center gap-1">
+           <span className="text-xs text-text-theme-secondary w-6">IS:</span>
           <span
             className={`text-sm font-mono w-8 text-right ${structureColor}`}
             data-testid={`location-structure-${location}`}
@@ -190,37 +190,37 @@ function WeaponRow({ weapon, isSelected, onToggle }: WeaponRowProps): React.Reac
     ? 'bg-yellow-50'
     : '';
 
-  return (
-    <div
-      className={`flex items-center py-1 px-2 hover:bg-gray-50 ${rowClasses}`}
-      onClick={isAvailable && onToggle ? onToggle : undefined}
-      style={{ cursor: isAvailable && onToggle ? 'pointer' : 'default' }}
-      data-testid={`weapon-row-${weapon.id}`}
-    >
-      {onToggle && (
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={onToggle}
-          disabled={!isAvailable}
-          className="mr-2"
-          data-testid={`weapon-checkbox-${weapon.id}`}
-        />
-      )}
-      <span className="flex-1 text-sm" data-testid={`weapon-name-${weapon.id}`}>{weapon.name}</span>
-      <span className="text-xs text-gray-500 w-16">{weapon.location}</span>
-      <span className="text-xs text-gray-600 w-8 text-center" data-testid={`weapon-heat-${weapon.id}`}>{weapon.heat}H</span>
-      <span className="text-xs text-gray-600 w-8 text-center" data-testid={`weapon-damage-${weapon.id}`}>{weapon.damage}D</span>
-      <span className="text-xs text-gray-500 w-20">
-        {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}
-      </span>
-      {weapon.ammoRemaining !== undefined && (
-        <span className="text-xs text-gray-500 w-12 text-right" data-testid={`weapon-ammo-${weapon.id}`}>
-          {weapon.ammoRemaining} rds
-        </span>
-      )}
-    </div>
-  );
+   return (
+     <div
+       className={`flex items-center py-1 px-2 hover:bg-surface-deep ${rowClasses}`}
+       onClick={isAvailable && onToggle ? onToggle : undefined}
+       style={{ cursor: isAvailable && onToggle ? 'pointer' : 'default' }}
+       data-testid={`weapon-row-${weapon.id}`}
+     >
+       {onToggle && (
+         <input
+           type="checkbox"
+           checked={isSelected}
+           onChange={onToggle}
+           disabled={!isAvailable}
+           className="mr-2"
+           data-testid={`weapon-checkbox-${weapon.id}`}
+         />
+       )}
+       <span className="flex-1 text-sm" data-testid={`weapon-name-${weapon.id}`}>{weapon.name}</span>
+       <span className="text-xs text-text-theme-secondary w-16">{weapon.location}</span>
+       <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-heat-${weapon.id}`}>{weapon.heat}H</span>
+       <span className="text-xs text-text-theme-secondary w-8 text-center" data-testid={`weapon-damage-${weapon.id}`}>{weapon.damage}D</span>
+       <span className="text-xs text-text-theme-secondary w-20">
+         {weapon.ranges.short}/{weapon.ranges.medium}/{weapon.ranges.long}
+       </span>
+       {weapon.ammoRemaining !== undefined && (
+         <span className="text-xs text-text-theme-secondary w-12 text-right" data-testid={`weapon-ammo-${weapon.id}`}>
+           {weapon.ammoRemaining} rds
+         </span>
+       )}
+     </div>
+   );
 }
 
 interface SimpleHeatDisplayProps {
@@ -232,33 +232,33 @@ function SimpleHeatDisplay({ heat, heatSinks }: SimpleHeatDisplayProps): React.R
   const heatPercent = Math.min((heat / MAX_HEAT) * 100, 100);
   const effects = getActiveHeatEffects(heat);
 
-  return (
-    <div className="bg-gray-50 p-2 rounded" data-testid="heat-display">
-      <div className="flex items-center gap-4 mb-2">
-        <div className="flex-1">
-          <div className="h-4 bg-gray-200 rounded overflow-hidden">
-            <div
-              className={`h-full ${getHeatColorClass(heat)} transition-all`}
-              style={{ width: `${heatPercent}%` }}
-              data-testid="heat-bar"
-            />
-          </div>
-        </div>
-        <div className="text-sm font-mono">
-          <span className="font-bold" data-testid="heat-value">{heat}</span>
-          <span className="text-gray-500">/{MAX_HEAT}</span>
-        </div>
-      </div>
-      {effects.length > 0 && (
-        <div className="text-xs text-red-600" data-testid="heat-effects">
-          {effects.join(' • ')}
-        </div>
-      )}
-      <div className="text-xs text-gray-500 mt-1" data-testid="heat-dissipation">
-        Dissipation: {heatSinks} heat/turn
-      </div>
-    </div>
-  );
+   return (
+     <div className="bg-surface-raised p-2 rounded" data-testid="heat-display">
+       <div className="flex items-center gap-4 mb-2">
+         <div className="flex-1">
+           <div className="h-4 bg-surface-deep rounded overflow-hidden">
+             <div
+               className={`h-full ${getHeatColorClass(heat)} transition-all`}
+               style={{ width: `${heatPercent}%` }}
+               data-testid="heat-bar"
+             />
+           </div>
+         </div>
+         <div className="text-sm font-mono">
+           <span className="font-bold" data-testid="heat-value">{heat}</span>
+           <span className="text-text-theme-secondary">/{MAX_HEAT}</span>
+         </div>
+       </div>
+       {effects.length > 0 && (
+         <div className="text-xs text-red-600" data-testid="heat-effects">
+           {effects.join(' • ')}
+         </div>
+       )}
+       <div className="text-xs text-text-theme-secondary mt-1" data-testid="heat-dissipation">
+         Dissipation: {heatSinks} heat/turn
+       </div>
+     </div>
+   );
 }
 
 interface PilotStatusProps {
@@ -273,33 +273,33 @@ function PilotStatus({ name, gunnery, piloting, wounds, conscious }: PilotStatus
   const woundIndicators = [];
   for (let i = 0; i < 6; i++) {
     woundIndicators.push(
-      <span
-        key={i}
-        className={`w-4 h-4 rounded-full border ${
-          i < wounds ? 'bg-red-500 border-red-600' : 'bg-white border-gray-300'
-        }`}
-        data-testid={`pilot-wound-${i}`}
-        data-filled={i < wounds}
-      />
+       <span
+         key={i}
+         className={`w-4 h-4 rounded-full border ${
+           i < wounds ? 'bg-red-500 border-red-600' : 'bg-surface-raised border-border-theme'
+         }`}
+         data-testid={`pilot-wound-${i}`}
+         data-filled={i < wounds}
+       />
     );
   }
 
-  return (
-    <div className="p-2 bg-gray-50 rounded" data-testid="pilot-status">
-      <div className="flex items-center justify-between mb-2">
-        <span className="font-medium" data-testid="pilot-name">{name}</span>
-        {!conscious && <span className="text-red-600 text-xs font-bold" data-testid="pilot-unconscious">UNCONSCIOUS</span>}
-      </div>
-      <div className="flex items-center gap-4 text-sm">
-        <span data-testid="pilot-gunnery">Gunnery: <strong>{gunnery}</strong></span>
-        <span data-testid="pilot-piloting">Piloting: <strong>{piloting}</strong></span>
-      </div>
-      <div className="flex items-center gap-1 mt-2" data-testid="pilot-wounds">
-        <span className="text-xs text-gray-500 mr-2">Wounds:</span>
-        {woundIndicators}
-      </div>
-    </div>
-  );
+   return (
+     <div className="p-2 bg-surface-raised rounded" data-testid="pilot-status">
+       <div className="flex items-center justify-between mb-2">
+         <span className="font-medium text-text-theme-primary" data-testid="pilot-name">{name}</span>
+         {!conscious && <span className="text-red-600 text-xs font-bold" data-testid="pilot-unconscious">UNCONSCIOUS</span>}
+       </div>
+       <div className="flex items-center gap-4 text-sm text-text-theme-primary">
+         <span data-testid="pilot-gunnery">Gunnery: <strong>{gunnery}</strong></span>
+         <span data-testid="pilot-piloting">Piloting: <strong>{piloting}</strong></span>
+       </div>
+       <div className="flex items-center gap-1 mt-2" data-testid="pilot-wounds">
+         <span className="text-xs text-text-theme-secondary mr-2">Wounds:</span>
+         {woundIndicators}
+       </div>
+     </div>
+   );
 }
 
 // =============================================================================
@@ -342,19 +342,19 @@ export function RecordSheetDisplay({
   }, [state, maxArmor, maxStructure]);
 
   return (
-    <div className={`bg-white p-4 overflow-y-auto ${className}`} data-testid="record-sheet">
-      {/* Header */}
-      <div className="border-b border-gray-300 pb-2 mb-4">
-        <h2 className="text-lg font-bold" data-testid="record-sheet-unit-name">{unitName}</h2>
-        <span className="text-sm text-gray-600" data-testid="record-sheet-designation">{designation}</span>
+     <div className={`bg-surface-base p-4 overflow-y-auto ${className}`} data-testid="record-sheet">
+       {/* Header */}
+       <div className="border-b border-border-theme pb-2 mb-4">
+         <h2 className="text-lg font-bold text-text-theme-primary" data-testid="record-sheet-unit-name">{unitName}</h2>
+         <span className="text-sm text-text-theme-secondary" data-testid="record-sheet-designation">{designation}</span>
         {state.destroyed && (
           <span className="ml-4 text-red-600 font-bold" data-testid="record-sheet-destroyed">DESTROYED</span>
         )}
       </div>
 
-      {/* Pilot Status */}
-      <div className="mb-4">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">PILOT</h3>
+       {/* Pilot Status */}
+       <div className="mb-4">
+         <h3 className="text-sm font-bold text-text-theme-primary mb-2">PILOT</h3>
         <PilotStatus
           name={pilotName}
           gunnery={gunnery}
@@ -364,27 +364,27 @@ export function RecordSheetDisplay({
         />
       </div>
 
-      {/* Heat */}
-      <div className="mb-4">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">HEAT ({heatSinks} sinks)</h3>
+       {/* Heat */}
+       <div className="mb-4">
+         <h3 className="text-sm font-bold text-text-theme-primary mb-2">HEAT ({heatSinks} sinks)</h3>
         <SimpleHeatDisplay heat={state.heat} heatSinks={heatSinks} />
       </div>
 
-      {/* Armor/Structure */}
-      <div className="mb-4" data-testid="armor-structure-section">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">ARMOR / STRUCTURE</h3>
-        <div className="border rounded divide-y">
+       {/* Armor/Structure */}
+       <div className="mb-4" data-testid="armor-structure-section">
+         <h3 className="text-sm font-bold text-text-theme-primary mb-2">ARMOR / STRUCTURE</h3>
+         <div className="border border-border-theme rounded divide-y">
           {locationStatuses.map((loc) => (
             <LocationStatusRow key={loc.location} {...loc} />
           ))}
         </div>
       </div>
 
-      {/* Weapons */}
-      <div className="mb-4" data-testid="weapons-section">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">WEAPONS</h3>
-        <div className="border rounded divide-y">
-          <div className="flex items-center py-1 px-2 bg-gray-50 text-xs text-gray-600">
+       {/* Weapons */}
+       <div className="mb-4" data-testid="weapons-section">
+         <h3 className="text-sm font-bold text-text-theme-primary mb-2">WEAPONS</h3>
+         <div className="border border-border-theme rounded divide-y">
+           <div className="flex items-center py-1 px-2 bg-surface-raised text-xs text-text-theme-secondary">
             {onWeaponToggle && <span className="w-6" />}
             <span className="flex-1">Weapon</span>
             <span className="w-16">Loc</span>
@@ -404,8 +404,8 @@ export function RecordSheetDisplay({
         </div>
       </div>
 
-      {/* Movement info */}
-      <div className="text-sm text-gray-600" data-testid="movement-info">
+       {/* Movement info */}
+       <div className="text-sm text-text-theme-secondary" data-testid="movement-info">
         <span>Movement this turn: </span>
         <strong data-testid="movement-type">{state.movementThisTurn}</strong>
         {state.hexesMovedThisTurn > 0 && (

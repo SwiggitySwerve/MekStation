@@ -195,35 +195,35 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return this.props.fallback
       }
       
-      // CRITICAL: Default error UI
-      return (
-        <div className="error-boundary bg-red-50 border border-red-200 rounded-lg p-6 m-4">
-          <div className="flex items-center mb-4">
-            <div className="flex-shrink-0">
-              <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-lg font-medium text-red-800">
-                Something went wrong
-              </h3>
-              <p className="text-sm text-red-600">
-                Error ID: {this.state.errorId}
-              </p>
-            </div>
-          </div>
-          
-          <div className="mb-4">
-            <p className="text-sm text-red-700">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            {this.props.componentName && (
-              <p className="text-xs text-red-600 mt-1">
-                Component: {this.props.componentName}
-              </p>
-            )}
-          </div>
+       // CRITICAL: Default error UI
+       return (
+         <div className="error-boundary bg-red-900/30 border border-red-500/30 rounded-lg p-6 m-4">
+           <div className="flex items-center mb-4">
+             <div className="flex-shrink-0">
+               <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+               </svg>
+             </div>
+             <div className="ml-3">
+               <h3 className="text-lg font-medium text-red-300">
+                 Something went wrong
+               </h3>
+               <p className="text-sm text-red-300">
+                 Error ID: {this.state.errorId}
+               </p>
+             </div>
+           </div>
+           
+           <div className="mb-4">
+             <p className="text-sm text-red-300">
+               {this.state.error?.message || 'An unexpected error occurred'}
+             </p>
+             {this.props.componentName && (
+               <p className="text-xs text-red-300 mt-1">
+                 Component: {this.props.componentName}
+               </p>
+             )}
+           </div>
           
           <div className="flex space-x-3">
             {this.state.canRecover && (
@@ -250,16 +250,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </button>
           </div>
           
-          {process.env.NODE_ENV === 'development' && this.state.error && (
-            <details className="mt-4">
-              <summary className="text-sm text-red-600 cursor-pointer">
-                Show Error Details (Development)
-              </summary>
-              <pre className="mt-2 text-xs text-red-800 bg-red-100 p-2 rounded overflow-auto max-h-40">
-                {this.state.error.stack}
-              </pre>
-            </details>
-          )}
+           {process.env.NODE_ENV === 'development' && this.state.error && (
+             <details className="mt-4">
+               <summary className="text-sm text-red-300 cursor-pointer">
+                 Show Error Details (Development)
+               </summary>
+               <pre className="mt-2 text-xs text-red-300 bg-red-900/30 p-2 rounded overflow-auto max-h-40">
+                 {this.state.error.stack}
+               </pre>
+             </details>
+           )}
         </div>
       )
     }
