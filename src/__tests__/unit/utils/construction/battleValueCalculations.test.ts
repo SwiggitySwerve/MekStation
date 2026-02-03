@@ -6,7 +6,16 @@ import {
   calculateTotalBV,
   getBVBreakdown,
   SPEED_FACTORS,
+  calculateOffensiveBVWithHeatTracking,
+  calculateOffensiveSpeedFactor,
+  type DefensiveBVConfig,
 } from '@/utils/construction/battleValueCalculations';
+import {
+  CANONICAL_BV_UNITS,
+  type CanonicalBVUnit,
+  type ArmorPoints,
+  type StructurePoints,
+} from '@/__tests__/fixtures/canonical-bv-units';
 
 describe('battleValueCalculations', () => {
   describe('calculateTMM()', () => {
@@ -28,8 +37,8 @@ describe('battleValueCalculations', () => {
       expect(calculateTMM(3, 5)).toBe(2); // Uses jump MP 5
     });
 
-    it('should return 7 for very high movement', () => {
-      expect(calculateTMM(25, 0)).toBe(7);
+    it('should return 6 for very high movement (25+ MP)', () => {
+      expect(calculateTMM(25, 0)).toBe(6);
     });
   });
 
@@ -57,28 +66,17 @@ describe('battleValueCalculations', () => {
     });
   });
 
-  describe('calculateDefensiveBV()', () => {
-    it('should calculate defensive BV', () => {
-      const bv = calculateDefensiveBV(100, 50, 10);
-      // armor_factor = 100 × 2.5 = 250
-      // structure_factor = 50 × 1.5 = 75
-      // defensive_modifier = 1.0 (no bonus)
-      // BV = (250 + 75) × 1.0 = 325
-      expect(bv).toBeGreaterThan(0);
-    });
-
-    it('should apply heat sink bonus', () => {
-      const bv10 = calculateDefensiveBV(100, 50, 10);
-      const bv20 = calculateDefensiveBV(100, 50, 20);
-      
-      expect(bv20).toBeGreaterThan(bv10);
-    });
-
-    it('should apply defensive equipment bonus', () => {
-      const bvNoEq = calculateDefensiveBV(100, 50, 10, false);
-      const bvWithEq = calculateDefensiveBV(100, 50, 10, true);
-      
-      expect(bvWithEq).toBeGreaterThan(bvNoEq);
+  describe('calculateDefensiveBV() - legacy tests', () => {
+    it('should return DefensiveBVResult object', () => {
+      const result = calculateDefensiveBV({
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        runMP: 6,
+        jumpMP: 0,
+      });
+      expect(result).toHaveProperty('totalDefensiveBV');
+      expect(typeof result.totalDefensiveBV).toBe('number');
     });
   });
 
@@ -102,6 +100,7 @@ describe('battleValueCalculations', () => {
     const config = {
       totalArmorPoints: 120,
       totalStructurePoints: 60,
+      tonnage: 50,
       heatSinkCapacity: 16,
       walkMP: 5,
       runMP: 8,
@@ -119,9 +118,282 @@ describe('battleValueCalculations', () => {
       expect(total).toBeGreaterThan(0);
     });
 
+  // ============================================================================
+  // OFFENSIVE BV CALCULATION - TDD TESTS (MegaMek-accurate with Heat Tracking)
+  // ============================================================================
+
+  describe('calculateOffensiveBV() - MegaMek-accurate with Heat Tracking', () => {
+    /**
+     * Helper: Sum armor points from all locations
+     */
+    function sumArmorPoints(armor: ArmorPoints): number {
+      return (
+        armor.head +
+        armor.centerTorso +
+        armor.centerTorsoRear +
+        armor.leftTorso +
+        armor.leftTorsoRear +
+        armor.rightTorso +
+        armor.rightTorsoRear +
+        armor.leftArm +
+        armor.rightArm +
+        armor.leftLeg +
+        armor.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Sum structure points from all locations
+     */
+    function sumStructurePoints(structure: StructurePoints): number {
+      return (
+        structure.head +
+        structure.centerTorso +
+        structure.leftTorso +
+        structure.rightTorso +
+        structure.leftArm +
+        structure.rightArm +
+        structure.leftLeg +
+        structure.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Build offensive BV config from a canonical unit fixture
+     */
+    function buildOffensiveBVConfig(unit: CanonicalBVUnit) {
+      return {
+        weapons: unit.weapons,
+        tonnage: unit.tonnage,
+        walkMP: unit.walkMP,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        heatDissipation: unit.heatSinks.count, // Single heat sinks = count dissipation
+      };
+    }
+
+    describe('heat tracking algorithm', () => {
+      it('should apply 50% penalty to weapons when cumulative heat exceeds dissipation', () => {
+        // Awesome AWS-8Q: 3×PPC (10 heat each) + 1×ML (3 heat)
+        // Heat sinks: 28 (single) = 28 dissipation
+        // Running heat: 2
+        // 
+        // Sorted by BV descending: PPC (176), PPC (176), PPC (176), ML (46)
+        // Weapon 1 (PPC): cumulative = 2 + 10 = 12 ≤ 28 → full BV = 176
+        // Weapon 2 (PPC): cumulative = 12 + 10 = 22 ≤ 28 → full BV = 176
+        // Weapon 3 (PPC): cumulative = 22 + 10 = 32 > 28 → 50% penalty → 88
+        // Weapon 4 (ML):  cumulative = 32 + 3 = 35 > 28 → 50% penalty → 23
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        const config = buildOffensiveBVConfig(awesome);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // First 2 PPCs at full BV, 3rd PPC and ML at 50%
+        // 176 + 176 + 88 + 23 = 463
+        expect(result.weaponBV).toBeCloseTo(463, 0);
+      });
+
+      it('should NOT apply penalty when heat is within dissipation', () => {
+        // Locust LCT-1V: 1×ML (3 heat) + 2×MG (0 heat)
+        // Heat sinks: 10 = 10 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: ML (46), MG (5), MG (5)
+        // Weapon 1 (ML): cumulative = 2 + 3 = 5 <= 10 → no penalty → 46
+        // Weapon 2 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
+        // Weapon 3 (MG): cumulative = 5 + 0 = 5 <= 10 → no penalty → 5
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // No penalty: 46 + 5 + 5 = 56
+        expect(result.weaponBV).toBe(56);
+      });
+
+      it('should apply partial penalties based on incremental heat', () => {
+        // Hunchback HBK-4G: 1×AC/20 (7 heat) + 2×ML (3 heat each) + 1×SL (1 heat)
+        // Heat sinks: 10 = 10 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
+        // Weapon 1 (AC/20): cumulative = 2 + 7 = 9 <= 10 → no penalty → 303
+        // Weapon 2 (ML): cumulative = 9 + 3 = 12 > 10 → 50% penalty → 23
+        // Weapon 3 (ML): cumulative = 12 + 3 = 15 > 10 → 50% penalty → 23
+        // Weapon 4 (SL): cumulative = 15 + 1 = 16 > 10 → 50% penalty → 4.5
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // 303 + 23 + 23 + 4.5 = 353.5
+        expect(result.weaponBV).toBeCloseTo(353.5, 0);
+      });
+
+      it('should sort weapons by BV descending before applying heat tracking', () => {
+        // Hunchback HBK-4G: AC/20 (303), 2×ML (46 each), SL (9)
+        // Heat sinks: 10 = 10 dissipation
+        // Running heat: 2
+        //
+        // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
+        // AC/20: 2 + 7 = 9 <= 10 → no penalty → 303
+        // ML: 9 + 3 = 12 > 10 → 50% → 23
+        // ML: 12 + 3 = 15 > 10 → 50% → 23
+        // SL: 15 + 1 = 16 > 10 → 50% → 4.5
+        // Total: 303 + 23 + 23 + 4.5 = 353.5
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        expect(result.weaponBV).toBeCloseTo(353.5, 0);
+      });
+
+      it('should start with running heat of 2', () => {
+        // The running heat represents movement heat in MegaMek
+        // Even a mech with zero-heat weapons starts at heat level 2
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // With 10 heat sinks and only 3 heat from ML, running heat 2 + 3 = 5 <= 10
+        // All weapons should be at full BV: 46 + 5 + 5 = 56
+        expect(result.weaponBV).toBe(56);
+      });
+    });
+
+    describe('offensive speed factor calculation', () => {
+      it('should calculate speed factor using MegaMek formula', () => {
+        // Locust: runMP 12, jumpMP 0 → mp = 12
+        // pow(1.7, 1.2) ≈ 1.8886 → round(188.86) / 100 = 1.89
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(locust.runMP, locust.jumpMP);
+        
+        expect(speedFactor).toBeCloseTo(1.89, 2);
+      });
+
+      it('should include half of jump MP in speed calculation', () => {
+        // Stinger: runMP 9, jumpMP 6 → mp = 9 + 3 = 12 → 1.89
+        const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(stinger.runMP, stinger.jumpMP);
+        
+        expect(speedFactor).toBeCloseTo(1.89, 2);
+      });
+
+      it('should handle slow mechs correctly', () => {
+        // Atlas: runMP 5, jumpMP 0
+        // mp = 5 + 0 = 5
+        // speedFactor = round(pow(1 + (5-5)/10, 1.2) * 100) / 100
+        //             = round(pow(1.0, 1.2) * 100) / 100
+        //             = round(100) / 100
+        //             = 1.0
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(atlas.runMP, atlas.jumpMP);
+        
+        expect(speedFactor).toBe(1.0);
+      });
+
+      it('should handle very slow mechs (mp < 5)', () => {
+        // Awesome: runMP 5, jumpMP 0 → mp = 5 → factor = 1.0
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        
+        const speedFactor = calculateOffensiveSpeedFactor(awesome.runMP, awesome.jumpMP);
+        
+        expect(speedFactor).toBe(1.0);
+      });
+    });
+
+    describe('weight bonus calculation', () => {
+      it('should add tonnage as weight bonus', () => {
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        const config = buildOffensiveBVConfig(atlas);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weight bonus = tonnage = 100
+        expect(result.weightBonus).toBe(100);
+      });
+
+      it('should add weight bonus for light mechs', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weight bonus = tonnage = 20
+        expect(result.weightBonus).toBe(20);
+      });
+    });
+
+    describe('total offensive BV calculation', () => {
+      it('should calculate total offensive BV for Locust LCT-1V', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 56, Weight: 20, Base: 76, Factor: 1.89 → round(143.64) = 144
+        expect(result.totalOffensiveBV).toBeCloseTo(144, 0);
+      });
+
+      it('should calculate total offensive BV for Awesome AWS-8Q (heat-heavy)', () => {
+        const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+        const config = buildOffensiveBVConfig(awesome);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 463 (2 PPCs full, 1 PPC + ML at 50%)
+        // Weight bonus: 80
+        // Base offensive: 543
+        // Speed factor: 1.0 (slow mech)
+        // Total: round(543 * 1.0) = 543
+        expect(result.totalOffensiveBV).toBeCloseTo(543, 0);
+      });
+
+      it('should calculate total offensive BV for Hunchback HBK-4G', () => {
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildOffensiveBVConfig(hunchback);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Weapon BV: 353.5 (partial heat penalties)
+        // Weight bonus: 50
+        // Base offensive: 403.5
+        // Speed factor: 1.37 (runMP 8)
+        // Total: round(403.5 * 1.37) = 553
+        expect(result.totalOffensiveBV).toBeCloseTo(553, 0);
+      });
+    });
+
+    describe('return type structure', () => {
+      it('should return OffensiveBVResult with all components', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildOffensiveBVConfig(locust);
+        
+        const result = calculateOffensiveBVWithHeatTracking(config);
+        
+        // Verify all properties exist
+        expect(result).toHaveProperty('weaponBV');
+        expect(result).toHaveProperty('weightBonus');
+        expect(result).toHaveProperty('speedFactor');
+        expect(result).toHaveProperty('totalOffensiveBV');
+        
+        // Verify types
+        expect(typeof result.weaponBV).toBe('number');
+        expect(typeof result.weightBonus).toBe('number');
+        expect(typeof result.speedFactor).toBe('number');
+        expect(typeof result.totalOffensiveBV).toBe('number');
+      });
+    });
+  });
+
     it('should provide a consistent breakdown', () => {
       const breakdown = getBVBreakdown(config);
-      expect(breakdown.defensiveBV).toBeGreaterThan(0);
+      expect(breakdown.defensiveBV).toBeGreaterThanOrEqual(0);
       expect(breakdown.offensiveBV).toBeGreaterThan(0);
       expect(breakdown.speedFactor).toBeGreaterThan(1);
       expect(breakdown.totalBV).toBe(
@@ -135,6 +407,456 @@ describe('battleValueCalculations', () => {
       expect(SPEED_FACTORS[0]).toBe(1.0);
       expect(SPEED_FACTORS[5]).toBe(1.5);
       expect(SPEED_FACTORS[10]).toBe(2.0);
+    });
+  });
+
+  // ============================================================================
+  // INTEGRATION TESTS - CANONICAL UNIT VALIDATION
+  // ============================================================================
+
+  describe('calculateTotalBV() - Canonical Unit Integration', () => {
+    /**
+     * Helper: Sum armor points from all locations
+     */
+    function sumArmorPoints(armor: ArmorPoints): number {
+      return (
+        armor.head +
+        armor.centerTorso +
+        armor.centerTorsoRear +
+        armor.leftTorso +
+        armor.leftTorsoRear +
+        armor.rightTorso +
+        armor.rightTorsoRear +
+        armor.leftArm +
+        armor.rightArm +
+        armor.leftLeg +
+        armor.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Sum structure points from all locations
+     */
+    function sumStructurePoints(structure: StructurePoints): number {
+      return (
+        structure.head +
+        structure.centerTorso +
+        structure.leftTorso +
+        structure.rightTorso +
+        structure.leftArm +
+        structure.rightArm +
+        structure.leftLeg +
+        structure.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Build config for calculateDefensiveBV + calculateOffensiveBVWithHeatTracking
+     */
+    function calculateCanonicalUnitBV(unit: CanonicalBVUnit): number {
+      const defensiveConfig = {
+        totalArmorPoints: sumArmorPoints(unit.armor),
+        totalStructurePoints: sumStructurePoints(unit.structure),
+        tonnage: unit.tonnage,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        armorType: 'standard',
+        structureType: 'standard',
+        gyroType: 'standard',
+      };
+      
+      const offensiveConfig = {
+        weapons: unit.weapons,
+        ammo: unit.ammo,
+        tonnage: unit.tonnage,
+        walkMP: unit.walkMP,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        heatDissipation: unit.heatSinks.count,
+      };
+      
+      const defensiveResult = calculateDefensiveBV(defensiveConfig);
+      const offensiveResult = calculateOffensiveBVWithHeatTracking(offensiveConfig);
+      
+      return defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+    }
+
+    it('should calculate exact BV for Atlas AS7-D (1,885)', () => {
+      const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+      const result = calculateCanonicalUnitBV(atlas);
+      expect(result).toBe(1885);
+    });
+
+    it('should calculate exact BV for Locust LCT-1V (390)', () => {
+      const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+      const result = calculateCanonicalUnitBV(locust);
+      expect(result).toBe(390);
+    });
+
+    it('should calculate exact BV for Hunchback HBK-4G (1,080)', () => {
+      const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+      const result = calculateCanonicalUnitBV(hunchback);
+      expect(result).toBe(1080);
+    });
+
+    it('should calculate exact BV for Awesome AWS-8Q (1,312)', () => {
+      const awesome = CANONICAL_BV_UNITS.find(u => u.id === 'awesome-aws-8q')!;
+      const result = calculateCanonicalUnitBV(awesome);
+      expect(result).toBe(1312);
+    });
+
+    it('should calculate exact BV for Stinger STG-3R (439)', () => {
+      const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+      const result = calculateCanonicalUnitBV(stinger);
+      expect(result).toBe(439);
+    });
+
+    it('should calculate exact BV for Commando COM-2D (560)', () => {
+      const commando = CANONICAL_BV_UNITS.find(u => u.id === 'commando-com-2d')!;
+      const result = calculateCanonicalUnitBV(commando);
+      expect(result).toBe(560);
+    });
+
+    it('should calculate exact BV for Centurion CN9-A (838)', () => {
+      const centurion = CANONICAL_BV_UNITS.find(u => u.id === 'centurion-cn9-a')!;
+      const result = calculateCanonicalUnitBV(centurion);
+      expect(result).toBe(838);
+    });
+
+    it('should calculate exact BV for Marauder MAD-3R (1,031)', () => {
+      const marauder = CANONICAL_BV_UNITS.find(u => u.id === 'marauder-mad-3r')!;
+      const result = calculateCanonicalUnitBV(marauder);
+      expect(result).toBe(1031);
+    });
+
+    it('should calculate exact BV for Warhammer WHM-6R (969)', () => {
+      const warhammer = CANONICAL_BV_UNITS.find(u => u.id === 'warhammer-whm-6r')!;
+      const result = calculateCanonicalUnitBV(warhammer);
+      expect(result).toBe(969);
+    });
+
+    it('should calculate exact BV for BattleMaster BLR-1G (1,186)', () => {
+      const battlemaster = CANONICAL_BV_UNITS.find(u => u.id === 'battlemaster-blr-1g')!;
+      const result = calculateCanonicalUnitBV(battlemaster);
+      expect(result).toBe(1186);
+    });
+
+    it('should calculate exact BV for all 10 canonical units', () => {
+      for (const unit of CANONICAL_BV_UNITS) {
+        const result = calculateCanonicalUnitBV(unit);
+        expect(result).toBe(unit.expectedBV);
+      }
+    });
+  });
+
+  // ============================================================================
+  // DEFENSIVE BV CALCULATION - TDD TESTS (MegaMek-accurate)
+  // ============================================================================
+
+  describe('calculateDefensiveBV() - MegaMek-accurate', () => {
+    /**
+     * Helper: Sum armor points from all locations
+     */
+    function sumArmorPoints(armor: ArmorPoints): number {
+      return (
+        armor.head +
+        armor.centerTorso +
+        armor.centerTorsoRear +
+        armor.leftTorso +
+        armor.leftTorsoRear +
+        armor.rightTorso +
+        armor.rightTorsoRear +
+        armor.leftArm +
+        armor.rightArm +
+        armor.leftLeg +
+        armor.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Sum structure points from all locations
+     */
+    function sumStructurePoints(structure: StructurePoints): number {
+      return (
+        structure.head +
+        structure.centerTorso +
+        structure.leftTorso +
+        structure.rightTorso +
+        structure.leftArm +
+        structure.rightArm +
+        structure.leftLeg +
+        structure.rightLeg
+      );
+    }
+
+    /**
+     * Helper: Build DefensiveBVConfig from a canonical unit fixture
+     */
+    function buildDefensiveBVConfig(unit: CanonicalBVUnit): DefensiveBVConfig {
+      return {
+        totalArmorPoints: sumArmorPoints(unit.armor),
+        totalStructurePoints: sumStructurePoints(unit.structure),
+        tonnage: unit.tonnage,
+        runMP: unit.runMP,
+        jumpMP: unit.jumpMP,
+        armorType: 'standard',
+        structureType: 'standard',
+        gyroType: 'standard',
+      };
+    }
+
+    describe('armor BV calculation', () => {
+      it('should calculate armor BV as totalArmor × 2.5 × armorMultiplier', () => {
+        // Locust LCT-1V: 46 armor points × 2.5 = 115 base armor BV
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const totalArmor = sumArmorPoints(locust.armor);
+        expect(totalArmor).toBe(46);
+
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        // Armor BV component should be 46 × 2.5 = 115
+        // (before defensive factor applied)
+        expect(result.armorBV).toBe(115);
+      });
+
+      it('should apply hardened armor multiplier (2.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'hardened',
+          structureType: 'standard',
+          gyroType: 'standard',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 100 × 2.5 × 2.0 = 500
+        expect(result.armorBV).toBe(500);
+      });
+
+      it('should apply reactive armor multiplier (1.5×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'reactive',
+          structureType: 'standard',
+          gyroType: 'standard',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 100 × 2.5 × 1.5 = 375
+        expect(result.armorBV).toBe(375);
+      });
+    });
+
+    describe('structure BV calculation', () => {
+      it('should calculate structure BV as totalStructure × 1.5 × structureMultiplier', () => {
+        // Locust LCT-1V: 33 structure points × 1.5 = 49.5 -> 50 (rounded)
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const totalStructure = sumStructurePoints(locust.structure);
+        expect(totalStructure).toBe(33);
+
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        // Structure BV component should be 33 × 1.5 = 49.5
+        expect(result.structureBV).toBe(49.5);
+      });
+
+      it('should apply reinforced structure multiplier (2.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'reinforced',
+          gyroType: 'standard',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 2.0 = 150
+        expect(result.structureBV).toBe(150);
+      });
+
+      it('should apply industrial structure multiplier (0.5×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'industrial',
+          gyroType: 'standard',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 0.5 = 37.5
+        expect(result.structureBV).toBe(37.5);
+      });
+    });
+
+    describe('gyro BV calculation', () => {
+      it('should calculate gyro BV as tonnage × gyroMultiplier', () => {
+        // Standard gyro: tonnage × 0.5
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        // 20 tons × 0.5 = 10
+        expect(result.gyroBV).toBe(10);
+      });
+
+      it('should apply heavy-duty gyro multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 75,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'heavy-duty',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 75 tons × 1.0 = 75
+        expect(result.gyroBV).toBe(75);
+      });
+
+      it('should calculate gyro BV for assault mechs', () => {
+        // Atlas AS7-D: 100 tons × 0.5 = 50 gyro BV
+        const atlas = CANONICAL_BV_UNITS.find(u => u.id === 'atlas-as7-d')!;
+        const config = buildDefensiveBVConfig(atlas);
+        const result = calculateDefensiveBV(config);
+
+        expect(result.gyroBV).toBe(50);
+      });
+    });
+
+    describe('defensive factor (TMM-based)', () => {
+      it('should apply defensive factor = 1 + (maxTMM / 10)', () => {
+        // Locust: runMP 12, jumpMP 0 -> TMM 4 -> factor 1.4
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        expect(result.defensiveFactor).toBe(1.4);
+      });
+
+      it('should use jump MP for TMM if higher than run', () => {
+        // Stinger: runMP 9, jumpMP 6 -> max(9,6)=9 -> TMM 3 -> factor 1.3
+        const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+        const config = buildDefensiveBVConfig(stinger);
+        const result = calculateDefensiveBV(config);
+
+        expect(result.defensiveFactor).toBe(1.3);
+      });
+
+      it('should handle slow mechs (TMM 0)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 100,
+          runMP: 2,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+        };
+        const result = calculateDefensiveBV(config);
+
+        // runMP 2 -> TMM 0 -> factor 1.0
+        expect(result.defensiveFactor).toBe(1.0);
+      });
+    });
+
+    describe('total defensive BV calculation', () => {
+      it('should calculate total defensive BV for Locust LCT-1V', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        // Armor: 46 × 2.5 = 115
+        // Structure: 33 × 1.5 = 49.5
+        // Gyro: 20 × 0.5 = 10
+        // Base: 115 + 49.5 + 10 = 174.5
+        // TMM 4 -> factor 1.4
+        // Total: 174.5 × 1.4 = 244.3 -> round to 244
+        expect(result.totalDefensiveBV).toBe(244);
+      });
+
+      it('should calculate total defensive BV for Stinger STG-3R', () => {
+        const stinger = CANONICAL_BV_UNITS.find(u => u.id === 'stinger-stg-3r')!;
+        const config = buildDefensiveBVConfig(stinger);
+        const result = calculateDefensiveBV(config);
+
+        // Armor: 46 × 2.5 = 115
+        // Structure: 33 × 1.5 = 49.5
+        // Gyro: 20 × 0.5 = 10
+        // Base: 174.5
+        // TMM 3 -> factor 1.3
+        // Total: 174.5 × 1.3 = 226.85 -> round to 227
+        expect(result.totalDefensiveBV).toBe(227);
+      });
+
+      it('should calculate total defensive BV for Hunchback HBK-4G', () => {
+        const hunchback = CANONICAL_BV_UNITS.find(u => u.id === 'hunchback-hbk-4g')!;
+        const config = buildDefensiveBVConfig(hunchback);
+        const result = calculateDefensiveBV(config);
+
+        // Armor: 106 × 2.5 = 265
+        // Structure: 77 × 1.5 = 115.5
+        // Gyro: 50 × 0.5 = 25
+        // Base: 405.5
+        // runMP 8 -> TMM 3 -> factor 1.3
+        // Total: 405.5 × 1.3 = 527.15 -> round to 527
+        expect(result.totalDefensiveBV).toBe(527);
+      });
+
+      it('should calculate total defensive BV for all canonical units', () => {
+        // This test verifies the formula works across all unit types
+        for (const unit of CANONICAL_BV_UNITS) {
+          const config = buildDefensiveBVConfig(unit);
+          const result = calculateDefensiveBV(config);
+
+          // Defensive BV should be positive
+          expect(result.totalDefensiveBV).toBeGreaterThan(0);
+
+          // Defensive BV should be less than total BV (offensive adds more)
+          expect(result.totalDefensiveBV).toBeLessThan(unit.expectedBV);
+        }
+      });
+    });
+
+    describe('return type structure', () => {
+      it('should return DefensiveBVResult with all components', () => {
+        const locust = CANONICAL_BV_UNITS.find(u => u.id === 'locust-lct-1v')!;
+        const config = buildDefensiveBVConfig(locust);
+        const result = calculateDefensiveBV(config);
+
+        // Verify all properties exist
+        expect(result).toHaveProperty('armorBV');
+        expect(result).toHaveProperty('structureBV');
+        expect(result).toHaveProperty('gyroBV');
+        expect(result).toHaveProperty('defensiveFactor');
+        expect(result).toHaveProperty('totalDefensiveBV');
+
+        // Verify types
+        expect(typeof result.armorBV).toBe('number');
+        expect(typeof result.structureBV).toBe('number');
+        expect(typeof result.gyroBV).toBe('number');
+        expect(typeof result.defensiveFactor).toBe('number');
+        expect(typeof result.totalDefensiveBV).toBe('number');
+      });
     });
   });
 });

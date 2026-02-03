@@ -83,6 +83,99 @@ export const BV2_SPEED_FACTORS: Record<number, number> = {
 };
 
 /**
+ * Armor type BV multipliers
+ * Per MegaMek BVCalculator.java:1477-1498
+ */
+export const ARMOR_BV_MULTIPLIERS: Record<string, number> = {
+  hardened: 2.0,
+  reactive: 1.5,
+  reflective: 1.5,
+  'ballistic-reinforced': 1.5,
+  'ferro-lamellor': 1.2,
+  'anti-penetrative': 1.2,
+  'heat-dissipating': 1.1,
+  standard: 1.0,
+};
+
+/**
+ * Structure type BV multipliers
+ * Per MegaMek MekBVCalculator.java:88-123
+ */
+export const STRUCTURE_BV_MULTIPLIERS: Record<string, number> = {
+  industrial: 0.5,
+  composite: 0.5,
+  reinforced: 2.0,
+  standard: 1.0,
+};
+
+/**
+ * Gyro type BV multipliers
+ * Per MegaMek Mek.java:5589-5597
+ * Formula: tonnage × gyro_multiplier
+ */
+export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
+  standard: 0.5,
+  xl: 0.5,
+  compact: 0.5,
+  'heavy-duty': 1.0,
+};
+
+/**
+ * Pilot skill BV multiplier matrix
+ * 9×9 matrix: gunnery (0-8) × piloting (0-8)
+ * Per MegaMek BVCalculator.java:1265-1274
+ * Baseline (4/5): 1.0
+ */
+export const PILOT_SKILL_MULTIPLIERS: number[][] = [
+  [ 2.42, 2.31, 2.21, 2.10, 1.93, 1.75, 1.68, 1.59, 1.50 ], // gunnery 0
+  [ 2.21, 2.11, 2.02, 1.92, 1.76, 1.60, 1.54, 1.46, 1.38 ], // gunnery 1
+  [ 1.93, 1.85, 1.76, 1.68, 1.54, 1.40, 1.35, 1.28, 1.21 ], // gunnery 2
+  [ 1.66, 1.58, 1.51, 1.44, 1.32, 1.20, 1.16, 1.10, 1.04 ], // gunnery 3
+  [ 1.38, 1.32, 1.26, 1.20, 1.10, 1.00, 0.95, 0.90, 0.85 ], // gunnery 4
+  [ 1.31, 1.19, 1.13, 1.08, 0.99, 0.90, 0.86, 0.81, 0.77 ], // gunnery 5
+  [ 1.24, 1.12, 1.07, 1.02, 0.94, 0.85, 0.81, 0.77, 0.72 ], // gunnery 6
+  [ 1.17, 1.06, 1.01, 0.96, 0.88, 0.80, 0.76, 0.72, 0.68 ], // gunnery 7
+  [ 1.10, 0.99, 0.95, 0.90, 0.83, 0.75, 0.71, 0.68, 0.64 ]  // gunnery 8
+];
+
+/**
+ * Get armor BV multiplier by type
+ * Returns 1.0 (standard) if type not found
+ */
+export function getArmorBVMultiplier(armorType: string): number {
+  return ARMOR_BV_MULTIPLIERS[armorType.toLowerCase()] ?? 1.0;
+}
+
+/**
+ * Get structure BV multiplier by type
+ * Returns 1.0 (standard) if type not found
+ */
+export function getStructureBVMultiplier(structureType: string): number {
+  return STRUCTURE_BV_MULTIPLIERS[structureType.toLowerCase()] ?? 1.0;
+}
+
+/**
+ * Get gyro BV multiplier by type
+ * Returns 0.5 (standard) if type not found
+ */
+export function getGyroBVMultiplier(gyroType: string): number {
+  return GYRO_BV_MULTIPLIERS[gyroType.toLowerCase()] ?? 0.5;
+}
+
+/**
+ * Calculate pilot skill BV modifier using full 9×9 matrix
+ * Gunnery/Piloting of 4/5 is baseline (1.0 modifier)
+ * Per MegaMek BVCalculator.java:1265-1274
+ */
+export function getPilotSkillModifier(gunnery: number, piloting: number): number {
+  // Clamp values to valid range (0-8)
+  const g = Math.max(0, Math.min(8, Math.floor(gunnery)));
+  const p = Math.max(0, Math.min(8, Math.floor(piloting)));
+  
+  return PILOT_SKILL_MULTIPLIERS[g][p];
+}
+
+/**
  * Defensive BV components
  */
 export interface DefensiveBVComponents {
@@ -179,17 +272,5 @@ export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {
   return BV2_SPEED_FACTORS[effectiveSpeed] ?? 1.0;
 }
 
-/**
- * Calculate pilot skill BV modifier
- * Gunnery/Piloting of 4/5 is baseline (1.0 modifier)
- */
-export function getPilotSkillModifier(gunnery: number, piloting: number): number {
-  // Simplified - full table is more complex
-  const skillTotal = gunnery + piloting;
-  if (skillTotal <= 5) return 1.4;
-  if (skillTotal <= 7) return 1.2;
-  if (skillTotal <= 9) return 1.0;
-  if (skillTotal <= 11) return 0.9;
-  return 0.8;
-}
+
 
