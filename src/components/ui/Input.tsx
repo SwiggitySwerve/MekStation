@@ -22,8 +22,8 @@ const accentFocusClasses: Record<InputAccent, string> = {
 };
 
 const variantClasses: Record<InputVariant, string> = {
-  default: 'px-4 py-2 rounded-lg',
-  large: 'px-5 py-3 rounded-xl',
+  default: 'px-4 py-2 rounded-lg min-h-[44px]',
+  large: 'px-5 py-3 rounded-xl min-h-[44px]',
 };
 
 export function Input({
@@ -75,7 +75,7 @@ export function Select({
   ...props
 }: SelectProps): React.ReactElement {
   const selectId = id || props.name;
-  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors';
+  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
 
   return (
     <div className="w-full">
@@ -116,7 +116,7 @@ export function Textarea({
   ...props
 }: TextareaProps): React.ReactElement {
   const textareaId = id || props.name;
-  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none';
+  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none min-h-[44px]';
 
   return (
     <div className="w-full">
