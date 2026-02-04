@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { IPilotMechCardData } from '@/types/pilot-mech-card';
+import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Types

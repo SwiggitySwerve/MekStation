@@ -9,7 +9,7 @@
 
 import { IPilot, PilotStatus } from '@/types/pilot';
 import { IUnitCardData } from '@/services/unit-card';
-import { IPilotMechCardData, IPilotMechCardMechData } from '@/types/pilot-mech-card';
+import { IPilotMechCardData, IPilotMechCardMechData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Constants

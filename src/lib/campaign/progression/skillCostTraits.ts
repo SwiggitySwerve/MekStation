@@ -10,7 +10,7 @@
 import type { IPerson } from '../../../types/campaign/Person';
 import type { ICampaignOptions } from '../../../types/campaign/Campaign';
 import type { ISkillType } from '../../../types/campaign/skills/ISkillType';
-import { SKILL_CATALOG } from '../../../types/campaign/skills/skillCatalog';
+import { SKILL_CATALOG } from '../../../constants/campaign/skillCatalog';
 
 /**
  * Tech skill IDs that are affected by Gremlins and Tech Empathy traits.

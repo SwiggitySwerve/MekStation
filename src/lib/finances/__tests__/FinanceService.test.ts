@@ -24,7 +24,8 @@ import {
 } from '../FinanceService';
 
 import { IFinances } from '@/types/campaign/IFinances';
-import { Transaction, TransactionType } from '@/types/campaign/Transaction';
+import { Transaction } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { ICampaign, createDefaultCampaignOptions, ICampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -36,7 +37,7 @@ import {
   PersonnelStatus,
   MissionStatus,
   CampaignPersonnelRole,
-  ForceType,
+  ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
@@ -102,7 +103,7 @@ function createTestForce(
     parentForceId,
     subForceIds,
     unitIds,
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',

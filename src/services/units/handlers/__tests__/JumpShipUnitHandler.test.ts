@@ -112,10 +112,10 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.JUMPSHIP);
-      expect(result.unit?.tonnage).toBe(152000);
-      expect(result.unit?.metadata.chassis).toBe('Invader');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.JUMPSHIP);
+      expect(result.data?.unit?.tonnage).toBe(152000);
+      expect(result.data?.unit?.metadata.chassis).toBe('Invader');
     });
 
     it('should parse K-F drive configuration', () => {
@@ -123,10 +123,10 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.kfDrive.rating).toBe(15);
-      expect(result.unit?.kfDrive.integrityPoints).toBe(4);
-      expect(result.unit?.kfDrive.hasDriveCore).toBe(true);
-      expect(result.unit?.kfDrive.hasLithiumFusion).toBe(false);
+      expect(result.data?.unit?.kfDrive.rating).toBe(15);
+      expect(result.data?.unit?.kfDrive.integrityPoints).toBe(4);
+      expect(result.data?.unit?.kfDrive.hasDriveCore).toBe(true);
+      expect(result.data?.unit?.kfDrive.hasLithiumFusion).toBe(false);
     });
 
     it('should parse lithium-fusion battery', () => {
@@ -136,7 +136,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.kfDrive.hasLithiumFusion).toBe(true);
+      expect(result.data?.unit?.kfDrive.hasLithiumFusion).toBe(true);
     });
 
     it('should parse docking collars', () => {
@@ -144,7 +144,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.dockingCollars).toBe(3);
+      expect(result.data?.unit?.dockingCollars).toBe(3);
     });
 
     it('should parse gravity decks', () => {
@@ -152,7 +152,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.gravDecks).toBe(2);
+      expect(result.data?.unit?.gravDecks).toBe(2);
     });
 
     it('should parse armor by arc', () => {
@@ -162,9 +162,9 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByArc.nose).toBe(30);
-      expect(result.unit?.armorByArc.frontLeftSide).toBe(25);
-      expect(result.unit?.armorByArc.aft).toBe(15);
+      expect(result.data?.unit?.armorByArc.nose).toBe(30);
+      expect(result.data?.unit?.armorByArc.frontLeftSide).toBe(25);
+      expect(result.data?.unit?.armorByArc.aft).toBe(15);
     });
 
     it('should calculate total armor points', () => {
@@ -174,7 +174,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(135);
+      expect(result.data?.unit?.totalArmorPoints).toBe(135);
     });
 
     it('should parse crew configuration', () => {
@@ -182,9 +182,9 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crewConfiguration.crew).toBe(25);
-      expect(result.unit?.crewConfiguration.officers).toBe(8);
-      expect(result.unit?.crewConfiguration.pilots).toBe(2);
+      expect(result.data?.unit?.crewConfiguration.crew).toBe(25);
+      expect(result.data?.unit?.crewConfiguration.officers).toBe(8);
+      expect(result.data?.unit?.crewConfiguration.pilots).toBe(2);
     });
 
     it('should parse tech base', () => {
@@ -194,8 +194,8 @@ describe('JumpShipUnitHandler', () => {
       const isResult = handler.parse(isDoc);
       const clanResult = handler.parse(clanDoc);
 
-      expect(isResult.unit?.techBase).toBe(TechBase.INNER_SPHERE);
-      expect(clanResult.unit?.techBase).toBe(TechBase.CLAN);
+      expect(isResult.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(clanResult.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
 
     it('should fail parse for under-tonnage ships', () => {
@@ -203,7 +203,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('50,000'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('50,000'))).toBe(true);
     });
   });
 
@@ -213,7 +213,7 @@ describe('JumpShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(true);
     });
 
@@ -223,7 +223,7 @@ describe('JumpShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       // Manually modify tonnage for validation test
-      const unit = { ...parseResult.unit!, tonnage: 40000 };
+      const unit = { ...parseResult.data!.unit, tonnage: 40000 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -235,7 +235,7 @@ describe('JumpShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.unit!, tonnage: 600000 };
+      const unit = { ...parseResult.data!.unit, tonnage: 600000 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -250,7 +250,7 @@ describe('JumpShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       // Manually set docking collars to 0 to test validation
-      const unitWithNoCollars = { ...parseResult.unit!, dockingCollars: 0 };
+      const unitWithNoCollars = { ...parseResult.data!.unit, dockingCollars: 0 };
       const validateResult = handler.validate(unitWithNoCollars);
       expect(validateResult.warnings.some((w) => w.includes('no docking collars'))).toBe(true);
     });
@@ -260,7 +260,7 @@ describe('JumpShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(true);
     });
 
@@ -271,7 +271,7 @@ describe('JumpShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.infos.some((i) => i.includes('Lithium-Fusion'))).toBe(true);
     });
   });
@@ -282,7 +282,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBe(152000);
     });
 
@@ -291,7 +291,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -300,7 +300,7 @@ describe('JumpShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
 
@@ -315,8 +315,8 @@ describe('JumpShipUnitHandler', () => {
       const resultWithLF = handler.parse(docWithLF);
       const resultWithoutLF = handler.parse(docWithoutLF);
 
-      const costWithLF = handler.calculateCost(resultWithLF.unit!);
-      const costWithoutLF = handler.calculateCost(resultWithoutLF.unit!);
+      const costWithLF = handler.calculateCost(resultWithLF.data!.unit);
+      const costWithoutLF = handler.calculateCost(resultWithoutLF.data!.unit);
 
       expect(costWithLF).toBeGreaterThan(costWithoutLF);
     });
@@ -328,10 +328,10 @@ describe('JumpShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized?.chassis).toBe('Invader');
-      expect(serializeResult.serialized?.configuration).toBe('JumpShip');
+      expect(serializeResult.data?.serialized?.chassis).toBe('Invader');
+      expect(serializeResult.data?.serialized?.configuration).toBe('JumpShip');
     });
   });
 
@@ -360,7 +360,7 @@ describe('JumpShipUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
     });
   });
 });

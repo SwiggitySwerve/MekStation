@@ -67,10 +67,8 @@ export interface UnitResponse {
  */
 export interface ImportResponse {
   success: boolean;
-  error?: string;
-  validationErrors?: unknown[];
-  unitId?: string;
-  suggestedName?: string;
+  data?: { unitId: string };
+  error?: { message: string; suggestedName?: string; validationErrors?: string[] };
 }
 
 /**

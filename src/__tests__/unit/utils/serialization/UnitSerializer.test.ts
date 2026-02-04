@@ -83,7 +83,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { formatVersion: string };
+        const envelope = JSON.parse(result.data.serializedContent) as { formatVersion: string };
         expect(envelope.formatVersion).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -93,7 +93,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { application: string; applicationVersion: string };
+        const envelope = JSON.parse(result.data.serializedContent) as { application: string; applicationVersion: string };
         expect(envelope.application).toBeDefined();
         expect(envelope.application).toBe('MekStation');
         expect(envelope.applicationVersion).toBeDefined();
@@ -105,7 +105,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { unit: { chassis: string; model: string; variant: string } };
+        const envelope = JSON.parse(result.data.serializedContent) as { unit: { chassis: string; model: string; variant: string } };
         expect(envelope.unit.chassis).toBe('Test');
         expect(envelope.unit.model).toBe('TST-1');
         expect(envelope.unit.variant).toBe('TST-1');
@@ -117,7 +117,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { unit: { engine: { type: string; rating: number } } };
+        const envelope = JSON.parse(result.data.serializedContent) as { unit: { engine: { type: string; rating: number } } };
         expect(envelope.unit.engine.type).toBe('Standard Fusion');
         expect(envelope.unit.engine.rating).toBe(250);
       }
@@ -128,7 +128,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(unit);
       
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data) as { unit: { armor: { allocation: { head: number; centerTorso: number } } } };
+        const envelope = JSON.parse(result.data.serializedContent) as { unit: { armor: { allocation: { head: number; centerTorso: number } } } };
         expect(envelope.unit.armor.allocation.head).toBe(9);
         expect(envelope.unit.armor.allocation.centerTorso).toBe(16);
       }
@@ -191,7 +191,7 @@ describe('UnitSerializer', () => {
           };
         };
 
-        const envelope = JSON.parse(result.data) as SerializedUnitEnvelope;
+        const envelope = JSON.parse(result.data.serializedContent) as SerializedUnitEnvelope;
 
         expect(envelope.unit.equipment[0]).toMatchObject({
           id: 'medium-laser',
@@ -219,7 +219,7 @@ describe('UnitSerializer', () => {
       const result = serializeUnit(invalidUnit);
       
       expect(result.success).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.error!.errors.length).toBeGreaterThan(0);
     });
   });
 
@@ -229,7 +229,7 @@ describe('UnitSerializer', () => {
       const serialized = serializeUnit(unit);
       
       if (serialized.success && serialized.data) {
-        const validation = validateSerializedFormat(serialized.data);
+        const validation = validateSerializedFormat(serialized.data.serializedContent);
         expect(validation.isValid).toBe(true);
       }
     });
@@ -281,7 +281,7 @@ describe('UnitSerializer', () => {
       const serialized = serializeUnit(unit);
       
       if (serialized.success && serialized.data) {
-        const version = getSerializedFormatVersion(serialized.data);
+        const version = getSerializedFormatVersion(serialized.data.serializedContent);
         expect(version).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -343,7 +343,7 @@ describe('UnitSerializer', () => {
       const serialized = serializer.serialize(unit);
       
       if (serialized.success && serialized.data) {
-        const validation = serializer.validateFormat(serialized.data);
+        const validation = serializer.validateFormat(serialized.data.serializedContent);
         expect(validation.isValid).toBe(true);
       }
     });
@@ -354,7 +354,7 @@ describe('UnitSerializer', () => {
       const serialized = serializer.serialize(unit);
       
       if (serialized.success && serialized.data) {
-        const version = serializer.getFormatVersion(serialized.data);
+        const version = serializer.getFormatVersion(serialized.data.serializedContent);
         expect(version).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -365,7 +365,7 @@ describe('UnitSerializer', () => {
       const result = serializer.deserialize(JSON.stringify(malformed));
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing unit field');
+      expect(result.error!.errors).toContain('Missing unit field');
     });
 
     it('should reject unsupported format versions during deserialize', () => {
@@ -384,7 +384,7 @@ describe('UnitSerializer', () => {
 
       const result = serializer.deserialize(JSON.stringify(envelope));
       expect(result.success).toBe(false);
-      expect(result.errors[0]).toContain('Unsupported format version');
+      expect(result.error!.errors[0]).toContain('Unsupported format version');
     });
 
     it('should return not implemented result for valid payloads', () => {
@@ -403,7 +403,7 @@ describe('UnitSerializer', () => {
 
       const result = serializer.deserialize(JSON.stringify(envelope));
       expect(result.success).toBe(false);
-      expect(result.errors[0]).toContain('Deserialization not yet implemented');
+      expect(result.error!.errors[0]).toContain('Deserialization not yet implemented');
     });
   });
 });

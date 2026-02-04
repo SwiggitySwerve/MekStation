@@ -347,7 +347,7 @@ describe('DataIntegrityValidator', () => {
       const result = validator.repair(data);
       
       expect(result.success).toBe(true);
-      expect(result.appliedRepairs).toHaveLength(0);
+      expect(result.data!.appliedRepairs).toHaveLength(0);
     });
 
     it('should repair negative armor values', () => {
@@ -365,10 +365,10 @@ describe('DataIntegrityValidator', () => {
       
       const result = validator.repair(data);
       
-      expect(result.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
-      expect(result.repairedData).toBeDefined();
+      expect(result.data!.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+      expect(result.data!.repairedData).toBeDefined();
       
-      const repaired = result.repairedData as Record<string, unknown>;
+      const repaired = result.data!.repairedData as Record<string, unknown>;
       const armor = repaired.armor as Record<string, unknown>;
       const allocation = armor.allocation as Record<string, number>;
       expect(allocation.leftArm).toBe(0);
@@ -389,9 +389,9 @@ describe('DataIntegrityValidator', () => {
       
       const result = validator.repair(data, { dryRun: true });
       
-      expect(result.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+      expect(result.data!.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
       // In dry run, repairedData should not be set
-      expect(result.repairedData).toBeUndefined();
+      expect(result.data!.repairedData).toBeUndefined();
     });
 
     it('should support selective repair codes', () => {
@@ -413,7 +413,8 @@ describe('DataIntegrityValidator', () => {
       });
       
       // Should not have applied the armor repair
-      expect(result.appliedRepairs).not.toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+      const repairData = result.success ? result.data : result.error;
+      expect(repairData.appliedRepairs).not.toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
     });
 
     it('should track remaining issues after repair', () => {
@@ -425,7 +426,8 @@ describe('DataIntegrityValidator', () => {
       
       const result = validator.repair(data);
       
-      expect(result.remainingIssues.length).toBeGreaterThan(0);
+      const repairData = result.success ? result.data : result.error;
+      expect(repairData.remainingIssues.length).toBeGreaterThan(0);
     });
   });
 

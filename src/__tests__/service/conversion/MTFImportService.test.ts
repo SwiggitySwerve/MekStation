@@ -42,7 +42,7 @@ describe('MTFImportService', () => {
       const result = service.import('some mtf content');
       
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.');
+      expect(result.error!.errors).toContain('Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.');
     });
   });
 
@@ -224,8 +224,7 @@ describe('MTFImportService', () => {
       const result = service.importFromJSON(validUnit);
       
       expect(result.success).toBe(true);
-      expect(result.unitId).toBe('atlas-as7-d');
-      expect(result.errors).toHaveLength(0);
+      expect(result.data!.unitId).toBe('atlas-as7-d');
     });
 
     it('should detect missing required fields', () => {
@@ -236,7 +235,7 @@ describe('MTFImportService', () => {
       
       const result = service.importFromJSON(invalidUnit as ISerializedUnit);
       
-      expect(result.errors).toContain('Missing required field: id');
+      expect(result.error!.errors).toContain('Missing required field: id');
     });
 
     it('should validate all required fields', () => {
@@ -244,11 +243,11 @@ describe('MTFImportService', () => {
       
       const result = service.importFromJSON(emptyUnit);
       
-      expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors).toContain('Missing required field: id');
-      expect(result.errors).toContain('Missing required field: chassis');
-      expect(result.errors).toContain('Missing required field: model');
-      expect(result.errors).toContain('Missing required field: engine');
+      expect(result.error!.errors.length).toBeGreaterThan(0);
+      expect(result.error!.errors).toContain('Missing required field: id');
+      expect(result.error!.errors).toContain('Missing required field: chassis');
+      expect(result.error!.errors).toContain('Missing required field: model');
+      expect(result.error!.errors).toContain('Missing required field: engine');
     });
 
     it('should fail in strict mode with any errors', () => {
@@ -276,7 +275,7 @@ describe('MTFImportService', () => {
       const result = service.importFromJSON(unitWithBadArmor, { validateArmor: true });
       
       // In non-strict mode, armor errors become warnings
-      expect(result.warnings.some(w => w.includes('Head armor exceeds maximum'))).toBe(true);
+      expect(result.data!.warnings.some((w: string) => w.includes('Head armor exceeds maximum'))).toBe(true);
     });
 
     it('should validate critical slots', () => {
@@ -289,7 +288,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unitWithBadSlots, { validateCriticalSlots: true });
       
-      expect(result.warnings.some(w => w.includes('HEAD has'))).toBe(true);
+      expect(result.data!.warnings.some((w: string) => w.includes('HEAD has'))).toBe(true);
     });
 
     it('should skip equipment validation when disabled', () => {
@@ -345,8 +344,8 @@ describe('MTFImportService', () => {
       const result = await service.loadFromUrl('http://invalid-url-that-does-not-exist.invalid/unit.json');
       
       expect(result.success).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.unitId).toBeUndefined();
+      expect(result.error!.errors.length).toBeGreaterThan(0);
+      expect(result.error!.unitId ?? null).toBeNull();
     });
   });
 });

@@ -111,7 +111,7 @@ describe('MTFImportService', () => {
       const result = service.import('some mtf content');
 
       expect(result.success).toBe(false);
-      expect(result.errors[0]).toContain('not implemented');
+      expect(result.error!.errors[0]).toContain('not implemented');
     });
   });
 
@@ -130,8 +130,7 @@ describe('MTFImportService', () => {
       const result = service.importFromJSON(unit);
 
       expect(result.success).toBe(true);
-      expect(result.unitId).toBe('test-unit-1');
-      expect(result.errors.length).toBe(0);
+      expect(result.data!.unitId).toBe('test-unit-1');
     });
 
     it('should report missing required fields', () => {
@@ -139,7 +138,7 @@ describe('MTFImportService', () => {
       const unit = createValidSerializedUnit({ id: undefinedId });
       const result = service.importFromJSON(unit);
 
-      expect(result.errors.some(e => e.includes('id'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('id'))).toBe(true);
     });
 
     it('should report all missing required fields', () => {
@@ -149,10 +148,10 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.errors.length).toBeGreaterThan(1);
-      expect(result.errors.some(e => e.includes('chassis'))).toBe(true);
-      expect(result.errors.some(e => e.includes('model'))).toBe(true);
-      expect(result.errors.some(e => e.includes('tonnage'))).toBe(true);
+      expect(result.error!.errors.length).toBeGreaterThan(1);
+      expect(result.error!.errors.some((e: string) => e.includes('chassis'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('model'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('tonnage'))).toBe(true);
     });
 
     it('should validate equipment references', () => {
@@ -164,7 +163,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.equipmentResolutionErrors.length).toBeGreaterThan(0);
+      expect(result.data!.equipmentResolutionErrors.length).toBeGreaterThan(0);
     });
 
     it('should not validate equipment when disabled', () => {
@@ -176,7 +175,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { validateEquipment: false });
 
-      expect(result.equipmentResolutionErrors.length).toBe(0);
+      expect(result.data!.equipmentResolutionErrors.length).toBe(0);
     });
 
     it('should validate armor allocation', () => {
@@ -191,7 +190,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.warnings.some(w => w.includes('Head'))).toBe(true);
+      expect(result.data!.warnings.some((w: string) => w.includes('Head'))).toBe(true);
     });
 
     it('should not validate armor when disabled', () => {
@@ -206,7 +205,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { validateArmor: false });
 
-      expect(result.warnings.filter(w => w.includes('Head')).length).toBe(0);
+      expect(result.data!.warnings.filter((w: string) => w.includes('Head')).length).toBe(0);
     });
 
     it('should validate critical slot counts', () => {
@@ -218,7 +217,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.warnings.some(w => w.includes('HEAD') && w.includes('slots'))).toBe(true);
+      expect(result.data!.warnings.some((w: string) => w.includes('HEAD') && w.includes('slots'))).toBe(true);
     });
 
     it('should not validate critical slots when disabled', () => {
@@ -230,7 +229,7 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { validateCriticalSlots: false });
 
-      expect(result.warnings.filter(w => w.includes('HEAD') && w.includes('slots')).length).toBe(0);
+      expect(result.data!.warnings.filter((w: string) => w.includes('HEAD') && w.includes('slots')).length).toBe(0);
     });
 
     it('should fail in strict mode with required field errors', () => {
@@ -249,18 +248,16 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { strictMode: true });
 
-      expect(result.errors.some(e => e.includes('Head'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('Head'))).toBe(true);
     });
 
     it('should handle malformed data gracefully', () => {
-      // Test with data that will cause validation failures
       const unit = {} as ISerializedUnit;
 
       const result = service.importFromJSON(unit);
 
       expect(result.success).toBe(false);
-      // Should have errors for missing required fields
-      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.error!.errors.length).toBeGreaterThan(0);
     });
   });
 
@@ -345,7 +342,7 @@ describe('MTFImportService', () => {
       const result = await service.loadFromUrl('http://example.com/unit.json');
 
       expect(result.success).toBe(true);
-      expect(result.unitId).toBe('test-unit-1');
+      expect(result.data!.unitId).toBe('test-unit-1');
     });
 
     it('should handle HTTP errors', async () => {
@@ -358,7 +355,7 @@ describe('MTFImportService', () => {
       const result = await service.loadFromUrl('http://example.com/unit.json');
 
       expect(result.success).toBe(false);
-      expect(result.errors[0]).toContain('404');
+      expect(result.error!.errors[0]).toContain('404');
     });
 
     it('should handle fetch errors', async () => {
@@ -367,7 +364,7 @@ describe('MTFImportService', () => {
       const result = await service.loadFromUrl('http://example.com/unit.json');
 
       expect(result.success).toBe(false);
-      expect(result.errors[0]).toContain('Network error');
+      expect(result.error!.errors[0]).toContain('Network error');
     });
 
     it('should pass validation options through', async () => {
@@ -383,7 +380,7 @@ describe('MTFImportService', () => {
         validateEquipment: false,
       });
 
-      expect(result.equipmentResolutionErrors.length).toBe(0);
+      expect(result.data!.equipmentResolutionErrors.length).toBe(0);
     });
   });
 });

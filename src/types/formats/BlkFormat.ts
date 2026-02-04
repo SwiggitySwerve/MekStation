@@ -18,6 +18,7 @@
  */
 
 import { UnitType } from '../unit/BattleMechInterfaces';
+import type { ResultType } from '@/services/core/types/BaseTypes';
 
 /**
  * Raw parsed BLK document before type-specific conversion
@@ -160,18 +161,31 @@ export interface IBlkDocument {
 }
 
 /**
- * Result of parsing a BLK file
+ * Success data from parsing a BLK file
  */
-export interface IBlkParseResult {
-  /** Whether parsing succeeded */
-  readonly success: boolean;
-  /** Parsed document (if successful) */
-  readonly document?: IBlkDocument;
+export interface IBlkParseData {
+  /** Parsed document */
+  readonly document: IBlkDocument;
+  /** Parse warnings (non-fatal issues) */
+  readonly warnings: readonly string[];
+}
+
+/**
+ * Error data from a failed BLK parse
+ */
+export interface IBlkParseError {
   /** Parse errors */
   readonly errors: readonly string[];
   /** Parse warnings (non-fatal issues) */
   readonly warnings: readonly string[];
 }
+
+/**
+ * Result of parsing a BLK file
+ *
+ * Uses discriminated union: check `success` to narrow to data or error.
+ */
+export type IBlkParseResult = ResultType<IBlkParseData, IBlkParseError>;
 
 /**
  * BLK unit type strings and their UnitType mappings

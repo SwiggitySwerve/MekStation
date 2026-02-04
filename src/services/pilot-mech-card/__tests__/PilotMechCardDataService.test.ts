@@ -16,7 +16,7 @@ import {
   MAX_WOUNDS,
 } from '../PilotMechCardDataService';
 import { PilotStatus, PilotType, IPilot } from '@/types/pilot';
-import { IPilotMechCardData } from '@/types/pilot-mech-card';
+import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Test Fixtures

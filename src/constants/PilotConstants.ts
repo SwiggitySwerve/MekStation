@@ -9,7 +9,7 @@ import {
   IPilotSkills,
   IPilotTemplate,
   PilotExperienceLevel,
-} from './PilotInterfaces';
+} from '@/types/pilot/PilotInterfaces';
 
 // =============================================================================
 // Skill Constants

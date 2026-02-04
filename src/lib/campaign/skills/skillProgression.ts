@@ -10,7 +10,7 @@
 import { IPerson } from '@/types/campaign/Person';
 import { ISkill } from '@/types/campaign/skills';
 import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { SKILL_CATALOG } from '@/types/campaign/skills/skillCatalog';
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 import { getAttributeModifier } from '@/types/campaign/skills/IAttributes';
 
 /**

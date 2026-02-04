@@ -12,36 +12,33 @@ import { IBaseUnit } from './BaseUnitInterfaces';
 import { IBlkDocument } from '../formats/BlkFormat';
 import { ISerializedUnit } from './UnitSerialization';
 import { UnitCategory } from '../validation/UnitValidationInterfaces';
+import type { ResultType } from '@/services/core/types/BaseTypes';
 
 // ============================================================================
 // Handler Result Types
 // ============================================================================
 
-/**
- * Result of parsing a unit from BLK format
- */
-export interface IUnitParseResult<T extends IBaseUnit = IBaseUnit> {
-  /** Whether parsing succeeded */
-  readonly success: boolean;
-  /** Parsed unit (if successful) */
-  readonly unit?: T;
-  /** Parse errors */
-  readonly errors: readonly string[];
-  /** Parse warnings (non-fatal issues) */
+export interface IUnitParseData<T extends IBaseUnit = IBaseUnit> {
+  readonly unit: T;
   readonly warnings: readonly string[];
 }
 
-/**
- * Result of converting to serialized format
- */
-export interface IUnitSerializeResult {
-  /** Whether serialization succeeded */
-  readonly success: boolean;
-  /** Serialized unit (if successful) */
-  readonly serialized?: ISerializedUnit;
-  /** Serialization errors */
+export interface IUnitParseError {
+  readonly errors: readonly string[];
+  readonly warnings: readonly string[];
+}
+
+export type IUnitParseResult<T extends IBaseUnit = IBaseUnit> = ResultType<IUnitParseData<T>, IUnitParseError>;
+
+export interface IUnitSerializeData {
+  readonly serialized: ISerializedUnit;
+}
+
+export interface IUnitSerializeError {
   readonly errors: readonly string[];
 }
+
+export type IUnitSerializeResult = ResultType<IUnitSerializeData, IUnitSerializeError>;
 
 /**
  * Result of validating a unit

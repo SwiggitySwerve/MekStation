@@ -121,15 +121,18 @@ export function serializeUnit(unit: IBattleMech): ISerializationResult {
 
     return {
       success: true,
-      data: JSON.stringify(envelope, null, 2),
-      errors: [],
-      warnings: [],
+      data: {
+        serializedContent: JSON.stringify(envelope, null, 2),
+        warnings: [],
+      },
     };
   } catch (error) {
     return {
       success: false,
-      errors: [`Serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
-      warnings: [],
+      error: {
+        errors: [`Serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        warnings: [],
+      },
     };
   }
 }
@@ -204,9 +207,7 @@ export function createUnitSerializer(): IUnitSerializer {
       if (!validation.isValid) {
         return {
           success: false,
-          errors: validation.errors,
-          warnings: [],
-          migrations: [],
+          error: { errors: validation.errors, warnings: [], migrations: [] },
         };
       }
 
@@ -214,9 +215,7 @@ export function createUnitSerializer(): IUnitSerializer {
       if (version && !isFormatVersionSupported(version)) {
         return {
           success: false,
-          errors: [`Unsupported format version: ${version}`],
-          warnings: [],
-          migrations: [],
+          error: { errors: [`Unsupported format version: ${version}`], warnings: [], migrations: [] },
         };
       }
 
@@ -224,9 +223,7 @@ export function createUnitSerializer(): IUnitSerializer {
       // This is a stub that would need the full implementation
       return {
         success: false,
-        errors: ['Deserialization not yet implemented'],
-        warnings: [],
-        migrations: [],
+        error: { errors: ['Deserialization not yet implemented'], warnings: [], migrations: [] },
       };
     },
 

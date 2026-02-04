@@ -7,6 +7,6 @@ export * from './PersonnelStatus';
 export * from './CampaignPersonnelRole';
 export * from './MissionStatus';
 export * from './ScenarioStatus';
-export * from './ForceType';
+export * from './ForceRole';
 export * from './FormationLevel';
 export * from './TransactionType';

@@ -27,10 +27,11 @@ import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionType
 import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { IForce } from '@/types/campaign/Force';
-import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IPerson } from '@/types/campaign/Person';
 import { Money } from '@/types/campaign/Money';
-import { Transaction, TransactionType } from '@/types/campaign/Transaction';
+import { Transaction } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
 import { createForcesStore, ForcesStore } from './useForcesStore';
 import { createMissionsStore, MissionsStore } from './useMissionsStore';
@@ -241,7 +242,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             parentForceId: undefined,
             subForceIds: [],
             unitIds: [],
-            forceType: ForceType.STANDARD,
+            forceType: ForceRole.STANDARD,
             formationLevel: FormationLevel.REGIMENT,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),

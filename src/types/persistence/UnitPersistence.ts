@@ -10,6 +10,7 @@ import { TechBase } from '../enums/TechBase';
 import { Era } from '../enums/Era';
 import { RulesLevel } from '../enums/RulesLevel';
 import { WeightClass } from '../enums/WeightClass';
+import type { ResultType } from '@/services/core/types/BaseTypes';
 
 /**
  * Custom unit record as stored in database
@@ -116,15 +117,25 @@ export interface IRevertRequest {
 }
 
 /**
- * Unit operation result
+ * Success data for unit operations (create, update, delete, revert)
  */
-export interface IUnitOperationResult {
-  readonly success: boolean;
-  readonly id?: string;
+export interface IUnitOperationData {
+  readonly id: string;
   readonly version?: number;
-  readonly error?: string;
+}
+
+/**
+ * Error data for unit operations
+ */
+export interface IUnitOperationError {
+  readonly message: string;
   readonly errorCode?: UnitErrorCode;
 }
+
+/**
+ * Unit operation result - discriminated union via ResultType
+ */
+export type IUnitOperationResult = ResultType<IUnitOperationData, IUnitOperationError>;
 
 /**
  * Error codes for unit operations
@@ -168,24 +179,28 @@ export interface ISerializedUnitEnvelope {
   readonly unit: Record<string, unknown>;
 }
 
-/**
- * Import result
- */
-export interface IImportResult {
-  readonly success: boolean;
-  readonly unitId?: string;
-  readonly error?: string;
+export interface IImportData {
+  readonly unitId: string;
+}
+
+export interface IImportError {
+  readonly message: string;
   readonly suggestedName?: string;
   readonly validationErrors?: readonly string[];
 }
 
 /**
- * Export result
+ * Import result - discriminated union via ResultType
  */
-export interface IExportResult {
-  readonly success: boolean;
-  readonly data?: ISerializedUnitEnvelope;
-  readonly filename?: string;
-  readonly error?: string;
+export type IImportResult = ResultType<IImportData, IImportError>;
+
+export interface IExportData {
+  readonly envelope: ISerializedUnitEnvelope;
+  readonly filename: string;
 }
+
+/**
+ * Export result - discriminated union via ResultType
+ */
+export type IExportResult = ResultType<IExportData, string>;
 

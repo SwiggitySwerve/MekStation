@@ -146,11 +146,11 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.DROPSHIP);
-      expect(result.unit?.tonnage).toBe(3500);
-      expect(result.unit?.metadata.chassis).toBe('Union');
-      expect(result.unit?.motionType).toBe(AerospaceMotionType.SPHEROID);
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.DROPSHIP);
+      expect(result.data?.unit?.tonnage).toBe(3500);
+      expect(result.data?.unit?.metadata.chassis).toBe('Union');
+      expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.SPHEROID);
     });
 
     it('should parse aerodyne DropShip', () => {
@@ -158,8 +158,8 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
-      expect(result.unit?.metadata.chassis).toBe('Leopard');
+      expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
+      expect(result.data?.unit?.metadata.chassis).toBe('Leopard');
     });
 
     it('should parse military design type', () => {
@@ -167,7 +167,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.designType).toBe(DropShipDesignType.MILITARY);
+      expect(result.data?.unit?.designType).toBe(DropShipDesignType.MILITARY);
     });
 
     it('should parse civilian design type', () => {
@@ -175,7 +175,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.designType).toBe(DropShipDesignType.CIVILIAN);
+      expect(result.data?.unit?.designType).toBe(DropShipDesignType.CIVILIAN);
     });
 
     it('should parse movement values correctly', () => {
@@ -183,8 +183,8 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.safeThrust).toBe(4);
-      expect(result.unit?.movement.maxThrust).toBe(6); // floor(4 * 1.5)
+      expect(result.data?.unit?.movement.safeThrust).toBe(4);
+      expect(result.data?.unit?.movement.maxThrust).toBe(6); // floor(4 * 1.5)
     });
 
     it('should parse structural integrity', () => {
@@ -192,7 +192,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.structuralIntegrity).toBe(12);
+      expect(result.data?.unit?.structuralIntegrity).toBe(12);
     });
 
     it('should parse armor by arc', () => {
@@ -202,12 +202,12 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByArc.nose).toBe(200);
-      expect(result.unit?.armorByArc.frontLeftSide).toBe(150);
-      expect(result.unit?.armorByArc.frontRightSide).toBe(150);
-      expect(result.unit?.armorByArc.aftLeftSide).toBe(120);
-      expect(result.unit?.armorByArc.aftRightSide).toBe(120);
-      expect(result.unit?.armorByArc.aft).toBe(80);
+      expect(result.data?.unit?.armorByArc.nose).toBe(200);
+      expect(result.data?.unit?.armorByArc.frontLeftSide).toBe(150);
+      expect(result.data?.unit?.armorByArc.frontRightSide).toBe(150);
+      expect(result.data?.unit?.armorByArc.aftLeftSide).toBe(120);
+      expect(result.data?.unit?.armorByArc.aftRightSide).toBe(120);
+      expect(result.data?.unit?.armorByArc.aft).toBe(80);
     });
 
     it('should calculate total armor points', () => {
@@ -217,7 +217,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(820);
+      expect(result.data?.unit?.totalArmorPoints).toBe(820);
     });
 
     it('should parse docking collar', () => {
@@ -225,7 +225,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasDockingCollar).toBe(true);
+      expect(result.data?.unit?.hasDockingCollar).toBe(true);
     });
 
     it('should parse crew configuration', () => {
@@ -233,10 +233,10 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crewConfiguration.crew).toBe(21);
-      expect(result.unit?.crewConfiguration.officers).toBe(5);
-      expect(result.unit?.crewConfiguration.gunners).toBe(4);
-      expect(result.unit?.crewConfiguration.pilots).toBe(2);
+      expect(result.data?.unit?.crewConfiguration.crew).toBe(21);
+      expect(result.data?.unit?.crewConfiguration.officers).toBe(5);
+      expect(result.data?.unit?.crewConfiguration.gunners).toBe(4);
+      expect(result.data?.unit?.crewConfiguration.pilots).toBe(2);
     });
 
     it('should parse transport bays', () => {
@@ -249,12 +249,12 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.transportBays.length).toBe(2);
+      expect(result.data?.unit?.transportBays.length).toBe(2);
 
-      const mechBay = result.unit?.transportBays.find((b) => b.type === BayType.MECH);
+      const mechBay = result.data?.unit?.transportBays.find((b) => b.type === BayType.MECH);
       expect(mechBay?.capacity).toBe(12);
 
-      const cargoBay = result.unit?.transportBays.find((b) => b.type === BayType.CARGO);
+      const cargoBay = result.data?.unit?.transportBays.find((b) => b.type === BayType.CARGO);
       expect(cargoBay?.capacity).toBe(75.5);
     });
 
@@ -274,9 +274,9 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.transportBays.length).toBe(5);
+      expect(result.data?.unit?.transportBays.length).toBe(5);
 
-      const types = result.unit?.transportBays.map((b) => b.type);
+      const types = result.data?.unit?.transportBays.map((b) => b.type);
       expect(types).toContain(BayType.MECH);
       expect(types).toContain(BayType.VEHICLE);
       expect(types).toContain(BayType.INFANTRY);
@@ -289,9 +289,9 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBeGreaterThan(0);
+      expect(result.data?.unit?.equipment.length).toBeGreaterThan(0);
 
-      const noseWeapon = result.unit?.equipment.find((e) => e.arc === CapitalArc.NOSE);
+      const noseWeapon = result.data?.unit?.equipment.find((e) => e.arc === CapitalArc.NOSE);
       expect(noseWeapon).toBeDefined();
     });
 
@@ -304,12 +304,12 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const navalWeapon = result.unit?.equipment.find((e) =>
+      const navalWeapon = result.data?.unit?.equipment.find((e) =>
         e.name.toLowerCase().includes('naval')
       );
       expect(navalWeapon?.isCapital).toBe(true);
 
-      const lrmWeapon = result.unit?.equipment.find((e) =>
+      const lrmWeapon = result.data?.unit?.equipment.find((e) =>
         e.name.toLowerCase().includes('lrm')
       );
       expect(lrmWeapon?.isCapital).toBe(false);
@@ -322,8 +322,8 @@ describe('DropShipUnitHandler', () => {
       const isResult = handler.parse(isDoc);
       const clanResult = handler.parse(clanDoc);
 
-      expect(isResult.unit?.techBase).toBe(TechBase.INNER_SPHERE);
-      expect(clanResult.unit?.techBase).toBe(TechBase.CLAN);
+      expect(isResult.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(clanResult.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
 
     it('should parse rules level', () => {
@@ -331,9 +331,9 @@ describe('DropShipUnitHandler', () => {
       const standardDoc = createMockBlkDocument({ type: 'IS Level 2' });
       const advancedDoc = createMockBlkDocument({ type: 'IS Level 3' });
 
-      expect(handler.parse(introDoc).unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
-      expect(handler.parse(standardDoc).unit?.rulesLevel).toBe(RulesLevel.STANDARD);
-      expect(handler.parse(advancedDoc).unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
+      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
+      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
     });
   });
 
@@ -343,7 +343,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(true);
     });
 
@@ -352,7 +352,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.unit!, tonnage: 150 };
+      const unit = { ...parseResult.data!.unit, tonnage: 150 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -364,7 +364,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.unit!, tonnage: 150000 };
+      const unit = { ...parseResult.data!.unit, tonnage: 150000 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -376,7 +376,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
       expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(true);
     });
@@ -386,7 +386,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
       expect(validateResult.errors.some((e) => e.includes('SI'))).toBe(true);
     });
@@ -396,7 +396,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(true);
     });
 
@@ -411,7 +411,7 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('escape capacity'))).toBe(true);
     });
   });
@@ -422,7 +422,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBe(3500);
     });
 
@@ -431,7 +431,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -442,8 +442,8 @@ describe('DropShipUnitHandler', () => {
       const resultHighThrust = handler.parse(docHighThrust);
       const resultLowThrust = handler.parse(docLowThrust);
 
-      const bvHighThrust = handler.calculateBV(resultHighThrust.unit!);
-      const bvLowThrust = handler.calculateBV(resultLowThrust.unit!);
+      const bvHighThrust = handler.calculateBV(resultHighThrust.data!.unit);
+      const bvLowThrust = handler.calculateBV(resultLowThrust.data!.unit);
 
       expect(bvHighThrust).toBeGreaterThan(bvLowThrust);
     });
@@ -453,7 +453,7 @@ describe('DropShipUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
 
@@ -466,9 +466,9 @@ describe('DropShipUnitHandler', () => {
 
       // Normalize by tonnage for fair comparison
       const militaryCostPerTon =
-        handler.calculateCost(militaryResult.unit!) / militaryResult.unit!.tonnage;
+        handler.calculateCost(militaryResult.data!.unit) / militaryResult.data!.unit.tonnage;
       const civilianCostPerTon =
-        handler.calculateCost(civilianResult.unit!) / civilianResult.unit!.tonnage;
+        handler.calculateCost(civilianResult.data!.unit) / civilianResult.data!.unit.tonnage;
 
       expect(militaryCostPerTon).toBeGreaterThan(civilianCostPerTon);
     });
@@ -480,9 +480,9 @@ describe('DropShipUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized?.chassis).toBe('Union');
+      expect(serializeResult.data?.serialized?.chassis).toBe('Union');
     });
 
     it('should serialize with motion type configuration', () => {
@@ -492,11 +492,11 @@ describe('DropShipUnitHandler', () => {
       const spheroidResult = handler.parse(spheroidDoc);
       const aerodyneResult = handler.parse(aerodyneDoc);
 
-      const spheroidSerialized = handler.serialize(spheroidResult.unit!);
-      const aerodyneSerialized = handler.serialize(aerodyneResult.unit!);
+      const spheroidSerialized = handler.serialize(spheroidResult.data!.unit);
+      const aerodyneSerialized = handler.serialize(aerodyneResult.data!.unit);
 
-      expect(spheroidSerialized.serialized?.configuration).toBe(AerospaceMotionType.SPHEROID);
-      expect(aerodyneSerialized.serialized?.configuration).toBe(AerospaceMotionType.AERODYNE);
+      expect(spheroidSerialized.data?.serialized?.configuration).toBe(AerospaceMotionType.SPHEROID);
+      expect(aerodyneSerialized.data?.serialized?.configuration).toBe(AerospaceMotionType.AERODYNE);
     });
   });
 
@@ -525,7 +525,7 @@ describe('DropShipUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
     });
   });
 });

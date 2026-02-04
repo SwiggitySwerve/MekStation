@@ -17,7 +17,7 @@ import {
 } from '../skillCostTraits';
 import type { IPerson } from '../../../../types/campaign/Person';
 import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import { SKILL_CATALOG } from '../../../../types/campaign/skills/skillCatalog';
+import { SKILL_CATALOG } from '../../../../constants/campaign/skillCatalog';
 
 // =============================================================================
 // Test Fixtures

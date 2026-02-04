@@ -45,7 +45,7 @@ import {
   PersonnelStatus,
   CampaignPersonnelRole,
   MissionStatus,
-  ForceType,
+  ForceRole,
   FormationLevel,
 } from '../enums';
 
@@ -94,7 +94,7 @@ function createTestForce(
     parentForceId,
     subForceIds,
     unitIds,
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: '2026-01-26T10:00:00Z',
     updatedAt: '2026-01-26T10:00:00Z',

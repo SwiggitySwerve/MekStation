@@ -1,7 +1,8 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ILoan } from '@/types/campaign/Loan';
 import { Money } from '@/types/campaign/Money';
-import { TransactionType, Transaction } from '@/types/campaign/Transaction';
+import type { Transaction } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import {
   IDayProcessor,

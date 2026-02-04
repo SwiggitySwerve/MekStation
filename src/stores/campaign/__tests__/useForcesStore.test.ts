@@ -7,7 +7,7 @@
 
 import { createForcesStore } from '../useForcesStore';
 import { IForce } from '@/types/campaign/Force';
-import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 // =============================================================================
 // Test Data Helpers
@@ -25,7 +25,7 @@ const createTestForce = (overrides?: Partial<IForce>): IForce => {
     parentForceId: undefined,
     subForceIds: [],
     unitIds: [],
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: now,
     updatedAt: now,
@@ -192,16 +192,16 @@ describe('useForcesStore', () => {
       it('should handle partial updates', () => {
         const force = createTestForce({
           name: 'Alpha Lance',
-          forceType: ForceType.STANDARD,
+          forceType: ForceRole.STANDARD,
           formationLevel: FormationLevel.LANCE,
         });
         store.getState().addForce(force);
 
-        store.getState().updateForce(force.id, { forceType: ForceType.RECON });
+        store.getState().updateForce(force.id, { forceType: ForceRole.RECON });
 
         const updated = store.getState().getForce(force.id);
         expect(updated?.name).toBe('Alpha Lance');
-        expect(updated?.forceType).toBe(ForceType.RECON);
+        expect(updated?.forceType).toBe(ForceRole.RECON);
         expect(updated?.formationLevel).toBe(FormationLevel.LANCE);
       });
 

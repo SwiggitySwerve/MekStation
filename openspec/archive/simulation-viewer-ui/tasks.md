@@ -1,9 +1,9 @@
 # Simulation Viewer UI - Implementation Tasks
 
-**Status**: Draft
+**Status**: Complete
 **Version**: 1.0
-**Last Updated**: 2026-02-02
-**Total Tasks**: 47
+**Last Updated**: 2026-02-04
+**Total Tasks**: 29
 **Estimated Effort**: 156-232 hours (19.5-29 days)
 
 ---
@@ -16,12 +16,12 @@
 **Dependencies**: None
 
 **Acceptance Criteria**:
-- [ ] All interfaces from data-model.md implemented in `src/types/simulation-viewer/`
-- [ ] `IKeyMoment`, `IAnomaly`, `ICampaignDashboardMetrics`, `IBattleComparisonData`, `IAnomalyThresholds`, `IDashboardConfig` exported
-- [ ] JSDoc comments with @example tags for all interfaces
-- [ ] Type constraints enforced (e.g., tier: 1|2|3, severity: "critical"|"warning"|"info")
-- [ ] lsp_diagnostics clean on all files
-- [ ] Exports from `src/types/simulation-viewer/index.ts`
+- [x] All interfaces from data-model.md implemented in `src/types/simulation-viewer/`
+- [x] `IKeyMoment`, `IAnomaly`, `ICampaignDashboardMetrics`, `IBattleComparisonData`, `IAnomalyThresholds`, `IDashboardConfig` exported
+- [x] JSDoc comments with @example tags for all interfaces
+- [x] Type constraints enforced (e.g., tier: 1|2|3, severity: "critical"|"warning"|"info")
+- [x] lsp_diagnostics clean on all files
+- [x] Exports from `src/types/simulation-viewer/index.ts`
 
 **Effort**: M (6 hours)
 
@@ -44,11 +44,11 @@
 **Dependencies**: None
 
 **Acceptance Criteria**:
-- [ ] All component props interfaces implemented in `src/components/simulation-viewer/types/`
-- [ ] `IKPICardProps`, `ITrendChartProps`, `IAnomalyAlertCardProps`, `ITabNavigationProps`, `IDrillDownLinkProps`, `IFilterPanelProps` exported
-- [ ] JSDoc comments with @example tags
-- [ ] Optional props marked with `?` suffix
-- [ ] lsp_diagnostics clean on all files
+- [x] All component props interfaces implemented in `src/components/simulation-viewer/types/`
+- [x] `IKPICardProps`, `ITrendChartProps`, `IAnomalyAlertCardProps`, `ITabNavigationProps`, `IDrillDownLinkProps`, `IFilterPanelProps` exported
+- [x] JSDoc comments with @example tags
+- [x] Optional props marked with `?` suffix
+- [x] lsp_diagnostics clean on all files
 
 **Effort**: S (3 hours)
 
@@ -71,13 +71,13 @@
 **Dependencies**: None
 
 **Acceptance Criteria**:
-- [ ] `calculateBVAdvantage(playerBV, enemyBV)` function with tests
-- [ ] `calculateComparisonDelta(current, baseline)` function with tests
-- [ ] `formatCurrency(amount)` function with tests
-- [ ] `formatDuration(milliseconds)` function with tests
-- [ ] `formatPercentage(value)` function with tests
-- [ ] All functions have unit tests with 100% coverage
-- [ ] lsp_diagnostics clean
+- [x] `calculateBVAdvantage(playerBV, enemyBV)` function with tests
+- [x] `calculateComparisonDelta(current, baseline)` function with tests
+- [x] `formatCurrency(amount)` function with tests
+- [x] `formatDuration(milliseconds)` function with tests
+- [x] `formatPercentage(value)` function with tests
+- [x] All functions have unit tests with 100% coverage
+- [x] lsp_diagnostics clean
 
 **Effort**: S (4 hours)
 
@@ -99,16 +99,16 @@
 **Dependencies**: Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders label, value, comparison, sparkline
-- [ ] Comparison direction affects color (green=up, red=down, gray=neutral)
-- [ ] Sparkline uses lightweight library (react-sparklines or custom SVG)
-- [ ] onClick handler triggers drill-down navigation
-- [ ] Hover state (shadow-md → shadow-lg)
-- [ ] Focus ring (ring-2 ring-blue-500) for keyboard navigation
-- [ ] Responsive sizing (text-2xl on mobile, text-3xl on desktop)
-- [ ] Dark mode support (Tailwind dark: classes)
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders label, value, comparison, sparkline
+- [x] Comparison direction affects color (green=up, red=down, gray=neutral)
+- [x] Sparkline uses lightweight library (react-sparklines or custom SVG)
+- [x] onClick handler triggers drill-down navigation
+- [x] Hover state (shadow-md → shadow-lg)
+- [x] Focus ring (ring-2 ring-blue-500) for keyboard navigation
+- [x] Responsive sizing (text-2xl on mobile, text-3xl on desktop)
+- [x] Dark mode support (Tailwind dark: classes)
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: M (6 hours)
 
@@ -127,15 +127,15 @@
 **Dependencies**: Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders line chart with X-axis (dates) and Y-axis (values)
-- [ ] Tooltip on hover showing date and value
-- [ ] Time range dropdown (7d/14d/30d/60d/90d)
-- [ ] Threshold line (horizontal) with label
-- [ ] Empty state message when data=[]
-- [ ] Responsive height (300px desktop, 200px mobile)
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders line chart with X-axis (dates) and Y-axis (values)
+- [x] Tooltip on hover showing date and value
+- [x] Time range dropdown (7d/14d/30d/60d/90d)
+- [x] Threshold line (horizontal) with label
+- [x] Empty state message when data=[]
+- [x] Responsive height (300px desktop, 200px mobile)
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: M (8 hours)
 
@@ -154,15 +154,15 @@
 **Dependencies**: Task 1.1 (IAnomaly interface), Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders icon, title, message, context (battle/turn), actions
-- [ ] Severity colors: red (critical), orange (warning), blue (info)
-- [ ] Icons: 🔴 (critical), ⚠️ (warning), ℹ️ (info)
-- [ ] Actions: "View Snapshot" (critical only), "View Battle", "Configure Threshold" (warning only), "Dismiss"
-- [ ] Dismiss animation (fade out, 300ms transition)
-- [ ] Keyboard navigation (Tab, Enter, Space)
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders icon, title, message, context (battle/turn), actions
+- [x] Severity colors: red (critical), orange (warning), blue (info)
+- [x] Icons: 🔴 (critical), ⚠️ (warning), ℹ️ (info)
+- [x] Actions: "View Snapshot" (critical only), "View Battle", "Configure Threshold" (warning only), "Dismiss"
+- [x] Dismiss animation (fade out, 300ms transition)
+- [x] Keyboard navigation (Tab, Enter, Space)
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: M (6 hours)
 
@@ -181,16 +181,16 @@
 **Dependencies**: Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders three tabs: "Campaign Dashboard", "Encounter History", "Analysis & Bugs"
-- [ ] Active tab styling (bg-white, border-b-2 border-blue-600, text-blue-600)
-- [ ] Inactive tab styling (bg-gray-100, text-gray-600)
-- [ ] Hover state on inactive tabs
-- [ ] Keyboard navigation (ArrowLeft, ArrowRight)
-- [ ] URL state preservation (?tab=encounter-history)
-- [ ] Responsive layout (full-width on mobile)
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders three tabs: "Campaign Dashboard", "Encounter History", "Analysis & Bugs"
+- [x] Active tab styling (bg-white, border-b-2 border-blue-600, text-blue-600)
+- [x] Inactive tab styling (bg-gray-100, text-gray-600)
+- [x] Hover state on inactive tabs
+- [x] Keyboard navigation (ArrowLeft, ArrowRight)
+- [x] URL state preservation (?tab=encounter-history)
+- [x] Responsive layout (full-width on mobile)
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: S (4 hours)
 
@@ -209,15 +209,15 @@
 **Dependencies**: Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders link text with icon
-- [ ] Click triggers navigation to target tab with filter applied
-- [ ] Breadcrumb trail added (e.g., "Dashboard > Roster > Wounded")
-- [ ] Scroll position preserved when returning
-- [ ] Keyboard navigation (Enter, Space)
-- [ ] Focus ring (ring-2 ring-blue-500)
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders link text with icon
+- [x] Click triggers navigation to target tab with filter applied
+- [x] Breadcrumb trail added (e.g., "Dashboard > Roster > Wounded")
+- [x] Scroll position preserved when returning
+- [x] Keyboard navigation (Enter, Space)
+- [x] Focus ring (ring-2 ring-blue-500)
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: S (4 hours)
 
@@ -236,16 +236,16 @@
 **Dependencies**: Task 1.2 (component props interfaces)
 
 **Acceptance Criteria**:
-- [ ] Component renders filter dropdowns with checkboxes
-- [ ] Multi-select support (multiple options per filter)
-- [ ] Search input with debounce (300ms)
-- [ ] Active filter badges with count (e.g., "Critical (5)")
-- [ ] "Clear All" button
-- [ ] Collapsible sections on mobile
-- [ ] Keyboard navigation
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
-- [ ] Storybook story with all variants
+- [x] Component renders filter dropdowns with checkboxes
+- [x] Multi-select support (multiple options per filter)
+- [x] Search input with debounce (300ms)
+- [x] Active filter badges with count (e.g., "Critical (5)")
+- [x] "Clear All" button
+- [x] Collapsible sections on mobile
+- [x] Keyboard navigation
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
+- [x] Storybook story with all variants
 
 **Effort**: M (6 hours)
 
@@ -266,13 +266,13 @@
 **Dependencies**: Task 1.1 (IKeyMoment interface)
 
 **Acceptance Criteria**:
-- [ ] Detector processes event stream and creates IKeyMoment objects
-- [ ] Tier 1 detection: first-blood, bv-swing-major, comeback, wipe, last-stand, ace-kill
-- [ ] Tier 2 detection: head-shot, ammo-explosion, pilot-kill, critical-engine, critical-gyro, alpha-strike, focus-fire
-- [ ] Tier 3 detection: heat-crisis, mobility-kill, weapons-kill, rear-arc-hit, overkill
-- [ ] Each detector has unit tests with 100% coverage
-- [ ] Edge cases handled (multiple moments per turn, empty battles)
-- [ ] lsp_diagnostics clean
+- [x] Detector processes event stream and creates IKeyMoment objects
+- [x] Tier 1 detection: first-blood, bv-swing-major, comeback, wipe, last-stand, ace-kill
+- [x] Tier 2 detection: head-shot, ammo-explosion, pilot-kill, critical-engine, critical-gyro, alpha-strike, focus-fire
+- [x] Tier 3 detection: heat-crisis, mobility-kill, weapons-kill, rear-arc-hit, overkill
+- [x] Each detector has unit tests with 100% coverage
+- [x] Edge cases handled (multiple moments per turn, empty battles)
+- [x] lsp_diagnostics clean
 
 **Effort**: L (12 hours)
 
@@ -290,13 +290,13 @@
 **Dependencies**: Task 1.1 (IAnomaly interface)
 
 **Acceptance Criteria**:
-- [ ] Detector creates IAnomaly when heat > threshold
-- [ ] Last-ditch exemption (outnumbered 3:1 or more)
-- [ ] Severity: "warning"
-- [ ] Includes thresholdUsed, actualValue, configKey
-- [ ] Unit tests with 100% coverage
-- [ ] Edge cases: shutdown units, last-ditch scenarios
-- [ ] lsp_diagnostics clean
+- [x] Detector creates IAnomaly when heat > threshold
+- [x] Last-ditch exemption (outnumbered 3:1 or more)
+- [x] Severity: "warning"
+- [x] Includes thresholdUsed, actualValue, configKey
+- [x] Unit tests with 100% coverage
+- [x] Edge cases: shutdown units, last-ditch scenarios
+- [x] lsp_diagnostics clean
 
 **Effort**: S (4 hours)
 
@@ -314,13 +314,13 @@
 **Dependencies**: Task 1.1 (IAnomaly interface)
 
 **Acceptance Criteria**:
-- [ ] Detector creates IAnomaly when unit inactive for N consecutive turns
-- [ ] Shutdown/destroyed unit exemption
-- [ ] Counter resets on movement or attack
-- [ ] Severity: "warning"
-- [ ] Unit tests with 100% coverage
-- [ ] Edge cases: shutdown units, destroyed units
-- [ ] lsp_diagnostics clean
+- [x] Detector creates IAnomaly when unit inactive for N consecutive turns
+- [x] Shutdown/destroyed unit exemption
+- [x] Counter resets on movement or attack
+- [x] Severity: "warning"
+- [x] Unit tests with 100% coverage
+- [x] Edge cases: shutdown units, destroyed units
+- [x] lsp_diagnostics clean
 
 **Effort**: S (4 hours)
 
@@ -338,13 +338,13 @@
 **Dependencies**: Task 1.1 (IAnomaly interface)
 
 **Acceptance Criteria**:
-- [ ] Detector creates IAnomaly when state unchanged for N turns
-- [ ] State comparison: positions, armor, structure, heat
-- [ ] Movement-only changes count as progress
-- [ ] Severity: "warning"
-- [ ] Unit tests with 100% coverage
-- [ ] Edge cases: movement-only, destroyed units
-- [ ] lsp_diagnostics clean
+- [x] Detector creates IAnomaly when state unchanged for N turns
+- [x] State comparison: positions, armor, structure, heat
+- [x] Movement-only changes count as progress
+- [x] Severity: "warning"
+- [x] Unit tests with 100% coverage
+- [x] Edge cases: movement-only, destroyed units
+- [x] lsp_diagnostics clean
 
 **Effort**: M (6 hours)
 
@@ -362,11 +362,11 @@
 **Dependencies**: Task 1.1 (IAnomaly interface)
 
 **Acceptance Criteria**:
-- [ ] Detector creates IAnomaly when turns > threshold
-- [ ] Severity: "info"
-- [ ] Battle-level anomaly (turn: null, unitId: null)
-- [ ] Unit tests with 100% coverage
-- [ ] lsp_diagnostics clean
+- [x] Detector creates IAnomaly when turns > threshold
+- [x] Severity: "info"
+- [x] Battle-level anomaly (turn: null, unitId: null)
+- [x] Unit tests with 100% coverage
+- [x] lsp_diagnostics clean
 
 **Effort**: S (2 hours)
 
@@ -384,14 +384,14 @@
 **Dependencies**: Task 1.1 (IAnomaly interface)
 
 **Acceptance Criteria**:
-- [ ] Detector creates IAnomaly when state repeats N times
-- [ ] State comparison: positions, armor, structure, heat
-- [ ] Severity: "critical"
-- [ ] Always includes snapshot
-- [ ] Triggers simulation halt
-- [ ] Unit tests with 100% coverage
-- [ ] Edge cases: near-identical states
-- [ ] lsp_diagnostics clean
+- [x] Detector creates IAnomaly when state repeats N times
+- [x] State comparison: positions, armor, structure, heat
+- [x] Severity: "critical"
+- [x] Always includes snapshot
+- [x] Triggers simulation halt
+- [x] Unit tests with 100% coverage
+- [x] Edge cases: near-identical states
+- [x] lsp_diagnostics clean
 
 **Effort**: M (6 hours)
 
@@ -411,16 +411,16 @@
 **Dependencies**: Tasks 2.1 (KPI Card), 2.2 (Trend Chart), 2.5 (Drill-Down Link), 2.4 (Tab Navigation)
 
 **Acceptance Criteria**:
-- [ ] Page renders 6 sections: roster, force, financial, progression, top performers, warnings
-- [ ] Roster section: KPI Card with active/wounded/KIA counts
-- [ ] Force section: KPI Card with operational/damaged/destroyed counts + BV totals
-- [ ] Financial section: Trend Chart with configurable time range
-- [ ] Progression section: KPI Cards for missions, win rate, XP
-- [ ] Top performers section: 5 performer cards sorted by user-selected metric
-- [ ] Warnings section: At-risk warnings with drill-down links
-- [ ] Responsive layout (4 cards/row desktop, 2 cards/row tablet, 1 card/row mobile)
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
+- [x] Page renders 6 sections: roster, force, financial, progression, top performers, warnings
+- [x] Roster section: KPI Card with active/wounded/KIA counts
+- [x] Force section: KPI Card with operational/damaged/destroyed counts + BV totals
+- [x] Financial section: Trend Chart with configurable time range
+- [x] Progression section: KPI Cards for missions, win rate, XP
+- [x] Top performers section: 5 performer cards sorted by user-selected metric
+- [x] Warnings section: At-risk warnings with drill-down links
+- [x] Responsive layout (4 cards/row desktop, 2 cards/row tablet, 1 card/row mobile)
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
 
 **Effort**: L (10 hours)
 
@@ -438,17 +438,17 @@
 **Dependencies**: Tasks 2.6 (Filter Panel), 2.5 (Drill-Down Link), 2.4 (Tab Navigation), 3.1 (Key Moment Detector)
 
 **Acceptance Criteria**:
-- [ ] Page renders battle list grouped by mission
-- [ ] Battle list filterable by outcome, sortable by duration/kills/damage
-- [ ] Battle detail view: forces, outcome summary, damage matrix, key moments, event timeline
-- [ ] Damage matrix: grid visualization (rows=attackers, columns=targets)
-- [ ] Key moments: timeline with tier badges, filterable by tier/type
-- [ ] Event timeline: vertical layout, grouped by turn, expandable/collapsible
-- [ ] VCR controls: play, pause, step forward/back, speed control (1x/2x/4x)
-- [ ] Comparison view: vs campaign average or specific battle
-- [ ] Responsive layout
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
+- [x] Page renders battle list grouped by mission
+- [x] Battle list filterable by outcome, sortable by duration/kills/damage
+- [x] Battle detail view: forces, outcome summary, damage matrix, key moments, event timeline
+- [x] Damage matrix: grid visualization (rows=attackers, columns=targets)
+- [x] Key moments: timeline with tier badges, filterable by tier/type
+- [x] Event timeline: vertical layout, grouped by turn, expandable/collapsible
+- [x] VCR controls: play, pause, step forward/back, speed control (1x/2x/4x)
+- [x] Comparison view: vs campaign average or specific battle
+- [x] Responsive layout
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
 
 **Effort**: L (16 hours)
 
@@ -466,15 +466,15 @@
 **Dependencies**: Tasks 2.3 (Anomaly Alert Card), 2.6 (Filter Panel), 2.4 (Tab Navigation), 3.2-3.6 (Anomaly Detectors)
 
 **Acceptance Criteria**:
-- [ ] Page renders 4 sections: invariant status, anomaly cards, violation log, threshold config
-- [ ] Invariant status: 7 cards (one per invariant) with pass/fail status
-- [ ] Anomaly cards: severity-based styling, actions (View Snapshot, View Battle, Configure Threshold, Dismiss)
-- [ ] Violation log: filterable by severity/type/battle, sortable by severity/timestamp
-- [ ] Threshold config: 5 sliders (heat suicide, passive unit, no progress, long game, state cycle) with live preview
-- [ ] Auto-snapshot config: toggles for critical/warning/info
-- [ ] Responsive layout
-- [ ] Dark mode support
-- [ ] Unit tests with React Testing Library (>90% coverage)
+- [x] Page renders 4 sections: invariant status, anomaly cards, violation log, threshold config
+- [x] Invariant status: 7 cards (one per invariant) with pass/fail status
+- [x] Anomaly cards: severity-based styling, actions (View Snapshot, View Battle, Configure Threshold, Dismiss)
+- [x] Violation log: filterable by severity/type/battle, sortable by severity/timestamp
+- [x] Threshold config: 5 sliders (heat suicide, passive unit, no progress, long game, state cycle) with live preview
+- [x] Auto-snapshot config: toggles for critical/warning/info
+- [x] Responsive layout
+- [x] Dark mode support
+- [x] Unit tests with React Testing Library (>90% coverage)
 
 **Effort**: L (12 hours)
 
@@ -494,13 +494,13 @@
 **Dependencies**: Task 4.1, 4.2, 4.3 (all tab pages)
 
 **Acceptance Criteria**:
-- [ ] Zustand store manages activeTab state
-- [ ] URL synchronization (?tab=encounter-history)
-- [ ] Browser back/forward navigation support
-- [ ] Tab change triggers URL update
-- [ ] URL change triggers tab change
-- [ ] Unit tests with 100% coverage
-- [ ] lsp_diagnostics clean
+- [x] Zustand store manages activeTab state
+- [x] URL synchronization (?tab=encounter-history)
+- [x] Browser back/forward navigation support
+- [x] Tab change triggers URL update
+- [x] URL change triggers tab change
+- [x] Unit tests with 100% coverage
+- [x] lsp_diagnostics clean
 
 **Effort**: S (4 hours)
 
@@ -518,12 +518,12 @@
 **Dependencies**: Task 4.1, 4.2, 4.3 (all tab pages)
 
 **Acceptance Criteria**:
-- [ ] Navigation function applies filters to target tab
-- [ ] Breadcrumb trail added to navigation history
-- [ ] Scroll position preserved when returning
-- [ ] Filter state persists during navigation
-- [ ] Unit tests with 100% coverage
-- [ ] lsp_diagnostics clean
+- [x] Navigation function applies filters to target tab
+- [x] Breadcrumb trail added to navigation history
+- [x] Scroll position preserved when returning
+- [x] Filter state persists during navigation
+- [x] Unit tests with 100% coverage
+- [x] lsp_diagnostics clean
 
 **Effort**: M (6 hours)
 
@@ -541,12 +541,12 @@
 **Dependencies**: Task 4.2, 4.3 (Encounter History, Analysis & Bugs pages)
 
 **Acceptance Criteria**:
-- [ ] Filters persist across tab switches
-- [ ] Filters persist across page refreshes (localStorage)
-- [ ] "Clear All" resets filters
-- [ ] Filter state synchronized with URL query params
-- [ ] Unit tests with 100% coverage
-- [ ] lsp_diagnostics clean
+- [x] Filters persist across tab switches
+- [x] Filters persist across page refreshes (localStorage)
+- [x] "Clear All" resets filters
+- [x] Filter state synchronized with URL query params
+- [x] Unit tests with 100% coverage
+- [x] lsp_diagnostics clean
 
 **Effort**: S (4 hours)
 
@@ -564,14 +564,14 @@
 **Dependencies**: Tasks 3.1-3.6 (all detectors)
 
 **Acceptance Criteria**:
-- [ ] Simulation runner calls detectors during/after battle
-- [ ] Key moments cached in battle record
-- [ ] Anomalies logged to violation log
-- [ ] Critical anomalies trigger simulation halt
-- [ ] Snapshots saved when configured
-- [ ] Unit tests with 100% coverage
-- [ ] Integration tests with full simulation run
-- [ ] lsp_diagnostics clean
+- [x] Simulation runner calls detectors during/after battle
+- [x] Key moments cached in battle record
+- [x] Anomalies logged to violation log
+- [x] Critical anomalies trigger simulation halt
+- [x] Snapshots saved when configured
+- [x] Unit tests with 100% coverage
+- [x] Integration tests with full simulation run
+- [x] lsp_diagnostics clean
 
 **Effort**: M (8 hours)
 
@@ -591,12 +591,12 @@
 **Dependencies**: All component tasks (2.1-2.6, 4.1-4.3)
 
 **Acceptance Criteria**:
-- [ ] All components use Tailwind dark: classes
-- [ ] Color contrast meets WCAG 2.1 AA in both modes
-- [ ] Theme toggle button in header
-- [ ] Theme preference persists (localStorage)
-- [ ] Visual regression tests in both modes (Storybook snapshots)
-- [ ] Manual QA in both modes
+- [x] All components use Tailwind dark: classes
+- [x] Color contrast meets WCAG 2.1 AA in both modes
+- [x] Theme toggle button in header
+- [x] Theme preference persists (localStorage)
+- [x] Visual regression tests in both modes (Storybook snapshots)
+- [x] Manual QA in both modes
 
 **Effort**: M (6 hours)
 
@@ -615,13 +615,13 @@
 **Dependencies**: All component tasks (2.1-2.6, 4.1-4.3)
 
 **Acceptance Criteria**:
-- [ ] All pages tested at 480px (mobile), 768px (tablet), 1920px (desktop)
-- [ ] Touch targets minimum 44px on mobile
-- [ ] Stacked layout on mobile, grid on desktop
-- [ ] Simplified charts on mobile (fewer ticks, larger hit areas)
-- [ ] Collapsible sections on mobile
-- [ ] Visual regression tests at all breakpoints
-- [ ] Manual QA on mobile device
+- [x] All pages tested at 480px (mobile), 768px (tablet), 1920px (desktop)
+- [x] Touch targets minimum 44px on mobile
+- [x] Stacked layout on mobile, grid on desktop
+- [x] Simplified charts on mobile (fewer ticks, larger hit areas)
+- [x] Collapsible sections on mobile
+- [x] Visual regression tests at all breakpoints
+- [x] Manual QA on mobile device
 
 **Effort**: M (8 hours)
 
@@ -639,14 +639,14 @@
 **Dependencies**: All component tasks (2.1-2.6, 4.1-4.3)
 
 **Acceptance Criteria**:
-- [ ] All interactive elements keyboard accessible (Tab, Enter, Space, Arrow keys)
-- [ ] All components have ARIA labels and roles
-- [ ] Focus indicators visible (ring-2 ring-blue-500)
-- [ ] Screen reader announcements for state changes
-- [ ] Color contrast meets 4.5:1 (normal text), 3:1 (large text)
-- [ ] Automated accessibility tests (axe-core)
-- [ ] Manual QA with keyboard only (no mouse)
-- [ ] Manual QA with screen reader (NVDA/JAWS)
+- [x] All interactive elements keyboard accessible (Tab, Enter, Space, Arrow keys)
+- [x] All components have ARIA labels and roles
+- [x] Focus indicators visible (ring-2 ring-blue-500)
+- [x] Screen reader announcements for state changes
+- [x] Color contrast meets 4.5:1 (normal text), 3:1 (large text)
+- [x] Automated accessibility tests (axe-core)
+- [x] Manual QA with keyboard only (no mouse)
+- [x] Manual QA with screen reader (NVDA/JAWS)
 
 **Effort**: M (8 hours)
 
@@ -664,15 +664,15 @@
 **Dependencies**: All component tasks (2.1-2.6, 4.1-4.3)
 
 **Acceptance Criteria**:
-- [ ] Event timeline virtualized (react-window) for 1000+ events
-- [ ] Violation log virtualized for 1000+ violations
-- [ ] Sparklines use lightweight library (react-sparklines or custom SVG)
-- [ ] Debounced search input (300ms)
-- [ ] Memoized chart components (React.memo)
-- [ ] Lazy loading for tab content (React.lazy)
-- [ ] Performance tests: timeline with 1000 events renders in <500ms
-- [ ] Performance tests: violation log with 1000 violations renders in <500ms
-- [ ] lsp_diagnostics clean
+- [x] Event timeline virtualized (react-window) for 1000+ events
+- [x] Violation log virtualized for 1000+ violations
+- [x] Sparklines use lightweight library (react-sparklines or custom SVG)
+- [x] Debounced search input (300ms)
+- [x] Memoized chart components (React.memo)
+- [x] Lazy loading for tab content (React.lazy)
+- [x] Performance tests: timeline with 1000 events renders in <500ms
+- [x] Performance tests: violation log with 1000 violations renders in <500ms
+- [x] lsp_diagnostics clean
 
 **Effort**: M (8 hours)
 
@@ -693,14 +693,14 @@
 **Dependencies**: All tasks in Waves 1-6
 
 **Acceptance Criteria**:
-- [ ] Test: Navigate from Campaign Dashboard to Encounter History via drill-down link
-- [ ] Test: Filter battles by outcome, sort by duration
-- [ ] Test: View battle detail, expand timeline, play VCR controls
-- [ ] Test: Detect anomaly, view in Analysis & Bugs tab, configure threshold
-- [ ] Test: Dismiss anomaly, verify persistence
-- [ ] Test: Switch tabs, verify state preservation
-- [ ] All tests pass with 100% success rate
-- [ ] lsp_diagnostics clean
+- [x] Test: Navigate from Campaign Dashboard to Encounter History via drill-down link
+- [x] Test: Filter battles by outcome, sort by duration
+- [x] Test: View battle detail, expand timeline, play VCR controls
+- [x] Test: Detect anomaly, view in Analysis & Bugs tab, configure threshold
+- [x] Test: Dismiss anomaly, verify persistence
+- [x] Test: Switch tabs, verify state preservation
+- [x] All tests pass with 100% success rate
+- [x] lsp_diagnostics clean
 
 **Effort**: M (8 hours)
 
@@ -717,13 +717,13 @@
 **Dependencies**: All tasks in Waves 1-6
 
 **Acceptance Criteria**:
-- [ ] Test: Full workflow from dashboard to encounter history to analysis
-- [ ] Test: Drill-down navigation with filter application
-- [ ] Test: VCR playback controls
-- [ ] Test: Threshold configuration with live preview
-- [ ] Test: Dark mode toggle
-- [ ] Test: Responsive layout at all breakpoints
-- [ ] All tests pass with 100% success rate
+- [x] Test: Full workflow from dashboard to encounter history to analysis
+- [x] Test: Drill-down navigation with filter application
+- [x] Test: VCR playback controls
+- [x] Test: Threshold configuration with live preview
+- [x] Test: Dark mode toggle
+- [x] Test: Responsive layout at all breakpoints
+- [x] All tests pass with 100% success rate
 
 **Effort**: M (8 hours)
 
@@ -740,14 +740,14 @@
 **Dependencies**: All tasks in Waves 1-6
 
 **Acceptance Criteria**:
-- [ ] Add Simulation Viewer section to `docs/features/simulation-viewer.md`
-- [ ] Document all three tabs (Campaign Dashboard, Encounter History, Analysis & Bugs)
-- [ ] Document key moment detection (15 types, 3 tiers)
-- [ ] Document anomaly detection (5 types, configurable thresholds)
-- [ ] Document drill-down navigation patterns
-- [ ] Document accessibility features
-- [ ] Add screenshots for all major features
-- [ ] Update `README.md` with Simulation Viewer feature
+- [x] Add Simulation Viewer section to `docs/features/simulation-viewer.md`
+- [x] Document all three tabs (Campaign Dashboard, Encounter History, Analysis & Bugs)
+- [x] Document key moment detection (15 types, 3 tiers)
+- [x] Document anomaly detection (5 types, configurable thresholds)
+- [x] Document drill-down navigation patterns
+- [x] Document accessibility features
+- [x] Add screenshots for all major features
+- [x] Update `README.md` with Simulation Viewer feature
 
 **Effort**: S (4 hours)
 
@@ -761,7 +761,7 @@
 
 ## Summary
 
-**Total Tasks**: 47
+**Total Tasks**: 29
 
 **Estimated Effort**: 156-232 hours (19.5-29 days at 8 hours/day)
 

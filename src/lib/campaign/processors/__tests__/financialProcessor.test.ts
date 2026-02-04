@@ -7,7 +7,7 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
 import { DayPhase, IDayEvent } from '../../dayPipeline';
-import { TransactionType } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import type { ILoan } from '@/types/campaign/Loan';
 import { financialProcessor } from '../financialProcessor';
 import { dailyCostsProcessor } from '../dailyCostsProcessor';

@@ -146,11 +146,11 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.SMALL_CRAFT);
-      expect(result.unit?.tonnage).toBe(100);
-      expect(result.unit?.metadata.chassis).toBe('K-1');
-      expect(result.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.SMALL_CRAFT);
+      expect(result.data?.unit?.tonnage).toBe(100);
+      expect(result.data?.unit?.metadata.chassis).toBe('K-1');
+      expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
     });
 
     it('should parse spheroid Small Craft', () => {
@@ -158,8 +158,8 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(AerospaceMotionType.SPHEROID);
-      expect(result.unit?.metadata.chassis).toBe('Hunter');
+      expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.SPHEROID);
+      expect(result.data?.unit?.metadata.chassis).toBe('Hunter');
     });
 
     it('should parse movement values correctly', () => {
@@ -167,8 +167,8 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.safeThrust).toBe(5);
-      expect(result.unit?.movement.maxThrust).toBe(7); // floor(5 * 1.5)
+      expect(result.data?.unit?.movement.safeThrust).toBe(5);
+      expect(result.data?.unit?.movement.maxThrust).toBe(7); // floor(5 * 1.5)
     });
 
     it('should parse structural integrity', () => {
@@ -176,7 +176,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.structuralIntegrity).toBe(6);
+      expect(result.data?.unit?.structuralIntegrity).toBe(6);
     });
 
     it('should parse armor by arc', () => {
@@ -186,10 +186,10 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByArc.nose).toBe(40);
-      expect(result.unit?.armorByArc.leftSide).toBe(30);
-      expect(result.unit?.armorByArc.rightSide).toBe(30);
-      expect(result.unit?.armorByArc.aft).toBe(20);
+      expect(result.data?.unit?.armorByArc.nose).toBe(40);
+      expect(result.data?.unit?.armorByArc.leftSide).toBe(30);
+      expect(result.data?.unit?.armorByArc.rightSide).toBe(30);
+      expect(result.data?.unit?.armorByArc.aft).toBe(20);
     });
 
     it('should calculate total armor points', () => {
@@ -199,7 +199,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(120);
+      expect(result.data?.unit?.totalArmorPoints).toBe(120);
     });
 
     it('should parse crew and passengers', () => {
@@ -207,8 +207,8 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crew).toBe(2);
-      expect(result.unit?.passengers).toBe(8);
+      expect(result.data?.unit?.crew).toBe(2);
+      expect(result.data?.unit?.passengers).toBe(8);
     });
 
     it('should parse cargo capacity', () => {
@@ -218,7 +218,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cargoCapacity).toBe(10.5);
+      expect(result.data?.unit?.cargoCapacity).toBe(10.5);
     });
 
     it('should parse escape pods and life boats', () => {
@@ -229,8 +229,8 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.escapePods).toBe(3);
-      expect(result.unit?.lifeBoats).toBe(1);
+      expect(result.data?.unit?.escapePods).toBe(3);
+      expect(result.data?.unit?.lifeBoats).toBe(1);
     });
 
     it('should parse equipment with locations', () => {
@@ -238,9 +238,9 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBeGreaterThan(0);
+      expect(result.data?.unit?.equipment.length).toBeGreaterThan(0);
 
-      const noseWeapon = result.unit?.equipment.find((e) =>
+      const noseWeapon = result.data?.unit?.equipment.find((e) =>
         e.location === SmallCraftLocation.NOSE
       );
       expect(noseWeapon).toBeDefined();
@@ -251,7 +251,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('100'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('100'))).toBe(true);
     });
 
     it('should fail parse for over-tonnage craft', () => {
@@ -259,7 +259,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('200'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('200'))).toBe(true);
     });
 
     it('should fail parse for zero thrust', () => {
@@ -267,7 +267,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('thrust'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('thrust'))).toBe(true);
     });
 
     it('should parse tech base', () => {
@@ -277,8 +277,8 @@ describe('SmallCraftUnitHandler', () => {
       const isResult = handler.parse(isDoc);
       const clanResult = handler.parse(clanDoc);
 
-      expect(isResult.unit?.techBase).toBe(TechBase.INNER_SPHERE);
-      expect(clanResult.unit?.techBase).toBe(TechBase.CLAN);
+      expect(isResult.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(clanResult.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
 
     it('should parse rules level', () => {
@@ -286,9 +286,9 @@ describe('SmallCraftUnitHandler', () => {
       const standardDoc = createMockBlkDocument({ type: 'IS Level 2' });
       const advancedDoc = createMockBlkDocument({ type: 'IS Level 3' });
 
-      expect(handler.parse(introDoc).unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
-      expect(handler.parse(standardDoc).unit?.rulesLevel).toBe(RulesLevel.STANDARD);
-      expect(handler.parse(advancedDoc).unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
+      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
+      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
     });
   });
 
@@ -298,7 +298,7 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(true);
     });
 
@@ -307,7 +307,7 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.unit!, tonnage: 80 };
+      const unit = { ...parseResult.data!.unit, tonnage: 80 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -319,7 +319,7 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.unit!, tonnage: 250 };
+      const unit = { ...parseResult.data!.unit, tonnage: 250 };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
@@ -333,8 +333,8 @@ describe('SmallCraftUnitHandler', () => {
 
       // Manually set to 0 for validation test
       const unit = {
-        ...parseResult.unit!,
-        movement: { ...parseResult.unit!.movement, safeThrust: 0, maxThrust: 0 },
+        ...parseResult.data!.unit,
+        movement: { ...parseResult.data!.unit.movement, safeThrust: 0, maxThrust: 0 },
       };
       const validateResult = handler.validate(unit);
 
@@ -347,7 +347,7 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
       expect(validateResult.errors.some((e) => e.includes('SI'))).toBe(true);
     });
@@ -360,7 +360,7 @@ describe('SmallCraftUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       // Manually set crew to 0 to test validation
-      const unitWithNoCrew = { ...parseResult.unit!, crew: 0 };
+      const unitWithNoCrew = { ...parseResult.data!.unit, crew: 0 };
       const validateResult = handler.validate(unitWithNoCrew);
       expect(validateResult.warnings.some((w) => w.includes('no crew assigned'))).toBe(true);
     });
@@ -375,7 +375,7 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('escape capacity'))).toBe(true);
     });
   });
@@ -386,7 +386,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBe(100);
     });
 
@@ -395,7 +395,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -406,8 +406,8 @@ describe('SmallCraftUnitHandler', () => {
       const resultHighThrust = handler.parse(docHighThrust);
       const resultLowThrust = handler.parse(docLowThrust);
 
-      const bvHighThrust = handler.calculateBV(resultHighThrust.unit!);
-      const bvLowThrust = handler.calculateBV(resultLowThrust.unit!);
+      const bvHighThrust = handler.calculateBV(resultHighThrust.data!.unit);
+      const bvLowThrust = handler.calculateBV(resultLowThrust.data!.unit);
 
       expect(bvHighThrust).toBeGreaterThan(bvLowThrust);
     });
@@ -423,8 +423,8 @@ describe('SmallCraftUnitHandler', () => {
       const resultHighArmor = handler.parse(docHighArmor);
       const resultLowArmor = handler.parse(docLowArmor);
 
-      const bvHighArmor = handler.calculateBV(resultHighArmor.unit!);
-      const bvLowArmor = handler.calculateBV(resultLowArmor.unit!);
+      const bvHighArmor = handler.calculateBV(resultHighArmor.data!.unit);
+      const bvLowArmor = handler.calculateBV(resultLowArmor.data!.unit);
 
       expect(bvHighArmor).toBeGreaterThan(bvLowArmor);
     });
@@ -434,7 +434,7 @@ describe('SmallCraftUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
 
@@ -445,8 +445,8 @@ describe('SmallCraftUnitHandler', () => {
       const resultLarge = handler.parse(docLarge);
       const resultSmall = handler.parse(docSmall);
 
-      const costLarge = handler.calculateCost(resultLarge.unit!);
-      const costSmall = handler.calculateCost(resultSmall.unit!);
+      const costLarge = handler.calculateCost(resultLarge.data!.unit);
+      const costSmall = handler.calculateCost(resultSmall.data!.unit);
 
       expect(costLarge).toBeGreaterThan(costSmall);
     });
@@ -458,9 +458,9 @@ describe('SmallCraftUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized?.chassis).toBe('K-1');
+      expect(serializeResult.data?.serialized?.chassis).toBe('K-1');
     });
 
     it('should serialize with motion type configuration', () => {
@@ -470,13 +470,13 @@ describe('SmallCraftUnitHandler', () => {
       const aerodyneResult = handler.parse(aerodyneDoc);
       const spheroidResult = handler.parse(spheroidDoc);
 
-      const aerodyneSerialized = handler.serialize(aerodyneResult.unit!);
-      const spheroidSerialized = handler.serialize(spheroidResult.unit!);
+      const aerodyneSerialized = handler.serialize(aerodyneResult.data!.unit);
+      const spheroidSerialized = handler.serialize(spheroidResult.data!.unit);
 
-      expect(aerodyneSerialized.serialized?.configuration).toBe(
+      expect(aerodyneSerialized.data?.serialized?.configuration).toBe(
         String(AerospaceMotionType.AERODYNE)
       );
-      expect(spheroidSerialized.serialized?.configuration).toBe(
+      expect(spheroidSerialized.data?.serialized?.configuration).toBe(
         String(AerospaceMotionType.SPHEROID)
       );
     });
@@ -507,7 +507,7 @@ describe('SmallCraftUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
     });
   });
 });

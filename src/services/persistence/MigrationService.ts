@@ -137,7 +137,7 @@ export class MigrationService implements IMigrationService {
             errors.push({
               unitId: unit.id || 'unknown',
               unitName,
-              error: result.error || 'Unknown error',
+              error: result.error.message || 'Unknown error',
             });
           }
         } catch (err) {

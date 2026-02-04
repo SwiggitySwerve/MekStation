@@ -14,7 +14,8 @@
  */
 
 import { IFinances } from '@/types/campaign/IFinances';
-import { Transaction, TransactionType } from '@/types/campaign/Transaction';
+import { Transaction } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { IContract } from '@/types/campaign/Mission';

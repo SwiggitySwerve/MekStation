@@ -7,6 +7,7 @@
  */
 
 import { IBattleMech } from './BattleMechInterfaces';
+import type { ResultType } from '@/services/core/types/BaseTypes';
 
 /**
  * File format version for backwards compatibility
@@ -156,26 +157,31 @@ export interface ISerializedFluff {
   readonly systemManufacturer?: Record<string, string>;
 }
 
-/**
- * Serialization result
- */
-export interface ISerializationResult {
-  readonly success: boolean;
-  readonly data?: string;
+export interface ISerializationData {
+  readonly serializedContent: string;
+  readonly warnings: string[];
+}
+
+export interface ISerializationError {
   readonly errors: string[];
   readonly warnings: string[];
 }
 
-/**
- * Deserialization result
- */
-export interface IDeserializationResult {
-  readonly success: boolean;
-  readonly unit?: IBattleMech;
+export type ISerializationResult = ResultType<ISerializationData, ISerializationError>;
+
+export interface IDeserializationData {
+  readonly unit: IBattleMech;
+  readonly warnings: string[];
+  readonly migrations: string[];
+}
+
+export interface IDeserializationError {
   readonly errors: string[];
   readonly warnings: string[];
   readonly migrations: string[];
 }
+
+export type IDeserializationResult = ResultType<IDeserializationData, IDeserializationError>;
 
 /**
  * Unit serializer interface
