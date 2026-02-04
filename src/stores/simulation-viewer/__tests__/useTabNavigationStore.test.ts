@@ -8,6 +8,8 @@
  * - Edge cases and error handling
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
+
 import { renderHook, act } from '@testing-library/react';
 import {
   useTabNavigationStore,
@@ -28,13 +30,11 @@ describe('useTabNavigationStore', () => {
     window.addEventListener = jest.fn();
     window.removeEventListener = jest.fn();
 
-    Object.defineProperty(window, 'location', {
-      value: {
-        href: 'http://localhost:3000/simulation-viewer',
-        search: '',
-      },
-      writable: true,
-    });
+    // Mock window.location (simple assignment works better than defineProperty in Jest)
+    (window as any).location = {
+      href: 'http://localhost:3000/simulation-viewer',
+      search: '',
+    };
   });
 
   afterEach(() => {
@@ -369,14 +369,11 @@ describe('useTabNavigationStore', () => {
       expect(window.history.pushState).toHaveBeenCalledTimes(2);
     });
 
-    it('should preserve existing query parameters', () => {
-      Object.defineProperty(window, 'location', {
-        value: {
-          href: 'http://localhost:3000/simulation-viewer?other=param',
-          search: '?other=param',
-        },
-        writable: true,
-      });
+  it('should preserve existing query parameters', () => {
+    (window as any).location = {
+      href: 'http://localhost:3000/simulation-viewer?foo=bar',
+      search: '?foo=bar',
+    };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -391,14 +388,11 @@ describe('useTabNavigationStore', () => {
       expect(callArgs[2]).toContain('tab=encounter-history');
     });
 
-    it('should replace existing tab parameter', () => {
-      Object.defineProperty(window, 'location', {
-        value: {
-          href: 'http://localhost:3000/simulation-viewer?tab=campaign-dashboard',
-          search: '?tab=campaign-dashboard',
-        },
-        writable: true,
-      });
+  it('should replace existing tab parameter', () => {
+    (window as any).location = {
+      href: 'http://localhost:3000/simulation-viewer?tab=old-tab',
+      search: '?tab=old-tab',
+    };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -429,14 +423,11 @@ describe('useTabNavigationStore', () => {
       global.window = originalWindow;
     });
 
-    it('should use correct URL format', () => {
-      Object.defineProperty(window, 'location', {
-        value: {
-          href: 'http://localhost:3000/simulation-viewer',
-          search: '',
-        },
-        writable: true,
-      });
+  it('should use correct URL format', () => {
+    (window as any).location = {
+      href: 'http://localhost:3000/simulation-viewer',
+      search: '',
+    };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -693,14 +684,11 @@ describe('useTabNavigationStore', () => {
       expect(state.history.every((tab) => ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(tab))).toBe(true);
     });
 
-    it('should handle hook initialization with valid location', () => {
-      Object.defineProperty(window, 'location', {
-        value: {
-          href: 'http://localhost:3000/simulation-viewer?tab=encounter-history',
-          search: '?tab=encounter-history',
-        },
-        writable: true,
-      });
+  it('should handle hook initialization with valid location', () => {
+    (window as any).location = {
+      href: 'http://localhost:3000/simulation-viewer?tab=encounter-history',
+      search: '?tab=encounter-history',
+    };
 
       const { rerender } = renderHook(() => useInitTabFromURL());
       expect(() => rerender()).not.toThrow();
