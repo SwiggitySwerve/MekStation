@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 import type { IKPICardProps } from '@/components/simulation-viewer/types';
+import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const Sparkline = ({
   data,
@@ -41,23 +42,23 @@ const Sparkline = ({
 
 const DIRECTION_CONFIG = {
   up: {
-    color: 'text-green-600',
+    color: 'text-green-600 dark:text-green-400',
     strokeColor: '#16a34a',
     arrow: '↑',
   },
   down: {
-    color: 'text-red-600',
+    color: 'text-red-600 dark:text-red-400',
     strokeColor: '#dc2626',
     arrow: '↓',
   },
   neutral: {
-    color: 'text-gray-600',
+    color: 'text-gray-600 dark:text-gray-400',
     strokeColor: '#4b5563',
     arrow: '→',
   },
 } as const;
 
-export const KPICard: React.FC<IKPICardProps> = ({
+export const KPICard = memo<IKPICardProps>(({
   label,
   value,
   comparison,
@@ -75,10 +76,8 @@ export const KPICard: React.FC<IKPICardProps> = ({
     'shadow-md hover:shadow-lg',
     'transition-shadow duration-200',
     'p-4 md:p-6',
-    isClickable ? 'cursor-pointer' : 'cursor-default',
-    isClickable
-      ? 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-      : '',
+    isClickable ? 'cursor-pointer min-h-[44px]' : 'cursor-default',
+    isClickable ? FOCUS_RING_CLASSES : '',
     className,
   ]
     .filter(Boolean)
@@ -98,6 +97,7 @@ export const KPICard: React.FC<IKPICardProps> = ({
       onKeyDown={isClickable ? handleKeyDown : undefined}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
+      aria-label={isClickable ? `${label}: ${value}` : undefined}
       data-testid="kpi-card"
     >
       <p
@@ -134,4 +134,7 @@ export const KPICard: React.FC<IKPICardProps> = ({
       )}
     </div>
   );
-};
+});
+
+KPICard.displayName = 'KPICard';
+

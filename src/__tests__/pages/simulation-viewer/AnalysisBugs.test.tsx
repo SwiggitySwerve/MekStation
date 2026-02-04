@@ -12,6 +12,56 @@ import type {
   IThresholds,
 } from '@/components/simulation-viewer/pages/AnalysisBugs';
 
+/* ---- Mock VirtualizedViolationLog ---- */
+/* react-window does not render rows in jsdom, so we mock the component
+   to render violations as simple divs with the test IDs the tests expect. */
+jest.mock('@/components/simulation-viewer/VirtualizedViolationLog', () => ({
+  VirtualizedViolationLog: ({
+    violations,
+    onViewBattle,
+  }: {
+    violations: readonly { id: string; type: string; severity: string; message: string; battleId: string; timestamp: string }[];
+    onViewBattle?: (battleId: string) => void;
+  }) => {
+    const fmt = (iso: string): string => {
+      try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return iso;
+        return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch { return iso; }
+    };
+
+    if (violations.length === 0) {
+      return (
+        <div data-testid="virtualized-violation-log">
+          <p data-testid="violation-empty">No violations match the current filters.</p>
+        </div>
+      );
+    }
+    return (
+      <div data-testid="virtualized-violation-log">
+        {violations.map((v) => (
+          <div key={v.id} data-testid="violation-row" data-severity={v.severity}>
+            <span data-testid="violation-timestamp">{fmt(v.timestamp)}</span>
+            <span data-testid="violation-type">{v.type}</span>
+            <span data-testid="violation-severity-badge">{v.severity}</span>
+            <span data-testid="violation-message">{v.message}</span>
+            <span data-testid="violation-battle">{v.battleId}</span>
+            {onViewBattle && (
+              <button
+                data-testid="violation-view-battle"
+                onClick={() => onViewBattle(v.battleId)}
+              >
+                View Battle
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  },
+}));
+
 const mockInvariants: IInvariant[] = [
   { id: 'inv1', name: 'Unit HP never negative', description: 'Ensures unit HP is always >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
   { id: 'inv2', name: 'Armor never exceeds max', description: 'Ensures armor points <= max armor', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
@@ -198,9 +248,9 @@ describe('AnalysisBugs', () => {
       expect(screen.getByTestId('anomaly-scroll-container')).toBeInTheDocument();
     });
 
-    it('renders violation table', () => {
+    it('renders violation log', () => {
       renderPage();
-      expect(screen.getByTestId('violation-table')).toBeInTheDocument();
+      expect(screen.getByTestId('virtualized-violation-log')).toBeInTheDocument();
     });
 
     it('renders filter panel in violation section', () => {
@@ -213,7 +263,7 @@ describe('AnalysisBugs', () => {
       renderPage({ invariants: [], anomalies: [], violations: [] });
       expect(screen.getByTestId('invariant-empty')).toHaveTextContent('No invariants configured');
       expect(screen.getByTestId('anomaly-empty')).toHaveTextContent('No anomalies detected');
-      expect(screen.getByTestId('violation-empty')).toBeInTheDocument();
+      expect(screen.getByTestId('violation-empty')).toHaveTextContent('No violations');
     });
 
     it('renders empty invariant message', () => {
@@ -503,81 +553,11 @@ describe('AnalysisBugs', () => {
       });
     });
 
-    it('sorts by severity', () => {
-      renderPage();
-      const sortBtn = screen.getByTestId('sort-severity');
-      fireEvent.click(sortBtn);
+    it('passes all violations to virtualized log (no pagination)', () => {
+      const manyViolations = generateViolations(25);
+      renderPage({ violations: manyViolations });
       const rows = screen.getAllByTestId('violation-row');
-      const severities = rows.map((r) => r.getAttribute('data-severity'));
-      expect(severities[0]).toBe('critical');
-    });
-
-    it('sorts by severity toggles direction', () => {
-      renderPage();
-      const sortBtn = screen.getByTestId('sort-severity');
-      fireEvent.click(sortBtn);
-      fireEvent.click(sortBtn);
-      const rows = screen.getAllByTestId('violation-row');
-      const severities = rows.map((r) => r.getAttribute('data-severity'));
-      expect(severities[0]).toBe('info');
-      expect(severities[severities.length - 1]).toBe('critical');
-    });
-
-    it('sorts by timestamp', () => {
-      renderPage();
-      const sortBtn = screen.getByTestId('sort-timestamp');
-      fireEvent.click(sortBtn);
-      const rows = screen.getAllByTestId('violation-row');
-      expect(rows.length).toBeGreaterThan(0);
-    });
-
-    it('sort indicators render correctly', () => {
-      renderPage();
-      const sortBtn = screen.getByTestId('sort-severity');
-      fireEvent.click(sortBtn);
-      expect(sortBtn.getAttribute('aria-sort')).toBe('descending');
-      fireEvent.click(sortBtn);
-      expect(sortBtn.getAttribute('aria-sort')).toBe('ascending');
-    });
-
-    it('pagination renders when > 20 violations', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      expect(screen.getByTestId('violation-pagination')).toBeInTheDocument();
-    });
-
-    it('pagination does not render when <= 20 violations', () => {
-      renderPage();
-      expect(screen.queryByTestId('violation-pagination')).not.toBeInTheDocument();
-    });
-
-    it('pagination next button advances page', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      const nextBtn = screen.getByTestId('pagination-next');
-      fireEvent.click(nextBtn);
-      expect(screen.getByTestId('violation-pagination')).toHaveTextContent('Page 2 of 2');
-    });
-
-    it('pagination prev button goes back', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      fireEvent.click(screen.getByTestId('pagination-next'));
-      fireEvent.click(screen.getByTestId('pagination-prev'));
-      expect(screen.getByTestId('violation-pagination')).toHaveTextContent('Page 1 of 2');
-    });
-
-    it('prev button disabled on first page', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      expect(screen.getByTestId('pagination-prev')).toBeDisabled();
-    });
-
-    it('next button disabled on last page', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      fireEvent.click(screen.getByTestId('pagination-next'));
-      expect(screen.getByTestId('pagination-next')).toBeDisabled();
+      expect(rows).toHaveLength(25);
     });
 
     it('View Battle button calls onViewBattle', () => {
@@ -601,17 +581,6 @@ describe('AnalysisBugs', () => {
     it('shows empty message when filter yields no results', () => {
       renderPage({ violations: [] });
       expect(screen.getByTestId('violation-empty')).toBeInTheDocument();
-    });
-
-    it('filter resets page to 1', () => {
-      const manyViolations = generateViolations(25);
-      renderPage({ violations: manyViolations });
-      fireEvent.click(screen.getByTestId('pagination-next'));
-      fireEvent.click(screen.getByTestId('checkbox-severity-critical'));
-      const pagination = screen.queryByTestId('violation-pagination');
-      if (pagination) {
-        expect(pagination).toHaveTextContent('Page 1');
-      }
     });
   });
 

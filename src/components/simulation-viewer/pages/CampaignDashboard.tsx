@@ -7,6 +7,7 @@ import type {
   IFinancialDataPoint,
   IPerformerSummary,
 } from '@/types/simulation-viewer';
+import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 type PerformerSortKey = 'kills' | 'xp' | 'missionsCompleted';
 
@@ -227,6 +228,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
       next.add(warningId);
       return next;
     });
+    announce('Warning dismissed');
   }, []);
 
   const handleTimeRangeChange = useCallback((range: string) => {
@@ -478,9 +480,12 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
                 <button
                   key={opt.key}
                   type="button"
-                  onClick={() => setPerformerSortKey(opt.key)}
+                  onClick={() => {
+                    setPerformerSortKey(opt.key);
+                    announce(`Sorted by ${opt.label}`);
+                  }}
                   className={[
-                    'px-3 py-1 text-sm rounded-md transition-colors',
+                    `px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md transition-colors ${FOCUS_RING_CLASSES}`,
                     performerSortKey === opt.key
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm font-medium'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
@@ -531,6 +536,11 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
             Warnings
           </h2>
 
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {activeWarnings.length === 0
+              ? 'No active warnings'
+              : `${activeWarnings.length} active warning${activeWarnings.length !== 1 ? 's' : ''}`}
+          </div>
           {activeWarnings.length === 0 ? (
             <p
               className="text-gray-500 dark:text-gray-400 text-sm italic"
@@ -569,7 +579,7 @@ const PerformerCard: React.FC<{
 }> = ({ performer, activeSortKey, onDrillDown }) => (
   <div
     className={[
-      'flex-shrink-0 w-48 p-4 rounded-lg',
+      'flex-shrink-0 w-40 md:w-48 p-3 md:p-4 rounded-lg',
       'bg-white dark:bg-gray-800',
       'border border-gray-200 dark:border-gray-700',
       'shadow-sm hover:shadow-md transition-shadow',
@@ -657,6 +667,7 @@ const WarningItem: React.FC<{
       'flex items-start gap-3 p-3 rounded-lg border',
       SEVERITY_CLASSES[warning.severity],
     ].join(' ')}
+    role="alert"
     data-testid="warning-item"
     data-severity={warning.severity}
   >
@@ -687,8 +698,8 @@ const WarningItem: React.FC<{
       type="button"
       onClick={() => onDismiss(warning.id)}
       className={[
-        'ml-2 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10',
-        'transition-colors text-current opacity-60 hover:opacity-100',
+        `ml-2 p-2 min-h-[44px] min-w-[44px] md:p-1 md:min-h-0 md:min-w-0 rounded hover:bg-black/10 dark:hover:bg-white/10 ${FOCUS_RING_CLASSES}`,
+        'transition-colors text-current opacity-60 hover:opacity-100 flex items-center justify-center',
       ].join(' ')}
       aria-label={`Dismiss warning: ${warning.message}`}
       data-testid="warning-dismiss"

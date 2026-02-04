@@ -1,7 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
 import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
+import { VirtualizedTimeline } from '@/components/simulation-viewer/VirtualizedTimeline';
 import type { IFilterDefinition } from '@/components/simulation-viewer/types';
+import { useIsMobile } from '@/utils/responsive';
+import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 /* ========================================================================== */
 /*  Types                                                                      */
@@ -238,6 +241,8 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
   onDrillDown,
 }) => {
   /* ---- state ---- */
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedBattleId, setSelectedBattleId] = useState<string | null>(null);
   const [outcomeFilter, setOutcomeFilter] = useState<Record<string, string[]>>({});
   const [sortKey, setSortKey] = useState<SortKey>('duration');
@@ -249,7 +254,6 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('campaign-average');
   const [comparisonBattleId, setComparisonBattleId] = useState<string | null>(null);
   const [expandedMissions, setExpandedMissions] = useState<Set<string>>(() => new Set());
-  const [expandedTurns, setExpandedTurns] = useState<Set<number>>(() => new Set());
 
   const turnRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
@@ -307,17 +311,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     return moments;
   }, [selectedBattle, momentFilter]);
 
-  const eventsByTurn = useMemo(() => {
-    if (!selectedBattle) return new Map<number, IBattleEvent[]>();
-    const map = new Map<number, IBattleEvent[]>();
-    for (const event of selectedBattle.events) {
-      if (!map.has(event.turn)) {
-        map.set(event.turn, []);
-      }
-      map.get(event.turn)!.push(event);
-    }
-    return map;
-  }, [selectedBattle]);
+
 
   const campaignAverage = useMemo(() => computeCampaignAverage(battles), [battles]);
 
@@ -350,7 +344,6 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     if (selectedBattle) {
       setCurrentTurn(1);
       setIsPlaying(false);
-      setExpandedTurns(new Set(selectedBattle.events.map(e => e.turn)));
     }
   }, [selectedBattle]);
 
@@ -420,16 +413,19 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     setSpeed(Number(e.target.value));
   }, []);
 
-  const handleSortKeyChange = useCallback(
+    const handleSortKeyChange = useCallback(
     (key: SortKey) => {
       if (key === sortKey) {
-        setSortDirection(d => (d === 'asc' ? 'desc' : 'asc'));
+        const newDir = sortDirection === 'asc' ? 'desc' : 'asc';
+        setSortDirection(newDir);
+        announce(`Sorted by ${key}, ${newDir === 'asc' ? 'ascending' : 'descending'}`);
       } else {
         setSortKey(key);
         setSortDirection('asc');
+        announce(`Sorted by ${key}, ascending`);
       }
     },
-    [sortKey],
+    [sortKey, sortDirection],
   );
 
   const toggleMission = useCallback((missionId: string) => {
@@ -441,23 +437,9 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     });
   }, []);
 
-  const toggleTurn = useCallback((turn: number) => {
-    setExpandedTurns(prev => {
-      const next = new Set(prev);
-      if (next.has(turn)) next.delete(turn);
-      else next.add(turn);
-      return next;
-    });
-  }, []);
-
   const handleKeyMomentClick = useCallback((moment: IKeyMoment) => {
     setCurrentTurn(moment.turn);
     setIsPlaying(false);
-    setExpandedTurns(prev => {
-      const next = new Set(prev);
-      next.add(moment.turn);
-      return next;
-    });
   }, []);
 
   const handleComparisonModeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -486,8 +468,20 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
         {/* ================================================================ */}
         {/*  Battle List Sidebar                                              */}
         {/* ================================================================ */}
+        {isMobile && (
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className={`flex items-center justify-between w-full px-4 py-3 min-h-[44px] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 lg:hidden ${FOCUS_RING_CLASSES}`}
+            aria-expanded={sidebarOpen}
+            data-testid="sidebar-toggle"
+          >
+            <span>Battle List ({filteredAndSortedBattles.length})</span>
+            <span aria-hidden="true">{sidebarOpen ? '▾' : '▸'}</span>
+          </button>
+        )}
         <aside
-          className="w-full lg:w-[30%]"
+          className={`w-full lg:w-[30%] ${isMobile && !sidebarOpen ? 'hidden' : ''} lg:block`}
           aria-label="Battle list"
           data-testid="battle-list-sidebar"
         >
@@ -512,7 +506,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                 type="button"
                 onClick={() => handleSortKeyChange(opt.key)}
                 className={[
-                  'px-3 py-1 text-sm rounded-md transition-colors flex items-center gap-1',
+                  `px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md transition-colors flex items-center gap-1 ${FOCUS_RING_CLASSES}`,
                   sortKey === opt.key
                     ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm font-medium'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
@@ -552,8 +546,9 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   <button
                     type="button"
                     onClick={() => toggleMission(missionId)}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                    className={`w-full flex items-center justify-between px-3 py-3 min-h-[44px] md:py-2 md:min-h-0 bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                     aria-expanded={expandedMissions.has(missionId)}
+                    aria-label={`${group.missionName} mission group, ${group.battles.length} battle${group.battles.length !== 1 ? 's' : ''}`}
                     data-testid={`mission-group-header-${missionId}`}
                   >
                     <span>{group.missionName}</span>
@@ -569,12 +564,13 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                           type="button"
                           onClick={() => handleSelectBattle(battle.id)}
                           className={[
-                            'w-full text-left p-3 rounded-md transition-colors border',
+                            `w-full text-left p-3 rounded-md transition-colors border ${FOCUS_RING_CLASSES}`,
                             selectedBattleId === battle.id
                               ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
                               : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-800',
                           ].join(' ')}
-                          aria-selected={selectedBattleId === battle.id}
+                          aria-current={selectedBattleId === battle.id ? 'true' : undefined}
+                          aria-label={`Battle on ${new Date(battle.timestamp).toLocaleDateString()}, ${battle.outcome}, ${battle.stats.totalKills} kills`}
                           data-testid={`battle-card-${battle.id}`}
                         >
                           <div className="flex items-center justify-between mb-1">
@@ -765,8 +761,9 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                               return (
                                 <td
                                   key={`${attackerId}-${targetId}`}
-                                  className={`p-2 text-center text-xs font-mono border border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-2 hover:ring-blue-400 ${getDamageIntensityClass(damage, maxDamage)}`}
+                                  className={`p-2 text-center text-xs font-mono border border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-2 hover:ring-blue-400 ${FOCUS_RING_CLASSES} ${getDamageIntensityClass(damage, maxDamage)}`}
                                   title={`${damage} damage`}
+                                  aria-label={`${resolveUnitName(selectedBattle, attackerId)} dealt ${damage} damage to ${resolveUnitName(selectedBattle, targetId)}`}
                                   onClick={() =>
                                     handleDrillDown('encounter-history', {
                                       attackerId,
@@ -832,7 +829,8 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         key={moment.id}
                         type="button"
                         onClick={() => handleKeyMomentClick(moment)}
-                        className="flex-shrink-0 w-48 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow text-left"
+                        className={`flex-shrink-0 w-44 md:w-48 p-3 min-h-[44px] rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow text-left ${FOCUS_RING_CLASSES}`}
+                        aria-label={`${moment.tier} moment: ${moment.description}, turn ${moment.turn}`}
                         data-testid={`key-moment-${moment.id}`}
                       >
                         <div className="flex items-center gap-2 mb-1">
@@ -867,14 +865,14 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   Event Timeline
                 </h2>
                 <div
-                  className="flex items-center gap-2 mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                  className="flex flex-wrap items-center gap-2 mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                   data-testid="vcr-controls"
                 >
                   <button
                     type="button"
                     onClick={handleStepBack}
                     disabled={currentTurn <= 1}
-                    className="px-3 py-1 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed ${FOCUS_RING_CLASSES}`}
                     aria-label="Step back"
                     data-testid="vcr-step-back"
                   >
@@ -884,7 +882,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     type="button"
                     onClick={handlePlayPause}
                     disabled={maxTurn === 0}
-                    className="px-4 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className={`px-4 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium ${FOCUS_RING_CLASSES}`}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                     data-testid="vcr-play-pause"
                   >
@@ -894,7 +892,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     type="button"
                     onClick={handleStepForward}
                     disabled={currentTurn >= maxTurn}
-                    className="px-3 py-1 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed ${FOCUS_RING_CLASSES}`}
                     aria-label="Step forward"
                     data-testid="vcr-step-forward"
                   >
@@ -903,7 +901,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   <select
                     value={speed}
                     onChange={handleSpeedChange}
-                    className="px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    className={`px-2 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                     aria-label="Playback speed"
                     data-testid="vcr-speed-select"
                   >
@@ -913,6 +911,8 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   </select>
                   <span
                     className="text-sm text-gray-600 dark:text-gray-400 ml-auto"
+                    aria-live="polite"
+                    aria-atomic="true"
                     data-testid="vcr-turn-display"
                   >
                     Turn {currentTurn} / {maxTurn}
@@ -927,64 +927,17 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     No events recorded.
                   </p>
                 ) : (
-                  <div className="space-y-2 max-h-96 overflow-y-auto" data-testid="event-list">
-                    {Array.from(eventsByTurn.entries())
-                      .sort(([a], [b]) => a - b)
-                      .map(([turn, events]) => (
-                        <div
-                          key={turn}
-                          ref={el => {
-                            if (el) turnRefs.current.set(turn, el);
-                          }}
-                          className={`rounded-lg border ${
-                            currentTurn === turn
-                              ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/10'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
-                          }`}
-                          data-testid={`turn-group-${turn}`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => toggleTurn(turn)}
-                            className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                            aria-expanded={expandedTurns.has(turn)}
-                            data-testid={`turn-group-header-${turn}`}
-                          >
-                            <span>Turn {turn}</span>
-                            <span className="text-gray-400 dark:text-gray-500" aria-hidden="true">
-                              {expandedTurns.has(turn) ? '▾' : '▸'}
-                            </span>
-                          </button>
-                          {expandedTurns.has(turn) && (
-                            <div className="px-3 pb-2 space-y-1">
-                              {events.map(event => (
-                                <div
-                                  key={event.id}
-                                  className="flex items-start gap-2 text-sm py-1 border-l-2 border-gray-300 dark:border-gray-600 pl-3"
-                                  data-testid={`event-${event.id}`}
-                                >
-                                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                    {event.phase}
-                                  </span>
-                                  <span className="text-gray-800 dark:text-gray-200">
-                                    {event.description}
-                                  </span>
-                                  {event.involvedUnits.length > 0 && (
-                                    <span
-                                      className="text-xs text-gray-500 dark:text-gray-400 ml-auto whitespace-nowrap"
-                                      data-testid={`event-units-${event.id}`}
-                                    >
-                                      {event.involvedUnits
-                                        .map(uid => resolveUnitName(selectedBattle, uid))
-                                        .join(', ')}
-                                    </span>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                  <div data-testid="event-list">
+                    <VirtualizedTimeline
+                      events={selectedBattle.events}
+                      height={384}
+                      itemHeight={52}
+                      onEventClick={(event) => {
+                        setCurrentTurn(event.turn);
+                        setIsPlaying(false);
+                      }}
+                      resolveUnitName={(unitId) => resolveUnitName(selectedBattle, unitId)}
+                    />
                   </div>
                 )}
               </section>
@@ -997,11 +950,11 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                 >
                   Comparison
                 </h2>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <select
                     value={comparisonMode}
                     onChange={handleComparisonModeChange}
-                    className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    className={`px-3 py-2 min-h-[44px] md:py-1.5 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                     aria-label="Comparison mode"
                     data-testid="comparison-mode-toggle"
                   >
@@ -1012,7 +965,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     <select
                       value={comparisonBattleId ?? ''}
                       onChange={handleComparisonBattleChange}
-                      className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                      className={`px-3 py-2 min-h-[44px] md:py-1.5 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                       aria-label="Select battle for comparison"
                       data-testid="comparison-battle-select"
                     >

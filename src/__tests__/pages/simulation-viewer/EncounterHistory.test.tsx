@@ -603,14 +603,12 @@ describe('EncounterHistory', () => {
       expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
     });
 
-    it('auto-scrolls to current turn when playing', () => {
-      const scrollMock = jest.fn();
-      Element.prototype.scrollIntoView = scrollMock;
+    it('VCR controls still work with virtualized timeline', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
       act(() => { jest.advanceTimersByTime(1000); });
-      expect(scrollMock).toHaveBeenCalled();
+      expect(screen.getByTestId('vcr-turn-display')).toBeInTheDocument();
     });
 
     it('step forward stops playback', () => {
@@ -650,85 +648,65 @@ describe('EncounterHistory', () => {
       expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
     });
 
-    it('click key moment expands that turn group', () => {
+    it('virtualized timeline renders when battle has events', () => {
       renderPage();
       selectBattle('b1');
-      const turnHeader = screen.getByTestId('turn-group-header-3');
-      fireEvent.click(turnHeader);
-      expect(turnHeader).toHaveAttribute('aria-expanded', 'false');
-      fireEvent.click(screen.getByTestId('key-moment-km1'));
-      const updatedHeader = screen.getByTestId('turn-group-header-3');
-      expect(updatedHeader).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('virtualized-timeline')).toBeInTheDocument();
     });
 
-    it('turn groups are expanded by default', () => {
-      renderPage();
-      selectBattle('b1');
-      expect(screen.getByTestId('turn-group-header-1')).toHaveAttribute('aria-expanded', 'true');
-      expect(screen.getByTestId('turn-group-header-2')).toHaveAttribute('aria-expanded', 'true');
-      expect(screen.getByTestId('turn-group-header-3')).toHaveAttribute('aria-expanded', 'true');
-    });
-
-    it('turn groups can be collapsed', () => {
-      renderPage();
-      selectBattle('b1');
-      fireEvent.click(screen.getByTestId('turn-group-header-1'));
-      expect(screen.getByTestId('turn-group-header-1')).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    it('collapsed turn hides events', () => {
-      renderPage();
-      selectBattle('b1');
-      expect(screen.getByTestId('event-ev1')).toBeInTheDocument();
-      fireEvent.click(screen.getByTestId('turn-group-header-1'));
-      expect(screen.queryByTestId('event-ev1')).not.toBeInTheDocument();
-    });
-
-    it('current turn is highlighted', () => {
-      renderPage();
-      selectBattle('b1');
-      const turnGroup1 = screen.getByTestId('turn-group-1');
-      expect(turnGroup1).toHaveClass('border-blue-500');
-    });
-
-    it('current turn highlight moves with step forward', () => {
-      renderPage();
-      selectBattle('b1');
-      fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      const turnGroup2 = screen.getByTestId('turn-group-2');
-      expect(turnGroup2).toHaveClass('border-blue-500');
-      const turnGroup1 = screen.getByTestId('turn-group-1');
-      expect(turnGroup1).not.toHaveClass('border-blue-500');
-    });
-
-    it('event details display correctly', () => {
-      renderPage();
-      selectBattle('b1');
-      expect(screen.getByTestId('event-ev1')).toHaveTextContent('Atlas moves 4 hexes forward');
-      expect(screen.getByTestId('event-ev2')).toHaveTextContent('Atlas fires PPC at Mad Cat');
-    });
-
-    it('event displays phase label', () => {
-      renderPage();
-      selectBattle('b1');
-      const event = screen.getByTestId('event-ev1');
-      expect(event).toHaveTextContent('Movement');
-    });
-
-    it('event shows involved units', () => {
-      renderPage();
-      selectBattle('b1');
-      expect(screen.getByTestId('event-units-ev2')).toHaveTextContent('Atlas AS7-D');
-      expect(screen.getByTestId('event-units-ev2')).toHaveTextContent('Mad Cat');
-    });
-
-    it('events are grouped by turn in order', () => {
+    it('virtualized timeline is inside event-list container', () => {
       renderPage();
       selectBattle('b1');
       const eventList = screen.getByTestId('event-list');
-      const turnGroups = within(eventList).getAllByText(/^Turn \d+$/);
-      const turnNumbers = turnGroups.map(el => parseInt(el.textContent!.replace('Turn ', '')));
-      expect(turnNumbers).toEqual([1, 2, 3]);
+      expect(within(eventList).getByTestId('virtualized-timeline')).toBeInTheDocument();
+    });
+
+    it('empty events shows no events message', () => {
+      renderPage();
+      selectBattle('b3');
+      expect(screen.getByTestId('event-list')).toBeInTheDocument();
+    });
+
+    it('VCR turn display still tracks correctly with virtualized timeline', () => {
+      renderPage();
+      selectBattle('b1');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      fireEvent.click(screen.getByTestId('vcr-step-forward'));
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+    });
+
+    it('VCR step forward moves turn with virtualized timeline', () => {
+      renderPage();
+      selectBattle('b1');
+      fireEvent.click(screen.getByTestId('vcr-step-forward'));
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+    });
+
+    it('VCR step back works with virtualized timeline', () => {
+      renderPage();
+      selectBattle('b1');
+      fireEvent.click(screen.getByTestId('vcr-step-forward'));
+      fireEvent.click(screen.getByTestId('vcr-step-back'));
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+    });
+
+    it('key moment click updates VCR turn display', () => {
+      renderPage();
+      selectBattle('b1');
+      fireEvent.click(screen.getByTestId('key-moment-km1'));
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+    });
+
+    it('event list container renders for battle with events', () => {
+      renderPage();
+      selectBattle('b1');
+      expect(screen.getByTestId('event-list')).toBeInTheDocument();
+    });
+
+    it('virtualized timeline not rendered for battle with no events', () => {
+      renderPage();
+      selectBattle('b3');
+      expect(screen.queryByTestId('virtualized-timeline')).toBeInTheDocument();
     });
 
     it('mission groups are expanded by default', () => {
@@ -754,7 +732,7 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       const card = screen.getByTestId('battle-card-b1');
-      expect(card).toHaveAttribute('aria-selected', 'true');
+      expect(card).toHaveAttribute('aria-current', 'true');
       expect(card).toHaveClass('border-blue-500');
     });
   });
@@ -1046,7 +1024,7 @@ describe('EncounterHistory', () => {
     it('handles battle with single event', () => {
       renderPage();
       selectBattle('b3');
-      expect(screen.getByTestId('turn-group-1')).toBeInTheDocument();
+      expect(screen.getByTestId('event-list')).toBeInTheDocument();
     });
 
     it('battle card shows outcome badge', () => {

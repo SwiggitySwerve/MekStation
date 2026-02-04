@@ -630,7 +630,7 @@ describe('FilterPanel', () => {
       expect(btn).toHaveClass('text-red-600');
       expect(btn).toHaveClass('hover:underline');
       expect(btn).toHaveClass('focus:ring-2');
-      expect(btn).toHaveClass('focus:ring-red-500');
+      expect(btn).toHaveClass('focus:ring-blue-500');
     });
 
     it('has correct checkbox styling', () => {
