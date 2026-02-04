@@ -33,6 +33,9 @@ export * from './EquipmentPlacement';
 // Variable Equipment Types
 export * from './VariableEquipment';
 
+// Equipment query and calculation types
+export * from './EquipmentQuery';
+
 // ============================================================================
 // UNIFIED EQUIPMENT ACCESS
 // ============================================================================

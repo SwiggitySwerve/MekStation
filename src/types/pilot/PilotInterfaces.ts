@@ -35,6 +35,10 @@ export enum PilotStatus {
 
 /**
  * Experience level templates for quick pilot generation.
+ * 
+ * Pilot experience level for skills and salary calculations.
+ * @see SkillExperienceLevel for character progression in campaign skills
+ * @see MarketExperienceLevel for personnel market hiring
  */
 export enum PilotExperienceLevel {
   Green = 'green',

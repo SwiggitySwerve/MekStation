@@ -246,28 +246,28 @@ export class ShareLinkRepository {
       const link = await this.getByToken(token);
       
       if (!link) {
-        return { success: false, error: 'Share link not found', errorCode: 'NOT_FOUND' };
+        return { success: false, error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const } };
       }
 
       if (!link.isActive) {
-        return { success: false, error: 'Share link is inactive', errorCode: 'INACTIVE', link };
+        return { success: false, error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const } };
       }
 
       if (link.expiresAt && new Date() > new Date(link.expiresAt)) {
-        return { success: false, error: 'Share link has expired', errorCode: 'EXPIRED', link };
+        return { success: false, error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const } };
       }
 
       if (link.maxUses !== null && link.useCount >= link.maxUses) {
-        return { success: false, error: 'Share link has reached maximum uses', errorCode: 'MAX_USES', link };
+        return { success: false, error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const } };
       }
 
       // Shouldn't reach here, but handle gracefully
-      return { success: false, error: 'Share link validation failed', errorCode: 'INVALID', link };
+      return { success: false, error: { message: 'Share link validation failed', errorCode: 'INVALID' as const } };
     }
 
     // Return updated link
     const updatedLink = await this.getByToken(token);
-    return { success: true, link: updatedLink! };
+    return { success: true, data: { link: updatedLink! } };
   }
 
   /**

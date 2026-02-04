@@ -1434,7 +1434,7 @@ describe('Vault Share Redeem API', () => {
     it('should redeem valid share token', async () => {
       const result = {
         success: true,
-        link: mockShareLink,
+        data: { link: mockShareLink },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1456,7 +1456,7 @@ describe('Vault Share Redeem API', () => {
     it('should redeem by URL', async () => {
       const result = {
         success: true,
-        link: mockShareLink,
+        data: { link: mockShareLink },
       };
       mockShareService.redeemByUrl.mockResolvedValue(result);
 
@@ -1478,9 +1478,7 @@ describe('Vault Share Redeem API', () => {
     it('should return 404 for non-existent token', async () => {
       const result = {
         success: false,
-        error: 'Share link not found',
-        errorCode: 'NOT_FOUND',
-        link: null,
+        error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1502,9 +1500,7 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for expired link', async () => {
       const result = {
         success: false,
-        error: 'Share link has expired',
-        errorCode: 'EXPIRED',
-        link: mockShareLink,
+        error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1525,9 +1521,7 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for max uses reached', async () => {
       const result = {
         success: false,
-        error: 'Share link has reached maximum uses',
-        errorCode: 'MAX_USES',
-        link: mockShareLink,
+        error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1548,9 +1542,7 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for inactive link', async () => {
       const result = {
         success: false,
-        error: 'Share link is inactive',
-        errorCode: 'INACTIVE',
-        link: mockShareLink,
+        error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const },
       };
       mockShareService.redeem.mockResolvedValue(result);
 

@@ -236,7 +236,7 @@ describe('POST /api/encounters', () => {
 
   it('should handle service validation errors', async () => {
     const input: ICreateEncounterInput = { name: 'Test' };
-    const result = createErrorResult('Invalid encounter data', EncounterErrorCode.VALIDATION_ERROR);
+    const result = createErrorResult('Invalid encounter data', EncounterErrorCode.ValidationError);
 
     mockEncounterService.createEncounter.mockReturnValue(result);
 
@@ -249,7 +249,7 @@ describe('POST /api/encounters', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Invalid encounter data',
-      errorCode: EncounterErrorCode.VALIDATION_ERROR,
+      errorCode: EncounterErrorCode.ValidationError,
     });
   });
 
@@ -380,7 +380,7 @@ describe('PATCH /api/encounters/[id]', () => {
 
   it('should handle update validation errors', async () => {
     const update: IUpdateEncounterInput = { name: '' };
-    const result = createErrorResult('Name cannot be empty', EncounterErrorCode.VALIDATION_ERROR);
+    const result = createErrorResult('Name cannot be empty', EncounterErrorCode.ValidationError);
 
     mockEncounterService.updateEncounter.mockReturnValue(result);
 
@@ -397,7 +397,7 @@ describe('PATCH /api/encounters/[id]', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Name cannot be empty',
-      errorCode: EncounterErrorCode.VALIDATION_ERROR,
+      errorCode: EncounterErrorCode.ValidationError,
     });
   });
 
@@ -440,7 +440,7 @@ describe('DELETE /api/encounters/[id]', () => {
   });
 
   it('should handle delete errors', async () => {
-    const result = createErrorResult('Cannot delete active encounter', EncounterErrorCode.INVALID_STATUS);
+    const result = createErrorResult('Cannot delete active encounter', EncounterErrorCode.InvalidStatus);
     mockEncounterService.deleteEncounter.mockReturnValue(result);
 
     const req = createMockRequest({ method: 'DELETE', query: { id: 'encounter-1' } });
@@ -452,7 +452,7 @@ describe('DELETE /api/encounters/[id]', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Cannot delete active encounter',
-      errorCode: EncounterErrorCode.INVALID_STATUS,
+      errorCode: EncounterErrorCode.InvalidStatus,
     });
   });
 
@@ -544,7 +544,7 @@ describe('POST /api/encounters/[id]/clone', () => {
   });
 
   it('should handle clone errors', async () => {
-    const result = createErrorResult('Source encounter not found', EncounterErrorCode.NOT_FOUND);
+    const result = createErrorResult('Source encounter not found', EncounterErrorCode.NotFound);
     mockEncounterService.cloneEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -560,7 +560,7 @@ describe('POST /api/encounters/[id]/clone', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Source encounter not found',
-      errorCode: EncounterErrorCode.NOT_FOUND,
+      errorCode: EncounterErrorCode.NotFound,
     });
   });
 
@@ -633,7 +633,7 @@ describe('POST /api/encounters/[id]/launch', () => {
   });
 
   it('should handle launch validation errors', async () => {
-    const result = createErrorResult('Both forces must be set before launching', EncounterErrorCode.VALIDATION_ERROR);
+    const result = createErrorResult('Both forces must be set before launching', EncounterErrorCode.ValidationError);
     mockEncounterService.launchEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -648,7 +648,7 @@ describe('POST /api/encounters/[id]/launch', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Both forces must be set before launching',
-      errorCode: EncounterErrorCode.VALIDATION_ERROR,
+      errorCode: EncounterErrorCode.ValidationError,
     });
   });
 
@@ -853,7 +853,7 @@ describe('PUT /api/encounters/[id]/template', () => {
   });
 
   it('should handle template application errors', async () => {
-    const result = createErrorResult('Invalid template type', EncounterErrorCode.VALIDATION_ERROR);
+    const result = createErrorResult('Invalid template type', EncounterErrorCode.ValidationError);
     mockEncounterService.applyTemplate.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -869,7 +869,7 @@ describe('PUT /api/encounters/[id]/template', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Invalid template type',
-      errorCode: EncounterErrorCode.VALIDATION_ERROR,
+      errorCode: EncounterErrorCode.ValidationError,
     });
   });
 
@@ -959,7 +959,7 @@ describe('PUT /api/encounters/[id]/player-force', () => {
   });
 
   it('should handle set player force errors', async () => {
-    const result = createErrorResult('Force not found', EncounterErrorCode.NOT_FOUND);
+    const result = createErrorResult('Force not found', EncounterErrorCode.NotFound);
     mockEncounterService.setPlayerForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -975,7 +975,7 @@ describe('PUT /api/encounters/[id]/player-force', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Force not found',
-      errorCode: EncounterErrorCode.NOT_FOUND,
+      errorCode: EncounterErrorCode.NotFound,
     });
   });
 });
@@ -1008,7 +1008,7 @@ describe('DELETE /api/encounters/[id]/player-force', () => {
   });
 
   it('should handle clear player force errors', async () => {
-    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.INVALID_STATUS);
+    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.InvalidStatus);
     mockEncounterService.updateEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1023,7 +1023,7 @@ describe('DELETE /api/encounters/[id]/player-force', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Cannot clear force from active encounter',
-      errorCode: EncounterErrorCode.INVALID_STATUS,
+      errorCode: EncounterErrorCode.InvalidStatus,
     });
   });
 });
@@ -1133,7 +1133,7 @@ describe('PUT /api/encounters/[id]/opponent-force', () => {
   });
 
   it('should handle set opponent force errors', async () => {
-    const result = createErrorResult('Force not found', EncounterErrorCode.NOT_FOUND);
+    const result = createErrorResult('Force not found', EncounterErrorCode.NotFound);
     mockEncounterService.setOpponentForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1149,7 +1149,7 @@ describe('PUT /api/encounters/[id]/opponent-force', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Force not found',
-      errorCode: EncounterErrorCode.NOT_FOUND,
+      errorCode: EncounterErrorCode.NotFound,
     });
   });
 });
@@ -1180,7 +1180,7 @@ describe('DELETE /api/encounters/[id]/opponent-force', () => {
   });
 
   it('should handle clear opponent force errors', async () => {
-    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.INVALID_STATUS);
+    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.InvalidStatus);
     mockEncounterService.clearOpponentForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1195,7 +1195,7 @@ describe('DELETE /api/encounters/[id]/opponent-force', () => {
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       error: 'Cannot clear force from active encounter',
-      errorCode: EncounterErrorCode.INVALID_STATUS,
+      errorCode: EncounterErrorCode.InvalidStatus,
     });
   });
 });

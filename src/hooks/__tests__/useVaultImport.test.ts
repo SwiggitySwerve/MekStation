@@ -67,9 +67,11 @@ describe('useVaultImport', () => {
     });
     mockImportFromString.mockResolvedValue({
       success: true,
-      importedCount: 1,
-      skippedCount: 0,
-      replacedCount: 0,
+      data: {
+        importedCount: 1,
+        skippedCount: 0,
+        replacedCount: 0,
+      },
     });
   });
 
@@ -266,7 +268,7 @@ describe('useVaultImport', () => {
       });
 
       expect(importResult.success).toBe(false);
-      expect(importResult.error).toBe('No file content');
+      expect(importResult.error).toEqual({ message: 'No file content' });
     });
 
     it('should transition through importing step during import', async () => {
@@ -340,9 +342,11 @@ describe('useVaultImport', () => {
 
       expect(result.current.result).toEqual({
         success: true,
-        importedCount: 1,
-        skippedCount: 0,
-        replacedCount: 0,
+        data: {
+          importedCount: 1,
+          skippedCount: 0,
+          replacedCount: 0,
+        },
       });
     });
 
@@ -356,11 +360,13 @@ describe('useVaultImport', () => {
         resolution: 'skip',
       }];
       mockImportFromString.mockResolvedValue({
-        success: false,
-        importedCount: 0,
-        skippedCount: 0,
-        replacedCount: 0,
-        conflicts,
+        success: true,
+        data: {
+          importedCount: 0,
+          skippedCount: 0,
+          replacedCount: 0,
+          conflicts,
+        },
       });
 
       const { result } = renderHook(() => useVaultImport());
@@ -395,7 +401,9 @@ describe('useVaultImport', () => {
       });
 
       expect(importResult.success).toBe(false);
-      expect(importResult.error).toBe('Import failed');
+      if (!importResult.success) {
+        expect(importResult.error.message).toBe('Import failed');
+      }
       expect(result.current.error).toBe('Import failed');
       expect(result.current.step).toBe('preview');
     });
@@ -403,10 +411,7 @@ describe('useVaultImport', () => {
     it('should set error on unsuccessful import result', async () => {
       mockImportFromString.mockResolvedValue({
         success: false,
-        importedCount: 0,
-        skippedCount: 0,
-        replacedCount: 0,
-        error: 'Validation failed',
+        error: { message: 'Validation failed' },
       });
 
       const { result } = renderHook(() => useVaultImport());
@@ -478,7 +483,7 @@ describe('useVaultImport', () => {
       });
 
       expect(importResult.success).toBe(false);
-      expect(importResult.error).toBe('Parse error');
+      expect(importResult.error).toEqual({ message: 'Parse error' });
       expect(result.current.step).toBe('idle');
     });
 
@@ -492,11 +497,13 @@ describe('useVaultImport', () => {
         resolution: 'skip',
       }];
       mockImportFromString.mockResolvedValue({
-        success: false,
-        importedCount: 0,
-        skippedCount: 0,
-        replacedCount: 0,
-        conflicts,
+        success: true,
+        data: {
+          importedCount: 0,
+          skippedCount: 0,
+          replacedCount: 0,
+          conflicts,
+        },
       });
 
       const { result } = renderHook(() => useVaultImport());
@@ -522,7 +529,7 @@ describe('useVaultImport', () => {
       });
 
       expect(resolveResult.success).toBe(false);
-      expect(resolveResult.error).toBe('No file content');
+      expect(resolveResult.error).toEqual({ message: 'No file content' });
     });
 
     it('should call importFile with resolved conflicts', async () => {

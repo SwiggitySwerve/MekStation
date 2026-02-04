@@ -443,7 +443,7 @@ describe('/api/vault/share', () => {
     it('should redeem valid token', async () => {
       mockRedeem.mockResolvedValue({
         success: true,
-        link: { ...mockShareLink, useCount: 1 },
+        data: { link: { ...mockShareLink, useCount: 1 } },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -462,7 +462,7 @@ describe('/api/vault/share', () => {
     it('should redeem by URL', async () => {
       mockRedeemByUrl.mockResolvedValue({
         success: true,
-        link: mockShareLink,
+        data: { link: mockShareLink },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -479,8 +479,7 @@ describe('/api/vault/share', () => {
     it('should return 404 for non-existent token', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: 'Share link not found',
-        errorCode: 'NOT_FOUND',
+        error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -496,9 +495,7 @@ describe('/api/vault/share', () => {
     it('should return 410 for expired link', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: 'Share link has expired',
-        errorCode: 'EXPIRED',
-        link: mockShareLink,
+        error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -514,9 +511,7 @@ describe('/api/vault/share', () => {
     it('should return 410 for max uses reached', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: 'Share link has reached maximum uses',
-        errorCode: 'MAX_USES',
-        link: mockShareLink,
+        error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

@@ -29,7 +29,7 @@ import {
 } from '@/types/construction/TechBaseConfiguration';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
-import { ISerializedUnit, UnitSource, ILoadUnitResult } from './types';
+import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
 import { hasSerializedUnitStructure } from './typeGuards';
 import {
   mapEngineType,
@@ -76,7 +76,7 @@ export class UnitLoaderService {
         return { success: false, error: `Canonical unit "${id}" not found` };
       }
 
-      const state = this.mapToUnitState(fullUnit as ISerializedUnit, true);
+       const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, true);
       return { success: true, state };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load canonical unit';
@@ -104,9 +104,9 @@ export class UnitLoaderService {
       if (!hasSerializedUnitStructure(fullUnit)) {
         return { success: false, error: 'Custom unit data is not in serialized format' };
       }
-      // Type assertion is safe here because we've verified the structure matches ISerializedUnit
-      // and IFullUnit's index signature [key: string]: unknown makes it compatible
-      const state = this.mapToUnitState(fullUnit as ISerializedUnit, false);
+       // Type assertion is safe here because we've verified the structure matches IRawSerializedUnit
+       // and IFullUnit's index signature [key: string]: unknown makes it compatible
+       const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, false);
       return { success: true, state };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load custom unit';
@@ -128,7 +128,7 @@ export class UnitLoaderService {
   /**
    * Map serialized unit JSON to UnitState
    */
-  mapToUnitState(serialized: ISerializedUnit, _isCanonical: boolean): UnitState {
+   mapToUnitState(serialized: IRawSerializedUnit, _isCanonical: boolean): UnitState {
     // Determine unit tech base mode first (mixed tech applies at unit level)
     const techBaseMode = mapTechBaseMode(serialized.techBase);
     // Determine binary tech base for component mappings (per spec, components are binary)

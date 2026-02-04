@@ -8,19 +8,19 @@ describe('CampaignOptionGroup', () => {
     });
 
     it('should have all expected groups', () => {
-      expect(OptionGroupId.GENERAL).toBe('general');
-      expect(OptionGroupId.PERSONNEL).toBe('personnel');
-      expect(OptionGroupId.XP_PROGRESSION).toBe('xp_progression');
-      expect(OptionGroupId.TURNOVER).toBe('turnover');
-      expect(OptionGroupId.FINANCIAL).toBe('financial');
-      expect(OptionGroupId.REPAIR_MAINTENANCE).toBe('repair_maintenance');
-      expect(OptionGroupId.COMBAT).toBe('combat');
-      expect(OptionGroupId.FORCE_ORGANIZATION).toBe('force');
-      expect(OptionGroupId.MEDICAL).toBe('medical');
-      expect(OptionGroupId.FACTION_STANDING).toBe('faction');
-      expect(OptionGroupId.MARKETS).toBe('markets');
-      expect(OptionGroupId.EVENTS).toBe('events');
-      expect(OptionGroupId.ADVANCED).toBe('advanced');
+      expect(OptionGroupId.General).toBe('general');
+      expect(OptionGroupId.Personnel).toBe('personnel');
+      expect(OptionGroupId.XpProgression).toBe('xp_progression');
+      expect(OptionGroupId.Turnover).toBe('turnover');
+      expect(OptionGroupId.Financial).toBe('financial');
+      expect(OptionGroupId.RepairMaintenance).toBe('repair_maintenance');
+      expect(OptionGroupId.Combat).toBe('combat');
+      expect(OptionGroupId.ForceOrganization).toBe('force');
+      expect(OptionGroupId.Medical).toBe('medical');
+      expect(OptionGroupId.FactionStanding).toBe('faction');
+      expect(OptionGroupId.Markets).toBe('markets');
+      expect(OptionGroupId.Events).toBe('events');
+      expect(OptionGroupId.Advanced).toBe('advanced');
     });
   });
 

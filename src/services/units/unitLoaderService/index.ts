@@ -10,7 +10,7 @@
 // Type definitions
 export type {
   UnitSource,
-  ISerializedUnit,
+  IRawSerializedUnit,
   ILoadUnitResult,
 } from './types';
 

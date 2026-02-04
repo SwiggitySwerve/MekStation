@@ -3,6 +3,7 @@
  * Represents a single financial transaction in a campaign
  */
 
+import type { IIdentifiable } from '@/types/core';
 import { Money } from './Money';
 import { TransactionType } from './enums/TransactionType';
 
@@ -12,9 +13,7 @@ export { TransactionType };
  * Transaction interface
  * Represents a single financial transaction with type, date, amount, and description
  */
-export interface Transaction {
-  /** Unique identifier for the transaction */
-  id: string;
+export interface Transaction extends IIdentifiable {
 
   /** Type of transaction */
   type: TransactionType;

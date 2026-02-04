@@ -169,7 +169,7 @@ mass:100`;
 
       expect(result.status).toBe('ISSUES_FOUND');
       expect(result.issues.length).toBeGreaterThan(0);
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.HEADER_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.HeaderMismatch)).toBe(true);
     });
 
     it('should detect armor mismatches', () => {
@@ -196,7 +196,7 @@ LA armor:25`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.ARMOR_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.ArmorMismatch)).toBe(true);
     });
 
     it('should detect engine mismatches', () => {
@@ -223,7 +223,7 @@ engine:300 XL Engine`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.EngineMismatch)).toBe(true);
     });
 
     it('should detect movement mismatches', () => {
@@ -252,7 +252,7 @@ jump mp:0`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MOVEMENT_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.MovementMismatch)).toBe(true);
     });
 
     it('should detect quirk mismatches', () => {
@@ -280,7 +280,7 @@ quirk:battle_fists_la`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.QUIRK_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.QuirkMismatch)).toBe(true);
     });
 
     it('should ignore comments in comparison', () => {
@@ -648,7 +648,7 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.SLOT_COUNT_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.SlotCountMismatch)).toBe(true);
     });
 
     it('should detect missing actuator', () => {
@@ -685,7 +685,7 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MISSING_ACTUATOR)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.MissingActuator)).toBe(true);
     });
 
     it('should detect extra actuator', () => {
@@ -720,7 +720,7 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.EXTRA_ACTUATOR)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.ExtraActuator)).toBe(true);
     });
 
     it('should detect actuator slot mismatch', () => {
@@ -752,7 +752,7 @@ Lower Arm Actuator`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.SLOT_MISMATCH)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.SlotMismatch)).toBe(true);
     });
 
     it('should detect non-actuator slot mismatch', () => {
@@ -785,7 +785,7 @@ Large Laser`;
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
       expect(result.issues.some(i =>
-        i.category === DiscrepancyCategory.SLOT_MISMATCH &&
+        i.category === DiscrepancyCategory.SlotMismatch &&
         i.expected === 'Medium Laser'
       )).toBe(true);
     });
@@ -928,7 +928,7 @@ quirk:battle_fists_ra`;
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
       expect(result.issues.some(i =>
-        i.category === DiscrepancyCategory.QUIRK_MISMATCH &&
+        i.category === DiscrepancyCategory.QuirkMismatch &&
         i.actual === 'battle_fists_ra'
       )).toBe(true);
     });
@@ -1072,7 +1072,7 @@ engine:300 Fusion Engine`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
     });
 
     it('should normalize ICE engine variants', () => {
@@ -1098,7 +1098,7 @@ engine:100 ICE`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
     });
 
     it('should normalize Fuel Cell engine variants', () => {
@@ -1124,7 +1124,7 @@ engine:100 Fuel Cell`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.ENGINE_MISMATCH).length).toBe(0);
+      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
     });
   });
 
@@ -1163,7 +1163,7 @@ Heat Sink`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MISSING_ACTUATOR)).toBe(true);
+      expect(result.issues.some(i => i.category === DiscrepancyCategory.MissingActuator)).toBe(true);
     });
   });
 });

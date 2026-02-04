@@ -17,9 +17,9 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
  * Validation severity
  */
 export enum ConversionValidationSeverity {
-  ERROR = 'error',
-  WARNING = 'warning',
-  INFO = 'info',
+  Error = 'error',
+  Warning = 'warning',
+  Info = 'info',
 }
 
 /**
@@ -94,7 +94,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     warnings.push({
       code: 'INVALID_TONNAGE',
       message: `Tonnage ${unit.tonnage} is not a standard value (20-100 in 5-ton increments)`,
-      severity: ConversionValidationSeverity.WARNING,
+      severity: ConversionValidationSeverity.Warning,
       field: 'tonnage',
       actual: unit.tonnage,
     });
@@ -105,7 +105,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'INVALID_ENGINE_RATING',
       message: `Engine rating ${unit.engine.rating} is out of valid range (10-500)`,
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'engine.rating',
       actual: unit.engine.rating,
     });
@@ -115,7 +115,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'INVALID_ENGINE_RATING',
       message: `Engine rating ${unit.engine.rating} must be a multiple of 5`,
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'engine.rating',
       actual: unit.engine.rating,
     });
@@ -126,7 +126,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'INVALID_WALK_MP',
       message: 'Walk MP must be at least 1',
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'movement.walk',
       actual: unit.movement.walk,
     });
@@ -138,7 +138,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     info.push({
       code: 'WALK_MP_MISMATCH',
       message: `Walk MP ${unit.movement.walk} doesn't match expected ${expectedWalk} from engine rating`,
-      severity: ConversionValidationSeverity.INFO,
+      severity: ConversionValidationSeverity.Info,
       field: 'movement.walk',
       expected: expectedWalk,
       actual: unit.movement.walk,
@@ -150,7 +150,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     warnings.push({
       code: 'INSUFFICIENT_HEAT_SINKS',
       message: `Mech has ${unit.heatSinks.count} heat sinks, minimum is 10`,
-      severity: ConversionValidationSeverity.WARNING,
+      severity: ConversionValidationSeverity.Warning,
       field: 'heatSinks.count',
       expected: 10,
       actual: unit.heatSinks.count,
@@ -165,7 +165,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'MISSING_ID',
       message: 'Unit ID is required',
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'id',
     });
   }
@@ -174,7 +174,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'MISSING_CHASSIS',
       message: 'Chassis name is required',
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'chassis',
     });
   }
@@ -183,7 +183,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     errors.push({
       code: 'MISSING_MODEL',
       message: 'Model designation is required',
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'model',
     });
   }
@@ -193,7 +193,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
     warnings.push({
       code: 'NO_EQUIPMENT',
       message: 'Unit has no mounted equipment',
-      severity: ConversionValidationSeverity.WARNING,
+      severity: ConversionValidationSeverity.Warning,
       field: 'equipment',
     });
   }
@@ -226,7 +226,7 @@ function validateArmor(
     warnings.push({
       code: 'UNKNOWN_TONNAGE_FOR_ARMOR',
       message: `Cannot validate armor for tonnage ${unit.tonnage}`,
-      severity: ConversionValidationSeverity.WARNING,
+      severity: ConversionValidationSeverity.Warning,
       field: 'armor',
     });
     return;
@@ -238,7 +238,7 @@ function validateArmor(
     errors.push({
       code: 'HEAD_ARMOR_EXCEEDED',
       message: `Head armor ${headArmor} exceeds maximum of 9`,
-      severity: ConversionValidationSeverity.ERROR,
+      severity: ConversionValidationSeverity.Error,
       field: 'armor.allocation.head',
       expected: 9,
       actual: headArmor,
@@ -261,7 +261,7 @@ function validateArmor(
       warnings.push({
         code: 'ARMOR_EXCEEDED',
         message: `${name} armor ${armor} exceeds maximum of ${maxArmor}`,
-        severity: ConversionValidationSeverity.WARNING,
+        severity: ConversionValidationSeverity.Warning,
         field: `armor.allocation.${key}`,
         expected: maxArmor,
         actual: armor,
@@ -296,7 +296,7 @@ function validateArmor(
       warnings.push({
         code: 'ARMOR_EXCEEDED',
         message: `${name} total armor ${total} (${front} front + ${rear} rear) exceeds maximum of ${maxArmor}`,
-        severity: ConversionValidationSeverity.WARNING,
+        severity: ConversionValidationSeverity.Warning,
         field: `armor.allocation.${frontKey}`,
         expected: maxArmor,
         actual: total,

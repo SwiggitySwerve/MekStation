@@ -101,7 +101,7 @@ export enum PersonnelMarketStyle {
  *
  * Maps to BattleTech experience categories with associated skill ranges.
  */
-export enum ExperienceLevel {
+export enum MarketExperienceLevel {
   GREEN = 'green',
   REGULAR = 'regular',
   VETERAN = 'veteran',
@@ -168,7 +168,7 @@ export interface IPersonnelMarketOffer {
   readonly role: CampaignPersonnelRole;
 
   /** Experience level classification */
-  readonly experienceLevel: ExperienceLevel;
+  readonly experienceLevel: MarketExperienceLevel;
 
   /** Skill levels by skill ID */
   readonly skills: Record<string, number>;
@@ -206,8 +206,8 @@ export function isPersonnelMarketStyle(value: unknown): value is PersonnelMarket
 }
 
 /**
- * Type guard for ExperienceLevel values.
+ * Type guard for MarketExperienceLevel values.
  */
-export function isExperienceLevel(value: unknown): value is ExperienceLevel {
-  return typeof value === 'string' && Object.values(ExperienceLevel).includes(value as ExperienceLevel);
+export function isMarketExperienceLevel(value: unknown): value is MarketExperienceLevel {
+  return typeof value === 'string' && Object.values(MarketExperienceLevel).includes(value as MarketExperienceLevel);
 }

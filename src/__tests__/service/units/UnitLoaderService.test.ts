@@ -1,4 +1,4 @@
-import { UnitLoaderService, ISerializedUnit } from '@/services/units/unitLoaderService';
+import { UnitLoaderService, IRawSerializedUnit } from '@/services/units/unitLoaderService';
 import { canonicalUnitService, IFullUnit } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -170,7 +170,7 @@ describe('UnitLoaderService', () => {
   });
 
   describe('mapToUnitState', () => {
-    const createMockSerializedUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+    const createMockSerializedUnit = (overrides?: Partial<IRawSerializedUnit>): IRawSerializedUnit => ({
       id: 'test-unit',
       chassis: 'Atlas',
       variant: 'AS7-D',
@@ -428,7 +428,7 @@ describe('UnitLoaderService', () => {
   });
 
   describe('Legacy Equipment ID Resolution', () => {
-    const createMockSerializedUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+    const createMockSerializedUnit = (overrides?: Partial<IRawSerializedUnit>): IRawSerializedUnit => ({
       id: 'test-unit',
       chassis: 'Marauder',
       model: 'C',

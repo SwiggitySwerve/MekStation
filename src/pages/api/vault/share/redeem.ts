@@ -52,24 +52,23 @@ export default async function handler(
     if (!result.success) {
       // Map error codes to HTTP status codes
       const statusCode =
-        result.errorCode === 'NOT_FOUND' ? 404 :
-        result.errorCode === 'EXPIRED' ? 410 :
-        result.errorCode === 'MAX_USES' ? 410 :
-        result.errorCode === 'INACTIVE' ? 410 :
+        result.error.errorCode === 'NOT_FOUND' ? 404 :
+        result.error.errorCode === 'EXPIRED' ? 410 :
+        result.error.errorCode === 'MAX_USES' ? 410 :
+        result.error.errorCode === 'INACTIVE' ? 410 :
         400;
 
       return res.status(statusCode).json({
         success: false,
-        error: result.error,
-        errorCode: result.errorCode,
-        link: result.link,
+        error: result.error.message,
+        errorCode: result.error.errorCode,
       });
     }
 
     // Return link info for successful redemption
     return res.status(200).json({
       success: true,
-      link: result.link,
+      link: result.data.link,
     });
   } catch (error) {
     console.error('Failed to redeem share link:', error);

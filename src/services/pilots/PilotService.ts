@@ -91,7 +91,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: errors.join('; '),
-        errorCode: PilotErrorCode.VALIDATION_ERROR,
+        errorCode: PilotErrorCode.ValidationError,
       };
     }
 
@@ -236,7 +236,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -248,8 +248,8 @@ export class PilotService implements IPilotService {
           ? 'Gunnery is already at maximum (1)'
           : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
         errorCode: cost === null 
-          ? PilotErrorCode.VALIDATION_ERROR 
-          : PilotErrorCode.INSUFFICIENT_XP,
+          ? PilotErrorCode.ValidationError 
+          : PilotErrorCode.InsufficientXp,
       };
     }
 
@@ -277,7 +277,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -289,8 +289,8 @@ export class PilotService implements IPilotService {
           ? 'Piloting is already at maximum (1)'
           : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
         errorCode: cost === null 
-          ? PilotErrorCode.VALIDATION_ERROR 
-          : PilotErrorCode.INSUFFICIENT_XP,
+          ? PilotErrorCode.ValidationError 
+          : PilotErrorCode.InsufficientXp,
       };
     }
 
@@ -363,7 +363,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -395,7 +395,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -404,7 +404,7 @@ export class PilotService implements IPilotService {
       return {
         success: false,
         error: 'Cannot heal a KIA pilot',
-        errorCode: PilotErrorCode.VALIDATION_ERROR,
+        errorCode: PilotErrorCode.ValidationError,
       };
     }
 

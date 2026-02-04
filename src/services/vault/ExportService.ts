@@ -42,7 +42,7 @@ export async function exportUnits(
   if (units.length === 0) {
     return {
       success: false,
-      error: 'No units to export',
+      error: { message: 'No units to export' },
     };
   }
 
@@ -72,7 +72,7 @@ export async function exportPilots(
   if (pilots.length === 0) {
     return {
       success: false,
-      error: 'No pilots to export',
+      error: { message: 'No pilots to export' },
     };
   }
 
@@ -107,7 +107,7 @@ export async function exportForces(
   if (forces.length === 0) {
     return {
       success: false,
-      error: 'No forces to export',
+      error: { message: 'No forces to export' },
     };
   }
 
@@ -134,7 +134,7 @@ export async function exportContent<T>(
   if (items.length === 0) {
     return {
       success: false,
-      error: `No ${contentType}s to export`,
+      error: { message: `No ${contentType}s to export` },
     };
   }
 
@@ -149,17 +149,17 @@ export async function exportContent<T>(
  * Trigger a file download in the browser
  */
 export function downloadBundle(result: IExportResult): void {
-  if (!result.success || !result.bundle) {
-    throw new Error(result.error || 'No bundle to download');
+  if (!result.success) {
+    throw new Error(result.error.message || 'No bundle to download');
   }
 
-  const json = serializeBundle(result.bundle);
+  const json = serializeBundle(result.data.bundle);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = result.suggestedFilename || 'export.mekbundle';
+  a.download = result.data.suggestedFilename || 'export.mekbundle';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -173,10 +173,10 @@ export function downloadBundle(result: IExportResult): void {
 export async function copyBundleToClipboard(
   result: IExportResult
 ): Promise<void> {
-  if (!result.success || !result.bundle) {
-    throw new Error(result.error || 'No bundle to copy');
+  if (!result.success) {
+    throw new Error(result.error.message || 'No bundle to copy');
   }
 
-  const json = serializeBundle(result.bundle);
+  const json = serializeBundle(result.data.bundle);
   await navigator.clipboard.writeText(json);
 }

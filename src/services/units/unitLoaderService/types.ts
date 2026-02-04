@@ -15,8 +15,13 @@ export type UnitSource = 'canonical' | 'custom';
 
 /**
  * Serialized unit JSON format (from canonical JSON files)
+ * 
+ * This is the lenient version used for importing from external sources.
+ * It has optional fields and an index signature for flexible import handling.
+ * 
+ * For the strict canonical version with required fields, see ISerializedUnit in src/types/unit/UnitSerialization.ts
  */
-export interface ISerializedUnit {
+export interface IRawSerializedUnit {
   readonly id: string;
   readonly chassis: string;
   readonly model?: string;

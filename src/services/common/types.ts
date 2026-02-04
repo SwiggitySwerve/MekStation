@@ -81,91 +81,15 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 // Re-export canonical UnitType from BattleMechInterfaces
 export { UnitType };
 
-/**
- * Lightweight unit metadata for search and browsing
- */
-export interface IUnitIndexEntry {
-  readonly id: string;
-  readonly name: string;
-  readonly chassis: string;
-  readonly variant: string;
-  readonly tonnage: number;
-  readonly techBase: TechBase;
-  readonly era: Era;
-  readonly weightClass: WeightClass;
-  readonly unitType: UnitType;
-  readonly filePath: string;
-  /** Introduction year */
-  readonly year?: number;
-  /** Role (e.g., Juggernaut, Scout, Striker) */
-  readonly role?: string;
-  /** Rules level (INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL) */
-  readonly rulesLevel?: string;
-  /** C-Bill cost */
-  readonly cost?: number;
-  /** Battle Value 2.0 */
-  readonly bv?: number;
-}
-
-/**
- * Query criteria for filtering units
- */
-export interface IUnitQueryCriteria {
-  readonly techBase?: TechBase;
-  readonly era?: Era;
-  readonly weightClass?: WeightClass;
-  readonly unitType?: UnitType;
-  readonly minTonnage?: number;
-  readonly maxTonnage?: number;
-}
-
-/**
- * Search options
- */
-export interface ISearchOptions {
-  readonly fuzzy?: boolean;
-  readonly limit?: number;
-  readonly fields?: readonly string[];
-}
+// Re-export unit index and query types from canonical location
+export type { IUnitIndexEntry, IUnitQueryCriteria, ISearchOptions } from '@/types/unit/UnitIndex';
 
 // ============================================================================
 // EQUIPMENT TYPES
 // ============================================================================
 
-/**
- * Equipment filter criteria for combined queries
- */
-export interface IEquipmentQueryCriteria {
-  readonly category?: EquipmentCategory;
-  readonly techBase?: TechBase;
-  readonly year?: number;
-  readonly nameQuery?: string;
-  readonly rulesLevel?: RulesLevel;
-  readonly maxWeight?: number;
-  readonly maxSlots?: number;
-}
-
-/**
- * Context for variable equipment calculations
- */
-export interface IVariableEquipmentContext {
-  readonly tonnage?: number;
-  readonly engineRating?: number;
-  readonly engineWeight?: number;
-  readonly directFireWeaponTonnage?: number;
-  readonly techBase?: TechBase;
-}
-
-/**
- * Calculated equipment properties
- */
-export interface ICalculatedEquipmentProperties {
-  readonly weight: number;
-  readonly criticalSlots: number;
-  readonly costCBills: number;
-  /** Damage for physical weapons (optional) */
-  readonly damage?: number;
-}
+// Re-export equipment query and calculation types from canonical location
+export type { IEquipmentQueryCriteria, IVariableEquipmentContext, ICalculatedEquipmentProperties } from '@/types/equipment/EquipmentQuery';
 
 // ============================================================================
 // IMPORT/EXPORT TYPES

@@ -3,15 +3,14 @@
  * Represents a loan with amortization details
  */
 
+import type { IIdentifiable } from '@/types/core';
 import { Money } from './Money';
 
 /**
  * Loan interface
  * Represents a loan with principal, interest rate, and amortization schedule
  */
-export interface ILoan {
-  /** Unique identifier for the loan */
-  readonly id: string;
+export interface ILoan extends IIdentifiable {
 
   /** Principal amount borrowed */
   readonly principal: Money;

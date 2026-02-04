@@ -49,11 +49,11 @@ interface EncounterRow {
 // =============================================================================
 
 export enum EncounterErrorCode {
-  NOT_FOUND = 'NOT_FOUND',
-  DUPLICATE_NAME = 'DUPLICATE_NAME',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  DATABASE_ERROR = 'DATABASE_ERROR',
-  INVALID_STATUS = 'INVALID_STATUS',
+  NotFound = 'NOT_FOUND',
+  DuplicateName = 'DUPLICATE_NAME',
+  ValidationError = 'VALIDATION_ERROR',
+  DatabaseError = 'DATABASE_ERROR',
+  InvalidStatus = 'INVALID_STATUS',
 }
 
 export interface IEncounterOperationResult {
@@ -192,7 +192,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: message,
-        errorCode: EncounterErrorCode.DATABASE_ERROR,
+        errorCode: EncounterErrorCode.DatabaseError,
       };
     }
   }
@@ -258,7 +258,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: 'Encounter not found',
-        errorCode: EncounterErrorCode.NOT_FOUND,
+        errorCode: EncounterErrorCode.NotFound,
       };
     }
 
@@ -270,7 +270,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: `Cannot update encounter in ${existing.status} status`,
-        errorCode: EncounterErrorCode.INVALID_STATUS,
+        errorCode: EncounterErrorCode.InvalidStatus,
       };
     }
 
@@ -344,7 +344,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: message,
-        errorCode: EncounterErrorCode.DATABASE_ERROR,
+        errorCode: EncounterErrorCode.DatabaseError,
       };
     }
   }
@@ -363,7 +363,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: 'Encounter not found',
-        errorCode: EncounterErrorCode.NOT_FOUND,
+        errorCode: EncounterErrorCode.NotFound,
       };
     }
 
@@ -372,7 +372,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: 'Cannot delete a launched encounter',
-        errorCode: EncounterErrorCode.INVALID_STATUS,
+        errorCode: EncounterErrorCode.InvalidStatus,
       };
     }
 
@@ -384,7 +384,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: message,
-        errorCode: EncounterErrorCode.DATABASE_ERROR,
+        errorCode: EncounterErrorCode.DatabaseError,
       };
     }
   }
@@ -410,7 +410,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: message,
-        errorCode: EncounterErrorCode.DATABASE_ERROR,
+        errorCode: EncounterErrorCode.DatabaseError,
       };
     }
   }
@@ -434,7 +434,7 @@ export class EncounterRepository implements IEncounterRepository {
       return {
         success: false,
         error: message,
-        errorCode: EncounterErrorCode.DATABASE_ERROR,
+        errorCode: EncounterErrorCode.DatabaseError,
       };
     }
   }

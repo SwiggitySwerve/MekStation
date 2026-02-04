@@ -4,7 +4,7 @@ import {
   ISkillType,
   ISkill,
   getSkillValue,
-  ExperienceLevel,
+  SkillExperienceLevel,
   getExperienceLevel,
   EXPERIENCE_THRESHOLDS,
 } from '../index';
@@ -638,36 +638,36 @@ describe('Skill System Integration', () => {
    * Test suite for experience level thresholds and progression
    */
   describe('Experience Levels', () => {
-    describe('ExperienceLevel Enum', () => {
+    describe('SkillExperienceLevel Enum', () => {
       it('should have all 4 experience levels', () => {
-        expect(ExperienceLevel.Green).toBe('Green');
-        expect(ExperienceLevel.Regular).toBe('Regular');
-        expect(ExperienceLevel.Veteran).toBe('Veteran');
-        expect(ExperienceLevel.Elite).toBe('Elite');
+        expect(SkillExperienceLevel.Green).toBe('Green');
+        expect(SkillExperienceLevel.Regular).toBe('Regular');
+        expect(SkillExperienceLevel.Veteran).toBe('Veteran');
+        expect(SkillExperienceLevel.Elite).toBe('Elite');
       });
     });
 
     describe('EXPERIENCE_THRESHOLDS', () => {
       it('should define Green threshold (0-999)', () => {
-        const threshold = EXPERIENCE_THRESHOLDS[ExperienceLevel.Green];
+        const threshold = EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Green];
         expect(threshold.min).toBe(0);
         expect(threshold.max).toBe(999);
       });
 
       it('should define Regular threshold (1000-4999)', () => {
-        const threshold = EXPERIENCE_THRESHOLDS[ExperienceLevel.Regular];
+        const threshold = EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Regular];
         expect(threshold.min).toBe(1000);
         expect(threshold.max).toBe(4999);
       });
 
       it('should define Veteran threshold (5000-11999)', () => {
-        const threshold = EXPERIENCE_THRESHOLDS[ExperienceLevel.Veteran];
+        const threshold = EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Veteran];
         expect(threshold.min).toBe(5000);
         expect(threshold.max).toBe(11999);
       });
 
       it('should define Elite threshold (12000+)', () => {
-        const threshold = EXPERIENCE_THRESHOLDS[ExperienceLevel.Elite];
+        const threshold = EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Elite];
         expect(threshold.min).toBe(12000);
         expect(threshold.max).toBeNull();
       });
@@ -675,51 +675,51 @@ describe('Skill System Integration', () => {
 
     describe('getExperienceLevel() Function', () => {
       it('should return Green for 0 XP', () => {
-        expect(getExperienceLevel(0)).toBe(ExperienceLevel.Green);
+        expect(getExperienceLevel(0)).toBe(SkillExperienceLevel.Green);
       });
 
       it('should return Green for 500 XP', () => {
-        expect(getExperienceLevel(500)).toBe(ExperienceLevel.Green);
+        expect(getExperienceLevel(500)).toBe(SkillExperienceLevel.Green);
       });
 
       it('should return Green for 999 XP', () => {
-        expect(getExperienceLevel(999)).toBe(ExperienceLevel.Green);
+        expect(getExperienceLevel(999)).toBe(SkillExperienceLevel.Green);
       });
 
       it('should return Regular for 1000 XP', () => {
-        expect(getExperienceLevel(1000)).toBe(ExperienceLevel.Regular);
+        expect(getExperienceLevel(1000)).toBe(SkillExperienceLevel.Regular);
       });
 
       it('should return Regular for 2500 XP', () => {
-        expect(getExperienceLevel(2500)).toBe(ExperienceLevel.Regular);
+        expect(getExperienceLevel(2500)).toBe(SkillExperienceLevel.Regular);
       });
 
       it('should return Regular for 4999 XP', () => {
-        expect(getExperienceLevel(4999)).toBe(ExperienceLevel.Regular);
+        expect(getExperienceLevel(4999)).toBe(SkillExperienceLevel.Regular);
       });
 
       it('should return Veteran for 5000 XP', () => {
-        expect(getExperienceLevel(5000)).toBe(ExperienceLevel.Veteran);
+        expect(getExperienceLevel(5000)).toBe(SkillExperienceLevel.Veteran);
       });
 
       it('should return Veteran for 8000 XP', () => {
-        expect(getExperienceLevel(8000)).toBe(ExperienceLevel.Veteran);
+        expect(getExperienceLevel(8000)).toBe(SkillExperienceLevel.Veteran);
       });
 
       it('should return Veteran for 11999 XP', () => {
-        expect(getExperienceLevel(11999)).toBe(ExperienceLevel.Veteran);
+        expect(getExperienceLevel(11999)).toBe(SkillExperienceLevel.Veteran);
       });
 
       it('should return Elite for 12000 XP', () => {
-        expect(getExperienceLevel(12000)).toBe(ExperienceLevel.Elite);
+        expect(getExperienceLevel(12000)).toBe(SkillExperienceLevel.Elite);
       });
 
       it('should return Elite for 15000 XP', () => {
-        expect(getExperienceLevel(15000)).toBe(ExperienceLevel.Elite);
+        expect(getExperienceLevel(15000)).toBe(SkillExperienceLevel.Elite);
       });
 
       it('should return Elite for very high XP', () => {
-        expect(getExperienceLevel(999999)).toBe(ExperienceLevel.Elite);
+        expect(getExperienceLevel(999999)).toBe(SkillExperienceLevel.Elite);
       });
 
       it('should throw error for negative XP', () => {
@@ -737,18 +737,18 @@ describe('Skill System Integration', () => {
 
     describe('Threshold Boundaries', () => {
       it('should correctly identify boundary at 999/1000', () => {
-        expect(getExperienceLevel(999)).toBe(ExperienceLevel.Green);
-        expect(getExperienceLevel(1000)).toBe(ExperienceLevel.Regular);
+        expect(getExperienceLevel(999)).toBe(SkillExperienceLevel.Green);
+        expect(getExperienceLevel(1000)).toBe(SkillExperienceLevel.Regular);
       });
 
       it('should correctly identify boundary at 4999/5000', () => {
-        expect(getExperienceLevel(4999)).toBe(ExperienceLevel.Regular);
-        expect(getExperienceLevel(5000)).toBe(ExperienceLevel.Veteran);
+        expect(getExperienceLevel(4999)).toBe(SkillExperienceLevel.Regular);
+        expect(getExperienceLevel(5000)).toBe(SkillExperienceLevel.Veteran);
       });
 
       it('should correctly identify boundary at 11999/12000', () => {
-        expect(getExperienceLevel(11999)).toBe(ExperienceLevel.Veteran);
-        expect(getExperienceLevel(12000)).toBe(ExperienceLevel.Elite);
+        expect(getExperienceLevel(11999)).toBe(SkillExperienceLevel.Veteran);
+        expect(getExperienceLevel(12000)).toBe(SkillExperienceLevel.Elite);
       });
     });
   });
@@ -855,16 +855,16 @@ describe('Skill System Integration', () => {
 
     it('should track experience progression through levels', () => {
       // Character starts as Green
-      expect(getExperienceLevel(500)).toBe(ExperienceLevel.Green);
+      expect(getExperienceLevel(500)).toBe(SkillExperienceLevel.Green);
 
       // Gains experience and becomes Regular
-      expect(getExperienceLevel(2000)).toBe(ExperienceLevel.Regular);
+      expect(getExperienceLevel(2000)).toBe(SkillExperienceLevel.Regular);
 
       // Continues gaining experience and becomes Veteran
-      expect(getExperienceLevel(8000)).toBe(ExperienceLevel.Veteran);
+      expect(getExperienceLevel(8000)).toBe(SkillExperienceLevel.Veteran);
 
       // Reaches Elite status
-      expect(getExperienceLevel(15000)).toBe(ExperienceLevel.Elite);
+      expect(getExperienceLevel(15000)).toBe(SkillExperienceLevel.Elite);
     });
 
     it('should handle skill with negative bonus and low attribute', () => {

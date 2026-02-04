@@ -56,8 +56,7 @@ export class ContactService {
     if (!isValidFriendCode(friendCode)) {
       return {
         success: false,
-        error: 'Invalid friend code format',
-        errorCode: 'INVALID_CODE',
+        error: { message: 'Invalid friend code format', errorCode: 'INVALID_CODE' as const },
       };
     }
 
@@ -68,8 +67,7 @@ export class ContactService {
       if (identity && identity.friendCode.toUpperCase() === friendCode.toUpperCase()) {
         return {
           success: false,
-          error: 'Cannot add yourself as a contact',
-          errorCode: 'SELF_ADD',
+          error: { message: 'Cannot add yourself as a contact', errorCode: 'SELF_ADD' as const },
         };
       }
     } catch {
@@ -81,8 +79,7 @@ export class ContactService {
     if (existing) {
       return {
         success: false,
-        error: 'Contact already exists',
-        errorCode: 'ALREADY_EXISTS',
+        error: { message: 'Contact already exists', errorCode: 'ALREADY_EXISTS' as const },
       };
     }
 
@@ -98,8 +95,7 @@ export class ContactService {
     } catch (_err) {
       return {
         success: false,
-        error: 'Failed to decode friend code',
-        errorCode: 'INVALID_CODE',
+        error: { message: 'Failed to decode friend code', errorCode: 'INVALID_CODE' as const },
       };
     }
 
@@ -118,7 +114,7 @@ export class ContactService {
 
     return {
       success: true,
-      contact,
+      data: { contact },
     };
   }
 

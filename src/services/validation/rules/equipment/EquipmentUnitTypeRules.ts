@@ -254,7 +254,7 @@ export const TurretMountingRequirements: IUnitValidationRuleDefinition = {
       // Check turret-mounted flag or TURRET_MOUNTED behavior flag
       const isTurretMounted =
         item.isTurretMounted ||
-        item.flags?.includes(EquipmentBehaviorFlag.TURRET_MOUNTED) ||
+        item.flags?.includes(EquipmentBehaviorFlag.TurretMounted) ||
         item.location === 'Turret';
 
       if (isTurretMounted && !canHaveTurret) {
@@ -324,23 +324,23 @@ interface IEquipmentIncompatibility {
  */
 const EQUIPMENT_INCOMPATIBILITIES: readonly IEquipmentIncompatibility[] = [
   {
-    source: EquipmentBehaviorFlag.MASC,
-    incompatibleWith: [EquipmentBehaviorFlag.TSM, EquipmentBehaviorFlag.INDUSTRIAL_TSM],
+    source: EquipmentBehaviorFlag.Masc,
+    incompatibleWith: [EquipmentBehaviorFlag.Tsm, EquipmentBehaviorFlag.IndustrialTsm],
     reason: 'MASC cannot be combined with Triple Strength Myomer',
   },
   {
-    source: EquipmentBehaviorFlag.TSM,
-    incompatibleWith: [EquipmentBehaviorFlag.INDUSTRIAL_TSM],
+    source: EquipmentBehaviorFlag.Tsm,
+    incompatibleWith: [EquipmentBehaviorFlag.IndustrialTsm],
     reason: 'Standard TSM cannot be combined with Industrial TSM',
   },
   {
-    source: EquipmentBehaviorFlag.STEALTH,
-    incompatibleWith: [EquipmentBehaviorFlag.HEAT_SINK], // Placeholder - actual rule is complex
+    source: EquipmentBehaviorFlag.Stealth,
+    incompatibleWith: [EquipmentBehaviorFlag.HeatSink], // Placeholder - actual rule is complex
     reason: 'Stealth armor has special heat sink requirements',
   },
   {
-    source: EquipmentBehaviorFlag.C3S,
-    incompatibleWith: [EquipmentBehaviorFlag.C3I],
+    source: EquipmentBehaviorFlag.C3s,
+    incompatibleWith: [EquipmentBehaviorFlag.C3i],
     reason: 'C3 Slave cannot be combined with C3 Improved',
   },
 ];
@@ -453,7 +453,7 @@ interface IRequiredEquipment {
 const REQUIRED_EQUIPMENT: readonly IRequiredEquipment[] = [
   {
     unitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH, UnitType.INDUSTRIALMECH],
-    requiredEquipment: EquipmentBehaviorFlag.HEAT_SINK,
+    requiredEquipment: EquipmentBehaviorFlag.HeatSink,
     minQuantity: 10,
     condition: 'Unless using an engine with 10+ integral heat sinks',
     suggestion: 'Add heat sinks to meet the minimum requirement of 10',
@@ -489,7 +489,7 @@ export const RequiredEquipmentCheck: IUnitValidationRuleDefinition = {
       if (!requirement.unitTypes.includes(unitType)) continue;
 
       // Heat sink check - uses heatSinkCount from unit if available
-      if (requirement.requiredEquipment === EquipmentBehaviorFlag.HEAT_SINK) {
+      if (requirement.requiredEquipment === EquipmentBehaviorFlag.HeatSink) {
         const heatSinkCount = unit.heatSinkCount ?? 0;
 
         if (heatSinkCount < requirement.minQuantity) {

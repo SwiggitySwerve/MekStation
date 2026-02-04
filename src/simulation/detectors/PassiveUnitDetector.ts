@@ -17,6 +17,7 @@ import {
   GameSide,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getPayload } from './utils/getPayload';
 
 // =============================================================================
 // Types
@@ -245,8 +246,7 @@ export class PassiveUnitDetector {
   }
 
   private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
-    // eslint-disable-next-line no-restricted-syntax
-    const payload = event.payload as unknown as { readonly unitId: string };
+    const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }
 

@@ -7,6 +7,8 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { ResultType } from '@/services/core/types/BaseTypes';
+
 // =============================================================================
 // Identity Types
 // =============================================================================
@@ -153,21 +155,28 @@ export interface IExportOptions {
 }
 
 /**
- * Result of an export operation
+ * Success data for export operations
  */
-export interface IExportResult {
-  /** Whether the export succeeded */
-  success: boolean;
-
-  /** The generated bundle (if successful) */
-  bundle?: IShareableBundle;
-
-  /** Error message (if failed) */
-  error?: string;
+export interface IExportData {
+  /** The generated bundle */
+  bundle: IShareableBundle;
 
   /** Filename suggestion for saving */
   suggestedFilename?: string;
 }
+
+/**
+ * Error data for export operations
+ */
+export interface IExportError {
+  /** Error message */
+  message: string;
+}
+
+/**
+ * Result of an export operation - discriminated union via ResultType
+ */
+export type IExportResult = ResultType<IExportData, IExportError>;
 
 /**
  * Conflict detected during import
@@ -210,33 +219,28 @@ export interface IImportOptions {
 }
 
 /**
- * Result of an import operation
+ * Success data for import operations
  */
-export interface IImportResult {
-  /** Whether the import succeeded */
-  success: boolean;
-
-  /** Number of items successfully imported */
+export interface IImportData {
   importedCount: number;
-
-  /** Number of items skipped */
   skippedCount: number;
-
-  /** Number of items that replaced existing */
   replacedCount: number;
-
-  /** Conflicts that need resolution (if any) */
   conflicts?: IImportConflict[];
-
-  /** Error message (if failed) */
-  error?: string;
-
-  /** IDs of imported items (mapped from original to new) */
   importedIds?: Record<string, string>;
-
-  /** Signature verification result */
   signatureValid?: boolean;
 }
+
+/**
+ * Error data for import operations
+ */
+export interface IImportError {
+  message: string;
+}
+
+/**
+ * Result of an import operation - discriminated union via ResultType
+ */
+export type IImportResult = ResultType<IImportData, IImportError>;
 
 /**
  * Source tracking for imported items
@@ -539,21 +543,24 @@ export interface IShareLinkOptions {
 }
 
 /**
- * Result of redeeming a share link
+ * Success data for share link redemption
  */
-export interface IShareLinkRedeemResult {
-  /** Whether redemption succeeded */
-  success: boolean;
-
-  /** The share link (if found and valid) */
-  link?: IShareLink;
-
-  /** Error message (if failed) */
-  error?: string;
-
-  /** Error code for programmatic handling */
-  errorCode?: 'NOT_FOUND' | 'EXPIRED' | 'MAX_USES' | 'INACTIVE' | 'INVALID';
+export interface IShareLinkData {
+  link: IShareLink;
 }
+
+/**
+ * Error data for share link redemption
+ */
+export interface IShareLinkError {
+  message: string;
+  errorCode: 'NOT_FOUND' | 'EXPIRED' | 'MAX_USES' | 'INACTIVE' | 'INVALID';
+}
+
+/**
+ * Result of redeeming a share link - discriminated union via ResultType
+ */
+export type IShareLinkRedeemResult = ResultType<IShareLinkData, IShareLinkError>;
 
 // =============================================================================
 // Contact Types (Phase 3)
@@ -633,14 +640,24 @@ export interface IAddContactOptions {
 }
 
 /**
- * Result of adding a contact
+ * Success data for adding a contact
  */
-export interface IAddContactResult {
-  success: boolean;
-  contact?: IContact;
-  error?: string;
-  errorCode?: 'INVALID_CODE' | 'ALREADY_EXISTS' | 'SELF_ADD' | 'LOOKUP_FAILED';
+export interface IAddContactData {
+  contact: IContact;
 }
+
+/**
+ * Error data for adding a contact
+ */
+export interface IAddContactError {
+  message: string;
+  errorCode: 'INVALID_CODE' | 'ALREADY_EXISTS' | 'SELF_ADD' | 'LOOKUP_FAILED';
+}
+
+/**
+ * Result of adding a contact - discriminated union via ResultType
+ */
+export type IAddContactResult = ResultType<IAddContactData, IAddContactError>;
 
 // =============================================================================
 // Vault Folder Types (Phase 3)
