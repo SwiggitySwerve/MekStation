@@ -3,11 +3,11 @@ import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import {
   EncounterHistory,
   formatDuration,
-} from '../EncounterHistory';
+} from '@/components/simulation-viewer/pages/EncounterHistory';
 import type {
   IEncounterHistoryProps,
   IBattle,
-} from '../EncounterHistory';
+} from '@/components/simulation-viewer/pages/EncounterHistory';
 
 /* ========================================================================== */
 /*  Mock Data                                                                  */

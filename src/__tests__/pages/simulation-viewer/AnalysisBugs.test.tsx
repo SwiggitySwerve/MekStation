@@ -3,14 +3,14 @@ import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import {
   AnalysisBugs,
   formatTimestamp,
-} from '../AnalysisBugs';
+} from '@/components/simulation-viewer/pages/AnalysisBugs';
 import type {
   IAnalysisBugsProps,
   IInvariant,
   IPageAnomaly,
   IViolation,
   IThresholds,
-} from '../AnalysisBugs';
+} from '@/components/simulation-viewer/pages/AnalysisBugs';
 
 const mockInvariants: IInvariant[] = [
   { id: 'inv1', name: 'Unit HP never negative', description: 'Ensures unit HP is always >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },

@@ -4,8 +4,8 @@ import {
   CampaignDashboard,
   formatCompactNumber,
   formatPercent,
-} from '../CampaignDashboard';
-import type { ICampaignDashboardProps } from '../CampaignDashboard';
+} from '@/components/simulation-viewer/pages/CampaignDashboard';
+import type { ICampaignDashboardProps } from '@/components/simulation-viewer/pages/CampaignDashboard';
 import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
 
 const mockMetrics: ICampaignDashboardMetrics = {
