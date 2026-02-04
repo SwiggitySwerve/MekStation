@@ -39,6 +39,11 @@
   "exclude": [
     "node_modules",
     "scripts/data-migration/**/*",
-    "desktop/**/*"
+    "desktop/**/*",
+    "src/pages/**/__tests__/**/*",
+    "src/pages/**/*.test.ts",
+    "src/pages/**/*.test.tsx",
+    "src/pages/**/*.spec.ts",
+    "src/pages/**/*.spec.tsx"
   ]
 }
