@@ -15,22 +15,16 @@ jest.mock('@/services/units/UnitRepository');
 const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
 const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof getUnitRepository>;
 
-/**
- * Update response type
- */
 interface UpdateResponse {
   success: boolean;
-  version?: number;
-  error?: string;
+  data?: { id: string; version?: number };
+  error?: { message: string; errorCode?: string };
 }
 
-/**
- * Delete response type
- */
 interface DeleteResponse {
   success: boolean;
-  id?: string;
-  error?: string;
+  data?: { id: string };
+  error?: { message: string; errorCode?: string };
 }
 
 describe('/api/units/custom/[id]', () => {
@@ -166,8 +160,7 @@ describe('/api/units/custom/[id]', () => {
 
       mockUnitRepository.update.mockReturnValue({
         success: true,
-        id: 'custom-1',
-        version: 2,
+        data: { id: 'custom-1', version: 2 },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -181,7 +174,7 @@ describe('/api/units/custom/[id]', () => {
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<UpdateResponse>(res);
       expect(data.success).toBe(true);
-      expect(data.version).toBe(2);
+      expect(data.data?.version).toBe(2);
       expect(mockUnitRepository.update).toHaveBeenCalledWith('custom-1', requestBody);
     });
 
@@ -204,8 +197,7 @@ describe('/api/units/custom/[id]', () => {
     it('should return 404 for not found errors', async () => {
       mockUnitRepository.update.mockReturnValue({
         success: false,
-        error: 'Unit not found',
-        errorCode: 'NOT_FOUND',
+        error: { message: 'Unit not found', errorCode: 'NOT_FOUND' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -246,7 +238,7 @@ describe('/api/units/custom/[id]', () => {
     it('should delete unit', async () => {
       mockUnitRepository.delete.mockReturnValue({
         success: true,
-        id: 'custom-1',
+        data: { id: 'custom-1' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -259,14 +251,14 @@ describe('/api/units/custom/[id]', () => {
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<DeleteResponse>(res);
       expect(data.success).toBe(true);
-      expect(data.id).toBe('custom-1');
+      expect(data.data?.id).toBe('custom-1');
       expect(mockUnitRepository.delete).toHaveBeenCalledWith('custom-1');
     });
 
     it('should handle delete failure', async () => {
       mockUnitRepository.delete.mockReturnValue({
         success: false,
-        error: 'Delete failed',
+        error: { message: 'Delete failed' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

@@ -76,9 +76,10 @@ describe('UnitRepository', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.id).toBeDefined();
-      expect(result.id).toMatch(/^custom-/);
-      expect(result.version).toBe(1);
+      if (!result.success) return;
+      expect(result.data.id).toBeDefined();
+      expect(result.data.id).toMatch(/^custom-/);
+      expect(result.data.version).toBe(1);
     });
 
     it('should reject duplicate names', () => {
@@ -97,7 +98,8 @@ describe('UnitRepository', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('DUPLICATE_NAME');
+      if (result.success) return;
+      expect(result.error.errorCode).toBe('DUPLICATE_NAME');
     });
   });
 
@@ -119,7 +121,9 @@ describe('UnitRepository', () => {
         },
       });
 
-      const unit = repository.getById(createResult.id!);
+      expect(createResult.success).toBe(true);
+      if (!createResult.success) return;
+      const unit = repository.getById(createResult.data.id);
 
       expect(unit).not.toBeNull();
       expect(unit?.chassis).toBe('Timber Wolf');
@@ -138,16 +142,20 @@ describe('UnitRepository', () => {
         data: { chassis: 'Marauder', variant: 'MAD-3R-Test', tonnage: 75 },
       });
 
+      expect(createResult.success).toBe(true);
+      if (!createResult.success) return;
+
       // Update unit
-      const updateResult = repository.update(createResult.id!, {
+      const updateResult = repository.update(createResult.data.id, {
         data: { chassis: 'Marauder', variant: 'MAD-3R-Test', tonnage: 75, armor: 200 },
       });
 
       expect(updateResult.success).toBe(true);
-      expect(updateResult.version).toBe(2);
+      if (!updateResult.success) return;
+      expect(updateResult.data.version).toBe(2);
 
       // Verify version incremented
-      const unit = repository.getById(createResult.id!);
+      const unit = repository.getById(createResult.data.id);
       expect(unit?.currentVersion).toBe(2);
     });
 
@@ -157,7 +165,8 @@ describe('UnitRepository', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('NOT_FOUND');
+      if (result.success) return;
+      expect(result.error.errorCode).toBe('NOT_FOUND');
     });
   });
 
@@ -170,12 +179,15 @@ describe('UnitRepository', () => {
         data: { chassis: 'Warhammer', variant: 'WHM-6R-Test', tonnage: 70 },
       });
 
+      expect(createResult.success).toBe(true);
+      if (!createResult.success) return;
+
       // Delete unit
-      const deleteResult = repository.delete(createResult.id!);
+      const deleteResult = repository.delete(createResult.data.id);
       expect(deleteResult.success).toBe(true);
 
       // Verify deleted
-      const unit = repository.getById(createResult.id!);
+      const unit = repository.getById(createResult.data.id);
       expect(unit).toBeNull();
     });
   });

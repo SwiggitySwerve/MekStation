@@ -81,7 +81,9 @@ export default async function handler(
       if (!SUPPORTED_FORMAT_VERSIONS.includes(envelope.formatVersion)) {
         return res.status(400).json({
           success: false,
-          error: `Unsupported format version: ${envelope.formatVersion}. Supported versions: ${SUPPORTED_FORMAT_VERSIONS.join(', ')}`,
+          error: {
+            message: `Unsupported format version: ${envelope.formatVersion}. Supported versions: ${SUPPORTED_FORMAT_VERSIONS.join(', ')}`,
+          },
         });
       }
       
@@ -107,8 +109,10 @@ export default async function handler(
     if (validationErrors.length > 0) {
       return res.status(400).json({
         success: false,
-        error: 'Validation failed',
-        validationErrors,
+        error: {
+          message: 'Validation failed',
+          validationErrors,
+        },
       });
     }
 
@@ -120,8 +124,10 @@ export default async function handler(
       const suggestion = unitRepository.suggestCloneName(chassis, variant!);
       return res.status(409).json({
         success: false,
-        error: `Unit "${chassis} ${variant}" already exists`,
-        suggestedName: `${suggestion.chassis} ${suggestion.suggestedVariant}`,
+        error: {
+          message: `Unit "${chassis} ${variant}" already exists`,
+          suggestedName: `${suggestion.chassis} ${suggestion.suggestedVariant}`,
+        },
       });
     }
 
@@ -136,12 +142,12 @@ export default async function handler(
     if (result.success) {
       return res.status(201).json({
         success: true,
-        unitId: result.id,
+        data: { unitId: result.data.id },
       });
     } else {
       return res.status(400).json({
         success: false,
-        error: result.error,
+        error: { message: result.error.message },
       });
     }
   } catch (error) {

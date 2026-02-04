@@ -40,10 +40,8 @@ interface IUnitDetailsResponse {
 }
 
 interface IUnitCreateResponse {
-  readonly id: string;
-  readonly version: number;
-  readonly error?: string;
-  readonly errorCode?: string;
+  readonly data?: { id: string; version: number };
+  readonly error?: { message: string; errorCode?: string };
 }
 
 
@@ -183,15 +181,15 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     if (!response.ok) {
       return {
         success: false,
-        error: result.error || 'Failed to create unit',
-        requiresRename: result.errorCode === 'DUPLICATE_NAME',
+        error: result.error?.message || 'Failed to create unit',
+        requiresRename: result.error?.errorCode === 'DUPLICATE_NAME',
       };
     }
 
     return {
       success: true,
-      id: result.id,
-      version: result.version,
+      id: result.data?.id,
+      version: result.data?.version,
     };
   }
 
@@ -213,14 +211,14 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     if (!response.ok) {
       return {
         success: false,
-        error: result.error || 'Failed to save unit',
+        error: result.error?.message || 'Failed to save unit',
       };
     }
 
     return {
       success: true,
-      id: result.id,
-      version: result.version,
+      id: result.data?.id,
+      version: result.data?.version,
     };
   }
 
@@ -232,12 +230,17 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       method: 'DELETE',
     });
     
-    const result = await response.json() as { id?: string; error?: string };
+    const result = await response.json() as {
+      data?: { id: string };
+      error?: { message: string; errorCode?: string };
+    };
     
+    if (response.ok && result.data) {
+      return { success: true, data: { id: result.data.id } };
+    }
     return {
-      success: response.ok,
-      id: result.id,
-      error: result.error,
+      success: false,
+      error: { message: result.error?.message || 'Failed to delete' },
     };
   }
 
@@ -362,13 +365,17 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       }
     );
     
-    const result = await response.json() as { id?: string; version?: number; error?: string };
+    const result = await response.json() as {
+      data?: { id: string; version?: number };
+      error?: { message: string; errorCode?: string };
+    };
     
+    if (response.ok && result.data) {
+      return { success: true, data: { id: result.data.id, version: result.data.version } };
+    }
     return {
-      success: response.ok,
-      id: result.id,
-      version: result.version,
-      error: result.error,
+      success: false,
+      error: { message: result.error?.message || 'Failed to revert' },
     };
   }
 
@@ -401,24 +408,27 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       body: JSON.stringify(data),
     });
     
-    const result = await response.json() as { error?: string; suggestedName?: string; id?: string; version?: number; unitId?: string };
+    const result = await response.json() as {
+      data?: { unitId: string };
+      error?: { message: string; suggestedName?: string; validationErrors?: string[] };
+    };
     
     if (!response.ok) {
       return {
         success: false,
-        error: result.error,
+        error: result.error?.message,
         requiresRename: response.status === 409,
-        suggestedName: result.suggestedName ? {
+        suggestedName: result.error?.suggestedName ? {
           chassis: '',
           variant: '',
-          suggestedVariant: result.suggestedName,
+          suggestedVariant: result.error.suggestedName,
         } : undefined,
       };
     }
     
     return {
       success: true,
-      id: result.unitId,
+      id: result.data?.unitId,
       version: 1,
     };
   }

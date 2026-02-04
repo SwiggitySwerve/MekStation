@@ -20,8 +20,7 @@ const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof ge
  */
 interface ImportConflictResponse {
   success: boolean;
-  error?: string;
-  suggestedName?: string;
+  error?: { message: string; suggestedName?: string };
 }
 
 describe('/api/units/import', () => {
@@ -93,7 +92,7 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
       expect(data.success).toBe(false);
-      expect(data.validationErrors).toContain('Missing or invalid field: chassis');
+      expect(data.error?.validationErrors).toContain('Missing or invalid field: chassis');
     });
 
     it('should reject missing variant and model', async () => {
@@ -108,14 +107,14 @@ describe('/api/units/import', () => {
 
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
-      expect(data.validationErrors).toContain('Missing field: variant or model');
+      expect(data.error?.validationErrors).toContain('Missing field: variant or model');
     });
 
     it('should accept variant field', async () => {
       mockUnitRepository.nameExists.mockReturnValue(false);
       mockUnitRepository.create.mockReturnValue({
         success: true,
-        id: 'custom-1',
+        data: { id: 'custom-1' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -138,7 +137,7 @@ describe('/api/units/import', () => {
       mockUnitRepository.nameExists.mockReturnValue(false);
       mockUnitRepository.create.mockReturnValue({
         success: true,
-        id: 'custom-1',
+        data: { id: 'custom-1' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -161,7 +160,7 @@ describe('/api/units/import', () => {
       mockUnitRepository.nameExists.mockReturnValue(false);
       mockUnitRepository.create.mockReturnValue({
         success: true,
-        id: 'custom-1',
+        data: { id: 'custom-1' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -204,7 +203,7 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
       expect(data.success).toBe(false);
-      expect(data.error).toContain('Unsupported format version');
+      expect(data.error?.message).toContain('Unsupported format version');
     });
   });
 
@@ -230,8 +229,8 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(409);
       const data = parseApiResponse<ImportConflictResponse>(res);
       expect(data.success).toBe(false);
-      expect(data.error).toContain('already exists');
-      expect(data.suggestedName).toBeDefined();
+      expect(data.error?.message).toContain('already exists');
+      expect(data.error?.suggestedName).toBeDefined();
     });
   });
 
@@ -240,7 +239,7 @@ describe('/api/units/import', () => {
       mockUnitRepository.nameExists.mockReturnValue(false);
       mockUnitRepository.create.mockReturnValue({
         success: true,
-        id: 'custom-1',
+        data: { id: 'custom-1' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -258,7 +257,7 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(201);
       const data = parseImportResponse(res);
       expect(data.success).toBe(true);
-      expect(data.unitId).toBe('custom-1');
+      expect(data.data?.unitId).toBe('custom-1');
       expect(mockUnitRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           chassis: 'Atlas',
@@ -272,7 +271,7 @@ describe('/api/units/import', () => {
       mockUnitRepository.nameExists.mockReturnValue(false);
       mockUnitRepository.create.mockReturnValue({
         success: false,
-        error: 'Database error',
+        error: { message: 'Database error' },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -289,7 +288,7 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
       expect(data.success).toBe(false);
-      expect(data.error).toBe('Database error');
+      expect(data.error?.message).toBe('Database error');
     });
   });
 

@@ -67,16 +67,16 @@ TR:3025
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(true);
-      expect(result.document).toBeDefined();
-      expect(result.document!.name).toBe('Air Car');
-      expect(result.document!.unitType).toBe('SupportTank');
-      expect(result.document!.mappedUnitType).toBe(UnitType.SUPPORT_VEHICLE);
-      expect(result.document!.tonnage).toBe(40);
-      expect(result.document!.cruiseMP).toBe(11);
-      expect(result.document!.armor).toEqual([8, 8, 8, 8]);
-      expect(result.document!.barRating).toBe(5);
-      expect(result.document!.year).toBe(2100);
-      expect(result.document!.motionType).toBe('Hover');
+      if (!result.success) return;
+      expect(result.data.document.name).toBe('Air Car');
+      expect(result.data.document.unitType).toBe('SupportTank');
+      expect(result.data.document.mappedUnitType).toBe(UnitType.SUPPORT_VEHICLE);
+      expect(result.data.document.tonnage).toBe(40);
+      expect(result.data.document.cruiseMP).toBe(11);
+      expect(result.data.document.armor).toEqual([8, 8, 8, 8]);
+      expect(result.data.document.barRating).toBe(5);
+      expect(result.data.document.year).toBe(2100);
+      expect(result.data.document.motionType).toBe('Hover');
     });
 
     it('should parse a Battle Armor BLK file with equipment', () => {
@@ -150,20 +150,19 @@ biped
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(true);
-      expect(result.document).toBeDefined();
-      expect(result.document!.name).toBe('Achileus Light Battle Armor');
-      expect(result.document!.unitType).toBe('BattleArmor');
-      expect(result.document!.mappedUnitType).toBe(UnitType.BATTLE_ARMOR);
-      expect(result.document!.model).toBe('[David](Sqd4)');
-      expect(result.document!.chassis).toBe('biped');
-      expect(result.document!.trooperCount).toBe(4);
-      expect(result.document!.jumpingMP).toBe(3);
-      expect(result.document!.weightClass).toBe(1);
+      if (!result.success) return;
+      expect(result.data.document.name).toBe('Achileus Light Battle Armor');
+      expect(result.data.document.unitType).toBe('BattleArmor');
+      expect(result.data.document.mappedUnitType).toBe(UnitType.BATTLE_ARMOR);
+      expect(result.data.document.model).toBe('[David](Sqd4)');
+      expect(result.data.document.chassis).toBe('biped');
+      expect(result.data.document.trooperCount).toBe(4);
+      expect(result.data.document.jumpingMP).toBe(3);
+      expect(result.data.document.weightClass).toBe(1);
 
-      // Check equipment
-      expect(result.document!.equipmentByLocation['Squad']).toBeDefined();
-      expect(result.document!.equipmentByLocation['Squad']).toContain('BADavidLightGaussRifle:RA');
-      expect(result.document!.equipmentByLocation['Squad']).toContain('BABasicManipulator:LA');
+      expect(result.data.document.equipmentByLocation['Squad']).toBeDefined();
+      expect(result.data.document.equipmentByLocation['Squad']).toContain('BADavidLightGaussRifle:RA');
+      expect(result.data.document.equipmentByLocation['Squad']).toContain('BABasicManipulator:LA');
     });
 
     it('should parse an Aerospace fighter BLK file', () => {
@@ -245,24 +244,22 @@ obsolete
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(true);
-      expect(result.document).toBeDefined();
-      expect(result.document!.name).toBe('Firebird');
-      expect(result.document!.unitType).toBe('Aero');
-      expect(result.document!.mappedUnitType).toBe(UnitType.AEROSPACE);
-      expect(result.document!.model).toBe('FR-1');
-      expect(result.document!.safeThrust).toBe(5);
-      expect(result.document!.heatsinks).toBe(10);
-      expect(result.document!.fuel).toBe(240);
-      expect(result.document!.armor).toEqual([12, 9, 9, 7]);
+      if (!result.success) return;
+      expect(result.data.document.name).toBe('Firebird');
+      expect(result.data.document.unitType).toBe('Aero');
+      expect(result.data.document.mappedUnitType).toBe(UnitType.AEROSPACE);
+      expect(result.data.document.model).toBe('FR-1');
+      expect(result.data.document.safeThrust).toBe(5);
+      expect(result.data.document.heatsinks).toBe(10);
+      expect(result.data.document.fuel).toBe(240);
+      expect(result.data.document.armor).toEqual([12, 9, 9, 7]);
 
-      // Check equipment
-      expect(result.document!.equipmentByLocation['Nose']).toEqual(['Autocannon/2']);
-      expect(result.document!.equipmentByLocation['Left Wing']).toEqual(['LRM 10']);
-      expect(result.document!.equipmentByLocation['Fuselage']).toContain('IS Ammo AC/2');
+      expect(result.data.document.equipmentByLocation['Nose']).toEqual(['Autocannon/2']);
+      expect(result.data.document.equipmentByLocation['Left Wing']).toEqual(['LRM 10']);
+      expect(result.data.document.equipmentByLocation['Fuselage']).toContain('IS Ammo AC/2');
 
-      // Check quirks
-      expect(result.document!.quirks).toContain('atmo_instability');
-      expect(result.document!.quirks).toContain('obsolete');
+      expect(result.data.document.quirks).toContain('atmo_instability');
+      expect(result.data.document.quirks).toContain('obsolete');
     });
 
     it('should parse a DropShip BLK file with transporters', () => {
@@ -349,24 +346,22 @@ PPC
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(true);
-      expect(result.document).toBeDefined();
-      expect(result.document!.name).toBe('Gaajian System Patrol Boat');
-      expect(result.document!.unitType).toBe('Dropship');
-      expect(result.document!.mappedUnitType).toBe(UnitType.DROPSHIP);
-      expect(result.document!.tonnage).toBe(1500);
-      expect(result.document!.safeThrust).toBe(4);
-      expect(result.document!.structuralIntegrity).toBe(12);
-      expect(result.document!.crew).toBe(21);
-      expect(result.document!.officers).toBe(3);
-      expect(result.document!.marines).toBe(42);
-      expect(result.document!.escapePod).toBe(4);
+      if (!result.success) return;
+      expect(result.data.document.name).toBe('Gaajian System Patrol Boat');
+      expect(result.data.document.unitType).toBe('Dropship');
+      expect(result.data.document.mappedUnitType).toBe(UnitType.DROPSHIP);
+      expect(result.data.document.tonnage).toBe(1500);
+      expect(result.data.document.safeThrust).toBe(4);
+      expect(result.data.document.structuralIntegrity).toBe(12);
+      expect(result.data.document.crew).toBe(21);
+      expect(result.data.document.officers).toBe(3);
+      expect(result.data.document.marines).toBe(42);
+      expect(result.data.document.escapePod).toBe(4);
 
-      // Check transporters
-      expect(result.document!.transporters).toContain('smallcraftbay:2.0:2:1');
-      expect(result.document!.transporters).toContain('cargobay:75.0:1:6');
+      expect(result.data.document.transporters).toContain('smallcraftbay:2.0:2:1');
+      expect(result.data.document.transporters).toContain('cargobay:75.0:1:6');
 
-      // Check equipment
-      expect(result.document!.equipmentByLocation['Nose']).toContain('(B) PPC');
+      expect(result.data.document.equipmentByLocation['Nose']).toContain('(B) PPC');
     });
 
     it('should parse an Infantry BLK file', () => {
@@ -428,17 +423,17 @@ Wheeled
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(true);
-      expect(result.document).toBeDefined();
-      expect(result.document!.name).toBe('Clan Anti-Infantry');
-      expect(result.document!.unitType).toBe('Infantry');
-      expect(result.document!.mappedUnitType).toBe(UnitType.INFANTRY);
-      expect(result.document!.squadSize).toBe(5);
-      expect(result.document!.squadn).toBe(4);
-      expect(result.document!.primary).toBe('InfantryAvengerCCW');
-      expect(result.document!.secondary).toBe('InfantryTranquilizerGun');
-      expect(result.document!.secondn).toBe(2);
-      expect(result.document!.armorKit).toBe('ClanKit');
-      expect(result.document!.motionType).toBe('Wheeled');
+      if (!result.success) return;
+      expect(result.data.document.name).toBe('Clan Anti-Infantry');
+      expect(result.data.document.unitType).toBe('Infantry');
+      expect(result.data.document.mappedUnitType).toBe(UnitType.INFANTRY);
+      expect(result.data.document.squadSize).toBe(5);
+      expect(result.data.document.squadn).toBe(4);
+      expect(result.data.document.primary).toBe('InfantryAvengerCCW');
+      expect(result.data.document.secondary).toBe('InfantryTranquilizerGun');
+      expect(result.data.document.secondn).toBe(2);
+      expect(result.data.document.armorKit).toBe('ClanKit');
+      expect(result.data.document.motionType).toBe('Wheeled');
     });
 
     it('should fail on missing UnitType', () => {
@@ -460,7 +455,8 @@ Test Unit
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain('Missing required field: UnitType');
+      if (result.success) return;
+      expect(result.error.errors).toContain('Missing required field: UnitType');
     });
 
     it('should fail on unknown UnitType', () => {
@@ -485,7 +481,8 @@ Test Unit
       const result = parser.parse(blkContent);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('Unknown unit type'))).toBe(true);
+      if (result.success) return;
+      expect(result.error.errors.some((e: string) => e.includes('Unknown unit type'))).toBe(true);
     });
   });
 });

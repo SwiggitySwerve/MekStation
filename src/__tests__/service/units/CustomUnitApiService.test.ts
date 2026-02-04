@@ -124,7 +124,7 @@ describe('CustomUnitApiService', () => {
       // Mock create API call
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'custom-1', version: 1 }),
+        json: async () => ({ data: { id: 'custom-1', version: 1 } }),
       } as Response);
 
       const result = await service.create(unit, 'Atlas', 'AS7-X');
@@ -182,7 +182,7 @@ describe('CustomUnitApiService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ error: 'Database error' }),
+        json: async () => ({ error: { message: 'Database error' } }),
       } as Response);
 
       const result = await service.create(unit, 'Atlas', 'AS7-X');
@@ -222,7 +222,7 @@ describe('CustomUnitApiService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'custom-1', version: 2 }),
+        json: async () => ({ data: { id: 'custom-1', version: 2 } }),
       } as Response);
 
       const result = await service.save('custom-1', unit);
@@ -251,7 +251,7 @@ describe('CustomUnitApiService', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         statusText: 'Bad Request',
-        json: async () => ({ error: 'Validation failed' }),
+        json: async () => ({ error: { message: 'Validation failed' } }),
       } as Response);
 
       const result = await service.save('custom-1', unit);
@@ -265,25 +265,27 @@ describe('CustomUnitApiService', () => {
     it('should delete a unit', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'custom-1' }),
+        json: async () => ({ data: { id: 'custom-1' } }),
       } as Response);
 
       const result = await service.delete('custom-1');
 
       expect(result.success).toBe(true);
-      expect(result.id).toBe('custom-1');
+      if (!result.success) return;
+      expect(result.data.id).toBe('custom-1');
     });
 
     it('should handle delete errors', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ error: 'Not found' }),
+        json: async () => ({ error: { message: 'Not found' } }),
       } as Response);
 
       const result = await service.delete('non-existent');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Not found');
+      if (result.success) return;
+      expect(result.error.message).toBe('Not found');
     });
   });
 
@@ -453,26 +455,27 @@ describe('CustomUnitApiService', () => {
     it('should revert to previous version', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'custom-1', version: 3 }),
+        json: async () => ({ data: { id: 'custom-1', version: 3 } }),
       } as Response);
 
       const result = await service.revert('custom-1', 2, 'Reverted to version 2');
 
       expect(result.success).toBe(true);
-      expect(result.version).toBe(3);
+      if (!result.success) return;
+      expect(result.data.version).toBe(3);
     });
 
     it('should return failure details when revert is rejected', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ error: 'Forbidden' }),
+        json: async () => ({ error: { message: 'Forbidden' } }),
       } as Response);
 
       const result = await service.revert('custom-1', 2);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Forbidden');
-      expect(result.version).toBeUndefined();
+      if (result.success) return;
+      expect(result.error.message).toBe('Forbidden');
     });
   });
 
@@ -617,7 +620,7 @@ describe('CustomUnitApiService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ unitId: 'custom-1' }),
+        json: async () => ({ data: { unitId: 'custom-1' } }),
       } as Response);
 
       const result = await service.importUnit(mockEnvelope);
@@ -635,8 +638,7 @@ describe('CustomUnitApiService', () => {
         ok: false,
         status: 409,
         json: async () => ({
-          error: 'Duplicate name',
-          suggestedName: 'AS7-D-Custom-1',
+          error: { message: 'Duplicate name', suggestedName: 'AS7-D-Custom-1' },
         }),
       } as Response);
 
@@ -656,7 +658,7 @@ describe('CustomUnitApiService', () => {
         ok: false,
         status: 400,
         json: async () => ({
-          error: 'Invalid payload',
+          error: { message: 'Invalid payload' },
         }),
       } as Response);
 
