@@ -180,7 +180,7 @@ export class ShareLinkService {
   async redeemByUrl(url: string): Promise<IShareLinkRedeemResult> {
     const token = this.extractToken(url);
     if (!token) {
-      return { success: false, error: 'Invalid share URL', errorCode: 'INVALID' };
+      return { success: false, error: { message: 'Invalid share URL', errorCode: 'INVALID' as const } };
     }
     return this.redeem(token);
   }

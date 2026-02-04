@@ -128,15 +128,16 @@ describe('Vault Export/Import Flow Integration', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.bundle).toBeDefined();
-      expect(result.bundle?.metadata.version).toBe(BUNDLE_VERSION);
-      expect(result.bundle?.metadata.contentType).toBe('unit');
-      expect(result.bundle?.metadata.itemCount).toBe(3);
-      expect(result.bundle?.metadata.author.displayName).toBe('ExportImportTestUser');
-      expect(result.bundle?.metadata.description).toBe('Test unit bundle');
-      expect(result.bundle?.metadata.tags).toEqual(['test', 'units']);
-      expect(result.bundle?.signature).toBeDefined();
-      expect(result.suggestedFilename).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
+      expect(result.data.bundle?.metadata.version).toBe(BUNDLE_VERSION);
+      expect(result.data.bundle?.metadata.contentType).toBe('unit');
+      expect(result.data.bundle?.metadata.itemCount).toBe(3);
+      expect(result.data.bundle?.metadata.author.displayName).toBe('ExportImportTestUser');
+      expect(result.data.bundle?.metadata.description).toBe('Test unit bundle');
+      expect(result.data.bundle?.metadata.tags).toEqual(['test', 'units']);
+      expect(result.data.bundle?.signature).toBeDefined();
+      expect(result.data.suggestedFilename).toBeDefined();
     });
 
     it('should create a signed bundle with pilots', async () => {
@@ -145,8 +146,9 @@ describe('Vault Export/Import Flow Integration', () => {
       const result = await createBundle('pilot', mockPilots, testIdentity);
 
       expect(result.success).toBe(true);
-      expect(result.bundle?.metadata.contentType).toBe('pilot');
-      expect(result.bundle?.metadata.itemCount).toBe(2);
+      if (!result.success) return;
+      expect(result.data.bundle?.metadata.contentType).toBe('pilot');
+      expect(result.data.bundle?.metadata.itemCount).toBe(2);
     });
 
     it('should create a signed bundle with forces', async () => {
@@ -155,8 +157,9 @@ describe('Vault Export/Import Flow Integration', () => {
       const result = await createBundle('force', mockForces, testIdentity);
 
       expect(result.success).toBe(true);
-      expect(result.bundle?.metadata.contentType).toBe('force');
-      expect(result.bundle?.metadata.itemCount).toBe(1);
+      if (!result.success) return;
+      expect(result.data.bundle?.metadata.contentType).toBe('force');
+      expect(result.data.bundle?.metadata.itemCount).toBe(1);
     });
 
     it('should generate appropriate filenames', async () => {
@@ -164,11 +167,13 @@ describe('Vault Export/Import Flow Integration', () => {
 
       // Single item uses item name
       const singleResult = await createBundle('unit', [mockUnits[0]], testIdentity);
-      expect(singleResult.suggestedFilename).toMatch(/^atlas-as7-d-\d{8}\.mekbundle$/);
+      if (!singleResult.success) return;
+      expect(singleResult.data.suggestedFilename).toMatch(/^atlas-as7-d-\d{8}\.mekbundle$/);
 
       // Multiple items uses content type and count
       const multiResult = await createBundle('unit', mockUnits, testIdentity);
-      expect(multiResult.suggestedFilename).toMatch(/^units-3-\d{8}\.mekbundle$/);
+      if (!multiResult.success) return;
+      expect(multiResult.data.suggestedFilename).toMatch(/^units-3-\d{8}\.mekbundle$/);
     });
   });
 
@@ -177,15 +182,16 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
-      const serialized = serializeBundle(result.bundle!);
+      const serialized = serializeBundle(result.data.bundle!);
       expect(typeof serialized).toBe('string');
 
       const parsed = parseBundle(serialized);
-      expect(parsed.metadata).toEqual(result.bundle!.metadata);
-      expect(parsed.payload).toBe(result.bundle!.payload);
-      expect(parsed.signature).toBe(result.bundle!.signature);
+      expect(parsed.metadata).toEqual(result.data.bundle!.metadata);
+      expect(parsed.payload).toBe(result.data.bundle!.payload);
+      expect(parsed.signature).toBe(result.data.bundle!.signature);
     });
 
     it('should throw on invalid JSON', () => {
@@ -203,9 +209,10 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
-      const isValid = await verifyBundleSignature(result.bundle!);
+      const isValid = await verifyBundleSignature(result.data.bundle!);
       expect(isValid).toBe(true);
     });
 
@@ -213,11 +220,12 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
       // Tamper with payload
       const tamperedBundle: IShareableBundle = {
-        ...result.bundle!,
+        ...result.data.bundle!,
         payload: JSON.stringify([{ id: 'fake', name: 'Tampered Unit' }]),
       };
 
@@ -229,15 +237,16 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
       // Tamper with metadata
       const tamperedBundle: IShareableBundle = {
-        ...result.bundle!,
+        ...result.data.bundle!,
         metadata: {
-          ...result.bundle!.metadata,
+          ...result.data.bundle!.metadata,
           author: {
-            ...result.bundle!.metadata.author,
+            ...result.data.bundle!.metadata.author,
             displayName: 'Fake Author',
           },
         },
@@ -253,9 +262,10 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
-      const errors = validateBundleMetadata(result.bundle!.metadata);
+      const errors = validateBundleMetadata(result.data.bundle!.metadata);
       expect(errors).toHaveLength(0);
     });
 
@@ -293,7 +303,8 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      const serialized = serializeBundle(result.bundle!);
+      if (!result.success) return;
+      const serialized = serializeBundle(result.data.bundle!);
 
       const preview = await previewBundle(serialized);
 
@@ -315,9 +326,10 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
-      const parsed = await parseAndVerifyBundle<MockUnit>(result.bundle!);
+      const parsed = await parseAndVerifyBundle<MockUnit>(result.data.bundle!);
 
       expect(parsed.signatureValid).toBe(true);
       expect(parsed.items).toHaveLength(3);
@@ -329,11 +341,12 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      expect(result.bundle).toBeDefined();
+      if (!result.success) return;
+      expect(result.data.bundle).toBeDefined();
 
       // Tamper with bundle
       const tamperedBundle: IShareableBundle = {
-        ...result.bundle!,
+        ...result.data.bundle!,
         payload: JSON.stringify([{ id: 'fake', name: 'Tampered' }]),
       };
 
@@ -365,7 +378,8 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      const serialized = serializeBundle(result.bundle!);
+      if (!result.success) return;
+      const serialized = serializeBundle(result.data.bundle!);
 
       const importResult = await importFromString<MockUnit>(
         serialized,
@@ -374,16 +388,20 @@ describe('Vault Export/Import Flow Integration', () => {
       );
 
       // Should detect conflict with unit-1 (existing ID)
-      expect(importResult.conflicts).toBeDefined();
-      expect(importResult.conflicts!.length).toBeGreaterThan(0);
-      expect(importResult.conflicts!.some((c) => c.bundleItemId === 'unit-1')).toBe(true);
+      // Conflict case returns success: true with data.conflicts
+      expect(importResult.success).toBe(true);
+      if (!importResult.success) return;
+      expect(importResult.data.conflicts).toBeDefined();
+      expect(importResult.data.conflicts!.length).toBeGreaterThan(0);
+      expect(importResult.data.conflicts!.some((c: { bundleItemId: string }) => c.bundleItemId === 'unit-1')).toBe(true);
     });
 
     it('should skip conflicts with skip resolution', async () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      const serialized = serializeBundle(result.bundle!);
+      if (!result.success) return;
+      const serialized = serializeBundle(result.data.bundle!);
 
       const importResult = await importFromString<MockUnit>(
         serialized,
@@ -392,15 +410,17 @@ describe('Vault Export/Import Flow Integration', () => {
       );
 
       expect(importResult.success).toBe(true);
+      if (!importResult.success) return;
       // unit-1 should be skipped (existing), unit-2 and unit-3 imported
-      expect(importResult.skippedCount).toBeGreaterThan(0);
+      expect(importResult.data.skippedCount).toBeGreaterThan(0);
     });
 
     it('should replace conflicts with replace resolution', async () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
-      const serialized = serializeBundle(result.bundle!);
+      if (!result.success) return;
+      const serialized = serializeBundle(result.data.bundle!);
 
       const importResult = await importFromString<MockUnit>(
         serialized,
@@ -409,15 +429,17 @@ describe('Vault Export/Import Flow Integration', () => {
       );
 
       expect(importResult.success).toBe(true);
-      expect(importResult.replacedCount).toBeGreaterThan(0);
+      if (!importResult.success) return;
+      expect(importResult.data.replacedCount).toBeGreaterThan(0);
     });
 
     it('should reject bundles with invalid signatures when verification enabled', async () => {
       if (!envAvailable) return;
 
       const result = await createBundle('unit', mockUnits, testIdentity);
+      if (!result.success) return;
       const tamperedBundle: IShareableBundle = {
-        ...result.bundle!,
+        ...result.data.bundle!,
         payload: JSON.stringify([{ id: 'fake', name: 'Tampered' }]),
       };
 
@@ -428,8 +450,8 @@ describe('Vault Export/Import Flow Integration', () => {
       );
 
       expect(importResult.success).toBe(false);
-      expect(importResult.signatureValid).toBe(false);
-      expect(importResult.error).toContain('signature verification failed');
+      if (importResult.success) return;
+      expect(importResult.error.message).toContain('signature verification failed');
     });
 
     it('should track import source', async () => {
@@ -443,9 +465,10 @@ describe('Vault Export/Import Flow Integration', () => {
       const result = await createBundle('unit', noConflictUnits, testIdentity, {
         description: 'Source tracking test',
       });
+      if (!result.success) return;
 
       await importFromString<MockUnit>(
-        serializeBundle(result.bundle!),
+        serializeBundle(result.data.bundle!),
         mockHandlers,
         { conflictResolution: 'skip' }
       );
@@ -498,7 +521,8 @@ describe('Vault Export/Import Flow Integration', () => {
 
       // Create bundle with first identity
       const result = await createBundle('unit', mockUnits, testIdentity);
-      const serialized = serializeBundle(result.bundle!);
+      if (!result.success) return;
+      const serialized = serializeBundle(result.data.bundle!);
 
       // Create second identity
       const stored2 = await createIdentity('OtherUser', 'otherPassword');

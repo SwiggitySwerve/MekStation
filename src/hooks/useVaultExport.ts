@@ -97,17 +97,17 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
       options: ExportOptions
     ): Promise<IExportResult> => {
       if (!isUnlocked) {
-        const err = {
+        const err: IExportResult = {
           success: false,
-          error: 'Identity not unlocked. Please unlock your vault first.',
+          error: { message: 'Identity not unlocked. Please unlock your vault first.' },
         };
-        setError(err.error);
+        setError(err.error.message);
         return err;
       }
 
       if (items.length === 0) {
-        const err = { success: false, error: `No ${contentType}s to export` };
-        setError(err.error);
+        const err: IExportResult = { success: false, error: { message: `No ${contentType}s to export` } };
+        setError(err.error.message);
         return err;
       }
 
@@ -132,23 +132,26 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
         if (response.ok && data.success && data.bundle) {
           const exportResult: IExportResult = {
             success: true,
-            bundle: data.bundle,
-            suggestedFilename: data.suggestedFilename,
+            data: {
+              bundle: data.bundle,
+              suggestedFilename: data.suggestedFilename,
+            },
           };
           setResult(exportResult);
           return exportResult;
         } else {
+          const errorMessage = data.error ?? 'Export failed';
           const exportResult: IExportResult = {
             success: false,
-            error: data.error ?? 'Export failed',
+            error: { message: errorMessage },
           };
-          setError(exportResult.error!);
+          setError(errorMessage);
           setResult(exportResult);
           return exportResult;
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Export failed';
-        const exportResult: IExportResult = { success: false, error: message };
+        const exportResult: IExportResult = { success: false, error: { message } };
         setError(message);
         setResult(exportResult);
         return exportResult;
@@ -178,17 +181,17 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
   );
 
   const handleDownload = useCallback(() => {
-    if (!result?.success || !result.bundle) {
+    if (!result?.success) {
       return;
     }
 
-    const json = serializeBundle(result.bundle);
+    const json = serializeBundle(result.data.bundle);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = result.suggestedFilename || 'export.mekbundle';
+    a.download = result.data.suggestedFilename || 'export.mekbundle';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -197,11 +200,11 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
   }, [result]);
 
   const handleCopyToClipboard = useCallback(async () => {
-    if (!result?.success || !result.bundle) {
+    if (!result?.success) {
       return;
     }
 
-    const json = serializeBundle(result.bundle);
+    const json = serializeBundle(result.data.bundle);
     await navigator.clipboard.writeText(json);
   }, [result]);
 

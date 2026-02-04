@@ -200,7 +200,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('Identity not unlocked. Please unlock your vault first.');
+      expect(exportResult.error).toEqual({ message: 'Identity not unlocked. Please unlock your vault first.' });
       expect(result.current.error).toBe('Identity not unlocked. Please unlock your vault first.');
     });
 
@@ -213,7 +213,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('No units to export');
+      expect(exportResult.error).toEqual({ message: 'No units to export' });
     });
 
     it('should call API with correct parameters', async () => {
@@ -261,8 +261,10 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(true);
-      expect(exportResult.bundle).toBeDefined();
-      expect(exportResult.suggestedFilename).toBe('test-unit-20240101.mekbundle');
+      if (exportResult.success) {
+        expect(exportResult.data.bundle).toBeDefined();
+        expect(exportResult.data.suggestedFilename).toBe('test-unit-20240101.mekbundle');
+      }
     });
 
     it('should set result state on success', async () => {
@@ -275,7 +277,9 @@ describe('useVaultExport', () => {
       });
 
       expect(result.current.result?.success).toBe(true);
-      expect(result.current.result?.bundle).toBeDefined();
+      if (result.current.result?.success) {
+        expect(result.current.result.data.bundle).toBeDefined();
+      }
     });
 
     it('should handle API error response', async () => {
@@ -296,7 +300,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('Invalid password');
+      expect(exportResult.error).toEqual({ message: 'Invalid password' });
       expect(result.current.error).toBe('Invalid password');
     });
 
@@ -312,7 +316,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('Network error');
+      expect(exportResult.error).toEqual({ message: 'Network error' });
       expect(result.current.error).toBe('Network error');
     });
 
@@ -371,7 +375,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('No pilots to export');
+      expect(exportResult.error).toEqual({ message: 'No pilots to export' });
     });
 
     it('should return success on successful pilot export', async () => {
@@ -412,7 +416,7 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toBe('No forces to export');
+      expect(exportResult.error).toEqual({ message: 'No forces to export' });
     });
 
     it('should return success on successful force export', async () => {

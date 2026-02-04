@@ -6,6 +6,7 @@
  */
 
 // Base entity interfaces
+export * from './IIdentifiable';
 export * from './IEntity';
 export * from './ITechBaseEntity';
 export * from './IPlaceableComponent';

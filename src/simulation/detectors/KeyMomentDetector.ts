@@ -17,6 +17,7 @@ import {
   type IAttackResolvedPayload,
   type IPilotHitPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getPayload } from './utils/getPayload';
 
 // =============================================================================
 // Types
@@ -170,15 +171,6 @@ interface DetectorTrackingState {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Extracts a typed payload from a game event.
- * Uses type assertion since some payload types are not yet in the GameEventPayload union.
- */
-function getPayload<T>(event: IGameEvent): T {
-  // eslint-disable-next-line no-restricted-syntax
-  return event.payload as unknown as T;
-}
 
 /**
  * Calculates normalized BV advantage for the player side.

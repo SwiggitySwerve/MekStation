@@ -123,23 +123,25 @@ const mockForce2: IExportableForce = {
 
 const mockSuccessResult: IExportResult = {
   success: true,
-  bundle: {
-    metadata: {
-      version: '1.0.0',
-      contentType: 'unit',
-      itemCount: 1,
-      author: {
-        displayName: 'Test User',
-        publicKey: 'dGVzdC1wdWJsaWMta2V5',
-        friendCode: 'TEST-1234-ABCD',
+  data: {
+    bundle: {
+      metadata: {
+        version: '1.0.0',
+        contentType: 'unit',
+        itemCount: 1,
+        author: {
+          displayName: 'Test User',
+          publicKey: 'dGVzdC1wdWJsaWMta2V5',
+          friendCode: 'TEST-1234-ABCD',
+        },
+        createdAt: '2025-01-01T00:00:00.000Z',
+        appVersion: '0.1.0',
       },
-      createdAt: '2025-01-01T00:00:00.000Z',
-      appVersion: '0.1.0',
+      payload: JSON.stringify([mockUnit]),
+      signature: 'test-signature',
     },
-    payload: JSON.stringify([mockUnit]),
-    signature: 'test-signature',
+    suggestedFilename: 'atlas-as7-d-20250101.mekbundle',
   },
-  suggestedFilename: 'atlas-as7-d-20250101.mekbundle',
 };
 
 // =============================================================================
@@ -150,7 +152,7 @@ describe('ExportService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCreateBundle.mockResolvedValue(mockSuccessResult);
-    mockSerializeBundle.mockReturnValue(JSON.stringify(mockSuccessResult.bundle));
+    mockSerializeBundle.mockReturnValue(JSON.stringify(mockSuccessResult.data.bundle));
   });
 
   // ===========================================================================
@@ -193,9 +195,12 @@ describe('ExportService', () => {
         const units = [mockUnit, mockUnit2];
         mockCreateBundle.mockResolvedValue({
           ...mockSuccessResult,
-          bundle: {
-            ...mockSuccessResult.bundle,
-            metadata: { ...mockSuccessResult.bundle?.metadata, itemCount: 2 },
+          data: {
+            ...mockSuccessResult.data,
+            bundle: {
+              ...mockSuccessResult.data.bundle,
+              metadata: { ...mockSuccessResult.data.bundle.metadata, itemCount: 2 },
+            },
           },
         });
 
@@ -214,7 +219,7 @@ describe('ExportService', () => {
         const result = await exportUnits([], mockIdentity);
 
         expect(result.success).toBe(false);
-        expect(result.error).toBe('No units to export');
+        expect(result.error).toEqual({ message: 'No units to export' });
         expect(mockCreateBundle).not.toHaveBeenCalled();
       });
 
@@ -243,9 +248,12 @@ describe('ExportService', () => {
       it('should export a single pilot', async () => {
         mockCreateBundle.mockResolvedValue({
           ...mockSuccessResult,
-          bundle: {
-            ...mockSuccessResult.bundle,
-            metadata: { ...mockSuccessResult.bundle?.metadata, contentType: 'pilot' },
+          data: {
+            ...mockSuccessResult.data,
+            bundle: {
+              ...mockSuccessResult.data.bundle,
+              metadata: { ...mockSuccessResult.data.bundle.metadata, contentType: 'pilot' },
+            },
           },
         });
 
@@ -292,7 +300,7 @@ describe('ExportService', () => {
         const result = await exportPilots([], mockIdentity);
 
         expect(result.success).toBe(false);
-        expect(result.error).toBe('No pilots to export');
+        expect(result.error).toEqual({ message: 'No pilots to export' });
         expect(mockCreateBundle).not.toHaveBeenCalled();
       });
     });
@@ -307,9 +315,12 @@ describe('ExportService', () => {
       it('should export a single force', async () => {
         mockCreateBundle.mockResolvedValue({
           ...mockSuccessResult,
-          bundle: {
-            ...mockSuccessResult.bundle,
-            metadata: { ...mockSuccessResult.bundle?.metadata, contentType: 'force' },
+          data: {
+            ...mockSuccessResult.data,
+            bundle: {
+              ...mockSuccessResult.data.bundle,
+              metadata: { ...mockSuccessResult.data.bundle.metadata, contentType: 'force' },
+            },
           },
         });
 
@@ -373,7 +384,7 @@ describe('ExportService', () => {
         const result = await exportForces([], mockIdentity);
 
         expect(result.success).toBe(false);
-        expect(result.error).toBe('No forces to export');
+        expect(result.error).toEqual({ message: 'No forces to export' });
         expect(mockCreateBundle).not.toHaveBeenCalled();
       });
 
@@ -415,7 +426,7 @@ describe('ExportService', () => {
         const result = await exportContent('pilot', [], mockIdentity);
 
         expect(result.success).toBe(false);
-        expect(result.error).toBe('No pilots to export');
+        expect(result.error).toEqual({ message: 'No pilots to export' });
       });
 
       it('should support encounter content type', async () => {
@@ -496,7 +507,7 @@ describe('ExportService', () => {
       it('should trigger file download', () => {
         downloadBundle(mockSuccessResult);
 
-        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.bundle);
+        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.data.bundle);
         expect(URL.createObjectURL).toHaveBeenCalled();
         expect(mockAnchor.click).toHaveBeenCalled();
         expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test-url');
@@ -510,8 +521,11 @@ describe('ExportService', () => {
 
       it('should use default filename when not provided', () => {
         const resultWithoutFilename: IExportResult = {
-          ...mockSuccessResult,
-          suggestedFilename: undefined,
+          success: true,
+          data: {
+            bundle: mockSuccessResult.data.bundle,
+            suggestedFilename: undefined,
+          },
         };
 
         downloadBundle(resultWithoutFilename);
@@ -522,18 +536,10 @@ describe('ExportService', () => {
       it('should throw on failed export result', () => {
         const failedResult: IExportResult = {
           success: false,
-          error: 'Export failed',
+          error: { message: 'Export failed' },
         };
 
         expect(() => downloadBundle(failedResult)).toThrow('Export failed');
-      });
-
-      it('should throw on missing bundle', () => {
-        const noBundleResult: IExportResult = {
-          success: true,
-        };
-
-        expect(() => downloadBundle(noBundleResult)).toThrow('No bundle to download');
       });
     });
 
@@ -559,33 +565,23 @@ describe('ExportService', () => {
       });
 
       it('should copy bundle JSON to clipboard', async () => {
-        const serialized = JSON.stringify(mockSuccessResult.bundle);
+        const serialized = JSON.stringify(mockSuccessResult.data.bundle);
         mockSerializeBundle.mockReturnValue(serialized);
 
         await copyBundleToClipboard(mockSuccessResult);
 
-        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.bundle);
+        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.data.bundle);
         expect(mockWriteText).toHaveBeenCalledWith(serialized);
       });
 
       it('should throw on failed export result', async () => {
         const failedResult: IExportResult = {
           success: false,
-          error: 'Export failed',
+          error: { message: 'Export failed' },
         };
 
         await expect(copyBundleToClipboard(failedResult)).rejects.toThrow(
           'Export failed'
-        );
-      });
-
-      it('should throw on missing bundle', async () => {
-        const noBundleResult: IExportResult = {
-          success: true,
-        };
-
-        await expect(copyBundleToClipboard(noBundleResult)).rejects.toThrow(
-          'No bundle to copy'
         );
       });
     });
@@ -599,13 +595,15 @@ describe('ExportService', () => {
     it('should handle createBundle errors', async () => {
       mockCreateBundle.mockResolvedValue({
         success: false,
-        error: 'Signing failed',
+        error: { message: 'Signing failed' },
       });
 
       const result = await exportUnit(mockUnit, mockIdentity);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Signing failed');
+      if (!result.success) {
+        expect(result.error.message).toBe('Signing failed');
+      }
     });
 
     it('should propagate bundle creation errors', async () => {

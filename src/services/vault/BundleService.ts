@@ -83,13 +83,15 @@ export async function createBundle<T>(
 
     return {
       success: true,
-      bundle,
-      suggestedFilename,
+      data: {
+        bundle,
+        suggestedFilename,
+      },
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create bundle',
+      error: { message: error instanceof Error ? error.message : 'Failed to create bundle' },
     };
   }
 }

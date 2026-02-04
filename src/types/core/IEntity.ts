@@ -5,17 +5,13 @@
  * @spec core-entity-types/spec.md
  */
 
+import type { IIdentifiable } from './IIdentifiable';
+
 /**
  * Base interface for all entities in the MekStation system.
  * Provides universal identification properties that all entities must have.
  */
-export interface IEntity {
-  /**
-   * Unique identifier for this entity.
-   * Must be unique within its entity type.
-   */
-  readonly id: string;
-
+export interface IEntity extends IIdentifiable {
   /**
    * Display name for this entity.
    * Should be human-readable and suitable for UI display.

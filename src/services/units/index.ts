@@ -70,7 +70,7 @@ export {
   UnitLoaderService,
   unitLoaderService,
   type UnitSource,
-  type ISerializedUnit,
+  type IRawSerializedUnit,
   type ILoadUnitResult,
 } from './unitLoaderService';
 

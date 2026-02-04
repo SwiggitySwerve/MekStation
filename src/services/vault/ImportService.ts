@@ -45,10 +45,7 @@ export async function importFromString<T>(
   } catch (error) {
     return {
       success: false,
-      importedCount: 0,
-      skippedCount: 0,
-      replacedCount: 0,
-      error: error instanceof Error ? error.message : 'Failed to parse bundle',
+      error: { message: error instanceof Error ? error.message : 'Failed to parse bundle' },
     };
   }
 }
@@ -67,10 +64,7 @@ export async function importFromBytes<T>(
   } catch (error) {
     return {
       success: false,
-      importedCount: 0,
-      skippedCount: 0,
-      replacedCount: 0,
-      error: error instanceof Error ? error.message : 'Failed to parse bundle',
+      error: { message: error instanceof Error ? error.message : 'Failed to parse bundle' },
     };
   }
 }
@@ -88,10 +82,7 @@ export async function importBundle<T>(
   if (metadataErrors.length > 0) {
     return {
       success: false,
-      importedCount: 0,
-      skippedCount: 0,
-      replacedCount: 0,
-      error: `Invalid bundle: ${metadataErrors.join(', ')}`,
+      error: { message: `Invalid bundle: ${metadataErrors.join(', ')}` },
     };
   }
 
@@ -102,11 +93,7 @@ export async function importBundle<T>(
   if (options.verifySignature !== false && !parsed.signatureValid) {
     return {
       success: false,
-      importedCount: 0,
-      skippedCount: 0,
-      replacedCount: 0,
-      error: 'Bundle signature verification failed',
-      signatureValid: false,
+      error: { message: 'Bundle signature verification failed' },
     };
   }
 
@@ -124,12 +111,14 @@ export async function importBundle<T>(
     !options.resolvedConflicts
   ) {
     return {
-      success: false,
-      importedCount: 0,
-      skippedCount: 0,
-      replacedCount: 0,
-      conflicts,
-      signatureValid: parsed.signatureValid,
+      success: true,
+      data: {
+        importedCount: 0,
+        skippedCount: 0,
+        replacedCount: 0,
+        conflicts,
+        signatureValid: parsed.signatureValid,
+      },
     };
   }
 
@@ -191,11 +180,13 @@ export async function importBundle<T>(
 
   return {
     success: true,
-    importedCount,
-    skippedCount,
-    replacedCount,
-    importedIds,
-    signatureValid: parsed.signatureValid,
+    data: {
+      importedCount,
+      skippedCount,
+      replacedCount,
+      importedIds,
+      signatureValid: parsed.signatureValid,
+    },
   };
 }
 
