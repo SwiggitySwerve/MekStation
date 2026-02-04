@@ -156,11 +156,11 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.VEHICLE);
-      expect(result.unit?.tonnage).toBe(25);
-      expect(result.unit?.metadata.chassis).toBe('Scorpion');
-      expect(result.unit?.metadata.model).toBe('Light Tank');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.VEHICLE);
+      expect(result.data?.unit?.tonnage).toBe(25);
+      expect(result.data?.unit?.metadata.chassis).toBe('Scorpion');
+      expect(result.data?.unit?.metadata.model).toBe('Light Tank');
     });
 
     it('should parse tracked tank motion type', () => {
@@ -168,7 +168,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.TRACKED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.TRACKED);
     });
 
     it('should parse hover tank motion type', () => {
@@ -176,7 +176,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.HOVER);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.HOVER);
     });
 
     it('should calculate flank MP correctly', () => {
@@ -184,8 +184,8 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.cruiseMP).toBe(4);
-      expect(result.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
+      expect(result.data?.unit?.movement.cruiseMP).toBe(4);
+      expect(result.data?.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
     });
 
     it('should parse armor by location', () => {
@@ -195,11 +195,11 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByLocation[VehicleLocation.FRONT]).toBe(20);
-      expect(result.unit?.armorByLocation[VehicleLocation.LEFT]).toBe(15);
-      expect(result.unit?.armorByLocation[VehicleLocation.RIGHT]).toBe(15);
-      expect(result.unit?.armorByLocation[VehicleLocation.REAR]).toBe(10);
-      expect(result.unit?.armorByLocation[VehicleLocation.TURRET]).toBe(12);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.FRONT]).toBe(20);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.LEFT]).toBe(15);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.RIGHT]).toBe(15);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.REAR]).toBe(10);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.TURRET]).toBe(12);
     });
 
     it('should calculate total armor points', () => {
@@ -209,7 +209,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(72);
+      expect(result.data?.unit?.totalArmorPoints).toBe(72);
     });
 
     it('should detect turret from equipment', () => {
@@ -221,8 +221,8 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.turret).toBeDefined();
-      expect(result.unit?.turret?.type).toBe(TurretType.SINGLE);
+      expect(result.data?.unit?.turret).toBeDefined();
+      expect(result.data?.unit?.turret?.type).toBe(TurretType.SINGLE);
     });
 
     it('should parse equipment locations', () => {
@@ -236,15 +236,15 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(3);
+      expect(result.data?.unit?.equipment.length).toBe(3);
 
-      const frontEquip = result.unit?.equipment.find(
+      const frontEquip = result.data?.unit?.equipment.find(
         (e) => e.location === VehicleLocation.FRONT
       );
       expect(frontEquip?.name).toBe('Medium Laser');
       expect(frontEquip?.isTurretMounted).toBe(false);
 
-      const turretEquip = result.unit?.equipment.find(
+      const turretEquip = result.data?.unit?.equipment.find(
         (e) => e.location === VehicleLocation.TURRET
       );
       expect(turretEquip?.name).toBe('AC/5');
@@ -256,7 +256,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.isSuperheavy).toBe(true);
+      expect(result.data?.unit?.isSuperheavy).toBe(true);
     });
 
     it('should parse tech base from type string', () => {
@@ -266,8 +266,8 @@ describe('VehicleUnitHandler', () => {
       const isResult = handler.parse(isDoc);
       const clanResult = handler.parse(clanDoc);
 
-      expect(isResult.unit?.techBase).toBe('Inner Sphere');
-      expect(clanResult.unit?.techBase).toBe('Clan');
+      expect(isResult.data?.unit?.techBase).toBe('Inner Sphere');
+      expect(clanResult.data?.unit?.techBase).toBe('Clan');
     });
   });
 
@@ -277,7 +277,7 @@ describe('VehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(true);
       expect(validateResult.errors).toHaveLength(0);
     });
@@ -288,7 +288,7 @@ describe('VehicleUnitHandler', () => {
 
       // Parse will fail due to invalid tonnage
       expect(parseResult.success).toBe(false);
-      expect(parseResult.errors.length).toBeGreaterThan(0);
+      expect(parseResult.error!.errors.length).toBeGreaterThan(0);
     });
 
     it('should fail validation for excessive armor', () => {
@@ -299,7 +299,7 @@ describe('VehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
       expect(validateResult.errors.some((e) => e.includes('exceeds maximum'))).toBe(
         true
@@ -312,7 +312,7 @@ describe('VehicleUnitHandler', () => {
       const parseResult = handler.parse(modifiedDoc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(
         validateResult.warnings.some((w) => w.includes('Hover vehicles over 50 tons'))
       ).toBe(true);
@@ -325,7 +325,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBeGreaterThan(0);
     });
 
@@ -334,7 +334,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -343,7 +343,7 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
   });
@@ -354,11 +354,11 @@ describe('VehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized).toBeDefined();
-      expect(serializeResult.serialized?.chassis).toBe('Scorpion');
-      expect(serializeResult.serialized?.model).toBe('Light Tank');
+      expect(serializeResult.data?.serialized).toBeDefined();
+      expect(serializeResult.data?.serialized?.chassis).toBe('Scorpion');
+      expect(serializeResult.data?.serialized?.model).toBe('Light Tank');
     });
   });
 });

@@ -15,6 +15,8 @@ import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   IUnitTypeHandler,
   IUnitParseResult,
+  IUnitParseData,
+  IUnitParseError,
   IUnitSerializeResult,
   IUnitValidateResult,
   UnitCategory,
@@ -119,10 +121,12 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
     if (!this.canHandle(document)) {
       return {
         success: false,
-        errors: [
-          `Handler ${this.displayName} cannot handle unit type ${document.unitType}`,
-        ],
-        warnings: [],
+        error: {
+          errors: [
+            `Handler ${this.displayName} cannot handle unit type ${document.unitType}`,
+          ],
+          warnings: [],
+        },
       };
     }
 
@@ -140,8 +144,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
     if (errors.length > 0) {
       return {
         success: false,
-        errors,
-        warnings,
+        error: { errors, warnings },
       };
     }
 
@@ -150,9 +153,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
 
     return {
       success: true,
-      unit,
-      errors: [],
-      warnings,
+      data: { unit, warnings },
     };
   }
 
@@ -254,15 +255,16 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
 
       return {
         success: true,
-        serialized,
-        errors: [],
+        data: { serialized },
       };
     } catch (error) {
       return {
         success: false,
-        errors: [
-          `Serialization failed: ${error instanceof Error ? error.message : String(error)}`,
-        ],
+        error: {
+          errors: [
+            `Serialization failed: ${error instanceof Error ? error.message : String(error)}`,
+          ],
+        },
       };
     }
   }
@@ -434,23 +436,17 @@ export function createSuccessResult<T extends IBaseUnit>(
 ): IUnitParseResult<T> {
   return {
     success: true,
-    unit,
-    errors: [],
-    warnings,
+    data: { unit, warnings },
   };
 }
 
-/**
- * Create a failed parse result
- */
 export function createFailureResult<T extends IBaseUnit>(
   errors: string[],
   warnings: string[] = []
 ): IUnitParseResult<T> {
   return {
     success: false,
-    errors,
-    warnings,
+    error: { errors, warnings },
   };
 }
 

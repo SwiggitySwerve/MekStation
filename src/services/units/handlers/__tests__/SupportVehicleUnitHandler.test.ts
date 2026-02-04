@@ -437,11 +437,11 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.SUPPORT_VEHICLE);
-      expect(result.unit?.tonnage).toBe(20);
-      expect(result.unit?.metadata.chassis).toBe('Cargo Truck');
-      expect(result.unit?.metadata.model).toBe('Standard');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.SUPPORT_VEHICLE);
+      expect(result.data?.unit?.tonnage).toBe(20);
+      expect(result.data?.unit?.metadata.chassis).toBe('Cargo Truck');
+      expect(result.data?.unit?.metadata.model).toBe('Standard');
     });
 
     it('should parse name and model correctly', () => {
@@ -452,9 +452,9 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.name).toBe('Custom Transport Mark IV');
-      expect(result.unit?.metadata.chassis).toBe('Custom Transport');
-      expect(result.unit?.metadata.model).toBe('Mark IV');
+      expect(result.data?.unit?.name).toBe('Custom Transport Mark IV');
+      expect(result.data?.unit?.metadata.chassis).toBe('Custom Transport');
+      expect(result.data?.unit?.metadata.model).toBe('Mark IV');
     });
 
     it('should parse year correctly', () => {
@@ -462,7 +462,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.metadata.year).toBe(2750);
+      expect(result.data?.unit?.metadata.year).toBe(2750);
     });
 
     it('should fail parsing with missing name', () => {
@@ -470,7 +470,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.error!.errors.length).toBeGreaterThan(0);
     });
 
     it('should fail parsing with zero tonnage', () => {
@@ -478,7 +478,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.toLowerCase().includes('tonnage'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.toLowerCase().includes('tonnage'))).toBe(true);
     });
 
     it('should fail parsing with negative tonnage', () => {
@@ -499,7 +499,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.TRACKED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.TRACKED);
     });
 
     it('should parse wheeled motion type', () => {
@@ -507,7 +507,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.WHEELED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.WHEELED);
     });
 
     it('should parse hover motion type', () => {
@@ -515,7 +515,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.HOVER);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.HOVER);
     });
 
     it('should parse VTOL motion type', () => {
@@ -523,7 +523,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.VTOL);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.VTOL);
     });
 
     it('should parse naval motion type', () => {
@@ -531,7 +531,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.NAVAL);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.NAVAL);
     });
 
     it('should parse hydrofoil motion type', () => {
@@ -539,7 +539,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.HYDROFOIL);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.HYDROFOIL);
     });
 
     it('should parse submarine motion type', () => {
@@ -547,7 +547,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.SUBMARINE);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.SUBMARINE);
     });
 
     it('should parse WiGE motion type', () => {
@@ -555,7 +555,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.WIGE);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.WIGE);
     });
 
     it('should parse rail motion type', () => {
@@ -563,7 +563,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.RAIL);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.RAIL);
     });
 
     it('should parse maglev motion type', () => {
@@ -571,7 +571,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.MAGLEV);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.MAGLEV);
     });
 
     it('should default to wheeled for unknown motion type', () => {
@@ -579,7 +579,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.WHEELED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.WHEELED);
     });
 
     it('should default to wheeled for undefined motion type', () => {
@@ -587,7 +587,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.WHEELED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.WHEELED);
     });
 
     it('should handle case-insensitive motion type parsing', () => {
@@ -595,7 +595,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.HOVER);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.HOVER);
     });
 
     it('should map airship to hover motion type', () => {
@@ -603,7 +603,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.HOVER);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.HOVER);
     });
 
     it('should map fixed to tracked motion type', () => {
@@ -611,7 +611,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(GroundMotionType.TRACKED);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.TRACKED);
     });
   });
 
@@ -625,7 +625,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.cruiseMP).toBe(5);
+      expect(result.data?.unit?.movement.cruiseMP).toBe(5);
     });
 
     it('should calculate flankMP as 1.5x cruiseMP', () => {
@@ -633,7 +633,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
+      expect(result.data?.unit?.movement.flankMP).toBe(6); // 4 * 1.5 = 6
     });
 
     it('should floor flankMP for odd cruise values', () => {
@@ -641,7 +641,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.flankMP).toBe(7); // floor(5 * 1.5) = 7
+      expect(result.data?.unit?.movement.flankMP).toBe(7); // floor(5 * 1.5) = 7
     });
 
     it('should parse jumpMP correctly', () => {
@@ -649,7 +649,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.jumpMP).toBe(2);
+      expect(result.data?.unit?.movement.jumpMP).toBe(2);
     });
 
     it('should default jumpMP to 0', () => {
@@ -657,7 +657,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.jumpMP).toBe(0);
+      expect(result.data?.unit?.movement.jumpMP).toBe(0);
     });
 
     it('should handle zero cruise MP for stationary vehicles', () => {
@@ -665,8 +665,8 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.cruiseMP).toBe(0);
-      expect(result.unit?.movement.flankMP).toBe(0);
+      expect(result.data?.unit?.movement.cruiseMP).toBe(0);
+      expect(result.data?.unit?.movement.flankMP).toBe(0);
     });
 
     it('should calculate engine rating from cruiseMP and tonnage', () => {
@@ -674,7 +674,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.engineRating).toBe(80); // 4 * 20 = 80
+      expect(result.data?.unit?.engineRating).toBe(80); // 4 * 20 = 80
     });
   });
 
@@ -690,7 +690,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(7);
+      expect(result.data?.unit?.barRating).toBe(7);
     });
 
     it('should parse BAR rating from barrating tag', () => {
@@ -700,7 +700,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(8);
+      expect(result.data?.unit?.barRating).toBe(8);
     });
 
     it('should default BAR rating to 5 when not specified', () => {
@@ -710,7 +710,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(5);
+      expect(result.data?.unit?.barRating).toBe(5);
     });
 
     it('should parse BAR rating from array value', () => {
@@ -720,7 +720,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(6); // First value
+      expect(result.data?.unit?.barRating).toBe(6); // First value
     });
 
     it('should default to 5 for invalid BAR string', () => {
@@ -730,7 +730,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(5);
+      expect(result.data?.unit?.barRating).toBe(5);
     });
   });
 
@@ -744,7 +744,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.SMALL);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.SMALL);
     });
 
     it('should classify 5 tons as SMALL', () => {
@@ -752,7 +752,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.SMALL);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.SMALL);
     });
 
     it('should classify 6 tons as MEDIUM', () => {
@@ -760,7 +760,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
     });
 
     it('should classify tonnage 6-80 as MEDIUM', () => {
@@ -768,7 +768,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
     });
 
     it('should classify 80 tons as MEDIUM', () => {
@@ -776,7 +776,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.MEDIUM);
     });
 
     it('should classify 81 tons as LARGE', () => {
@@ -784,7 +784,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.LARGE);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.LARGE);
     });
 
     it('should classify tonnage > 80 as LARGE', () => {
@@ -792,7 +792,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.sizeClass).toBe(SupportVehicleSizeClass.LARGE);
+      expect(result.data?.unit?.sizeClass).toBe(SupportVehicleSizeClass.LARGE);
     });
   });
 
@@ -810,9 +810,9 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(1);
-      expect(result.unit?.equipment[0].name).toBe('Cargo (5 tons)');
-      expect(result.unit?.equipment[0].location).toBe(VehicleLocation.BODY);
+      expect(result.data?.unit?.equipment.length).toBe(1);
+      expect(result.data?.unit?.equipment[0].name).toBe('Cargo (5 tons)');
+      expect(result.data?.unit?.equipment[0].location).toBe(VehicleLocation.BODY);
     });
 
     it('should parse equipment from multiple locations', () => {
@@ -820,14 +820,14 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(4);
+      expect(result.data?.unit?.equipment.length).toBe(4);
 
-      const frontEquip = result.unit?.equipment.find(
+      const frontEquip = result.data?.unit?.equipment.find(
         (e) => e.location === VehicleLocation.FRONT
       );
       expect(frontEquip?.name).toBe('Bulldozer Blade');
 
-      const turretEquip = result.unit?.equipment.find(
+      const turretEquip = result.data?.unit?.equipment.find(
         (e) => e.location === VehicleLocation.TURRET
       );
       expect(turretEquip?.name).toBe('Crane Arm');
@@ -849,7 +849,7 @@ describe('SupportVehicleUnitHandler', () => {
 
       expect(result.success).toBe(true);
 
-      const locations = result.unit?.equipment.map((e) => e.location);
+      const locations = result.data?.unit?.equipment.map((e) => e.location);
       expect(locations).toContain(VehicleLocation.FRONT);
       expect(locations).toContain(VehicleLocation.LEFT);
       expect(locations).toContain(VehicleLocation.RIGHT);
@@ -867,7 +867,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment[0].isTurretMounted).toBe(true);
+      expect(result.data?.unit?.equipment[0].isTurretMounted).toBe(true);
     });
 
     it('should not mark non-turret equipment as turret mounted', () => {
@@ -879,7 +879,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment[0].isTurretMounted).toBe(false);
+      expect(result.data?.unit?.equipment[0].isTurretMounted).toBe(false);
     });
 
     it('should assign unique IDs to equipment mounts', () => {
@@ -887,7 +887,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const ids = result.unit?.equipment.map((e) => e.id);
+      const ids = result.data?.unit?.equipment.map((e) => e.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids?.length);
     });
@@ -899,7 +899,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(0);
+      expect(result.data?.unit?.equipment.length).toBe(0);
     });
   });
 
@@ -915,7 +915,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cargoCapacity).toBe(10);
+      expect(result.data?.unit?.cargoCapacity).toBe(10);
     });
 
     it('should parse cargo capacity from cargocapacity tag', () => {
@@ -925,7 +925,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cargoCapacity).toBe(15.5);
+      expect(result.data?.unit?.cargoCapacity).toBe(15.5);
     });
 
     it('should default cargo capacity to 0', () => {
@@ -935,7 +935,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cargoCapacity).toBe(0);
+      expect(result.data?.unit?.cargoCapacity).toBe(0);
     });
 
     it('should parse cargo from array value', () => {
@@ -945,7 +945,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cargoCapacity).toBe(20);
+      expect(result.data?.unit?.cargoCapacity).toBe(20);
     });
   });
 
@@ -961,7 +961,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.structuralTechRating).toBe(6);
+      expect(result.data?.unit?.structuralTechRating).toBe(6);
     });
 
     it('should parse armor tech rating', () => {
@@ -971,7 +971,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorTechRating).toBe(7);
+      expect(result.data?.unit?.armorTechRating).toBe(7);
     });
 
     it('should parse engine tech rating', () => {
@@ -981,7 +981,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.engineTechRating).toBe(8);
+      expect(result.data?.unit?.engineTechRating).toBe(8);
     });
 
     it('should default tech ratings to 5', () => {
@@ -991,9 +991,9 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.structuralTechRating).toBe(5);
-      expect(result.unit?.armorTechRating).toBe(5);
-      expect(result.unit?.engineTechRating).toBe(5);
+      expect(result.data?.unit?.structuralTechRating).toBe(5);
+      expect(result.data?.unit?.armorTechRating).toBe(5);
+      expect(result.data?.unit?.engineTechRating).toBe(5);
     });
   });
 
@@ -1009,7 +1009,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armor).toEqual([10, 8, 8, 6]);
+      expect(result.data?.unit?.armor).toEqual([10, 8, 8, 6]);
     });
 
     it('should calculate total armor points', () => {
@@ -1019,7 +1019,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(32);
+      expect(result.data?.unit?.totalArmorPoints).toBe(32);
     });
 
     it('should calculate max armor based on tonnage and BAR', () => {
@@ -1031,7 +1031,7 @@ describe('SupportVehicleUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // Max = floor(20 * 3.5 * (10/10)) = floor(70) = 70
-      expect(result.unit?.maxArmorPoints).toBe(70);
+      expect(result.data?.unit?.maxArmorPoints).toBe(70);
     });
 
     it('should calculate reduced max armor for lower BAR', () => {
@@ -1043,7 +1043,7 @@ describe('SupportVehicleUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // Max = floor(20 * 3.5 * (5/10)) = floor(35) = 35
-      expect(result.unit?.maxArmorPoints).toBe(35);
+      expect(result.data?.unit?.maxArmorPoints).toBe(35);
     });
   });
 
@@ -1057,7 +1057,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(result.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
     });
 
     it('should parse Clan tech base', () => {
@@ -1065,7 +1065,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe(TechBase.CLAN);
+      expect(result.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
 
     it('should default to Inner Sphere for unspecified tech base', () => {
@@ -1073,7 +1073,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(result.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
     });
 
     it('should handle mixed tech as Inner Sphere', () => {
@@ -1081,7 +1081,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(result.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
     });
   });
 
@@ -1095,7 +1095,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
+      expect(result.data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
     });
 
     it('should parse standard rules level', () => {
@@ -1103,7 +1103,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
+      expect(result.data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
     });
 
     it('should parse advanced rules level', () => {
@@ -1111,7 +1111,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(result.data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
     });
 
     it('should parse experimental rules level', () => {
@@ -1119,7 +1119,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.rulesLevel).toBe(RulesLevel.EXPERIMENTAL);
+      expect(result.data?.unit?.rulesLevel).toBe(RulesLevel.EXPERIMENTAL);
     });
 
     it('should default to standard rules level', () => {
@@ -1127,7 +1127,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
+      expect(result.data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
     });
   });
 
@@ -1141,7 +1141,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.weightClass).toBe(WeightClass.LIGHT);
+      expect(result.data?.unit?.weightClass).toBe(WeightClass.LIGHT);
     });
 
     it('should classify medium weight class', () => {
@@ -1149,7 +1149,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.weightClass).toBe(WeightClass.MEDIUM);
+      expect(result.data?.unit?.weightClass).toBe(WeightClass.MEDIUM);
     });
 
     it('should classify heavy weight class', () => {
@@ -1157,7 +1157,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.weightClass).toBe(WeightClass.HEAVY);
+      expect(result.data?.unit?.weightClass).toBe(WeightClass.HEAVY);
     });
 
     it('should classify assault weight class', () => {
@@ -1165,7 +1165,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.weightClass).toBe(WeightClass.ASSAULT);
+      expect(result.data?.unit?.weightClass).toBe(WeightClass.ASSAULT);
     });
   });
 
@@ -1188,7 +1188,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1197,7 +1197,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1206,7 +1206,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1215,7 +1215,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
         validation.errors.some((e) => e.includes('Large support vehicles cannot exceed 300 tons'))
@@ -1232,7 +1232,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(false);
     });
 
@@ -1243,7 +1243,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(false);
     });
 
@@ -1255,9 +1255,9 @@ describe('SupportVehicleUnitHandler', () => {
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(5); // Defaults to 5
+      expect(result.data?.unit?.barRating).toBe(5); // Defaults to 5
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true); // Valid because BAR is 5
     });
 
@@ -1269,9 +1269,9 @@ describe('SupportVehicleUnitHandler', () => {
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
-      expect(result.unit?.barRating).toBe(-1);
+      expect(result.data?.unit?.barRating).toBe(-1);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
         validation.errors.some((e) => e.includes('BAR rating must be between 1 and 10'))
@@ -1285,7 +1285,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
         validation.errors.some((e) => e.includes('BAR rating must be between 1 and 10'))
@@ -1303,7 +1303,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(false);
     });
 
@@ -1316,7 +1316,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(true);
     });
@@ -1330,7 +1330,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.infos.some((i) => i.includes('10 tons of cargo capacity'))).toBe(true);
     });
 
@@ -1341,7 +1341,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.infos.some((i) => i.includes('cargo capacity'))).toBe(false);
     });
   });
@@ -1361,7 +1361,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBeGreaterThan(0);
     });
 
@@ -1370,7 +1370,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // Stationary vehicles have no engine weight component
       expect(weight).toBeGreaterThan(0); // Still has structural and armor weight
     });
@@ -1380,7 +1380,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // Structural weight = tonnage * 0.08 = 50 * 0.08 = 4
       expect(weight).toBeGreaterThanOrEqual(4);
     });
@@ -1395,7 +1395,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // Should include armor weight: 40 * 0.0625 * (10/10) = 2.5
       expect(weight).toBeGreaterThan(0);
     });
@@ -1407,7 +1407,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -1420,7 +1420,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       // Base armor BV = 60 * 1.5 * (10/10) = 90
       expect(bv).toBeGreaterThanOrEqual(90);
     });
@@ -1440,8 +1440,8 @@ describe('SupportVehicleUnitHandler', () => {
       const stationaryResult = handler.parse(stationaryDoc);
       const mobileResult = handler.parse(mobileDoc);
 
-      const stationaryBV = handler.calculateBV(stationaryResult.unit!);
-      const mobileBV = handler.calculateBV(mobileResult.unit!);
+      const stationaryBV = handler.calculateBV(stationaryResult.data!.unit);
+      const mobileBV = handler.calculateBV(mobileResult.data!.unit);
 
       // Mobile vehicle should have higher BV due to movement modifier
       expect(mobileBV).toBeGreaterThan(stationaryBV);
@@ -1462,8 +1462,8 @@ describe('SupportVehicleUnitHandler', () => {
       const highBarResult = handler.parse(highBarDoc);
       const lowBarResult = handler.parse(lowBarDoc);
 
-      const highBarBV = handler.calculateBV(highBarResult.unit!);
-      const lowBarBV = handler.calculateBV(lowBarResult.unit!);
+      const highBarBV = handler.calculateBV(highBarResult.data!.unit);
+      const lowBarBV = handler.calculateBV(lowBarResult.data!.unit);
 
       expect(highBarBV).toBeGreaterThan(lowBarBV);
     });
@@ -1475,7 +1475,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
 
@@ -1486,8 +1486,8 @@ describe('SupportVehicleUnitHandler', () => {
       const lightResult = handler.parse(lightDoc);
       const heavyResult = handler.parse(heavyDoc);
 
-      const lightCost = handler.calculateCost(lightResult.unit!);
-      const heavyCost = handler.calculateCost(heavyResult.unit!);
+      const lightCost = handler.calculateCost(lightResult.data!.unit);
+      const heavyCost = handler.calculateCost(heavyResult.data!.unit);
 
       expect(heavyCost).toBeGreaterThan(lightCost);
     });
@@ -1499,8 +1499,8 @@ describe('SupportVehicleUnitHandler', () => {
       const stationaryResult = handler.parse(stationaryDoc);
       const mobileResult = handler.parse(mobileDoc);
 
-      const stationaryCost = handler.calculateCost(stationaryResult.unit!);
-      const mobileCost = handler.calculateCost(mobileResult.unit!);
+      const stationaryCost = handler.calculateCost(stationaryResult.data!.unit);
+      const mobileCost = handler.calculateCost(mobileResult.data!.unit);
 
       expect(mobileCost).toBeGreaterThan(stationaryCost);
     });
@@ -1517,8 +1517,8 @@ describe('SupportVehicleUnitHandler', () => {
       const noArmorResult = handler.parse(noArmorDoc);
       const armoredResult = handler.parse(armoredDoc);
 
-      const noArmorCost = handler.calculateCost(noArmorResult.unit!);
-      const armoredCost = handler.calculateCost(armoredResult.unit!);
+      const noArmorCost = handler.calculateCost(noArmorResult.data!.unit);
+      const armoredCost = handler.calculateCost(armoredResult.data!.unit);
 
       expect(armoredCost).toBeGreaterThan(noArmorCost);
     });
@@ -1540,8 +1540,8 @@ describe('SupportVehicleUnitHandler', () => {
       const noCargoResult = handler.parse(noCargoDoc);
       const cargoResult = handler.parse(cargoDoc);
 
-      const noCargoCost = handler.calculateCost(noCargoResult.unit!);
-      const cargoCost = handler.calculateCost(cargoResult.unit!);
+      const noCargoCost = handler.calculateCost(noCargoResult.data!.unit);
+      const cargoCost = handler.calculateCost(cargoResult.data!.unit);
 
       expect(cargoCost).toBeGreaterThan(noCargoCost);
     });
@@ -1557,49 +1557,49 @@ describe('SupportVehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized).toBeDefined();
+      expect(serializeResult.data?.serialized).toBeDefined();
     });
 
     it('should include chassis in serialized output', () => {
       const doc = createMockBlkDocument({ name: 'Test Vehicle' });
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.chassis).toBe('Test Vehicle');
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.chassis).toBe('Test Vehicle');
     });
 
     it('should include model in serialized output', () => {
       const doc = createMockBlkDocument({ model: 'Mark II' });
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.model).toBe('Mark II');
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.model).toBe('Mark II');
     });
 
     it('should include unit type in serialized output', () => {
       const doc = createMockBlkDocument();
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.unitType).toBe(UnitType.SUPPORT_VEHICLE);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.unitType).toBe(UnitType.SUPPORT_VEHICLE);
     });
 
     it('should include tonnage in serialized output', () => {
       const doc = createMockBlkDocument({ tonnage: 35 });
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.tonnage).toBe(35);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.tonnage).toBe(35);
     });
 
     it('should include configuration with size class in serialized output', () => {
       const smallDoc = createSmallSupportVehicleDocument();
       const parseResult = handler.parse(smallDoc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.configuration).toContain('Small');
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.configuration).toContain('Small');
     });
   });
 
@@ -1608,16 +1608,16 @@ describe('SupportVehicleUnitHandler', () => {
       const doc = createLargeSupportVehicleDocument();
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.configuration).toBe('Support Vehicle (Large)');
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.configuration).toBe('Support Vehicle (Large)');
     });
 
     it('should include rules level in serialized output', () => {
       const doc = createMockBlkDocument({ type: 'IS Level 2' });
       const parseResult = handler.parse(doc);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.rulesLevel).toBeDefined();
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.rulesLevel).toBeDefined();
     });
   });
 
@@ -1654,7 +1654,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.tonnage).toBe(300);
+      expect(result.data?.unit?.tonnage).toBe(300);
     });
 
     it('should handle decimal tonnage values', () => {
@@ -1662,7 +1662,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.tonnage).toBe(17.5);
+      expect(result.data?.unit?.tonnage).toBe(17.5);
     });
 
     it('should handle empty armor array', () => {
@@ -1670,7 +1670,7 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(0);
+      expect(result.data?.unit?.totalArmorPoints).toBe(0);
     });
 
     it('should handle crew and passenger parsing', () => {
@@ -1681,8 +1681,8 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crewSize).toBe(3);
-      expect(result.unit?.passengerCapacity).toBe(10);
+      expect(result.data?.unit?.crewSize).toBe(3);
+      expect(result.data?.unit?.passengerCapacity).toBe(10);
     });
 
     it('should default crew to 1 and passengers to 0', () => {
@@ -1690,8 +1690,8 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crewSize).toBe(1);
-      expect(result.unit?.passengerCapacity).toBe(0);
+      expect(result.data?.unit?.crewSize).toBe(1);
+      expect(result.data?.unit?.passengerCapacity).toBe(0);
     });
   });
 });

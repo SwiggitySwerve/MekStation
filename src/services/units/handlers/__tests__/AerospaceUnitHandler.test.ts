@@ -99,10 +99,10 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.AEROSPACE);
-      expect(result.unit?.tonnage).toBe(100);
-      expect(result.unit?.metadata.chassis).toBe('Stuka');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.AEROSPACE);
+      expect(result.data?.unit?.tonnage).toBe(100);
+      expect(result.data?.unit?.metadata.chassis).toBe('Stuka');
     });
 
     it('should parse thrust values', () => {
@@ -110,8 +110,8 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.safeThrust).toBe(5);
-      expect(result.unit?.movement.maxThrust).toBe(7);
+      expect(result.data?.unit?.movement.safeThrust).toBe(5);
+      expect(result.data?.unit?.movement.maxThrust).toBe(7);
     });
 
     it('should parse fuel', () => {
@@ -119,7 +119,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.fuel).toBe(400);
+      expect(result.data?.unit?.fuel).toBe(400);
     });
 
     it('should parse structural integrity', () => {
@@ -127,7 +127,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.structuralIntegrity).toBe(8);
+      expect(result.data?.unit?.structuralIntegrity).toBe(8);
     });
 
     it('should parse armor by arc', () => {
@@ -135,10 +135,10 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByArc.nose).toBe(30);
-      expect(result.unit?.armorByArc.leftWing).toBe(24);
-      expect(result.unit?.armorByArc.rightWing).toBe(24);
-      expect(result.unit?.armorByArc.aft).toBe(18);
+      expect(result.data?.unit?.armorByArc.nose).toBe(30);
+      expect(result.data?.unit?.armorByArc.leftWing).toBe(24);
+      expect(result.data?.unit?.armorByArc.rightWing).toBe(24);
+      expect(result.data?.unit?.armorByArc.aft).toBe(18);
     });
 
     it('should calculate total armor', () => {
@@ -146,7 +146,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(96);
+      expect(result.data?.unit?.totalArmorPoints).toBe(96);
     });
 
     it('should parse equipment by arc', () => {
@@ -154,7 +154,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(6);
+      expect(result.data?.unit?.equipment.length).toBe(6);
     });
 
     it('should always be aerodyne motion type', () => {
@@ -162,7 +162,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
+      expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
     });
 
     it('should parse light fighter', () => {
@@ -170,8 +170,8 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.tonnage).toBe(30);
-      expect(result.unit?.movement.safeThrust).toBe(9);
+      expect(result.data?.unit?.tonnage).toBe(30);
+      expect(result.data?.unit?.movement.safeThrust).toBe(9);
     });
   });
 
@@ -181,7 +181,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -190,7 +190,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(e => e.includes('heat sinks'))).toBe(true);
     });
@@ -200,7 +200,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.warnings.some(w => w.toLowerCase().includes('fuel'))).toBe(true);
     });
   });
@@ -211,7 +211,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBeGreaterThan(0);
     });
 
@@ -220,7 +220,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -229,7 +229,7 @@ describe('AerospaceUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
   });

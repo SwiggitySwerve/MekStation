@@ -20,12 +20,27 @@ import { getEquipmentNameMapper, EquipmentNameMapper } from '@/services/equipmen
 import { TechBase } from '@/types/enums/TechBase';
 
 /**
- * MTF Import result with additional metadata
+ * MTF Import result data (extends deserialization data with MTF-specific fields)
  */
-export interface IMTFImportResult extends IDeserializationResult {
+export interface IMTFImportData {
+  readonly unit?: import('@/types/unit/BattleMechInterfaces').IBattleMech;
+  readonly warnings: string[];
+  readonly migrations: string[];
   readonly unitId: string | null;
   readonly equipmentResolutionErrors: string[];
 }
+
+export interface IMTFImportError {
+  readonly errors: string[];
+  readonly warnings: string[];
+  readonly migrations: string[];
+  readonly unitId: string | null;
+  readonly equipmentResolutionErrors: string[];
+}
+
+import type { ResultType } from '@/services/core/types/BaseTypes';
+
+export type IMTFImportResult = ResultType<IMTFImportData, IMTFImportError>;
 
 /**
  * Validation options
@@ -74,13 +89,13 @@ export class MTFImportService implements IMTFImporter {
    * Import unit from MTF content (not implemented - use importFromJSON)
    */
   import(_mtfContent: string): IDeserializationResult {
-    // This interface method is for raw MTF text parsing
-    // For JSON import, use importFromJSON
     return {
       success: false,
-      errors: ['Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.'],
-      warnings: [],
-      migrations: [],
+      error: {
+        errors: ['Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.'],
+        warnings: [],
+        migrations: [],
+      },
     };
   }
   
@@ -112,12 +127,13 @@ export class MTFImportService implements IMTFImporter {
       if (errors.length > 0 && opts.strictMode) {
         return {
           success: false,
-          unit: undefined,
-          errors,
-          warnings,
-          migrations,
-          unitId: data.id || null,
-          equipmentResolutionErrors,
+          error: {
+            errors,
+            warnings,
+            migrations,
+            unitId: data.id || null,
+            equipmentResolutionErrors,
+          },
         };
       }
       
@@ -145,28 +161,41 @@ export class MTFImportService implements IMTFImporter {
         warnings.push(...slotResults.warnings);
       }
       
-      // Success - return the validated data
       // Note: We return undefined for unit since we don't construct IBattleMech here
       // That's the job of UnitFactoryService
+      if (errors.length === 0) {
+        return {
+          success: true,
+          data: {
+            unit: undefined,
+            warnings,
+            migrations,
+            unitId: data.id,
+            equipmentResolutionErrors,
+          },
+        };
+      }
       return {
-        success: errors.length === 0,
-        unit: undefined,
-        errors,
-        warnings,
-        migrations,
-        unitId: data.id,
-        equipmentResolutionErrors,
+        success: false,
+        error: {
+          errors,
+          warnings,
+          migrations,
+          unitId: data.id,
+          equipmentResolutionErrors,
+        },
       };
     } catch (e) {
       errors.push(`Import failed: ${e}`);
       return {
         success: false,
-        unit: undefined,
-        errors,
-        warnings,
-        migrations,
-        unitId: data.id || null,
-        equipmentResolutionErrors,
+        error: {
+          errors,
+          warnings,
+          migrations,
+          unitId: data.id || null,
+          equipmentResolutionErrors,
+        },
       };
     }
   }
@@ -327,12 +356,13 @@ export class MTFImportService implements IMTFImporter {
     } catch (e) {
       return {
         success: false,
-        unit: undefined,
-        errors: [`Failed to load unit from ${url}: ${e}`],
-        warnings: [],
-        migrations: [],
-        unitId: null,
-        equipmentResolutionErrors: [],
+        error: {
+          errors: [`Failed to load unit from ${url}: ${e}`],
+          warnings: [],
+          migrations: [],
+          unitId: null,
+          equipmentResolutionErrors: [],
+        },
       };
     }
   }

@@ -11,6 +11,7 @@ import {
   IIntegrityIssue,
   IntegritySeverity,
   IDataRepairResult,
+  IDataRepairData,
   IDataIntegrityValidator,
   IRepairOptions,
   IDataRepairOperation,
@@ -241,22 +242,22 @@ export function createDataIntegrityValidator(): IDataIntegrityValidator {
       const repairableIssues = initialCheck.issues.filter(i => i.canAutoRepair);
       
       if (repairableIssues.length === 0) {
-        return {
-          success: true,
+        const repairData: IDataRepairData = {
           repairedData: data,
           appliedRepairs: [],
           failedRepairs: [],
           remainingIssues: initialCheck.issues,
         };
+        return { success: true, data: repairData };
       }
 
       if (options?.dryRun) {
-        return {
-          success: true,
+        const repairData: IDataRepairData = {
           appliedRepairs: repairableIssues.map(i => i.code),
           failedRepairs: [],
           remainingIssues: initialCheck.issues.filter(i => !i.canAutoRepair),
         };
+        return { success: true, data: repairData };
       }
 
       let repairedData = data;
@@ -280,14 +281,17 @@ export function createDataIntegrityValidator(): IDataIntegrityValidator {
       }
 
       const finalCheck = validateDataIntegrity(repairedData);
-
-      return {
-        success: finalCheck.errorCount === 0,
+      const repairData: IDataRepairData = {
         repairedData,
         appliedRepairs,
         failedRepairs,
         remainingIssues: finalCheck.issues,
       };
+
+      if (finalCheck.errorCount === 0) {
+        return { success: true, data: repairData };
+      }
+      return { success: false, error: repairData };
     },
 
     getAvailableRepairs(): IDataRepairOperation[] {
