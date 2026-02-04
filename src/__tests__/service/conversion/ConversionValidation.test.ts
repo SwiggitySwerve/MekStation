@@ -374,7 +374,7 @@ describe('ConversionValidation', () => {
       const unit = createValidUnit({ id: '' });
       const result = validateConvertedUnit(unit);
       
-      expect(result.errors[0].severity).toBe(ConversionValidationSeverity.ERROR);
+      expect(result.errors[0].severity).toBe(ConversionValidationSeverity.Error);
     });
 
     it('should include expected/actual in relevant issues', () => {

@@ -80,7 +80,7 @@ const mockRepository = {
       return {
         success: false,
         error: `Pilot ${id} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
     const updated: IPilot = {
@@ -97,7 +97,7 @@ const mockRepository = {
       return {
         success: false,
         error: `Pilot ${id} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
     mockPilots.delete(id);
@@ -135,7 +135,7 @@ const mockRepository = {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
     if (!pilot.career) {
@@ -177,14 +177,14 @@ const mockRepository = {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
     if (!pilot.career || pilot.career.xp < amount) {
       return {
         success: false,
         error: `Insufficient XP. Have ${pilot.career?.xp || 0}, need ${amount}`,
-        errorCode: PilotErrorCode.INSUFFICIENT_XP,
+        errorCode: PilotErrorCode.InsufficientXp,
       };
     }
     const updated: IPilot = {
@@ -273,7 +273,7 @@ describe('PilotService', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('name is required');
-        expect(result.errorCode).toBe(PilotErrorCode.VALIDATION_ERROR);
+        expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
       });
 
       it('should reject pilot with whitespace-only name', () => {
@@ -500,7 +500,7 @@ describe('PilotService', () => {
         const result = service.updatePilot('non-existent', { callsign: 'Test' });
 
         expect(result.success).toBe(false);
-        expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+        expect(result.errorCode).toBe(PilotErrorCode.NotFound);
       });
     });
 
@@ -523,7 +523,7 @@ describe('PilotService', () => {
         const result = service.deletePilot('non-existent');
 
         expect(result.success).toBe(false);
-        expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+        expect(result.errorCode).toBe(PilotErrorCode.NotFound);
       });
     });
 
@@ -691,7 +691,7 @@ describe('PilotService', () => {
         const result = service.improveGunnery('non-existent');
 
         expect(result.success).toBe(false);
-        expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+        expect(result.errorCode).toBe(PilotErrorCode.NotFound);
       });
 
       it('should return error when at max gunnery', () => {
@@ -707,7 +707,7 @@ describe('PilotService', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('already at maximum');
-        expect(result.errorCode).toBe(PilotErrorCode.VALIDATION_ERROR);
+        expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
       });
 
       it('should return error when insufficient XP', () => {
@@ -723,7 +723,7 @@ describe('PilotService', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('Insufficient XP');
-        expect(result.errorCode).toBe(PilotErrorCode.INSUFFICIENT_XP);
+        expect(result.errorCode).toBe(PilotErrorCode.InsufficientXp);
       });
     });
 
@@ -759,7 +759,7 @@ describe('PilotService', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('already at maximum');
-        expect(result.errorCode).toBe(PilotErrorCode.VALIDATION_ERROR);
+        expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
       });
     });
   });
@@ -987,7 +987,7 @@ describe('PilotService', () => {
         const result = service.applyWound('non-existent');
 
         expect(result.success).toBe(false);
-        expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+        expect(result.errorCode).toBe(PilotErrorCode.NotFound);
       });
     });
 
@@ -1028,14 +1028,14 @@ describe('PilotService', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('Cannot heal a KIA pilot');
-        expect(result.errorCode).toBe(PilotErrorCode.VALIDATION_ERROR);
+        expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
       });
 
       it('should return error for non-existent pilot', () => {
         const result = service.healWounds('non-existent');
 
         expect(result.success).toBe(false);
-        expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+        expect(result.errorCode).toBe(PilotErrorCode.NotFound);
       });
     });
   });

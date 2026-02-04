@@ -204,9 +204,9 @@ export type ServiceFactory<T extends IService> = () => T | Promise<T>;
  * Service event types
  */
 export enum ServiceEvent {
-  INITIALIZED = 'initialized',
-  CLEANUP = 'cleanup',
-  ERROR = 'error',
+  Initialized = 'initialized',
+  Cleanup = 'cleanup',
+  Error = 'error',
 }
 
 /**

@@ -412,7 +412,7 @@ describe('PilotRepository', () => {
       const result = repository.update('non-existent-id', { name: 'Test' });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should clear optional fields when set to empty string', () => {
@@ -469,7 +469,7 @@ describe('PilotRepository', () => {
       const result = repository.delete('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should return id in result on successful delete', () => {
@@ -666,7 +666,7 @@ describe('PilotRepository', () => {
       const result = repository.addAbility('non-existent-id', 'marksman');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should allow adding multiple abilities', () => {
@@ -800,7 +800,7 @@ describe('PilotRepository', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
   });
 
@@ -923,7 +923,7 @@ describe('PilotRepository', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should accumulate multiple missions', () => {
@@ -990,7 +990,7 @@ describe('PilotRepository', () => {
       const result = repository.addXp('non-existent-id', 50);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should accumulate multiple XP additions', () => {
@@ -1042,7 +1042,7 @@ describe('PilotRepository', () => {
       const spendResult = repository.spendXp(createResult.id!, 100);
 
       expect(spendResult.success).toBe(false);
-      expect(spendResult.errorCode).toBe(PilotErrorCode.INSUFFICIENT_XP);
+      expect(spendResult.errorCode).toBe(PilotErrorCode.InsufficientXp);
       expect(spendResult.error).toContain('Insufficient XP');
       expect(spendResult.error).toContain('Have 50');
       expect(spendResult.error).toContain('need 100');
@@ -1052,7 +1052,7 @@ describe('PilotRepository', () => {
       const result = repository.spendXp('non-existent-id', 10);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(PilotErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(PilotErrorCode.NotFound);
     });
 
     it('should allow spending after earning more XP', () => {
