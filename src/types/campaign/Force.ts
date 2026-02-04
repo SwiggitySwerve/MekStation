@@ -3,7 +3,7 @@
  * Represents military units organized in a tree structure (lances, companies, battalions, etc.)
  */
 
-import { ForceType, FormationLevel } from './enums';
+import { ForceRole, FormationLevel } from './enums';
 
 /**
  * Force interface for hierarchical military organization
@@ -22,7 +22,7 @@ import { ForceType, FormationLevel } from './enums';
  *   parentForceId: undefined, // Root force
  *   subForceIds: ['force-2', 'force-3', 'force-4'], // 3 companies
  *   unitIds: [],
- *   forceType: ForceType.STANDARD,
+ *   forceType: ForceRole.STANDARD,
  *   formationLevel: FormationLevel.BATTALION,
  *   commanderId: 'person-123',
  *   createdAt: '2026-01-26T10:00:00Z',
@@ -47,7 +47,7 @@ export interface IForce {
   readonly unitIds: string[];
   
   /** Force type (standard, support, recon, etc.) */
-  readonly forceType: ForceType;
+  readonly forceType: ForceRole;
   
   /** Formation level (lance, company, battalion, etc.) */
   readonly formationLevel: FormationLevel;

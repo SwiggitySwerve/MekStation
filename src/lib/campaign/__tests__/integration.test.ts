@@ -28,7 +28,7 @@ import {
   PersonnelStatus,
   MissionStatus,
   CampaignPersonnelRole,
-  ForceType,
+  ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
 
@@ -44,7 +44,7 @@ import {
   calculateDailyCosts,
   processContractPayment,
 } from '@/lib/finances/FinanceService';
-import { TransactionType } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 
 // =============================================================================
 // Test Fixtures (matching patterns from sibling test files)
@@ -89,7 +89,7 @@ function createTestForce(
     parentForceId,
     subForceIds,
     unitIds,
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',

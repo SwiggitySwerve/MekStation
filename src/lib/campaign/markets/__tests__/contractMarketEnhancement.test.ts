@@ -6,7 +6,7 @@ import { Money } from '@/types/campaign/Money';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { IFinances } from '@/types/campaign/IFinances';
 import { IForce } from '@/types/campaign/Force';
-import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import {
   AtBContractType,
   CONTRACT_TYPE_DEFINITIONS,
@@ -46,7 +46,7 @@ function createTestForce(
     parentForceId,
     subForceIds,
     unitIds,
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: '2025-01-01',
     updatedAt: '2025-01-01',

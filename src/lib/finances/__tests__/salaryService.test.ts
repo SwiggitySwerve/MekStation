@@ -24,7 +24,7 @@ import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import type { IForce } from '@/types/campaign/Force';
 import type { IMission } from '@/types/campaign/Mission';
-import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 // =============================================================================
 // Test Fixtures

@@ -17,7 +17,7 @@ import { IMission } from '@/types/campaign/Campaign';
 import {
   PersonnelStatus,
   CampaignPersonnelRole,
-  ForceType,
+  ForceRole,
   FormationLevel,
   MissionStatus,
 } from '@/types/campaign/enums';
@@ -68,7 +68,7 @@ const createTestForce = (overrides?: Partial<IForce>): IForce => {
     parentForceId: undefined,
     subForceIds: [],
     unitIds: [],
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: now,
     updatedAt: now,
