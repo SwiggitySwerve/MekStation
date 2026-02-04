@@ -20,7 +20,7 @@ import {
   IPilotMechCardCompactProps,
   IPilotMechCardStandardProps,
   IPilotMechCardGameplayProps,
-} from '@/types/pilot-mech-card';
+} from '@/types/pilot/pilot-mech-card';
 import { formatSkills, isPilotCombatReady } from '@/services/pilot-mech-card';
 import { PilotSection } from './PilotSection';
 import { MechSection } from './MechSection';

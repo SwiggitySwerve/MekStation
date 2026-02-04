@@ -43,5 +43,4 @@ export {
 // Award catalog and definitions
 export { AWARD_CATALOG, getAwardById, getAwardsByCategory, getAwardsByRarity } from './AwardCatalog';
 
-// Icon components and utilities - re-exported from awardIcons.tsx
-// Note: Components are directly importable from '@/types/award/awardIcons'
+// Icon components and utilities are in @/components/award/awardIcons

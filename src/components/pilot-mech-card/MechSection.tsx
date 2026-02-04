@@ -11,7 +11,7 @@ import React from 'react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
-import { IPilotMechCardMechData } from '@/types/pilot-mech-card';
+import { IPilotMechCardMechData } from '@/types/pilot/pilot-mech-card';
 import { calculateArmorPercentage } from '@/services/pilot-mech-card';
 
 // =============================================================================

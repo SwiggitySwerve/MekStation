@@ -4,7 +4,7 @@ import {
   getSkillsByCategory,
   getAllSkillTypes,
   SKILL_CATEGORIES,
-} from '../skillCatalog';
+} from '../../../../constants/campaign/skillCatalog';
 import { ISkillType } from '../ISkillType';
 
 describe('Skill Catalog', () => {

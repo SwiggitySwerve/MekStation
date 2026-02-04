@@ -6,6 +6,7 @@
  */
 
 export * from './PilotInterfaces';
-export * from './PilotConstants';
+export * from '../../constants/PilotConstants';
 export * from './SpecialAbilities';
 export * from './IModifierBase';
+export * from './pilot-mech-card';
