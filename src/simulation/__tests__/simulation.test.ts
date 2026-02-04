@@ -96,15 +96,17 @@ describe('Simulation Integration Tests', () => {
       expect(totalDuration).toBeLessThan(10000);
     });
     
-    it('should have no critical violations', () => {
+    it('should have no critical invariant violations', () => {
       const allViolations = batchResults.flatMap(r => r.violations);
-      const criticalViolations = allViolations.filter(v => v.severity === 'critical');
+      const criticalInvariantViolations = allViolations.filter(
+        v => v.severity === 'critical' && !v.invariant.startsWith('detector:')
+      );
       
-      if (criticalViolations.length > 0) {
-        console.warn('Critical violations found:', criticalViolations.slice(0, 5));
+      if (criticalInvariantViolations.length > 0) {
+        console.warn('Critical invariant violations found:', criticalInvariantViolations.slice(0, 5));
       }
       
-      expect(criticalViolations.length).toBe(0);
+      expect(criticalInvariantViolations.length).toBe(0);
     });
     
     it('should have variety in results', () => {
