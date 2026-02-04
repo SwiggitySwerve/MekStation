@@ -1,4 +1,5 @@
 import { IAttributes } from './IAttributes';
+import { IEntity } from '@/types/core/IEntity';
 
 /**
  * Metadata definition for a skill type in the MekStation campaign system.
@@ -6,6 +7,8 @@ import { IAttributes } from './IAttributes';
  * A skill type defines the core properties of a skill category, including its name,
  * description, difficulty, progression costs, and which attribute it's linked to.
  * Individual character skills reference a skill type to inherit these properties.
+ *
+ * Extends IEntity for universal identification (id + name).
  *
  * @example
  * const gunnerySkillType: ISkillType = {
@@ -17,7 +20,7 @@ import { IAttributes } from './IAttributes';
  *   linkedAttribute: 'DEX'
  * };
  */
-export interface ISkillType {
+export interface ISkillType extends IEntity {
   /**
    * Unique identifier for this skill type.
    *
