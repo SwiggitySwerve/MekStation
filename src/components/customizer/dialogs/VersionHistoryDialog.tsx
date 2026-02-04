@@ -100,7 +100,7 @@ export function VersionHistoryDialog({
         onRevert(selectedVersion);
         onClose();
       } else {
-        setError(result.error || 'Failed to revert');
+        setError(result.error.message || 'Failed to revert');
       }
     } catch (err) {
       console.error('Revert error:', err);

@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/Badge';
-import { IPilotMechCardData } from '@/types/pilot-mech-card';
+import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 import { formatSkills } from '@/services/pilot-mech-card';
 
 // =============================================================================

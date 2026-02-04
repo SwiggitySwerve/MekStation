@@ -73,8 +73,10 @@ export class UnitRepository implements IUnitRepository {
       const suggestion = this.suggestCloneName(request.chassis, request.variant);
       return {
         success: false,
-        error: `Unit "${request.chassis} ${request.variant}" already exists. Suggested name: "${suggestion.chassis} ${suggestion.suggestedVariant}"`,
-        errorCode: UnitErrorCode.DUPLICATE_NAME,
+        error: {
+          message: `Unit "${request.chassis} ${request.variant}" already exists. Suggested name: "${suggestion.chassis} ${suggestion.suggestedVariant}"`,
+          errorCode: UnitErrorCode.DUPLICATE_NAME,
+        },
       };
     }
 
@@ -126,15 +128,16 @@ export class UnitRepository implements IUnitRepository {
 
       return {
         success: true,
-        id,
-        version: 1,
+        data: { id, version: 1 },
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: `Failed to create unit: ${message}`,
-        errorCode: UnitErrorCode.DATABASE_ERROR,
+        error: {
+          message: `Failed to create unit: ${message}`,
+          errorCode: UnitErrorCode.DATABASE_ERROR,
+        },
       };
     }
   }
@@ -151,8 +154,10 @@ export class UnitRepository implements IUnitRepository {
     if (!currentUnit) {
       return {
         success: false,
-        error: `Unit "${id}" not found`,
-        errorCode: UnitErrorCode.NOT_FOUND,
+        error: {
+          message: `Unit "${id}" not found`,
+          errorCode: UnitErrorCode.NOT_FOUND,
+        },
       };
     }
 
@@ -206,15 +211,16 @@ export class UnitRepository implements IUnitRepository {
 
       return {
         success: true,
-        id,
-        version: newVersion,
+        data: { id, version: newVersion },
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: `Failed to update unit: ${message}`,
-        errorCode: UnitErrorCode.DATABASE_ERROR,
+        error: {
+          message: `Failed to update unit: ${message}`,
+          errorCode: UnitErrorCode.DATABASE_ERROR,
+        },
       };
     }
   }
@@ -230,13 +236,15 @@ export class UnitRepository implements IUnitRepository {
       const deleteUnit = db.prepare('DELETE FROM custom_units WHERE id = ?');
       deleteUnit.run(id);
 
-      return { success: true, id };
+      return { success: true, data: { id } };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: `Failed to delete unit: ${message}`,
-        errorCode: UnitErrorCode.DATABASE_ERROR,
+        error: {
+          message: `Failed to delete unit: ${message}`,
+          errorCode: UnitErrorCode.DATABASE_ERROR,
+        },
       };
     }
   }

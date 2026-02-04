@@ -14,7 +14,7 @@ import { IContract, IMission, isContract } from '@/types/campaign/Mission';
 import { IForce } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
 import { IFinances } from '@/types/campaign/IFinances';
-import { MissionStatus, ForceType, FormationLevel } from '@/types/campaign/enums';
+import { MissionStatus, ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 import {
   calculateForceBV,
@@ -64,7 +64,7 @@ function createTestForce(
     parentForceId,
     subForceIds,
     unitIds,
-    forceType: ForceType.STANDARD,
+    forceType: ForceRole.STANDARD,
     formationLevel: FormationLevel.LANCE,
     createdAt: '2026-01-26T10:00:00Z',
     updatedAt: '2026-01-26T10:00:00Z',

@@ -14,7 +14,7 @@ import {
   AWARD_CATALOG,
   getRarityColor,
 } from '@/types/award';
-import { getAwardIcon, getRarityStrokeWidth } from '@/types/award/awardIcons';
+import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
 import { useAwardStore } from '@/stores/useAwardStore';
 
 // =============================================================================

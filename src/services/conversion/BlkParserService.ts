@@ -57,19 +57,19 @@ export class BlkParserService {
 
       if (!unitTypeStr) {
         errors.push('Missing required field: UnitType');
-        return { success: false, errors, warnings };
+        return { success: false, error: { errors, warnings } };
       }
 
       const mappedUnitType = this.mapUnitType(unitTypeStr);
       if (!mappedUnitType) {
         errors.push(`Unknown unit type: ${unitTypeStr}`);
-        return { success: false, errors, warnings };
+        return { success: false, error: { errors, warnings } };
       }
 
       const name = this.getString(rawTags['Name']);
       if (!name) {
         errors.push('Missing required field: Name');
-        return { success: false, errors, warnings };
+        return { success: false, error: { errors, warnings } };
       }
 
       const model = this.getString(rawTags['Model']) ?? this.getString(rawTags['model']) ?? '';
@@ -77,13 +77,13 @@ export class BlkParserService {
 
       if (tonnage === undefined) {
         errors.push('Missing required field: Tonnage');
-        return { success: false, errors, warnings };
+        return { success: false, error: { errors, warnings } };
       }
 
       const year = this.parseNumber(rawTags['year']);
       if (year === undefined) {
         errors.push('Missing required field: year');
-        return { success: false, errors, warnings };
+        return { success: false, error: { errors, warnings } };
       }
 
       // Parse armor array
@@ -159,11 +159,11 @@ export class BlkParserService {
         rawTags,
       };
 
-      return { success: true, document, errors, warnings };
+      return { success: true, data: { document, warnings } };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown parse error';
       errors.push(`Parse error: ${message}`);
-      return { success: false, errors, warnings };
+      return { success: false, error: { errors, warnings } };
     }
   }
 

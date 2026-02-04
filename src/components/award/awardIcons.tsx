@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { AwardCategory, AwardRarity } from './AwardInterfaces';
+import { AwardCategory, AwardRarity } from '@/types/award/AwardInterfaces';
 
 // =============================================================================
 // Types

@@ -1,5 +1,5 @@
 import { TECH_SKILL_TYPE, getTechSkillValue, UNSKILLED_TECH_VALUE } from '../techSkill';
-import { SKILL_CATALOG, getSkillType } from '../skillCatalog';
+import { SKILL_CATALOG, getSkillType } from '../../../../constants/campaign/skillCatalog';
 import { getSkillValue } from '../ISkill';
 import type { IPerson } from '@/types/campaign/Person';
 import type { ISkill } from '../ISkill';

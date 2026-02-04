@@ -452,9 +452,9 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.BATTLE_ARMOR);
-      expect(result.unit?.metadata.chassis).toBe('Elemental');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.BATTLE_ARMOR);
+      expect(result.data?.unit?.metadata.chassis).toBe('Elemental');
     });
 
     it('should parse unit name correctly', () => {
@@ -462,9 +462,9 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.name).toBe('Test BA Mk II');
-      expect(result.unit?.metadata.chassis).toBe('Test BA');
-      expect(result.unit?.metadata.model).toBe('Mk II');
+      expect(result.data?.unit?.name).toBe('Test BA Mk II');
+      expect(result.data?.unit?.metadata.chassis).toBe('Test BA');
+      expect(result.data?.unit?.metadata.model).toBe('Mk II');
     });
 
     it('should parse year correctly', () => {
@@ -472,7 +472,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.metadata.year).toBe(2868);
+      expect(result.data?.unit?.metadata.year).toBe(2868);
     });
 
     it('should parse minimal BA document with defaults', () => {
@@ -480,10 +480,10 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.squadSize).toBe(4); // Default
-      expect(result.unit?.chassisType).toBe(BattleArmorChassisType.BIPED); // Default
-      expect(result.unit?.motionType).toBe(SquadMotionType.JUMP); // Default
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.squadSize).toBe(4); // Default
+      expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED); // Default
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP); // Default
     });
   });
 
@@ -497,7 +497,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
+      expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
     });
 
     it('should parse quad chassis type', () => {
@@ -505,7 +505,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.chassisType).toBe(BattleArmorChassisType.QUAD);
+      expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.QUAD);
     });
 
     it('should default to biped for unspecified chassis', () => {
@@ -513,7 +513,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
+      expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
     });
 
     it('should default to biped for unknown chassis string', () => {
@@ -521,7 +521,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
+      expect(result.data?.unit?.chassisType).toBe(BattleArmorChassisType.BIPED);
     });
   });
 
@@ -535,7 +535,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(4);
+      expect(result.data?.unit?.squadSize).toBe(4);
     });
 
     it('should parse Clan Elemental squad size of 5', () => {
@@ -543,7 +543,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(5);
+      expect(result.data?.unit?.squadSize).toBe(5);
     });
 
     it('should parse squad size of 6', () => {
@@ -551,7 +551,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(6);
+      expect(result.data?.unit?.squadSize).toBe(6);
     });
 
     it('should parse minimum squad size of 1', () => {
@@ -559,7 +559,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(1);
+      expect(result.data?.unit?.squadSize).toBe(1);
     });
 
     it('should default to squad size of 4 when not specified', () => {
@@ -567,7 +567,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(4);
+      expect(result.data?.unit?.squadSize).toBe(4);
     });
 
     it('should parse unusual squad size with warning', () => {
@@ -576,7 +576,7 @@ describe('BattleArmorUnitHandler', () => {
 
       // Parse should succeed but may have warnings
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(10);
+      expect(result.data?.unit?.squadSize).toBe(10);
     });
   });
 
@@ -602,7 +602,7 @@ describe('BattleArmorUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // Handler defaults to MEDIUM when weightClass is 0 or undefined due to || operator
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
     });
 
     it('should parse weight class code 0 explicitly when provided as non-falsy', () => {
@@ -612,7 +612,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.LIGHT);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.LIGHT);
     });
 
     it('should parse weight class code 1 as LIGHT', () => {
@@ -620,7 +620,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.LIGHT);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.LIGHT);
     });
 
     it('should parse weight class code 2 as MEDIUM', () => {
@@ -628,7 +628,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
     });
 
     it('should parse weight class code 3 as HEAVY', () => {
@@ -636,7 +636,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.HEAVY);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.HEAVY);
     });
 
     it('should parse weight class code 4 as ASSAULT', () => {
@@ -644,7 +644,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.ASSAULT);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.ASSAULT);
     });
 
     it('should default to MEDIUM for unspecified weight class', () => {
@@ -652,7 +652,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
     });
 
     it('should default to MEDIUM for invalid weight class code', () => {
@@ -660,7 +660,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
+      expect(result.data?.unit?.baWeightClass).toBe(BattleArmorWeightClass.MEDIUM);
     });
   });
 
@@ -674,7 +674,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.JUMP);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP);
     });
 
     it('should parse leg/foot motion type', () => {
@@ -682,7 +682,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.FOOT);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.FOOT);
     });
 
     it('should parse foot motion type', () => {
@@ -690,7 +690,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.FOOT);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.FOOT);
     });
 
     it('should parse VTOL motion type', () => {
@@ -698,7 +698,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.VTOL);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.VTOL);
     });
 
     it('should parse UMU motion type', () => {
@@ -706,7 +706,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.UMU);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.UMU);
     });
 
     it('should parse mechanized motion type', () => {
@@ -714,7 +714,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.MECHANIZED);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.MECHANIZED);
     });
 
     it('should default to jump for unspecified motion type', () => {
@@ -722,7 +722,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.JUMP);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP);
     });
 
     it('should default to jump for unknown motion type', () => {
@@ -730,7 +730,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.motionType).toBe(SquadMotionType.JUMP);
+      expect(result.data?.unit?.motionType).toBe(SquadMotionType.JUMP);
     });
   });
 
@@ -744,7 +744,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.groundMP).toBe(2);
+      expect(result.data?.unit?.movement.groundMP).toBe(2);
     });
 
     it('should parse jump MP', () => {
@@ -752,8 +752,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.jumpMP).toBe(3);
-      expect(result.unit?.movement.jumpMP).toBe(3);
+      expect(result.data?.unit?.jumpMP).toBe(3);
+      expect(result.data?.unit?.movement.jumpMP).toBe(3);
     });
 
     it('should parse UMU MP from raw tags', () => {
@@ -761,8 +761,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.umuMP).toBe(4);
-      expect(result.unit?.movement.umuMP).toBe(4);
+      expect(result.data?.unit?.umuMP).toBe(4);
+      expect(result.data?.unit?.movement.umuMP).toBe(4);
     });
 
     it('should default ground MP to 1', () => {
@@ -770,7 +770,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.movement.groundMP).toBe(1);
+      expect(result.data?.unit?.movement.groundMP).toBe(1);
     });
 
     it('should default jump MP to 0', () => {
@@ -778,7 +778,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.jumpMP).toBe(0);
+      expect(result.data?.unit?.jumpMP).toBe(0);
     });
 
     it('should default UMU MP to 0', () => {
@@ -786,7 +786,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.umuMP).toBe(0);
+      expect(result.data?.unit?.umuMP).toBe(0);
     });
   });
 
@@ -805,8 +805,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.ARMORED_GLOVE);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.ARMORED_GLOVE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.ARMORED_GLOVE);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.ARMORED_GLOVE);
     });
 
     it('should parse basic manipulator', () => {
@@ -819,8 +819,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.BASIC);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.BASIC);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.BASIC);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.BASIC);
     });
 
     it('should parse battle manipulator', () => {
@@ -833,8 +833,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.BATTLE);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.BATTLE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.BATTLE);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.BATTLE);
     });
 
     it('should parse heavy battle manipulator', () => {
@@ -842,8 +842,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.HEAVY_BATTLE);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.HEAVY_BATTLE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.HEAVY_BATTLE);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.HEAVY_BATTLE);
     });
 
     it('should parse battle vibro manipulator', () => {
@@ -856,8 +856,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.BATTLE_VIBRO);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.BATTLE_VIBRO);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.BATTLE_VIBRO);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.BATTLE_VIBRO);
     });
 
     it('should parse heavy battle vibro manipulator', () => {
@@ -870,8 +870,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.HEAVY_BATTLE_VIBRO);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.HEAVY_BATTLE_VIBRO);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.HEAVY_BATTLE_VIBRO);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.HEAVY_BATTLE_VIBRO);
     });
 
     it('should parse cargo lifter manipulator', () => {
@@ -884,8 +884,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.CARGO_LIFTER);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.NONE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.CARGO_LIFTER);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.NONE);
     });
 
     it('should parse industrial drill manipulator', () => {
@@ -897,7 +897,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.INDUSTRIAL_DRILL);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.INDUSTRIAL_DRILL);
     });
 
     it('should parse salvage arm manipulator', () => {
@@ -909,7 +909,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.SALVAGE_ARM);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.SALVAGE_ARM);
     });
 
     it('should parse basic mine clearance manipulator', () => {
@@ -921,7 +921,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.BASIC_MINE_CLEARANCE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.BASIC_MINE_CLEARANCE);
     });
 
     it('should default to NONE for unspecified manipulator', () => {
@@ -929,8 +929,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.leftManipulator).toBe(ManipulatorType.NONE);
-      expect(result.unit?.rightManipulator).toBe(ManipulatorType.NONE);
+      expect(result.data?.unit?.leftManipulator).toBe(ManipulatorType.NONE);
+      expect(result.data?.unit?.rightManipulator).toBe(ManipulatorType.NONE);
     });
   });
 
@@ -944,7 +944,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorPerTrooper).toBe(10);
+      expect(result.data?.unit?.armorPerTrooper).toBe(10);
     });
 
     it('should parse zero armor', () => {
@@ -952,7 +952,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorPerTrooper).toBe(0);
+      expect(result.data?.unit?.armorPerTrooper).toBe(0);
     });
 
     it('should default to 0 armor for undefined', () => {
@@ -960,7 +960,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorPerTrooper).toBe(0);
+      expect(result.data?.unit?.armorPerTrooper).toBe(0);
     });
 
     it('should parse armor type', () => {
@@ -968,7 +968,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorType).toBe(1);
+      expect(result.data?.unit?.armorType).toBe(1);
     });
   });
 
@@ -982,9 +982,9 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(2);
-      expect(result.unit?.equipment[0].name).toBe('BA Small Laser');
-      expect(result.unit?.equipment[1].name).toBe('BA SRM-2');
+      expect(result.data?.unit?.equipment.length).toBe(2);
+      expect(result.data?.unit?.equipment[0].name).toBe('BA Small Laser');
+      expect(result.data?.unit?.equipment[1].name).toBe('BA SRM-2');
     });
 
     it('should normalize equipment location to SQUAD', () => {
@@ -992,7 +992,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment[0].location).toBe(BattleArmorLocation.SQUAD);
+      expect(result.data?.unit?.equipment[0].location).toBe(BattleArmorLocation.SQUAD);
     });
 
     it('should parse body equipment with correct location', () => {
@@ -1000,7 +1000,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const bodyEquip = result.unit?.equipment.find((e) => e.name === 'BA ECM Suite');
+      const bodyEquip = result.data?.unit?.equipment.find((e) => e.name === 'BA ECM Suite');
       expect(bodyEquip?.location).toBe(BattleArmorLocation.BODY);
     });
 
@@ -1009,7 +1009,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const leftArmEquip = result.unit?.equipment.find(
+      const leftArmEquip = result.data?.unit?.equipment.find(
         (e) => e.location === BattleArmorLocation.LEFT_ARM
       );
       expect(leftArmEquip).toBeDefined();
@@ -1020,7 +1020,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const rightArmEquip = result.unit?.equipment.find(
+      const rightArmEquip = result.data?.unit?.equipment.find(
         (e) => e.location === BattleArmorLocation.RIGHT_ARM
       );
       expect(rightArmEquip).toBeDefined();
@@ -1031,7 +1031,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const turretEquip = result.unit?.equipment.find((e) => e.isTurretMounted);
+      const turretEquip = result.data?.unit?.equipment.find((e) => e.isTurretMounted);
       expect(turretEquip).toBeDefined();
       expect(turretEquip?.location).toBe(BattleArmorLocation.TURRET);
     });
@@ -1041,7 +1041,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const apEquip = result.unit?.equipment.find((e) => e.isAPMount);
+      const apEquip = result.data?.unit?.equipment.find((e) => e.isAPMount);
       expect(apEquip).toBeDefined();
     });
 
@@ -1050,7 +1050,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(0);
+      expect(result.data?.unit?.equipment.length).toBe(0);
     });
 
     it('should assign unique IDs to equipment mounts', () => {
@@ -1058,7 +1058,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const ids = result.unit?.equipment.map((e) => e.id);
+      const ids = result.data?.unit?.equipment.map((e) => e.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids?.length);
     });
@@ -1074,7 +1074,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasAPMount).toBe(true);
+      expect(result.data?.unit?.hasAPMount).toBe(true);
     });
 
     it('should parse modular mount feature', () => {
@@ -1082,7 +1082,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasModularMount).toBe(true);
+      expect(result.data?.unit?.hasModularMount).toBe(true);
     });
 
     it('should parse turret mount feature', () => {
@@ -1090,7 +1090,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasTurretMount).toBe(true);
+      expect(result.data?.unit?.hasTurretMount).toBe(true);
     });
 
     it('should parse stealth system feature', () => {
@@ -1098,7 +1098,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasStealthSystem).toBe(true);
+      expect(result.data?.unit?.hasStealthSystem).toBe(true);
     });
 
     it('should parse mimetic armor feature as false', () => {
@@ -1106,7 +1106,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasMimeticArmor).toBe(false);
+      expect(result.data?.unit?.hasMimeticArmor).toBe(false);
     });
 
     it('should parse fire resistant armor feature', () => {
@@ -1114,7 +1114,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasFireResistantArmor).toBe(true);
+      expect(result.data?.unit?.hasFireResistantArmor).toBe(true);
     });
 
     it('should parse mechanical jump boosters feature', () => {
@@ -1122,7 +1122,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasMechanicalJumpBoosters).toBe(true);
+      expect(result.data?.unit?.hasMechanicalJumpBoosters).toBe(true);
     });
 
     it('should default special features to false', () => {
@@ -1130,13 +1130,13 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasAPMount).toBe(false);
-      expect(result.unit?.hasModularMount).toBe(false);
-      expect(result.unit?.hasTurretMount).toBe(false);
-      expect(result.unit?.hasStealthSystem).toBe(false);
-      expect(result.unit?.hasMimeticArmor).toBe(false);
-      expect(result.unit?.hasFireResistantArmor).toBe(false);
-      expect(result.unit?.hasMechanicalJumpBoosters).toBe(false);
+      expect(result.data?.unit?.hasAPMount).toBe(false);
+      expect(result.data?.unit?.hasModularMount).toBe(false);
+      expect(result.data?.unit?.hasTurretMount).toBe(false);
+      expect(result.data?.unit?.hasStealthSystem).toBe(false);
+      expect(result.data?.unit?.hasMimeticArmor).toBe(false);
+      expect(result.data?.unit?.hasFireResistantArmor).toBe(false);
+      expect(result.data?.unit?.hasMechanicalJumpBoosters).toBe(false);
     });
   });
 
@@ -1150,7 +1150,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canSwarm).toBe(true);
+      expect(result.data?.unit?.canSwarm).toBe(true);
     });
 
     it('should disallow swarm for assault BA', () => {
@@ -1158,7 +1158,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canSwarm).toBe(false);
+      expect(result.data?.unit?.canSwarm).toBe(false);
     });
 
     it('should allow leg attack for all BA', () => {
@@ -1166,7 +1166,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canLegAttack).toBe(true);
+      expect(result.data?.unit?.canLegAttack).toBe(true);
     });
 
     it('should allow omni mount for non-assault BA', () => {
@@ -1174,7 +1174,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canMountOmni).toBe(true);
+      expect(result.data?.unit?.canMountOmni).toBe(true);
     });
 
     it('should disallow omni mount for assault BA', () => {
@@ -1182,7 +1182,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canMountOmni).toBe(false);
+      expect(result.data?.unit?.canMountOmni).toBe(false);
     });
 
     it('should allow anti-mech for all BA', () => {
@@ -1190,7 +1190,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.canAntiMech).toBe(true);
+      expect(result.data?.unit?.canAntiMech).toBe(true);
     });
   });
 
@@ -1204,7 +1204,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe('Clan');
+      expect(result.data?.unit?.techBase).toBe('Clan');
     });
 
     it('should parse Inner Sphere tech base', () => {
@@ -1212,7 +1212,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe('Inner Sphere');
+      expect(result.data?.unit?.techBase).toBe('Inner Sphere');
     });
 
     it('should default to Inner Sphere for mixed tech', () => {
@@ -1220,7 +1220,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe('Inner Sphere');
+      expect(result.data?.unit?.techBase).toBe('Inner Sphere');
     });
   });
 
@@ -1238,7 +1238,7 @@ describe('BattleArmorUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // 4 tons / 4 troopers = 1 ton = 1000 kg per trooper
-      expect(result.unit?.weightPerTrooper).toBe(1000);
+      expect(result.data?.unit?.weightPerTrooper).toBe(1000);
     });
 
     it('should calculate weight per trooper for 5-trooper squad', () => {
@@ -1250,7 +1250,7 @@ describe('BattleArmorUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // 5 tons / 5 troopers = 1 ton = 1000 kg per trooper
-      expect(result.unit?.weightPerTrooper).toBe(1000);
+      expect(result.data?.unit?.weightPerTrooper).toBe(1000);
     });
 
     it('should calculate weight per trooper for PA(L)', () => {
@@ -1259,7 +1259,7 @@ describe('BattleArmorUnitHandler', () => {
 
       expect(result.success).toBe(true);
       // 0.4 tons / 4 troopers = 0.1 tons = 100 kg per trooper
-      expect(result.unit?.weightPerTrooper).toBe(100);
+      expect(result.data?.unit?.weightPerTrooper).toBe(100);
     });
   });
 
@@ -1273,7 +1273,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1282,7 +1282,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1291,7 +1291,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1300,7 +1300,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -1312,7 +1312,7 @@ describe('BattleArmorUnitHandler', () => {
       
       // Parse fails due to invalid tonnage (0)
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.toLowerCase().includes('tonnage'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.toLowerCase().includes('tonnage'))).toBe(true);
     });
 
     it('should default trooperCount 0 to 4 when tonnage is valid', () => {
@@ -1326,7 +1326,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       
       expect(result.success).toBe(true);
-      expect(result.unit?.squadSize).toBe(4); // Defaults to 4
+      expect(result.data?.unit?.squadSize).toBe(4); // Defaults to 4
     });
 
     it('should fail validation for squad size of 7', () => {
@@ -1334,7 +1334,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some((e) => e.includes('squad size'))).toBe(true);
     });
@@ -1344,7 +1344,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some((e) => e.includes('squad size'))).toBe(true);
     });
@@ -1364,7 +1364,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       // May have warnings but should not have errors for weight
       expect(
         validation.errors.filter((e) => e.includes('Weight per trooper')).length
@@ -1380,7 +1380,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(
         validation.errors.filter((e) => e.includes('Weight per trooper')).length
       ).toBe(0);
@@ -1395,7 +1395,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(
         validation.errors.filter((e) => e.includes('Weight per trooper')).length
       ).toBe(0);
@@ -1410,7 +1410,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(
         validation.errors.filter((e) => e.includes('Weight per trooper')).length
       ).toBe(0);
@@ -1425,7 +1425,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(
         validation.errors.filter((e) => e.includes('Weight per trooper')).length
       ).toBe(0);
@@ -1440,7 +1440,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(
         validation.warnings.some((w) => w.includes('Weight per trooper'))
       ).toBe(true);
@@ -1459,7 +1459,7 @@ describe('BattleArmorUnitHandler', () => {
 
       // Force canSwarm to true (simulating invalid state)
       const invalidUnit = {
-        ...result.unit!,
+        ...result.data!.unit,
         canSwarm: true,
       };
 
@@ -1475,7 +1475,7 @@ describe('BattleArmorUnitHandler', () => {
 
       // Force canMountOmni to true (simulating invalid state)
       const invalidUnit = {
-        ...result.unit!,
+        ...result.data!.unit,
         canMountOmni: true,
       };
 
@@ -1489,7 +1489,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       // Should not have assault-specific errors
       expect(validation.errors.filter((e) => e.includes('swarm')).length).toBe(0);
       expect(validation.errors.filter((e) => e.includes('OmniMech')).length).toBe(0);
@@ -1511,7 +1511,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(0);
     });
 
@@ -1527,7 +1527,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
@@ -1541,7 +1541,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(0);
     });
 
@@ -1555,7 +1555,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
@@ -1569,7 +1569,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(0);
     });
 
@@ -1583,7 +1583,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
@@ -1597,7 +1597,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(0);
     });
 
@@ -1611,7 +1611,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
 
@@ -1625,7 +1625,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.filter((e) => e.includes('Armor')).length).toBe(0);
     });
 
@@ -1639,7 +1639,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.errors.some((e) => e.includes('Armor'))).toBe(true);
     });
   });
@@ -1657,7 +1657,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // 1000kg per trooper * 4 troopers / 1000 = 4 tons
       expect(weight).toBe(4);
     });
@@ -1670,7 +1670,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // 1000kg per trooper * 5 troopers / 1000 = 5 tons
       expect(weight).toBe(5);
     });
@@ -1680,7 +1680,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       // 100kg per trooper * 4 troopers / 1000 = 0.4 tons
       expect(weight).toBeCloseTo(0.4, 2);
     });
@@ -1690,7 +1690,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBeGreaterThan(0);
     });
   });
@@ -1709,7 +1709,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       // Base: 10 armor * 20 * 5 troopers = 1000 BV (no jump modifier)
       expect(bv).toBe(1000);
     });
@@ -1723,7 +1723,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       // Base: 10 armor * 20 * 5 troopers = 1000 BV * 1.1 = 1100
       expect(bv).toBe(1100);
     });
@@ -1737,7 +1737,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       // Base: 10 armor * 20 * 4 troopers = 800 BV (no modifier)
       expect(bv).toBe(800);
     });
@@ -1747,7 +1747,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -1756,7 +1756,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(Number.isInteger(bv)).toBe(true);
     });
   });
@@ -1773,7 +1773,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       // Light: 200,000 * 4 troopers = 800,000
       expect(cost).toBe(800000);
     });
@@ -1783,7 +1783,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       // Light: 200,000 * 4 troopers = 800,000
       expect(cost).toBe(800000);
     });
@@ -1793,7 +1793,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       // Medium: 300,000 * 4 troopers = 1,200,000
       expect(cost).toBe(1200000);
     });
@@ -1803,7 +1803,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       // Heavy: 400,000 * 5 troopers = 2,000,000
       expect(cost).toBe(2000000);
     });
@@ -1813,7 +1813,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       // Assault: 500,000 * 4 troopers = 2,000,000
       expect(cost).toBe(2000000);
     });
@@ -1823,7 +1823,7 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
   });
@@ -1838,9 +1838,9 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized).toBeDefined();
+      expect(serializeResult.data?.serialized).toBeDefined();
     });
 
     it('should include unit type in serialized output', () => {
@@ -1848,8 +1848,8 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.unitType).toBe(UnitType.BATTLE_ARMOR);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.unitType).toBe(UnitType.BATTLE_ARMOR);
     });
 
     it('should include tonnage in serialized output', () => {
@@ -1857,8 +1857,8 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.tonnage).toBe(5);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.tonnage).toBe(5);
     });
 
     it('should include chassis in serialized output', () => {
@@ -1866,8 +1866,8 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.chassis).toBe('Elemental');
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.chassis).toBe('Elemental');
     });
   });
 
@@ -1881,8 +1881,8 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.configuration).toBe(BattleArmorChassisType.QUAD);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.configuration).toBe(BattleArmorChassisType.QUAD);
     });
 
     it('should include rulesLevel in output', () => {
@@ -1890,8 +1890,8 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
-      expect(serializeResult.serialized?.rulesLevel).toBeDefined();
+      const serializeResult = handler.serialize(parseResult.data!.unit);
+      expect(serializeResult.data?.serialized?.rulesLevel).toBeDefined();
     });
   });
 
@@ -1906,13 +1906,13 @@ describe('BattleArmorUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
 
       // Now try to deserialize - should fail as not implemented
-      const result = handler.deserialize(serializeResult.serialized!);
+      const result = handler.deserialize(serializeResult.data!.serialized);
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
     });
   });
 

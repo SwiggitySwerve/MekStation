@@ -15,7 +15,7 @@ import {
   AwardRarity,
   getRarityColor,
 } from '@/types/award';
-import { getAwardIcon, getRarityStrokeWidth } from '@/types/award/awardIcons';
+import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
 
 // =============================================================================
 // Types

@@ -37,8 +37,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     jest.clearAllMocks();
     mockRevert.mockReturnValue({
       success: true,
-      unitId: 'unit-1',
-      newVersion: 4,
+      data: { id: 'unit-1', version: 4 },
     });
   });
 
@@ -117,8 +116,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
   it('should revert to previous version successfully', async () => {
     mockRevert.mockReturnValue({
       success: true,
-      unitId: 'unit-1',
-      newVersion: 4,
+      data: { id: 'unit-1', version: 4 },
     });
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -131,8 +129,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({
       success: true,
-      unitId: 'unit-1',
-      newVersion: 4,
+      data: { id: 'unit-1', version: 4 },
     });
   });
 
@@ -162,8 +159,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
   it('should return 404 if unit not found', async () => {
     mockRevert.mockReturnValue({
       success: false,
-      errorCode: 'NOT_FOUND',
-      error: 'Unit not found',
+      error: { message: 'Unit not found', errorCode: 'NOT_FOUND' },
     });
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -179,8 +175,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
   it('should return 404 if version not found', async () => {
     mockRevert.mockReturnValue({
       success: false,
-      errorCode: 'VERSION_NOT_FOUND',
-      error: 'Version not found',
+      error: { message: 'Version not found', errorCode: 'VERSION_NOT_FOUND' },
     });
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -196,8 +191,7 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
   it('should return 400 for other errors', async () => {
     mockRevert.mockReturnValue({
       success: false,
-      errorCode: 'INVALID_OPERATION',
-      error: 'Cannot revert to current version',
+      error: { message: 'Cannot revert to current version', errorCode: 'INVALID_OPERATION' },
     });
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

@@ -109,9 +109,9 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.PROTOMECH);
-      expect(result.unit?.metadata.chassis).toBe('Centaur');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.PROTOMECH);
+      expect(result.data?.unit?.metadata.chassis).toBe('Centaur');
     });
 
     it('should parse point size', () => {
@@ -119,7 +119,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.pointSize).toBe(5);
+      expect(result.data?.unit?.pointSize).toBe(5);
     });
 
     it('should parse weight per unit', () => {
@@ -127,7 +127,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.weightPerUnit).toBe(5);
+      expect(result.data?.unit?.weightPerUnit).toBe(5);
     });
 
     it('should parse movement', () => {
@@ -135,8 +135,8 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.cruiseMP).toBe(5);
-      expect(result.unit?.jumpMP).toBe(0);
+      expect(result.data?.unit?.cruiseMP).toBe(5);
+      expect(result.data?.unit?.jumpMP).toBe(0);
     });
 
     it('should parse armor by location', () => {
@@ -144,10 +144,10 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByLocation['Head']).toBe(2);
-      expect(result.unit?.armorByLocation['Torso']).toBe(7);
-      expect(result.unit?.armorByLocation['Left Arm']).toBe(2);
-      expect(result.unit?.armorByLocation['Main Gun']).toBe(1);
+      expect(result.data?.unit?.armorByLocation['Head']).toBe(2);
+      expect(result.data?.unit?.armorByLocation['Torso']).toBe(7);
+      expect(result.data?.unit?.armorByLocation['Left Arm']).toBe(2);
+      expect(result.data?.unit?.armorByLocation['Main Gun']).toBe(1);
     });
 
     it('should detect main gun', () => {
@@ -155,7 +155,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasMainGun).toBe(true);
+      expect(result.data?.unit?.hasMainGun).toBe(true);
     });
 
     it('should parse equipment', () => {
@@ -163,7 +163,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.equipment.length).toBe(2);
+      expect(result.data?.unit?.equipment.length).toBe(2);
     });
 
     it('should parse glider ProtoMech', () => {
@@ -171,8 +171,8 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.isGlider).toBe(true);
-      expect(result.unit?.jumpMP).toBe(4);
+      expect(result.data?.unit?.isGlider).toBe(true);
+      expect(result.data?.unit?.jumpMP).toBe(4);
     });
 
     it('should parse quad ProtoMech', () => {
@@ -180,7 +180,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.isQuad).toBe(true);
+      expect(result.data?.unit?.isQuad).toBe(true);
     });
 
     it('should always be Clan tech base', () => {
@@ -188,7 +188,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.techBase).toBe(TechBase.CLAN);
+      expect(result.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
   });
 
@@ -198,7 +198,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(true);
     });
 
@@ -207,7 +207,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(e => e.includes('2 tons'))).toBe(true);
     });
@@ -217,7 +217,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(e => e.includes('9 tons'))).toBe(true);
     });
@@ -235,7 +235,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(modifiedDoc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(e => e.includes('Quad') && e.includes('main gun'))).toBe(true);
     });
@@ -248,7 +248,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.unit!);
+      const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(e => e.includes('Glider') && e.includes('jump'))).toBe(true);
     });
@@ -260,7 +260,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBe(25); // 5 tons * 5 point size
     });
 
@@ -269,7 +269,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -278,7 +278,7 @@ describe('ProtoMechUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
   });

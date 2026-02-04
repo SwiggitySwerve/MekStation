@@ -6,6 +6,8 @@
  * @spec openspec/specs/data-integrity-validation/spec.md
  */
 
+import type { ResultType } from '@/services/core/types/BaseTypes';
+
 /**
  * Integrity check severity
  */
@@ -77,10 +79,9 @@ export interface IDataRepairOperation {
 }
 
 /**
- * Data repair result
+ * Data repair result data (present on both success and failure)
  */
-export interface IDataRepairResult {
-  readonly success: boolean;
+export interface IDataRepairData {
   readonly repairedData?: unknown;
   readonly appliedRepairs: readonly string[];
   readonly failedRepairs: readonly string[];
@@ -88,8 +89,13 @@ export interface IDataRepairResult {
 }
 
 /**
- * Data integrity validator interface
+ * Data repair result
+ * 
+ * Uses ResultType discriminated union. Success means all errors were resolved;
+ * failure means some issues remain. Both paths carry full repair data.
  */
+export type IDataRepairResult = ResultType<IDataRepairData, IDataRepairData>;
+
 export interface IDataIntegrityValidator {
   validate(data: unknown): IIntegrityCheckResult;
   repair(data: unknown, options?: IRepairOptions): IDataRepairResult;

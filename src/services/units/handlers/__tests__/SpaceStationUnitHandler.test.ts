@@ -107,10 +107,10 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.unitType).toBe(UnitType.SPACE_STATION);
-      expect(result.unit?.tonnage).toBe(50000);
-      expect(result.unit?.metadata.chassis).toBe('Olympus');
+      expect(result.data?.unit).toBeDefined();
+      expect(result.data?.unit?.unitType).toBe(UnitType.SPACE_STATION);
+      expect(result.data?.unit?.tonnage).toBe(50000);
+      expect(result.data?.unit?.metadata.chassis).toBe('Olympus');
     });
 
     it('should parse station type - recharge', () => {
@@ -120,7 +120,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.stationType).toBe(SpaceStationType.RECHARGE_STATION);
+      expect(result.data?.unit?.stationType).toBe(SpaceStationType.RECHARGE_STATION);
     });
 
     it('should parse station type - shipyard', () => {
@@ -130,7 +130,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.stationType).toBe(SpaceStationType.SHIPYARD);
+      expect(result.data?.unit?.stationType).toBe(SpaceStationType.SHIPYARD);
     });
 
     it('should parse station type - habitat', () => {
@@ -140,7 +140,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.stationType).toBe(SpaceStationType.HABITAT);
+      expect(result.data?.unit?.stationType).toBe(SpaceStationType.HABITAT);
     });
 
     it('should parse station type - military', () => {
@@ -150,7 +150,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.stationType).toBe(SpaceStationType.MILITARY);
+      expect(result.data?.unit?.stationType).toBe(SpaceStationType.MILITARY);
     });
 
     it('should default to orbital station type', () => {
@@ -160,7 +160,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.stationType).toBe(SpaceStationType.ORBITAL);
+      expect(result.data?.unit?.stationType).toBe(SpaceStationType.ORBITAL);
     });
 
     it('should parse docking collars', () => {
@@ -168,7 +168,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.dockingCollars).toBe(6);
+      expect(result.data?.unit?.dockingCollars).toBe(6);
     });
 
     it('should parse gravity decks', () => {
@@ -176,7 +176,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.gravDecks).toBe(3);
+      expect(result.data?.unit?.gravDecks).toBe(3);
     });
 
     it('should parse HPG capability', () => {
@@ -184,7 +184,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasHPG).toBe(true);
+      expect(result.data?.unit?.hasHPG).toBe(true);
     });
 
     it('should parse K-F drive capability', () => {
@@ -194,7 +194,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.hasKFDrive).toBe(true);
+      expect(result.data?.unit?.hasKFDrive).toBe(true);
     });
 
     it('should parse pressurized modules', () => {
@@ -202,7 +202,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.pressurizedModules).toBe(10);
+      expect(result.data?.unit?.pressurizedModules).toBe(10);
     });
 
     it('should parse armor by arc', () => {
@@ -212,8 +212,8 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.armorByArc.nose).toBe(100);
-      expect(result.unit?.armorByArc.aft).toBe(40);
+      expect(result.data?.unit?.armorByArc.nose).toBe(100);
+      expect(result.data?.unit?.armorByArc.aft).toBe(40);
     });
 
     it('should calculate total armor points', () => {
@@ -223,7 +223,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.totalArmorPoints).toBe(420);
+      expect(result.data?.unit?.totalArmorPoints).toBe(420);
     });
 
     it('should parse crew configuration', () => {
@@ -231,9 +231,9 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.crewConfiguration.crew).toBe(150);
-      expect(result.unit?.crewConfiguration.passengers).toBe(500);
-      expect(result.unit?.crewConfiguration.pilots).toBe(0); // Stations don't have pilots
+      expect(result.data?.unit?.crewConfiguration.crew).toBe(150);
+      expect(result.data?.unit?.crewConfiguration.passengers).toBe(500);
+      expect(result.data?.unit?.crewConfiguration.pilots).toBe(0); // Stations don't have pilots
     });
 
     it('should parse transport bays', () => {
@@ -241,7 +241,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.unit?.transportBays.length).toBe(3);
+      expect(result.data?.unit?.transportBays.length).toBe(3);
     });
 
     it('should warn for low tonnage stations', () => {
@@ -249,7 +249,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.warnings.some((w) => w.includes('5,000'))).toBe(true);
+      expect(result.data!.warnings.some((w) => w.includes('5,000'))).toBe(true);
     });
 
     it('should parse tech base', () => {
@@ -259,8 +259,8 @@ describe('SpaceStationUnitHandler', () => {
       const isResult = handler.parse(isDoc);
       const clanResult = handler.parse(clanDoc);
 
-      expect(isResult.unit?.techBase).toBe(TechBase.INNER_SPHERE);
-      expect(clanResult.unit?.techBase).toBe(TechBase.CLAN);
+      expect(isResult.data?.unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(clanResult.data?.unit?.techBase).toBe(TechBase.CLAN);
     });
 
     it('should parse rules level', () => {
@@ -268,9 +268,9 @@ describe('SpaceStationUnitHandler', () => {
       const standardDoc = createMockBlkDocument({ type: 'IS Level 2' });
       const advancedDoc = createMockBlkDocument({ type: 'IS Level 3' });
 
-      expect(handler.parse(introDoc).unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
-      expect(handler.parse(standardDoc).unit?.rulesLevel).toBe(RulesLevel.STANDARD);
-      expect(handler.parse(advancedDoc).unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
+      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
+      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
     });
   });
 
@@ -280,7 +280,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(true);
     });
 
@@ -289,7 +289,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
       expect(validateResult.errors.some((e) => e.includes('SI'))).toBe(true);
     });
@@ -299,7 +299,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(true);
     });
 
@@ -314,7 +314,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.warnings.some((w) => w.includes('escape capacity'))).toBe(true);
     });
 
@@ -323,7 +323,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.infos.some((i) => i.includes('Station type'))).toBe(true);
     });
 
@@ -332,7 +332,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.infos.some((i) => i.includes('HPG'))).toBe(true);
     });
 
@@ -343,7 +343,7 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const validateResult = handler.validate(parseResult.unit!);
+      const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.infos.some((i) => i.includes('K-F drive'))).toBe(true);
     });
   });
@@ -354,7 +354,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.unit!);
+      const weight = handler.calculateWeight(result.data!.unit);
       expect(weight).toBe(50000);
     });
 
@@ -363,7 +363,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.unit!);
+      const bv = handler.calculateBV(result.data!.unit);
       expect(bv).toBeGreaterThan(0);
     });
 
@@ -372,7 +372,7 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const cost = handler.calculateCost(result.unit!);
+      const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
 
@@ -387,8 +387,8 @@ describe('SpaceStationUnitHandler', () => {
       const resultWithHPG = handler.parse(docWithHPG);
       const resultWithoutHPG = handler.parse(docWithoutHPG);
 
-      const costWithHPG = handler.calculateCost(resultWithHPG.unit!);
-      const costWithoutHPG = handler.calculateCost(resultWithoutHPG.unit!);
+      const costWithHPG = handler.calculateCost(resultWithHPG.data!.unit);
+      const costWithoutHPG = handler.calculateCost(resultWithoutHPG.data!.unit);
 
       expect(costWithHPG).toBeGreaterThan(costWithoutHPG);
     });
@@ -404,8 +404,8 @@ describe('SpaceStationUnitHandler', () => {
       const resultWithKF = handler.parse(docWithKF);
       const resultWithoutKF = handler.parse(docWithoutKF);
 
-      const costWithKF = handler.calculateCost(resultWithKF.unit!);
-      const costWithoutKF = handler.calculateCost(resultWithoutKF.unit!);
+      const costWithKF = handler.calculateCost(resultWithKF.data!.unit);
+      const costWithoutKF = handler.calculateCost(resultWithoutKF.data!.unit);
 
       expect(costWithKF).toBeGreaterThan(costWithoutKF);
     });
@@ -417,10 +417,10 @@ describe('SpaceStationUnitHandler', () => {
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const serializeResult = handler.serialize(parseResult.unit!);
+      const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
-      expect(serializeResult.serialized?.chassis).toBe('Olympus');
-      expect(serializeResult.serialized?.configuration).toContain('Space Station');
+      expect(serializeResult.data?.serialized?.chassis).toBe('Olympus');
+      expect(serializeResult.data?.serialized?.configuration).toContain('Space Station');
     });
   });
 
@@ -449,7 +449,7 @@ describe('SpaceStationUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
     });
   });
 });

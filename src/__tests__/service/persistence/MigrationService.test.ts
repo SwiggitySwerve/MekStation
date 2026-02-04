@@ -185,7 +185,7 @@ describe('MigrationService', () => {
       
       const mockRepo = {
         findByName: jest.fn().mockReturnValue(null),
-        create: jest.fn().mockReturnValue({ success: false, error: 'Creation failed' }),
+        create: jest.fn().mockReturnValue({ success: false, error: { message: 'Creation failed' } }),
       };
       // @ts-expect-error - Returning interface mock instead of class instance for testing
       mockUnitRepository.mockReturnValue(createMock<IUnitRepository>(mockRepo));

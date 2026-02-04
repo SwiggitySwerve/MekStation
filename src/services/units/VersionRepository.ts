@@ -115,8 +115,10 @@ export class VersionRepository implements IVersionRepository {
     if (!targetVersionRecord) {
       return {
         success: false,
-        error: `Version ${targetVersion} not found`,
-        errorCode: UnitErrorCode.VERSION_NOT_FOUND,
+        error: {
+          message: `Version ${targetVersion} not found`,
+          errorCode: UnitErrorCode.VERSION_NOT_FOUND,
+        },
       };
     }
 
@@ -128,8 +130,10 @@ export class VersionRepository implements IVersionRepository {
     if (!currentVersionResult) {
       return {
         success: false,
-        error: `Unit "${unitId}" not found`,
-        errorCode: UnitErrorCode.NOT_FOUND,
+        error: {
+          message: `Unit "${unitId}" not found`,
+          errorCode: UnitErrorCode.NOT_FOUND,
+        },
       };
     }
 
@@ -174,15 +178,16 @@ export class VersionRepository implements IVersionRepository {
 
       return {
         success: true,
-        id: unitId,
-        version: newVersion,
+        data: { id: unitId, version: newVersion },
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: `Failed to revert: ${message}`,
-        errorCode: UnitErrorCode.DATABASE_ERROR,
+        error: {
+          message: `Failed to revert: ${message}`,
+          errorCode: UnitErrorCode.DATABASE_ERROR,
+        },
       };
     }
   }

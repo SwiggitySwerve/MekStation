@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { IForce } from '@/types/campaign/Force';
-import { ForceType, FormationLevel } from '@/types/campaign/enums';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 
 // =============================================================================

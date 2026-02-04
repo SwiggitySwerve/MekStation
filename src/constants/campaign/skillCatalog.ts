@@ -1,4 +1,4 @@
-import { ISkillType } from './ISkillType';
+import { ISkillType } from '@/types/campaign/skills/ISkillType';
 
 /**
  * Complete catalog of all skill types in the MekStation campaign system.

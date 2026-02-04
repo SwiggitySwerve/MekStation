@@ -1,7 +1,7 @@
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { TransactionType } from '@/types/campaign/Transaction';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import type { Transaction } from '@/types/campaign/Transaction';
 import { Money } from '@/types/campaign/Money';
 import {

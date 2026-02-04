@@ -70,10 +70,10 @@ describe('VersionRepository', () => {
       variant: `Test-${Date.now()}`,
       data: { chassis: 'TestMech', tonnage: 50 },
     });
-    if (!result.success || !result.id) {
-      throw new Error(`Failed to create test unit: ${result.error ?? 'Unknown error'}`);
+    if (!result.success) {
+      throw new Error(`Failed to create test unit: ${result.error.message ?? 'Unknown error'}`);
     }
-    return result.id;
+    return result.data.id;
   }
 
   // Helper to update a unit (creates new version)
@@ -148,7 +148,8 @@ describe('VersionRepository', () => {
       const result = versionRepository.revert(unitId, 1);
 
       expect(result.success).toBe(true);
-      expect(result.version).toBe(4); // New version created
+      if (!result.success) return;
+      expect(result.data.version).toBe(4); // New version created
 
       // Verify new version references revert source
       const history = versionRepository.getVersionHistory(unitId);
@@ -161,14 +162,16 @@ describe('VersionRepository', () => {
       const result = versionRepository.revert(unitId, 999);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('VERSION_NOT_FOUND');
+      if (result.success) return;
+      expect(result.error.errorCode).toBe('VERSION_NOT_FOUND');
     });
 
     it('should return error for non-existent unit', () => {
       const result = versionRepository.revert('non-existent', 1);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('VERSION_NOT_FOUND');
+      if (result.success) return;
+      expect(result.error.errorCode).toBe('VERSION_NOT_FOUND');
     });
   });
 

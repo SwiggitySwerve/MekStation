@@ -10,7 +10,7 @@
 
 import { IPerson } from '@/types/campaign/Person';
 import { getSkillValue } from '@/types/campaign/skills';
-import { SKILL_CATALOG } from '@/types/campaign/skills/skillCatalog';
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 
 /**
  * Gets the skill desirability modifier for a person.
