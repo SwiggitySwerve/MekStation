@@ -11,27 +11,27 @@
  */
 export enum DiscrepancyCategory {
   // Equipment issues
-  UNKNOWN_EQUIPMENT = 'UNKNOWN_EQUIPMENT',
-  EQUIPMENT_MISMATCH = 'EQUIPMENT_MISMATCH',
+  UnknownEquipment = 'UNKNOWN_EQUIPMENT',
+  EquipmentMismatch = 'EQUIPMENT_MISMATCH',
 
   // Actuator issues
-  MISSING_ACTUATOR = 'MISSING_ACTUATOR',
-  EXTRA_ACTUATOR = 'EXTRA_ACTUATOR',
+  MissingActuator = 'MISSING_ACTUATOR',
+  ExtraActuator = 'EXTRA_ACTUATOR',
 
   // Critical slot issues
-  SLOT_MISMATCH = 'SLOT_MISMATCH',
-  SLOT_COUNT_MISMATCH = 'SLOT_COUNT_MISMATCH',
+  SlotMismatch = 'SLOT_MISMATCH',
+  SlotCountMismatch = 'SLOT_COUNT_MISMATCH',
 
   // Structural issues
-  ARMOR_MISMATCH = 'ARMOR_MISMATCH',
-  ENGINE_MISMATCH = 'ENGINE_MISMATCH',
-  MOVEMENT_MISMATCH = 'MOVEMENT_MISMATCH',
+  ArmorMismatch = 'ARMOR_MISMATCH',
+  EngineMismatch = 'ENGINE_MISMATCH',
+  MovementMismatch = 'MOVEMENT_MISMATCH',
 
   // Other
-  HEADER_MISMATCH = 'HEADER_MISMATCH',
-  QUIRK_MISMATCH = 'QUIRK_MISMATCH',
-  FLUFF_MISMATCH = 'FLUFF_MISMATCH',
-  PARSE_ERROR = 'PARSE_ERROR',
+  HeaderMismatch = 'HEADER_MISMATCH',
+  QuirkMismatch = 'QUIRK_MISMATCH',
+  FluffMismatch = 'FLUFF_MISMATCH',
+  ParseError = 'PARSE_ERROR',
 }
 
 /**

@@ -82,7 +82,7 @@ export function ImportDialog<T>({
   const handleImport = useCallback(async () => {
     const importResult = await importFile<T>(handlers);
     if (importResult.success) {
-      onImportComplete?.(importResult.importedCount);
+      onImportComplete?.(importResult.data.importedCount);
     }
   }, [importFile, handlers, onImportComplete]);
 
@@ -90,7 +90,7 @@ export function ImportDialog<T>({
     async (resolutions: IImportConflict[]) => {
       const importResult = await resolveConflicts<T>(resolutions, handlers);
       if (importResult.success) {
-        onImportComplete?.(importResult.importedCount);
+        onImportComplete?.(importResult.data.importedCount);
       }
     },
     [resolveConflicts, handlers, onImportComplete]
@@ -230,9 +230,9 @@ export function ImportDialog<T>({
             <div className="text-green-400 text-4xl mb-4">✓</div>
             <h3 className="text-white font-medium mb-2">Import Complete</h3>
             <div className="text-gray-300 space-y-1">
-              <p>Imported: {result.importedCount}</p>
-              {result.skippedCount > 0 && <p>Skipped: {result.skippedCount}</p>}
-              {result.replacedCount > 0 && <p>Replaced: {result.replacedCount}</p>}
+              <p>Imported: {result.success ? result.data.importedCount : 0}</p>
+              {result.success && result.data.skippedCount > 0 && <p>Skipped: {result.data.skippedCount}</p>}
+              {result.success && result.data.replacedCount > 0 && <p>Replaced: {result.data.replacedCount}</p>}
             </div>
             <button
               onClick={handleClose}

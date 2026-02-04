@@ -99,19 +99,19 @@ describe('ParityReportWriter', () => {
     unitsWithIssues: 2,
     unitsWithParseErrors: 1,
     issuesByCategory: {
-      [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 5,
-      [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 3,
-      [DiscrepancyCategory.MISSING_ACTUATOR]: 0,
-      [DiscrepancyCategory.EXTRA_ACTUATOR]: 0,
-      [DiscrepancyCategory.SLOT_MISMATCH]: 2,
-      [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 1,
-      [DiscrepancyCategory.ARMOR_MISMATCH]: 0,
-      [DiscrepancyCategory.ENGINE_MISMATCH]: 0,
-      [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-      [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-      [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-      [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-      [DiscrepancyCategory.PARSE_ERROR]: 1,
+      [DiscrepancyCategory.UnknownEquipment]: 5,
+      [DiscrepancyCategory.EquipmentMismatch]: 3,
+      [DiscrepancyCategory.MissingActuator]: 0,
+      [DiscrepancyCategory.ExtraActuator]: 0,
+      [DiscrepancyCategory.SlotMismatch]: 2,
+      [DiscrepancyCategory.SlotCountMismatch]: 1,
+      [DiscrepancyCategory.ArmorMismatch]: 0,
+      [DiscrepancyCategory.EngineMismatch]: 0,
+      [DiscrepancyCategory.MovementMismatch]: 0,
+      [DiscrepancyCategory.HeaderMismatch]: 0,
+      [DiscrepancyCategory.QuirkMismatch]: 0,
+      [DiscrepancyCategory.FluffMismatch]: 0,
+      [DiscrepancyCategory.ParseError]: 1,
     },
     ...overrides,
   });
@@ -166,7 +166,7 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+              category: DiscrepancyCategory.EquipmentMismatch,
               location: 'Left Arm',
               expected: 'Medium Laser',
               actual: 'Large Laser',
@@ -193,7 +193,7 @@ describe('ParityReportWriter', () => {
           status: 'PARSE_ERROR',
           issues: [
             {
-              category: DiscrepancyCategory.PARSE_ERROR,
+              category: DiscrepancyCategory.ParseError,
               expected: 'Valid MTF',
               actual: 'Malformed MTF',
               suggestion: 'Fix MTF syntax',
@@ -234,14 +234,14 @@ describe('ParityReportWriter', () => {
       const results: IUnitValidationResult[] = [
         createValidationResult({ id: 'unit-1', status: 'PASSED' }),
         createValidationResult({ id: 'unit-2', status: 'ISSUES_FOUND', issues: [{
-          category: DiscrepancyCategory.ARMOR_MISMATCH,
+          category: DiscrepancyCategory.ArmorMismatch,
           expected: '100',
           actual: '90',
           suggestion: 'Increase armor to 100'
         }] }),
         createValidationResult({ id: 'unit-3', status: 'PASSED' }),
         createValidationResult({ id: 'unit-4', status: 'PARSE_ERROR', issues: [{
-          category: DiscrepancyCategory.PARSE_ERROR,
+          category: DiscrepancyCategory.ParseError,
           expected: 'Valid',
           actual: 'Invalid',
           suggestion: 'Fix'
@@ -332,13 +332,13 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+              category: DiscrepancyCategory.EquipmentMismatch,
               expected: 'A',
               actual: 'B',
               suggestion: 'Fix',
             },
             {
-              category: DiscrepancyCategory.ARMOR_MISMATCH,
+              category: DiscrepancyCategory.ArmorMismatch,
               expected: 'C',
               actual: 'D',
               suggestion: 'Fix',
@@ -358,7 +358,7 @@ describe('ParityReportWriter', () => {
       const manifest: IValidationManifest = JSON.parse(manifestJson);
 
       const entry = manifest.units[0];
-      expect(entry.primaryIssueCategory).toBe(DiscrepancyCategory.EQUIPMENT_MISMATCH);
+      expect(entry.primaryIssueCategory).toBe(DiscrepancyCategory.EquipmentMismatch);
       expect(entry.issueCount).toBe(2);
     });
 
@@ -421,19 +421,19 @@ describe('ParityReportWriter', () => {
       const results: IUnitValidationResult[] = [createValidationResult()];
       const summary = createValidationSummary({
         issuesByCategory: {
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 10,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 5,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 2,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 1,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 3,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 0,
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 4,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 1,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-          [DiscrepancyCategory.PARSE_ERROR]: 2,
+          [DiscrepancyCategory.UnknownEquipment]: 10,
+          [DiscrepancyCategory.EquipmentMismatch]: 5,
+          [DiscrepancyCategory.MissingActuator]: 2,
+          [DiscrepancyCategory.ExtraActuator]: 1,
+          [DiscrepancyCategory.SlotMismatch]: 3,
+          [DiscrepancyCategory.SlotCountMismatch]: 0,
+          [DiscrepancyCategory.ArmorMismatch]: 4,
+          [DiscrepancyCategory.EngineMismatch]: 1,
+          [DiscrepancyCategory.MovementMismatch]: 0,
+          [DiscrepancyCategory.HeaderMismatch]: 0,
+          [DiscrepancyCategory.QuirkMismatch]: 0,
+          [DiscrepancyCategory.FluffMismatch]: 0,
+          [DiscrepancyCategory.ParseError]: 2,
         },
       });
       const outputDir = '/output/reports';
@@ -446,9 +446,9 @@ describe('ParityReportWriter', () => {
       const summaryJson = summaryCall![1] as string;
       const parsedSummary: IValidationSummary = JSON.parse(summaryJson);
 
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.UNKNOWN_EQUIPMENT]).toBe(10);
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.EQUIPMENT_MISMATCH]).toBe(5);
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.ARMOR_MISMATCH]).toBe(4);
+      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.UnknownEquipment]).toBe(10);
+      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.EquipmentMismatch]).toBe(5);
+      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.ArmorMismatch]).toBe(4);
     });
 
     it('should format JSON with 2-space indentation', () => {
@@ -487,7 +487,7 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+              category: DiscrepancyCategory.EquipmentMismatch,
               location: 'Right Arm',
               index: 0,
               field: 'equipment',
@@ -517,7 +517,7 @@ describe('ParityReportWriter', () => {
       expect(issueReport.mtfPath).toBe('/data/testmech.mtf');
       expect(issueReport.generatedPath).toBe('/output/testmech.mtf');
       expect(issueReport.issues).toHaveLength(1);
-      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.EQUIPMENT_MISMATCH);
+      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.EquipmentMismatch);
     });
 
     it('should include all issue fields', () => {
@@ -527,7 +527,7 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.SLOT_MISMATCH,
+              category: DiscrepancyCategory.SlotMismatch,
               location: 'Left Torso',
               index: 2,
               field: 'slotName',
@@ -550,7 +550,7 @@ describe('ParityReportWriter', () => {
       const issueReport: IUnitIssueReport = JSON.parse(issueJson);
 
       const issue = issueReport.issues[0];
-      expect(issue.category).toBe(DiscrepancyCategory.SLOT_MISMATCH);
+      expect(issue.category).toBe(DiscrepancyCategory.SlotMismatch);
       expect(issue.location).toBe('Left Torso');
       expect(issue.index).toBe(2);
       expect(issue.field).toBe('slotName');
@@ -566,21 +566,21 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.ARMOR_MISMATCH,
+              category: DiscrepancyCategory.ArmorMismatch,
               location: 'Center Torso',
               expected: '50',
               actual: '45',
               suggestion: 'Increase armor',
             },
             {
-              category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+              category: DiscrepancyCategory.EquipmentMismatch,
               location: 'Left Arm',
               expected: 'Medium Laser',
               actual: 'Small Laser',
               suggestion: 'Replace weapon',
             },
             {
-              category: DiscrepancyCategory.ENGINE_MISMATCH,
+              category: DiscrepancyCategory.EngineMismatch,
               expected: '300 XL',
               actual: '300 Std',
               suggestion: 'Change engine type',
@@ -600,9 +600,9 @@ describe('ParityReportWriter', () => {
       const issueReport: IUnitIssueReport = JSON.parse(issueJson);
 
       expect(issueReport.issues).toHaveLength(3);
-      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.ARMOR_MISMATCH);
-      expect(issueReport.issues[1].category).toBe(DiscrepancyCategory.EQUIPMENT_MISMATCH);
-      expect(issueReport.issues[2].category).toBe(DiscrepancyCategory.ENGINE_MISMATCH);
+      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.ArmorMismatch);
+      expect(issueReport.issues[1].category).toBe(DiscrepancyCategory.EquipmentMismatch);
+      expect(issueReport.issues[2].category).toBe(DiscrepancyCategory.EngineMismatch);
     });
 
     it('should use unit ID as filename', () => {
@@ -612,7 +612,7 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.ARMOR_MISMATCH,
+              category: DiscrepancyCategory.ArmorMismatch,
               expected: '100',
               actual: '90',
               suggestion: 'Fix armor',
@@ -699,7 +699,7 @@ describe('ParityReportWriter', () => {
           id: 'test-unit-123',
           status: 'ISSUES_FOUND',
           issues: [{
-            category: DiscrepancyCategory.ARMOR_MISMATCH,
+            category: DiscrepancyCategory.ArmorMismatch,
             expected: 'A',
             actual: 'B',
             suggestion: 'Fix',
@@ -850,7 +850,7 @@ describe('ParityReportWriter', () => {
           id: 'unit-with-special-chars_@#$',
           status: 'ISSUES_FOUND',
           issues: [{
-            category: DiscrepancyCategory.ARMOR_MISMATCH,
+            category: DiscrepancyCategory.ArmorMismatch,
             expected: 'A',
             actual: 'B',
             suggestion: 'Fix',
@@ -876,7 +876,7 @@ describe('ParityReportWriter', () => {
           status: 'ISSUES_FOUND',
           issues: [
             {
-              category: DiscrepancyCategory.HEADER_MISMATCH,
+              category: DiscrepancyCategory.HeaderMismatch,
               expected: 'Expected value',
               actual: 'Actual value',
               suggestion: 'Fix it',
@@ -927,7 +927,7 @@ describe('ParityReportWriter', () => {
           id: `unit-${i}`,
           status: i % 10 === 0 ? 'ISSUES_FOUND' : 'PASSED',
           issues: i % 10 === 0 ? [{
-            category: DiscrepancyCategory.ARMOR_MISMATCH,
+            category: DiscrepancyCategory.ArmorMismatch,
             expected: 'A',
             actual: 'B',
             suggestion: 'Fix',
@@ -983,7 +983,7 @@ describe('ParityReportWriter', () => {
         createValidationResult({
           status: 'ISSUES_FOUND',
           issues: [{
-            category: DiscrepancyCategory.ARMOR_MISMATCH,
+            category: DiscrepancyCategory.ArmorMismatch,
             expected: 'A',
             actual: 'B',
             suggestion: 'Fix',
@@ -1104,19 +1104,19 @@ describe('ParityReportWriter', () => {
     it('should print top issues by category when issues exist', () => {
       const summary = createValidationSummary({
         issuesByCategory: {
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 15,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 10,
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 5,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 0,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 0,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 0,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 0,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 0,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-          [DiscrepancyCategory.PARSE_ERROR]: 0,
+          [DiscrepancyCategory.UnknownEquipment]: 15,
+          [DiscrepancyCategory.EquipmentMismatch]: 10,
+          [DiscrepancyCategory.ArmorMismatch]: 5,
+          [DiscrepancyCategory.MissingActuator]: 0,
+          [DiscrepancyCategory.ExtraActuator]: 0,
+          [DiscrepancyCategory.SlotMismatch]: 0,
+          [DiscrepancyCategory.SlotCountMismatch]: 0,
+          [DiscrepancyCategory.EngineMismatch]: 0,
+          [DiscrepancyCategory.MovementMismatch]: 0,
+          [DiscrepancyCategory.HeaderMismatch]: 0,
+          [DiscrepancyCategory.QuirkMismatch]: 0,
+          [DiscrepancyCategory.FluffMismatch]: 0,
+          [DiscrepancyCategory.ParseError]: 0,
         },
       });
       const outputDir = '/output/reports';
@@ -1131,19 +1131,19 @@ describe('ParityReportWriter', () => {
     it('should sort issues by count in descending order', () => {
       const summary = createValidationSummary({
         issuesByCategory: {
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 5,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 10,
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 15,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 0,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 0,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 0,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 0,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 0,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-          [DiscrepancyCategory.PARSE_ERROR]: 0,
+          [DiscrepancyCategory.ArmorMismatch]: 5,
+          [DiscrepancyCategory.EquipmentMismatch]: 10,
+          [DiscrepancyCategory.UnknownEquipment]: 15,
+          [DiscrepancyCategory.MissingActuator]: 0,
+          [DiscrepancyCategory.ExtraActuator]: 0,
+          [DiscrepancyCategory.SlotMismatch]: 0,
+          [DiscrepancyCategory.SlotCountMismatch]: 0,
+          [DiscrepancyCategory.EngineMismatch]: 0,
+          [DiscrepancyCategory.MovementMismatch]: 0,
+          [DiscrepancyCategory.HeaderMismatch]: 0,
+          [DiscrepancyCategory.QuirkMismatch]: 0,
+          [DiscrepancyCategory.FluffMismatch]: 0,
+          [DiscrepancyCategory.ParseError]: 0,
         },
       });
       const outputDir = '/output/reports';
@@ -1169,19 +1169,19 @@ describe('ParityReportWriter', () => {
     it('should not print issues section when no issues exist', () => {
       const summary = createValidationSummary({
         issuesByCategory: {
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 0,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 0,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 0,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 0,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 0,
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 0,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 0,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-          [DiscrepancyCategory.PARSE_ERROR]: 0,
+          [DiscrepancyCategory.UnknownEquipment]: 0,
+          [DiscrepancyCategory.EquipmentMismatch]: 0,
+          [DiscrepancyCategory.MissingActuator]: 0,
+          [DiscrepancyCategory.ExtraActuator]: 0,
+          [DiscrepancyCategory.SlotMismatch]: 0,
+          [DiscrepancyCategory.SlotCountMismatch]: 0,
+          [DiscrepancyCategory.ArmorMismatch]: 0,
+          [DiscrepancyCategory.EngineMismatch]: 0,
+          [DiscrepancyCategory.MovementMismatch]: 0,
+          [DiscrepancyCategory.HeaderMismatch]: 0,
+          [DiscrepancyCategory.QuirkMismatch]: 0,
+          [DiscrepancyCategory.FluffMismatch]: 0,
+          [DiscrepancyCategory.ParseError]: 0,
         },
       });
       const outputDir = '/output/reports';
@@ -1198,19 +1198,19 @@ describe('ParityReportWriter', () => {
       // Create 15 different issue categories with counts
       const summary = createValidationSummary({
         issuesByCategory: {
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 15,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 14,
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 13,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 12,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 11,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 10,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 9,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 8,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 7,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 6,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 5,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 4,
-          [DiscrepancyCategory.PARSE_ERROR]: 3,
+          [DiscrepancyCategory.UnknownEquipment]: 15,
+          [DiscrepancyCategory.EquipmentMismatch]: 14,
+          [DiscrepancyCategory.ArmorMismatch]: 13,
+          [DiscrepancyCategory.MissingActuator]: 12,
+          [DiscrepancyCategory.ExtraActuator]: 11,
+          [DiscrepancyCategory.SlotMismatch]: 10,
+          [DiscrepancyCategory.SlotCountMismatch]: 9,
+          [DiscrepancyCategory.EngineMismatch]: 8,
+          [DiscrepancyCategory.MovementMismatch]: 7,
+          [DiscrepancyCategory.HeaderMismatch]: 6,
+          [DiscrepancyCategory.QuirkMismatch]: 5,
+          [DiscrepancyCategory.FluffMismatch]: 4,
+          [DiscrepancyCategory.ParseError]: 3,
         },
       });
       const outputDir = '/output/reports';
@@ -1317,7 +1317,7 @@ describe('ParityReportWriter', () => {
           model: 'TM-2',
           issues: [
             {
-              category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+              category: DiscrepancyCategory.EquipmentMismatch,
               location: 'Left Arm',
               expected: 'PPC',
               actual: 'Large Laser',
@@ -1332,7 +1332,7 @@ describe('ParityReportWriter', () => {
           model: 'TM-3',
           issues: [
             {
-              category: DiscrepancyCategory.PARSE_ERROR,
+              category: DiscrepancyCategory.ParseError,
               expected: 'Valid MTF',
               actual: 'Malformed MTF',
               suggestion: 'Fix MTF syntax',
@@ -1402,7 +1402,7 @@ describe('ParityReportWriter', () => {
         model: 'TM-2',
         mtfPath: expect.any(String),
         status: 'ISSUES_FOUND',
-        primaryIssueCategory: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+        primaryIssueCategory: DiscrepancyCategory.EquipmentMismatch,
         issueCount: 1,
       });
 
@@ -1432,7 +1432,7 @@ describe('ParityReportWriter', () => {
         generatedPath: expect.any(String),
         issues: [
           {
-            category: DiscrepancyCategory.EQUIPMENT_MISMATCH,
+            category: DiscrepancyCategory.EquipmentMismatch,
             location: 'Left Arm',
             expected: 'PPC',
             actual: 'Large Laser',
@@ -1457,7 +1457,7 @@ describe('ParityReportWriter', () => {
         generatedPath: expect.any(String),
         issues: [
           {
-            category: DiscrepancyCategory.PARSE_ERROR,
+            category: DiscrepancyCategory.ParseError,
             expected: 'Valid MTF',
             actual: 'Malformed MTF',
             suggestion: 'Fix MTF syntax',
@@ -1485,7 +1485,7 @@ describe('ParityReportWriter', () => {
           id: 'test-private-methods',
           status: 'ISSUES_FOUND',
           issues: [{
-            category: DiscrepancyCategory.ARMOR_MISMATCH,
+            category: DiscrepancyCategory.ArmorMismatch,
             expected: '100',
             actual: '90',
             suggestion: 'Increase armor',
@@ -1528,19 +1528,19 @@ describe('ParityReportWriter', () => {
         unitsWithIssues: 40,
         unitsWithParseErrors: 10,
         issuesByCategory: {
-          [DiscrepancyCategory.UNKNOWN_EQUIPMENT]: 25,
-          [DiscrepancyCategory.EQUIPMENT_MISMATCH]: 15,
-          [DiscrepancyCategory.ARMOR_MISMATCH]: 10,
-          [DiscrepancyCategory.MISSING_ACTUATOR]: 0,
-          [DiscrepancyCategory.EXTRA_ACTUATOR]: 0,
-          [DiscrepancyCategory.SLOT_MISMATCH]: 0,
-          [DiscrepancyCategory.SLOT_COUNT_MISMATCH]: 0,
-          [DiscrepancyCategory.ENGINE_MISMATCH]: 0,
-          [DiscrepancyCategory.MOVEMENT_MISMATCH]: 0,
-          [DiscrepancyCategory.HEADER_MISMATCH]: 0,
-          [DiscrepancyCategory.QUIRK_MISMATCH]: 0,
-          [DiscrepancyCategory.FLUFF_MISMATCH]: 0,
-          [DiscrepancyCategory.PARSE_ERROR]: 0,
+          [DiscrepancyCategory.UnknownEquipment]: 25,
+          [DiscrepancyCategory.EquipmentMismatch]: 15,
+          [DiscrepancyCategory.ArmorMismatch]: 10,
+          [DiscrepancyCategory.MissingActuator]: 0,
+          [DiscrepancyCategory.ExtraActuator]: 0,
+          [DiscrepancyCategory.SlotMismatch]: 0,
+          [DiscrepancyCategory.SlotCountMismatch]: 0,
+          [DiscrepancyCategory.EngineMismatch]: 0,
+          [DiscrepancyCategory.MovementMismatch]: 0,
+          [DiscrepancyCategory.HeaderMismatch]: 0,
+          [DiscrepancyCategory.QuirkMismatch]: 0,
+          [DiscrepancyCategory.FluffMismatch]: 0,
+          [DiscrepancyCategory.ParseError]: 0,
         },
       });
       const outputDir = '/output/console';

@@ -18,6 +18,7 @@ import {
   type IGameEvent,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getPayload } from './utils/getPayload';
 
 // =============================================================================
 // Types
@@ -69,14 +70,6 @@ interface DetectorTrackingState {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Extracts a typed payload from a game event.
- */
-function getPayload<T>(event: IGameEvent): T {
-  // eslint-disable-next-line no-restricted-syntax
-  return event.payload as unknown as T;
-}
 
 /**
  * Counts operational (non-destroyed) units for a given side.
@@ -248,8 +241,7 @@ export class HeatSuicideDetector {
   }
 
   private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
-    // eslint-disable-next-line no-restricted-syntax
-    const payload = event.payload as unknown as { readonly unitId: string };
+    const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }
 

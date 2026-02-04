@@ -660,7 +660,7 @@ describe('ForceRepository', () => {
       });
 
       expect(updateResult.success).toBe(false);
-      expect(updateResult.errorCode).toBe(ForceErrorCode.CIRCULAR_HIERARCHY);
+      expect(updateResult.errorCode).toBe(ForceErrorCode.CircularHierarchy);
     });
 
     it('should prevent circular hierarchy (indirect loop)', () => {
@@ -688,7 +688,7 @@ describe('ForceRepository', () => {
       });
 
       expect(updateResult.success).toBe(false);
-      expect(updateResult.errorCode).toBe(ForceErrorCode.CIRCULAR_HIERARCHY);
+      expect(updateResult.errorCode).toBe(ForceErrorCode.CircularHierarchy);
     });
   });
 
@@ -906,7 +906,7 @@ describe('ForceRepository', () => {
       const updateResult = repository.updateAssignment(assignmentId, {});
 
       expect(updateResult.success).toBe(false);
-      expect(updateResult.errorCode).toBe(ForceErrorCode.VALIDATION_ERROR);
+      expect(updateResult.errorCode).toBe(ForceErrorCode.ValidationError);
       expect(updateResult.error).toBe('No updates provided');
     });
 
@@ -1035,7 +1035,7 @@ describe('ForceRepository', () => {
       const swapResult = repository.swapAssignments('non-existent-1', validId);
 
       expect(swapResult.success).toBe(false);
-      expect(swapResult.errorCode).toBe(ForceErrorCode.NOT_FOUND);
+      expect(swapResult.errorCode).toBe(ForceErrorCode.NotFound);
     });
 
     it('should return error if second assignment does not exist', () => {
@@ -1050,14 +1050,14 @@ describe('ForceRepository', () => {
       const swapResult = repository.swapAssignments(validId, 'non-existent-2');
 
       expect(swapResult.success).toBe(false);
-      expect(swapResult.errorCode).toBe(ForceErrorCode.NOT_FOUND);
+      expect(swapResult.errorCode).toBe(ForceErrorCode.NotFound);
     });
 
     it('should return error if both assignments do not exist', () => {
       const swapResult = repository.swapAssignments('non-existent-1', 'non-existent-2');
 
       expect(swapResult.success).toBe(false);
-      expect(swapResult.errorCode).toBe(ForceErrorCode.NOT_FOUND);
+      expect(swapResult.errorCode).toBe(ForceErrorCode.NotFound);
     });
   });
 

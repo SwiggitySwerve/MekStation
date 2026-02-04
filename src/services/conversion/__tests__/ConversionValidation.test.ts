@@ -272,7 +272,7 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         const error = result.errors.find(e => e.code === 'MISSING_ID');
-        expect(error?.severity).toBe(ConversionValidationSeverity.ERROR);
+        expect(error?.severity).toBe(ConversionValidationSeverity.Error);
       });
 
       it('should use correct severity for warnings', () => {
@@ -280,7 +280,7 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         const warning = result.warnings.find(w => w.code === 'INVALID_TONNAGE');
-        expect(warning?.severity).toBe(ConversionValidationSeverity.WARNING);
+        expect(warning?.severity).toBe(ConversionValidationSeverity.Warning);
       });
 
       it('should use correct severity for info', () => {
@@ -288,7 +288,7 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         const info = result.info.find(i => i.code === 'WALK_MP_MISMATCH');
-        expect(info?.severity).toBe(ConversionValidationSeverity.INFO);
+        expect(info?.severity).toBe(ConversionValidationSeverity.Info);
       });
     });
   });

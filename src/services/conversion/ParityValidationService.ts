@@ -229,18 +229,18 @@ export class ParityValidationService {
     const generatedMap = this.parseToMap(generated);
 
     // Compare header fields
-    this.compareField('chassis', originalMap, generatedMap, issues, DiscrepancyCategory.HEADER_MISMATCH);
-    this.compareField('model', originalMap, generatedMap, issues, DiscrepancyCategory.HEADER_MISMATCH);
-    this.compareField('Config', originalMap, generatedMap, issues, DiscrepancyCategory.HEADER_MISMATCH);
-    this.compareField('techbase', originalMap, generatedMap, issues, DiscrepancyCategory.HEADER_MISMATCH);
+    this.compareField('chassis', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
+    this.compareField('model', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
+    this.compareField('Config', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
+    this.compareField('techbase', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
 
     // Compare structural fields
-    this.compareField('mass', originalMap, generatedMap, issues, DiscrepancyCategory.HEADER_MISMATCH);
-    this.compareField('engine', originalMap, generatedMap, issues, DiscrepancyCategory.ENGINE_MISMATCH);
+    this.compareField('mass', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
+    this.compareField('engine', originalMap, generatedMap, issues, DiscrepancyCategory.EngineMismatch);
 
     // Compare movement
-    this.compareField('walk mp', originalMap, generatedMap, issues, DiscrepancyCategory.MOVEMENT_MISMATCH);
-    this.compareField('jump mp', originalMap, generatedMap, issues, DiscrepancyCategory.MOVEMENT_MISMATCH);
+    this.compareField('walk mp', originalMap, generatedMap, issues, DiscrepancyCategory.MovementMismatch);
+    this.compareField('jump mp', originalMap, generatedMap, issues, DiscrepancyCategory.MovementMismatch);
 
     // Compare armor values (biped, quad, and tripod configurations)
     const armorFields = [
@@ -254,7 +254,7 @@ export class ParityValidationService {
       'RTL armor', 'RTR armor', 'RTC armor',
     ];
     for (const field of armorFields) {
-      this.compareField(field, originalMap, generatedMap, issues, DiscrepancyCategory.ARMOR_MISMATCH);
+      this.compareField(field, originalMap, generatedMap, issues, DiscrepancyCategory.ArmorMismatch);
     }
 
     // Compare critical slots by location
@@ -294,7 +294,7 @@ export class ParityValidationService {
     let generatedValue = generated.get(field.toLowerCase());
 
     // Normalize engine strings for comparison (mm-data has inconsistent formats)
-    if (category === DiscrepancyCategory.ENGINE_MISMATCH) {
+    if (category === DiscrepancyCategory.EngineMismatch) {
       originalValue = this.normalizeEngineString(originalValue);
       generatedValue = this.normalizeEngineString(generatedValue);
     }
@@ -306,7 +306,7 @@ export class ParityValidationService {
     }
 
     // Normalize armor values for comparison (handles patchwork armor format)
-    if (category === DiscrepancyCategory.ARMOR_MISMATCH) {
+    if (category === DiscrepancyCategory.ArmorMismatch) {
       originalValue = this.normalizeArmorValue(originalValue);
       generatedValue = this.normalizeArmorValue(generatedValue);
     }
@@ -390,7 +390,7 @@ export class ParityValidationService {
       // Check slot count (after normalizing trailing empty slots)
       if (origSlots.length !== genSlots.length) {
         issues.push({
-          category: DiscrepancyCategory.SLOT_COUNT_MISMATCH,
+          category: DiscrepancyCategory.SlotCountMismatch,
           location,
           expected: `${origSlots.length} slots`,
           actual: `${genSlots.length} slots`,
@@ -409,7 +409,7 @@ export class ParityValidationService {
           if (this.isActuator(origSlot) || this.isActuator(genSlot)) {
             if (origSlot && !genSlot) {
               issues.push({
-                category: DiscrepancyCategory.MISSING_ACTUATOR,
+                category: DiscrepancyCategory.MissingActuator,
                 location,
                 index: i,
                 expected: origSlot,
@@ -418,7 +418,7 @@ export class ParityValidationService {
               });
             } else if (!origSlot && genSlot) {
               issues.push({
-                category: DiscrepancyCategory.EXTRA_ACTUATOR,
+                category: DiscrepancyCategory.ExtraActuator,
                 location,
                 index: i,
                 expected: origSlot || '-Empty-',
@@ -427,7 +427,7 @@ export class ParityValidationService {
               });
             } else {
               issues.push({
-                category: DiscrepancyCategory.SLOT_MISMATCH,
+                category: DiscrepancyCategory.SlotMismatch,
                 location,
                 index: i,
                 expected: origSlot,
@@ -437,7 +437,7 @@ export class ParityValidationService {
             }
           } else {
             issues.push({
-              category: DiscrepancyCategory.SLOT_MISMATCH,
+              category: DiscrepancyCategory.SlotMismatch,
               location,
               index: i,
               expected: origSlot || '-Empty-',
@@ -544,7 +544,7 @@ export class ParityValidationService {
     for (const quirk of origQuirks) {
       if (!genSet.has(quirk)) {
         issues.push({
-          category: DiscrepancyCategory.QUIRK_MISMATCH,
+          category: DiscrepancyCategory.QuirkMismatch,
           expected: quirk,
           actual: '(missing)',
           suggestion: `Add quirk: ${quirk}`,
@@ -555,7 +555,7 @@ export class ParityValidationService {
     for (const quirk of genQuirks) {
       if (!origSet.has(quirk)) {
         issues.push({
-          category: DiscrepancyCategory.QUIRK_MISMATCH,
+          category: DiscrepancyCategory.QuirkMismatch,
           expected: '(not present)',
           actual: quirk,
           suggestion: `Remove quirk: ${quirk}`,
@@ -574,11 +574,11 @@ export class ParityValidationService {
     actual: string | undefined
   ): string {
     switch (category) {
-      case DiscrepancyCategory.ENGINE_MISMATCH:
+      case DiscrepancyCategory.EngineMismatch:
         return `Update MTFExportService.formatEngineType() to output "${expected}" instead of "${actual}"`;
-      case DiscrepancyCategory.ARMOR_MISMATCH:
+      case DiscrepancyCategory.ArmorMismatch:
         return `Check armor value parsing/export for ${field}`;
-      case DiscrepancyCategory.MOVEMENT_MISMATCH:
+      case DiscrepancyCategory.MovementMismatch:
         return `Check movement parsing for ${field}`;
       default:
         return `Update ${field} handling in parser or exporter`;

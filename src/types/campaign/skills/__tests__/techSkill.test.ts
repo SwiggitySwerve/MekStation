@@ -7,7 +7,7 @@ import type { IAttributes } from '../IAttributes';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { createDefaultSkills } from '@/lib/campaign/skills/defaultSkills';
-import { ExperienceLevel } from '../experienceLevels';
+import { SkillExperienceLevel } from '../experienceLevels';
 
 function makeAttributes(overrides: Partial<IAttributes> = {}): IAttributes {
   return { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0, ...overrides };
@@ -127,21 +127,21 @@ describe('getTechSkillValue', () => {
 
 describe('TECH role default skills', () => {
   it('should include tech-general skill for TECH role', () => {
-    const skills = createDefaultSkills(CampaignPersonnelRole.TECH, ExperienceLevel.Regular);
+    const skills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Regular);
     expect(skills['tech-general']).toBeDefined();
     expect(skills['tech-general'].level).toBe(5);
   });
 
   it('should include tech-general skill for MEK_TECH role', () => {
-    const skills = createDefaultSkills(CampaignPersonnelRole.MEK_TECH, ExperienceLevel.Regular);
+    const skills = createDefaultSkills(CampaignPersonnelRole.MEK_TECH, SkillExperienceLevel.Regular);
     expect(skills['tech-general']).toBeDefined();
   });
 
   it('should adjust tech-general level by experience modifier', () => {
-    const greenSkills = createDefaultSkills(CampaignPersonnelRole.TECH, ExperienceLevel.Green);
+    const greenSkills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Green);
     expect(greenSkills['tech-general'].level).toBe(6);
 
-    const eliteSkills = createDefaultSkills(CampaignPersonnelRole.TECH, ExperienceLevel.Elite);
+    const eliteSkills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Elite);
     expect(eliteSkills['tech-general'].level).toBe(3);
   });
 });

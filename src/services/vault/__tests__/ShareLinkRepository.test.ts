@@ -457,8 +457,10 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('valid-token');
 
       expect(result.success).toBe(true);
-      expect(result.link).toBeDefined();
-      expect(result.link?.useCount).toBe(1);
+      if (result.success) {
+        expect(result.data.link).toBeDefined();
+        expect(result.data.link.useCount).toBe(1);
+      }
     });
 
     it('should return NOT_FOUND error for non-existent token', async () => {
@@ -468,8 +470,10 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('non-existent-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('NOT_FOUND');
-      expect(result.error).toContain('not found');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('NOT_FOUND');
+        expect(result.error.message).toContain('not found');
+      }
     });
 
     it('should return INACTIVE error for deactivated link', async () => {
@@ -480,9 +484,10 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('inactive-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INACTIVE');
-      expect(result.error).toContain('inactive');
-      expect(result.link).toBeDefined();
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INACTIVE');
+        expect(result.error.message).toContain('inactive');
+      }
     });
 
     it('should return EXPIRED error for expired link', async () => {
@@ -495,8 +500,10 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('expired-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('EXPIRED');
-      expect(result.error).toContain('expired');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('EXPIRED');
+        expect(result.error.message).toContain('expired');
+      }
     });
 
     it('should return MAX_USES error when max uses reached', async () => {
@@ -510,8 +517,10 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('maxed-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('MAX_USES');
-      expect(result.error).toContain('maximum uses');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('MAX_USES');
+        expect(result.error.message).toContain('maximum uses');
+      }
     });
 
     it('should use atomic update to prevent race conditions', async () => {
@@ -550,7 +559,9 @@ describe('ShareLinkRepository', () => {
       const result = await repository.redeem('valid-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INVALID');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INVALID');
+      }
     });
   });
 

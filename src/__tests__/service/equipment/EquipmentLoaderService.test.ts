@@ -693,7 +693,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2460,
         allowedUnitTypes: [UnitType.BATTLEMECH, UnitType.VEHICLE],
-        flags: [EquipmentBehaviorFlag.DIRECT_FIRE],
+        flags: [EquipmentBehaviorFlag.DirectFire],
       });
       maps.weapons.set('clan-lrm5', {
         id: 'clan-lrm5',
@@ -702,7 +702,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.ADVANCED,
         introductionYear: 3050,
         allowedUnitTypes: [UnitType.BATTLEMECH, UnitType.AEROSPACE],
-        flags: [EquipmentBehaviorFlag.ARTEMIS],
+        flags: [EquipmentBehaviorFlag.Artemis],
       });
       maps.weapons.set('ba-srm', {
         id: 'ba-srm',
@@ -711,7 +711,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 3050,
         allowedUnitTypes: [UnitType.BATTLE_ARMOR],
-        flags: [EquipmentBehaviorFlag.ONE_SHOT],
+        flags: [EquipmentBehaviorFlag.OneShot],
       });
       maps.weapons.set('medium-laser-no-flags', {
         id: 'medium-laser-no-flags',
@@ -737,13 +737,13 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by hasFlags - match equipment with ALL specified flags', () => {
-      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.DIRECT_FIRE] });
+      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.DirectFire] });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ac10');
     });
 
     it('should filter by excludeFlags - exclude equipment with ANY specified flags', () => {
-      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.ONE_SHOT] });
+      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.OneShot] });
       // Excludes ba-srm
       expect(results.length).toBe(3);
       expect(results.every(w => w.id !== 'ba-srm')).toBe(true);
@@ -752,7 +752,7 @@ describe('EquipmentLoaderService', () => {
     it('should combine unitType and flags filters', () => {
       const results = service.searchWeapons({
         unitType: UnitType.BATTLEMECH,
-        excludeFlags: [EquipmentBehaviorFlag.ARTEMIS],
+        excludeFlags: [EquipmentBehaviorFlag.Artemis],
       });
       // ac10 (mech), medium-laser-no-flags (default mech) - excludes clan-lrm5 (has ARTEMIS)
       expect(results.length).toBe(2);
@@ -765,12 +765,12 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter weapons with no flags when hasFlags is specified', () => {
-      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.MASC] });
+      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.Masc] });
       expect(results.length).toBe(0);
     });
 
     it('should not exclude weapons with no flags when excludeFlags is specified', () => {
-      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.MASC] });
+      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.Masc] });
       // All 4 weapons pass since none have MASC
       expect(results.length).toBe(4);
     });
@@ -786,7 +786,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2460,
         allowedUnitTypes: [UnitType.BATTLEMECH, UnitType.VEHICLE],
-        flags: [EquipmentBehaviorFlag.EXPLOSIVE],
+        flags: [EquipmentBehaviorFlag.Explosive],
       });
       maps.ammunition.set('clan-lrm-ammo', {
         id: 'clan-lrm-ammo',
@@ -858,13 +858,13 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchAmmunition({ hasFlags: [EquipmentBehaviorFlag.EXPLOSIVE] });
+      const results = service.searchAmmunition({ hasFlags: [EquipmentBehaviorFlag.Explosive] });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ac10-std');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchAmmunition({ excludeFlags: [EquipmentBehaviorFlag.EXPLOSIVE] });
+      const results = service.searchAmmunition({ excludeFlags: [EquipmentBehaviorFlag.Explosive] });
       expect(results.length).toBe(3);
     });
 
@@ -889,7 +889,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 3045,
         allowedUnitTypes: [UnitType.BATTLEMECH, UnitType.VEHICLE],
-        flags: [EquipmentBehaviorFlag.BAP],
+        flags: [EquipmentBehaviorFlag.Bap],
       });
       maps.electronics.set('clan-ecm', {
         id: 'clan-ecm',
@@ -898,7 +898,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.ADVANCED,
         introductionYear: 3050,
         allowedUnitTypes: [UnitType.BATTLEMECH],
-        flags: [EquipmentBehaviorFlag.ECM],
+        flags: [EquipmentBehaviorFlag.Ecm],
       });
       maps.electronics.set('ba-probe', {
         id: 'ba-probe',
@@ -961,13 +961,13 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchElectronics({ hasFlags: [EquipmentBehaviorFlag.ECM] });
+      const results = service.searchElectronics({ hasFlags: [EquipmentBehaviorFlag.Ecm] });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('clan-ecm');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchElectronics({ excludeFlags: [EquipmentBehaviorFlag.BAP] });
+      const results = service.searchElectronics({ excludeFlags: [EquipmentBehaviorFlag.Bap] });
       expect(results.length).toBe(3);
     });
 
@@ -991,7 +991,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.ADVANCED,
         introductionYear: 3035,
         allowedUnitTypes: [UnitType.BATTLEMECH],
-        flags: [EquipmentBehaviorFlag.MASC],
+        flags: [EquipmentBehaviorFlag.Masc],
       });
       maps.miscEquipment.set('clan-case', {
         id: 'clan-case',
@@ -1000,7 +1000,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.STANDARD,
         introductionYear: 2850,
         allowedUnitTypes: [UnitType.BATTLEMECH, UnitType.VEHICLE],
-        flags: [EquipmentBehaviorFlag.CASE],
+        flags: [EquipmentBehaviorFlag.Case],
       });
       maps.miscEquipment.set('ba-stealth', {
         id: 'ba-stealth',
@@ -1009,7 +1009,7 @@ describe('EquipmentLoaderService', () => {
         rulesLevel: RulesLevel.ADVANCED,
         introductionYear: 3060,
         allowedUnitTypes: [UnitType.BATTLE_ARMOR],
-        flags: [EquipmentBehaviorFlag.STEALTH],
+        flags: [EquipmentBehaviorFlag.Stealth],
       });
       maps.miscEquipment.set('default-misc', {
         id: 'default-misc',
@@ -1065,13 +1065,13 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchMiscEquipment({ hasFlags: [EquipmentBehaviorFlag.CASE] });
+      const results = service.searchMiscEquipment({ hasFlags: [EquipmentBehaviorFlag.Case] });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('clan-case');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchMiscEquipment({ excludeFlags: [EquipmentBehaviorFlag.MASC] });
+      const results = service.searchMiscEquipment({ excludeFlags: [EquipmentBehaviorFlag.Masc] });
       expect(results.length).toBe(3);
     });
 
@@ -1438,8 +1438,8 @@ describe('EquipmentLoaderService', () => {
       expect(weapon?.special).toEqual(['Jams on 1', 'Rapid Fire']);
       expect(weapon?.allowedUnitTypes).toContain(UnitType.BATTLEMECH);
       expect(weapon?.allowedUnitTypes).toContain(UnitType.VEHICLE);
-      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.DIRECT_FIRE);
-      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.RAPID_FIRE);
+      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.DirectFire);
+      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.RapidFire);
       expect(weapon?.allowedLocations).toEqual(['RA', 'LA', 'RT', 'LT', 'CT']);
     });
 
@@ -1480,7 +1480,7 @@ describe('EquipmentLoaderService', () => {
       expect(ammo?.damageModifier).toBe(1.5);
       expect(ammo?.rangeModifier).toBe(-1);
       expect(ammo?.special).toEqual(['Reduces target armor by 50%']);
-      expect(ammo?.flags).toContain(EquipmentBehaviorFlag.EXPLOSIVE);
+      expect(ammo?.flags).toContain(EquipmentBehaviorFlag.Explosive);
       expect(ammo?.allowedUnitTypes).toContain(UnitType.BATTLEMECH);
     });
 
@@ -1517,7 +1517,7 @@ describe('EquipmentLoaderService', () => {
       expect(elec).not.toBeNull();
       expect(elec?.special).toEqual(['Direct fire weapons +1 to-hit']);
       expect(elec?.variableEquipmentId).toBe('tc-variable');
-      expect(elec?.flags).toContain(EquipmentBehaviorFlag.TARGETING_COMPUTER);
+      expect(elec?.flags).toContain(EquipmentBehaviorFlag.TargetingComputer);
       expect(elec?.allowedUnitTypes).toContain(UnitType.BATTLEMECH);
       expect(elec?.allowedLocations).toEqual(['HD', 'CT', 'RT', 'LT']);
     });
@@ -1555,7 +1555,7 @@ describe('EquipmentLoaderService', () => {
       expect(misc).not.toBeNull();
       expect(misc?.special).toEqual(['Dissipates 2 heat per sink']);
       expect(misc?.variableEquipmentId).toBe('dhs-variable');
-      expect(misc?.flags).toContain(EquipmentBehaviorFlag.DOUBLE_HEAT_SINK);
+      expect(misc?.flags).toContain(EquipmentBehaviorFlag.DoubleHeatSink);
       expect(misc?.allowedUnitTypes).toContain(UnitType.BATTLEMECH);
       expect(misc?.allowedLocations).toEqual(['RT', 'LT', 'RA', 'LA', 'RL', 'LL']);
     });
@@ -1625,7 +1625,7 @@ describe('EquipmentLoaderService', () => {
       const weapon = service.getWeaponById('w-unknown-flags');
       expect(weapon).not.toBeNull();
       // Only valid flags should be present
-      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.DIRECT_FIRE);
+      expect(weapon?.flags).toContain(EquipmentBehaviorFlag.DirectFire);
       expect(weapon?.flags?.length).toBe(1);
     });
 

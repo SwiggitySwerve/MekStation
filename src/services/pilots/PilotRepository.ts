@@ -83,11 +83,11 @@ interface PilotMissionRow {
 // =============================================================================
 
 export enum PilotErrorCode {
-  NOT_FOUND = 'NOT_FOUND',
-  DUPLICATE_NAME = 'DUPLICATE_NAME',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  DATABASE_ERROR = 'DATABASE_ERROR',
-  INSUFFICIENT_XP = 'INSUFFICIENT_XP',
+  NotFound = 'NOT_FOUND',
+  DuplicateName = 'DUPLICATE_NAME',
+  ValidationError = 'VALIDATION_ERROR',
+  DatabaseError = 'DATABASE_ERROR',
+  InsufficientXp = 'INSUFFICIENT_XP',
 }
 
 export interface IPilotOperationResult {
@@ -184,7 +184,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to create pilot: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -200,7 +200,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${id} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -259,7 +259,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to update pilot: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -274,7 +274,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${id} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -286,7 +286,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to delete pilot: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -345,7 +345,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -361,7 +361,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to add ability: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -383,7 +383,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to remove ability: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -399,7 +399,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -421,7 +421,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to record kill: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -440,7 +440,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -484,7 +484,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to record mission: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -500,7 +500,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -519,7 +519,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to add XP: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }
@@ -536,7 +536,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NOT_FOUND,
+        errorCode: PilotErrorCode.NotFound,
       };
     }
 
@@ -544,7 +544,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Insufficient XP. Have ${pilot.career?.xp || 0}, need ${amount}`,
-        errorCode: PilotErrorCode.INSUFFICIENT_XP,
+        errorCode: PilotErrorCode.InsufficientXp,
       };
     }
 
@@ -559,7 +559,7 @@ export class PilotRepository implements IPilotRepository {
       return {
         success: false,
         error: `Failed to spend XP: ${message}`,
-        errorCode: PilotErrorCode.DATABASE_ERROR,
+        errorCode: PilotErrorCode.DatabaseError,
       };
     }
   }

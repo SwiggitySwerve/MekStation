@@ -516,7 +516,7 @@ describe('Equipment Unit Type Rules', () => {
           equipment: [
             createEquipmentItem({
               name: 'Flagged Turret Weapon',
-              flags: [EquipmentBehaviorFlag.TURRET_MOUNTED],
+              flags: [EquipmentBehaviorFlag.TurretMounted],
             }),
           ],
         });
@@ -631,12 +631,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'equip-1',
               name: 'Heat Sink',
-              flags: [EquipmentBehaviorFlag.HEAT_SINK],
+              flags: [EquipmentBehaviorFlag.HeatSink],
             }),
             createEquipmentItem({
               id: 'equip-2',
               name: 'Jump Jet',
-              flags: [EquipmentBehaviorFlag.JUMP_JET],
+              flags: [EquipmentBehaviorFlag.JumpJet],
             }),
           ],
         });
@@ -653,12 +653,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'masc-1',
               name: 'MASC',
-              flags: [EquipmentBehaviorFlag.MASC],
+              flags: [EquipmentBehaviorFlag.Masc],
             }),
             createEquipmentItem({
               id: 'tsm-1',
               name: 'Triple Strength Myomer',
-              flags: [EquipmentBehaviorFlag.TSM],
+              flags: [EquipmentBehaviorFlag.Tsm],
             }),
           ],
         });
@@ -676,12 +676,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'masc-1',
               name: 'MASC',
-              flags: [EquipmentBehaviorFlag.MASC],
+              flags: [EquipmentBehaviorFlag.Masc],
             }),
             createEquipmentItem({
               id: 'itsm-1',
               name: 'Industrial TSM',
-              flags: [EquipmentBehaviorFlag.INDUSTRIAL_TSM],
+              flags: [EquipmentBehaviorFlag.IndustrialTsm],
             }),
           ],
         });
@@ -698,12 +698,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'tsm-1',
               name: 'TSM',
-              flags: [EquipmentBehaviorFlag.TSM],
+              flags: [EquipmentBehaviorFlag.Tsm],
             }),
             createEquipmentItem({
               id: 'itsm-1',
               name: 'Industrial TSM',
-              flags: [EquipmentBehaviorFlag.INDUSTRIAL_TSM],
+              flags: [EquipmentBehaviorFlag.IndustrialTsm],
             }),
           ],
         });
@@ -721,12 +721,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'c3s-1',
               name: 'C3 Slave',
-              flags: [EquipmentBehaviorFlag.C3S],
+              flags: [EquipmentBehaviorFlag.C3s],
             }),
             createEquipmentItem({
               id: 'c3i-1',
               name: 'C3 Improved',
-              flags: [EquipmentBehaviorFlag.C3I],
+              flags: [EquipmentBehaviorFlag.C3i],
             }),
           ],
         });
@@ -744,12 +744,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'stealth-1',
               name: 'Stealth Armor',
-              flags: [EquipmentBehaviorFlag.STEALTH],
+              flags: [EquipmentBehaviorFlag.Stealth],
             }),
             createEquipmentItem({
               id: 'hs-1',
               name: 'Heat Sink',
-              flags: [EquipmentBehaviorFlag.HEAT_SINK],
+              flags: [EquipmentBehaviorFlag.HeatSink],
             }),
           ],
         });
@@ -773,7 +773,7 @@ describe('Equipment Unit Type Rules', () => {
         const unit = createTestUnit({
           equipment: [
             createEquipmentItem({
-              flags: [EquipmentBehaviorFlag.MASC],
+              flags: [EquipmentBehaviorFlag.Masc],
             }),
           ],
         });
@@ -789,13 +789,13 @@ describe('Equipment Unit Type Rules', () => {
           equipment: [
             createEquipmentItem({
               id: 'equip-1',
-              equipmentId: EquipmentBehaviorFlag.MASC,
+              equipmentId: EquipmentBehaviorFlag.Masc,
               name: 'MASC by ID',
             }),
             createEquipmentItem({
               id: 'equip-2',
               name: 'TSM by Flag',
-              flags: [EquipmentBehaviorFlag.TSM],
+              flags: [EquipmentBehaviorFlag.Tsm],
             }),
           ],
         });
@@ -812,12 +812,12 @@ describe('Equipment Unit Type Rules', () => {
             createEquipmentItem({
               id: 'masc-1',
               name: 'My MASC',
-              flags: [EquipmentBehaviorFlag.MASC],
+              flags: [EquipmentBehaviorFlag.Masc],
             }),
             createEquipmentItem({
               id: 'tsm-1',
               name: 'My TSM',
-              flags: [EquipmentBehaviorFlag.TSM],
+              flags: [EquipmentBehaviorFlag.Tsm],
             }),
           ],
         });

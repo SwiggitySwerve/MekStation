@@ -24,3 +24,6 @@ export * from './UnitSerialization';
 export * from './DatabaseSchema';
 export * from './DataIntegrity';
 
+// Unit index and query types
+export * from './UnitIndex';
+

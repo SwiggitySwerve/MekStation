@@ -457,7 +457,7 @@ describe('EncounterRepository', () => {
       const result = repository.updateEncounter('non-existent-id', { name: 'New Name' });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(EncounterErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(EncounterErrorCode.NotFound);
       expect(result.error).toBe('Encounter not found');
     });
 
@@ -468,7 +468,7 @@ describe('EncounterRepository', () => {
       const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(EncounterErrorCode.INVALID_STATUS);
+      expect(result.errorCode).toBe(EncounterErrorCode.InvalidStatus);
       expect(result.error).toContain('launched');
     });
 
@@ -479,7 +479,7 @@ describe('EncounterRepository', () => {
       const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(EncounterErrorCode.INVALID_STATUS);
+      expect(result.errorCode).toBe(EncounterErrorCode.InvalidStatus);
       expect(result.error).toContain('completed');
     });
   });
@@ -502,7 +502,7 @@ describe('EncounterRepository', () => {
       const result = repository.deleteEncounter('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(EncounterErrorCode.NOT_FOUND);
+      expect(result.errorCode).toBe(EncounterErrorCode.NotFound);
     });
 
     it('should return INVALID_STATUS when deleting Launched encounter', () => {
@@ -512,7 +512,7 @@ describe('EncounterRepository', () => {
       const result = repository.deleteEncounter(createResult.id!);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(EncounterErrorCode.INVALID_STATUS);
+      expect(result.errorCode).toBe(EncounterErrorCode.InvalidStatus);
       expect(result.error).toBe('Cannot delete a launched encounter');
     });
 

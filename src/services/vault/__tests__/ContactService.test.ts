@@ -186,8 +186,10 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.contact).toBeDefined();
-      expect(result.contact?.friendCode).toBe('ABCD-EFGH-JKLM-NPQR');
+      if (result.success) {
+        expect(result.data.contact).toBeDefined();
+        expect(result.data.contact.friendCode).toBe('ABCD-EFGH-JKLM-NPQR');
+      }
     });
 
     it('should reject invalid friend code format', async () => {
@@ -196,7 +198,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INVALID_CODE');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INVALID_CODE');
+      }
     });
 
     it('should reject friend code with invalid characters', async () => {
@@ -205,7 +209,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INVALID_CODE');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INVALID_CODE');
+      }
     });
 
     it('should prevent adding self as contact', async () => {
@@ -218,7 +224,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('SELF_ADD');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('SELF_ADD');
+      }
     });
 
     it('should prevent adding duplicate contact', async () => {
@@ -229,7 +237,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('ALREADY_EXISTS');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('ALREADY_EXISTS');
+      }
     });
 
     it('should store nickname when provided', async () => {
@@ -239,7 +249,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.contact?.nickname).toBe('Test User');
+      if (result.success) {
+        expect(result.data.contact.nickname).toBe('Test User');
+      }
     });
 
     it('should store notes when provided', async () => {
@@ -249,7 +261,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.contact?.notes).toBe('Met at tournament');
+      if (result.success) {
+        expect(result.data.contact.notes).toBe('Met at tournament');
+      }
     });
 
     it('should mark as trusted when specified', async () => {
@@ -259,7 +273,9 @@ describe('ContactService', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.contact?.isTrusted).toBe(true);
+      if (result.success) {
+        expect(result.data.contact.isTrusted).toBe(true);
+      }
     });
   });
 
@@ -359,7 +375,7 @@ describe('ContactService', () => {
       const result = await service.addContact({
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       const updated = await service.setNickname(id, 'New Nickname');
       expect(updated).toBe(true);
@@ -373,7 +389,7 @@ describe('ContactService', () => {
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
         nickname: 'Original',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       await service.setNickname(id, null);
 
@@ -392,7 +408,7 @@ describe('ContactService', () => {
       const result = await service.addContact({
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       await service.setTrusted(id, true);
       let contact = await service.getContact(id);
@@ -409,7 +425,7 @@ describe('ContactService', () => {
       const result = await service.addContact({
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       await service.setNotes(id, 'These are my notes');
 
@@ -423,7 +439,7 @@ describe('ContactService', () => {
       const result = await service.addContact({
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       const beforeUpdate = await service.getContact(id);
       expect(beforeUpdate?.lastSeenAt).toBeNull();
@@ -444,7 +460,7 @@ describe('ContactService', () => {
       const result = await service.addContact({
         friendCode: 'ABCD-EFGH-JKLM-NPQR',
       });
-      const id = result.contact!.id;
+      const id = result.success ? result.data.contact.id : '';
 
       const removed = await service.removeContact(id);
       expect(removed).toBe(true);

@@ -2,13 +2,13 @@ import {
   UnitMarketRarity,
   UnitMarketType,
   PersonnelMarketStyle,
-  ExperienceLevel,
+  MarketExperienceLevel,
   RARITY_VALUES,
   MARKET_TYPE_QUALITY,
   isUnitMarketRarity,
   isUnitMarketType,
   isPersonnelMarketStyle,
-  isExperienceLevel,
+  isMarketExperienceLevel,
 } from '../marketTypes';
 import type { IUnitMarketOffer, IPersonnelMarketOffer } from '../marketTypes';
 import { CampaignPersonnelRole } from '../../enums/CampaignPersonnelRole';
@@ -94,17 +94,17 @@ describe('PersonnelMarketStyle', () => {
   });
 });
 
-describe('ExperienceLevel', () => {
+describe('MarketExperienceLevel', () => {
   it('should have 4 values', () => {
-    const values = Object.values(ExperienceLevel);
+    const values = Object.values(MarketExperienceLevel);
     expect(values).toHaveLength(4);
   });
 
   it('should have correct string values', () => {
-    expect(ExperienceLevel.GREEN).toBe('green');
-    expect(ExperienceLevel.REGULAR).toBe('regular');
-    expect(ExperienceLevel.VETERAN).toBe('veteran');
-    expect(ExperienceLevel.ELITE).toBe('elite');
+    expect(MarketExperienceLevel.GREEN).toBe('green');
+    expect(MarketExperienceLevel.REGULAR).toBe('regular');
+    expect(MarketExperienceLevel.VETERAN).toBe('veteran');
+    expect(MarketExperienceLevel.ELITE).toBe('elite');
   });
 });
 
@@ -137,7 +137,7 @@ describe('IPersonnelMarketOffer', () => {
       id: 'recruit-001',
       name: 'John Doe',
       role: CampaignPersonnelRole.PILOT,
-      experienceLevel: ExperienceLevel.REGULAR,
+      experienceLevel: MarketExperienceLevel.REGULAR,
       skills: { gunnery: 4, piloting: 5 },
       hireCost: 50000,
       expirationDate: '3025-01-15',
@@ -145,7 +145,7 @@ describe('IPersonnelMarketOffer', () => {
 
     expect(offer.id).toBe('recruit-001');
     expect(offer.role).toBe(CampaignPersonnelRole.PILOT);
-    expect(offer.experienceLevel).toBe(ExperienceLevel.REGULAR);
+    expect(offer.experienceLevel).toBe(MarketExperienceLevel.REGULAR);
     expect(offer.hireCost).toBe(50000);
   });
 });
@@ -188,14 +188,14 @@ describe('type guards', () => {
     });
   });
 
-  describe('isExperienceLevel', () => {
+  describe('isMarketExperienceLevel', () => {
     it('should return true for valid levels', () => {
-      expect(isExperienceLevel('green')).toBe(true);
-      expect(isExperienceLevel('elite')).toBe(true);
+      expect(isMarketExperienceLevel('green')).toBe(true);
+      expect(isMarketExperienceLevel('elite')).toBe(true);
     });
 
     it('should return false for invalid values', () => {
-      expect(isExperienceLevel('legendary')).toBe(false);
+      expect(isMarketExperienceLevel('legendary')).toBe(false);
     });
   });
 });

@@ -90,30 +90,30 @@ class MockShareLinkRepository {
     const link = await this.getByToken(token);
 
     if (!link) {
-      return { success: false, error: 'Share link not found', errorCode: 'NOT_FOUND' };
+      return { success: false, error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const } };
     }
 
     if (!link.isActive) {
-      return { success: false, error: 'Share link is inactive', errorCode: 'INACTIVE', link };
+      return { success: false, error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const } };
     }
 
     if (link.expiresAt) {
       const now = new Date();
       const expiry = new Date(link.expiresAt);
       if (now > expiry) {
-        return { success: false, error: 'Share link has expired', errorCode: 'EXPIRED', link };
+        return { success: false, error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const } };
       }
     }
 
     if (link.maxUses !== null && link.useCount >= link.maxUses) {
-      return { success: false, error: 'Share link has reached maximum uses', errorCode: 'MAX_USES', link };
+      return { success: false, error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const } };
     }
 
     // Increment use count
     const updatedLink = { ...link, useCount: link.useCount + 1 };
     this.links.set(link.id, updatedLink);
 
-    return { success: true, link: updatedLink };
+    return { success: true, data: { link: updatedLink } };
   }
 
   async deactivate(id: string): Promise<boolean> {
@@ -386,7 +386,9 @@ describe('ShareLinkService', () => {
       const result = await service.redeem(createResult.link!.token);
 
       expect(result.success).toBe(true);
-      expect(result.link?.useCount).toBe(1);
+      if (result.success) {
+        expect(result.data.link.useCount).toBe(1);
+      }
     });
 
     it('should increment use count', async () => {
@@ -401,14 +403,18 @@ describe('ShareLinkService', () => {
       const result = await service.redeem(createResult.link!.token);
 
       expect(result.success).toBe(true);
-      expect(result.link?.useCount).toBe(3);
+      if (result.success) {
+        expect(result.data.link.useCount).toBe(3);
+      }
     });
 
     it('should fail for non-existent token', async () => {
       const result = await service.redeem('non-existent-token');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('NOT_FOUND');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('NOT_FOUND');
+      }
     });
 
     it('should fail for inactive link', async () => {
@@ -422,7 +428,9 @@ describe('ShareLinkService', () => {
       const result = await service.redeem(createResult.link!.token);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INACTIVE');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INACTIVE');
+      }
     });
 
     it('should fail for expired link', async () => {
@@ -437,7 +445,9 @@ describe('ShareLinkService', () => {
       const result = await service.redeem(createResult.link!.token);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('EXPIRED');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('EXPIRED');
+      }
     });
 
     it('should fail when max uses reached', async () => {
@@ -453,7 +463,9 @@ describe('ShareLinkService', () => {
       const result = await service.redeem(createResult.link!.token);
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('MAX_USES');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('MAX_USES');
+      }
     });
   });
 
@@ -475,7 +487,9 @@ describe('ShareLinkService', () => {
       const result = await service.redeemByUrl('invalid-url');
 
       expect(result.success).toBe(false);
-      expect(result.errorCode).toBe('INVALID');
+      if (!result.success) {
+        expect(result.error.errorCode).toBe('INVALID');
+      }
     });
   });
 

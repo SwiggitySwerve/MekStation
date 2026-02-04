@@ -53,11 +53,11 @@ interface AssignmentRow {
 // =============================================================================
 
 export enum ForceErrorCode {
-  NOT_FOUND = 'NOT_FOUND',
-  DUPLICATE_NAME = 'DUPLICATE_NAME',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  DATABASE_ERROR = 'DATABASE_ERROR',
-  CIRCULAR_HIERARCHY = 'CIRCULAR_HIERARCHY',
+  NotFound = 'NOT_FOUND',
+  DuplicateName = 'DUPLICATE_NAME',
+  ValidationError = 'VALIDATION_ERROR',
+  DatabaseError = 'DATABASE_ERROR',
+  CircularHierarchy = 'CIRCULAR_HIERARCHY',
 }
 
 export interface IForceOperationResult {
@@ -191,7 +191,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }
@@ -287,7 +287,7 @@ export class ForceRepository implements IForceRepository {
           return {
             success: false,
             error: 'Cannot set parent: would create circular hierarchy',
-            errorCode: ForceErrorCode.CIRCULAR_HIERARCHY,
+            errorCode: ForceErrorCode.CircularHierarchy,
           };
         }
         updates.push('parent_id = ?');
@@ -308,7 +308,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }
@@ -337,7 +337,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }
@@ -394,7 +394,7 @@ export class ForceRepository implements IForceRepository {
         return {
           success: false,
           error: 'No updates provided',
-          errorCode: ForceErrorCode.VALIDATION_ERROR,
+          errorCode: ForceErrorCode.ValidationError,
         };
       }
 
@@ -410,7 +410,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }
@@ -436,7 +436,7 @@ export class ForceRepository implements IForceRepository {
         return {
           success: false,
           error: 'Both assignments must exist',
-          errorCode: ForceErrorCode.NOT_FOUND,
+          errorCode: ForceErrorCode.NotFound,
         };
       }
 
@@ -453,7 +453,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }
@@ -477,7 +477,7 @@ export class ForceRepository implements IForceRepository {
       return {
         success: false,
         error: message,
-        errorCode: ForceErrorCode.DATABASE_ERROR,
+        errorCode: ForceErrorCode.DatabaseError,
       };
     }
   }

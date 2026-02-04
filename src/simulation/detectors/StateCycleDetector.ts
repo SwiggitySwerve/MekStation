@@ -20,6 +20,7 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getPayload } from './utils/getPayload';
 
 // =============================================================================
 // Types
@@ -322,8 +323,7 @@ export class StateCycleDetector {
   }
 
   private processDamage(event: IGameEvent, state: DetectorTrackingState): void {
-    // eslint-disable-next-line no-restricted-syntax
-    const payload = event.payload as unknown as IDamageAppliedPayload;
+    const payload = getPayload<IDamageAppliedPayload>(event);
     const { unitId, location, armorRemaining, structureRemaining } = payload;
 
     // Initialize turn maps if needed
@@ -354,8 +354,7 @@ export class StateCycleDetector {
   }
 
   private processHeat(event: IGameEvent, state: DetectorTrackingState): void {
-    // eslint-disable-next-line no-restricted-syntax
-    const payload = event.payload as unknown as IHeatPayload;
+    const payload = getPayload<IHeatPayload>(event);
     const { unitId, newTotal } = payload;
 
     // Initialize turn map if needed
@@ -368,8 +367,7 @@ export class StateCycleDetector {
   }
 
   private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
-    // eslint-disable-next-line no-restricted-syntax
-    const payload = event.payload as unknown as { readonly unitId: string };
+    const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }
 
