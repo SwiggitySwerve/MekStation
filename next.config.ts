@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   // Turbopack config (empty to silence Next.js 16 warning)
   turbopack: {},
   
+  // Configure page extensions to exclude test files
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  
   // Enable standalone output for Docker and Electron deployment
   // This creates a self-contained build with all dependencies
   output: 'standalone',

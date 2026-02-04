@@ -37,6 +37,11 @@ export default [
       '**/*.stories.ts',
       '**/src/docs/**',
       '**/playwright-report/**',
+      'src/pages/**/__tests__/**',
+      'src/pages/**/*.test.ts',
+      'src/pages/**/*.test.tsx',
+      'src/pages/**/*.spec.ts',
+      'src/pages/**/*.spec.tsx',
     ],
   },
   
