@@ -1,6 +1,6 @@
 import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelMarketStyle, ExperienceLevel } from '@/types/campaign/markets/marketTypes';
+import { PersonnelMarketStyle, MarketExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
@@ -69,7 +69,7 @@ function createTestOffer(overrides?: Partial<IPersonnelMarketOffer>): IPersonnel
     id: overrides?.id ?? 'pmo-test-001',
     name: overrides?.name ?? 'Test Person',
     role: overrides?.role ?? CampaignPersonnelRole.PILOT,
-    experienceLevel: overrides?.experienceLevel ?? ExperienceLevel.REGULAR,
+    experienceLevel: overrides?.experienceLevel ?? MarketExperienceLevel.REGULAR,
     skills: overrides?.skills ?? { gunnery: 4, piloting: 4 },
     hireCost: overrides?.hireCost ?? 50000,
     expirationDate: overrides?.expirationDate ?? '3025-06-29',
@@ -83,19 +83,19 @@ function createTestOffer(overrides?: Partial<IPersonnelMarketOffer>): IPersonnel
 describe('Personnel Market', () => {
   describe('getExpirationDays', () => {
     it('should return 3 for ELITE', () => {
-      expect(getExpirationDays(ExperienceLevel.ELITE)).toBe(3);
+      expect(getExpirationDays(MarketExperienceLevel.ELITE)).toBe(3);
     });
 
     it('should return 7 for VETERAN', () => {
-      expect(getExpirationDays(ExperienceLevel.VETERAN)).toBe(7);
+      expect(getExpirationDays(MarketExperienceLevel.VETERAN)).toBe(7);
     });
 
     it('should return 14 for REGULAR', () => {
-      expect(getExpirationDays(ExperienceLevel.REGULAR)).toBe(14);
+      expect(getExpirationDays(MarketExperienceLevel.REGULAR)).toBe(14);
     });
 
     it('should return 30 for GREEN', () => {
-      expect(getExpirationDays(ExperienceLevel.GREEN)).toBe(30);
+      expect(getExpirationDays(MarketExperienceLevel.GREEN)).toBe(30);
     });
   });
 
@@ -140,9 +140,9 @@ describe('Personnel Market', () => {
   });
 
   describe('selectExperienceLevel', () => {
-    it('should return a valid ExperienceLevel', () => {
+    it('should return a valid MarketExperienceLevel', () => {
       const random = createSeededRandom(42);
-      const allLevels = Object.values(ExperienceLevel);
+      const allLevels = Object.values(MarketExperienceLevel);
       for (let i = 0; i < 50; i++) {
         const level = selectExperienceLevel(random);
         expect(allLevels).toContain(level);
@@ -151,87 +151,87 @@ describe('Personnel Market', () => {
 
     it('should produce all experience levels over many iterations', () => {
       const random = createSeededRandom(1);
-      const levels = new Set<ExperienceLevel>();
+      const levels = new Set<MarketExperienceLevel>();
       for (let i = 0; i < 500; i++) {
         levels.add(selectExperienceLevel(random));
       }
-      expect(levels.has(ExperienceLevel.GREEN)).toBe(true);
-      expect(levels.has(ExperienceLevel.REGULAR)).toBe(true);
-      expect(levels.has(ExperienceLevel.VETERAN)).toBe(true);
-      expect(levels.has(ExperienceLevel.ELITE)).toBe(true);
+      expect(levels.has(MarketExperienceLevel.GREEN)).toBe(true);
+      expect(levels.has(MarketExperienceLevel.REGULAR)).toBe(true);
+      expect(levels.has(MarketExperienceLevel.VETERAN)).toBe(true);
+      expect(levels.has(MarketExperienceLevel.ELITE)).toBe(true);
     });
   });
 
   describe('generateDefaultSkills', () => {
     it('should return gunnery and piloting for combat roles', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.REGULAR);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, MarketExperienceLevel.REGULAR);
       expect(skills).toHaveProperty('gunnery');
       expect(skills).toHaveProperty('piloting');
     });
 
     it('should return technician for support roles', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.MEK_TECH, ExperienceLevel.REGULAR);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.MEK_TECH, MarketExperienceLevel.REGULAR);
       expect(skills).toHaveProperty('technician');
       expect(skills).not.toHaveProperty('gunnery');
     });
 
     it('should set skill level 5 for GREEN', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.GREEN);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, MarketExperienceLevel.GREEN);
       expect(skills.gunnery).toBe(5);
       expect(skills.piloting).toBe(5);
     });
 
     it('should set skill level 4 for REGULAR', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.REGULAR);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, MarketExperienceLevel.REGULAR);
       expect(skills.gunnery).toBe(4);
       expect(skills.piloting).toBe(4);
     });
 
     it('should set skill level 3 for VETERAN', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.VETERAN);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, MarketExperienceLevel.VETERAN);
       expect(skills.gunnery).toBe(3);
       expect(skills.piloting).toBe(3);
     });
 
     it('should set skill level 2 for ELITE', () => {
-      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.ELITE);
+      const skills = generateDefaultSkills(CampaignPersonnelRole.PILOT, MarketExperienceLevel.ELITE);
       expect(skills.gunnery).toBe(2);
       expect(skills.piloting).toBe(2);
     });
 
     it('should set technician level based on experience for support', () => {
-      expect(generateDefaultSkills(CampaignPersonnelRole.DOCTOR, ExperienceLevel.GREEN).technician).toBe(5);
-      expect(generateDefaultSkills(CampaignPersonnelRole.DOCTOR, ExperienceLevel.ELITE).technician).toBe(2);
+      expect(generateDefaultSkills(CampaignPersonnelRole.DOCTOR, MarketExperienceLevel.GREEN).technician).toBe(5);
+      expect(generateDefaultSkills(CampaignPersonnelRole.DOCTOR, MarketExperienceLevel.ELITE).technician).toBe(2);
     });
   });
 
   describe('calculateHireCost', () => {
     it('should cost more for combat roles than support roles at same experience', () => {
-      const combatCost = calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.REGULAR);
-      const supportCost = calculateHireCost(CampaignPersonnelRole.MEK_TECH, ExperienceLevel.REGULAR);
+      const combatCost = calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.REGULAR);
+      const supportCost = calculateHireCost(CampaignPersonnelRole.MEK_TECH, MarketExperienceLevel.REGULAR);
       expect(combatCost).toBeGreaterThan(supportCost);
     });
 
     it('should cost more for elite than green at same role', () => {
-      const eliteCost = calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.ELITE);
-      const greenCost = calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.GREEN);
+      const eliteCost = calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.ELITE);
+      const greenCost = calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.GREEN);
       expect(eliteCost).toBeGreaterThan(greenCost);
     });
 
     it('should calculate combat REGULAR as 50000', () => {
-      expect(calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.REGULAR)).toBe(50000);
+      expect(calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.REGULAR)).toBe(50000);
     });
 
     it('should calculate combat GREEN as 25000', () => {
-      expect(calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.GREEN)).toBe(25000);
+      expect(calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.GREEN)).toBe(25000);
     });
 
     it('should calculate combat ELITE as 200000', () => {
-      expect(calculateHireCost(CampaignPersonnelRole.PILOT, ExperienceLevel.ELITE)).toBe(200000);
+      expect(calculateHireCost(CampaignPersonnelRole.PILOT, MarketExperienceLevel.ELITE)).toBe(200000);
     });
 
     it('should calculate support REGULAR as 30000', () => {
-      expect(calculateHireCost(CampaignPersonnelRole.MEK_TECH, ExperienceLevel.REGULAR)).toBe(30000);
+      expect(calculateHireCost(CampaignPersonnelRole.MEK_TECH, MarketExperienceLevel.REGULAR)).toBe(30000);
     });
   });
 
@@ -301,7 +301,7 @@ describe('Personnel Market', () => {
         expect(offer.id).toMatch(/^pmo-/);
         expect(offer.name.split(' ')).toHaveLength(2);
         expect(Object.values(CampaignPersonnelRole)).toContain(offer.role);
-        expect(Object.values(ExperienceLevel)).toContain(offer.experienceLevel);
+        expect(Object.values(MarketExperienceLevel)).toContain(offer.experienceLevel);
         expect(offer.hireCost).toBeGreaterThan(0);
         expect(offer.expirationDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(Object.keys(offer.skills).length).toBeGreaterThan(0);

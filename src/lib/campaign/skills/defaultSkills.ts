@@ -8,7 +8,7 @@
  */
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { ExperienceLevel } from '@/types/campaign/skills/experienceLevels';
+import { SkillExperienceLevel } from '@/types/campaign/skills/experienceLevels';
 import { ISkill } from '@/types/campaign/skills';
 
 /**
@@ -219,11 +219,11 @@ export const DEFAULT_SKILLS_BY_ROLE: Record<
  * // A GREEN pilot gets gunnery 4+1=5, piloting 5+1=6
  * // An ELITE pilot gets gunnery 4-2=2, piloting 5-2=3
  */
-export const EXPERIENCE_SKILL_MODIFIER: Record<ExperienceLevel, number> = {
-  [ExperienceLevel.Green]: 1,
-  [ExperienceLevel.Regular]: 0,
-  [ExperienceLevel.Veteran]: -1,
-  [ExperienceLevel.Elite]: -2,
+export const EXPERIENCE_SKILL_MODIFIER: Record<SkillExperienceLevel, number> = {
+  [SkillExperienceLevel.Green]: 1,
+  [SkillExperienceLevel.Regular]: 0,
+  [SkillExperienceLevel.Veteran]: -1,
+  [SkillExperienceLevel.Elite]: -2,
 };
 
 /**
@@ -241,23 +241,23 @@ export const EXPERIENCE_SKILL_MODIFIER: Record<ExperienceLevel, number> = {
  * @returns A Record of skillId → ISkill for the role and experience level
  *
  * @example
- * // Create skills for a GREEN pilot
- * const skills = createDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.Green);
- * // {
- * //   gunnery: { level: 5, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
- * //   piloting: { level: 6, bonus: 0, xpProgress: 0, typeId: 'piloting' }
- * // }
- *
- * // Create skills for an ELITE pilot
- * const eliteSkills = createDefaultSkills(CampaignPersonnelRole.PILOT, ExperienceLevel.Elite);
- * // {
- * //   gunnery: { level: 2, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
- * //   piloting: { level: 3, bonus: 0, xpProgress: 0, typeId: 'piloting' }
- * // }
+  * // Create skills for a GREEN pilot
+  * const skills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Green);
+  * // {
+  * //   gunnery: { level: 5, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
+  * //   piloting: { level: 6, bonus: 0, xpProgress: 0, typeId: 'piloting' }
+  * // }
+  *
+  * // Create skills for an ELITE pilot
+  * const eliteSkills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Elite);
+  * // {
+  * //   gunnery: { level: 2, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
+  * //   piloting: { level: 3, bonus: 0, xpProgress: 0, typeId: 'piloting' }
+  * // }
  */
 export function createDefaultSkills(
   role: CampaignPersonnelRole,
-  level: ExperienceLevel
+  level: SkillExperienceLevel
 ): Record<string, ISkill> {
   const skillSet = DEFAULT_SKILLS_BY_ROLE[role];
   const modifier = EXPERIENCE_SKILL_MODIFIER[level];

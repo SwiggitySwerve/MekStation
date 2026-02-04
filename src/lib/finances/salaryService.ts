@@ -28,7 +28,14 @@ import { Money } from '@/types/campaign/Money';
 
 /**
  * Experience level categories for salary calculation.
- * Based on BattleTech experience tiers.
+ * 
+ * Local type alias for salary tier calculations with extended range beyond
+ * the standard skill progression levels. Includes ultra_green (below green)
+ * and legendary (above elite) for specialized salary calculations.
+ * 
+ * @see SkillExperienceLevel for character progression in campaign skills
+ * @see MarketExperienceLevel for personnel market hiring
+ * @see PilotExperienceLevel for pilot templates
  */
 export type ExperienceLevel =
   | 'ultra_green'

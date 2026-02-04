@@ -20,6 +20,16 @@ import { RandomFn } from './standardMedical';
 // Experience Level Type
 // =============================================================================
 
+/**
+ * Experience level for medical system fumble/crit thresholds.
+ * 
+ * Local type alias scoped to the advanced medical system for determining
+ * fumble and critical success thresholds based on doctor experience.
+ * 
+ * @see SkillExperienceLevel for character progression in campaign skills
+ * @see MarketExperienceLevel for personnel market hiring
+ * @see PilotExperienceLevel for pilot templates
+ */
 type ExperienceLevel = 'green' | 'regular' | 'veteran' | 'elite';
 
 // =============================================================================

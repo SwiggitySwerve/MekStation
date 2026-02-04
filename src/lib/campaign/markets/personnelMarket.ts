@@ -11,7 +11,7 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
-import { PersonnelMarketStyle, ExperienceLevel } from '@/types/campaign/markets/marketTypes';
+import { PersonnelMarketStyle, MarketExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import { CampaignPersonnelRole, getRoleCategory } from '@/types/campaign/enums/CampaignPersonnelRole';
 
@@ -58,19 +58,19 @@ const LAST_NAMES: readonly string[] = Object.freeze([
 ]);
 
 /** Expiration days by experience level. */
-const EXPIRATION_DAYS: Record<ExperienceLevel, number> = {
-  [ExperienceLevel.ELITE]: 3,
-  [ExperienceLevel.VETERAN]: 7,
-  [ExperienceLevel.REGULAR]: 14,
-  [ExperienceLevel.GREEN]: 30,
+const EXPIRATION_DAYS: Record<MarketExperienceLevel, number> = {
+  [MarketExperienceLevel.ELITE]: 3,
+  [MarketExperienceLevel.VETERAN]: 7,
+  [MarketExperienceLevel.REGULAR]: 14,
+  [MarketExperienceLevel.GREEN]: 30,
 };
 
 /** Skill level by experience (lower is better in BattleTech). */
-const SKILL_BY_EXPERIENCE: Record<ExperienceLevel, number> = {
-  [ExperienceLevel.GREEN]: 5,
-  [ExperienceLevel.REGULAR]: 4,
-  [ExperienceLevel.VETERAN]: 3,
-  [ExperienceLevel.ELITE]: 2,
+const SKILL_BY_EXPERIENCE: Record<MarketExperienceLevel, number> = {
+  [MarketExperienceLevel.GREEN]: 5,
+  [MarketExperienceLevel.REGULAR]: 4,
+  [MarketExperienceLevel.VETERAN]: 3,
+  [MarketExperienceLevel.ELITE]: 2,
 };
 
 /** Base hire cost by role category. */
@@ -81,11 +81,11 @@ const BASE_COST: Record<string, number> = {
 };
 
 /** Cost multiplier by experience level. */
-const EXPERIENCE_COST_MULTIPLIER: Record<ExperienceLevel, number> = {
-  [ExperienceLevel.GREEN]: 0.5,
-  [ExperienceLevel.REGULAR]: 1.0,
-  [ExperienceLevel.VETERAN]: 2.0,
-  [ExperienceLevel.ELITE]: 4.0,
+const EXPERIENCE_COST_MULTIPLIER: Record<MarketExperienceLevel, number> = {
+  [MarketExperienceLevel.GREEN]: 0.5,
+  [MarketExperienceLevel.REGULAR]: 1.0,
+  [MarketExperienceLevel.VETERAN]: 2.0,
+  [MarketExperienceLevel.ELITE]: 4.0,
 };
 
 // =============================================================================
@@ -93,7 +93,7 @@ const EXPERIENCE_COST_MULTIPLIER: Record<ExperienceLevel, number> = {
 // =============================================================================
 
 /** Returns expiration days for a given experience level. */
-export function getExpirationDays(experience: ExperienceLevel): number {
+export function getExpirationDays(experience: MarketExperienceLevel): number {
   return EXPIRATION_DAYS[experience];
 }
 
@@ -113,18 +113,18 @@ export function selectRandomRole(random: RandomFn): CampaignPersonnelRole {
 }
 
 /** Selects experience level: GREEN=40%, REGULAR=35%, VETERAN=20%, ELITE=5%. */
-export function selectExperienceLevel(random: RandomFn): ExperienceLevel {
+export function selectExperienceLevel(random: RandomFn): MarketExperienceLevel {
   const roll = random();
-  if (roll < 0.40) return ExperienceLevel.GREEN;
-  if (roll < 0.75) return ExperienceLevel.REGULAR;
-  if (roll < 0.95) return ExperienceLevel.VETERAN;
-  return ExperienceLevel.ELITE;
+  if (roll < 0.40) return MarketExperienceLevel.GREEN;
+  if (roll < 0.75) return MarketExperienceLevel.REGULAR;
+  if (roll < 0.95) return MarketExperienceLevel.VETERAN;
+  return MarketExperienceLevel.ELITE;
 }
 
 /** Returns default skills for a role and experience level. */
 export function generateDefaultSkills(
   role: CampaignPersonnelRole,
-  experience: ExperienceLevel
+  experience: MarketExperienceLevel
 ): Record<string, number> {
   const level = SKILL_BY_EXPERIENCE[experience];
   const category = getRoleCategory(role);
@@ -138,7 +138,7 @@ export function generateDefaultSkills(
 /** Calculates C-bill hire cost based on role category and experience. */
 export function calculateHireCost(
   role: CampaignPersonnelRole,
-  experience: ExperienceLevel
+  experience: MarketExperienceLevel
 ): number {
   const category = getRoleCategory(role);
   const base = BASE_COST[category] ?? BASE_COST.civilian;

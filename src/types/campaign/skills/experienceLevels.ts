@@ -8,7 +8,7 @@
 /**
  * Character experience level categories.
  */
-export enum ExperienceLevel {
+export enum SkillExperienceLevel {
   /** 0-999 XP: Inexperienced, fresh recruit */
   Green = 'Green',
   /** 1000-4999 XP: Competent, standard trooper */
@@ -23,13 +23,13 @@ export enum ExperienceLevel {
  * XP threshold ranges for each experience level.
  */
 export const EXPERIENCE_THRESHOLDS: Record<
-  ExperienceLevel,
+  SkillExperienceLevel,
   { min: number; max: number | null }
 > = {
-  [ExperienceLevel.Green]: { min: 0, max: 999 },
-  [ExperienceLevel.Regular]: { min: 1000, max: 4999 },
-  [ExperienceLevel.Veteran]: { min: 5000, max: 11999 },
-  [ExperienceLevel.Elite]: { min: 12000, max: null }, // No upper limit
+  [SkillExperienceLevel.Green]: { min: 0, max: 999 },
+  [SkillExperienceLevel.Regular]: { min: 1000, max: 4999 },
+  [SkillExperienceLevel.Veteran]: { min: 5000, max: 11999 },
+  [SkillExperienceLevel.Elite]: { min: 12000, max: null }, // No upper limit
 };
 
 /**
@@ -39,24 +39,24 @@ export const EXPERIENCE_THRESHOLDS: Record<
  * @returns The corresponding experience level
  *
  * @example
- * getExperienceLevel(500)    // ExperienceLevel.Green
- * getExperienceLevel(2500)   // ExperienceLevel.Regular
- * getExperienceLevel(8000)   // ExperienceLevel.Veteran
- * getExperienceLevel(15000)  // ExperienceLevel.Elite
+ * getExperienceLevel(500)    // SkillExperienceLevel.Green
+ * getExperienceLevel(2500)   // SkillExperienceLevel.Regular
+ * getExperienceLevel(8000)   // SkillExperienceLevel.Veteran
+ * getExperienceLevel(15000)  // SkillExperienceLevel.Elite
  */
-export function getExperienceLevel(totalXP: number): ExperienceLevel {
+export function getExperienceLevel(totalXP: number): SkillExperienceLevel {
   if (totalXP < 0) {
     throw new Error('Total XP cannot be negative');
   }
 
-  if (totalXP >= EXPERIENCE_THRESHOLDS[ExperienceLevel.Elite].min) {
-    return ExperienceLevel.Elite;
+  if (totalXP >= EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Elite].min) {
+    return SkillExperienceLevel.Elite;
   }
-  if (totalXP >= EXPERIENCE_THRESHOLDS[ExperienceLevel.Veteran].min) {
-    return ExperienceLevel.Veteran;
+  if (totalXP >= EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Veteran].min) {
+    return SkillExperienceLevel.Veteran;
   }
-  if (totalXP >= EXPERIENCE_THRESHOLDS[ExperienceLevel.Regular].min) {
-    return ExperienceLevel.Regular;
+  if (totalXP >= EXPERIENCE_THRESHOLDS[SkillExperienceLevel.Regular].min) {
+    return SkillExperienceLevel.Regular;
   }
-  return ExperienceLevel.Green;
+  return SkillExperienceLevel.Green;
 }
