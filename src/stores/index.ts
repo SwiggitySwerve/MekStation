@@ -53,3 +53,6 @@ export * from './useNavigationStore';
 // Pilots
 export * from './usePilotStore';
 
+// Theme (light/dark mode)
+export * from './useThemeStore';
+

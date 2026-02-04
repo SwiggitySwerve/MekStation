@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { IFilterPanelProps, IFilterDefinition } from '@/components/simulation-viewer/types';
+import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const DEBOUNCE_MS = 300;
 
@@ -85,6 +86,8 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
   return (
     <div
       className={`bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 ${className}`}
+      role="region"
+      aria-label="Filter controls"
       data-testid="filter-panel"
     >
       <div className="flex items-center justify-between mb-4" data-testid="filter-header">
@@ -103,7 +106,7 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
           <button
             type="button"
             onClick={handleClearAll}
-            className="text-sm text-red-600 dark:text-red-400 hover:underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
+            className={`text-sm text-red-600 dark:text-red-400 hover:underline rounded px-3 py-2 min-h-[44px] md:px-2 md:py-1 md:min-h-0 ${FOCUS_RING_CLASSES}`}
             data-testid="clear-all-button"
             aria-label="Clear all filters"
           >
@@ -124,7 +127,7 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
               <button
                 type="button"
                 onClick={() => handleBadgeClose(filterId, option)}
-                className="ml-2 hover:text-blue-900 dark:hover:text-blue-100 focus:outline-none"
+                className={`ml-2 hover:text-blue-900 dark:hover:text-blue-100 rounded-full ${FOCUS_RING_CLASSES}`}
                 aria-label={`Remove ${label} filter`}
                 data-testid={`badge-close-${filterId}-${option}`}
               >
@@ -142,7 +145,7 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
             value={localSearch}
             onChange={handleSearchChange}
             placeholder="Search filters..."
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className={`w-full px-4 py-2 min-h-[44px] md:min-h-0 border border-gray-300 dark:border-gray-600 rounded-md focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${FOCUS_RING_CLASSES}`}
             data-testid="filter-search-input"
             aria-label="Search filters"
           />
@@ -158,7 +161,7 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
             open
           >
             <summary
-              className="flex items-center justify-between cursor-pointer list-none p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="flex items-center justify-between cursor-pointer list-none p-2 min-h-[44px] md:min-h-0 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm font-medium text-gray-700 dark:text-gray-300"
               data-testid={`filter-summary-${filter.id}`}
               aria-label={`${filter.label} filter section`}
             >
@@ -181,7 +184,7 @@ export const FilterPanel: React.FC<IFilterPanelProps> = ({
                 return (
                   <label
                     key={option}
-                    className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm text-gray-700 dark:text-gray-300"
+                    className="flex items-center gap-2 px-2 py-2 min-h-[44px] md:py-1 md:min-h-0 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm text-gray-700 dark:text-gray-300"
                     data-testid={`filter-option-${filter.id}-${option}`}
                   >
                     <input

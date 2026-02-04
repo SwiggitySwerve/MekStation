@@ -260,7 +260,7 @@ describe('TrendChart', () => {
       render(<TrendChart {...defaultProps} />);
       const svg = screen.getByTestId('trend-chart-svg');
       expect(svg).toHaveAttribute('role', 'img');
-      expect(svg).toHaveAttribute('aria-label', 'Trend chart');
+      expect(svg.getAttribute('aria-label')).toContain('data points');
     });
   });
 

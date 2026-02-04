@@ -28,6 +28,12 @@ export const TabNavigation: React.FC<ITabNavigationProps> = ({
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         nextIndex = (activeIndex - 1 + TABS.length) % TABS.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        nextIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        nextIndex = TABS.length - 1;
       } else {
         return;
       }
@@ -39,7 +45,7 @@ export const TabNavigation: React.FC<ITabNavigationProps> = ({
   );
 
   const containerClasses = [
-    'flex border-b border-gray-200 dark:border-gray-700',
+    'flex overflow-x-auto border-b border-gray-200 dark:border-gray-700',
     className,
   ]
     .filter(Boolean)
@@ -57,7 +63,7 @@ export const TabNavigation: React.FC<ITabNavigationProps> = ({
         const isActive = tab.id === activeTab;
 
         const tabClasses = [
-          'px-6 py-3 text-sm font-medium transition-colors',
+          'px-4 py-3 min-h-[44px] md:px-6 md:min-h-0 text-sm font-medium transition-colors whitespace-nowrap',
           'flex-1 sm:flex-none',
           'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset',
           isActive

@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, memo } from 'react';
 import type { ITrendChartProps, ITrendDataPoint } from '@/components/simulation-viewer/types';
+import { useIsMobile } from '@/utils/responsive';
+import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const CHART_PADDING = { top: 20, right: 20, bottom: 40, left: 60 };
 const DEFAULT_TIME_RANGE_OPTIONS = ['7d', '14d', '30d', '60d', '90d'];
@@ -42,7 +44,7 @@ interface TooltipState {
   point: ITrendDataPoint;
 }
 
-export const TrendChart: React.FC<ITrendChartProps> = ({
+export const TrendChart = memo<ITrendChartProps>(({
   data,
   timeRange,
   timeRangeOptions = DEFAULT_TIME_RANGE_OPTIONS,
@@ -54,6 +56,7 @@ export const TrendChart: React.FC<ITrendChartProps> = ({
 }) => {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const isMobile = useIsMobile();
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
@@ -108,7 +111,7 @@ export const TrendChart: React.FC<ITrendChartProps> = ({
           <select
             value={timeRange}
             onChange={(e) => onTimeRangeChange(e.target.value)}
-            className="text-sm border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className={`text-sm border border-gray-300 dark:border-gray-600 rounded-md p-2 min-h-[44px] md:min-h-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${FOCUS_RING_CLASSES}`}
             aria-label="Time range"
             data-testid="time-range-select"
           >
@@ -132,11 +135,14 @@ export const TrendChart: React.FC<ITrendChartProps> = ({
           svgRef={svgRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          isMobile={isMobile}
         />
       )}
     </div>
   );
-};
+});
+
+TrendChart.displayName = 'TrendChart';
 
 interface ChartSVGProps {
   data: ITrendDataPoint[];
@@ -146,6 +152,7 @@ interface ChartSVGProps {
   svgRef: React.RefObject<SVGSVGElement | null>;
   onMouseMove: (e: React.MouseEvent<SVGSVGElement>) => void;
   onMouseLeave: () => void;
+  isMobile: boolean;
 }
 
 const ChartSVG: React.FC<ChartSVGProps> = ({
@@ -156,6 +163,7 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
   svgRef,
   onMouseMove,
   onMouseLeave,
+  isMobile,
 }) => {
   const viewBoxWidth = 600;
   const viewBoxHeight = 300;
@@ -189,9 +197,9 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
     .map((d, i) => `${i === 0 ? 'M' : 'L'}${toX(i).toFixed(2)},${toY(d.value).toFixed(2)}`)
     .join(' ');
 
-  const yTicks = computeNiceTicks(minVal, maxVal, 5);
+  const yTicks = computeNiceTicks(minVal, maxVal, isMobile ? 3 : 5);
 
-  const maxXLabels = 6;
+  const maxXLabels = isMobile ? 3 : 6;
   const xStep = Math.max(1, Math.floor(data.length / maxXLabels));
   const xIndices = data
     .map((_, i) => i)
@@ -217,9 +225,10 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
       }}
       onTouchEnd={onMouseLeave}
       role="img"
-      aria-label="Trend chart"
+      aria-label={`Trend chart showing ${data.length} data points from ${formatDateLabel(data[0].date)} to ${formatDateLabel(data[data.length - 1].date)}`}
       data-testid="trend-chart-svg"
     >
+      <title>{`Trend chart: ${data.length} data points`}</title>
       {yTicks.map((tick) => (
         <line
           key={`grid-${tick}`}
@@ -266,7 +275,7 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
             y1={toY(threshold)}
             x2={plotLeft + plotWidth}
             y2={toY(threshold)}
-            className="stroke-red-500"
+            className="stroke-red-500 dark:stroke-red-400"
             strokeWidth="1"
             strokeDasharray="4"
             data-testid="threshold-line"
@@ -276,7 +285,7 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
               x={plotLeft + plotWidth - 4}
               y={toY(threshold) - 6}
               textAnchor="end"
-              className="fill-red-500 text-[10px] font-medium"
+              className="fill-red-500 dark:fill-red-400 text-[10px] font-medium"
               data-testid="threshold-label"
             >
               {thresholdLabel}
@@ -288,22 +297,22 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
       <path
         d={linePath}
         fill="none"
-        className="stroke-blue-600"
-        strokeWidth="2"
+        className="stroke-blue-600 dark:stroke-blue-400"
+        strokeWidth={isMobile ? 3 : 2}
         strokeLinejoin="round"
         strokeLinecap="round"
         data-testid="chart-line"
       />
 
       {data.map((d, i) => (
-        <circle
-          key={`dot-${i}`}
-          cx={toX(i)}
-          cy={toY(d.value)}
-          r="3"
-          className="fill-blue-600"
-          data-testid="data-point"
-        />
+          <circle
+            key={`dot-${i}`}
+            cx={toX(i)}
+            cy={toY(d.value)}
+            r={isMobile ? 5 : 3}
+            className="fill-blue-600 dark:fill-blue-400"
+            data-testid="data-point"
+          />
       ))}
 
       {tooltip && (
@@ -312,7 +321,7 @@ const ChartSVG: React.FC<ChartSVGProps> = ({
             cx={tooltip.x}
             cy={tooltip.y}
             r="5"
-            className="fill-blue-600 stroke-white"
+            className="fill-blue-600 dark:fill-blue-400 stroke-white dark:stroke-gray-900"
             strokeWidth="2"
             data-testid="tooltip-dot"
           />

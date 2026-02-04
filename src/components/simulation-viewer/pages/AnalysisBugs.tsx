@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
 import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
+import { VirtualizedViolationLog } from '@/components/simulation-viewer/VirtualizedViolationLog';
 import type { IFilterDefinition } from '@/components/simulation-viewer/types';
 import type { IAnomaly } from '@/types/simulation-viewer';
+import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 /* ========================================================================== */
 /*  Types                                                                      */
@@ -118,18 +120,10 @@ export interface IAnalysisBugsProps {
 /*  Constants                                                                  */
 /* ========================================================================== */
 
-const ITEMS_PER_PAGE = 20;
-
 const SEVERITY_ORDER: Record<Severity, number> = {
   critical: 2,
   warning: 1,
   info: 0,
-};
-
-const SEVERITY_BADGE_CLASSES: Record<Severity, string> = {
-  critical: 'bg-red-600 text-white',
-  warning: 'bg-amber-500 text-white',
-  info: 'bg-sky-500 text-white',
 };
 
 const INVARIANT_STATUS_CLASSES: Record<InvariantStatus, string> = {
@@ -262,11 +256,10 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
   /* ---- state ---- */
   const [showDismissed, setShowDismissed] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
-  const [violationSort, setViolationSort] = useState<{
+  const [violationSort] = useState<{
     key: ViolationSortKey;
     direction: SortDirection;
   }>({ key: 'timestamp', direction: 'desc' });
-  const [currentPage, setCurrentPage] = useState(1);
   const [localThresholds, setLocalThresholds] = useState<IThresholds>(thresholds);
   const [autoSnapshotCritical, setAutoSnapshotCritical] = useState(true);
   const [autoSnapshotWarning, setAutoSnapshotWarning] = useState(false);
@@ -313,14 +306,6 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
     return result;
   }, [violations, activeFilters, violationSort]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredViolations.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-
-  const paginatedViolations = useMemo(() => {
-    const start = (safePage - 1) * ITEMS_PER_PAGE;
-    return filteredViolations.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredViolations, safePage]);
-
   const affectedAnomalyCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     const detectorMap: Record<string, keyof IThresholds> = {
@@ -348,14 +333,6 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
   /* ---- handlers ---- */
   const handleFilterChange = useCallback((filters: Record<string, string[]>) => {
     setActiveFilters(filters);
-    setCurrentPage(1);
-  }, []);
-
-  const handleSort = useCallback((key: ViolationSortKey) => {
-    setViolationSort((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
-    }));
   }, []);
 
   const handleSliderChange = useCallback((detector: string, value: number) => {
@@ -364,6 +341,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
   const handleResetThresholds = useCallback(() => {
     setLocalThresholds(DEFAULT_THRESHOLDS);
+    announce('Thresholds reset to defaults');
   }, []);
 
   const handleSaveThresholds = useCallback(() => {
@@ -371,6 +349,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
     for (const [key, value] of Object.entries(localThresholds)) {
       onThresholdChange(key, value);
     }
+    announce('Thresholds saved');
   }, [localThresholds, onThresholdChange]);
 
   const handleDismissAnomaly = useCallback(
@@ -470,7 +449,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
               <button
                 type="button"
                 onClick={() => setShowDismissed((prev) => !prev)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors px-3 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                className={`text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${FOCUS_RING_CLASSES}`}
                 data-testid="toggle-dismissed"
                 aria-pressed={showDismissed}
               >
@@ -539,123 +518,12 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
               className="mb-4"
             />
 
-            {filteredViolations.length === 0 ? (
-              <p
-                className="text-sm text-gray-500 dark:text-gray-400 italic py-8 text-center"
-                data-testid="violation-empty"
-              >
-                No violations match the current filters.
-              </p>
-            ) : (
-              <>
-                <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                  <table
-                    className="w-full text-sm text-left"
-                    data-testid="violation-table"
-                  >
-                    <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-4 py-3 font-medium cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                          onClick={() => handleSort('timestamp')}
-                          data-testid="sort-timestamp"
-                          aria-sort={
-                            violationSort.key === 'timestamp'
-                              ? violationSort.direction === 'asc'
-                                ? 'ascending'
-                                : 'descending'
-                              : 'none'
-                          }
-                        >
-                          Timestamp{' '}
-                          {violationSort.key === 'timestamp' && (
-                            <span aria-hidden="true">
-                              {violationSort.direction === 'asc' ? '▲' : '▼'}
-                            </span>
-                          )}
-                        </th>
-                        <th scope="col" className="px-4 py-3 font-medium">
-                          Type
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-4 py-3 font-medium cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                          onClick={() => handleSort('severity')}
-                          data-testid="sort-severity"
-                          aria-sort={
-                            violationSort.key === 'severity'
-                              ? violationSort.direction === 'asc'
-                                ? 'ascending'
-                                : 'descending'
-                              : 'none'
-                          }
-                        >
-                          Severity{' '}
-                          {violationSort.key === 'severity' && (
-                            <span aria-hidden="true">
-                              {violationSort.direction === 'asc' ? '▲' : '▼'}
-                            </span>
-                          )}
-                        </th>
-                        <th scope="col" className="px-4 py-3 font-medium">
-                          Message
-                        </th>
-                        <th scope="col" className="px-4 py-3 font-medium">
-                          Battle
-                        </th>
-                        <th scope="col" className="px-4 py-3 font-medium">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {paginatedViolations.map((violation) => (
-                        <ViolationRow
-                          key={violation.id}
-                          violation={violation}
-                          onViewBattle={onViewBattle}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div
-                    className="flex items-center justify-between mt-4"
-                    data-testid="violation-pagination"
-                  >
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Page {safePage} of {totalPages}
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                        disabled={safePage <= 1}
-                        className="px-3 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        data-testid="pagination-prev"
-                        aria-label="Previous page"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        disabled={safePage >= totalPages}
-                        className="px-3 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        data-testid="pagination-next"
-                        aria-label="Next page"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+            <VirtualizedViolationLog
+              violations={filteredViolations}
+              height={480}
+              itemHeight={56}
+              onViewBattle={onViewBattle}
+            />
           </section>
 
           {/* Threshold Config — 40% (2 cols) */}
@@ -694,7 +562,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
                 <button
                   type="button"
                   onClick={handleResetThresholds}
-                  className="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className={`px-4 py-2 min-h-[44px] md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${FOCUS_RING_CLASSES}`}
                   data-testid="threshold-reset"
                 >
                   Reset to Defaults
@@ -702,7 +570,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveThresholds}
-                  className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
+                  className={`px-4 py-2 min-h-[44px] md:min-h-0 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors ${FOCUS_RING_CLASSES}`}
                   data-testid="threshold-save"
                 >
                   Save Thresholds
@@ -770,7 +638,7 @@ const InvariantCard: React.FC<{
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer ${FOCUS_RING_CLASSES}`}
       data-testid="invariant-card"
       data-status={invariant.status}
       role="button"
@@ -818,54 +686,6 @@ const InvariantCard: React.FC<{
 };
 
 /**
- * Single row in the violation log table.
- */
-const ViolationRow: React.FC<{
-  violation: IViolation;
-  onViewBattle?: (battleId: string) => void;
-}> = ({ violation, onViewBattle }) => (
-  <tr
-    className="bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-    data-testid="violation-row"
-    data-severity={violation.severity}
-  >
-    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap" data-testid="violation-timestamp">
-      {formatTimestamp(violation.timestamp)}
-    </td>
-    <td className="px-4 py-3 text-gray-700 dark:text-gray-300" data-testid="violation-type">
-      {violation.type}
-    </td>
-    <td className="px-4 py-3" data-testid="violation-severity">
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase ${SEVERITY_BADGE_CLASSES[violation.severity]}`}
-        data-testid="violation-severity-badge"
-      >
-        {violation.severity}
-      </span>
-    </td>
-    <td className="px-4 py-3 text-gray-700 dark:text-gray-300" data-testid="violation-message">
-      {violation.message}
-    </td>
-    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap" data-testid="violation-battle">
-      {violation.battleId}
-    </td>
-    <td className="px-4 py-3">
-      {onViewBattle && (
-        <button
-          type="button"
-          onClick={() => onViewBattle(violation.battleId)}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-          data-testid="violation-view-battle"
-          aria-label={`View battle ${violation.battleId}`}
-        >
-          View Battle
-        </button>
-      )}
-    </td>
-  </tr>
-);
-
-/**
  * Slider for configuring a single detector threshold.
  */
 const ThresholdSlider: React.FC<{
@@ -901,7 +721,7 @@ const ThresholdSlider: React.FC<{
       max={100}
       value={value}
       onChange={(e) => onChange(detectorKey, Number(e.target.value))}
-      className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-400"
+      className={`w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-400 ${FOCUS_RING_CLASSES}`}
       data-testid={`threshold-input-${detectorKey}`}
       aria-label={`${label} threshold`}
       aria-valuemin={0}

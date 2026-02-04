@@ -48,7 +48,7 @@ const customJestConfig = {
     'e2e/',
   ],  // Transform ES modules that Jest can't handle
   transformIgnorePatterns: [
-    'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend)/)',
+    'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|react-window)/)',
   ],
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { presets: ['next/babel'] }]

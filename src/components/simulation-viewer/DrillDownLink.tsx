@@ -1,5 +1,6 @@
 import React from 'react';
 import type { IDrillDownLinkProps } from '@/components/simulation-viewer/types';
+import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const ICONS: Record<string, string> = {
   'arrow-right': '→',
@@ -38,7 +39,8 @@ export const DrillDownLink: React.FC<DrillDownLinkInternalProps> = ({
     'inline-flex items-center gap-2',
     'text-blue-600 dark:text-blue-400',
     'hover:underline cursor-pointer',
-    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+    'py-2 px-3 min-h-[44px] md:py-0 md:px-0 md:min-h-0',
+    FOCUS_RING_CLASSES,
     'rounded',
     className,
   ]
@@ -50,6 +52,7 @@ export const DrillDownLink: React.FC<DrillDownLinkInternalProps> = ({
       role="link"
       tabIndex={0}
       className={linkClasses}
+      aria-label={`Navigate to ${label}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       data-testid="drill-down-link"

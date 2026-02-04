@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import type { IAnomalyAlertCardProps } from '@/components/simulation-viewer/types';
+import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 const SEVERITY_STYLES = {
   critical: {
@@ -53,11 +54,12 @@ export const AnomalyAlertCard: React.FC<IAnomalyAlertCardProps> = ({
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
+    announce(`${formatTitle(anomaly.type)} alert dismissed`);
     setTimeout(() => {
       setHidden(true);
       onDismiss?.(anomaly.id);
     }, 300);
-  }, [anomaly.id, onDismiss]);
+  }, [anomaly.id, anomaly.type, onDismiss]);
 
   if (hidden) return null;
 
@@ -80,6 +82,7 @@ export const AnomalyAlertCard: React.FC<IAnomalyAlertCardProps> = ({
     <div
       className={cardClasses}
       role="alert"
+      aria-label={`${anomaly.severity} alert: ${formatTitle(anomaly.type)}`}
       data-testid="anomaly-alert-card"
     >
       <div className="flex items-start gap-3">
@@ -166,7 +169,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick, buttonClass
   return (
     <button
       type="button"
-      className={`text-sm px-4 py-2 rounded-md transition-colors ${buttonClass}`}
+      className={`text-sm px-4 py-2 min-h-[44px] md:min-h-0 rounded-md transition-colors ${FOCUS_RING_CLASSES} ${buttonClass}`}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       data-testid={`action-${label.toLowerCase().replace(/\s+/g, '-')}`}
