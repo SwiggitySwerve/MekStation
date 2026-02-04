@@ -23,6 +23,9 @@ function createTestResult(seed: number, violations: IViolation[] = []): ISimulat
     durationMs: 100,
     events: [],
     violations,
+    keyMoments: [],
+    anomalies: [],
+    haltedByCriticalAnomaly: false,
   };
 }
 
